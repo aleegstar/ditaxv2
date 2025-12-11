@@ -38,7 +38,7 @@ import Tickets from "./pages/Tickets";
 import Welcome from "./pages/Welcome";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import CreateTicket from "./pages/CreateTicket";
-import { InteractiveMenu, MobileMenuSheet } from "@/components/ui/modern-mobile-menu";
+import { MobileMenuSheet } from "@/components/ui/modern-mobile-menu";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingTourProvider, useOnboardingTour } from "@/contexts/OnboardingTourContext";
@@ -220,9 +220,6 @@ const AuthenticatedApp = () => {
                     
                     <Route path="*" element={<NotFound />} />
               </Routes>
-              
-              {/* Interactive Menu at the bottom */}
-              <InteractiveMenu />
               
               {/* Floating Debug Button for Android */}
               <FloatingDebugButton />
