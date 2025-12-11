@@ -1,10 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FramerButton } from "@/components/ui/framer-button";
-import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { X, AlertCircle } from 'lucide-react';
-import { Progress } from "@/components/ui/progress";
+import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
@@ -45,6 +42,25 @@ declare global {
     pdfjsLib: any;
   }
 }
+
+// Get file extension badge color
+const getExtensionColor = (ext: string) => {
+  switch (ext.toLowerCase()) {
+    case 'pdf':
+      return 'bg-red-500';
+    case 'png':
+      return 'bg-blue-500';
+    case 'jpg':
+    case 'jpeg':
+      return 'bg-green-500';
+    case 'gif':
+      return 'bg-purple-500';
+    case 'webp':
+      return 'bg-orange-500';
+    default:
+      return 'bg-gray-500';
+  }
+};
 
 const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   checklistItem,
@@ -101,7 +117,6 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     };
   }, [imagePreviews]);
 
-  // Notify parent component when files are in uploader
   useEffect(() => {
     const hasFilesInUploader = files.length > 0 || screenshots.length > 0 || imagePreviews.length > 0;
     onPreviewChange?.(hasFilesInUploader);
@@ -129,7 +144,6 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       
       const dataUrl = canvas.toDataURL('image/png');
       
-      // Verify we got valid data
       if (!dataUrl || dataUrl === 'data:,' || dataUrl.length < 100) {
         throw new Error('Generated invalid canvas data');
       }
@@ -169,13 +183,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('🚀 handleFileUpload called!');
     const selectedFiles = Array.from(event.target.files || []);
-    console.log('📁 Selected files:', selectedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
-    if (!selectedFiles.length) {
-      console.log('⚠️ No files selected, returning early');
-      return;
-    }
+    if (!selectedFiles.length) return;
     setError(null);
 
     if (files.length + selectedFiles.length > MAX_FILES) {
@@ -192,17 +201,16 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         variant: "default"
       });
     }
-    if (uniqueFiles.length === 0) {
-      return;
-    }
+    if (uniqueFiles.length === 0) return;
+
     const newFiles: FileWithPreview[] = [];
     const newImagePreviews: ImagePreview[] = [];
     const imageFiles: File[] = [];
     let newPdfFile: File | null = null;
     setIsProcessing(true);
+
     try {
       for (const selectedFile of uniqueFiles) {
-        // Enhanced validation with magic number verification
         const validationResult = await validateFile(selectedFile, 10 * 1024 * 1024);
         
         if (!validationResult.isValid) {
@@ -215,12 +223,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           continue;
         }
         
-        console.log(`✅ File validated: ${selectedFile.name} (detected: ${validationResult.detectedType})`);
-        
-        // Use original file without any processing
         let processedFile = selectedFile;
         
-        console.log(`🎯 Final file type: ${processedFile.type}`);
         const fileWithPreview: FileWithPreview = {
           file: processedFile,
           id: uuidv4(),
@@ -230,25 +234,17 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         };
 
         if (processedFile.type.startsWith('image/')) {
-          console.log(`✅ Adding to imageFiles: ${processedFile.name}`);
           imageFiles.push(processedFile);
         } else if (processedFile.type === 'application/pdf') {
-          console.log(`✅ Setting as PDF: ${processedFile.name}`);
           newPdfFile = processedFile;
-        } else {
-          console.warn(`⚠️ Unknown file type ${processedFile.type} for ${processedFile.name}`);
         }
         newFiles.push(fileWithPreview);
       }
-      
-      console.log(`📊 Processing summary - Total files: ${newFiles.length}, Image files: ${imageFiles.length}, PDF: ${newPdfFile ? 'Yes' : 'No'}`);
 
       if (imageFiles.length > 0) {
         for (const imageFile of imageFiles) {
           try {
-            console.log('Creating preview for:', imageFile.name, 'type:', imageFile.type, 'size:', imageFile.size);
             const imagePreview = await createImagePreview(imageFile);
-            console.log('Preview created successfully:', imagePreview.fileName, 'dataUrl length:', imagePreview.dataUrl?.length || 0);
             newImagePreviews.push(imagePreview);
           } catch (err) {
             console.error('Error creating image preview:', err);
@@ -260,56 +256,36 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           setCurrentFile(imageFiles[0]);
         }
       }
-      
-      console.log('Total image previews to add:', newImagePreviews.length);
 
       if (newPdfFile && pdfLibLoaded) {
         setCurrentFile(newPdfFile);
         try {
-          console.log('📄 Processing PDF:', newPdfFile.name, 'size:', newPdfFile.size);
           const arrayBuffer = await newPdfFile.arrayBuffer();
-          console.log('📄 ArrayBuffer loaded, size:', arrayBuffer.byteLength);
-          
           const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
           const pdf = await loadingTask.promise;
-          console.log('📄 PDF loaded successfully, pages:', pdf.numPages);
           
           const newScreenshots: Screenshot[] = [];
           for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            console.log(`📄 Rendering page ${pageNum}/${pdf.numPages}`);
             const page = await pdf.getPage(pageNum);
             const screenshot = await convertPageToScreenshot(page, pageNum);
             newScreenshots.push(screenshot);
-            console.log(`✅ Page ${pageNum} rendered successfully`);
           }
 
-          console.log(`📄 All ${newScreenshots.length} pages rendered successfully`);
           setScreenshots(prev => [...prev, ...newScreenshots]);
-        } catch (err) {
-          console.error('❌ Error processing PDF:', err);
-          console.error('❌ Error details:', {
-            name: err.name,
-            message: err.message,
-            stack: err.stack
-          });
+        } catch (err: any) {
+          console.error('Error processing PDF:', err);
           setError(`PDF konnte nicht verarbeitet werden: ${err.message}`);
         }
       } else if (newPdfFile && !pdfLibLoaded) {
-        console.warn('⚠️ PDF.js library not loaded yet, cannot preview PDF');
         setError('PDF-Bibliothek wird noch geladen...');
       }
 
       setFiles(prev => [...prev, ...newFiles]);
-      setImagePreviews(prev => {
-        const updated = [...prev, ...newImagePreviews];
-        console.log('Image previews state updated. Total count:', updated.length);
-        return updated;
-      });
+      setImagePreviews(prev => [...prev, ...newImagePreviews]);
     } catch (error) {
-      console.error('❌ Error in handleFileUpload:', error);
+      console.error('Error in handleFileUpload:', error);
       setError('Fehler beim Hochladen der Datei(en)');
     } finally {
-      console.log('🏁 handleFileUpload finished, setting isProcessing to false');
       setIsProcessing(false);
     }
 
@@ -407,100 +383,129 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   };
 
   const hasValidFiles = files.some(f => !f.error);
-  const internalHasUploadedFiles = files.some(f => f.uploaded);
   const uploadableFiles = files.filter(f => !f.uploaded && !f.error);
-  
-  // Use external prop if provided, otherwise use internal state
-  const hasUploadedFiles = externalHasUploadedFiles !== undefined 
-    ? externalHasUploadedFiles 
-    : internalHasUploadedFiles;
 
   return (
-    <div 
-      className="w-full" 
-      data-uploader-preview={screenshots.length > 0 || imagePreviews.length > 0 ? "true" : undefined}
-    >
-      {/* File Upload Component */}
-      <FileUpload 
-        onFileUpload={handleFileUpload} 
-        onClear={handleClear} 
-        isProcessing={isProcessing} 
-        pdfLibLoaded={pdfLibLoaded} 
-        error={error} 
-        file={currentFile} 
-        screenshots={screenshots} 
-        imagePreviews={imagePreviews} 
-        accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf" 
-        maxFiles={MAX_FILES}
-        hasUploadedFiles={hasUploadedFiles}
-      />
+    <div className="min-h-screen bg-[#050505] pb-24">
+      {/* Ambient Glow */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#1d64ff]/20 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="relative z-10 px-5 pt-6">
+        {/* File Upload Component */}
+        <FileUpload 
+          onFileUpload={handleFileUpload} 
+          onClear={handleClear}
+          onBack={onBack}
+          isProcessing={isProcessing} 
+          pdfLibLoaded={pdfLibLoaded} 
+          error={error} 
+          file={currentFile} 
+          screenshots={screenshots} 
+          imagePreviews={imagePreviews} 
+          accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf" 
+          maxFiles={MAX_FILES}
+        />
 
-      {/* File List */}
-      {files.length > 0 && (
-        <div className="mt-6 space-y-3 px-6">
-          <h4 className="text-white font-medium">Ausgewählte Dateien:</h4>
-          {files.map(fileWithPreview => (
-            <div key={fileWithPreview.id} className="rounded-xl p-4 border border-white/10 bg-[#0a0a0a]">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <div className="flex items-center min-w-0 flex-1">
-                  <span className="font-medium text-white mr-2 truncate" title={fileWithPreview.file.name}>
-                    {fileWithPreview.file.name}
-                  </span>
-                  <span className="text-xs text-white/50 whitespace-nowrap shrink-0">
-                    {(fileWithPreview.file.size / (1024 * 1024)).toFixed(2)} MB
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {fileWithPreview.uploaded && (
-                    <span className="text-green-400 text-sm">✓ Hochgeladen</span>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveFile(fileWithPreview.id)}
-                    disabled={fileWithPreview.uploading}
-                    className="text-white/50 hover:text-white hover:bg-white/10"
+        {/* Selected Files Section */}
+        {files.length > 0 && (
+          <div className="mt-8">
+            {/* Section Header */}
+            <h4 className="text-xs font-semibold text-white/60 tracking-wider uppercase mb-4">
+              Ausgewählte Dateien
+            </h4>
+            
+            {/* File List */}
+            <div className="space-y-3">
+              {files.map(fileWithPreview => {
+                const ext = fileWithPreview.file.name.split('.').pop()?.toUpperCase() || 'FILE';
+                const fileSizeMB = (fileWithPreview.file.size / (1024 * 1024)).toFixed(2);
+                
+                return (
+                  <div 
+                    key={fileWithPreview.id} 
+                    className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-[#0d0d0d]"
                   >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              {fileWithPreview.error && (
-                <div className="mb-2 p-2 bg-red-500/20 text-red-400 rounded border border-red-500/30 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  <span className="text-sm">{fileWithPreview.error}</span>
-                </div>
-              )}
-              
-              {fileWithPreview.uploading && (
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-white/50">Upload läuft</span>
-                      <span className="text-white/50">{Math.round(fileWithPreview.progress)}%</span>
+                    {/* Extension Badge */}
+                    <div className={`w-10 h-10 rounded-lg ${getExtensionColor(ext)} flex items-center justify-center flex-shrink-0`}>
+                      <span className="text-[10px] font-bold text-white">{ext}</span>
                     </div>
-                  <Progress value={fileWithPreview.progress} className="h-2" />
-                </div>
-              )}
+                    
+                    {/* File Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
+                        {fileWithPreview.file.name}
+                      </p>
+                      <p className="text-xs text-[#1d64ff]">
+                        {fileSizeMB} MB
+                      </p>
+                    </div>
+                    
+                    {/* Status / Actions */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {fileWithPreview.uploading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 text-[#1d64ff] animate-spin" />
+                          <span className="text-xs text-white/60">{Math.round(fileWithPreview.progress)}%</span>
+                        </div>
+                      ) : fileWithPreview.uploaded ? (
+                        <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <Check className="w-3.5 h-3.5 text-green-400" />
+                        </div>
+                      ) : fileWithPreview.error ? (
+                        <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-400" />
+                        </div>
+                      ) : (
+                        <span className="text-xs text-white/40">Bereit</span>
+                      )}
+                      
+                      {!fileWithPreview.uploading && !fileWithPreview.uploaded && (
+                        <button
+                          onClick={() => handleRemoveFile(fileWithPreview.id)}
+                          className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-4 h-4 text-white/60" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      )}
+            
+            {/* Error for specific files */}
+            {files.some(f => f.error) && (
+              <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+                {files.filter(f => f.error).map(f => (
+                  <p key={f.id} className="text-sm text-red-400">
+                    {f.file.name}: {f.error}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col gap-4 mt-2">
-        {hasValidFiles && (
-          <FramerButton
+      {/* Fixed Upload Button at Bottom */}
+      {hasValidFiles && (
+        <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent">
+          <button
             onClick={handleUploadAll}
             disabled={uploading || uploadableFiles.length === 0}
-            variant="desktop"
-            className="w-full"
+            className="w-full py-4 rounded-2xl bg-white text-black font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90 transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]"
           >
-            {uploading ? 'Wird hochgeladen...' : 'Hochladen'}
-          </FramerButton>
-        )}
-
-      </div>
+            {uploading ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Wird hochgeladen...
+              </span>
+            ) : (
+              'Hochladen'
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
