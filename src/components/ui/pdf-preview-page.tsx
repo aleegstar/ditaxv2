@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Eye, Image, CloudUpload } from 'lucide-react';
 
 interface Screenshot {
@@ -28,6 +28,7 @@ interface FileUploadProps {
   accept?: string;
   maxFiles?: number;
   hasUploadedFiles?: boolean;
+  autoTriggerUpload?: boolean;
 }
 
 export const FileUpload = ({
@@ -42,10 +43,22 @@ export const FileUpload = ({
   imagePreviews = [],
   accept = ".pdf,image/*",
   maxFiles = 10,
-  hasUploadedFiles = false
+  hasUploadedFiles = false,
+  autoTriggerUpload = false
 }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const hasTriggered = useRef(false);
+  
+  // Auto trigger file dialog on mount
+  useEffect(() => {
+    if (autoTriggerUpload && pdfLibLoaded && !hasTriggered.current) {
+      hasTriggered.current = true;
+      setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 100);
+    }
+  }, [autoTriggerUpload, pdfLibLoaded]);
   
   const handleUploadClick = () => {
     if (fileInputRef.current) {
