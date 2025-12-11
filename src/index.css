@@ -288,6 +288,15 @@
   }
 }
 
+/* Hide scrollbar for clean mobile look but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Rainbow animation */
 @keyframes rainbow {
   0% {
