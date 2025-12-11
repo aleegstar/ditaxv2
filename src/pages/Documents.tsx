@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FileText, Image, Plus, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFormContext, FormProvider } from '@/contexts';
@@ -23,6 +23,7 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const [uploaderKey, setUploaderKey] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [hasFilesInUploader, setHasFilesInUploader] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { checklistItems, generateChecklist, taxYear, formDataLoaded } = useFormContext();
@@ -69,22 +70,6 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       onYearChange(available[0]);
     }
   }, [completedYears, selectedYear, onYearChange, allYears]);
-
-  const areAllDocumentsUploaded = (): boolean => {
-    const requiredItems = checklistItems.filter(item => item.required);
-    if (requiredItems.length === 0 || !formDataLoaded) {
-      return false;
-    }
-    const missingItems = requiredItems.filter(item => {
-      const hasDoc = documents.some(doc => 
-        doc.is_assigned_to_checklist === true && 
-        doc.checklist_item_id === item.id &&
-        doc.tax_year === selectedYear
-      );
-      return !hasDoc;
-    });
-    return missingItems.length === 0;
-  };
 
   const loadCompletedTaxYears = async () => {
     try {
@@ -135,47 +120,46 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const handleUploadSuccess = () => {
     loadDocuments();
     setUploaderKey(prev => prev + 1);
+    setShowUploader(false);
     toast({
       title: "Upload erfolgreich",
       description: "Deine Dokumente wurden hochgeladen",
     });
   };
 
-  const formatDocDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays === 0) return 'Heute';
-      if (diffDays === 1) return 'Gestern';
-      return format(date, 'dd.MM.yyyy', { locale: de });
-    } catch {
-      return dateStr;
-    }
-  };
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType?.startsWith('image/')) {
-      return <Image className="w-10 h-10 text-zinc-600/60 drop-shadow-lg" />;
-    }
-    return <FileText className="w-10 h-10 text-zinc-600/60 drop-shadow-lg" />;
-  };
-
-  const getFileBadge = (doc: any) => {
-    if (doc.file_type?.startsWith('image/')) {
-      return (
-        <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-bold tracking-wide shadow-lg shadow-emerald-900/20">
-          IMG
-        </span>
-      );
-    }
-    return (
-      <span className="px-2.5 py-1 rounded-full bg-[#1D64FF] text-white text-[11px] font-bold tracking-wide shadow-lg shadow-blue-900/20">
-        {doc.tax_year}
-      </span>
-    );
-  };
+  const currentMonth = format(new Date(), 'MMM', { locale: de });
   
+  // Show uploader view
+  if (showUploader || hasFilesInUploader) {
+    return (
+      <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+        <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12 shadow-2xl overflow-hidden border-x border-white/[0.02]">
+          {/* Background Ambient Glow */}
+          <div 
+            className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
+            style={{
+              background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+              filter: 'blur(90px)'
+            }}
+          />
+          
+          <div className="z-20 flex-1 flex flex-col w-full relative">
+            <EnhancedDocumentUploader
+              key={uploaderKey}
+              onBack={() => {
+                setShowUploader(false);
+                setHasFilesInUploader(false);
+              }}
+              onDocumentSubmitted={handleUploadSuccess}
+              hasUploadedFiles={documents.length > 0}
+              onPreviewChange={setHasFilesInUploader}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {showTour && isReady && (
@@ -187,187 +171,145 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       
       <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
         {/* Mobile Container */}
-        <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12 shadow-2xl overflow-hidden">
+        <div className="h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
           
           {/* Background Ambient Glow */}
           <div 
-            className="absolute top-0 left-0 w-full h-[600px] z-0 pointer-events-none opacity-100"
+            className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
             style={{
-              background: 'radial-gradient(circle at 50% -20%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.01) 60%, transparent 80%)',
-              filter: 'blur(80px)'
+              background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+              filter: 'blur(90px)'
             }}
           />
 
+          {/* Header */}
+          <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
+            {/* Back Button */}
+            <button 
+              onClick={() => navigate(-1)}
+              className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+            >
+              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            {/* Title */}
+            <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+              Dokumente
+            </h1>
+          </div>
+
           {/* Main Content */}
-          <div className="z-20 flex-1 flex flex-col w-full relative">
+          <div className="z-10 flex-1 flex flex-col px-6 pb-20 relative overflow-y-auto">
             
-            {/* Header / Navigation - hidden when uploading */}
-            {!hasFilesInUploader && (
-              <div className="flex items-center justify-between mb-10">
+            {/* Tax Year Selection */}
+            <div className="mt-4 mb-12 space-y-2.5" data-tour="documents-year-selector">
+              <label className="text-sm text-zinc-500 font-medium ml-1 block">Steuerjahr auswählen</label>
+              <div className="relative">
                 <button 
-                  onClick={() => navigate(-1)}
-                  className="w-12 h-12 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] hover:shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)] transition-all duration-300 group shadow-lg shadow-black/40 backdrop-blur-md"
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  className="w-full relative group transition-all duration-300"
                 >
-                  <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.08] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                  <div className="relative w-full bg-[#0A0C10] hover:bg-[#0F1218] border border-white/10 group-hover:border-white/20 rounded-2xl p-4 flex items-center justify-between shadow-sm transition-all duration-300">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#1D64FF]/10 flex items-center justify-center border border-[#1D64FF]/20">
+                        <Calendar className="w-4 h-4 text-[#1D64FF]" />
+                      </div>
+                      <span className="text-base font-medium text-zinc-200 group-hover:text-white transition-colors">Steuererklärung {selectedYear}</span>
+                    </div>
+                    <ChevronDown className={cn("w-5 h-5 text-zinc-500 group-hover:text-zinc-300 transition-all", isYearDropdownOpen && "rotate-180")} />
+                  </div>
                 </button>
                 
-                <h1 className="font-medium text-xl tracking-tight text-white/90">Dokumente</h1>
-                
-                <div className="w-12" />
-              </div>
-            )}
-
-            {/* Content Section */}
-            <div className="space-y-10 flex-1">
-              
-              {/* Tax Year Selection - hidden when uploading */}
-              {!hasFilesInUploader && (
-                <div className="space-y-3 group" data-tour="documents-year-selector">
-                  <label className="text-sm font-medium text-zinc-400 ml-1 group-focus-within:text-[#1D64FF] transition-colors">
-                    Steuerjahr auswählen
-                  </label>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                      className="w-full h-14 px-5 text-base bg-[#0A0C10] border border-white/[0.08] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#1D64FF]/30 focus:border-[#1D64FF]/50 text-zinc-200 cursor-pointer transition-all duration-200 font-medium shadow-sm hover:border-white/10 hover:bg-[#0F1216] flex items-center justify-between"
-                    >
-                      <span>Steuererklärung {selectedYear}</span>
-                      <ChevronDown className={cn("w-5 h-5 text-zinc-500 transition-transform", isYearDropdownOpen && "rotate-180")} />
-                    </button>
-                    
-                    {isYearDropdownOpen && (
-                      <>
-                        <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                        <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-[#0A0C10] border border-white/[0.08] rounded-2xl shadow-xl overflow-hidden">
-                          <div className="max-h-64 overflow-y-auto py-1">
-                            {availableYears.map(year => (
-                              <button 
-                                key={year} 
-                                onClick={() => handleYearSelect(year)}
-                                className={cn(
-                                  "w-full text-left px-5 py-3 text-zinc-200 hover:bg-white/[0.05] transition-colors",
-                                  year === selectedYear && "bg-[#1D64FF]/20 text-white"
-                                )}
-                              >
-                                Steuererklärung {year}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Upload Area - Direct Uploader */}
-              <div className="space-y-3" data-tour="document-upload-card">
-                {!hasFilesInUploader && (
-                  <label className="text-sm font-medium text-zinc-400 ml-1">Dateien hochladen</label>
-                )}
-                <EnhancedDocumentUploader
-                  key={uploaderKey}
-                  onBack={() => {}}
-                  onDocumentSubmitted={handleUploadSuccess}
-                  hasUploadedFiles={documents.length > 0}
-                  onPreviewChange={setHasFilesInUploader}
-                />
-              </div>
-
-              {/* Uploaded Files Grid - hidden when uploading */}
-              {!hasFilesInUploader && (
-                <div className="space-y-4 pt-2" data-tour="uploaded-documents-accordion">
-                  <div className="flex items-center justify-between px-1">
-                    <h3 className="text-base font-medium text-white tracking-tight">Bereits hochgeladen</h3>
-                    <span className="text-xs font-medium text-zinc-400 bg-white/[0.04] border border-white/[0.05] px-2.5 py-1 rounded-full shadow-sm">
-                      {documents.length} Dateien
-                    </span>
-                  </div>
-
-                  {/* Grid Layout for Cards */}
-                  <div className="grid grid-cols-2 gap-4">
-                    {documents.map((doc) => (
-                      <div 
-                        key={doc.id}
-                        className="group relative flex flex-col bg-[#0A0C10] border border-white/[0.06] rounded-[24px] overflow-hidden hover:border-[#1D64FF]/30 hover:shadow-[0_0_30px_-10px_rgba(29,100,255,0.15)] transition-all duration-300"
-                      >
-                        {/* Preview Image Area */}
-                        <div className={cn(
-                          "h-40 w-full relative overflow-hidden",
-                          doc.file_type?.startsWith('image/') 
-                            ? "bg-gradient-to-br from-emerald-900/10 via-zinc-800/10 to-zinc-900/30"
-                            : "bg-gradient-to-br from-zinc-800/20 via-zinc-800/10 to-zinc-900/30"
-                        )}>
-                          {/* Decorative gradient blob */}
-                          <div className={cn(
-                            "absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl",
-                            doc.file_type?.startsWith('image/') 
-                              ? "bg-emerald-500/10 opacity-40"
-                              : "bg-[#1D64FF]/10 opacity-50"
-                          )} />
-                          
-                          {/* Top Bar (Menu & Badge) */}
-                          <div className="absolute top-0 left-0 w-full p-3 flex justify-between items-start z-10">
-                            <button className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md border border-white/5 flex items-center justify-center hover:bg-white/20 transition-colors text-white">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </button>
-                            {getFileBadge(doc)}
-                          </div>
-                          
-                          {/* Center Icon Placeholder */}
-                          <div className="absolute inset-0 flex items-center justify-center z-0 group-hover:scale-105 transition-transform duration-500">
-                            {getFileIcon(doc.file_type)}
-                          </div>
-                        </div>
-                        
-                        {/* Footer Info */}
-                        <div className="p-4 bg-[#0A0C10] z-10 relative">
-                          <p className="text-[13px] font-medium text-white truncate leading-snug">{doc.file_name}</p>
-                          <p className="text-[11px] text-zinc-500 mt-1 font-medium">{formatDocDate(doc.upload_date)}</p>
-                        </div>
+                {isYearDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
+                    <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-[#0A0C10] border border-white/[0.08] rounded-2xl shadow-xl overflow-hidden">
+                      <div className="max-h-64 overflow-y-auto py-1">
+                        {availableYears.map(year => (
+                          <button 
+                            key={year} 
+                            onClick={() => handleYearSelect(year)}
+                            className={cn(
+                              "w-full text-left px-5 py-3 text-zinc-200 hover:bg-white/[0.05] transition-colors",
+                              year === selectedYear && "bg-[#1D64FF]/20 text-white"
+                            )}
+                          >
+                            Steuererklärung {year}
+                          </button>
+                        ))}
                       </div>
-                    ))}
-
-                    {/* Add More Placeholder - scrolls to uploader */}
-                    <div 
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      className="relative flex flex-col items-center justify-center bg-white/[0.02] border border-dashed border-white/[0.06] rounded-[24px] overflow-hidden hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 cursor-pointer h-full min-h-[220px]"
-                    >
-                      <Plus className="w-6 h-6 text-zinc-500 mb-2" />
-                      <span className="text-xs font-medium text-zinc-500">Mehr hinzufügen</span>
                     </div>
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
+              </div>
             </div>
 
-            {/* Footer Actions - hidden when uploading */}
-            {!hasFilesInUploader && (
-              <div className="mt-10 flex gap-4">
-                <button 
-                  onClick={() => navigate(-1)}
-                  className="px-8 bg-transparent hover:bg-white/[0.03] border border-transparent hover:border-white/10 text-zinc-400 hover:text-white rounded-2xl py-4 text-sm font-medium transition-all duration-300"
-                >
-                  Zurück
-                </button>
-                
-                <button 
-                  onClick={() => areAllDocumentsUploaded() ? navigate('/payment') : null}
-                  disabled={!areAllDocumentsUploaded()}
-                  className={cn(
-                    "flex-1 relative overflow-hidden border text-white rounded-2xl py-4 text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 group",
-                    areAllDocumentsUploaded()
-                      ? "bg-gradient-to-b from-[#1D64FF] to-[#1450CC] hover:to-[#1D64FF] border-[#1D64FF] shadow-[0_0_30px_-5px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_-5px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.3)]"
-                      : "bg-white/5 border-white/10 opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <span className="relative z-10">Weiter</span>
-                </button>
+            {/* Empty State / Context */}
+            <div className="flex-1 flex flex-col items-center justify-center -mt-10">
+              <div className="text-center space-y-6 relative">
+                {/* Icon placeholder */}
+                <div className="relative mx-auto w-24 h-24 mb-4">
+                  <div className="absolute inset-0 bg-[#1D64FF] rounded-full blur-[40px] opacity-20" />
+                  <div className="relative w-full h-full rounded-[32px] bg-gradient-to-b from-[#16191F] to-[#0A0C10] border border-white/[0.08] shadow-2xl flex items-center justify-center group cursor-default">
+                    <FolderOpen className="w-10 h-10 text-[#1D64FF] group-hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  {/* Status Badge */}
+                  <div className="absolute -top-2 -right-2 bg-[#0A0C10] border border-white/10 p-1.5 rounded-full shadow-lg">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-xl font-medium text-white tracking-tight">Belege sammeln</h2>
+                  <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
+                    Füge deine Rechnungen und Quittungen direkt hinzu, um sie für deine Steuererklärung zu speichern.
+                  </p>
+                </div>
+
+                {/* Stats / Counter */}
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
+                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Gesamt</span>
+                    <span className="text-sm text-zinc-200 font-medium font-mono">{documents.length}</span>
+                  </div>
+                  <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
+                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Monat</span>
+                    <span className="text-sm text-zinc-200 font-medium">{currentMonth}</span>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Floating Upload Button */}
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 animate-[float_5s_ease-in-out_infinite] w-max">
+            <button 
+              onClick={() => setShowUploader(true)}
+              className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center"
+              data-tour="document-upload-card"
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                <Plus className="w-5 h-5 text-white stroke-[2.5px]" />
+              </div>
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
+                  Dokument hinzufügen
+                </span>
+                <span className="text-[10px] text-zinc-400 group-hover:text-zinc-300 transition-colors font-medium">
+                  Scan oder Upload
+                </span>
+              </div>
+            </button>
+          </div>
+
+          {/* Footer info */}
+          <div className="absolute bottom-4 w-full text-center z-20">
+            <p className="text-[10px] text-zinc-700 font-medium tracking-wide uppercase">
+              Verschlüsselt & Sicher
+            </p>
           </div>
         </div>
-
 
         <CameraCapture 
           open={showCamera} 
