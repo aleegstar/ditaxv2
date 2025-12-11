@@ -486,26 +486,28 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       {/* Bottom Action Area */}
       {hasValidFiles && (
         <div className="fixed bottom-0 left-0 w-full p-6 pt-4 bg-gradient-to-t from-[#020408] via-[#020408] to-transparent z-30">
-          <button 
-            onClick={handleUploadAll}
-            disabled={uploading || uploadableFiles.length === 0}
-            className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-[#1D64FF]/30 rounded-full blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
-            
-            {/* Button */}
-            <div className="relative w-full h-14 bg-[#1D64FF] hover:bg-[#1a5ae6] text-white rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] hover:shadow-[0_0_35px_-5px_rgba(29,100,255,0.6)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
-              {uploading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Wird hochgeladen...
-                </span>
-              ) : (
-                <span>Hochladen</span>
-              )}
-            </div>
-          </button>
+          <div className="max-w-md mx-auto">
+            <button 
+              onClick={handleUploadAll}
+              disabled={uploading || uploadableFiles.length === 0}
+              className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {/* Glow Effect */}
+              <div className="absolute -inset-1 bg-[#1D64FF]/30 rounded-full blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
+              
+              {/* Button */}
+              <div className="relative w-full h-14 bg-[#1D64FF] hover:bg-[#1a5ae6] text-white rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] hover:shadow-[0_0_35px_-5px_rgba(29,100,255,0.6)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+                {uploading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Wird hochgeladen...
+                  </span>
+                ) : (
+                  <span>Hochladen</span>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
       )}
     </div>
