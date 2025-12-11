@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface FramerButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: "desktop" | "mobile" | "outline";
+  variant?: "desktop" | "mobile" | "outline" | "primary";
   href?: string;
   asChild?: boolean;
 }
@@ -21,19 +21,22 @@ const FramerButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Fra
   ...props
 }, ref) => {
   const isOutline = variant === "outline";
+  const isPrimary = variant === "primary";
   
   // Base styles
   const baseStyles = cn(
-    "inline-flex items-center justify-center rounded-full",
+    "inline-flex items-center justify-center gap-2 rounded-full",
     "font-poppins font-medium transition-all duration-500",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     // Variant-specific sizing and colors
     isOutline 
       ? "h-[48px] w-full text-sm text-zinc-200 border border-white/10" 
-      : variant === "desktop" 
-        ? "h-[41px] w-[131px] text-sm text-black border border-white/40" 
-        : "h-[38px] w-[120px] text-xs text-black border border-white/40",
+      : isPrimary
+        ? "h-12 w-full text-sm text-white font-semibold"
+        : variant === "desktop" 
+          ? "h-[41px] w-[131px] text-sm text-black border border-white/40" 
+          : "h-[38px] w-[120px] text-xs text-black border border-white/40",
     className
   );
 
@@ -44,6 +47,15 @@ const FramerButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Fra
     },
     hover: {
       background: "rgba(255, 255, 255, 0.07)",
+    }
+  } : isPrimary ? {
+    initial: {
+      background: "#1D64FF",
+      boxShadow: "0 0 30px -5px rgba(29, 100, 255, 0.5)"
+    },
+    hover: {
+      background: "#2570FF",
+      boxShadow: "0 0 40px -5px rgba(29, 100, 255, 0.7)"
     }
   } : {
     initial: {
@@ -122,7 +134,7 @@ const FramerButton = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Fra
       transition={transitionConfig}
       {...buttonProps}
     >
-    <span className={cn("relative z-10", isOutline ? "text-zinc-200" : "text-black")}>
+      <span className={cn("relative z-10 flex items-center gap-2", isOutline ? "text-zinc-200" : isPrimary ? "text-white" : "text-black")}>
         {children}
       </span>
     </motion.button>
