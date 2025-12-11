@@ -153,6 +153,7 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
               onDocumentSubmitted={handleUploadSuccess}
               hasUploadedFiles={documents.length > 0}
               onPreviewChange={setHasFilesInUploader}
+              autoTriggerUpload={showUploader}
             />
           </div>
         </div>
