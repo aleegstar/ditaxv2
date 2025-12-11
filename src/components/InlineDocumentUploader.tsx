@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { X, AlertCircle, CloudUpload, Image, FileText, Eye } from 'lucide-react';
+import { X, AlertCircle, CloudUpload, Image, FileText, Eye, ArrowLeft } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -333,13 +332,39 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   const hasValidFiles = files.some(f => !f.error);
   const uploadableFiles = files.filter(f => !f.uploaded && !f.error);
   const hasAnyPreview = imagePreviews.length > 0 || screenshots.length > 0;
+  const previewCount = imagePreviews.length + screenshots.length;
 
   const getFileExtension = (fileName: string) => {
     return fileName.split('.').pop()?.toUpperCase() || 'FILE';
   };
 
   return (
-    <div className="w-full flex flex-col min-h-[60vh]">
+    <div className="fixed inset-0 z-50 bg-[#020408] flex flex-col">
+      {/* Background Ambient Glow */}
+      <div 
+        className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-100"
+        style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 70%)',
+          filter: 'blur(80px)'
+        }}
+      />
+
+      {/* Header */}
+      <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
+        {/* Back Button */}
+        <button 
+          onClick={onClose}
+          className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+        >
+          <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        {/* Title */}
+        <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+          Upload
+        </h1>
+      </div>
+
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -350,244 +375,255 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
         multiple={MAX_FILES > 1}
       />
 
-      {/* Upload Trigger Button */}
-      <button
-        onClick={handleUploadClick}
-        className="w-full group relative outline-none focus:outline-none"
-        disabled={isProcessing}
-      >
-        {/* Border Glow on Hover */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#1D64FF]/50 to-[#1D64FF]/0 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500" />
+      {/* Main Content */}
+      <div className="z-10 flex-1 flex flex-col px-6 pb-32 relative overflow-y-auto pt-2">
         
-        <div className="relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 overflow-hidden">
-          {/* Shimmer effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent bg-[length:200%_100%] opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-500 pointer-events-none" />
+        {/* Add More Documents Trigger */}
+        <button
+          onClick={handleUploadClick}
+          className="w-full group relative outline-none focus:outline-none"
+          disabled={isProcessing}
+        >
+          {/* Border Glow on Hover */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#1D64FF]/50 to-[#1D64FF]/0 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500" />
           
-          {/* Icon Box */}
-          <div className="w-12 h-12 rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300">
-            <CloudUpload className="w-6 h-6 text-white" />
-          </div>
-          
-          {/* Text Content */}
-          <div className="flex flex-col items-start text-left">
-            <span className="text-[15px] font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors">
-              {!pdfLibLoaded ? 'Initialisierung...' : 'Weitere Dokumente hinzufügen'}
-            </span>
-            <span className="text-[11px] text-zinc-500 mt-1 font-medium tracking-wide">
-              Max. 10 MB • PDF, JPG, PNG, GIF, WebP
-            </span>
-          </div>
-        </div>
-      </button>
-
-      {/* Processing Overlay */}
-      {isProcessing && (
-        <div className="mt-4 p-4 bg-[#0A0C10] border border-white/[0.08] rounded-2xl flex items-center justify-center gap-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#1D64FF] border-t-transparent" />
-          <span className="text-white/70 text-sm">Wird verarbeitet...</span>
-        </div>
-      )}
-
-      {/* Preview Section */}
-      {hasAnyPreview && (
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
-              Vorschau ({imagePreviews.length + screenshots.length} {imagePreviews.length + screenshots.length === 1 ? 'Element' : 'Elemente'})
-            </span>
-          </div>
-
-          {/* Image Previews */}
-          {imagePreviews.map(preview => (
-            <div
-              key={preview.id}
-              className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl"
-            >
-              <img
-                src={preview.dataUrl}
-                alt={`Vorschau: ${preview.fileName}`}
-                className="w-full h-full object-contain"
-              />
-
-              {/* Type Badge */}
-              <div className="absolute top-4 left-4 z-20">
-                <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
-                  <Image className="w-3.5 h-3.5 text-[#1D64FF]" />
-                  <span className="text-[11px] font-medium text-white/90 tracking-wide">Bild</span>
-                </div>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                <button
-                  onClick={() => {
-                    const newWindow = window.open();
-                    newWindow?.document.write(`<img src="${preview.dataUrl}" style="max-width:100%; max-height:100vh; object-fit:contain;" />`);
-                  }}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100"
-                >
-                  <Eye className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          ))}
-
-          {/* PDF Screenshots */}
-          {screenshots.map(shot => (
-            <div
-              key={shot.id}
-              className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl"
-            >
-              <img
-                src={shot.dataUrl}
-                alt={`Seite ${shot.pageNumber}`}
-                className="w-full h-full object-contain"
-              />
-
-              {/* Type Badge */}
-              <div className="absolute top-4 left-4 z-20">
-                <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
-                  <FileText className="w-3.5 h-3.5 text-[#1D64FF]" />
-                  <span className="text-[11px] font-medium text-white/90 tracking-wide">Seite {shot.pageNumber}</span>
-                </div>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                <button
-                  onClick={() => {
-                    const newWindow = window.open();
-                    newWindow?.document.write(`<img src="${shot.dataUrl}" style="max-width:100%; max-height:100vh; object-fit:contain;" />`);
-                  }}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100"
-                >
-                  <Eye className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* File List */}
-      {files.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
-              Ausgewählte Dateien
-            </span>
-          </div>
-
-          {files.map(fileWithPreview => (
-            <div
-              key={fileWithPreview.id}
-              className="group relative flex items-center gap-3.5 p-3 pr-4 rounded-xl bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] hover:bg-[#0F1218] transition-all duration-300 shadow-sm"
-            >
-              {/* Thumbnail/Icon */}
-              <div className="w-10 h-10 rounded-lg bg-[#16191F] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-[#1D64FF]/30 transition-colors">
-                <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#1D64FF] transition-colors">
-                  {getFileExtension(fileWithPreview.file.name)}
-                </span>
-              </div>
-              
-              {/* File Info */}
-              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
-                  {fileWithPreview.file.name}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-500 font-medium">
-                    {(fileWithPreview.file.size / 1024 / 1024).toFixed(2)} MB
-                  </span>
-                  {fileWithPreview.uploaded && (
-                    <>
-                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                      <span className="text-[11px] text-emerald-500 font-medium flex items-center gap-1">
-                        ✓ Hochgeladen
-                      </span>
-                    </>
-                  )}
-                  {fileWithPreview.uploading && (
-                    <>
-                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                      <span className="text-[11px] text-[#1D64FF] font-medium">
-                        {Math.round(fileWithPreview.progress)}%
-                      </span>
-                    </>
-                  )}
-                  {!fileWithPreview.uploaded && !fileWithPreview.uploading && !fileWithPreview.error && (
-                    <>
-                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                      <span className="text-[11px] text-emerald-500 font-medium">
-                        Ready
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                {/* Progress bar when uploading */}
-                {fileWithPreview.uploading && (
-                  <Progress value={fileWithPreview.progress} className="h-1 mt-1" />
-                )}
-
-                {/* Error message */}
-                {fileWithPreview.error && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <AlertCircle className="h-3 w-3 text-red-400" />
-                    <span className="text-[11px] text-red-400">{fileWithPreview.error}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Delete Action */}
-              <button
-                onClick={() => handleRemoveFile(fileWithPreview.id)}
-                disabled={fileWithPreview.uploading}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all duration-200 opacity-70 group-hover:opacity-100 disabled:opacity-30"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Error Alert */}
-      {error && (
-        <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />
-          <span className="text-sm text-red-300">{error}</span>
-        </div>
-      )}
-
-      {/* Spacer to push button to bottom */}
-      <div className="flex-1 min-h-8" />
-
-      {/* Bottom Action Area */}
-      {hasValidFiles && (
-        <div className="mt-6 pt-4 bg-gradient-to-t from-background via-background to-transparent">
-          <button
-            onClick={handleUploadAll}
-            disabled={uploading || uploadableFiles.length === 0}
-            className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-white/20 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 overflow-hidden">
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent bg-[length:200%_100%] opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-500 pointer-events-none" />
             
-            {/* Button */}
-            <div className="relative w-full h-12 bg-white hover:bg-zinc-100 text-[#020408] rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_35px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
-              {uploading ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#020408] border-t-transparent" />
-                  <span>Upload läuft...</span>
-                </div>
-              ) : (
-                <span>Hochladen</span>
-              )}
+            {/* Icon Box */}
+            <div className="w-12 h-12 rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <CloudUpload className="w-6 h-6 text-white" />
             </div>
-          </button>
-        </div>
-      )}
+            
+            {/* Text Content */}
+            <div className="flex flex-col items-start text-left">
+              <span className="text-[15px] font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors">
+                {!pdfLibLoaded ? 'Initialisierung...' : 'Weitere Dokumente hinzufügen'}
+              </span>
+              <span className="text-[11px] text-zinc-500 mt-1 font-medium tracking-wide">
+                Max. 10 MB • PDF, JPG, PNG, GIF, WebP
+              </span>
+            </div>
+          </div>
+        </button>
+
+        {/* Processing Overlay */}
+        {isProcessing && (
+          <div className="mt-4 p-4 bg-[#0A0C10] border border-white/[0.08] rounded-2xl flex items-center justify-center gap-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#1D64FF] border-t-transparent" />
+            <span className="text-white/70 text-sm">Wird verarbeitet...</span>
+          </div>
+        )}
+
+        {/* Preview Section */}
+        {hasAnyPreview && (
+          <div className="mt-8 space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
+                Vorschau ({previewCount} {previewCount === 1 ? 'Element' : 'Elemente'})
+              </span>
+              <span className="text-[11px] font-medium text-[#1D64FF] hover:text-[#1D64FF]/80 cursor-pointer transition-colors">
+                Bearbeiten
+              </span>
+            </div>
+
+            {/* Image Previews */}
+            {imagePreviews.map(preview => (
+              <div
+                key={preview.id}
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl"
+              >
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0A0C10] to-[#020408]">
+                  {/* Abstract Background Graphic */}
+                  <div className="absolute -left-10 -bottom-20 w-64 h-64 bg-[#1D64FF] rounded-full blur-[80px] opacity-20" />
+                  
+                  <img
+                    src={preview.dataUrl}
+                    alt={`Vorschau: ${preview.fileName}`}
+                    className="relative z-10 max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                </div>
+
+                {/* Type Badge */}
+                <div className="absolute top-4 left-4 z-20">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
+                    <Image className="w-3.5 h-3.5 text-[#1D64FF]" />
+                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Bild</span>
+                  </div>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button
+                    onClick={() => {
+                      const newWindow = window.open();
+                      newWindow?.document.write(`<img src="${preview.dataUrl}" style="max-width:100%; max-height:100vh; object-fit:contain;" />`);
+                    }}
+                    className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100"
+                  >
+                    <Eye className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* PDF Screenshots */}
+            {screenshots.map(shot => (
+              <div
+                key={shot.id}
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl"
+              >
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0A0C10] to-[#020408]">
+                  <div className="absolute -left-10 -bottom-20 w-64 h-64 bg-[#1D64FF] rounded-full blur-[80px] opacity-20" />
+                  
+                  <img
+                    src={shot.dataUrl}
+                    alt={`Seite ${shot.pageNumber}`}
+                    className="relative z-10 max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                </div>
+
+                {/* Type Badge */}
+                <div className="absolute top-4 left-4 z-20">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
+                    <FileText className="w-3.5 h-3.5 text-[#1D64FF]" />
+                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Seite {shot.pageNumber}</span>
+                  </div>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button
+                    onClick={() => {
+                      const newWindow = window.open();
+                      newWindow?.document.write(`<img src="${shot.dataUrl}" style="max-width:100%; max-height:100vh; object-fit:contain;" />`);
+                    }}
+                    className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100"
+                  >
+                    <Eye className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* File List */}
+        {files.length > 0 && (
+          <div className="mt-8 space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
+                Ausgewählte Dateien
+              </span>
+            </div>
+
+            {files.map(fileWithPreview => (
+              <div
+                key={fileWithPreview.id}
+                className="group relative flex items-center gap-3.5 p-3 pr-4 rounded-xl bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] hover:bg-[#0F1218] transition-all duration-300 shadow-sm"
+              >
+                {/* Thumbnail/Icon */}
+                <div className="w-10 h-10 rounded-lg bg-[#16191F] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-[#1D64FF]/30 transition-colors">
+                  <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#1D64FF] transition-colors">
+                    {getFileExtension(fileWithPreview.file.name)}
+                  </span>
+                </div>
+                
+                {/* File Info */}
+                <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                    {fileWithPreview.file.name}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-zinc-500 font-medium">
+                      {(fileWithPreview.file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                    {fileWithPreview.uploaded && (
+                      <>
+                        <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                        <span className="text-[11px] text-emerald-500 font-medium flex items-center gap-1">
+                          Hochgeladen
+                        </span>
+                      </>
+                    )}
+                    {fileWithPreview.uploading && (
+                      <>
+                        <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                        <span className="text-[11px] text-[#1D64FF] font-medium">
+                          {Math.round(fileWithPreview.progress)}%
+                        </span>
+                      </>
+                    )}
+                    {!fileWithPreview.uploaded && !fileWithPreview.uploading && !fileWithPreview.error && (
+                      <>
+                        <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                        <span className="text-[11px] text-emerald-500 font-medium">
+                          Ready
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Progress bar when uploading */}
+                  {fileWithPreview.uploading && (
+                    <Progress value={fileWithPreview.progress} className="h-1 mt-1" />
+                  )}
+
+                  {/* Error message */}
+                  {fileWithPreview.error && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 text-red-400" />
+                      <span className="text-[11px] text-red-400">{fileWithPreview.error}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Delete Action */}
+                <button
+                  onClick={() => handleRemoveFile(fileWithPreview.id)}
+                  disabled={fileWithPreview.uploading}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all duration-200 opacity-70 group-hover:opacity-100 disabled:opacity-30"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-red-400 shrink-0" />
+            <span className="text-sm text-red-300">{error}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Action Area - Fixed */}
+      <div className="absolute bottom-0 left-0 w-full p-6 pt-4 bg-gradient-to-t from-[#020408] via-[#020408] to-transparent z-30">
+        <button
+          onClick={handleUploadAll}
+          disabled={uploading || !hasValidFiles || uploadableFiles.length === 0}
+          className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {/* Glow Effect */}
+          <div className="absolute -inset-1 bg-white/20 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+          
+          {/* Button */}
+          <div className="relative w-full h-12 bg-white hover:bg-zinc-100 text-[#020408] rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_35px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+            {uploading ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#020408] border-t-transparent" />
+                <span>Upload läuft...</span>
+              </div>
+            ) : (
+              <span>Hochladen</span>
+            )}
+          </div>
+        </button>
+      </div>
     </div>
   );
 };
