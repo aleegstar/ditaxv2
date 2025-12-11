@@ -85,6 +85,8 @@ const UserTaxReturns = () => {
   const [profile, setProfile] = useState<{
     onboarding_tour_completed?: boolean;
   } | null>(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  
   useEffect(() => {
     if (userId) {
       supabase.from('profiles').select('onboarding_tour_completed').eq('id', userId).single().then(({
@@ -92,6 +94,14 @@ const UserTaxReturns = () => {
       }) => setProfile(data));
     }
   }, [userId]);
+  
+  // Mark animation as complete after initial render
+  useEffect(() => {
+    if (!loading && !authLoading) {
+      const timer = setTimeout(() => setHasAnimated(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, authLoading]);
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
@@ -244,15 +254,15 @@ const UserTaxReturns = () => {
           const existingReturn = getExistingReturn(year);
           const progress = calculateProgress(year) ?? 0;
           const strokeDashoffset = circumference - progress / 100 * circumference;
-          return <motion.div key={year} initial={{
+          return <motion.div key={year} initial={hasAnimated ? false : {
             opacity: 0,
             y: 20
           }} animate={{
             opacity: 1,
             y: 0
           }} transition={{
-            delay: index * 0.1,
-            duration: 0.4,
+            delay: hasAnimated ? 0 : index * 0.1,
+            duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
           }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full border border-white/10 rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer overflow-hidden bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:border-[rgba(29,100,255,0.5)] hover:-translate-y-1">
                 {/* Active Indicator Gradient */}
@@ -312,15 +322,15 @@ const UserTaxReturns = () => {
           {/* Completed Tax Returns */}
           {completedYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
-          return <motion.div key={year} initial={{
+          return <motion.div key={year} initial={hasAnimated ? false : {
             opacity: 0,
             y: 20
           }} animate={{
             opacity: 1,
             y: 0
           }} transition={{
-            delay: (inProgressYears.length + index) * 0.1,
-            duration: 0.4,
+            delay: hasAnimated ? 0 : (inProgressYears.length + index) * 0.1,
+            duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
           }} onClick={() => navigate(`/tax-return-tracking?year=${year}`)} className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]">
                 <div className="flex justify-between items-start mb-6">
@@ -362,15 +372,15 @@ const UserTaxReturns = () => {
         })}
 
           {/* Show add card if no in-progress years */}
-          {inProgressYears.length === 0 && <motion.div initial={{
+          {inProgressYears.length === 0 && <motion.div initial={hasAnimated ? false : {
           opacity: 0,
           y: 20
         }} animate={{
           opacity: 1,
           y: 0
         }} transition={{
-          delay: 0.2,
-          duration: 0.4,
+          delay: hasAnimated ? 0 : 0.2,
+          duration: hasAnimated ? 0 : 0.4,
           ease: 'easeOut'
         }} onClick={() => createNewTaxReturn(`${currentYear - 1}`)} className="group relative w-full border border-dashed border-white/10 rounded-[1.5rem] p-6 hover:border-[#1D64FF]/50 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#0a0a0a] to-[#020202]">
               <div className="flex flex-col items-center justify-center py-8 text-center">
