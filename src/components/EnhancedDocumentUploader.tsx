@@ -492,10 +492,10 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
             className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-white/20 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+            <div className="absolute -inset-1 bg-[#1D64FF]/30 rounded-full blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
             
             {/* Button */}
-            <div className="relative w-full h-12 bg-white hover:bg-zinc-100 text-[#020408] rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_35px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+            <div className="relative w-full h-14 bg-[#1D64FF] hover:bg-[#1a5ae6] text-white rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] hover:shadow-[0_0_35px_-5px_rgba(29,100,255,0.6)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
               {uploading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
