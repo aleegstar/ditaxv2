@@ -41,6 +41,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   // Stable refs to prevent unnecessary re-renders
   const loadingRef = useRef<boolean>(false);
   const taxYearSwitchRef = useRef<boolean>(false);
+  const initialLoadCompletedRef = useRef<boolean>(false);
   
   // Core state
   const [formData, setFormData] = useState<FormData>(() => JSON.parse(JSON.stringify(defaultFormData)));
@@ -309,6 +310,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     
     // Prevent concurrent operations
     taxYearSwitchRef.current = true;
+    initialLoadCompletedRef.current = false; // Reset for new tax year
     setLoading(true);
     setIsSwitchingTaxYear(true);
     
@@ -1041,9 +1043,15 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     }
   }, [session, taxYear]);
 
-  // Initial load effect - wait for session to be loaded
+  // Initial load effect - wait for session to be loaded (runs only once per tax year)
   useEffect(() => {
+    // Prevent multiple loads for the same session
+    if (initialLoadCompletedRef.current) {
+      return;
+    }
+    
     if (sessionLoaded && taxYear && !formDataLoaded && !loading && !taxYearSwitchRef.current) {
+      initialLoadCompletedRef.current = true; // Mark as loaded BEFORE starting
       console.log(`🚀 Initial load for tax year: ${taxYear} with session:`, session ? 'Available' : 'Not available');
       loadFormDataFromDatabase(taxYear);
       loadQuestionProgress();
@@ -1053,7 +1061,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         loadDocuments();
       }
     }
-  }, [sessionLoaded, taxYear, formDataLoaded, loading, loadFormDataFromDatabase, loadQuestionProgress, loadDocuments, session]);
+  }, [sessionLoaded, taxYear, formDataLoaded, loading, session]);
 
   // Removed auto-generate checklist to prevent infinite loops
 
