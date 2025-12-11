@@ -134,30 +134,57 @@ export function TaxYearCard({
                 </DropdownMenu>
               </div>}
 
-            <div className="flex flex-col items-center justify-center w-full text-center">
-              <Badge variant="secondary" style={{
-              background: isCompleted ? 'rgba(34, 197, 94, 0.2)' : isPaid ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
-              borderColor: isCompleted ? 'rgba(34, 197, 94, 0.3)' : isPaid ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.2)',
-              color: '#000000'
-            }} className="mb-4 border border-white/20 backdrop-blur-sm bg-[5298E4] bg-[#5298e4]/[0.28]">
-                {isCompleted ? (language === 'de' ? 'Abgeschlossen' : 'Completed') : isPaid ? (language === 'de' ? 'In Bearbeitung' : 'Processing') : (language === 'de' ? 'Entwurf' : 'Draft')}
-              </Badge>
+            <div className="flex items-start justify-between w-full">
+              <div className="flex flex-col items-start">
+                <Badge variant="secondary" style={{
+                  background: isCompleted ? 'rgba(34, 197, 94, 0.2)' : isPaid ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                  borderRadius: '12px',
+                  borderColor: isCompleted ? 'rgba(34, 197, 94, 0.3)' : isPaid ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 255, 255, 0.2)',
+                  color: '#000000'
+                }} className="mb-3 border border-white/20 backdrop-blur-sm bg-[#5298e4]/[0.28]">
+                  {isCompleted ? (language === 'de' ? 'Abgeschlossen' : 'Completed') : isPaid ? (language === 'de' ? 'In Bearbeitung' : 'Processing') : (language === 'de' ? 'Entwurf' : 'Draft')}
+                </Badge>
+                
+                <h2 className="text-3xl font-bold text-black mb-4">{taxYear}</h2>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between gap-8">
+                    <span className="text-gray-500">Status</span>
+                    <span className="text-[#1D64FF] font-medium">
+                      {isCompleted ? (language === 'de' ? 'Abgeschlossen' : 'Completed') : isPaid ? (language === 'de' ? 'In Bearbeitung' : 'Processing') : (language === 'de' ? 'Entwurf' : 'Draft')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-8">
+                    <span className="text-gray-500">Frist</span>
+                    <span className="text-black font-medium">31. März {parseInt(taxYear) + 1}</span>
+                  </div>
+                </div>
+              </div>
               
-              {isCompleted ? <div className="mb-2">
-                  <AnimatedCircularProgressBar max={100} min={0} value={100} gaugePrimaryColor="url(#progress-gradient)" gaugeSecondaryColor="#E9ECF1" className="drop-shadow-lg" />
-                </div> : isPaid ? <div className="mb-2 w-full">
+              {isPaid && !isCompleted ? (
+                <div className="w-full max-w-[120px]">
                   <TaxReturnProgressTracker currentStep={workflowStep} taxYear={taxYear} className="max-w-sm mx-auto" />
-                </div> : <div className="mb-2">
-                  <AnimatedCircularProgressBar max={100} min={0} value={progress} gaugePrimaryColor="url(#progress-gradient)" gaugeSecondaryColor="#E9ECF1" className="drop-shadow-lg" />
-                </div>}
+                </div>
+              ) : (
+                <AnimatedCircularProgressBar 
+                  max={100} 
+                  min={0} 
+                  value={isCompleted ? 100 : progress} 
+                  gaugePrimaryColor="#1D64FF" 
+                  gaugeSecondaryColor="#E9ECF1" 
+                  className="size-16 text-xs drop-shadow-lg" 
+                />
+              )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between w-full text-sm text-white/80 relative z-10">
-            {paymentDate && <div className="text-xs text-black ">
-                {t.payment.date}: {new Date(paymentDate).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US')}
-              </div>}
+          <div className="flex items-center justify-between w-full text-sm border-t border-gray-200 pt-4 mt-4 relative z-10">
+            <div className="text-xs text-gray-500">
+              {language === 'de' ? 'Zuletzt bearbeitet' : 'Last updated'}: {lastUpdated}
+            </div>
+            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-400">→</span>
+            </div>
           </div>
         </CardContent>
       </Card>
