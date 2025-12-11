@@ -12,10 +12,11 @@ import { SubmissionForm } from '@/components/forms/SubmissionForm';
 import { FormDataSummary } from '@/components/forms/FormDataSummary';
 import { ImportWizard } from '@/components/forms/ImportWizard';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
+import { motion } from 'framer-motion';
 // OnboardingTour now managed globally in App.tsx
 
 // Section mapping for import wizard
@@ -120,9 +121,31 @@ const IndexContent = () => {
     }
   };
 
+  // Show floating button only on main dashboard
+  const showFloatingButton = !section;
+
   return (
     <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
+      
+      {/* Floating Add Document Button */}
+      {showFloatingButton && (
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => navigate('/documents')}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#0A0C10] border border-white/[0.08] rounded-full px-5 py-3 shadow-xl hover:bg-[#12151A] transition-colors"
+        >
+          <div className="w-9 h-9 rounded-full bg-[#1D64FF] flex items-center justify-center shadow-[0_0_20px_-3px_rgba(29,100,255,0.5)]">
+            <Plus className="w-5 h-5 text-white" />
+          </div>
+          <div className="text-left pr-2">
+            <p className="text-sm font-medium text-white">Dokument hinzufügen</p>
+            <p className="text-xs text-zinc-500">Scan oder Upload</p>
+          </div>
+        </motion.button>
+      )}
       {/* OnboardingTour now managed globally in App.tsx */}
     </AnimatedPageContainer>
   );
