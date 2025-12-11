@@ -1,8 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Progress } from '@/components/ui/progress';
-import { Card } from '@/components/ui/card';
-import { isAndroidEnvironment } from '@/utils/platform';
+import { cn } from '@/lib/utils';
 
 interface MultiStepProgressProps {
   currentStep: number;
@@ -19,50 +16,20 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
 }) => {
   const safeTotal = Math.max(1, totalSteps);
   const safeCurrent = Math.min(Math.max(0, currentStep), safeTotal - 1);
-  const progressPercentage = ((safeCurrent + 1) / safeTotal) * 100;
-  const isAndroid = isAndroidEnvironment();
 
-  // Android-safe version without blur or motion
-  if (isAndroid) {
-    return (
-      <Card className={`bg-card border-border ${className}`}>
-        <div className="p-6">
-          <div className="space-y-4">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <Progress 
-                value={progressPercentage} 
-                segments={safeTotal}
-                variant="segmented"
-                className="h-1.5"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
-  // Original version with animations for web
   return (
-    <Card className={`bg-card/30 backdrop-blur-sm border-border/50 ${className}`}>
-      <div className="p-6">
-        <div className="space-y-4">
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <Progress 
-              value={progressPercentage} 
-              segments={safeTotal}
-              variant="segmented"
-              className="h-1.5"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
+    <div className={cn("flex items-center justify-center gap-2 mb-12 px-4", className)}>
+      {Array.from({ length: safeTotal }).map((_, index) => (
+        <div
+          key={index}
+          className={cn(
+            "h-1 flex-1 rounded-full transition-all duration-300",
+            index <= safeCurrent
+              ? "bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]"
+              : "bg-white/[0.08]"
+          )}
+        />
+      ))}
+    </div>
   );
 };

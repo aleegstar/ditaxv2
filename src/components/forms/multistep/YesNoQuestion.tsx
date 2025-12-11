@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Check, X, Info } from 'lucide-react';
+import { Check, X, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 
@@ -28,77 +26,82 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   };
   
   const shouldTruncate = question.explanation && question.explanation.length > 60;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-2xl mx-auto px-2 sm:px-4", className)}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className={cn("flex-1 flex flex-col items-center justify-center", className)}
     >
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-        <CardContent className="p-4 sm:p-6 md:p-8">
-          <div className="space-y-4 sm:space-y-6">
-            {/* Question Text */}
-            <div className="text-center space-y-3">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground leading-tight break-all hyphens-auto px-2" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
-                {question.text}
-              </h2>
-              
-              {question.explanation && (
-                <div 
-                  className="flex items-start gap-2 p-2 sm:p-3 md:p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/70 transition-colors duration-200 mx-2"
-                  onClick={() => shouldTruncate && setIsExpanded(!isExpanded)}
-                >
-                  <Info className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground leading-relaxed break-words hyphens-auto">
-                    {shouldTruncate && !isExpanded 
-                      ? `${truncateText(question.explanation)}...` 
-                      : question.explanation
-                    }
-                    {shouldTruncate && (
-                      <span className="text-blue-500 hover:text-blue-600 ml-1 font-medium">
-                        {isExpanded ? " weniger anzeigen" : " mehr anzeigen"}
-                      </span>
-                    )}
-                  </p>
-                </div>
-              )}
-            </div>
+      {/* Question Text */}
+      <h2 className="text-2xl font-semibold text-white tracking-tight text-center mb-8 leading-snug px-4">
+        {question.text}
+      </h2>
 
-            {/* Yes/No Buttons */}
-            <div className="flex gap-2 sm:gap-3 md:gap-4 justify-center px-2">
-              <Button
-                onClick={() => onAnswer(true)}
-                className={cn(
-                  "flex-1 max-w-[140px] sm:min-w-[120px] h-11 sm:h-12 md:h-14 text-sm sm:text-base font-medium rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 transition-all duration-200 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white border-0",
-                  answer === true 
-                    ? "shadow-[rgba(29,100,255,0.3)_0px_5px_15px_0px] scale-105" 
-                    : "hover:scale-105",
-                )}
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
-              >
-                <Check className="w-5 h-5 mr-2" />
-                Ja
-              </Button>
-              
-              <Button
-                onClick={() => onAnswer(false)}
-                className={cn(
-                  "flex-1 max-w-[140px] sm:min-w-[120px] h-11 sm:h-12 md:h-14 text-sm sm:text-base font-medium rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 transition-all duration-200",
-                  answer === false 
-                    ? "bg-red-500 hover:bg-red-500/90 text-white border-0 shadow-[rgba(239,68,68,0.3)_0px_5px_15px_0px] scale-105" 
-                    : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:scale-105"
-                )}
-                style={answer === false ? { boxShadow: 'rgba(239, 68, 68, 0.2) 0px 3px 10px 0px' } : { boxShadow: 'rgba(0, 0, 0, 0.05) 0px 3px 5px 0px' }}
-              >
-                <X className="w-5 h-5 mr-2" />
-                Nein
-              </Button>
-            </div>
+      {/* Info Box */}
+      {question.explanation && (
+        <div 
+          className="w-full bg-[#0A0C10] border border-white/[0.08] rounded-2xl p-5 flex gap-4 shadow-xl backdrop-blur-sm relative group cursor-pointer"
+          onClick={() => shouldTruncate && setIsExpanded(!isExpanded)}
+        >
+          <div className="shrink-0 pt-0.5">
+            <Info className="w-5 h-5 text-zinc-500 group-hover:text-[#1D64FF] transition-colors" />
           </div>
-        </CardContent>
-      </Card>
+          <div className="space-y-1">
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              {shouldTruncate && !isExpanded 
+                ? `${truncateText(question.explanation)}...` 
+                : question.explanation
+              }
+            </p>
+            {shouldTruncate && (
+              <button className="text-sm font-medium text-[#1D64FF] hover:text-[#1D64FF]/80 transition-colors flex items-center gap-1">
+                {isExpanded ? "weniger anzeigen" : "mehr anzeigen"}
+                <ChevronDown className={cn("w-3 h-3 transition-transform", isExpanded && "rotate-180")} />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex gap-4 w-full mt-8">
+        {/* Yes Button */}
+        <button 
+          onClick={() => onAnswer(true)}
+          className={cn(
+            "group flex-1 relative overflow-hidden rounded-xl p-[1px] active:scale-[0.98] transition-all duration-200",
+            answer === true 
+              ? "bg-[#1D64FF] shadow-[0_0_25px_-5px_rgba(29,100,255,0.6)]" 
+              : "bg-[#1D64FF] shadow-[0_0_20px_-5px_rgba(29,100,255,0.4)]"
+          )}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative h-12 flex items-center justify-center gap-2 bg-[#1D64FF] rounded-xl w-full">
+            <Check className="w-4 h-4 text-white" strokeWidth={2} />
+            <span className="text-white font-semibold">Ja</span>
+          </div>
+        </button>
+
+        {/* No Button */}
+        <button 
+          onClick={() => onAnswer(false)}
+          className={cn(
+            "group flex-1 relative overflow-hidden rounded-xl p-[1px] active:scale-[0.98] transition-all duration-200",
+            answer === false 
+              ? "bg-[#DC2626] shadow-[0_0_25px_-5px_rgba(220,38,38,0.6)]" 
+              : "bg-[#DC2626] shadow-[0_0_20px_-5px_rgba(220,38,38,0.4)]"
+          )}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative h-12 flex items-center justify-center gap-2 bg-[#DC2626] rounded-xl w-full">
+            <X className="w-4 h-4 text-white" strokeWidth={2} />
+            <span className="text-white font-semibold">Nein</span>
+          </div>
+        </button>
+      </div>
     </motion.div>
   );
 };
