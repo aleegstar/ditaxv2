@@ -150,11 +150,11 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
         onClick={() => handleNavigation(item)}
         className={`w-full flex items-center gap-4 px-4 py-3 transition-colors text-left ${
           isActive 
-            ? 'bg-slate-100 text-slate-900 border-l-2 border-[#1d64ff]' 
-            : 'text-slate-700 hover:bg-slate-50'
+            ? 'bg-[#1D64FF]/10 text-white border-l-2 border-[#1D64FF]' 
+            : 'text-white/70 hover:bg-white/5 hover:text-white'
         }`}
       >
-        <IconComponent className="w-5 h-5 text-slate-500" />
+        <IconComponent className={`w-5 h-5 ${isActive ? 'text-[#1D64FF]' : 'text-white/50'}`} />
         <span className="font-medium text-[15px]">{item.label}</span>
       </button>
     );
@@ -171,7 +171,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
   }) => (
     <button 
       onClick={onToggle}
-      className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-slate-400 tracking-wider uppercase"
+      className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-white/40 tracking-wider uppercase"
     >
       {title}
       {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -180,17 +180,17 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col">
+      <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-[#020408] border-r border-white/[0.08]">
         {/* Header with Logo */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
             <img src="/ditax-logo-new.png" alt="Ditax" className="h-8" />
           </div>
           <button
             onClick={() => onOpenChange(false)}
-            className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-full hover:bg-white/10 transition-colors"
           >
-            <X className="w-5 h-5 text-slate-500" />
+            <X className="w-5 h-5 text-white/50" />
           </button>
         </div>
 
@@ -238,10 +238,10 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
         </div>
 
         {/* User Profile Section */}
-        <div className="border-t">
+        <div className="border-t border-white/[0.08]">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center gap-3 p-4 hover:bg-white/5 transition-colors"
           >
             {profile?.avatar_url ? (
               <img 
@@ -250,27 +250,27 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
                 className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-medium">
+              <div className="w-10 h-10 rounded-full bg-[#0A0C10] flex items-center justify-center text-white/70 font-medium border border-white/[0.08]">
                 {profile?.first_name?.charAt(0) || 'U'}
               </div>
             )}
             <div className="flex-1 text-left">
-              <div className="font-semibold text-slate-900">{profile?.first_name || 'User'}</div>
-              <div className="text-sm text-slate-500 truncate">{profile?.email}</div>
+              <div className="font-semibold text-white">{profile?.first_name || 'User'}</div>
+              <div className="text-sm text-white/50 truncate">{profile?.email}</div>
             </div>
-            {userMenuOpen ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+            {userMenuOpen ? <ChevronUp className="w-5 h-5 text-white/40" /> : <ChevronDown className="w-5 h-5 text-white/40" />}
           </button>
           
           {userMenuOpen && (
-            <div className="border-t">
+            <div className="border-t border-white/[0.08]">
               <button
                 onClick={() => {
                   navigate('/profile');
                   onOpenChange(false);
                 }}
-                className="w-full flex items-center gap-4 px-4 py-3 text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center gap-4 px-4 py-3 text-white/70 hover:bg-white/5 hover:text-white transition-colors"
               >
-                <User className="w-5 h-5 text-slate-500" />
+                <User className="w-5 h-5 text-white/50" />
                 <span className="font-medium">Profil</span>
               </button>
               <button
@@ -279,7 +279,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({ isOpen, onOpenChange,
                   onOpenChange(false);
                   navigate('/auth');
                 }}
-                className="w-full flex items-center gap-4 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"
+                className="w-full flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-500/10 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="font-medium">Abmelden</span>
