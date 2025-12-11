@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, Calendar } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, Calendar, FileText, Image, MoreHorizontal } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFormContext, FormProvider } from '@/contexts';
@@ -246,41 +246,97 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
               </div>
             </div>
 
-            {/* Empty State / Context */}
-            <div className="flex-1 flex flex-col items-center justify-center -mt-10">
-              <div className="text-center space-y-6 relative">
-                {/* Icon placeholder */}
-                <div className="relative mx-auto w-24 h-24 mb-4">
-                  <div className="absolute inset-0 bg-[#1D64FF] rounded-full blur-[40px] opacity-20" />
-                  <div className="relative w-full h-full rounded-[32px] bg-gradient-to-b from-[#16191F] to-[#0A0C10] border border-white/[0.08] shadow-2xl flex items-center justify-center group cursor-default">
-                    <FolderOpen className="w-10 h-10 text-[#1D64FF] group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  {/* Status Badge */}
-                  <div className="absolute -top-2 -right-2 bg-[#0A0C10] border border-white/10 p-1.5 rounded-full shadow-lg">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  </div>
+            {/* Content Area - Show documents or empty state */}
+            {documents.length > 0 ? (
+              /* Document List */
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-medium text-white">Hochgeladene Dokumente</h2>
+                  <span className="text-xs text-zinc-500 font-medium">{documents.length} Dateien</span>
                 </div>
-
-                <div className="space-y-2">
-                  <h2 className="text-xl font-medium text-white tracking-tight">Belege sammeln</h2>
-                  <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
-                    Füge deine Rechnungen und Quittungen direkt hinzu, um sie für deine Steuererklärung zu speichern.
-                  </p>
+                
+                <div className="space-y-3">
+                  {documents.map((doc) => (
+                    <div 
+                      key={doc.id}
+                      className="group flex items-center gap-4 p-4 bg-[#0A0C10] border border-white/[0.06] rounded-2xl hover:border-[#1D64FF]/30 transition-all duration-300"
+                    >
+                      {/* File Icon */}
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+                        doc.file_type?.startsWith('image/') 
+                          ? "bg-emerald-500/10 border border-emerald-500/20"
+                          : "bg-[#1D64FF]/10 border border-[#1D64FF]/20"
+                      )}>
+                        {doc.file_type?.startsWith('image/') 
+                          ? <Image className="w-5 h-5 text-emerald-500" />
+                          : <FileText className="w-5 h-5 text-[#1D64FF]" />
+                        }
+                      </div>
+                      
+                      {/* File Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{doc.file_name}</p>
+                        <p className="text-xs text-zinc-500 mt-0.5">
+                          {format(new Date(doc.upload_date), 'dd. MMM yyyy', { locale: de })}
+                        </p>
+                      </div>
+                      
+                      {/* Badge */}
+                      <span className={cn(
+                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shrink-0",
+                        doc.file_type?.startsWith('image/') 
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : "bg-[#1D64FF]/20 text-[#1D64FF]"
+                      )}>
+                        {doc.file_type?.startsWith('image/') ? 'Bild' : 'PDF'}
+                      </span>
+                      
+                      {/* Menu Button */}
+                      <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-
-                {/* Stats / Counter */}
-                <div className="flex items-center justify-center gap-4 pt-4">
-                  <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Gesamt</span>
-                    <span className="text-sm text-zinc-200 font-medium font-mono">{documents.length}</span>
+              </div>
+            ) : (
+              /* Empty State */
+              <div className="flex-1 flex flex-col items-center justify-center -mt-10">
+                <div className="text-center space-y-6 relative">
+                  {/* Icon placeholder */}
+                  <div className="relative mx-auto w-24 h-24 mb-4">
+                    <div className="absolute inset-0 bg-[#1D64FF] rounded-full blur-[40px] opacity-20" />
+                    <div className="relative w-full h-full rounded-[32px] bg-gradient-to-b from-[#16191F] to-[#0A0C10] border border-white/[0.08] shadow-2xl flex items-center justify-center group cursor-default">
+                      <FolderOpen className="w-10 h-10 text-[#1D64FF] group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                    {/* Status Badge */}
+                    <div className="absolute -top-2 -right-2 bg-[#0A0C10] border border-white/10 p-1.5 rounded-full shadow-lg">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    </div>
                   </div>
-                  <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Monat</span>
-                    <span className="text-sm text-zinc-200 font-medium">{currentMonth}</span>
+
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-medium text-white tracking-tight">Belege sammeln</h2>
+                    <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
+                      Füge deine Rechnungen und Quittungen direkt hinzu, um sie für deine Steuererklärung zu speichern.
+                    </p>
+                  </div>
+
+                  {/* Stats / Counter */}
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
+                      <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Gesamt</span>
+                      <span className="text-sm text-zinc-200 font-medium font-mono">{documents.length}</span>
+                    </div>
+                    <div className="px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex flex-col items-center min-w-[80px]">
+                      <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Monat</span>
+                      <span className="text-sm text-zinc-200 font-medium">{currentMonth}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Floating Upload Button */}
