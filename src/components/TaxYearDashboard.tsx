@@ -363,14 +363,7 @@ export const TaxYearDashboard: React.FC = () => {
         </div>
 
         {/* Floating Action Button */}
-        <button onClick={() => {
-        if (canSubmit) handleSubmitClick();else if (!allAngabenComplete) handleSectionClick(angabenSections.find(s => !isCompleted(s.id)) || angabenSections[0]);else handleDocumentsClick();
-      }} className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-[#1D64FF] to-[#3b82f6] text-white rounded-2xl shadow-[0_10px_35px_-5px_rgba(29,100,255,0.5)] flex items-center justify-center z-50 hover:scale-105 transition-transform active:scale-95 border border-white/10 ring-1 ring-white/20">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
-          </svg>
-        </button>
+        
       </div>
     </div>;
 };
