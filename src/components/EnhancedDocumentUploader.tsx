@@ -18,6 +18,7 @@ export interface DocumentUploaderProps {
   hasUploadedFiles?: boolean;
   onPreviewChange?: (hasPreview: boolean) => void;
   autoTriggerUpload?: boolean;
+  initialFiles?: File[];
 }
 
 interface FileWithPreview {
@@ -50,7 +51,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   onDocumentSubmitted,
   hasUploadedFiles: externalHasUploadedFiles,
   onPreviewChange,
-  autoTriggerUpload = false
+  autoTriggerUpload = false,
+  initialFiles = []
 }) => {
   const { taxYear } = useFormContext();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -104,6 +106,87 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     const hasFilesInUploader = files.length > 0 || screenshots.length > 0 || imagePreviews.length > 0;
     onPreviewChange?.(hasFilesInUploader);
   }, [files, screenshots, imagePreviews, onPreviewChange]);
+
+  // Process initial files when component mounts
+  useEffect(() => {
+    if (initialFiles.length > 0 && pdfLibLoaded) {
+      processInitialFiles(initialFiles);
+    }
+  }, [initialFiles, pdfLibLoaded]);
+
+  const processInitialFiles = async (filesToProcess: File[]) => {
+    if (filesToProcess.length === 0) return;
+    setIsProcessing(true);
+    setError(null);
+
+    const newFiles: FileWithPreview[] = [];
+    const newImagePreviews: ImagePreview[] = [];
+    const imageFiles: File[] = [];
+    let newPdfFile: File | null = null;
+
+    try {
+      for (const selectedFile of filesToProcess) {
+        const validationResult = await validateFile(selectedFile, 10 * 1024 * 1024);
+        
+        if (!validationResult.isValid) {
+          setError(`"${selectedFile.name}": ${validationResult.error}`);
+          continue;
+        }
+        
+        const fileWithPreview: FileWithPreview = {
+          file: selectedFile,
+          id: uuidv4(),
+          uploading: false,
+          progress: 0,
+          uploaded: false
+        };
+
+        if (selectedFile.type.startsWith('image/')) {
+          imageFiles.push(selectedFile);
+        } else if (selectedFile.type === 'application/pdf') {
+          newPdfFile = selectedFile;
+        }
+        newFiles.push(fileWithPreview);
+      }
+
+      for (const imageFile of imageFiles) {
+        try {
+          const imagePreview = await createImagePreview(imageFile);
+          newImagePreviews.push(imagePreview);
+        } catch (err) {
+          console.error('Error creating image preview:', err);
+        }
+      }
+
+      if (!newPdfFile && imageFiles.length > 0) {
+        setCurrentFile(imageFiles[0]);
+      }
+
+      if (newPdfFile && pdfLibLoaded) {
+        setCurrentFile(newPdfFile);
+        try {
+          const arrayBuffer = await newPdfFile.arrayBuffer();
+          const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+          const pdf = await loadingTask.promise;
+          
+          const newScreenshots: Screenshot[] = [];
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const screenshot = await convertPageToScreenshot(page, pageNum);
+            newScreenshots.push(screenshot);
+          }
+          setScreenshots(newScreenshots);
+        } catch (err: any) {
+          console.error('Error processing PDF:', err);
+        }
+      }
+
+      setFiles(newFiles);
+      setImagePreviews(newImagePreviews);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const convertPageToScreenshot = async (page: any, pageNumber: number): Promise<Screenshot> => {
     try {
