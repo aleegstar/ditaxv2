@@ -6,7 +6,6 @@ import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
-
 interface DashboardSection {
   id: string;
   title: string;
@@ -16,8 +15,11 @@ interface DashboardSection {
 }
 
 // Beam animation component
-const NexusBeam: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
-  <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
+const NexusBeam: React.FC<{
+  delay?: number;
+}> = ({
+  delay = 0
+}) => <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
     {/* Static Guide Line - Always Visible */}
     <div className="w-[2px] h-full bg-white/50 absolute z-0" />
     
@@ -27,117 +29,129 @@ const NexusBeam: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
     {/* The Beam Container */}
     <div className="absolute inset-0 flex justify-center overflow-hidden">
       {/* The Traveling High-Energy Pulse */}
-      <div 
-        className="w-[2px] h-40 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px] z-10"
-        style={{
-          animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-          animationDelay: `${delay}s`,
-          boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
-        }}
-      />
+      <div className="w-[2px] h-40 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px] z-10" style={{
+      animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+      animationDelay: `${delay}s`,
+      boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
+    }} />
       
       {/* Brighter White Core */}
-      <div 
-        className="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent absolute z-20 opacity-80"
-        style={{
-          animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-          animationDelay: `${delay}s`
-        }}
-      />
+      <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent absolute z-20 opacity-80" style={{
+      animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+      animationDelay: `${delay}s`
+    }} />
     </div>
-  </div>
-);
+  </div>;
 
 // Progress Circle component
-const ProgressCircle: React.FC<{ percentage: number }> = ({ percentage }) => {
+const ProgressCircle: React.FC<{
+  percentage: number;
+}> = ({
+  percentage
+}) => {
   const circumference = 2 * Math.PI * 20;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-  
-  return (
-    <div className="relative w-12 h-12 flex items-center justify-center">
+  const strokeDashoffset = circumference - percentage / 100 * circumference;
+  return <div className="relative w-12 h-12 flex items-center justify-center">
       <svg className="w-full h-full transform -rotate-90">
         <circle cx="24" cy="24" r="20" stroke="#27272a" strokeWidth="3" fill="none" />
-        <circle 
-          cx="24" 
-          cy="24" 
-          r="20" 
-          stroke="#1D64FF" 
-          strokeWidth="3" 
-          fill="none"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          className="drop-shadow-[0_0_8px_rgba(29,100,255,0.5)]"
-        />
+        <circle cx="24" cy="24" r="20" stroke="#1D64FF" strokeWidth="3" fill="none" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(29,100,255,0.5)]" />
       </svg>
       <span className="absolute text-[10px] font-semibold text-white font-jakarta">
         {percentage}%
       </span>
-    </div>
-  );
+    </div>;
 };
-
 export const TaxYearDashboard: React.FC = () => {
-  const { formProgress, taxYear } = useFormContext();
+  const {
+    formProgress,
+    taxYear
+  } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { profile } = useProfile();
+  const {
+    profile
+  } = useProfile();
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-
   useEffect(() => {
     const loadPaymentStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user || !taxYear) return;
-      const { data } = await supabase
-        .from('tax_returns')
-        .select('payment_status')
-        .eq('user_id', user.id)
-        .eq('tax_year', taxYear)
-        .maybeSingle();
+      const {
+        data
+      } = await supabase.from('tax_returns').select('payment_status').eq('user_id', user.id).eq('tax_year', taxYear).maybeSingle();
       if (data?.payment_status) {
         setPaymentStatus(data.payment_status);
       }
     };
     loadPaymentStatus();
   }, [taxYear]);
-
-  const angabenSections: DashboardSection[] = [
-    { id: 'contact', title: 'Kontaktangaben', icon: User, param: 'kontakt' },
-    { id: 'deductions', title: 'Abzüge', icon: Shield, param: 'abzuege' },
-    { id: 'income', title: 'Einkommen', icon: Wallet, param: 'einkommen' },
-    { id: 'assets', title: 'Vermögen', icon: Landmark, param: 'vermoegen' },
-  ];
-
+  const angabenSections: DashboardSection[] = [{
+    id: 'contact',
+    title: 'Kontaktangaben',
+    icon: User,
+    param: 'kontakt'
+  }, {
+    id: 'deductions',
+    title: 'Abzüge',
+    icon: Shield,
+    param: 'abzuege'
+  }, {
+    id: 'income',
+    title: 'Einkommen',
+    icon: Wallet,
+    param: 'einkommen'
+  }, {
+    id: 'assets',
+    title: 'Vermögen',
+    icon: Landmark,
+    param: 'vermoegen'
+  }];
   const isCompleted = (sectionId: string): boolean => {
     switch (sectionId) {
-      case 'contact': return formProgress.contactInfo || false;
-      case 'income': return formProgress.income || false;
-      case 'deductions': return formProgress.deductions || false;
-      case 'assets': return formProgress.assets || false;
-      case 'documents': return formProgress.documents || false;
+      case 'contact':
+        return formProgress.contactInfo || false;
+      case 'income':
+        return formProgress.income || false;
+      case 'deductions':
+        return formProgress.deductions || false;
+      case 'assets':
+        return formProgress.assets || false;
+      case 'documents':
+        return formProgress.documents || false;
       case 'submit':
-        return (formProgress.contactInfo && formProgress.income && formProgress.deductions && formProgress.assets && formProgress.documents && paymentStatus === 'paid') || false;
-      default: return false;
+        return formProgress.contactInfo && formProgress.income && formProgress.deductions && formProgress.assets && formProgress.documents && paymentStatus === 'paid' || false;
+      default:
+        return false;
     }
   };
-
-  const getAngabenProgress = (): { completed: number; total: number; percentage: number } => {
+  const getAngabenProgress = (): {
+    completed: number;
+    total: number;
+    percentage: number;
+  } => {
     const completed = angabenSections.filter(s => isCompleted(s.id)).length;
-    return { completed, total: 4, percentage: Math.round((completed / 4) * 100) };
+    return {
+      completed,
+      total: 4,
+      percentage: Math.round(completed / 4 * 100)
+    };
   };
-
   const handleSectionClick = (section: DashboardSection) => {
     if (section.id === 'documents') {
       navigate('/documents');
       return;
     }
-    setSearchParams({ section: section.param });
+    setSearchParams({
+      section: section.param
+    });
   };
-
   const handleDocumentsClick = () => {
     navigate('/documents');
   };
-
   const handleSubmitClick = () => {
     const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
     const documentsComplete = isCompleted('documents');
@@ -145,14 +159,11 @@ export const TaxYearDashboard: React.FC = () => {
       navigate('/payment');
     }
   };
-
   const angabenProgress = getAngabenProgress();
   const isDocumentsComplete = isCompleted('documents');
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
-
-  return (
-    <div className="min-h-screen bg-[#020408] flex flex-col text-zinc-100 antialiased">
+  return <div className="min-h-screen bg-[#020408] flex flex-col text-zinc-100 antialiased">
       {/* Inject beam animation keyframes */}
       <style>{`
         @keyframes beam-drop {
@@ -169,18 +180,10 @@ export const TaxYearDashboard: React.FC = () => {
         <header className="flex z-20 p-8 relative items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/')}
-              className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group"
-            >
+            <button onClick={() => navigate('/')} className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
               <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
             </button>
-            <img 
-              src={ditaxLogoMain} 
-              alt="Ditax" 
-              className="cursor-pointer w-auto h-8 object-contain opacity-90 hover:opacity-100 transition-opacity"
-              onClick={() => navigate('/')}
-            />
+            
           </div>
 
           {/* Right Icons */}
@@ -213,25 +216,24 @@ export const TaxYearDashboard: React.FC = () => {
             </span>
           </h1>
           <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-zinc-900 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)] ring-1 ring-white/10">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+            {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90" /> : <div className="w-full h-full flex items-center justify-center bg-zinc-800">
                 <User className="w-5 h-5 text-zinc-400" />
-              </div>
-            )}
+              </div>}
           </div>
         </div>
 
         {/* Main Content Stream */}
         <div className="flex flex-col md:px-8 px-4 relative items-center">
           {/* Card 1: Angaben */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full z-20 border border-white/10 rounded-[1.5rem] p-4 md:p-6 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.5
+        }} className="w-full z-20 border border-white/10 rounded-[1.5rem] p-4 md:p-6 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5">
             {/* Card Header */}
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -250,30 +252,21 @@ export const TaxYearDashboard: React.FC = () => {
 
             {/* Grid Options */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {angabenSections.map((section) => {
-                const Icon = section.icon;
-                const completed = isCompleted(section.id);
-                
-                return (
-                  <button
-                    key={section.id}
-                    onClick={() => handleSectionClick(section)}
-                    className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left"
-                  >
+              {angabenSections.map(section => {
+              const Icon = section.icon;
+              const completed = isCompleted(section.id);
+              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-                      {completed && (
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF]/20 text-[#1D64FF]">
+                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF]/20 text-[#1D64FF]">
                           <Check className="w-3 h-3" strokeWidth={2} />
-                        </div>
-                      )}
+                        </div>}
                     </div>
                     <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
                       {section.title}
                     </span>
-                  </button>
-                );
-              })}
+                  </button>;
+            })}
             </div>
           </motion.div>
 
@@ -281,17 +274,16 @@ export const TaxYearDashboard: React.FC = () => {
           <NexusBeam delay={0} />
 
           {/* Card 2: Unterlagen */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            onClick={() => allAngabenComplete && handleDocumentsClick()}
-            className={`w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
-              allAngabenComplete 
-                ? 'hover:border-white/20 cursor-pointer' 
-                : 'opacity-50 cursor-not-allowed'
-            }`}
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.5,
+          delay: 0.1
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${allAngabenComplete ? 'hover:border-white/20 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
             <div className="flex justify-between items-start mb-2">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${allAngabenComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
@@ -301,24 +293,16 @@ export const TaxYearDashboard: React.FC = () => {
                   Unterlagen
                 </h2>
                 <p className="text-zinc-500 text-sm mt-1 font-light leading-relaxed font-jakarta">
-                  {allAngabenComplete 
-                    ? 'Lade deine steuerrelevanten Unterlagen hoch.' 
-                    : 'Schliesse zuerst alle Angaben ab.'}
+                  {allAngabenComplete ? 'Lade deine steuerrelevanten Unterlagen hoch.' : 'Schliesse zuerst alle Angaben ab.'}
                 </p>
               </div>
               <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center ${allAngabenComplete ? 'bg-white/5' : 'bg-white/[0.02]'}`}>
-                {isDocumentsComplete ? (
-                  <Check className="w-4 h-4 text-[#1D64FF]" strokeWidth={1.5} />
-                ) : (
-                  <UploadCloud className={`w-4 h-4 ${allAngabenComplete ? 'text-zinc-400' : 'text-zinc-600'}`} strokeWidth={1.5} />
-                )}
+                {isDocumentsComplete ? <Check className="w-4 h-4 text-[#1D64FF]" strokeWidth={1.5} /> : <UploadCloud className={`w-4 h-4 ${allAngabenComplete ? 'text-zinc-400' : 'text-zinc-600'}`} strokeWidth={1.5} />}
               </div>
             </div>
 
             {/* Small preview/placeholder for upload area */}
-            <div className={`mt-4 h-16 w-full border border-dashed rounded-lg flex items-center justify-center gap-2 ${
-              allAngabenComplete ? 'border-white/10 bg-white/[0.01]' : 'border-white/5 bg-transparent'
-            }`}>
+            <div className={`mt-4 h-16 w-full border border-dashed rounded-lg flex items-center justify-center gap-2 ${allAngabenComplete ? 'border-white/10 bg-white/[0.01]' : 'border-white/5 bg-transparent'}`}>
               <span className={`text-xs font-jakarta ${allAngabenComplete ? 'text-zinc-600' : 'text-zinc-700'}`}>
                 {allAngabenComplete ? 'Drag & Drop oder Auswählen' : 'Gesperrt'}
               </span>
@@ -329,12 +313,16 @@ export const TaxYearDashboard: React.FC = () => {
           <NexusBeam delay={1.25} />
 
           {/* Card 3: Einreichen */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group hover:border-white/20 transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.5,
+          delay: 0.2
+        }} className="w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group hover:border-white/20 transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className="block text-[10px] font-semibold text-[#1D64FF] tracking-widest font-jakarta mb-1">
@@ -367,11 +355,7 @@ export const TaxYearDashboard: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <button 
-                onClick={handleSubmitClick}
-                disabled={!canSubmit}
-                className="px-5 py-2 bg-gradient-to-r from-[#1D64FF] to-[#2563eb] text-white text-xs font-medium rounded-lg hover:shadow-[0_0_25px_rgba(29,100,255,0.5)] transition-all shadow-lg shadow-blue-900/30 font-jakarta border border-white/10 tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleSubmitClick} disabled={!canSubmit} className="px-5 py-2 bg-gradient-to-r from-[#1D64FF] to-[#2563eb] text-white text-xs font-medium rounded-lg hover:shadow-[0_0_25px_rgba(29,100,255,0.5)] transition-all shadow-lg shadow-blue-900/30 font-jakarta border border-white/10 tracking-wide disabled:opacity-40 disabled:cursor-not-allowed">
                 Senden
               </button>
             </div>
@@ -379,20 +363,14 @@ export const TaxYearDashboard: React.FC = () => {
         </div>
 
         {/* Floating Action Button */}
-        <button 
-          onClick={() => {
-            if (canSubmit) handleSubmitClick();
-            else if (!allAngabenComplete) handleSectionClick(angabenSections.find(s => !isCompleted(s.id)) || angabenSections[0]);
-            else handleDocumentsClick();
-          }}
-          className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-[#1D64FF] to-[#3b82f6] text-white rounded-2xl shadow-[0_10px_35px_-5px_rgba(29,100,255,0.5)] flex items-center justify-center z-50 hover:scale-105 transition-transform active:scale-95 border border-white/10 ring-1 ring-white/20"
-        >
+        <button onClick={() => {
+        if (canSubmit) handleSubmitClick();else if (!allAngabenComplete) handleSectionClick(angabenSections.find(s => !isCompleted(s.id)) || angabenSections[0]);else handleDocumentsClick();
+      }} className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-[#1D64FF] to-[#3b82f6] text-white rounded-2xl shadow-[0_10px_35px_-5px_rgba(29,100,255,0.5)] flex items-center justify-center z-50 hover:scale-105 transition-transform active:scale-95 border border-white/10 ring-1 ring-white/20">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
             <path d="M5 12h14" />
             <path d="m12 5 7 7-7 7" />
           </svg>
         </button>
       </div>
-    </div>
-  );
+    </div>;
 };
