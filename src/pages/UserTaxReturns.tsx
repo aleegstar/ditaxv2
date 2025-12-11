@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ArrowRight, Check, FileCheck, Archive } from 'lucide-react';
+import ditaxLogoMain from '@/assets/ditax-logo-main.png';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -212,9 +213,9 @@ const UserTaxReturns = () => {
           {/* Logo */}
           <div className="flex gap-2 items-center">
             <img 
-              src="/ditax-logo-new.png" 
+              src={ditaxLogoMain} 
               alt="Ditax" 
-              className="cursor-pointer w-auto h-8 object-contain brightness-0 invert"
+              className="cursor-pointer w-auto h-8 object-contain"
               onClick={() => navigate('/')}
             />
           </div>
