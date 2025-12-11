@@ -1,8 +1,8 @@
 import React from 'react';
-import { Bell, MessageSquare, FileText, Check, CheckCheck } from 'lucide-react';
+import { Bell, MessageSquare, FileText, Check, CheckCheck, X } from 'lucide-react';
 import { CustomNotificationIcon } from './custom-notification-icon';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationBadge } from './notification-badge';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
@@ -86,10 +86,17 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
             <h3 className="text-lg font-semibold text-white">Benachrichtigungen</h3>
-            {unreadCount > 0 && <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} className="text-xs text-[#1D64FF] hover:text-[#1D64FF] hover:bg-white/[0.05] h-auto py-1 px-2">
-                <CheckCheck className="h-3 w-3 mr-1" />
-                Alle lesen
-              </Button>}
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && <Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} className="text-xs text-[#1D64FF] hover:text-[#1D64FF] hover:bg-white/[0.05] h-auto py-1 px-2">
+                  <CheckCheck className="h-3 w-3 mr-1" />
+                  Alle lesen
+                </Button>}
+              <SheetClose asChild>
+                <Button variant="ghost" size="sm" className="p-1 h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                  <X className="h-5 w-5" />
+                </Button>
+              </SheetClose>
+            </div>
           </div>
 
           <ScrollArea className="flex-1">
