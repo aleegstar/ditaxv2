@@ -253,7 +253,7 @@ const MultiStepContactForm = ({
   const darkLabelClass = "block mb-3 text-zinc-400 text-base font-medium";
 
   return (
-    <div className="min-h-screen bg-[#020408] relative overflow-hidden">
+    <div className="min-h-screen bg-[#020408] relative overflow-hidden flex justify-center">
       {/* Blue ambient glow */}
       <div 
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
@@ -263,7 +263,7 @@ const MultiStepContactForm = ({
         }}
       />
 
-      <div className="relative z-10 px-6 py-8">
+      <div className="relative z-10 px-6 py-8 w-full max-w-[500px] md:max-w-2xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <div className="relative flex items-center justify-between mb-8">
