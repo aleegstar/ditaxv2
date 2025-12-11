@@ -243,8 +243,8 @@ export const TaxYearDashboard: React.FC = () => {
               return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF]/20 text-[#1D64FF]">
-                          <Check className="w-3 h-3" strokeWidth={2} />
+                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
+                          <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                         </div>}
                     </div>
                     <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
