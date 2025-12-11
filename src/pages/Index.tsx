@@ -26,23 +26,24 @@ const sectionKeyMap: Record<string, FormSectionKey> = {
   'abzuege': 'deductions',
   'vermoegen': 'assets'
 };
-
 const sectionNameMap: Record<string, string> = {
   'kontakt': 'Persönliche Daten',
   'einkommen': 'Einkommen',
   'abzuege': 'Abzüge',
   'vermoegen': 'Vermögen'
 };
-
 const IndexContent = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { hasDataForPreviousYear, formProgress, taxYear } = useFormContext();
+  const {
+    hasDataForPreviousYear,
+    formProgress,
+    taxYear
+  } = useFormContext();
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [checkingImport, setCheckingImport] = useState(false);
-  
   const section = searchParams.get('section');
-  
+
   // Check if import wizard should be shown
   useEffect(() => {
     const checkImportNeeded = async () => {
@@ -51,21 +52,18 @@ const IndexContent = () => {
         setShowImportWizard(false);
         return;
       }
-      
       const sectionKey = sectionKeyMap[section];
       if (!sectionKey) {
         setShowImportWizard(false);
         return;
       }
-      
+
       // Don't show if section is already completed
       if (formProgress[sectionKey]) {
         setShowImportWizard(false);
         return;
       }
-      
       setCheckingImport(true);
-      
       try {
         // Check if previous year data exists
         const hasData = await hasDataForPreviousYear(sectionKey);
@@ -77,7 +75,6 @@ const IndexContent = () => {
         setCheckingImport(false);
       }
     };
-    
     checkImportNeeded();
   }, [section, formProgress, hasDataForPreviousYear]);
 
@@ -85,21 +82,14 @@ const IndexContent = () => {
   const renderContent = () => {
     // Show import wizard if applicable
     if (showImportWizard && section && sectionKeyMap[section]) {
-      return (
-        <ImportWizard
-          section={sectionKeyMap[section]}
-          sectionName={sectionNameMap[section]}
-          taxYear={taxYear}
-          onComplete={() => setShowImportWizard(false)}
-        />
-      );
+      return <ImportWizard section={sectionKeyMap[section]} sectionName={sectionNameMap[section]} taxYear={taxYear} onComplete={() => setShowImportWizard(false)} />;
     }
-    
+
     // Show loading state while checking
     if (checkingImport) {
       return null;
     }
-    
+
     // Normal flow
     switch (section) {
       case 'kontakt':
@@ -123,44 +113,22 @@ const IndexContent = () => {
 
   // Show floating button only on main dashboard
   const showFloatingButton = !section;
-
-  return (
-    <AnimatedPageContainer className="min-h-screen bg-white">
+  return <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
       
       {/* Floating Add Document Button */}
-      {showFloatingButton && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[float_5s_ease-in-out_infinite] w-max">
-          <motion.button 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            onClick={() => navigate('/documents')}
-            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center"
-          >
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
-              <Plus className="w-5 h-5 text-white stroke-[2.5px]" />
-            </div>
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
-                Dokument hinzufügen
-              </span>
-              <span className="text-[11px] text-zinc-500 group-hover:text-zinc-400 transition-colors">
-                Scan oder Upload
-              </span>
-            </div>
-          </motion.button>
-        </div>
-      )}
+      {showFloatingButton}
       {/* OnboardingTour now managed globally in App.tsx */}
-    </AnimatedPageContainer>
-  );
+    </AnimatedPageContainer>;
 };
-
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { userId, isValid, isLoading } = useAuthValidation();
+  const {
+    userId,
+    isValid,
+    isLoading
+  } = useAuthValidation();
   const [authChecked, setAuthChecked] = useState(false);
   const year = searchParams.get('year') || new Date().getFullYear().toString();
 
@@ -168,13 +136,14 @@ const Index = () => {
   useEffect(() => {
     const accessToken = searchParams.get("at");
     const refreshToken = searchParams.get("rt");
-    
     if (accessToken && refreshToken) {
       // Set session from deep link tokens
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken
-      }).then(({ error }) => {
+      }).then(({
+        error
+      }) => {
         if (error) {
           console.error('Error setting session from deep link:', error);
         } else {
@@ -182,7 +151,11 @@ const Index = () => {
           const newParams = new URLSearchParams(searchParams);
           newParams.delete("at");
           newParams.delete("rt");
-          navigate({ search: newParams.toString() }, { replace: true });
+          navigate({
+            search: newParams.toString()
+          }, {
+            replace: true
+          });
         }
       });
     }
@@ -193,14 +166,14 @@ const Index = () => {
     if (isLoading) {
       return; // Still checking auth, wait
     }
-
     setAuthChecked(true);
-
     if (!isValid || !userId) {
       console.log('❌ Not authenticated, redirecting to auth');
-      navigate('/auth', { 
-        replace: true, 
-        state: { from: window.location.pathname } 
+      navigate('/auth', {
+        replace: true,
+        state: {
+          from: window.location.pathname
+        }
       });
     } else {
       console.log('✅ User authenticated, showing content');
@@ -216,12 +189,8 @@ const Index = () => {
   if (!isValid || !userId) {
     return null;
   }
-
-  return (
-    <FormProvider taxYear={year}>
+  return <FormProvider taxYear={year}>
       <IndexContent />
-    </FormProvider>
-  );
+    </FormProvider>;
 };
-
 export default Index;

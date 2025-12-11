@@ -187,22 +187,7 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-3">
-            {/* Notification Bell */}
-            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
-              <Bell className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-            </button>
-            
-            {/* Chat Icon */}
-            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
-              <MessageCircle className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-            </button>
-            
-            {/* Menu Button */}
-            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
-              <Menu className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-            </button>
-          </div>
+          
         </header>
 
         {/* Greeting */}
