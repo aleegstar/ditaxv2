@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { EnhancedModernUserChatWindow } from '@/components/chat/EnhancedModernUserChatWindow';
-import { WelcomeHeader } from '@/components/ui/welcome-header';
 import { useI18n } from '@/contexts/I18nContext';
 
 const Chat: React.FC = () => {
@@ -52,26 +51,16 @@ const Chat: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-[#020408]">
         <p className="text-white">{t.common.loading}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen w-full overflow-y-auto">
-      <div className="flex-1 flex flex-col">
-        {/* Welcome Header */}
-        <WelcomeHeader
-          customTitle="Nachrichten"
-          customDescription="Starte den Chat mit unserem Chatbot oder lass dich direkt mit einem unserer Mitarbeitenden verbinden."
-        />
-        
-        <div className="flex flex-col h-full pb-20 md:pb-0">
-          <div className="flex-1 relative">
-            <EnhancedModernUserChatWindow />
-          </div>
-        </div>
+    <div className="flex h-screen w-full overflow-hidden bg-[#020408]">
+      <div className="flex-1 flex flex-col h-full">
+        <EnhancedModernUserChatWindow />
       </div>
     </div>
   );

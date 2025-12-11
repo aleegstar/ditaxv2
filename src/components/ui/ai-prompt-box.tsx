@@ -36,11 +36,13 @@ document.head.appendChild(styleSheet);
 // Textarea Component
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   className?: string;
+  darkMode?: boolean;
 }
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => (
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, darkMode, ...props }, ref) => (
   <textarea
     className={cn(
-      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
+      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
+      darkMode ? "text-white" : "text-gray-900",
       className
     )}
     ref={ref}
@@ -195,6 +197,7 @@ interface PromptInputContextType {
   maxHeight: number | string;
   onSubmit?: () => void;
   disabled?: boolean;
+  darkMode?: boolean;
 }
 const PromptInputContext = React.createContext<PromptInputContextType>({
   isLoading: false,
@@ -203,6 +206,7 @@ const PromptInputContext = React.createContext<PromptInputContextType>({
   maxHeight: 240,
   onSubmit: undefined,
   disabled: false,
+  darkMode: false,
 });
 function usePromptInput() {
   const context = React.useContext(PromptInputContext);
@@ -219,6 +223,7 @@ interface PromptInputProps {
   children: React.ReactNode;
   className?: string;
   disabled?: boolean;
+  darkMode?: boolean;
   onDragOver?: (e: React.DragEvent) => void;
   onDragLeave?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
@@ -234,6 +239,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       onSubmit,
       children,
       disabled = false,
+      darkMode = false,
       onDragOver,
       onDragLeave,
       onDrop,
@@ -245,6 +251,10 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       setInternalValue(newValue);
       onValueChange?.(newValue);
     };
+    
+    // Detect dark mode from className
+    const isDarkMode = darkMode || className?.includes('!bg-[#0A0C10]') || className?.includes('bg-[#0A0C10]');
+    
     return (
       <TooltipProvider>
         <PromptInputContext.Provider
@@ -255,12 +265,14 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
             maxHeight,
             onSubmit,
             disabled,
+            darkMode: isDarkMode,
           }}
         >
           <div
             ref={ref}
             className={cn(
-              "rounded-2xl bg-[hsl(45,40%,98%)] border border-[hsl(45,22.2%,92.9%)] py-3 px-2",
+              "rounded-2xl py-3 px-2",
+              !isDarkMode && "bg-[hsl(45,40%,98%)] border border-[hsl(45,22.2%,92.9%)]",
               isLoading && "border-red-500/70",
               className
             )}
@@ -288,7 +300,7 @@ const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentPr
   placeholder,
   ...props
 }) => {
-  const { value, setValue, maxHeight, onSubmit, disabled } = usePromptInput();
+  const { value, setValue, maxHeight, onSubmit, disabled, darkMode } = usePromptInput();
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
@@ -314,10 +326,11 @@ const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentPr
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className={cn("text-base placeholder:text-[hsl(40,1.3%,44.1%)]", className)}
-      style={{ color: 'hsl(40, 1.3%, 44.1%)' }}
+      className={cn("text-base", darkMode ? "placeholder:text-zinc-500" : "placeholder:text-[hsl(40,1.3%,44.1%)]", className)}
+      style={{ color: darkMode ? 'white' : 'hsl(40, 1.3%, 44.1%)' }}
       disabled={disabled}
       placeholder={placeholder}
+      darkMode={darkMode}
       {...props}
     />
   );
@@ -343,13 +356,19 @@ const PromptInputAction: React.FC<PromptInputActionProps> = ({
   side = "top",
   ...props
 }) => {
-  const { disabled } = usePromptInput();
+  const { disabled, darkMode } = usePromptInput();
   return (
     <Tooltip {...props}>
       <TooltipTrigger asChild disabled={disabled}>
         {children}
       </TooltipTrigger>
-      <TooltipContent side={side} className={className}>
+      <TooltipContent 
+        side={side} 
+        className={cn(
+          darkMode ? "bg-zinc-800 text-white border-zinc-700" : "bg-gray-100 text-gray-800 border-gray-200",
+          className
+        )}
+      >
         {tooltip}
       </TooltipContent>
     </Tooltip>
