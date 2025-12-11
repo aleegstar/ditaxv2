@@ -273,7 +273,7 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.4, ease: 'easeOut' }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative w-full border border-white/10 rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer overflow-hidden bg-gradient-to-b from-[#131720] to-[#020202] shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:shadow-[0_0_60px_-10px_rgba(29,100,255,0.3)] hover:border-[rgba(29,100,255,0.5)] hover:-translate-y-1"
+                className="group relative w-full border border-white/10 rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer overflow-hidden bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:border-[rgba(29,100,255,0.5)] hover:-translate-y-1"
               >
                 {/* Active Indicator Gradient */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
@@ -352,7 +352,7 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (inProgressYears.length + index) * 0.1, duration: 0.4, ease: 'easeOut' }}
                 onClick={() => navigate(`/tax-return-tracking?year=${year}`)}
-                className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]"
+                className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]"
               >
                 <div className="flex justify-between items-start mb-6">
                   <div>
