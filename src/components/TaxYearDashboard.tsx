@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import ditaxLogoMain from '@/assets/ditax-logo-main.png';
 import { User, Wallet, Shield, Landmark, Send, Check, UploadCloud, FileCheck, ArrowLeft, Menu, LucideIcon } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -175,9 +176,9 @@ export const TaxYearDashboard: React.FC = () => {
               <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
             </button>
             <img 
-              src="/ditax-logo-new.png" 
+              src={ditaxLogoMain} 
               alt="Ditax" 
-              className="cursor-pointer w-auto h-6 object-contain opacity-80 hover:opacity-100 transition-opacity"
+              className="cursor-pointer w-auto h-8 object-contain opacity-90 hover:opacity-100 transition-opacity"
               onClick={() => navigate('/')}
             />
           </div>
