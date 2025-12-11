@@ -1,0 +1,72 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+
+interface UserCardProps {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  taxReturnsCount: number;
+}
+
+export function UserCard({
+  id,
+  firstName,
+  lastName,
+  email,
+  taxReturnsCount
+}: UserCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/admin/user/${id}`);
+  };
+
+  const displayName = `${firstName || ''} ${lastName || ''}`.trim() || 'Unbekannt';
+
+  return (
+    <div className="w-full h-full group">
+      <div 
+        onClick={handleClick}
+        className="relative overflow-hidden rounded-[24px] p-6 transition-all duration-300 hover:scale-[1.02] cursor-pointer h-[180px] flex flex-col"
+        style={{
+          background: 'white',
+          border: '1px solid hsl(45 22.2% 92.9% / var(--tw-border-opacity, 1))',
+          boxShadow: 'rgba(0, 0, 0, 0.15) 0px 0px 22px -5px'
+        }}
+      >
+        {/* Status Badge - Top Left */}
+        <div className="absolute top-4 left-4 z-10">
+          <Badge className="bg-green-500/20 text-green-700 flex items-center gap-1.5 px-3 py-1">
+            <span className="text-xs font-medium">Aktiv</span>
+          </Badge>
+        </div>
+
+        {/* Tax Returns Count - Top Right */}
+        <div className="absolute top-4 right-4 z-10">
+          <span className="text-sm text-gray-600 font-medium">
+            {taxReturnsCount} Steuererklärungen
+          </span>
+        </div>
+
+        {/* Centered Name Pill */}
+        <div className="flex-1 flex items-center justify-center">
+          <div 
+            className="relative inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-semibold bg-[#1d64ff] text-white transition-all duration-300 group-hover:-translate-y-2 max-w-[80%]" 
+            style={{
+              boxShadow: 'hsla(221, 100%, 56.1%, 0.41) 0px 32px 32px -12px'
+            }}
+          >
+            <span className="truncate">{displayName}</span>
+          </div>
+        </div>
+
+        {/* Email - Bottom */}
+        <div className="text-center">
+          <p className="text-sm text-gray-600 truncate">{email}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,618 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes wave {
+  0% { transform: rotate(0.0deg) }
+  10% { transform: rotate(14.0deg) }
+  20% { transform: rotate(-8.0deg) }
+  30% { transform: rotate(14.0deg) }
+  40% { transform: rotate(-4.0deg) }
+  50% { transform: rotate(10.0deg) }
+  60% { transform: rotate(0.0deg) }
+  100% { transform: rotate(0.0deg) }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 221 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 221 100% 56%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221 100% 56%;
+
+  --color-1: 0 100% 63%;
+  --color-2: 270 100% 63%;
+  --color-3: 210 100% 63%;
+  --color-4: 195 100% 63%;
+  --color-5: 90 100% 63%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 96%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --font-sans: "Plus Jakarta Sans", sans-serif;
+
+    /* Standard Rainbow button colors */
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+
+    /* Additional variables for new checkbox */
+    --hu-font-geist: var(--font-geist);
+    --hu-font-jetbrains: var(--font-jetbrains-mono);
+    --card-radius: 1rem;
+    --hu-background: 0, 0%, 100%;
+    --hu-foreground: 0, 0%, 14%;
+    --hu-card: 0, 0%, 99%;
+    --hu-card-foreground: 0, 0%, 14%;
+    --hu-primary: 235, 100%, 60%;
+    --hu-primary-foreground: 0, 0%, 98%;
+    --hu-secondary: 0, 0%, 97%;
+    --hu-secondary-foreground: 0, 0%, 20%;
+    --hu-muted: 0, 0%, 97%;
+    --hu-muted-foreground: 0, 0%, 56%;
+    --hu-accent: 0, 0%, 96%;
+    --hu-accent-foreground: 0, 0%, 20%;
+    --hu-destructive: 9, 96%, 47%;
+    --hu-destructive-foreground: 0, 0%, 98%;
+    --hu-border: 0, 0%, 92%;
+    --hu-input: 0, 0%, 100%;
+    --hu-ring: 0, 0%, 71%;
+    --color-fd-background: hsl(var(--hu-background));
+    --color-fd-card: hsl(var(--hu-background));
+
+    /* Chart colors */
+    --color-chart-2: var(--color-2);
+    --color-chart-3: var(--color-3);
+    --color-chart-4: var(--color-4);
+    --color-chart-5: var(--color-5);
+
+    /* Mobile menu component variables */
+    --component-inactive-color: var(--muted-foreground);
+    --component-bg: var(--card);
+    --component-shadow: var(--border);
+    --component-active-bg: var(--secondary);
+    --component-line-inactive-color: var(--border);
+    --component-active-color-default: var(--accent-foreground);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 221 100% 56%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 221 100% 56%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Standard Rainbow button colors for dark mode */
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+
+    /* Dark mode variables for new checkbox */
+    --hu-background: 0, 0%, 7%;
+    --hu-foreground: 0, 0%, 100%;
+    --hu-card: 0, 0%, 9%;
+    --hu-card-foreground: 0, 0%, 100%;
+    --hu-primary: 235, 100%, 60%;
+    --hu-primary-foreground: 0, 0%, 98%;
+    --hu-secondary: 0, 0%, 15%;
+    --hu-secondary-foreground: 0, 0%, 100%;
+    --hu-muted: 0, 0%, 15%;
+    --hu-muted-foreground: 0, 0%, 71%;
+    --hu-accent: 0, 0%, 15%;
+    --hu-accent-foreground: 0, 0%, 100%;
+    --hu-destructive: 0, 84%, 50%;
+    --hu-destructive-foreground: 0, 0%, 98%;
+    --hu-border: 0, 0%, 100%, 10%;
+    --hu-input: 0, 0%, 100%, 5%;
+    --hu-ring: 0, 0%, 56%;
+    --color-fd-background: hsl(var(--hu-background));
+    --color-fd-card: hsl(var(--hu-background));
+
+    /* Mobile menu component variables for dark mode */
+    --component-inactive-color: var(--muted-foreground);
+    --component-bg: var(--card);
+    --component-shadow: var(--border);
+    --component-active-bg: var(--secondary);
+    --component-line-inactive-color: var(--muted-foreground);
+    --component-active-color-default: var(--accent-foreground);
+  }
+
+  /* Android WebView safe fallback - disable blur effects */
+  .no-blur * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: hsl(var(--foreground));
+    background-color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -.01em;
+    line-height: 1.6;
+    min-height: 100vh;
+    overscroll-behavior: contain;
+    position: relative;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide sidebar during onboarding - only on mobile */
+  @media (max-width: 768px) {
+    body.hide-sidebar [data-sidebar],
+    body.hide-sidebar .modern-side-bar {
+      display: none !important;
+    }
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    background: transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    line-height: 1.3;
+    color: hsl(var(--foreground));
+  }
+
+  p {
+    color: hsl(var(--foreground));
+  }
+
+  /* Enhanced chat container styling */
+  .chat-container {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    /* Prevent bounce scrolling on iOS */
+    -webkit-overscroll-behavior: contain;
+  }
+}
+
+/* Custom white background for bg-white/10 */
+.bg-white\/10 {
+  background-color: #fff;
+}
+
+/* Transparent black background for login screen */
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Rainbow animation */
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-rainbow {
+  animation: rainbow 6s linear infinite;
+}
+
+/* Custom override for text-white to use white color */
+.text-white {
+  --tw-text-opacity: 1;
+  color: #fff;
+}
+
+/* Custom override for bg-white */
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgba(255, 255, 255);
+}
+
+/* Custom override for border-gray-200 */
+.border-gray-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(229, 231, 235);
+}
+
+/* Custom overrides for white/opacity classes */
+.border-white\/20 {
+  border-color: #fff;
+}
+.bg-white\/10 {
+  background-color: #ffffff69;
+}
+
+/* Sidebar active state overrides */
+.bg-gray-100 {
+  --tw-bg-opacity: 1;
+  background-color: #fff;
+}
+
+.text-gray-900 {
+  --tw-text-opacity: 1;
+  color: #000;
+}
+
+.bg-\[linear-gradient\(\#121213\,\#121213\)\,linear-gradient\(\#121213_50\%\,rgba\(18\,18\,19\,0\.6\)_80\%\,rgba\(18\,18\,19\,0\)\)\,linear-gradient\(90deg\,hsl\(var\(--color-1\)\)\,hsl\(var\(--color-5\)\)\,hsl\(var\(--color-3\)\)\,hsl\(var\(--color-4\)\)\,hsl\(var\(--color-2\)\)\)\] {
+  background-image: linear-gradient(#fff,#fff),linear-gradient(#fff 50%,#fff9 80%,#12121300),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)));
+}
+
+  .text-primary-foreground {
+    color: hsl(var(--foreground));
+  }
+
+.before\:\[filter\:blur\(calc\(0\.8\*1rem\)\)\]::before {
+  content: var(--tw-content);
+
+  filter: blur(.8rem);
+
+  z-index: -1;
+
+}
+
+@layer utilities {
+  .animate-shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  .sidebar-active {
+    --tw-bg-opacity: 1;
+    background-color: #000000;
+    color: #ffffff;
+  }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-1px);
+  }
+  20%, 80% {
+    transform: translateX(2px);
+  }
+  30%, 50%, 70% {
+    transform: translateX(-4px);
+  }
+  40%, 60% {
+    transform: translateX(4px);
+  }
+}
+
+:root {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--border);
+  --component-active-color-default: var(--accent-foreground);
+}
+
+.dark {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--muted-foreground);
+  --component-active-color-default: var(--accent-foreground);
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-0.3em);
+  }
+  40% {
+    transform: translateY(0);
+  }
+  60% {
+    transform: translateY(-0.1em);
+  }
+  80% {
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Menu Styles */
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: hsl(var(--component-bg));
+  border-top: 1px solid hsl(var(--component-shadow));
+  backdrop-filter: blur(10px);
+}
+
+.menu__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+  min-width: 60px;
+  position: relative;
+}
+
+.menu__item:hover {
+  transform: translateY(-2px);
+}
+
+.menu__item.active {
+  color: var(--component-active-color);
+}
+
+.menu__item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--lineWidth, 0px);
+  height: 2px;
+  background: var(--component-active-color);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+.menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.menu__item.active .menu__icon {
+  background: hsl(var(--component-active-bg));
+  animation: iconBounce 0.6s ease;
+}
+
+.menu__icon .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: hsl(var(--component-inactive-color));
+  transition: color 0.3s ease;
+}
+
+.menu__item.active .menu__icon .icon {
+  color: var(--component-active-color);
+}
+
+.menu__text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: hsl(var(--component-inactive-color));
+  transition: color 0.3s ease;
+  text-transform: capitalize;
+}
+
+.menu__text.active {
+  color: var(--component-active-color);
+}
+
+/* Liquid Glass Modern Mobile Menu Styles */
+.modern-mobile-menu-glass {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  margin: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 -8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  z-index: 50;
+}
+
+.modern-mobile-menu__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+  min-width: 50px;
+  position: relative;
+}
+
+.modern-mobile-menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.modern-mobile-menu__item.active .modern-mobile-menu__icon {
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.modern-mobile-menu__icon .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6B7280;
+  transition: color 0.3s ease;
+}
+
+.modern-mobile-menu__item.active .modern-mobile-menu__icon .icon {
+  color: var(--component-active-color, #3B82F6);
+}
+
+.modern-mobile-menu__text {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6B7280;
+  transition: color 0.3s ease;
+  margin-top: 0.1rem;
+}
+
+.modern-mobile-menu__text.active {
+  color: var(--component-active-color, #3B82F6);
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-0.3em);
+  }
+  40% {
+    transform: translateY(0);
+  }
+  60% {
+    transform: translateY(-0.1em);
+  }
+  80% {
+    transform: translateY(0);
+  }
+}
+
+:root {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--border);
+  --component-active-color-default: var(--accent-foreground);
+}
+
+.dark {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--muted-foreground);
+  --component-active-color-default: var(--accent-foreground);
+}

@@ -1,0 +1,10 @@
+project_id = "gqbhilftduwxjszznnzy"
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.cleanup-inactive-users]
+verify_jwt = false
+
+[functions.csp-report]
+verify_jwt = false

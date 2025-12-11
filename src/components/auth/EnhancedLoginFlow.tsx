@@ -1,0 +1,383 @@
+
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Mail, Fingerprint, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
+import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
+import { ConditionalPasskeyButton } from './ConditionalPasskeyButton';
+import { ConsentStep } from './ConsentStep';
+import { MfaChallenge } from './MfaChallenge';
+
+export const EnhancedLoginFlow: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<'email' | 'otp' | 'consent' | 'mfa'>('email');
+  const [otpDisabled, setOtpDisabled] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { authenticateWithPasskey, checkPasskeysForEmail, isSupported } = useEnhancedWebAuthn();
+
+  // Check if user has OTP disabled when email is entered
+  const checkOtpStatus = async (userEmail: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('disable_otp_fallback')
+        .eq('email', userEmail)
+        .single();
+      
+      if (!error && data) {
+        setOtpDisabled(data.disable_otp_fallback || false);
+      }
+    } catch (error) {
+      // User might not exist yet, that's okay
+      setOtpDisabled(false);
+    }
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setLoading(true);
+    try {
+      // Check if user has disabled OTP
+      await checkOtpStatus(email);
+
+      // Check if user has passkeys
+      const passkeyCheck = await checkPasskeysForEmail(email);
+      
+      if (otpDisabled && !passkeyCheck.has_passkeys) {
+        toast({
+          title: 'Kein Zugang möglich',
+          description: 'Für dieses Konto sind OTP-Codes deaktiviert, aber keine Fingerprints vorhanden. Kontaktieren Sie den Support.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (otpDisabled) {
+        toast({
+          title: 'Nur Fingerprint-Anmeldung',
+          description: 'Für dieses Konto sind E-Mail-Codes deaktiviert. Bitte verwende deinen Fingerprint.',
+          variant: 'default',
+        });
+        return;
+      }
+
+      // Send OTP if not disabled
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+
+      setStep('otp');
+      toast({
+        title: 'Code gesendet',
+        description: 'Wir haben dir einen Anmeldecode per E-Mail gesendet.',
+      });
+    } catch (error: any) {
+      console.error('Email submission error:', error);
+      toast({
+        title: 'Fehler beim Senden',
+        description: error.message || 'E-Mail-Code konnte nicht gesendet werden.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkConsentStatus = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('terms_accepted_at')
+        .eq('id', userId)
+        .single();
+
+      return !!profile?.terms_accepted_at;
+    } catch (error) {
+      console.error('Error checking consent status:', error);
+      return false;
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode.trim()) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: otpCode.trim(),
+        type: 'email',
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Check if user has MFA enabled
+        const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+        const activeFactor = mfaFactors?.totp?.find(factor => factor.status === 'verified');
+
+        if (activeFactor) {
+          setMfaFactorId(activeFactor.id);
+          setStep('mfa');
+          setLoading(false);
+          return;
+        }
+
+        // Check if user has already given consent
+        const hasConsent = await checkConsentStatus(data.user.id);
+        
+        if (!hasConsent) {
+          setStep('consent');
+          setLoading(false);
+          return;
+        }
+      }
+
+      toast({
+        title: 'Anmeldung erfolgreich',
+        description: 'Du wurdest erfolgreich angemeldet.',
+      });
+      
+      navigate('/');
+    } catch (error: any) {
+      console.error('OTP verification error:', error);
+      toast({
+        title: 'Ungültiger Code',
+        description: 'Der eingegebene Code ist ungültig oder abgelaufen.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasskeySuccess = async () => {
+    // Check consent for passkey users too
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Check if user has MFA enabled
+        const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+        const activeFactor = mfaFactors?.totp?.find(factor => factor.status === 'verified');
+
+        if (activeFactor) {
+          setMfaFactorId(activeFactor.id);
+          setStep('mfa');
+          return;
+        }
+
+        const hasConsent = await checkConsentStatus(user.id);
+        
+        if (!hasConsent) {
+          setStep('consent');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking consent after passkey auth:', error);
+    }
+    
+    navigate('/');
+  };
+
+  const handleConsentComplete = () => {
+    toast({
+      title: 'Anmeldung erfolgreich',
+      description: 'Du wurdest erfolgreich angemeldet.',
+    });
+    navigate('/');
+  };
+
+  const handleMfaSuccess = () => {
+    navigate('/');
+  };
+
+  const handleMfaCancel = () => {
+    // Sign out and go back to email step
+    supabase.auth.signOut();
+    setStep('email');
+    setMfaFactorId(null);
+  };
+
+  if (step === 'consent') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <ConsentStep 
+          onConsentComplete={handleConsentComplete}
+          userEmail={email}
+        />
+      </div>
+    );
+  }
+
+  if (step === 'mfa' && mfaFactorId) {
+    return (
+      <MfaChallenge
+        factorId={mfaFactorId}
+        onSuccess={handleMfaSuccess}
+        onCancel={handleMfaCancel}
+      />
+    );
+  }
+
+  if (step === 'otp') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Code eingeben</CardTitle>
+            <CardDescription>
+              Wir haben dir einen Code an {email} gesendet
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleOtpSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="6-stelliger Code"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  maxLength={6}
+                  className="text-center text-lg tracking-widest"
+                  autoComplete="one-time-code"
+                />
+              </div>
+              
+              <Button type="submit" className="w-full" disabled={loading || !otpCode.trim()}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Wird überprüft...
+                  </>
+                ) : (
+                  'Anmelden'
+                )}
+              </Button>
+            </form>
+
+            <div className="flex items-center justify-center">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setStep('email');
+                  setOtpCode('');
+                }}
+                className="text-sm"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                E-Mail ändern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Anmelden</CardTitle>
+          <CardDescription>
+            Melde dich mit deiner E-Mail oder deinem Fingerprint an
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Passkey Authentication Section */}
+          {isSupported && (
+            <>
+              <ConditionalPasskeyButton 
+                onSuccess={handlePasskeySuccess}
+                email={email}
+              />
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    oder mit E-Mail fortfahren
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Email/OTP Authentication Section */}
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="deine.email@beispiel.de"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            
+            {otpDisabled && email && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-center gap-2 text-amber-800">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">
+                    E-Mail-Codes sind für dieses Konto deaktiviert. Verwende deinen Fingerprint.
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading || !email.trim() || otpDisabled}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Code wird gesendet...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-4 w-4" />
+                  {otpDisabled ? 'E-Mail-Codes deaktiviert' : 'Code per E-Mail senden'}
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm text-muted-foreground">
+            Haben Sie noch kein Konto?{' '}
+            <Button
+              variant="link"
+              className="p-0 h-auto font-normal"
+              onClick={() => navigate('/auth?mode=signup')}
+            >
+              Jetzt registrieren
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
