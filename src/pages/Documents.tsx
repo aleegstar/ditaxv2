@@ -8,6 +8,7 @@ import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
 import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
 import CameraCapture from '@/components/documents/CameraCapture';
+import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,8 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [hasFilesInUploader, setHasFilesInUploader] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [showActionSheet, setShowActionSheet] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { checklistItems, generateChecklist, taxYear, formDataLoaded } = useFormContext();
@@ -259,7 +262,11 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
                   {documents.map((doc) => (
                     <div 
                       key={doc.id}
-                      className="group flex items-center gap-4 p-4 bg-[#0A0C10] border border-white/[0.06] rounded-2xl hover:border-[#1D64FF]/30 transition-all duration-300"
+                      onClick={() => {
+                        setSelectedDocument(doc);
+                        setShowActionSheet(true);
+                      }}
+                      className="group flex items-center gap-4 p-4 bg-[#0A0C10] border border-white/[0.06] rounded-2xl hover:border-[#1D64FF]/30 transition-all duration-300 cursor-pointer"
                     >
                       {/* File Icon */}
                       <div className={cn(
@@ -293,7 +300,14 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
                       </span>
                       
                       {/* Menu Button */}
-                      <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDocument(doc);
+                          setShowActionSheet(true);
+                        }}
+                        className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 transition-colors"
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </div>
@@ -373,6 +387,17 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
           onClose={() => setShowCamera(false)} 
           onCapture={handleCameraCapture}
           taxYear={selectedYear}
+        />
+
+        <DocumentActionSheet
+          document={selectedDocument}
+          open={showActionSheet}
+          onClose={() => {
+            setShowActionSheet(false);
+            setSelectedDocument(null);
+          }}
+          onUpdate={loadDocuments}
+          availableYears={allYears}
         />
       </div>
     </>
