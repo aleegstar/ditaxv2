@@ -1,8 +1,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { InfoToggle } from './info-toggle';
-import { Checkbox } from './checkbox';
+import { HelpCircle, Check } from 'lucide-react';
 
 type CustomCheckboxProps = {
   checked?: boolean;
@@ -25,49 +24,73 @@ const CustomCheckbox = ({
 }: CustomCheckboxProps) => {
   const checkboxId = id || React.useId();
 
-  const handleCheckedChange = (isChecked: boolean | 'indeterminate') => {
-    if (onCheckedChange && typeof isChecked === 'boolean') {
-      onCheckedChange(isChecked);
+  const handleClick = () => {
+    if (onCheckedChange) {
+      onCheckedChange(!checked);
     }
   };
 
   return (
-    <div
+    <label
+      htmlFor={checkboxId}
       className={cn(
-        'flex items-start gap-3 p-5 rounded-xl transition-all duration-200 border',
-        checked ? 'border-[#1d64ff]' : 'border-gray-300',
+        'relative flex items-center gap-4 p-4 rounded-2xl cursor-pointer group transition-all duration-200',
+        checked 
+          ? 'border border-[#1D64FF] bg-[#1D64FF]/[0.03] shadow-[0_0_20px_-10px_rgba(29,100,255,0.15)]' 
+          : 'border border-white/[0.08] bg-[#0A0C10] hover:bg-white/[0.02] hover:border-white/20',
         className
       )}
-      style={{
-        backgroundColor: '#FAFAFA'
-      }}
+      onClick={handleClick}
     >
-      <div className="flex-shrink-0 mt-0.5">
-        <Checkbox 
+      {/* Custom Checkbox */}
+      <div className="shrink-0 relative">
+        <input 
+          type="checkbox" 
           id={checkboxId}
-          checked={checked} 
-          onCheckedChange={handleCheckedChange}
-          size="lg"
-          className="bg-gray-100 border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-7 w-7 rounded-md"
+          checked={checked}
+          onChange={() => {}}
+          className="peer sr-only"
         />
+        <div 
+          className={cn(
+            'w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200',
+            checked 
+              ? 'border border-[#1D64FF] bg-[#1D64FF]' 
+              : 'border border-white/20 bg-transparent group-hover:border-white/40'
+          )}
+        >
+          {checked && (
+            <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+          )}
+        </div>
       </div>
       
+      {/* Label */}
       {label && (
-        <div className="flex-1">
-          <label
-            htmlFor={checkboxId}
-            className={cn(
-              'text-base font-medium cursor-pointer text-gray-700',
-              labelClassName
-            )}
-          >
-            {label}
-          </label>
-        </div>
+        <span 
+          className={cn(
+            'text-[15px] font-medium leading-snug flex-1 transition-colors',
+            checked ? 'text-white' : 'text-zinc-300 group-hover:text-zinc-100',
+            labelClassName
+          )}
+        >
+          {label}
+        </span>
       )}
 
-      {explanation && <InfoToggle explanation={explanation} className="flex-shrink-0" />}
-    </div>
+      {/* Help Icon */}
+      {explanation && (
+        <div 
+          className={cn(
+            'shrink-0 transition-colors',
+            checked ? 'text-[#1D64FF]' : 'text-zinc-600 group-hover:text-zinc-400'
+          )}
+          title={explanation}
+        >
+          <HelpCircle className="w-5 h-5 opacity-80" strokeWidth={1.5} />
+        </div>
+      )}
+    </label>
   );
 };
 
