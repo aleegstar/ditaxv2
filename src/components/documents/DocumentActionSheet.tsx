@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 
 interface Document {
   id: string;
@@ -39,12 +40,25 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
-  React.useEffect(() => {
+  // Cleanup object URLs on unmount or when closing
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  useEffect(() => {
     if (document && open) {
       setEditName(document.file_name);
       setEditYear(document.tax_year);
       setView('actions');
-      setPreviewUrl(null);
+      // Clean up previous preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
     }
   }, [document, open]);
 
@@ -52,18 +66,28 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
     if (!document) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.storage
-        .from('tax-documents')
-        .createSignedUrl(document.file_path, 3600);
-      
-      if (error) throw error;
-      setPreviewUrl(data.signedUrl);
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Nicht angemeldet');
+      }
+
+      // Use EncryptedDocumentService to decrypt and download
+      const encryptedDocService = EncryptedDocumentService.getInstance();
+      const { blob, fileType } = await encryptedDocService.downloadOwnDecryptedDocument(
+        document.id,
+        user.id
+      );
+
+      // Create object URL for preview
+      const objectUrl = URL.createObjectURL(blob);
+      setPreviewUrl(objectUrl);
       setView('preview');
     } catch (error) {
       console.error('Error loading preview:', error);
       toast({
         title: "Fehler",
-        description: "Vorschau konnte nicht geladen werden",
+        description: error instanceof Error ? error.message : "Vorschau konnte nicht geladen werden",
         variant: "destructive"
       });
     } finally {
