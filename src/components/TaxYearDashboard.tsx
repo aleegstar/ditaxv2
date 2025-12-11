@@ -18,8 +18,13 @@ interface DashboardSection {
 // Beam animation component
 const NexusBeam: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
   <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
-    {/* Static Guide Line */}
-    <div className="w-[1px] h-full bg-white/20 absolute z-0" />
+    {/* Static Dotted Guide Line - Always Visible */}
+    <div 
+      className="w-[2px] h-full absolute z-0"
+      style={{
+        backgroundImage: 'repeating-linear-gradient(to bottom, rgba(255,255,255,0.3) 0px, rgba(255,255,255,0.3) 4px, transparent 4px, transparent 10px)'
+      }}
+    />
     
     {/* Wide Ambient Glow */}
     <div className="absolute w-24 h-full bg-[radial-gradient(circle_at_center,rgba(29,100,255,0.15)_0%,transparent_70%)] z-0 opacity-50" />
