@@ -264,16 +264,17 @@ const MultiStepContactForm = ({
       />
 
       <div className="relative z-10 px-6 py-8">
-        {/* Header with back arrow and title */}
+        {/* Header with back arrow and centered title */}
         {!embedded && (
-          <div className="flex items-center gap-4 mb-8">
+          <div className="relative flex items-center justify-between mb-8">
             <button
               onClick={() => window.history.back()}
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-semibold text-white">Kontaktdaten</h1>
+            <h1 className="text-lg font-medium text-white absolute left-1/2 transform -translate-x-1/2">Kontaktangaben</h1>
+            <div className="w-10 h-10" /> {/* Spacer for centering */}
           </div>
         )}
 
