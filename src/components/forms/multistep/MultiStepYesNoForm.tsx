@@ -132,11 +132,19 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
   // Ref to track local updates and prevent useEffect from re-triggering
   const isLocalUpdateRef = useRef(false);
-
-  // Load existing data and answers - only on section changes, skip local updates
+  
+  // Ref to ensure initial check only runs once per section
+  const initialCheckDoneRef = useRef(false);
+  
+  // Reset initialCheckDoneRef when section changes
   useEffect(() => {
-    // Skip if this is a local update (from button click)
-    if (isLocalUpdateRef.current) {
+    initialCheckDoneRef.current = false;
+  }, [section]);
+
+  // Load existing data and answers - only on section changes, skip local updates and summary view
+  useEffect(() => {
+    // Skip if this is a local update (from button click) or showing summary
+    if (isLocalUpdateRef.current || viewState.showSummary) {
       isLocalUpdateRef.current = false;
       return;
     }
@@ -184,20 +192,26 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     } catch (error) {
       console.error('Error loading existing data:', error);
     }
-  }, [section, formData, questions]);
+  }, [section, formData, questions, viewState.showSummary]);
 
-  // Handle initial position - only on section/formProgress changes  
+  // Handle initial position - only run once per section mount
   useEffect(() => {
+    // Only run the initial check once per section
+    if (initialCheckDoneRef.current) return;
+    
     const sectionProgress = formProgress[section];
     const savedQuestionIndex = questionProgress[section];
 
     // Debug current state
-    console.debug('MultiStepYesNoForm state', {
+    console.debug('MultiStepYesNoForm initial state check', {
       section,
       questionsLength: questions.length,
       savedQuestionIndex,
       sectionProgress,
     });
+
+    // Mark as checked
+    initialCheckDoneRef.current = true;
 
     // If section is completed, switch to expert mode immediately
     if (sectionProgress) {
@@ -210,7 +224,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const initialIndex = savedQuestionIndex !== undefined ? savedQuestionIndex : 0;
     setFormState(prev => ({ ...prev, currentQuestionIndex: initialIndex }));
     dispatchViewState({ type: 'RESET_VIEW' });
-  }, [section, formProgress, onModeSwitch]);
+  }, [section, formProgress, questionProgress, questions.length, onModeSwitch]);
 
   // Effect to handle progress updates - only on actual question changes, not during editing or summary
   useEffect(() => {
