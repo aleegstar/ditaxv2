@@ -4,7 +4,7 @@ import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, Calendar, FileT
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFormContext, FormProvider } from '@/contexts';
-import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
+import EnhancedDocumentUploader, { type DocumentUploaderProps } from '@/components/EnhancedDocumentUploader';
 import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
 import CameraCapture from '@/components/documents/CameraCapture';
@@ -24,9 +24,9 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const [uploaderKey, setUploaderKey] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [hasFilesInUploader, setHasFilesInUploader] = useState(false);
-  const [showUploader, setShowUploader] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { checklistItems, generateChecklist, taxYear, formDataLoaded } = useFormContext();
@@ -123,17 +123,25 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const handleUploadSuccess = () => {
     loadDocuments();
     setUploaderKey(prev => prev + 1);
-    setShowUploader(false);
+    setHasFilesInUploader(false);
     toast({
       title: "Upload erfolgreich",
       description: "Deine Dokumente wurden hochgeladen",
     });
   };
 
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setPendingFiles(Array.from(e.target.files));
+      setHasFilesInUploader(true);
+    }
+    e.target.value = '';
+  };
+
   const currentMonth = format(new Date(), 'MMM', { locale: de });
   
-  // Show uploader view
-  if (showUploader || hasFilesInUploader) {
+  // Show uploader view only when files are selected
+  if (hasFilesInUploader) {
     return (
       <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
         <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12 shadow-2xl overflow-hidden border-x border-white/[0.02]">
@@ -150,13 +158,13 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
             <EnhancedDocumentUploader
               key={uploaderKey}
               onBack={() => {
-                setShowUploader(false);
                 setHasFilesInUploader(false);
+                setPendingFiles([]);
               }}
               onDocumentSubmitted={handleUploadSuccess}
               hasUploadedFiles={documents.length > 0}
               onPreviewChange={setHasFilesInUploader}
-              autoTriggerUpload={showUploader}
+              initialFiles={pendingFiles}
             />
           </div>
         </div>
@@ -353,10 +361,20 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
             )}
           </div>
 
+          {/* Hidden File Input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
+
           {/* Floating Upload Button */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 animate-[float_5s_ease-in-out_infinite] w-max">
             <button 
-              onClick={() => setShowUploader(true)}
+              onClick={() => fileInputRef.current?.click()}
               className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center"
               data-tour="document-upload-card"
             >
