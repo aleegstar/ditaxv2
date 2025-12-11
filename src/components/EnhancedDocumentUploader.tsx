@@ -43,25 +43,6 @@ declare global {
   }
 }
 
-// Get file extension badge color
-const getExtensionColor = (ext: string) => {
-  switch (ext.toLowerCase()) {
-    case 'pdf':
-      return 'bg-red-500';
-    case 'png':
-      return 'bg-blue-500';
-    case 'jpg':
-    case 'jpeg':
-      return 'bg-green-500';
-    case 'gif':
-      return 'bg-purple-500';
-    case 'webp':
-      return 'bg-orange-500';
-    default:
-      return 'bg-gray-500';
-  }
-};
-
 const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   checklistItem,
   onBack,
@@ -386,11 +367,17 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const uploadableFiles = files.filter(f => !f.uploaded && !f.error);
 
   return (
-    <div className="min-h-screen bg-[#050505] pb-24">
-      {/* Ambient Glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#1d64ff]/20 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased selection:bg-[#1D64FF]/30">
+      {/* Background Ambient Glow */}
+      <div 
+        className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 70%)',
+          filter: 'blur(80px)'
+        }}
+      />
       
-      <div className="relative z-10 px-5 pt-6">
+      <div className="relative z-10 flex-1 flex flex-col px-6 pb-32 pt-6 overflow-y-auto">
         {/* File Upload Component */}
         <FileUpload 
           onFileUpload={handleFileUpload} 
@@ -406,76 +393,82 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           maxFiles={MAX_FILES}
         />
 
-        {/* Selected Files Section */}
+        {/* File List Section */}
         {files.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-8 space-y-3">
             {/* Section Header */}
-            <h4 className="text-xs font-semibold text-white/60 tracking-wider uppercase mb-4">
-              Ausgewählte Dateien
-            </h4>
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
+                Ausgewählte Dateien
+              </span>
+            </div>
             
-            {/* File List */}
-            <div className="space-y-3">
-              {files.map(fileWithPreview => {
-                const ext = fileWithPreview.file.name.split('.').pop()?.toUpperCase() || 'FILE';
-                const fileSizeMB = (fileWithPreview.file.size / (1024 * 1024)).toFixed(2);
-                
-                return (
-                  <div 
-                    key={fileWithPreview.id} 
-                    className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-[#0d0d0d]"
-                  >
-                    {/* Extension Badge */}
-                    <div className={`w-10 h-10 rounded-lg ${getExtensionColor(ext)} flex items-center justify-center flex-shrink-0`}>
-                      <span className="text-[10px] font-bold text-white">{ext}</span>
-                    </div>
-                    
-                    {/* File Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
-                        {fileWithPreview.file.name}
-                      </p>
-                      <p className="text-xs text-[#1d64ff]">
+            {/* File Items */}
+            {files.map(fileWithPreview => {
+              const ext = fileWithPreview.file.name.split('.').pop()?.toUpperCase() || 'FILE';
+              const fileSizeMB = (fileWithPreview.file.size / (1024 * 1024)).toFixed(2);
+              
+              return (
+                <div 
+                  key={fileWithPreview.id} 
+                  className="group relative flex items-center gap-3.5 p-3 pr-4 rounded-xl bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] hover:bg-[#0F1218] transition-all duration-300 shadow-sm"
+                >
+                  {/* Thumbnail/Icon */}
+                  <div className="w-10 h-10 rounded-lg bg-[#16191F] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-[#1D64FF]/30 transition-colors">
+                    <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#1D64FF] transition-colors">
+                      {ext}
+                    </span>
+                  </div>
+                  
+                  {/* File Info */}
+                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                      {fileWithPreview.file.name}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-zinc-500 font-medium">
                         {fileSizeMB} MB
-                      </p>
-                    </div>
-                    
-                    {/* Status / Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                      </span>
+                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
                       {fileWithPreview.uploading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 text-[#1d64ff] animate-spin" />
-                          <span className="text-xs text-white/60">{Math.round(fileWithPreview.progress)}%</span>
-                        </div>
+                        <span className="text-[11px] text-[#1D64FF] font-medium flex items-center gap-1">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          {Math.round(fileWithPreview.progress)}%
+                        </span>
                       ) : fileWithPreview.uploaded ? (
-                        <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <Check className="w-3.5 h-3.5 text-green-400" />
-                        </div>
+                        <span className="text-[11px] text-emerald-500 font-medium flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          Hochgeladen
+                        </span>
                       ) : fileWithPreview.error ? (
-                        <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center">
-                          <AlertCircle className="w-3.5 h-3.5 text-red-400" />
-                        </div>
+                        <span className="text-[11px] text-red-400 font-medium flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          Fehler
+                        </span>
                       ) : (
-                        <span className="text-xs text-white/40">Bereit</span>
-                      )}
-                      
-                      {!fileWithPreview.uploading && !fileWithPreview.uploaded && (
-                        <button
-                          onClick={() => handleRemoveFile(fileWithPreview.id)}
-                          className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
-                        >
-                          <X className="w-4 h-4 text-white/60" />
-                        </button>
+                        <span className="text-[11px] text-emerald-500 font-medium">
+                          Ready
+                        </span>
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Delete Action */}
+                  {!fileWithPreview.uploading && !fileWithPreview.uploaded && (
+                    <button 
+                      onClick={() => handleRemoveFile(fileWithPreview.id)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all duration-200 opacity-70 group-hover:opacity-100"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
             
             {/* Error for specific files */}
             {files.some(f => f.error) && (
-              <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30">
                 {files.filter(f => f.error).map(f => (
                   <p key={f.id} className="text-sm text-red-400">
                     {f.file.name}: {f.error}
@@ -487,22 +480,28 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         )}
       </div>
 
-      {/* Fixed Upload Button at Bottom */}
+      {/* Bottom Action Area */}
       {hasValidFiles && (
-        <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent">
-          <button
+        <div className="fixed bottom-0 left-0 w-full p-6 pt-4 bg-gradient-to-t from-[#020408] via-[#020408] to-transparent z-30">
+          <button 
             onClick={handleUploadAll}
             disabled={uploading || uploadableFiles.length === 0}
-            className="w-full py-4 rounded-2xl bg-white text-black font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90 transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+            className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {uploading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Wird hochgeladen...
-              </span>
-            ) : (
-              'Hochladen'
-            )}
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-white/20 rounded-full blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500" />
+            
+            {/* Button */}
+            <div className="relative w-full h-12 bg-white hover:bg-zinc-100 text-[#020408] rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_35px_-5px_rgba(255,255,255,0.4)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+              {uploading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Wird hochgeladen...
+                </span>
+              ) : (
+                <span>Hochladen</span>
+              )}
+            </div>
           </button>
         </div>
       )}
