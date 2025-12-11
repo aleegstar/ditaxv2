@@ -113,7 +113,7 @@ const IndexContent = () => {
 
   // Show floating button only on main dashboard
   const showFloatingButton = !section;
-  return <AnimatedPageContainer className="min-h-screen bg-white">
+  return <AnimatedPageContainer className="min-h-screen bg-[#020408]">
       {renderContent()}
       
       {/* Floating Add Document Button */}
