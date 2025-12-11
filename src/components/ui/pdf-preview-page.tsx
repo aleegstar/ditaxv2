@@ -104,23 +104,25 @@ export const FileUpload = ({
 
   return (
     <div className="relative">
-      {/* Header */}
-      <div className="w-full px-0 pt-2 pb-4 flex items-center justify-center relative">
-        {/* Back Button */}
-        {onBack && (
-          <button 
-            onClick={onBack}
-            className="absolute left-0 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
-          >
-            <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-          </button>
-        )}
-        
-        {/* Title */}
-        <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
-          Upload
-        </h1>
-      </div>
+      {/* Header - Only show when there are previews */}
+      {hasAnyPreview && (
+        <div className="w-full px-0 pt-2 pb-4 flex items-center justify-center relative">
+          {/* Back Button */}
+          {onBack && (
+            <button 
+              onClick={onBack}
+              className="absolute left-0 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+            >
+              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </button>
+          )}
+          
+          {/* Title */}
+          <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+            Upload
+          </h1>
+        </div>
+      )}
 
       {/* Add More Documents Trigger */}
       <button 
