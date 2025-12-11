@@ -208,7 +208,7 @@ export const TaxYearDashboard: React.FC = () => {
         {/* Greeting */}
         <div className="px-8 mb-8 flex justify-between items-center relative z-20">
           <h1 className="text-2xl tracking-tight">
-            <span className="text-zinc-500 font-medium font-jakarta text-sm uppercase tracking-wider mb-0.5 block">
+            <span className="text-zinc-500 font-medium font-jakarta text-sm tracking-wider mb-0.5 block">
               Steuerfall
             </span>
             <span className="text-white block font-semibold font-jakarta">
