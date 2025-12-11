@@ -519,30 +519,31 @@ export function Sidebar() {
       </aside>;
   }
 
-  // Mobile sidebar - overlay pattern
+  // Mobile sidebar - overlay pattern with dark Nexus design
   return <>
     {/* Overlay - positioned behind the sidebar */}
     <div className={`fixed inset-0 z-[10000] ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`} style={{
-      backgroundColor: '#00000020'
+      backgroundColor: 'rgba(0, 0, 0, 0.6)'
     }} onClick={handleClose} />
     
-    {/* Sidebar - positioned in front of overlay */}
-    <div data-sidebar className={`fixed left-0 top-0 z-[10001] h-screen w-full flex flex-col transform bg-white ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
-      maxWidth: '85%'
+    {/* Sidebar - positioned in front of overlay with dark Nexus design */}
+    <div data-sidebar className={`fixed left-0 top-0 z-[10001] h-screen w-full flex flex-col transform ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
+      maxWidth: '85%',
+      backgroundColor: '#020408'
     }}>
-      <div className="flex items-center justify-between h-14 px-4 shrink-0">
+      <div className="flex items-center justify-between h-14 px-4 shrink-0 border-b border-white/[0.08]">
         <div className="flex items-center space-x-3">
           <img src="/ditax-logo-new.png" alt="Ditax" className="h-5 w-auto" />
         </div>
-        <button onClick={handleClose} className="p-1.5 rounded-md hover:bg-gray-50 transition-colors">
-          <X className="h-5 w-5 text-gray-500" />
+        <button onClick={handleClose} className="p-1.5 rounded-md hover:bg-white/[0.08] transition-colors">
+          <X className="h-5 w-5 text-white/60" />
         </button>
       </div>
       
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
         {/* Navigation Section */}
         <SidebarGroup>
-          <button onClick={() => setNavigationExpanded(!navigationExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-gray-500 hover:text-gray-700 transition-colors">
+          <button onClick={() => setNavigationExpanded(!navigationExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-white/50 hover:text-white/70 transition-colors">
             <span className="uppercase tracking-wide">Navigation</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${navigationExpanded ? 'rotate-180' : ''}`} />
           </button>
@@ -552,7 +553,7 @@ export function Sidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} onClick={handleNavigationClick} className={({
                     isActive
-                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-[#1D64FF]/20 text-white border border-[#1D64FF]/30' : 'text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
                         <item.icon className="h-5 w-5 flex-shrink-0" />
                         <span className="ml-3">{item.title}</span>
                       </NavLink>
@@ -564,7 +565,7 @@ export function Sidebar() {
 
         {/* Help Section */}
         <SidebarGroup className="mt-6">
-          <button onClick={() => setHelpExpanded(!helpExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-gray-500 hover:text-gray-700 transition-colors">
+          <button onClick={() => setHelpExpanded(!helpExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-white/50 hover:text-white/70 transition-colors">
             <span className="uppercase tracking-wide">Hilfe</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${helpExpanded ? 'rotate-180' : ''}`} />
           </button>
@@ -574,10 +575,10 @@ export function Sidebar() {
                     <SidebarMenuButton asChild>
                       {item.url ? <NavLink to={item.url} onClick={handleNavigationClick} className={({
                     isActive
-                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-[#1D64FF]/20 text-white border border-[#1D64FF]/30' : 'text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
                           <item.icon className="h-5 w-5 flex-shrink-0" />
                           <span className="ml-3">{item.title}</span>
-                        </NavLink> : <button onClick={item.onClick} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-gray-700 hover:bg-gray-50 w-full text-left">
+                        </NavLink> : <button onClick={item.onClick} className="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 text-white/70 hover:bg-white/[0.08] hover:text-white w-full text-left">
                           <item.icon className="h-5 w-5 flex-shrink-0" />
                           <span className="ml-3">{item.title}</span>
                         </button>}
@@ -589,7 +590,7 @@ export function Sidebar() {
 
         {/* Legal Section */}
         <SidebarGroup className="mt-6">
-          <button onClick={() => setLegalExpanded(!legalExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-gray-500 hover:text-gray-700 transition-colors">
+          <button onClick={() => setLegalExpanded(!legalExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-white/50 hover:text-white/70 transition-colors">
             <span className="uppercase tracking-wide">Rechtliches</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${legalExpanded ? 'rotate-180' : ''}`} />
           </button>
@@ -599,7 +600,7 @@ export function Sidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} onClick={handleNavigationClick} className={({
                     isActive
-                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-[#1D64FF]/20 text-white border border-[#1D64FF]/30' : 'text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
                         <item.icon className="h-5 w-5 flex-shrink-0" />
                         <span className="ml-3">{item.title}</span>
                       </NavLink>
@@ -611,7 +612,7 @@ export function Sidebar() {
 
         {/* Admin Section */}
         {isValid && userId === '39849efd-bb69-4397-8494-93993a939ca5' && <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className="text-gray-500 text-[11px] font-medium mb-2 px-2">
+            <SidebarGroupLabel className="text-white/50 text-[11px] font-medium mb-2 px-2">
               Admin
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -620,7 +621,7 @@ export function Sidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to="/admin" onClick={handleNavigationClick} className={({
                     isActive
-                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-[#1D64FF]/20 text-white border border-[#1D64FF]/30' : 'text-white/70 hover:bg-white/[0.08] hover:text-white'}`}>
                       <Users className="h-5 w-5 flex-shrink-0" />
                       <span className="ml-3">{t.navigation.adminPanel}</span>
                     </NavLink>
@@ -633,36 +634,36 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile Section at Bottom */}
-      <div className="mt-auto shrink-0 p-4 bg-white border-t border-gray-100">
+      <div className="mt-auto shrink-0 p-4 border-t border-white/[0.08]" style={{ backgroundColor: '#0A0C10' }}>
         <Sheet>
           <SheetTrigger asChild>
             <button className="w-full">
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/[0.08] transition-colors">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={currentAvatarUrl || ''} alt={userName || email || ''} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                  <AvatarFallback className="bg-[#1D64FF] text-white text-sm">
                     {getInitials(userName || email || 'DT')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
-                  <div className="text-sm font-medium text-gray-900 truncate">
+                  <div className="text-sm font-medium text-white truncate">
                     {userName || 'Ditax User'}
                   </div>
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-xs text-white/50 truncate">
                     {email}
                   </div>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                <ChevronDown className="h-4 w-4 text-white/50 flex-shrink-0" />
               </div>
             </button>
           </SheetTrigger>
           
-          <SheetContent side="bottom" className="bg-white h-auto">
+          <SheetContent side="bottom" className="h-auto border-t border-white/[0.08]" style={{ backgroundColor: '#0A0C10' }}>
             <div className="flex flex-col gap-2 py-4">
               <Button variant="ghost" onClick={() => {
                 navigate('/profile');
                 handleNavigationClick();
-              }} className="justify-start h-12 px-4 text-base">
+              }} className="justify-start h-12 px-4 text-base text-white/70 hover:text-white hover:bg-white/[0.08]">
                 <UserIcon className="mr-3 h-5 w-5" />
                 <span>{t.navigation.profile}</span>
               </Button>
@@ -670,13 +671,13 @@ export function Sidebar() {
               <Button variant="ghost" onClick={() => {
                 navigate('/privacy-settings');
                 handleNavigationClick();
-              }} className="justify-start h-12 px-4 text-base">
+              }} className="justify-start h-12 px-4 text-base text-white/70 hover:text-white hover:bg-white/[0.08]">
                 <Settings className="mr-3 h-5 w-5" />
                 <span>Einstellungen</span>
               </Button>
               
-              <div className="border-t border-gray-200 pt-2 mt-2">
-                <Button variant="ghost" onClick={handleLogout} className="justify-start h-12 px-4 text-base text-red-600 hover:text-red-700 hover:bg-red-50 w-full">
+              <div className="border-t border-white/[0.08] pt-2 mt-2">
+                <Button variant="ghost" onClick={handleLogout} className="justify-start h-12 px-4 text-base text-red-500 hover:text-red-400 hover:bg-red-500/10 w-full">
                   <LogOut className="mr-3 h-5 w-5" />
                   <span>{t.navigation.logout}</span>
                 </Button>
