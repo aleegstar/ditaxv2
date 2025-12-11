@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useReducer } from 'react';
+import React, { useState, useEffect, useCallback, useReducer, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useFormContext } from '@/contexts/FormContext';
@@ -6,8 +6,9 @@ import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
 import { RepeaterStep } from './RepeaterStep';
 import { MultiStepProgress } from './MultiStepProgress';
+import { FormSummary } from './FormSummary';
 import { getQuestionsForSection } from '@/config/yesNoQuestions';
-import { MultiStepFormState } from '@/types/multiStepYesNo';
+import { MultiStepFormState, FormSummaryItem } from '@/types/multiStepYesNo';
 import { useNavigate } from 'react-router-dom';
 import { androidDebug } from '@/utils/androidDebug';
 import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
@@ -129,8 +130,17 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     editingQuestionId: null
   });
 
-  // Load existing data and answers - only on section/formData changes
+  // Ref to track local updates and prevent useEffect from re-triggering
+  const isLocalUpdateRef = useRef(false);
+
+  // Load existing data and answers - only on section changes, skip local updates
   useEffect(() => {
+    // Skip if this is a local update (from button click)
+    if (isLocalUpdateRef.current) {
+      isLocalUpdateRef.current = false;
+      return;
+    }
+
     console.log('Loading existing data for section:', section);
     
     try {
@@ -252,6 +262,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         answers: newAnswers
       }));
 
+      // Mark as local update to prevent useEffect from re-triggering
+      isLocalUpdateRef.current = true;
+
       // Immediately save the answer
       try {
         const sectionData = { ...formData[section], [qid]: answer };
@@ -357,6 +370,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       
       dispatchViewState({ type: 'SET_REPEATER', show: false });
       
+      // Mark as local update to prevent useEffect from re-triggering
+      isLocalUpdateRef.current = true;
+      
       // Save current repeater data if we have it
       if (currentQuestion?.requiresRepeater) {
         const qid = currentQuestion.id;
@@ -381,9 +397,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       }
       
       if (isLastQuestion) {
-        // After last question, save all data and switch to expert mode
+        // After last question, show summary instead of switching to expert mode
         if (Capacitor.isNativePlatform()) {
-          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete yes/no questions and switch to expert mode');
+          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete yes/no questions - showing summary');
         }
         
         try {
@@ -409,13 +425,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           // Save to database
           await saveSection(section, sectionData);
 
-          toast({
-            title: 'Fragen abgeschlossen',
-            description: 'Wechsle zum Experten-Modus für detaillierte Eingaben.'
-          });
-
-          // Switch to expert mode
-          onModeSwitch();
+          // Show summary instead of switching to expert mode
+          dispatchViewState({ type: 'SET_SUMMARY', show: true });
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
@@ -495,17 +506,124 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   };
 
-  // If showSummary is triggered, switch to expert mode instead
-  useEffect(() => {
-    if (viewState.showSummary) {
-      NativeErrorMonitor.addBreadcrumb('navigation', 'Summary triggered - switching to expert mode');
-      onModeSwitch();
-    }
-  }, [viewState.showSummary, onModeSwitch]);
+  // Generate summary items for the FormSummary component
+  const generateSummaryItems = useCallback((): FormSummaryItem[] => {
+    return questions.map((question) => ({
+      questionId: question.id,
+      questionText: question.text,
+      answer: formState.answers[question.id] || false,
+      repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
+      repeaterTitle: question.requiresRepeater?.title
+    }));
+  }, [questions, formState.answers, formState.repeaterData]);
 
-  // Don't render anything if we're about to switch to expert mode
-  if (viewState.showSummary) {
-    return null;
+  // Handle editing from summary
+  const handleEditFromSummary = useCallback((questionId: string) => {
+    const questionIndex = questions.findIndex(q => q.id === questionId);
+    if (questionIndex !== -1) {
+      setFormState(prev => ({
+        ...prev,
+        currentQuestionIndex: questionIndex
+      }));
+      dispatchViewState({ type: 'START_EDITING', questionId, questionIndex });
+    }
+  }, [questions]);
+
+  // Handle confirm from summary - switch to expert mode
+  const handleConfirmSummary = useCallback(async () => {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        NativeErrorMonitor.addBreadcrumb('navigation', 'Summary confirmed - switching to expert mode');
+      }
+
+      toast({
+        title: 'Fragen abgeschlossen',
+        description: 'Wechsle zum Experten-Modus für detaillierte Eingaben.'
+      });
+
+      // Switch to expert mode
+      onModeSwitch();
+    } catch (error) {
+      console.error('Error confirming summary:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Bitte versuche es erneut.',
+        variant: 'destructive'
+      });
+    }
+  }, [onModeSwitch]);
+
+  // Render summary if showSummary is true
+  if (viewState.showSummary && !viewState.isEditing) {
+    const summaryItems = generateSummaryItems();
+    
+    return (
+      <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+        <div className="h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
+          {/* Background Ambient Glow */}
+          <div 
+            className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
+            style={{
+              background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+              filter: 'blur(90px)'
+            }}
+          />
+
+          {/* Header */}
+          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
+            <motion.button 
+              onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+            >
+              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+            </motion.button>
+
+            <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight absolute left-1/2 -translate-x-1/2">
+              {getSectionTitle()}
+            </h1>
+
+            <div className="w-10 h-10" />
+          </div>
+
+          {/* Summary Content */}
+          <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
+            <FormSummary
+              title={getSectionTitle()}
+              summaryItems={summaryItems}
+              onEdit={handleEditFromSummary}
+              onConfirm={handleConfirmSummary}
+              onBack={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
+            />
+          </div>
+
+          {/* Footer Info */}
+          <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05]">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="12" 
+                height="12" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="1.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="text-emerald-500"
+              >
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              <p className="text-[10px] text-zinc-500 font-medium tracking-wide uppercase">
+                Verschlüsselt &amp; Sicher
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
