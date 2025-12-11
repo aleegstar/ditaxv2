@@ -6,10 +6,9 @@ import { useFormContext } from '@/contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
 import { RepeaterStep } from './RepeaterStep';
-import { FormSummary } from './FormSummary';
 import { MultiStepProgress } from './MultiStepProgress';
 import { getQuestionsForSection } from '@/config/yesNoQuestions';
-import { MultiStepFormState, FormSummaryItem } from '@/types/multiStepYesNo';
+import { MultiStepFormState } from '@/types/multiStepYesNo';
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -181,7 +180,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [section, formData, questions]);
 
-  // Handle initial position and summary state - only on section/formProgress changes  
+  // Handle initial position - only on section/formProgress changes  
   useEffect(() => {
     const sectionProgress = formProgress[section];
     const savedQuestionIndex = questionProgress[section];
@@ -194,18 +193,18 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       sectionProgress,
     });
 
-    // If section is completed, go directly to summary
+    // If section is completed, switch to expert mode immediately
     if (sectionProgress) {
-      console.debug('Section completed previously. Showing summary.', { section });
-      dispatchViewState({ type: 'SET_SUMMARY', show: true });
-      setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
-    } else {
-      // Only set initial position if we have saved progress and are starting fresh
-      const initialIndex = savedQuestionIndex !== undefined ? savedQuestionIndex : 0;
-      setFormState(prev => ({ ...prev, currentQuestionIndex: initialIndex }));
-      dispatchViewState({ type: 'RESET_VIEW' });
+      console.debug('Section completed previously. Switching to expert mode.', { section });
+      onModeSwitch();
+      return;
     }
-  }, [section, formProgress]);
+    
+    // Only set initial position if we have saved progress and are starting fresh
+    const initialIndex = savedQuestionIndex !== undefined ? savedQuestionIndex : 0;
+    setFormState(prev => ({ ...prev, currentQuestionIndex: initialIndex }));
+    dispatchViewState({ type: 'RESET_VIEW' });
+  }, [section, formProgress, onModeSwitch]);
 
   // Effect to handle progress updates - only on actual question changes, not during editing or summary
   useEffect(() => {
@@ -386,9 +385,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       }
       
       if (isLastQuestion) {
-        // After last question, save all data and navigate to /form
+        // After last question, save all data and switch to expert mode
         if (Capacitor.isNativePlatform()) {
-          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete section and navigate to /form');
+          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete yes/no questions and switch to expert mode');
         }
         
         try {
@@ -411,19 +410,16 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           // Update local state first
           updateFormData(section, sectionData);
           
-          // Save to database with markComplete=true (this will also call updateFormProgress and generateChecklist internally)
-          await saveSection(section, sectionData, true);
+          // Save to database
+          await saveSection(section, sectionData);
 
           toast({
-            title: 'Erfolgreich gespeichert',
-            description: `${section.charAt(0).toUpperCase() + section.slice(1)} wurde erfolgreich gespeichert.`
+            title: 'Fragen abgeschlossen',
+            description: 'Wechsle zum Experten-Modus für detaillierte Eingaben.'
           });
 
-          // Small delay to ensure DB transaction completes before navigation
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          // Navigate back to main form
-          navigate('/form');
+          // Switch to expert mode
+          onModeSwitch();
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
@@ -490,129 +486,6 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     navigate('/form');
   };
 
-  const handleEditQuestion = useCallback(async (questionId: string) => {
-    const questionIndex = questions.findIndex(q => q.id === questionId);
-    if (questionIndex === -1) {
-      console.error('Question not found:', questionId);
-      return;
-    }
-
-    try {
-      // Update progress and state synchronously to avoid race conditions
-      await updateQuestionProgress(section, questionIndex);
-      
-      setFormState(prev => ({
-        ...prev,
-        currentQuestionIndex: questionIndex
-      }));
-      
-      dispatchViewState({ type: 'START_EDITING', questionId, questionIndex });
-      
-      toast({
-        title: 'Bearbeitungsmodus aktiviert',
-        description: `Du bearbeitest jetzt Frage ${questionIndex + 1} von ${questions.length}.`,
-      });
-    } catch (error) {
-      console.error('Error setting up edit mode:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Bearbeitungsmodus konnte nicht aktiviert werden.',
-        variant: 'destructive'
-      });
-    }
-  }, [questions, section, updateQuestionProgress]);
-
-  const handleConfirm = async () => {
-    console.log('handleConfirm started', { section, formState });
-    
-    try {
-      // Validate state before proceeding
-      if (!section || !formState) {
-        throw new Error('Invalid form state or section');
-      }
-      
-      if (!questions || questions.length === 0) {
-        throw new Error('No questions available for this section');
-      }
-
-      // Prepare data for saving with validation
-      const sectionData: Record<string, any> = {};
-      
-      console.log('Processing questions for section:', section);
-      
-      questions.forEach((question, index) => {
-        try {
-          // Validate question structure
-          if (!question || !question.id) {
-            console.warn(`Invalid question at index ${index}:`, question);
-            return;
-          }
-          
-          // Set answer with fallback
-          sectionData[question.id] = formState.answers?.[question.id] ?? false;
-          
-          // Handle repeater data safely
-          if (question.requiresRepeater) {
-            const dataKey = getRepeaterDataKey(question.id);
-            if (dataKey) {
-              sectionData[dataKey] = formState.repeaterData?.[question.id] || [];
-            }
-          }
-        } catch (questionError) {
-          console.error(`Error processing question ${question.id}:`, questionError);
-        }
-      });
-
-      console.log('Prepared section data:', sectionData);
-
-      // Sequential operations to prevent race conditions
-      console.log('Step 1: Updating form data in context');
-      updateFormData(section, sectionData);
-      
-      console.log('Step 2: Saving section to database and marking complete');
-      await saveSection(section, sectionData);
-      generateChecklist();
-      
-      console.log('Step 3: Updating form progress');
-      updateFormProgress(section, true);
-
-      toast({
-        title: 'Erfolgreich gespeichert',
-        description: `${section.charAt(0).toUpperCase() + section.slice(1)} wurde erfolgreich gespeichert.`
-      });
-
-      console.log('handleConfirm completed successfully');
-      
-      // Navigate back to main form to continue with next section
-      navigate('/form');
-    } catch (error) {
-      console.error('Error in handleConfirm:', error);
-      console.error('Error details:', {
-        section,
-        formState,
-        questionsLength: questions?.length,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      
-      toast({
-        title: 'Fehler beim Speichern',
-        description: error instanceof Error ? error.message : 'Die Daten konnten nicht gespeichert werden.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const summaryItems: FormSummaryItem[] = useMemo(() => {
-    return questions.map(question => ({
-      questionId: question.id,
-      questionText: question.text,
-      answer: formState.answers[question.id] || false,
-      repeaterData: question.requiresRepeater ? formState.repeaterData[question.id] : undefined,
-      repeaterTitle: question.requiresRepeater?.title
-    }));
-  }, [questions, formState.answers, formState.repeaterData]);
-
   const getSectionTitle = () => {
     switch (section) {
       case 'income':
@@ -626,85 +499,27 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   };
 
-  // Effect for tracking summary view - moved to top level to fix Hook violation
+  // If showSummary is triggered, switch to expert mode instead
   useEffect(() => {
     if (viewState.showSummary) {
-      NativeErrorMonitor.addBreadcrumb('navigation', 'Summary mounted', { 
-        section, 
-        itemCount: summaryItems.length,
-        isAndroid: isAndroidEnvironment() 
-      });
+      NativeErrorMonitor.addBreadcrumb('navigation', 'Summary triggered - switching to expert mode');
+      onModeSwitch();
     }
-  }, [viewState.showSummary, section, summaryItems.length]);
+  }, [viewState.showSummary, onModeSwitch]);
 
+  // Don't render anything if we're about to switch to expert mode
   if (viewState.showSummary) {
-
-    const isAndroid = isAndroidEnvironment();
-    
-    if (isAndroid) {
-      // Conservative rendering for Android
-      return (
-        <div className="pb-20 md:pb-0">
-          <div className="space-y-6 pb-6">
-            {/* Header with integrated mode toggle */}
-            <SubpageHeader 
-              title={getSectionTitle()}
-              onBack={handleHeaderBack}
-              showModeToggle={true}
-              currentMode="yesno"
-              onModeChange={() => onModeSwitch()}
-            />
-
-            <div className="px-5">
-              <FormSummary
-                title={getSectionTitle()}
-                summaryItems={summaryItems}
-                onEdit={handleEditQuestion}
-                onConfirm={handleConfirm}
-                onBack={handleBack}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <AnimatedPageContainer>
-        <div className="space-y-6 pb-6">
-          {/* Header with integrated mode toggle */}
-          <SubpageHeader 
-            title={getSectionTitle()}
-            onBack={handleHeaderBack}
-            showModeToggle={true}
-            currentMode="yesno"
-            onModeChange={() => onModeSwitch()}
-          />
-
-          <div className="px-5">
-            <FormSummary
-              title={getSectionTitle()}
-              summaryItems={summaryItems}
-              onEdit={handleEditQuestion}
-              onConfirm={handleConfirm}
-              onBack={handleBack}
-            />
-          </div>
-        </div>
-      </AnimatedPageContainer>
-    );
+    return null;
   }
 
   return (
     <AnimatedPageContainer>
       <div className="space-y-6 pb-6">
-        {/* Header with integrated mode toggle */}
+        {/* Header without mode toggle during yes/no form */}
         <SubpageHeader 
           title={getSectionTitle()}
           onBack={handleHeaderBack}
-          showModeToggle={true}
-          currentMode="yesno"
-          onModeChange={() => onModeSwitch()}
+          showModeToggle={false}
         />
 
         {/* Resume Message - Only show when there's actual saved progress and not already at start */}
