@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ditaxLogoMain from '@/assets/ditax-logo-main.png';
-import { User, Wallet, Shield, Landmark, Send, Check, UploadCloud, FileCheck, ArrowLeft, Menu, LucideIcon } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, Send, Check, UploadCloud, FileCheck, ArrowLeft, Menu, Bell, MessageCircle, LucideIcon } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
@@ -183,10 +183,23 @@ export const TaxYearDashboard: React.FC = () => {
             />
           </div>
 
-          {/* Menu Button */}
-          <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm">
-            <Menu className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
-          </button>
+          {/* Right Icons */}
+          <div className="flex items-center gap-3">
+            {/* Notification Bell */}
+            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
+              <Bell className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+            </button>
+            
+            {/* Chat Icon */}
+            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
+              <MessageCircle className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+            </button>
+            
+            {/* Menu Button */}
+            <button className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
+              <Menu className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+            </button>
+          </div>
         </header>
 
         {/* Greeting */}
