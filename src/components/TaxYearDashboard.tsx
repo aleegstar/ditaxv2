@@ -6,6 +6,7 @@ import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 interface DashboardSection {
   id: string;
   title: string;
@@ -43,24 +44,6 @@ const NexusBeam: React.FC<{
     </div>
   </div>;
 
-// Progress Circle component
-const ProgressCircle: React.FC<{
-  percentage: number;
-}> = ({
-  percentage
-}) => {
-  const circumference = 2 * Math.PI * 20;
-  const strokeDashoffset = circumference - percentage / 100 * circumference;
-  return <div className="relative w-12 h-12 flex items-center justify-center">
-      <svg className="w-full h-full transform -rotate-90">
-        <circle cx="24" cy="24" r="20" stroke="#27272a" strokeWidth="3" fill="none" />
-        <circle cx="24" cy="24" r="20" stroke="#1D64FF" strokeWidth="3" fill="none" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(29,100,255,0.5)]" />
-      </svg>
-      <span className="absolute text-[10px] font-semibold text-white font-jakarta">
-        {percentage}%
-      </span>
-    </div>;
-};
 export const TaxYearDashboard: React.FC = () => {
   const {
     formProgress,
@@ -232,7 +215,14 @@ export const TaxYearDashboard: React.FC = () => {
                   {angabenProgress.completed === 4 ? 'Abgeschlossen' : 'In Bearbeitung'}
                 </p>
               </div>
-              <ProgressCircle percentage={angabenProgress.percentage} />
+              <AnimatedCircularProgressBar 
+                max={100} 
+                min={0} 
+                value={angabenProgress.percentage} 
+                gaugePrimaryColor="#1D64FF" 
+                gaugeSecondaryColor="#27272a"
+                className="size-14 text-xs"
+              />
             </div>
 
             {/* Grid Options */}
