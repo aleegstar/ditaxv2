@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useState, useRef } from "react";
-import { ArrowLeft, Eye } from 'lucide-react';
+import { ArrowLeft, Eye, Image, CloudUpload } from 'lucide-react';
 
 interface Screenshot {
   id: string;
@@ -105,83 +105,82 @@ export const FileUpload = ({
   return (
     <div className="relative">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="w-full px-0 pt-2 pb-4 flex items-center justify-center relative">
+        {/* Back Button */}
         {onBack && (
           <button 
             onClick={onBack}
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+            className="absolute left-0 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
           </button>
         )}
-        <h1 className="text-xl font-semibold text-white">Upload</h1>
+        
+        {/* Title */}
+        <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+          Upload
+        </h1>
       </div>
 
-      {/* Upload Box */}
-      <div 
-        className={cn(
-          "relative cursor-pointer group/upload transition-all duration-300 rounded-2xl border border-white/10 bg-[#0d0d0d] p-5",
-          isDragOver && "border-[#1d64ff] bg-[#1d64ff]/10"
-        )}
+      {/* Add More Documents Trigger */}
+      <button 
+        className="w-full group relative outline-none focus:outline-none mt-2"
         onClick={handleUploadClick}
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/upload:translate-x-full transition-transform duration-1000" />
-        </div>
-
-        <input 
-          ref={fileInputRef} 
-          type="file" 
-          accept={accept} 
-          onChange={(e) => {
-            onFileUpload(e);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = '';
-            }
-          }} 
-          className="hidden" 
-          multiple={maxFiles > 1} 
-        />
+        {/* Border Glow on Hover */}
+        <div className={cn(
+          "absolute -inset-0.5 bg-gradient-to-r from-[#1D64FF]/50 to-[#1D64FF]/0 rounded-2xl blur transition duration-500",
+          isDragOver ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        )} />
         
-        <div className="flex items-center gap-4">
-          {/* Blue Icon Box */}
-          <div className="w-14 h-14 rounded-xl bg-[#1d64ff] flex items-center justify-center flex-shrink-0 group-hover/upload:scale-105 transition-transform">
-            <svg 
-              width="28" 
-              height="28" 
-              viewBox="0 0 44 40" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="text-white"
-            >
-              <path d="M32.9551 14.1608C32.9701 14.1607 32.985 14.1607 33 14.1607C37.9706 14.1607 42 18.1975 42 23.1772C42 27.8182 38.5 31.6403 34 32.1387M32.9551 14.1608C32.9848 13.8308 33 13.4966 33 13.1588C33 7.07257 28.0751 2.13867 22 2.13867C16.2465 2.13867 11.5247 6.56401 11.0408 12.2025M32.9551 14.1608C32.7507 16.4338 31.8572 18.5079 30.4857 20.1717M11.0408 12.2025C5.96796 12.6861 2 16.9665 2 22.1754C2 27.0221 5.43552 31.0651 10 31.9933M11.0408 12.2025C11.3565 12.1724 11.6765 12.157 12 12.157C14.2516 12.157 16.3295 12.9026 18.001 14.1607" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M22 22.1387L22 38.1387M22 22.1387C20.5995 22.1387 17.9831 26.1273 17 27.1387M22 22.1387C23.4005 22.1387 26.0169 26.1273 27 27.1387" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+        <div className={cn(
+          "relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 overflow-hidden",
+          isDragOver && "border-white/[0.15]"
+        )}>
+          {/* Shimmer Animation */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_3s_infinite_linear] bg-[length:200%_100%]" />
+          
+          <input 
+            ref={fileInputRef} 
+            type="file" 
+            accept={accept} 
+            onChange={(e) => {
+              onFileUpload(e);
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
+            }} 
+            className="hidden" 
+            multiple={maxFiles > 1} 
+          />
+          
+          {/* Icon Box */}
+          <div className="w-12 h-12 rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300">
+            <CloudUpload className="w-6 h-6 text-white" />
           </div>
           
-          {/* Text */}
-          <div className="flex-1">
-            <h3 className="text-base font-semibold text-white">
+          {/* Text Content */}
+          <div className="flex flex-col items-start text-left">
+            <span className="text-[15px] font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors">
               {!pdfLibLoaded ? 'Initialisierung...' : 'Weitere Dokumente hinzufügen'}
-            </h3>
-            <p className="text-sm text-white/50 mt-0.5">
+            </span>
+            <span className="text-[11px] text-zinc-500 mt-1 font-medium tracking-wide">
               Max. 10 MB • PDF, JPG, PNG, GIF, WebP
-            </p>
+            </span>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Processing Overlay */}
       {isProcessing && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
+        <div className="absolute inset-0 bg-[#020408]/90 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-3 border-[#1d64ff] border-t-transparent"></div>
-            <p className="mt-3 text-white text-sm">
+            <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-[#1D64FF] border-t-transparent"></div>
+            <p className="mt-3 text-zinc-200 text-sm">
               {file?.type.startsWith('image/') ? 'Bilder werden verarbeitet...' : 'PDF wird verarbeitet...'}
             </p>
           </div>
@@ -190,44 +189,47 @@ export const FileUpload = ({
 
       {/* Preview Section */}
       {hasAnyPreview && (
-        <div className="mt-6">
+        <div className="mt-8 space-y-3">
           {/* Preview Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-xs font-semibold text-white/60 tracking-wider uppercase">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
               Vorschau ({totalPreviewCount} {totalPreviewCount === 1 ? 'Element' : 'Elemente'})
-            </h4>
-            <button className="text-xs text-[#1d64ff] hover:text-[#1d64ff]/80 transition-colors">
+            </span>
+            <span className="text-[11px] font-medium text-[#1D64FF] hover:text-[#1D64FF]/80 cursor-pointer transition-colors">
               Bearbeiten
-            </button>
+            </span>
           </div>
           
-          {/* Preview Grid */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Preview Cards */}
+          <div className="space-y-3">
             {/* Image Previews */}
             {imagePreviews.map(preview => (
               <div 
                 key={preview.id} 
-                className="relative rounded-xl overflow-hidden bg-[#0d0d0d] border border-white/10 aspect-square group cursor-pointer"
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl cursor-pointer"
                 onClick={() => openFullPreview(preview.dataUrl)}
               >
-                {/* Bild Badge */}
-                <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/60 backdrop-blur-sm">
-                  <svg className="w-3 h-3 text-[#1d64ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                  </svg>
-                  <span className="text-xs text-white font-medium">Bild</span>
-                </div>
-                
-                {/* Eye Icon on Hover */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                  <Eye className="w-6 h-6 text-white" />
-                </div>
-                
+                {/* Image */}
                 <img 
                   src={preview.dataUrl} 
                   alt={preview.fileName} 
                   className="w-full h-full object-cover"
                 />
+
+                {/* Type Badge */}
+                <div className="absolute top-4 left-4 z-20">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
+                    <Image className="w-3.5 h-3.5 text-[#1D64FF]" />
+                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Bild</span>
+                  </div>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100">
+                    <Eye className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             ))}
             
@@ -235,25 +237,30 @@ export const FileUpload = ({
             {screenshots.map(shot => (
               <div 
                 key={shot.id} 
-                className="relative rounded-xl overflow-hidden bg-[#0d0d0d] border border-white/10 aspect-square group cursor-pointer"
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl cursor-pointer"
                 onClick={() => openFullPreview(shot.dataUrl)}
               >
-                {/* Page Badge */}
-                <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/60 backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                  <span className="text-xs text-white font-medium">Seite {shot.pageNumber}</span>
-                </div>
-                
-                {/* Eye Icon on Hover */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                  <Eye className="w-6 h-6 text-white" />
-                </div>
-                
+                {/* Image */}
                 <img 
                   src={shot.dataUrl} 
                   alt={`Seite ${shot.pageNumber}`} 
                   className="w-full h-full object-cover"
                 />
+
+                {/* Type Badge */}
+                <div className="absolute top-4 left-4 z-20">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
+                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Seite {shot.pageNumber}</span>
+                  </div>
+                </div>
+
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100">
+                    <Eye className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
