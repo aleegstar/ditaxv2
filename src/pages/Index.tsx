@@ -130,21 +130,27 @@ const IndexContent = () => {
       
       {/* Floating Add Document Button */}
       {showFloatingButton && (
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          onClick={() => navigate('/documents')}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#0A0C10] border border-white/[0.08] rounded-full px-5 py-3 shadow-xl hover:bg-[#12151A] transition-colors"
-        >
-          <div className="w-9 h-9 rounded-full bg-[#1D64FF] flex items-center justify-center shadow-[0_0_20px_-3px_rgba(29,100,255,0.5)]">
-            <Plus className="w-5 h-5 text-white" />
-          </div>
-          <div className="text-left pr-2">
-            <p className="text-sm font-medium text-white">Dokument hinzufügen</p>
-            <p className="text-xs text-zinc-500">Scan oder Upload</p>
-          </div>
-        </motion.button>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[float_5s_ease-in-out_infinite] w-max">
+          <motion.button 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            onClick={() => navigate('/documents')}
+            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
+              <Plus className="w-5 h-5 text-white stroke-[2.5px]" />
+            </div>
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
+                Dokument hinzufügen
+              </span>
+              <span className="text-[11px] text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                Scan oder Upload
+              </span>
+            </div>
+          </motion.button>
+        </div>
       )}
       {/* OnboardingTour now managed globally in App.tsx */}
     </AnimatedPageContainer>
