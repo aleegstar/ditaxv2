@@ -14,6 +14,7 @@ import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
+import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -282,15 +283,14 @@ const UserTaxReturns = () => {
                     </h2>
                   </div>
                   {/* Progress Circle */}
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="28" cy="28" r="24" stroke="#27272a" strokeWidth="4" fill="none" />
-                      <circle cx="28" cy="28" r="24" stroke="#1D64FF" strokeWidth="4" fill="none" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(29,100,255,0.5)]" />
-                    </svg>
-                    <span className="absolute text-xs font-semibold text-white font-jakarta">
-                      {progress}%
-                    </span>
-                  </div>
+                  <AnimatedCircularProgressBar 
+                    max={100} 
+                    min={0} 
+                    value={progress} 
+                    gaugePrimaryColor="#1D64FF" 
+                    gaugeSecondaryColor="#27272a"
+                    className="size-14 text-xs"
+                  />
                 </div>
 
                 <div className="space-y-3 relative z-10">
