@@ -411,9 +411,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       }
       
       if (isLastQuestion) {
-        // After last question, show summary instead of switching to expert mode
+        // After last question, switch directly to expert mode (no summary)
         if (Capacitor.isNativePlatform()) {
-          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete yes/no questions - showing summary');
+          NativeErrorMonitor.addBreadcrumb('navigation', 'Complete yes/no questions - switching to expert mode');
         }
         
         try {
@@ -439,8 +439,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           // Save to database
           await saveSection(section, sectionData);
 
-          // Show summary instead of switching to expert mode
-          dispatchViewState({ type: 'SET_SUMMARY', show: true });
+          // Switch directly to expert mode without showing summary
+          onModeSwitch();
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
