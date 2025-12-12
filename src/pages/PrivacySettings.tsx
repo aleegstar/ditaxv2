@@ -5,13 +5,10 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Download, Trash2, Shield } from 'lucide-react';
+import { Download, Trash2, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatedBackground } from '@/components/ui/animated-background';
-import { WelcomeHeader } from '@/components/ui/welcome-header';
-
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Json } from '@/integrations/supabase/types';
 
 interface PrivacyPreferences {
@@ -19,10 +16,7 @@ interface PrivacyPreferences {
 }
 
 const PrivacySettings = () => {
-  const {
-    userId,
-    isValid
-  } = useAuthValidation();
+  const { userId, isValid } = useAuthValidation();
   const navigate = useNavigate();
   const [preferences, setPreferences] = useState<PrivacyPreferences>({
     marketing_emails: false
@@ -38,13 +32,13 @@ const PrivacySettings = () => {
 
   const loadPreferences = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select('privacy_preferences').eq('id', userId).maybeSingle();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('privacy_preferences')
+        .eq('id', userId)
+        .maybeSingle();
       if (error) throw error;
       if (data && data.privacy_preferences) {
-        // Safely cast Json to PrivacyPreferences
         const prefs = data.privacy_preferences as unknown as PrivacyPreferences;
         setPreferences({
           marketing_emails: prefs.marketing_emails || false
@@ -59,13 +53,11 @@ const PrivacySettings = () => {
 
   const savePreferences = async () => {
     try {
-      // Cast PrivacyPreferences to Json for database storage
       const prefsAsJson = preferences as unknown as Json;
-      const {
-        error
-      } = await supabase.from('profiles').update({
-        privacy_preferences: prefsAsJson
-      }).eq('id', userId);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ privacy_preferences: prefsAsJson })
+        .eq('id', userId);
       if (error) throw error;
       toast({
         title: "Einstellungen gespeichert",
@@ -83,8 +75,12 @@ const PrivacySettings = () => {
 
   const downloadUserData = async () => {
     try {
-      // Collect all user data
-      const [profileData, taxReturnsData, chatMessagesData] = await Promise.all([supabase.from('profiles').select('*').eq('id', userId).single(), supabase.from('tax_returns').select('*').eq('user_id', userId), supabase.from('chat_messages').select('*').or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)]);
+      const [profileData, taxReturnsData, chatMessagesData] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.from('tax_returns').select('*').eq('user_id', userId),
+        supabase.from('chat_messages').select('*').or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+      ]);
+      
       const userData = {
         profile: profileData.data,
         tax_returns: taxReturnsData.data,
@@ -92,10 +88,7 @@ const PrivacySettings = () => {
         exported_at: new Date().toISOString()
       };
 
-      // Create and download JSON file
-      const blob = new Blob([JSON.stringify(userData, null, 2)], {
-        type: 'application/json'
-      });
+      const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -104,6 +97,7 @@ const PrivacySettings = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      
       toast({
         title: "Daten heruntergeladen",
         description: "Ihre Daten wurden als JSON-Datei heruntergeladen."
@@ -145,7 +139,6 @@ const PrivacySettings = () => {
 
       if (error) {
         console.error('Edge function error:', error);
-        // Still try to sign out
         await supabase.auth.signOut();
         
         toast({
@@ -153,12 +146,10 @@ const PrivacySettings = () => {
           description: "Ihre Daten wurden gelöscht. Sie werden jetzt abgemeldet.",
         });
         
-        // Redirect even on error since data might be deleted
         setTimeout(() => navigate('/auth'), 1000);
         return;
       }
 
-      // Check if it was a partial deletion
       if (data?.partial) {
         toast({
           title: "Daten gelöscht",
@@ -171,14 +162,12 @@ const PrivacySettings = () => {
         });
       }
 
-      // Always sign out and redirect
       await supabase.auth.signOut();
       setTimeout(() => navigate('/auth'), 1000);
       
     } catch (error) {
       console.error('Error deleting account:', error);
       
-      // Even on error, try to sign out to prevent stuck state
       try {
         await supabase.auth.signOut();
       } catch (signOutError) {
@@ -190,7 +179,6 @@ const PrivacySettings = () => {
         description: "Ihre Daten wurden gelöscht. Sie werden jetzt abgemeldet.",
       });
       
-      // Always redirect to auth page
       setTimeout(() => navigate('/auth'), 1000);
     } finally {
       setLoading(false);
@@ -199,27 +187,24 @@ const PrivacySettings = () => {
 
   if (!isValid) {
     return (
-      <AnimatedBackground>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-gray-800">Bitte melden Sie sich an.</p>
-        </div>
-      </AnimatedBackground>
+      <div className="min-h-screen bg-[#020408] flex items-center justify-center">
+        <p className="text-white">Bitte melden Sie sich an.</p>
+      </div>
     );
   }
 
   return (
-    <AnimatedBackground>
-      <WelcomeHeader 
-        customTitle="Datenschutz-Einstellungen" 
-        customDescription="Verwalten Sie Ihre Datenschutz-Präferenzen und Kontodaten"
+    <div className="min-h-screen bg-[#020408]">
+      <SubpageHeader 
+        title="Datenschutz-Einstellungen" 
+        onBack={() => navigate(-1)} 
       />
-      <div className="container mx-auto px-4 py-8">
-
+      <div className="container mx-auto px-4 py-6">
         <div className="grid gap-6 max-w-4xl">
           {/* Privacy Preferences */}
-          <Card className="bg-white border border-gray-200 rounded-3xl shadow-sm">
+          <Card className="bg-[#0A0C10] border border-white/[0.08] rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-800 flex items-center">
+              <CardTitle className="text-white flex items-center">
                 <Shield className="h-5 w-5 mr-2" />
                 Datenschutz-Präferenzen
               </CardTitle>
@@ -227,8 +212,8 @@ const PrivacySettings = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-gray-800 font-medium">Marketing-E-Mails</h3>
-                  <p className="text-gray-600 text-sm">Erhalten Sie Updates und Angebote</p>
+                  <h3 className="text-white font-medium">Marketing-E-Mails</h3>
+                  <p className="text-zinc-500 text-sm">Erhalten Sie Updates und Angebote</p>
                 </div>
                 <Switch 
                   checked={preferences.marketing_emails} 
@@ -240,7 +225,10 @@ const PrivacySettings = () => {
               </div>
 
               <div className="pt-4">
-                <Button onClick={savePreferences} className="w-full">
+                <Button 
+                  onClick={savePreferences} 
+                  className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white"
+                >
                   Einstellungen speichern
                 </Button>
               </div>
@@ -248,18 +236,22 @@ const PrivacySettings = () => {
           </Card>
 
           {/* Data Export */}
-          <Card className="bg-white border border-gray-200 rounded-3xl shadow-sm">
+          <Card className="bg-[#0A0C10] border border-white/[0.08] rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-gray-800 flex items-center">
+              <CardTitle className="text-white flex items-center">
                 <Download className="h-5 w-5 mr-2" />
                 Datenportabilität
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">
+              <p className="text-zinc-500 mb-4">
                 Laden Sie alle Ihre gespeicherten Daten als JSON-Datei herunter.
               </p>
-              <Button onClick={downloadUserData} variant="outline" className="w-full">
+              <Button 
+                onClick={downloadUserData} 
+                variant="outline" 
+                className="w-full border-white/[0.08] text-white hover:bg-white/10"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Meine Daten herunterladen
               </Button>
@@ -267,15 +259,15 @@ const PrivacySettings = () => {
           </Card>
 
           {/* Account Deletion */}
-          <Card className="bg-red-50 border border-red-200 rounded-3xl shadow-sm">
+          <Card className="bg-[#0A0C10] border border-red-500/30 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-red-600 flex items-center">
+              <CardTitle className="text-red-500 flex items-center">
                 <Trash2 className="h-5 w-5 mr-2" />
                 Account löschen
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">
+              <p className="text-zinc-500 mb-4">
                 Diese Aktion löscht unwiderruflich alle Ihre Daten und kann nicht rückgängig gemacht werden.
               </p>
               <div className="space-y-4">
@@ -284,12 +276,12 @@ const PrivacySettings = () => {
                   placeholder="Geben Sie 'LÖSCHEN' ein, um zu bestätigen" 
                   value={deleteConfirm} 
                   onChange={(e) => setDeleteConfirm(e.target.value)} 
-                  className="w-full p-3 bg-white border border-gray-200 rounded-md text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" 
+                  className="w-full p-3 bg-[#020408] border border-white/[0.08] rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
                 />
                 <Button 
                   onClick={deleteAllUserData} 
                   variant="destructive" 
-                  className="w-full" 
+                  className="w-full bg-red-600 hover:bg-red-700" 
                   disabled={deleteConfirm !== 'LÖSCHEN' || loading}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -300,7 +292,7 @@ const PrivacySettings = () => {
           </Card>
         </div>
       </div>
-    </AnimatedBackground>
+    </div>
   );
 };
 
