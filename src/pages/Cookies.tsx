@@ -1,10 +1,12 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import LegalDocumentPage from '@/components/legal/LegalDocumentPage';
-import { WelcomeHeader } from '@/components/ui/welcome-header';
-import { AnimatedBackground } from '@/components/ui/animated-background';
 
 const Cookies = () => {
+  const navigate = useNavigate();
+  
   const cookieContent = `
 <h2>Ditax by Graber Sandro Cookie-Richtlinie</h2>
 <p>Wirksamkeitsdatum: 23. November 2023</p>
@@ -35,17 +37,17 @@ privacy@ditax.ch</p>
   `;
 
   return (
-    <AnimatedBackground>
-      <WelcomeHeader 
-        customTitle="Cookie-Richtlinie" 
-        customDescription="Informationen über die Verwendung von Cookies auf unserer Website"
+    <div className="min-h-screen bg-[#020408]">
+      <SubpageHeader 
+        title="Cookie-Richtlinie" 
+        onBack={() => navigate(-1)} 
       />
       <LegalDocumentPage
-        title="Cookie-Richtlinie"
+        title=""
         staticContent={cookieContent}
-        useWhiteBackground={true}
+        useDarkBackground={true}
       />
-    </AnimatedBackground>
+    </div>
   );
 };
 

@@ -1,10 +1,12 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import LegalDocumentPage from '@/components/legal/LegalDocumentPage';
-import { WelcomeHeader } from '@/components/ui/welcome-header';
-import { AnimatedBackground } from '@/components/ui/animated-background';
 
 const Terms = () => {
+  const navigate = useNavigate();
+  
   const termsContent = `<h2>Ditax by Graber Sandro Nutzungsbedingungen</h2>
 <p>Diese Nutzungsbedingungen regeln deine Nutzung von Ditax, unserer Website unter <a href="https://ditax.ch">https://ditax.ch</a>, und aller damit verbundenen Dienstleistungen, die von Ditax by Graber Sandro bereitgestellt werden.</p>
 <p>Wenn du ein Ditax-Konto erstellst oder Ditax verwendest, erklärst du dich damit einverstanden, diese Nutzungsbedingungen einzuhalten und alle geltenden Gesetze und Vorschriften zu befolgen. Wenn du mit diesen Nutzungsbedingungen nicht einverstanden bist, ist es dir untersagt, die App weiter zu nutzen, auf unsere Website zuzugreifen oder andere von Ditax by Graber Sandro bereitgestellte Dienste zu nutzen.</p>
@@ -55,17 +57,17 @@ const Terms = () => {
 <p>Diese Nutzungsbedingungen unterliegen den Gesetzen von Schweiz und werden in Übereinstimmung mit diesen ausgelegt. Sie unterwerfen sich unwiderruflich der ausschließlichen Zuständigkeit der Gerichte in diesem Staat oder an diesem Ort.</p>`;
 
   return (
-    <AnimatedBackground>
-      <WelcomeHeader 
-        customTitle="Nutzungsbedingungen" 
-        customDescription="Unsere Nutzungsbedingungen und Richtlinien für die Verwendung unserer Dienste"
+    <div className="min-h-screen bg-[#020408]">
+      <SubpageHeader 
+        title="Nutzungsbedingungen" 
+        onBack={() => navigate(-1)} 
       />
       <LegalDocumentPage
-        title="Nutzungsbedingungen"
-        useWhiteBackground={true}
+        title=""
         staticContent={termsContent}
+        useDarkBackground={true}
       />
-    </AnimatedBackground>
+    </div>
   );
 };
 
