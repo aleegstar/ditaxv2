@@ -156,9 +156,12 @@ export const TaxYearDashboard: React.FC = () => {
           80% { opacity: 1; }
           100% { transform: translateY(100%); opacity: 0; }
         }
-        @keyframes dash-flow {
-          0% { stroke-dashoffset: 0; }
-          100% { stroke-dashoffset: -115; }
+        @keyframes inner-beam-pulse {
+          0% { transform: translateY(100%); opacity: 0; }
+          20% { opacity: 1; }
+          50% { transform: translateY(0%); opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translateY(-100%); opacity: 0; }
         }
       `}</style>
 
@@ -230,158 +233,47 @@ export const TaxYearDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Grid Options Container */}
-            <div className="relative">
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative">
-                {angabenSections.map((section, index) => {
-                const Icon = section.icon;
-                const completed = isCompleted(section.id);
-                
-                return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full">
-                      <div className="flex justify-between w-full">
-                        <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-                        {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
-                            <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
-                          </div>}
-                      </div>
-                      <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
-                        {section.title}
-                      </span>
-                    </button>;
-              })}
+            {/* Grid Options */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative">
+              {/* Central Light Effect */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                {/* Static Guide Line */}
+                <div className="w-[2px] h-full bg-white/50 absolute" />
+                {/* Wide Ambient Glow */}
+                <div className="absolute w-32 h-full bg-[radial-gradient(circle_at_center,rgba(29,100,255,0.2)_0%,transparent_70%)] opacity-60" />
+                {/* Animated Beam */}
+                <div className="absolute inset-0 flex justify-center overflow-hidden">
+                  <div 
+                    className="w-[2px] h-24 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px]" 
+                    style={{
+                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                      boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
+                    }} 
+                  />
+                  <div 
+                    className="w-[1px] h-20 bg-gradient-to-b from-transparent via-white to-transparent absolute opacity-80" 
+                    style={{
+                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                    }} 
+                  />
+                </div>
               </div>
-              
-              {/* Curved Beams Container - SVG for curved paths */}
-              <div className="relative h-20 w-full overflow-visible pointer-events-none">
-                <svg 
-                  className="absolute inset-0 w-full h-full overflow-visible"
-                  viewBox="0 0 100 50"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    {/* Glow filters matching NexusBeam style */}
-                    <filter id="glow-pink" x="-100%" y="-100%" width="300%" height="300%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                    <filter id="glow-yellow" x="-100%" y="-100%" width="300%" height="300%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                    <filter id="glow-cyan" x="-100%" y="-100%" width="300%" height="300%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                    <filter id="glow-green" x="-100%" y="-100%" width="300%" height="300%">
-                      <feGaussianBlur stdDeviation="2" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  
-                  {/* Static curved paths - background guides (like NexusBeam white line) */}
-                  <path d="M 12.5 0 Q 12.5 30, 50 50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" />
-                  <path d="M 37.5 0 Q 37.5 25, 50 50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" />
-                  <path d="M 62.5 0 Q 62.5 25, 50 50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" />
-                  <path d="M 87.5 0 Q 87.5 30, 50 50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" />
-                  
-                  {/* Wide ambient glow paths */}
-                  <path d="M 12.5 0 Q 12.5 30, 50 50" fill="none" stroke="rgba(232, 121, 249, 0.15)" strokeWidth="6" />
-                  <path d="M 37.5 0 Q 37.5 25, 50 50" fill="none" stroke="rgba(251, 191, 36, 0.15)" strokeWidth="6" />
-                  <path d="M 62.5 0 Q 62.5 25, 50 50" fill="none" stroke="rgba(34, 211, 238, 0.15)" strokeWidth="6" />
-                  <path d="M 87.5 0 Q 87.5 30, 50 50" fill="none" stroke="rgba(74, 222, 128, 0.15)" strokeWidth="6" />
-                  
-                  {/* Animated colored beams (like NexusBeam traveling pulse) */}
-                  <path 
-                    d="M 12.5 0 Q 12.5 30, 50 50" 
-                    fill="none" 
-                    stroke="#E879F9"
-                    strokeWidth="0.6"
-                    filter="url(#glow-pink)"
-                    strokeDasharray="12 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' }}
-                  />
-                  <path 
-                    d="M 37.5 0 Q 37.5 25, 50 50" 
-                    fill="none" 
-                    stroke="#FBBF24"
-                    strokeWidth="0.6"
-                    filter="url(#glow-yellow)"
-                    strokeDasharray="12 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '0.6s' }}
-                  />
-                  <path 
-                    d="M 62.5 0 Q 62.5 25, 50 50" 
-                    fill="none" 
-                    stroke="#22D3EE"
-                    strokeWidth="0.6"
-                    filter="url(#glow-cyan)"
-                    strokeDasharray="12 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '1.2s' }}
-                  />
-                  <path 
-                    d="M 87.5 0 Q 87.5 30, 50 50" 
-                    fill="none" 
-                    stroke="#4ADE80"
-                    strokeWidth="0.6"
-                    filter="url(#glow-green)"
-                    strokeDasharray="12 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '1.8s' }}
-                  />
-                  
-                  {/* White core beams (like NexusBeam white core) */}
-                  <path 
-                    d="M 12.5 0 Q 12.5 30, 50 50" 
-                    fill="none" 
-                    stroke="white"
-                    strokeWidth="0.3"
-                    opacity="0.8"
-                    strokeDasharray="10 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' }}
-                  />
-                  <path 
-                    d="M 37.5 0 Q 37.5 25, 50 50" 
-                    fill="none" 
-                    stroke="white"
-                    strokeWidth="0.3"
-                    opacity="0.8"
-                    strokeDasharray="10 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '0.6s' }}
-                  />
-                  <path 
-                    d="M 62.5 0 Q 62.5 25, 50 50" 
-                    fill="none" 
-                    stroke="white"
-                    strokeWidth="0.3"
-                    opacity="0.8"
-                    strokeDasharray="10 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '1.2s' }}
-                  />
-                  <path 
-                    d="M 87.5 0 Q 87.5 30, 50 50" 
-                    fill="none" 
-                    stroke="white"
-                    strokeWidth="0.3"
-                    opacity="0.8"
-                    strokeDasharray="10 100"
-                    style={{ animation: 'dash-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite', animationDelay: '1.8s' }}
-                  />
-                </svg>
-                
-                {/* Central convergence glow (like NexusBeam ambient glow) */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-12 bg-[radial-gradient(ellipse_at_center,rgba(29,100,255,0.3)_0%,transparent_70%)]" />
-              </div>
+
+              {angabenSections.map(section => {
+              const Icon = section.icon;
+              const completed = isCompleted(section.id);
+              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10">
+                    <div className="flex justify-between w-full">
+                      <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
+                          <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                        </div>}
+                    </div>
+                    <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
+                      {section.title}
+                    </span>
+                  </button>;
+            })}
             </div>
           </motion.div>
 
