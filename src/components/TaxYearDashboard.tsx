@@ -339,8 +339,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 1 - matches Unterlagen card border (lower card) */}
-          <NexusBeam delay={0} color={!allAngabenComplete ? 'red' : isDocumentsComplete ? 'green' : 'orange'} />
+          {/* NEXUS BEAM CONNECTION 1 - only shows when card above (Angaben) is completed/green */}
+          {allAngabenComplete && <NexusBeam delay={0} color="green" />}
 
           {/* Card 2: Unterlagen */}
           <motion.div initial={{
@@ -407,8 +407,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 2 - matches Einreichen card border (lower card) */}
-          <NexusBeam delay={1.25} color={!isDocumentsComplete ? 'red' : canSubmit ? 'green' : 'orange'} />
+          {/* NEXUS BEAM CONNECTION 2 - only shows when card above (Unterlagen) is completed/green */}
+          {isDocumentsComplete && <NexusBeam delay={1.25} color="green" />}
 
           {/* Card 3: Einreichen */}
           <motion.div initial={{
