@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
+import { BorderBeam } from '@/components/ui/border-beam';
 
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
@@ -507,41 +508,39 @@ const DocumentChecklist: React.FC = () => {
                             return (
                               <div 
                                 key={item.id} 
-                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden"
+                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent"
                                 style={{
-                                  background: item.uploaded 
-                                    ? 'rgba(255, 255, 255, 0.02)'
-                                    : 'linear-gradient(135deg, #1D64FF, #2563EB)',
-                                  boxShadow: item.uploaded 
-                                    ? 'none'
-                                    : '0 20px 40px -10px rgba(29, 100, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
-                                  border: item.uploaded ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'
+                                  border: '1px solid rgba(255, 255, 255, 0.05)'
                                 }}
                               >
-                                {/* Decorative blur for non-uploaded items */}
+                                {/* Orange BorderBeam for non-uploaded items */}
                                 {!item.uploaded && (
-                                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-white/10 to-transparent opacity-50 pointer-events-none mix-blend-overlay" />
+                                  <BorderBeam 
+                                    size={120}
+                                    duration={6}
+                                    borderWidth={1.5}
+                                    colorFrom="#F97316"
+                                    colorTo="#FBBF24"
+                                    delay={Math.random() * 3}
+                                  />
                                 )}
                                 
                                 <div className="relative z-10 flex flex-col items-center">
                                   {/* Title */}
-                                  <h3 className={cn(
-                                    "text-lg font-semibold tracking-tight mb-2",
-                                    item.uploaded ? "text-zinc-200" : "text-white"
-                                  )}>
+                                  <h3 className="text-lg font-semibold tracking-tight mb-2 text-zinc-200">
                                     {item.title}
                                   </h3>
                                   
                                   {/* Description */}
                                   {!item.uploaded && item.description && (
-                                    <p className="text-base text-blue-100 max-w-sm mx-auto leading-relaxed mb-6 font-medium opacity-90">
+                                    <p className="text-base text-zinc-400 max-w-sm mx-auto leading-relaxed mb-6 font-medium">
                                       {item.description}
                                     </p>
                                   )}
                                   
                                   {/* Badge */}
                                   {!item.uploaded && item.required && (
-                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/20 border border-white/20 text-[11px] font-semibold text-white tracking-wide mb-8 backdrop-blur-md shadow-sm uppercase">
+                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[11px] font-semibold text-orange-400 tracking-wide mb-8 uppercase">
                                       Erforderlich
                                     </div>
                                   )}
@@ -586,19 +585,17 @@ const DocumentChecklist: React.FC = () => {
                                         <>
                                           <button 
                                             onClick={() => setAssignmentModal({ open: true, item })}
-                                            className="w-full h-12 bg-white rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/20"
+                                            className="w-full h-12 bg-[#1D64FF] rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/30 hover:shadow-[0_0_25px_rgba(29,100,255,0.5)]"
                                           >
-                                            <div className="w-6 h-6 rounded-full bg-[#1D64FF] flex items-center justify-center text-white shrink-0">
-                                              <FolderOpen className="w-3.5 h-3.5" strokeWidth={2.5} />
-                                            </div>
-                                            <span className="text-zinc-900 font-semibold text-[15px]">Zuordnen</span>
+                                            <FolderOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                            <span className="text-white font-semibold text-[15px]">Zuordnen</span>
                                           </button>
 
                                           {/* Divider */}
                                           <div className="w-full flex items-center gap-4 px-2 opacity-80">
-                                            <div className="h-px bg-blue-200/30 flex-1" />
-                                            <span className="text-blue-100 text-[13px] font-medium">oder</span>
-                                            <div className="h-px bg-blue-200/30 flex-1" />
+                                            <div className="h-px bg-white/10 flex-1" />
+                                            <span className="text-zinc-500 text-[13px] font-medium">oder</span>
+                                            <div className="h-px bg-white/10 flex-1" />
                                           </div>
                                         </>
                                       )}
@@ -606,12 +603,10 @@ const DocumentChecklist: React.FC = () => {
                                       {/* Upload Button */}
                                       <button 
                                         onClick={() => handleUploadDocument(item.id)}
-                                        className="w-full h-12 bg-white rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/20"
+                                        className="w-full h-12 bg-[#1D64FF] rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/30 hover:shadow-[0_0_25px_rgba(29,100,255,0.5)]"
                                       >
-                                        <div className="w-6 h-6 rounded-full bg-[#1D64FF] flex items-center justify-center text-white shrink-0">
-                                          <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-                                        </div>
-                                        <span className="text-zinc-900 font-semibold text-[15px]">Hochladen</span>
+                                        <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                        <span className="text-white font-semibold text-[15px]">Hochladen</span>
                                       </button>
                                     </div>
                                   )}
