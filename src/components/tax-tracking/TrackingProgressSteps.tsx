@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface ProgressStep {
@@ -46,7 +44,7 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
       {
         id: 'in_creation',
         title: 'Steuererklärung wird erstellt',
-        description: 'Deine Steuererklärung wird von unserem Team erstellt. Dies dauert zwischen 40-90 Tage.',
+        description: 'Deine Steuererklärung wird von unserem Team erstellt. Dies dauert zwischen 40–90 Tage.',
         status: workflowStep === 'in_creation' ? 'in_progress' : 'pending',
         badge: workflowStep === 'in_creation' ? 'In Bearbeitung' : undefined
       },
@@ -70,65 +68,62 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
   const steps = getSteps();
 
   return (
-    <div className={cn("space-y-6", className)}>
-      <div className="relative">
-        {steps.map((step, index) => (
-          <div key={step.id} className="relative flex gap-4 pb-8 last:pb-0">
-            {/* Timeline line */}
-            {index < steps.length - 1 && (
-              <div
-                className={cn(
-                  "absolute left-4 top-8 w-0.5 h-full -ml-px",
-                  step.status === 'completed' ? "bg-primary" : "bg-gray-200"
-                )}
-              />
-            )}
+    <div className={cn("px-6 py-4 relative", className)}>
+      {/* Vertical Connecting Line */}
+      <div className="absolute left-[39px] top-6 bottom-12 w-[2px] bg-zinc-800/50" />
 
-            {/* Status indicator */}
-            <div className="relative flex-shrink-0">
+      <div className="space-y-8 relative z-10">
+        {steps.map((step) => (
+          <div key={step.id} className="flex gap-4 group">
+            <div className="flex-shrink-0 relative">
               {step.status === 'completed' ? (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-[0_0_15px_-3px_rgba(37,99,235,0.4)] border border-blue-500 transition-transform group-hover:scale-105">
+                  <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
               ) : step.status === 'in_progress' ? (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full bg-white" />
+                <div className="relative">
+                  {/* Pulsing Ring Effect */}
+                  <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
+                  <div 
+                    className="w-8 h-8 rounded-full bg-[#020408] border-[2.5px] border-blue-500 flex items-center justify-center shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] z-10"
+                  >
+                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                  </div>
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full bg-gray-400" />
+                <div className="w-8 h-8 rounded-full bg-zinc-800/50 border border-zinc-700 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 bg-zinc-600 rounded-full" />
                 </div>
               )}
             </div>
 
-            {/* Content */}
-            <div className="flex-1 pt-1">
-              <div className="flex items-center gap-2 mb-1">
+            <div className={step.status === 'in_progress' ? 'pt-0.5' : 'pt-1'}>
+              <div className="flex items-center gap-2 mb-1.5">
                 <h3
                   className={cn(
-                    "font-semibold",
+                    "text-sm font-semibold leading-none",
                     step.status === 'completed' || step.status === 'in_progress'
-                      ? "text-gray-900"
-                      : "text-gray-400"
+                      ? "text-white"
+                      : "text-zinc-500"
                   )}
                 >
                   {step.title}
                 </h3>
                 {step.badge && (
-                  <Badge variant="secondary" className="bg-orange-100 text-orange-800 hover:bg-orange-100">
+                  <span className="px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-semibold text-orange-400 tracking-wide">
                     {step.badge}
-                  </Badge>
+                  </span>
                 )}
               </div>
               {step.description && (
                 <p
                   className={cn(
-                    "text-sm",
+                    "text-xs leading-relaxed max-w-[280px]",
                     step.status === 'in_progress'
-                      ? "text-gray-700"
+                      ? "text-zinc-400"
                       : step.status === 'completed'
-                      ? "text-gray-600"
-                      : "text-gray-400"
+                      ? "text-zinc-500"
+                      : "text-zinc-600"
                   )}
                 >
                   {step.description}
@@ -140,14 +135,13 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
       </div>
 
       {!expanded && (
-        <Button
-          variant="ghost"
+        <button
           onClick={() => setExpanded(true)}
-          className="text-primary hover:text-primary/80 flex items-center gap-2"
+          className="mt-8 ml-[42px] flex items-center gap-1.5 text-xs font-medium text-blue-500 hover:text-blue-400 transition-colors"
         >
           Vollständiges Tracking anzeigen
-          <ChevronDown className="w-4 h-4" />
-        </Button>
+          <ChevronDown className="w-3.5 h-3.5" />
+        </button>
       )}
     </div>
   );
