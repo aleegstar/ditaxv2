@@ -58,8 +58,11 @@ const NexusBeam: React.FC<{
   
   return (
     <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
-      {/* Static Guide Line - Always Visible */}
-      <div className="w-[2px] h-full bg-white/50 absolute z-0" />
+      {/* Static Guide Line - Always Visible - Now colored */}
+      <div 
+        className="w-[2px] h-full absolute z-0" 
+        style={{ backgroundColor: colors.beam, opacity: 0.4 }}
+      />
       
       {/* Wide Ambient Glow */}
       <div 
@@ -82,10 +85,11 @@ const NexusBeam: React.FC<{
           }} 
         />
         
-        {/* Brighter White Core */}
+        {/* Brighter Core - Now colored */}
         <div 
-          className="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent absolute z-20 opacity-80" 
+          className="w-[1px] h-32 absolute z-20 opacity-80" 
           style={{
+            background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
             animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
             animationDelay: `${delay}s`
           }} 
@@ -324,8 +328,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 1 - matches Angaben card border */}
-          <NexusBeam delay={0} color={angabenProgress.completed === 4 ? 'green' : 'orange'} />
+          {/* NEXUS BEAM CONNECTION 1 - matches Unterlagen card border (lower card) */}
+          <NexusBeam delay={0} color={!allAngabenComplete ? 'red' : isDocumentsComplete ? 'green' : 'orange'} />
 
           {/* Card 2: Unterlagen */}
           <motion.div initial={{
@@ -381,8 +385,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 2 - matches Unterlagen card border */}
-          <NexusBeam delay={1.25} color={!allAngabenComplete ? 'red' : isDocumentsComplete ? 'green' : 'orange'} />
+          {/* NEXUS BEAM CONNECTION 2 - matches Einreichen card border (lower card) */}
+          <NexusBeam delay={1.25} color={!isDocumentsComplete ? 'red' : canSubmit ? 'green' : 'orange'} />
 
           {/* Card 3: Einreichen */}
           <motion.div initial={{
