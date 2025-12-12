@@ -296,7 +296,7 @@ export const TaxYearDashboard: React.FC = () => {
               const colors = beamColors[section.id] || beamColors.contact;
               return <button key={section.id} onClick={() => handleSectionClick(section)} className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between hover:from-white/[0.12] hover:to-white/[0.02] transition-all cursor-pointer shadow-lg shadow-black/20 text-left ${
                 completed 
-                  ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80' 
+                  ? 'border border-transparent' 
                   : 'border border-white/5 hover:border-white/20'
               }`}>
                     {/* Only show BorderBeam animation when NOT completed */}
