@@ -169,7 +169,9 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="w-full h-full max-w-none max-h-none rounded-none m-0 p-0 bg-[#020408] border-0 gap-0 flex flex-col overflow-hidden"
+        className="w-full h-full max-w-none max-h-none rounded-none m-0 p-0 border-0 gap-0 flex flex-col overflow-hidden"
+        style={{ background: '#020408', backdropFilter: 'none' }}
+        hideCloseButton
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {/* Ambient Background Glow */}
