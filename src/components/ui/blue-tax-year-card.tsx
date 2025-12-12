@@ -61,7 +61,7 @@ export function BlueTaxYearCard({
     }
   };
   return <>
-      <div className="mb-8 relative">
+      <div className="mb-8 relative blue-tax-year-card" data-tour="tax-year-card">
         {/* Background Transparent Card (Overall Progress) */}
         <div className="shadow-black/5 z-0 border-white/10 border rounded-[2.5rem] mx-1 pt-6 px-7 pb-32 relative shadow-lg backdrop-blur-xl translate-y-11 bg-primary">
           <div className="flex flex-col gap-3 text-white">

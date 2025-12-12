@@ -30,7 +30,8 @@ export const YearDropdownButton = ({ existingYears, onYearSelect, disabled }: Ye
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
-        className="inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+        data-tour="add-year"
+        className="year-dropdown-button inline-flex items-center gap-2 rounded-full px-6 py-3 bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
         style={{
           boxShadow: 'rgba(0, 0, 0, 0.15) 0px 0px 22px -5px'
         }}
