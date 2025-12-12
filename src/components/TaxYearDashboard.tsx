@@ -259,7 +259,9 @@ export const TaxYearDashboard: React.FC = () => {
         {/* Main Content Stream */}
         <div className="flex flex-col md:px-8 px-4 relative items-center">
           {/* Card 1: Angaben */}
-          <motion.div initial={{
+          <motion.div 
+          data-tour="form-step-1"
+          initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -353,7 +355,9 @@ export const TaxYearDashboard: React.FC = () => {
           <NexusBeam delay={0} color={allAngabenComplete ? 'green' : 'orange'} showBeamEffect={allAngabenComplete} />
 
           {/* Card 2: Unterlagen */}
-          <motion.div initial={{
+          <motion.div 
+          data-tour="form-step-2"
+          initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -421,7 +425,9 @@ export const TaxYearDashboard: React.FC = () => {
           <NexusBeam delay={1.25} color={isDocumentsComplete ? 'green' : 'orange'} showBeamEffect={isDocumentsComplete} />
 
           {/* Card 3: Einreichen */}
-          <motion.div initial={{
+          <motion.div 
+          data-tour="form-step-3"
+          initial={{
           opacity: 0,
           y: 20
         }} animate={{

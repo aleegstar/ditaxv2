@@ -17,7 +17,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
 import { motion } from 'framer-motion';
-// OnboardingTour now managed globally in App.tsx
+import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
+import { FormTour } from '@/components/FormTour';
+import { TourStartButton } from '@/components/ui/tour-start-button';
 
 // Section mapping for import wizard
 const sectionKeyMap: Record<string, FormSectionKey> = {
@@ -40,9 +42,13 @@ const IndexContent = () => {
     formProgress,
     taxYear
   } = useFormContext();
+  const { showTour, completeTour, skipTour, forceTour, tourCompleted } = useFormTour();
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [checkingImport, setCheckingImport] = useState(false);
   const section = searchParams.get('section');
+
+  // Check if on main dashboard (no section)
+  const isOnDashboard = !section;
 
   // Check if import wizard should be shown
   useEffect(() => {
@@ -116,9 +122,18 @@ const IndexContent = () => {
   return <AnimatedPageContainer className="min-h-screen bg-[#020408]">
       {renderContent()}
       
+      {/* Tour Start Button - only on dashboard when tour completed */}
+      {isOnDashboard && tourCompleted && (
+        <TourStartButton onStartTour={forceTour} />
+      )}
+      
+      {/* Form Tour */}
+      {showTour && (
+        <FormTour onComplete={completeTour} onSkip={skipTour} />
+      )}
+      
       {/* Floating Add Document Button */}
       {showFloatingButton}
-      {/* OnboardingTour now managed globally in App.tsx */}
     </AnimatedPageContainer>;
 };
 const Index = () => {
@@ -190,7 +205,9 @@ const Index = () => {
     return null;
   }
   return <FormProvider taxYear={year}>
-      <IndexContent />
+      <FormTourProvider>
+        <IndexContent />
+      </FormTourProvider>
     </FormProvider>;
 };
 export default Index;
