@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Fingerprint, Trash2, Loader2, CheckCircle, ScanLine } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Fingerprint, Trash2, Loader2, CheckCircle } from 'lucide-react';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { PasskeyRegistration } from './PasskeyRegistration';
 import { OtpSecuritySettings } from './OtpSecuritySettings';
@@ -56,17 +54,15 @@ export const PasskeyManager: React.FC = () => {
 
   if (!isSupported) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Fingerprint className="h-5 w-5 text-muted-foreground" />
-            Fingerprint & Passkey nicht verfügbar
-          </CardTitle>
-          <CardDescription>
-            Ihr Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <section className="space-y-6">
+        <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
+          <Fingerprint className="w-5 h-5 text-zinc-400" />
+          Fingerprint & Passkey nicht verfügbar
+        </h2>
+        <p className="text-sm text-zinc-400">
+          Ihr Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
+        </p>
+      </section>
     );
   }
 
@@ -82,138 +78,134 @@ export const PasskeyManager: React.FC = () => {
   // If no passkeys exist, show setup-style UI
   if (passkeys.length === 0) {
     return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Fingerprint className="h-5 w-5" />
-              Fingerprint & Passkey einrichten
-            </CardTitle>
-            <CardDescription>
-              Richte einen Fingerprint/Passkey ein, um dich zukünftig schnell und sicher mit deinem Fingerprint, Face ID oder PIN anzumelden.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => setShowRegistration(true)}
-              className="w-full h-12 text-sm sm:text-base"
-              variant="outline"
-            >
-              <Fingerprint className="mr-2 h-4 w-4" />
-              Fingerprint jetzt einrichten
-            </Button>
-            
-            <div className="mt-4 text-sm text-muted-foreground">
-              <p className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 mt-0.5 text-green-500 flex-shrink-0" />
-                Nach der Einrichtung können Sie sich mit Fingerprint, Face ID oder PIN anmelden
+      <>
+        <section className="space-y-6">
+          <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
+            <Fingerprint className="w-5 h-5 text-zinc-400" />
+            Fingerprint & Passkeys
+          </h2>
+
+          <div className="space-y-5 pl-0 md:pl-7">
+            <div>
+              <h3 className="text-[15px] font-medium text-zinc-200 flex items-center gap-2.5">
+                <ScanLine className="w-4 h-4 text-[#1D64FF]" />
+                Fingerprint & Passkey einrichten
+              </h3>
+              <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed max-w-lg">
+                Richte einen Fingerprint/Passkey ein, um dich zukünftig schnell und sicher mit deinem Fingerprint, Face ID oder PIN anzumelden.
               </p>
             </div>
-          </CardContent>
-        </Card>
+
+            <button
+              onClick={() => setShowRegistration(true)}
+              className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+            >
+              <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+              Fingerprint jetzt einrichten
+            </button>
+
+            <div className="flex items-start gap-2.5">
+              <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-zinc-500 leading-relaxed">Nach der Einrichtung können Sie sich mit Fingerprint, Face ID oder PIN anmelden.</p>
+            </div>
+          </div>
+        </section>
 
         {/* Show OTP settings even without passkeys */}
         <OtpSecuritySettings 
           passkeyCount={passkeys.length} 
           onSettingsChange={loadPasskeys}
         />
-      </div>
+      </>
     );
   }
 
   // If passkeys exist, show management UI
   return (
-    <div className="space-y-6">
-      {/* Add New Passkey Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Fingerprint className="h-5 w-5" />
-            Neuen Fingerprint & Passkey hinzufügen
-          </CardTitle>
-          <CardDescription>
-            Fügen Sie einen weiteren Fingerprint/Passkey für ein anderes Gerät hinzu.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
+    <>
+      <section className="space-y-6">
+        <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
+          <Fingerprint className="w-5 h-5 text-zinc-400" />
+          Fingerprint & Passkeys
+        </h2>
+
+        {/* Add new passkey */}
+        <div className="space-y-5 pl-0 md:pl-7">
+          <div>
+            <h3 className="text-[15px] font-medium text-zinc-200 flex items-center gap-2.5">
+              <ScanLine className="w-4 h-4 text-[#1D64FF]" />
+              Neuen Fingerprint hinzufügen
+            </h3>
+            <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed max-w-lg">
+              Fügen Sie einen weiteren Fingerprint/Passkey für ein anderes Gerät hinzu.
+            </p>
+          </div>
+
+          <button
             onClick={() => setShowRegistration(true)}
-            variant="outline"
-            className="w-full h-12 text-sm sm:text-base"
+            className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
           >
-            <Fingerprint className="mr-2 h-4 w-4" />
+            <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
             Weiteren Fingerprint hinzufügen
-          </Button>
-        </CardContent>
-      </Card>
+          </button>
+        </div>
+
+        {/* Existing Passkeys */}
+        <div className="space-y-3">
+          <span className="text-sm font-medium text-zinc-300 px-1">Registrierte Geräte</span>
+          {passkeys.map((passkey) => (
+            <div
+              key={passkey.id}
+              className="bg-white/[0.02] backdrop-blur-[12px] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08] p-4 rounded-xl flex items-center justify-between gap-3 transition-colors"
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-9 h-9 rounded-lg bg-[#1D64FF]/10 flex items-center justify-center text-[#1D64FF] border border-[#1D64FF]/20">
+                  <Fingerprint className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-sm font-medium text-zinc-200">{passkey.device_name}</div>
+                  <div className="text-[11px] text-zinc-500">
+                    Erstellt {formatDistanceToNow(new Date(passkey.created_at), { 
+                      addSuffix: true, 
+                      locale: de 
+                    })}
+                  </div>
+                  {passkey.last_used_at && (
+                    <div className="text-[11px] text-zinc-600">
+                      Zuletzt verwendet {formatDistanceToNow(new Date(passkey.last_used_at), { 
+                        addSuffix: true, 
+                        locale: de 
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+                  Aktiv
+                </Badge>
+                <button
+                  onClick={() => handleDelete(passkey.id)}
+                  disabled={loadingDelete === passkey.id}
+                  className="w-8 h-8 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-center text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-50"
+                >
+                  {loadingDelete === passkey.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* OTP Security Settings */}
       <OtpSecuritySettings 
         passkeyCount={passkeys.length} 
         onSettingsChange={loadPasskeys}
       />
-
-      {/* Existing Passkeys Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Fingerprint className="h-5 w-5" />
-            Meine Fingerprints & Passkeys
-          </CardTitle>
-          <CardDescription>
-            Verwalte deine registrierten Fingerprints/Passkeys für verschiedene Geräte.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {passkeys.map((passkey) => (
-              <div
-                key={passkey.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-3"
-              >
-                <div className="flex items-start sm:items-center gap-3 flex-1">
-                  <div className="p-2 bg-primary/10 rounded-full flex-shrink-0">
-                    <Fingerprint className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm sm:text-base break-words">{passkey.device_name}</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground">
-                      Erstellt {formatDistanceToNow(new Date(passkey.created_at), { 
-                        addSuffix: true, 
-                        locale: de 
-                      })}
-                    </div>
-                    {passkey.last_used_at && (
-                      <div className="text-xs text-muted-foreground">
-                        Zuletzt verwendet {formatDistanceToNow(new Date(passkey.last_used_at), { 
-                          addSuffix: true, 
-                          locale: de 
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                  <Badge variant="secondary" className="text-xs">Aktiv</Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(passkey.id)}
-                    disabled={loadingDelete === passkey.id}
-                    className="h-8 w-8 p-0"
-                  >
-                    {loadingDelete === passkey.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </>
   );
 };
