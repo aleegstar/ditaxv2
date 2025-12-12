@@ -63,13 +63,13 @@ const LegalDocumentPage: React.FC<LegalDocumentPageProps> = ({
             {staticContent ? (
               <div className="prose prose-invert max-w-none">
                 <div 
-                  className="text-zinc-300 leading-relaxed [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_h5]:text-white [&_h6]:text-white [&_a]:text-[#1D64FF] [&_a]:hover:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1"
+                  className="text-white leading-relaxed [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_h5]:text-white [&_h6]:text-white [&_a]:text-[#1D64FF] [&_a]:hover:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1"
                   dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                 />
               </div>
             ) : (
               <div 
-                className="getterms-document-embed [&_*]:!text-white [&_a]:!text-[#1D64FF] [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-zinc-300 [&_li]:!text-zinc-300 [&_span]:!text-zinc-300" 
+                className="getterms-document-embed [&_*]:!text-white [&_a]:!text-[#1D64FF] [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_li]:!text-white [&_span]:!text-white"
                 data-getterms={gettermsId} 
                 data-getterms-document={documentType} 
                 data-getterms-lang="de" 
