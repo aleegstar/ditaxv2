@@ -156,11 +156,11 @@ export const TaxYearDashboard: React.FC = () => {
           80% { opacity: 1; }
           100% { transform: translateY(100%); opacity: 0; }
         }
-        @keyframes card-beam-flow {
-          0% { transform: translateY(-100%); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translateY(200%); opacity: 0; }
+        @keyframes border-beam {
+          0% { offset-distance: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { offset-distance: 100%; opacity: 0; }
         }
       `}</style>
 
@@ -233,11 +233,11 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
 
             {/* Grid Options */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative pb-8">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative">
               {angabenSections.map((section, index) => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              // Colors for each card's beam: pink, yellow, cyan, green
+              // Colors for each card's border beam: pink, yellow, cyan, green
               const beamColors = [
                 { main: '#E879F9', glow: 'rgba(232, 121, 249, 0.6)' }, // Pink/Magenta
                 { main: '#FBBF24', glow: 'rgba(251, 191, 36, 0.6)' },  // Yellow/Orange
@@ -245,58 +245,42 @@ export const TaxYearDashboard: React.FC = () => {
                 { main: '#4ADE80', glow: 'rgba(74, 222, 128, 0.6)' }   // Green
               ];
               const beamColor = beamColors[index];
-              // Rotation angles: outer cards angle more towards center, inner cards less
-              // Left cards rotate right (+), right cards rotate left (-)
-              const rotations = [45, 15, -15, -45]; // Degrees - converge to center
               
               return <div key={section.id} className="relative">
-                <button onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full">
-                    <div className="flex justify-between w-full">
+                <button onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full overflow-hidden">
+                    {/* Border beam effect */}
+                    <div 
+                      className="absolute inset-0 rounded-xl pointer-events-none"
+                      style={{
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          width: '40px',
+                          height: '40px',
+                          background: `radial-gradient(circle, ${beamColor.main} 0%, ${beamColor.main}80 30%, transparent 70%)`,
+                          boxShadow: `0 0 20px 8px ${beamColor.glow}, 0 0 40px 16px ${beamColor.glow}`,
+                          borderRadius: '50%',
+                          offsetPath: 'rect(0 100% 100% 0 round 12px)',
+                          animation: `border-beam 4s linear infinite`,
+                          animationDelay: `${index * 0.8}s`,
+                          filter: 'blur(2px)'
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="flex justify-between w-full relative z-10">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
                       {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
                           <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                         </div>}
                     </div>
-                    <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
+                    <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta relative z-10">
                       {section.title}
                     </span>
                   </button>
-                  
-                  {/* Individual beam from each card */}
-                  <div 
-                    className="absolute left-1/2 -bottom-4 w-[2px] h-16 pointer-events-none overflow-visible"
-                    style={{ 
-                      transform: `translateX(-50%) rotate(${rotations[index]}deg)`,
-                      transformOrigin: 'top center'
-                    }}
-                  >
-                    {/* Static guide */}
-                    <div className="absolute inset-0 bg-white/30" />
-                    {/* Ambient glow */}
-                    <div 
-                      className="absolute inset-0 w-4 -left-[7px] blur-sm"
-                      style={{ background: `linear-gradient(to bottom, ${beamColor.main}40, transparent)` }}
-                    />
-                    {/* Animated beam */}
-                    <div 
-                      className="absolute w-[2px] h-10 blur-[0.5px]"
-                      style={{
-                        background: `linear-gradient(to bottom, transparent, ${beamColor.main}, transparent)`,
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.3}s`,
-                        boxShadow: `0 0 12px 2px ${beamColor.glow}`
-                      }} 
-                    />
-                    {/* White core */}
-                    <div 
-                      className="absolute w-[1px] h-8 left-[0.5px] opacity-80"
-                      style={{
-                        background: 'linear-gradient(to bottom, transparent, white, transparent)',
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.3}s`
-                      }} 
-                    />
-                  </div>
                 </div>;
             })}
             </div>
