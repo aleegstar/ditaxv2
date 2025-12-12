@@ -28,31 +28,72 @@ interface DashboardSection {
 // Beam animation component
 const NexusBeam: React.FC<{
   delay?: number;
+  color?: 'orange' | 'green' | 'red';
 }> = ({
-  delay = 0
-}) => <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
-    {/* Static Guide Line - Always Visible */}
-    <div className="w-[2px] h-full bg-white/50 absolute z-0" />
-    
-    {/* Wide Ambient Glow */}
-    <div className="absolute w-24 h-full bg-[radial-gradient(circle_at_center,rgba(29,100,255,0.15)_0%,transparent_70%)] z-0 opacity-50" />
-    
-    {/* The Beam Container */}
-    <div className="absolute inset-0 flex justify-center overflow-hidden">
-      {/* The Traveling High-Energy Pulse */}
-      <div className="w-[2px] h-40 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px] z-10" style={{
-      animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-      animationDelay: `${delay}s`,
-      boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
-    }} />
+  delay = 0,
+  color = 'orange'
+}) => {
+  const colorConfig = {
+    orange: {
+      glow: 'rgba(249,115,22,0.15)',
+      beam: '#F97316',
+      shadow: 'rgba(249,115,22,0.6)',
+      shadowLight: 'rgba(251,191,36,0.3)'
+    },
+    green: {
+      glow: 'rgba(16,185,129,0.15)',
+      beam: '#10B981',
+      shadow: 'rgba(16,185,129,0.6)',
+      shadowLight: 'rgba(52,211,153,0.3)'
+    },
+    red: {
+      glow: 'rgba(239,68,68,0.15)',
+      beam: '#EF4444',
+      shadow: 'rgba(239,68,68,0.6)',
+      shadowLight: 'rgba(248,113,113,0.3)'
+    }
+  };
+  
+  const colors = colorConfig[color];
+  
+  return (
+    <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
+      {/* Static Guide Line - Always Visible */}
+      <div className="w-[2px] h-full bg-white/50 absolute z-0" />
       
-      {/* Brighter White Core */}
-      <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent absolute z-20 opacity-80" style={{
-      animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-      animationDelay: `${delay}s`
-    }} />
+      {/* Wide Ambient Glow */}
+      <div 
+        className="absolute w-24 h-full z-0 opacity-50" 
+        style={{
+          background: `radial-gradient(circle at center, ${colors.glow} 0%, transparent 70%)`
+        }}
+      />
+      
+      {/* The Beam Container */}
+      <div className="absolute inset-0 flex justify-center overflow-hidden">
+        {/* The Traveling High-Energy Pulse */}
+        <div 
+          className="w-[2px] h-40 absolute blur-[0.5px] z-10" 
+          style={{
+            background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
+            animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+            animationDelay: `${delay}s`,
+            boxShadow: `0 0 15px 1px ${colors.shadow}, 0 0 30px 4px ${colors.shadowLight}`
+          }} 
+        />
+        
+        {/* Brighter White Core */}
+        <div 
+          className="w-[1px] h-32 bg-gradient-to-b from-transparent via-white to-transparent absolute z-20 opacity-80" 
+          style={{
+            animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+            animationDelay: `${delay}s`
+          }} 
+        />
+      </div>
     </div>
-  </div>;
+  );
+};
 
 export const TaxYearDashboard: React.FC = () => {
   const {
@@ -283,8 +324,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 1 */}
-          <NexusBeam delay={0} />
+          {/* NEXUS BEAM CONNECTION 1 - matches Angaben card border */}
+          <NexusBeam delay={0} color={angabenProgress.completed === 4 ? 'green' : 'orange'} />
 
           {/* Card 2: Unterlagen */}
           <motion.div initial={{
@@ -340,8 +381,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 2 */}
-          <NexusBeam delay={1.25} />
+          {/* NEXUS BEAM CONNECTION 2 - matches Unterlagen card border */}
+          <NexusBeam delay={1.25} color={!allAngabenComplete ? 'red' : isDocumentsComplete ? 'green' : 'orange'} />
 
           {/* Card 3: Einreichen */}
           <motion.div initial={{
