@@ -133,7 +133,8 @@ export const TaxYearDashboard: React.FC = () => {
     });
   };
   const handleDocumentsClick = () => {
-    navigate('/documents');
+    // Navigate to document checklist within form flow
+    setSearchParams({ section: 'unterlagen', year: taxYear });
   };
   const handleSubmitClick = () => {
     const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
