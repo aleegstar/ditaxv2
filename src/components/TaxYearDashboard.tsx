@@ -156,12 +156,11 @@ export const TaxYearDashboard: React.FC = () => {
           80% { opacity: 1; }
           100% { transform: translateY(100%); opacity: 0; }
         }
-        @keyframes inner-beam-pulse {
-          0% { transform: translateY(100%); opacity: 0; }
+        @keyframes card-beam-flow {
+          0% { transform: translateY(-100%); opacity: 0; }
           20% { opacity: 1; }
-          50% { transform: translateY(0%); opacity: 1; }
           80% { opacity: 1; }
-          100% { transform: translateY(-100%); opacity: 0; }
+          100% { transform: translateY(200%); opacity: 0; }
         }
       `}</style>
 
@@ -234,35 +233,23 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
 
             {/* Grid Options */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative">
-              {/* Central Light Effect */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                {/* Static Guide Line */}
-                <div className="w-[2px] h-full bg-white/50 absolute" />
-                {/* Wide Ambient Glow */}
-                <div className="absolute w-32 h-full bg-[radial-gradient(circle_at_center,rgba(29,100,255,0.2)_0%,transparent_70%)] opacity-60" />
-                {/* Animated Beam */}
-                <div className="absolute inset-0 flex justify-center overflow-hidden">
-                  <div 
-                    className="w-[2px] h-24 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px]" 
-                    style={{
-                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-                      boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
-                    }} 
-                  />
-                  <div 
-                    className="w-[1px] h-20 bg-gradient-to-b from-transparent via-white to-transparent absolute opacity-80" 
-                    style={{
-                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite'
-                    }} 
-                  />
-                </div>
-              </div>
-
-              {angabenSections.map(section => {
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative pb-8">
+              {angabenSections.map((section, index) => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10">
+              // Colors for each card's beam: pink, yellow, cyan, green
+              const beamColors = [
+                { main: '#E879F9', glow: 'rgba(232, 121, 249, 0.6)' }, // Pink/Magenta
+                { main: '#FBBF24', glow: 'rgba(251, 191, 36, 0.6)' },  // Yellow/Orange
+                { main: '#22D3EE', glow: 'rgba(34, 211, 238, 0.6)' },  // Cyan
+                { main: '#4ADE80', glow: 'rgba(74, 222, 128, 0.6)' }   // Green
+              ];
+              const beamColor = beamColors[index];
+              // Rotation angles: from each card corner towards center bottom
+              const rotations = [35, 15, -15, -35]; // Degrees
+              
+              return <div key={section.id} className="relative">
+                <button onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full">
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
                       {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
@@ -272,7 +259,44 @@ export const TaxYearDashboard: React.FC = () => {
                     <span className="text-xs text-zinc-400 font-light leading-tight group-hover:text-zinc-200 transition-colors font-jakarta">
                       {section.title}
                     </span>
-                  </button>;
+                  </button>
+                  
+                  {/* Individual beam from each card */}
+                  <div 
+                    className="absolute left-1/2 -bottom-4 w-[2px] h-16 pointer-events-none overflow-visible"
+                    style={{ 
+                      transform: `translateX(-50%) rotate(${rotations[index]}deg)`,
+                      transformOrigin: 'top center'
+                    }}
+                  >
+                    {/* Static guide */}
+                    <div className="absolute inset-0 bg-white/30" />
+                    {/* Ambient glow */}
+                    <div 
+                      className="absolute inset-0 w-4 -left-[7px] blur-sm"
+                      style={{ background: `linear-gradient(to bottom, ${beamColor.main}40, transparent)` }}
+                    />
+                    {/* Animated beam */}
+                    <div 
+                      className="absolute w-[2px] h-10 blur-[0.5px]"
+                      style={{
+                        background: `linear-gradient(to bottom, transparent, ${beamColor.main}, transparent)`,
+                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
+                        animationDelay: `${index * 0.3}s`,
+                        boxShadow: `0 0 12px 2px ${beamColor.glow}`
+                      }} 
+                    />
+                    {/* White core */}
+                    <div 
+                      className="absolute w-[1px] h-8 left-[0.5px] opacity-80"
+                      style={{
+                        background: 'linear-gradient(to bottom, transparent, white, transparent)',
+                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
+                        animationDelay: `${index * 0.3}s`
+                      }} 
+                    />
+                  </div>
+                </div>;
             })}
             </div>
           </motion.div>
