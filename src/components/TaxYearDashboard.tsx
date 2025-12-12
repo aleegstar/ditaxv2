@@ -184,9 +184,9 @@ export const TaxYearDashboard: React.FC = () => {
               Steuererklärung {taxYear}
             </span>
           </h1>
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-zinc-900 shadow-[0_0_30px_-10px_rgba(255,255,255,0.2)] ring-1 ring-white/10">
-            {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90" /> : <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                <User className="w-5 h-5 text-zinc-400" />
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-gradient-to-b from-[#18181b] to-[#0a0a0a] shadow-[0_4px_15px_-4px_rgba(0,0,0,0.8)]">
+            {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center">
+                <User className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
               </div>}
           </div>
         </div>
