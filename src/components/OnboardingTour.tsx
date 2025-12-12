@@ -156,54 +156,32 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
       
       // Enhanced fallback selectors with better mobile/desktop support
       const fallbackSelectors = isMobile ? [
-        // Documents navigation - specific selectors first
-        '[data-tour="documents-nav"]',
-        '[data-bottom-navbar] [data-tour="documents-nav"]',
-        '.modern-bottom-navbar [data-tour="documents-nav"]',
-        'button[data-tour="documents-nav"]',
-        'a[href="/documents"]',
+        // Add year button
+        '[data-tour="add-year"]',
+        '.year-dropdown-button',
+        // Floating document button
+        '[data-tour="floating-document-button"]',
         // Prefer explicit header chat icon
         '[data-tour="chat-header-icon"]',
-        // Mobile bottom navbar chat
-        '[data-tour="bottom-navbar-chat"]',
-        // Legacy chat icon fallbacks
-        '[data-tour="chat-icon"]',
-        '[data-tour="chat-button"]',
-        'a[href="/chat"]',
-        '.chat-icon-with-badge',
-        // Other elements
-        '.continue-tax-card',
-        '.year-dropdown-button',
+        // Tax year card
+        '[data-tour="tax-year-card"]',
         '.blue-tax-year-card',
-        '.tax-year-card',
-        // Grid layout cards
-        '.grid .blue-tax-year-card',
-        '.grid .continue-tax-card',
+        // Legacy fallbacks
+        '.continue-tax-card',
         '.card'
       ] : [
+        // Add year button
+        '[data-tour="add-year"]',
+        '.year-dropdown-button',
+        // Floating document button
+        '[data-tour="floating-document-button"]',
         // Prefer explicit header chat icon
         '[data-tour="chat-header-icon"]',
-        // Documents navigation (sidebar)
-        '[data-tour="documents-nav"]',
-        // Desktop sidebar/nav fallbacks
-        'nav a[href="/chat"]',
-        '[data-sidebar-nav]',
-        'nav a[href="/"]',
-        'nav a[href="/documents"]',
-        // Legacy chat icon fallbacks
-        '[data-tour="chat-icon"]',
-        '[data-tour="chat-button"]',
-        '.chat-icon-with-badge',
-        // Other elements
-        '.continue-tax-card',
-        '.year-dropdown-button',
+        // Tax year card
+        '[data-tour="tax-year-card"]',
         '.blue-tax-year-card',
-        // Grid layout cards (new side-by-side layout)
-        '.grid .blue-tax-year-card',
-        '.grid .continue-tax-card',
-        // Dashboard sections
-        '.space-y-6 > div', // Offen/Abgeschlossen sections
-        '.grid > div', // Individual grid items
+        // Legacy fallbacks
+        '.continue-tax-card',
         '.card'
       ];
       

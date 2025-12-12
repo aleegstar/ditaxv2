@@ -215,7 +215,7 @@ const UserTaxReturns = () => {
             </div>
             
             {/* Chat Icon */}
-            <div className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-[#18181b] to-[#0a0a0a] shadow-[0_4px_15px_-4px_rgba(0,0,0,0.8)]">
+            <div data-tour="chat-header-icon" className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-[#18181b] to-[#0a0a0a] shadow-[0_4px_15px_-4px_rgba(0,0,0,0.8)]">
               <ChatButtonWithNotification className="!p-0 !bg-transparent hover:!bg-transparent" iconSize={20} />
             </div>
             
