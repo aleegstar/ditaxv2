@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
@@ -9,7 +9,6 @@ import { ExpertFormContainer } from '@/components/ui/expert-form-container';
 import { EmployerRepeater } from './repeaters/EmployerRepeater';
 import { MultiStepYesNoForm } from './multistep/MultiStepYesNoForm';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { useDebounce } from '@/hooks/use-debounce';
 
 interface IncomeFormProps {
   onSave: () => void;
@@ -65,20 +64,14 @@ const IncomeForm = ({
     freelanceIncome
   }), [hasSalary, hasRental, hasDividends, hasFreelance, hasPension, hasGiftInheritance, hasPensionPayout, hasOtherIncome, employers, rentalIncomes, dividends, freelanceIncome]);
 
-  // Use refs to track loading and initial data state
-  const isInitialLoadRef = useRef(true);
-  const lastSavedDataRef = useRef<any>(null);
+  // Use ref to track if data has been loaded
   const hasLoadedRef = useRef(false);
-
-  // Debounced data for auto-save
-  const debouncedData = useDebounce(currentIncomeData, 1000);
 
   // Load existing data - only once
   useEffect(() => {
     if (hasLoadedRef.current) return;
     
     if (formData?.income) {
-      isInitialLoadRef.current = true;
       hasLoadedRef.current = true;
       
       setHasSalary(formData.income.hasSalary || false);
@@ -93,37 +86,8 @@ const IncomeForm = ({
       setRentalIncomes(formData.income.rentalIncomes || []);
       setDividends(formData.income.dividends || []);
       setFreelanceIncome(formData.income.freelanceIncome || []);
-      
-      lastSavedDataRef.current = { ...formData.income };
-      
-      setTimeout(() => {
-        isInitialLoadRef.current = false;
-      }, 100);
     }
   }, [formData]);
-
-  // Auto-save when data changes (debounced)
-  const autoSave = useCallback(async () => {
-    if (isInitialLoadRef.current || formMode !== 'standard') return;
-    
-    // Check if data actually changed
-    const dataStr = JSON.stringify(debouncedData);
-    const lastSavedStr = JSON.stringify(lastSavedDataRef.current);
-    if (dataStr === lastSavedStr) return;
-    
-    try {
-      await saveSection('income', debouncedData);
-      updateFormData('income', debouncedData);
-      lastSavedDataRef.current = { ...debouncedData };
-      console.debug('IncomeForm auto-saved');
-    } catch (error) {
-      console.error('Auto-save failed:', error);
-    }
-  }, [debouncedData, formMode, saveSection, updateFormData]);
-
-  useEffect(() => {
-    autoSave();
-  }, [autoSave]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
