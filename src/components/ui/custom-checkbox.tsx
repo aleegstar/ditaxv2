@@ -24,10 +24,10 @@ const CustomCheckbox = ({
 }: CustomCheckboxProps) => {
   const checkboxId = id || React.useId();
 
-  const handleClick = () => {
-    if (onCheckedChange) {
-      onCheckedChange(!checked);
-    }
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCheckedChange?.(!checked);
   };
 
   return (
