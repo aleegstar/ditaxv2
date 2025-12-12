@@ -15,7 +15,7 @@ export const WelcomeStep = ({ title, children }: WelcomeStepProps) => {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="w-full flex flex-col items-center text-center space-y-6 md:space-y-8 px-4"
     >
-      <h1 className="text-2xl font-bold text-foreground leading-tight">
+      <h1 className="text-2xl font-bold text-white leading-tight">
         {title}
       </h1>
 

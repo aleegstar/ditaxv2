@@ -132,37 +132,37 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-6 w-full max-w-md px-4">
             <div className="flex flex-col items-start gap-6 w-full">
-              <div className="bg-background border border-border rounded-3xl p-7 md:p-6 shadow-sm w-full space-y-5">
+              <div className="bg-[#0A0C10] border border-white/[0.08] rounded-3xl p-7 md:p-6 shadow-sm w-full space-y-5">
                 <label className="flex items-start gap-4 cursor-pointer group">
                   <Checkbox
                     checked={termsAccepted}
                     onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                    className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0"
+                    className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-white/[0.08] data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
                   />
-                  <div className="flex-1 text-foreground text-[15px] md:text-sm leading-relaxed text-left">
+                  <div className="flex-1 text-white text-[15px] md:text-sm leading-relaxed text-left">
                     Ich akzeptiere die{' '}
-                    <Link to="/privacy" target="_blank" className="underline hover:text-primary transition-colors font-medium">
+                    <Link to="/privacy" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
                       Datenschutzbestimmungen
                     </Link>
                     {' '}und{' '}
-                    <Link to="/terms" target="_blank" className="underline hover:text-primary transition-colors font-medium">
+                    <Link to="/terms" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
                       Nutzungsbedingungen
                     </Link>
                   </div>
                 </label>
 
-                <div className="pt-3 border-t border-border">
+                <div className="pt-3 border-t border-white/[0.08]">
                   <label className="flex items-start gap-4 cursor-pointer group">
                     <Checkbox
                       checked={marketingConsent}
                       onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
-                      className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0"
+                      className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-white/[0.08] data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
                     />
-                    <div className="flex-1 text-foreground leading-relaxed text-left">
+                    <div className="flex-1 text-white leading-relaxed text-left">
                       <div className="font-medium mb-2 text-[15px] md:text-sm">
                         Newsletter & Marketing-E-Mails
                       </div>
-                      <div className="text-muted-foreground text-[14px] md:text-xs leading-relaxed">
+                      <div className="text-zinc-400 text-[14px] md:text-xs leading-relaxed">
                         Erhalte Updates zu Steueränderungen und hilfreiche Tipps (optional)
                       </div>
                     </div>
@@ -174,10 +174,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-              style={{
-                boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-              }}
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
             >
               Weiter
             </Button>
@@ -192,17 +189,14 @@ export const WelcomeFlow = () => {
               placeholder="Vorname"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="text-lg h-14 bg-white border border-gray-200 text-foreground placeholder:text-gray-400 rounded-[20px] px-6 focus-visible:border-gray-300 focus-visible:ring-0"
+              className="text-lg h-14 bg-[#0A0C10] border border-white/[0.08] text-white placeholder:text-zinc-500 rounded-[20px] px-6 focus-visible:border-[#1D64FF] focus-visible:ring-0"
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-              style={{
-                boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-              }}
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
             >
               Weiter
             </Button>
@@ -213,12 +207,12 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-5 w-full max-w-md px-4">
             <Select value={taxYear} onValueChange={setTaxYear}>
-              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-background border border-border text-foreground rounded-lg shadow-sm px-6">
+              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-[#0A0C10] border border-white/[0.08] text-white rounded-lg shadow-sm px-6 focus:ring-0 focus:border-[#1D64FF]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
+              <SelectContent className="bg-[#0A0C10] border border-white/[0.08]">
                 {TAX_YEARS.map((year) => (
-                  <SelectItem key={year} value={year} className="text-foreground text-xl">
+                  <SelectItem key={year} value={year} className="text-white text-xl hover:bg-white/[0.05] focus:bg-white/[0.05]">
                     {year}
                   </SelectItem>
                 ))}
@@ -227,10 +221,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-              style={{
-                boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-              }}
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
             >
               Weiter
             </Button>
@@ -244,19 +235,16 @@ export const WelcomeFlow = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="flex flex-col items-center gap-8 md:gap-8 w-full max-w-md px-4"
           >
-            <div className="w-28 h-28 md:w-20 md:h-20 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center shadow-md">
-              <CheckCircle2 className="w-14 h-14 md:w-10 md:h-10 text-primary" />
+            <div className="w-28 h-28 md:w-20 md:h-20 rounded-full bg-[#1D64FF]/10 border-2 border-[#1D64FF]/20 flex items-center justify-center shadow-md">
+              <CheckCircle2 className="w-14 h-14 md:w-10 md:h-10 text-[#1D64FF]" />
             </div>
-            <p className="text-foreground text-[22px] md:text-lg max-w-md text-center leading-relaxed px-2 font-medium">
+            <p className="text-white text-[22px] md:text-lg max-w-md text-center leading-relaxed px-2 font-medium">
               Hallo {firstName}! Wir freuen uns darauf, dir bei deiner Steuererklärung für {taxYear} zu helfen.
             </p>
             <Button
               onClick={handleNext}
               disabled={isLoading}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-              style={{
-                boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-              }}
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
             >
               Los geht's!
             </Button>
@@ -275,10 +263,12 @@ export const WelcomeFlow = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden bg-white">
+    <div className="min-h-screen w-full relative overflow-hidden bg-[#020408]">
+      {/* Background glow effect */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,100,255,0.08)_0%,_transparent_70%)] pointer-events-none" />
 
       {/* Top Progress Dots */}
-      <WelcomeProgress currentStep={currentStep} totalSteps={steps.length} variant="light" />
+      <WelcomeProgress currentStep={currentStep} totalSteps={steps.length} variant="dark" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-between min-h-screen px-4 sm:px-6 py-8 md:py-12">
@@ -336,9 +326,9 @@ export const WelcomeFlow = () => {
               }}
             />
 
-            {/* White fade covering blue */}
+            {/* Dark fade covering blue */}
             <motion.div
-              className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
+              className="fixed inset-0 z-[51] bg-[#020408] flex items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ 
                 opacity: 1,
