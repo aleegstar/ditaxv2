@@ -603,7 +603,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         {/* Close button top right */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-[#0A0C10] border border-white/[0.08] hover:bg-[#0A0C10]/80 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200 shadow-lg"
           aria-label="Tour schließen"
         >
           <X className="w-5 h-5" />
@@ -626,7 +626,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             layout
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className={cn(
-              "bg-white rounded-xl shadow-2xl relative",
+              "bg-[#0A0C10] border border-white/[0.08] rounded-xl shadow-2xl relative",
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
             )}
           >
@@ -635,14 +635,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               {currentStepData.targetElement && (() => {
                 const arrowKey = `${currentStepData.position}-${isMobile}`;
                 if (currentStepData.position === 'right' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-white" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-[#0A0C10]" />;
                 } else if (currentStepData.position === 'left' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-white" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-[#0A0C10]" />;
                 } else if (currentStepData.position === 'top') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#0A0C10]" />;
                 } else if (currentStepData.position === 'bottom') {
                   // position === 'bottom' or mobile fallback
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-[#0A0C10]" />;
                 }
               })()}
             </AnimatePresence>
@@ -657,7 +657,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                   transition={{ duration: 0.2 }}
                 >
                   <h3 className={cn(
-                    "font-semibold text-gray-900 mb-2 transition-all duration-300",
+                    "font-semibold text-white mb-2 transition-all duration-300",
                     isMobile ? "text-base" : "text-lg"
                   )}>
                     {currentStepData.id === 'welcome' 
@@ -665,7 +665,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       : currentStepData.title}
                   </h3>
                   <p className={cn(
-                    "text-gray-600 mb-4 transition-all duration-300",
+                    "text-zinc-400 mb-4 transition-all duration-300",
                     isMobile ? "text-sm" : "text-base"
                   )}>
                     {currentStepData.description}
@@ -682,14 +682,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       variant="outline"
                       size={isMobile ? "sm" : "default"}
                       onClick={handleSkip}
-                      className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                      className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
                     >
                       Überspringen
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
                     >
                       Weiter
                     </Button>
@@ -701,14 +701,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       variant="outline"
                       size={isMobile ? "sm" : "default"}
                       onClick={handlePrevious}
-                      className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                      className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
                     >
                       Zurück
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
                     >
                       {currentStep === tourSteps.length - 1 ? "Fertig" : "Weiter"}
                     </Button>
