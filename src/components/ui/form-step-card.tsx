@@ -6,6 +6,7 @@ import { motion, HTMLMotionProps } from "framer-motion";
 import { CheckCircle2, Hourglass } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BorderBeam } from "./border-beam";
 
 const PERSPECTIVE = 400;
 const CARD_ANIMATION_DURATION = 0.5;
@@ -25,6 +26,15 @@ const fadeInVariants = {
     y: 0
   }
 };
+
+// Border beam color configurations for each card
+const beamColors = {
+  kontaktangaben: { from: "#F97316", to: "#FBBF24" }, // Orange to Yellow
+  abzuege: { from: "#9b87f5", to: "#1EAEDB" }, // Purple to Cyan  
+  einkommen: { from: "#FBBF24", to: "#F97316" }, // Yellow to Orange
+  vermoegen: { from: "#10B981", to: "#34D399" }, // Green shades
+};
+
 interface FormStepCardProps extends Omit<HTMLMotionProps<"div">, "ref"> {
   title: string;
   description: string;
@@ -32,6 +42,7 @@ interface FormStepCardProps extends Omit<HTMLMotionProps<"div">, "ref"> {
   icon: React.ReactNode;
   badge: React.ReactNode;
   gradient?: string;
+  beamVariant?: keyof typeof beamColors;
 }
 const FormStepCard = React.forwardRef<HTMLDivElement, FormStepCardProps>(({
   className,
@@ -41,9 +52,11 @@ const FormStepCard = React.forwardRef<HTMLDivElement, FormStepCardProps>(({
   icon,
   badge,
   gradient = "from-[#1a56f0] to-[#1a56f0]",
+  beamVariant = "kontaktangaben",
   ...props
 }, ref) => {
   const isMobile = useIsMobile();
+  const colors = beamColors[beamVariant];
   
   return <motion.div ref={ref} initial="hidden" animate="visible" variants={fadeInVariants} transition={{
     duration: CARD_ANIMATION_DURATION
@@ -69,6 +82,16 @@ const FormStepCard = React.forwardRef<HTMLDivElement, FormStepCardProps>(({
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}>
+        {/* Border Beam Effect */}
+        <BorderBeam 
+          size={120}
+          duration={8}
+          borderWidth={2}
+          colorFrom={colors.from}
+          colorTo={colors.to}
+          delay={Math.random() * 5}
+        />
+        
         {/* Header mit zentriertem Icon und Titel jeweils auf eigener Zeile */}
         <div className="flex flex-col items-center justify-center mb-4">
           <div className="bg-white rounded-full p-2 w-10 h-10 flex items-center justify-center mb-2">

@@ -7,6 +7,16 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
+import { BorderBeam } from '@/components/ui/border-beam';
+
+// Border beam color configurations for each card
+const beamColors: Record<string, { from: string; to: string }> = {
+  contact: { from: "#F97316", to: "#FBBF24" }, // Orange to Yellow
+  deductions: { from: "#9b87f5", to: "#1EAEDB" }, // Purple to Cyan  
+  income: { from: "#FBBF24", to: "#F97316" }, // Yellow to Orange
+  assets: { from: "#10B981", to: "#34D399" }, // Green shades
+};
+
 interface DashboardSection {
   id: string;
   title: string;
@@ -228,10 +238,19 @@ export const TaxYearDashboard: React.FC = () => {
 
             {/* Grid Options */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {angabenSections.map(section => {
+              {angabenSections.map((section, index) => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
+              const colors = beamColors[section.id] || beamColors.contact;
+              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group relative overflow-hidden border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
+                    <BorderBeam 
+                      size={80}
+                      duration={6}
+                      borderWidth={1.5}
+                      colorFrom={colors.from}
+                      colorTo={colors.to}
+                      delay={index * 1.5}
+                    />
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
                       {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
