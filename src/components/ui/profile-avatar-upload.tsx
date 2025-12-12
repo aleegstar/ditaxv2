@@ -1,8 +1,7 @@
-
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Upload, UserRound } from 'lucide-react';
+import { Upload, UserRound, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -10,14 +9,25 @@ interface ProfileAvatarUploadProps {
   currentAvatarUrl?: string;
   onAvatarUpdate: (avatarUrl: string) => void;
   loading?: boolean;
+  renderTrigger?: (onClick: () => void) => React.ReactNode;
 }
 
-export const ProfileAvatarUpload = ({ currentAvatarUrl, onAvatarUpdate, loading = false }: ProfileAvatarUploadProps) => {
+export const ProfileAvatarUpload = ({ 
+  currentAvatarUrl, 
+  onAvatarUpdate, 
+  loading = false,
+  renderTrigger 
+}: ProfileAvatarUploadProps) => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(currentAvatarUrl || null);
   const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -37,8 +47,58 @@ export const ProfileAvatarUpload = ({ currentAvatarUrl, onAvatarUpdate, loading 
       return;
     }
 
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    // If renderTrigger is used, upload immediately
+    if (renderTrigger) {
+      setUploading(true);
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          throw new Error('Benutzer nicht angemeldet');
+        }
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, file, { 
+            cacheControl: '3600', 
+            upsert: true 
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+
+        const avatarUrl = publicUrlData.publicUrl;
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: avatarUrl })
+          .eq('id', user.id);
+
+        if (updateError) throw updateError;
+        
+        onAvatarUpdate(avatarUrl);
+        toast.success("Profilbild aktualisiert");
+      } catch (error: any) {
+        console.error('Error uploading avatar:', error);
+        toast.error("Upload fehlgeschlagen", {
+          description: error.message
+        });
+      } finally {
+        setUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } else {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleUpload = async () => {
@@ -50,28 +110,20 @@ export const ProfileAvatarUpload = ({ currentAvatarUrl, onAvatarUpdate, loading 
     try {
       setUploading(true);
       
-      // Get current user with better error handling
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError) {
-        console.error('Auth error:', userError);
         throw new Error(`Authentifizierungsfehler: ${userError.message}`);
       }
       
       if (!user) {
-        console.error('No user session found');
-        throw new Error('Benutzer nicht angemeldet - bitte melden Sie sich erneut an');
+        throw new Error('Benutzer nicht angemeldet');
       }
-
-      console.log('User authenticated:', user.id);
 
       const fileExt = avatarFile.name.split('.').pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
 
-      console.log('Uploading avatar to avatars bucket:', fileName);
-
-      // Upload to avatars bucket
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, avatarFile, { 
           cacheControl: '3600', 
@@ -79,56 +131,62 @@ export const ProfileAvatarUpload = ({ currentAvatarUrl, onAvatarUpdate, loading 
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         throw new Error(`Upload-Fehler: ${uploadError.message}`);
       }
 
-      console.log('Upload successful:', data);
-
-      // Get public URL for the uploaded file
       const { data: publicUrlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
       const avatarUrl = publicUrlData.publicUrl;
-      console.log('Public avatar URL:', avatarUrl);
 
-      // Update profile with avatar URL - with better error handling
-      console.log('Updating profile for user:', user.id);
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: avatarUrl })
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('Profile update error:', updateError);
-        
-        // Check if it's an RLS policy error
-        if (updateError.message.includes('row-level security') || updateError.message.includes('policy')) {
-          throw new Error('Berechtigung fehlt - RLS-Policy-Fehler. Bitte kontaktieren Sie den Administrator.');
-        }
-        
         throw new Error(`Fehler beim Aktualisieren des Profils: ${updateError.message}`);
       }
-      
-      console.log('Profile updated successfully');
       
       onAvatarUpdate(avatarUrl);
       setAvatarFile(null);
       
-      toast.success("Avatar erfolgreich hochgeladen", {
-        description: "Ihr Avatar wurde aktualisiert."
-      });
+      toast.success("Avatar erfolgreich hochgeladen");
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
       toast.error("Avatar-Upload fehlgeschlagen", {
-        description: error.message || "Unbekannter Fehler beim Hochladen des Avatars."
+        description: error.message
       });
     } finally {
       setUploading(false);
     }
   };
 
+  // If renderTrigger is provided, just render the hidden input and trigger
+  if (renderTrigger) {
+    return (
+      <>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleAvatarChange}
+          accept="image/*"
+          className="hidden"
+          disabled={uploading || loading}
+        />
+        {uploading ? (
+          <div className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#1D64FF] text-white flex items-center justify-center border-[3px] border-[#020408] shadow-lg z-10">
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </div>
+        ) : (
+          renderTrigger(handleClick)
+        )}
+      </>
+    );
+  }
+
+  // Default render (legacy behavior)
   return (
     <div className="space-y-4">
       <div className="flex justify-center">

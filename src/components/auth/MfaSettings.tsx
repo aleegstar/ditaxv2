@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, Plus, Trash2, AlertTriangle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,123 +35,131 @@ export const MfaSettings: React.FC = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
+      <section className="space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-zinc-400" />
             Zwei-Faktor-Authentifizierung
-          </CardTitle>
-          <CardDescription>
-            Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="space-y-4 md:space-y-6">
-          {factors.length === 0 ? (
-            <Alert>
-              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-              <AlertDescription className="text-sm">
-                MFA ist nicht aktiviert. Ihre Kontosicherheit kann durch die Aktivierung der Zwei-Faktor-Authentifizierung verbessert werden.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <Alert className="border-green-200 bg-green-50">
-              <Shield className="h-4 w-4 text-green-600 flex-shrink-0" />
-              <AlertDescription className="text-green-800 text-sm">
-                MFA ist aktiv. Ihr Konto ist zusätzlich durch Zwei-Faktor-Authentifizierung geschützt.
-              </AlertDescription>
-            </Alert>
-          )}
+          </h2>
+          <p className="text-sm text-zinc-400">Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu.</p>
+        </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <h4 className="font-medium text-base">Authentifikator-Apps</h4>
-              <Button 
-                onClick={() => setShowEnrollment(true)}
-                size="sm"
-                disabled={isLoading}
-                className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-10 text-sm font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[8px] w-full sm:w-auto"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Hinzufügen
-              </Button>
+        {/* Alert Box */}
+        {factors.length === 0 ? (
+          <div className="rounded-xl border border-yellow-500/10 bg-yellow-500/[0.03] p-4 flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
             </div>
+            <div className="py-0.5">
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                MFA ist nicht aktiviert. Ihre Kontosicherheit kann durch die Aktivierung der Zwei-Faktor-Authentifizierung verbessert werden.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div className="py-0.5">
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                MFA ist aktiv. Ihr Konto ist zusätzlich durch Zwei-Faktor-Authentifizierung geschützt.
+              </p>
+            </div>
+          </div>
+        )}
 
-            {factors.length > 0 ? (
-              <div className="space-y-3">
-                {factors.map((factor) => (
-                  <div 
-                    key={factor.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-3"
-                  >
-                    <div className="flex items-start sm:items-center gap-3 flex-1">
-                      <Shield className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5 sm:mt-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm sm:text-base break-words">
-                          {factor.friendly_name || 'Authenticator App'}
-                        </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          TOTP • {factor.status === 'verified' ? 'Verifiziert' : 'Nicht verifiziert'}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                      <Badge variant={factor.status === 'verified' ? 'default' : 'secondary'} className="text-xs">
-                        {factor.status === 'verified' ? 'Aktiv' : 'Inaktiv'}
-                      </Badge>
-                    
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" disabled={isLoading}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>MFA-Gerät entfernen</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Sind Sie sicher, dass Sie dieses MFA-Gerät entfernen möchten? 
-                              Dies reduziert die Sicherheit Ihres Kontos.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleRemoveFactor(factor.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Entfernen
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6 sm:py-8 text-muted-foreground">
-                <Shield className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm sm:text-base">Keine Authentifikator-Apps konfiguriert</p>
-                <p className="text-xs sm:text-sm mt-1">Fügen Sie eine App hinzu, um MFA zu aktivieren</p>
-              </div>
-            )}
+        {/* Authenticator Apps */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-sm font-medium text-zinc-300">Authentifikator-Apps</span>
+            <button 
+              onClick={() => setShowEnrollment(true)}
+              disabled={isLoading}
+              className="px-4 py-1.5 rounded-full bg-[#1D64FF] text-white text-xs font-semibold hover:bg-blue-600 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20 disabled:opacity-50"
+            >
+              <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+              Hinzufügen
+            </button>
           </div>
 
-          {factors.length > 0 && (
-            <div className="border-t pt-4">
-              <h4 className="font-medium mb-2">Backup-Optionen</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Stellen Sie sicher, dass Sie Zugriff auf Backup-Codes haben, falls Sie Ihr primäres MFA-Gerät verlieren.
-              </p>
-              <Button variant="outline" size="sm" disabled>
-                Backup-Codes anzeigen (Coming Soon)
-              </Button>
+          {factors.length > 0 ? (
+            <div className="space-y-3">
+              {factors.map((factor) => (
+                <div 
+                  key={factor.id}
+                  className="bg-white/[0.02] backdrop-blur-[12px] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08] p-4 rounded-xl flex items-center justify-between gap-3 transition-colors"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+                      <Shield className="w-4 h-4" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="text-sm font-medium text-zinc-200">
+                        {factor.friendly_name || 'Authenticator App'}
+                      </div>
+                      <div className="text-[11px] text-zinc-500">
+                        TOTP • {factor.status === 'verified' ? 'Verifiziert' : 'Nicht verifiziert'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={factor.status === 'verified' ? 'default' : 'secondary'} 
+                      className={factor.status === 'verified' 
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs' 
+                        : 'bg-zinc-800 text-zinc-400 border-white/5 text-xs'
+                      }
+                    >
+                      {factor.status === 'verified' ? 'Aktiv' : 'Inaktiv'}
+                    </Badge>
+                  
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button 
+                          className="w-8 h-8 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-center text-zinc-400 hover:text-zinc-200 transition-colors"
+                          disabled={isLoading}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-[#0A0C10] border-white/10">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-zinc-100">MFA-Gerät entfernen</AlertDialogTitle>
+                          <AlertDialogDescription className="text-zinc-400">
+                            Sind Sie sicher, dass Sie dieses MFA-Gerät entfernen möchten? 
+                            Dies reduziert die Sicherheit Ihres Kontos.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-white/[0.02] border-white/10 text-zinc-300 hover:bg-white/[0.05]">
+                            Abbrechen
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleRemoveFactor(factor.id)}
+                            className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/20"
+                          >
+                            Entfernen
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Empty State */
+            <div className="bg-white/[0.02] backdrop-blur-[12px] border border-dashed border-white/10 rounded-xl p-10 flex flex-col items-center justify-center text-center">
+              <div className="w-14 h-14 rounded-full bg-zinc-900/80 flex items-center justify-center text-zinc-600 mb-4 border border-white/5 shadow-inner">
+                <Shield className="w-7 h-7" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-sm font-medium text-zinc-200">Keine Authentifikator-Apps konfiguriert</h3>
+              <p className="text-xs text-zinc-500 mt-1.5">Fügen Sie eine App hinzu, um MFA zu aktivieren</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       {showEnrollment && (
         <MfaEnrollmentFlow
