@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Check, Search, Filter, Eye, Image as ImageIcon } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
 import DocumentViewer from '@/components/DocumentViewer';
 import { DocumentMetadata } from '@/services/DocumentService';
-import { thumbnailService } from '@/services/ThumbnailService';
 
 interface DocumentAssignmentModalProps {
   open: boolean;
@@ -41,10 +34,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerDocuments, setViewerDocuments] = useState<DocumentMetadata[]>([]);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
-  const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map());
-  const [loadingThumbnails, setLoadingThumbnails] = useState(false);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (open) {
@@ -55,12 +45,6 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   useEffect(() => {
     filterDocuments();
   }, [documents, searchTerm, assignmentFilter]);
-
-  useEffect(() => {
-    if (documents.length > 0) {
-      loadThumbnails();
-    }
-  }, [documents]);
 
   const loadDocuments = async () => {
     setLoading(true);
@@ -87,29 +71,6 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadThumbnails = async () => {
-    setLoadingThumbnails(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const documentsToProcess = documents.map(doc => ({
-        id: doc.id,
-        fileUrl: doc.file_path,
-        fileType: doc.file_type,
-        isEncrypted: doc.metadata?.encrypted || false,
-        userId: user.id
-      }));
-
-      const generatedThumbnails = await thumbnailService.generateThumbnailsBatch(documentsToProcess);
-      setThumbnails(generatedThumbnails);
-    } catch (error) {
-      console.error('Error loading thumbnails:', error);
-    } finally {
-      setLoadingThumbnails(false);
     }
   };
 
@@ -142,14 +103,13 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   };
 
   const handleViewDocument = (e: React.MouseEvent, doc: any, index: number) => {
-    e.stopPropagation(); // Prevent selection toggle
+    e.stopPropagation();
     
-    // Convert to DocumentMetadata format
     const documentMetadata: DocumentMetadata = {
       id: doc.id,
       fileName: doc.file_name,
       fileType: doc.file_type,
-      url: doc.file_path, // Add url field for DocumentViewer
+      url: doc.file_path,
       uploadDate: new Date(doc.upload_date),
       checklistItemId: doc.checklist_item_id || '',
       status: doc.status || 'active',
@@ -177,7 +137,6 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Update selected documents
       const { error } = await supabase
         .from('uploaded_documents')
         .update({
@@ -210,163 +169,201 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="w-full h-full max-w-none max-h-none rounded-none m-0 p-0 bg-white border-gray-200 gap-0 flex flex-col"
+        className="w-full h-full max-w-none max-h-none rounded-none m-0 p-0 bg-[#020408] border-0 gap-0 flex flex-col overflow-hidden"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
+        {/* Ambient Background Glow */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+
         {/* Header */}
-        <div className={`bg-white flex-shrink-0 ${isMobile ? 'p-4 pt-8' : 'p-6 pt-8'}`}>
-          {/* Title with icon */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-600">
-              <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18 20.75H6C3.582 20.75 2.25 19.418 2.25 17V7C2.25 4.582 3.582 3.25 6 3.25H10C10.199 3.25 10.39 3.329 10.53 3.47L13.3101 6.25H18C20.418 6.25 21.75 7.582 21.75 10V17C21.75 19.418 20.418 20.75 18 20.75ZM6 4.75C4.423 4.75 3.75 5.423 3.75 7V17C3.75 18.577 4.423 19.25 6 19.25H18C19.577 19.25 20.25 18.577 20.25 17V10C20.25 8.423 19.577 7.75 18 7.75H13C12.801 7.75 12.61 7.671 12.47 7.53L9.68994 4.75H6Z" />
-              </svg>
+        <header className="flex z-30 pt-8 px-6 pb-6 relative items-center justify-between shrink-0">
+          <button 
+            onClick={onClose}
+            className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group"
+          >
+            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+          </button>
+        </header>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 pb-32 relative z-20">
+          {/* Page Title Section */}
+          <div className="flex items-start gap-4 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 shadow-[0_0_20px_-5px_rgba(37,99,235,0.3)]">
+              <Folder className="w-6 h-6 text-blue-400" />
             </div>
-            <div className="flex flex-col">
-              <h2 className={`font-semibold text-gray-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>Hochgeladene Dokumente</h2>
-              <p className="text-sm text-gray-500">{documents.length} Dokumente</p>
+            <div className="pt-0.5">
+              <h1 className="text-xl font-semibold text-white tracking-tight leading-tight">Hochgeladene Dokumente</h1>
+              <p className="text-sm text-zinc-400 font-medium mt-1">{documents.length} Dokumente</p>
             </div>
           </div>
-          
-          {/* Assignment target */}
-          <p className="text-gray-600 text-sm mb-5">
-            Zuordnen zu: <span className="font-medium text-gray-900">{checklistItemTitle}</span>
-          </p>
 
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
+          {/* Context Text */}
+          <div className="mb-6">
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              Zuordnen zu: <span className="text-zinc-200">{checklistItemTitle}</span>
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative mb-6 group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-zinc-500 group-focus-within:text-blue-400 transition-colors" />
+            </div>
+            <input
+              type="text"
               placeholder="Suchen..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-11 h-12 bg-gray-50 border-gray-200 text-gray-800 placeholder:text-gray-400 rounded-xl focus:border-blue-500 focus:bg-white"
+              className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all shadow-inner shadow-black/20"
             />
           </div>
 
-          {/* Filter buttons */}
-          <div className="flex gap-2">
+          {/* Filters */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             <button
               onClick={() => setAssignmentFilter('all')}
-              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                assignmentFilter === 'all' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-transparent text-gray-600 hover:bg-gray-100'
+              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                assignmentFilter === 'all'
+                  ? 'border border-blue-500/30 bg-blue-600/20 text-blue-400 shadow-[0_0_15px_-5px_rgba(37,99,235,0.3)]'
+                  : 'border border-white/5 bg-white/[0.02] text-zinc-400 hover:bg-white/5 hover:text-white'
               }`}
             >
               Alle
             </button>
             <button
               onClick={() => setAssignmentFilter('unassigned')}
-              className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                assignmentFilter === 'unassigned' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-transparent text-gray-600 hover:bg-gray-100'
+              className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                assignmentFilter === 'unassigned'
+                  ? 'border border-blue-500/30 bg-blue-600/20 text-blue-400 shadow-[0_0_15px_-5px_rgba(37,99,235,0.3)]'
+                  : 'border border-white/5 bg-white/[0.02] text-zinc-400 hover:bg-white/5 hover:text-white'
               }`}
             >
               Unzugeordnet
             </button>
           </div>
-        </div>
 
-        {/* Document List */}
-        <div className={`flex-1 overflow-y-auto bg-white ${isMobile ? 'px-4' : 'px-6'}`}>
-          {loading ? (
-            <div className="space-y-3 py-4">
-              {[...Array(3)].map((_, i) => (
+          {/* Document List */}
+          <div className="space-y-3">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="bg-gray-100 rounded-2xl h-24"></div>
+                  <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl h-20"></div>
                 </div>
-              ))}
-            </div>
-          ) : filteredDocuments.length === 0 ? (
-            <div className="text-center py-16">
-              <FileText className="text-gray-300 mx-auto mb-4 h-16 w-16" />
-              <h3 className="font-semibold text-gray-700 mb-2 text-lg">
-                Keine Dokumente gefunden
-              </h3>
-              <p className="text-gray-500 text-sm px-4">
-                {assignmentFilter === 'unassigned' 
-                  ? 'Alle Dokumente sind bereits zugeordnet oder es existieren keine Dokumente für dieses Jahr.'
-                  : 'Keine Dokumente entsprechen Ihren Suchkriterien.'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3 py-4">
-              {filteredDocuments.map((doc, index) => {
+              ))
+            ) : filteredDocuments.length === 0 ? (
+              <div className="text-center py-16">
+                <FileText className="text-zinc-600 mx-auto mb-4 h-12 w-12" />
+                <h3 className="font-medium text-zinc-400 mb-2 text-base">
+                  Keine Dokumente gefunden
+                </h3>
+                <p className="text-zinc-500 text-sm px-4">
+                  {assignmentFilter === 'unassigned' 
+                    ? 'Alle Dokumente sind bereits zugeordnet.'
+                    : 'Keine Dokumente entsprechen Ihren Suchkriterien.'}
+                </p>
+              </div>
+            ) : (
+              filteredDocuments.map((doc, index) => {
                 const isSelected = selectedDocuments.has(doc.id);
+                const isImage = doc.file_type?.startsWith('image/');
                 
                 return (
                   <div
                     key={doc.id}
-                    className={`cursor-pointer transition-all rounded-2xl border p-5 ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-300'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                    }`}
                     onClick={() => toggleDocumentSelection(doc.id)}
+                    className={`p-4 rounded-xl relative group overflow-hidden cursor-pointer transition-all ${
+                      isSelected
+                        ? 'bg-blue-600/10 border border-blue-500/30'
+                        : 'bg-white/[0.02] backdrop-blur-sm border border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                    }`}
                   >
-                    <div className="flex items-center justify-between">
-                      {/* Document info */}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-gray-900 font-medium text-base truncate mb-1">
-                          {doc.file_name}
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <p className="text-gray-500 text-sm">
-                            {format(new Date(doc.upload_date), 'dd.MM.yyyy', { locale: de })}
-                          </p>
-                          {doc.is_assigned_to_checklist ? (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                              Zugeordnet
-                            </span>
+                    {/* Hover Beam */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] overflow-hidden z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <div 
+                        className="absolute top-0 h-[1px] w-24 bg-gradient-to-r from-transparent via-blue-500 to-transparent blur-[1px]"
+                        style={{ animation: 'beam-move-h 3s linear infinite' }}
+                      />
+                    </div>
+
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        {/* File Icon */}
+                        <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center shrink-0">
+                          {isImage ? (
+                            <ImageIcon className="w-5 h-5 text-zinc-500" />
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                              Unzugeordnet
-                            </span>
+                            <FileText className="w-5 h-5 text-zinc-500" />
                           )}
                         </div>
+                        
+                        <div className="flex flex-col min-w-0">
+                          <h3 className="text-sm font-medium text-zinc-200 leading-tight mb-1 truncate">
+                            {doc.file_name}
+                          </h3>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] text-zinc-500">
+                              {format(new Date(doc.upload_date), 'dd.MM.yyyy', { locale: de })}
+                            </span>
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium w-fit ${
+                            doc.is_assigned_to_checklist
+                              ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400'
+                              : 'bg-zinc-800/50 border border-white/5 text-zinc-400'
+                          }`}>
+                            {doc.is_assigned_to_checklist ? 'Zugeordnet' : 'Unzugeordnet'}
+                          </span>
+                        </div>
                       </div>
-                      
-                      {/* Preview button */}
-                      <button
+
+                      <button 
                         onClick={(e) => handleViewDocument(e, doc, index)}
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors flex-shrink-0 ml-4"
+                        className="p-2 rounded-lg hover:bg-white/5 text-zinc-500 hover:text-white transition-colors"
                       >
-                        <Eye className="h-5 w-5" />
+                        <Eye className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 );
-              })}
-            </div>
-          )}
+              })
+            )}
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className={`bg-white border-t border-gray-100 flex-shrink-0 ${isMobile ? 'p-4' : 'p-6'}`}>
-          <div className="flex items-center justify-between">
-            <p className="text-gray-500 text-sm">
+        {/* Footer Bar */}
+        <div className="absolute bottom-0 left-0 right-0 bg-[#020408]/80 backdrop-blur-xl border-t border-white/10 p-6 z-40">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-xs text-zinc-400 font-medium">
               {selectedDocuments.size} Dokument(e) ausgewählt
-            </p>
+            </span>
+            
             <div className="flex gap-3">
-              <Button
-                variant="outline"
+              <button
                 onClick={onClose}
-                className="border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl h-11 px-5"
+                className="px-4 py-2.5 rounded-lg border border-white/10 text-xs font-medium text-white hover:bg-white/5 transition-colors"
               >
                 Abbrechen
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={handleAssignDocuments}
                 disabled={selectedDocuments.size === 0}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11 px-5 disabled:opacity-50"
+                className="px-4 py-2.5 rounded-lg bg-blue-600 text-xs font-semibold text-white hover:bg-blue-500 transition-all shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Dokumente zuordnen
-              </Button>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* CSS for beam animation */}
+        <style>{`
+          @keyframes beam-move-h {
+            0% { left: -100px; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+          }
+        `}</style>
       </DialogContent>
       
       <DocumentViewer
