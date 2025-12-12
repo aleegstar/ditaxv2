@@ -157,10 +157,10 @@ export const TaxYearDashboard: React.FC = () => {
           100% { transform: translateY(100%); opacity: 0; }
         }
         @keyframes card-beam-flow {
-          0% { transform: translateY(-100%); opacity: 0; }
+          0% { stroke-dashoffset: 100; opacity: 0; }
           20% { opacity: 1; }
           80% { opacity: 1; }
-          100% { transform: translateY(200%); opacity: 0; }
+          100% { stroke-dashoffset: -100; opacity: 0; }
         }
       `}</style>
 
@@ -233,21 +233,10 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
 
             {/* Grid Options */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative pb-8">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative pb-4">
               {angabenSections.map((section, index) => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              // Colors for each card's beam: pink, yellow, cyan, green
-              const beamColors = [
-                { main: '#E879F9', glow: 'rgba(232, 121, 249, 0.6)' }, // Pink/Magenta
-                { main: '#FBBF24', glow: 'rgba(251, 191, 36, 0.6)' },  // Yellow/Orange
-                { main: '#22D3EE', glow: 'rgba(34, 211, 238, 0.6)' },  // Cyan
-                { main: '#4ADE80', glow: 'rgba(74, 222, 128, 0.6)' }   // Green
-              ];
-              const beamColor = beamColors[index];
-              // Rotation angles: outer cards angle more towards center, inner cards less
-              // Left cards rotate right (+), right cards rotate left (-)
-              const rotations = [45, 15, -15, -45]; // Degrees - converge to center
               
               return <div key={section.id} className="relative">
                 <button onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full">
@@ -261,44 +250,147 @@ export const TaxYearDashboard: React.FC = () => {
                       {section.title}
                     </span>
                   </button>
-                  
-                  {/* Individual beam from each card */}
-                  <div 
-                    className="absolute left-1/2 -bottom-4 w-[2px] h-16 pointer-events-none overflow-visible"
-                    style={{ 
-                      transform: `translateX(-50%) rotate(${rotations[index]}deg)`,
-                      transformOrigin: 'top center'
-                    }}
-                  >
-                    {/* Static guide */}
-                    <div className="absolute inset-0 bg-white/30" />
-                    {/* Ambient glow */}
-                    <div 
-                      className="absolute inset-0 w-4 -left-[7px] blur-sm"
-                      style={{ background: `linear-gradient(to bottom, ${beamColor.main}40, transparent)` }}
-                    />
-                    {/* Animated beam */}
-                    <div 
-                      className="absolute w-[2px] h-10 blur-[0.5px]"
-                      style={{
-                        background: `linear-gradient(to bottom, transparent, ${beamColor.main}, transparent)`,
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.3}s`,
-                        boxShadow: `0 0 12px 2px ${beamColor.glow}`
-                      }} 
-                    />
-                    {/* White core */}
-                    <div 
-                      className="absolute w-[1px] h-8 left-[0.5px] opacity-80"
-                      style={{
-                        background: 'linear-gradient(to bottom, transparent, white, transparent)',
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.3}s`
-                      }} 
-                    />
-                  </div>
                 </div>;
             })}
+            </div>
+            
+            {/* Curved beams SVG overlay */}
+            <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none overflow-visible">
+              <svg 
+                viewBox="0 0 400 80" 
+                className="w-full h-full"
+                preserveAspectRatio="xMidYMax meet"
+                style={{ overflow: 'visible' }}
+              >
+                {/* Define gradients for each beam */}
+                <defs>
+                  <linearGradient id="beam-pink" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#E879F9" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#E879F9" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#E879F9" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="beam-yellow" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#FBBF24" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#FBBF24" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="beam-cyan" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#22D3EE" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#22D3EE" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="beam-green" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#4ADE80" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#4ADE80" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#4ADE80" stopOpacity="0" />
+                  </linearGradient>
+                  
+                  {/* Glow filters */}
+                  <filter id="glow-pink" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="glow-yellow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
+                
+                {/* Curved paths from each card position to center */}
+                {/* Card 1 (far left) - Pink */}
+                <path 
+                  d="M 50 0 Q 50 40, 200 70" 
+                  fill="none" 
+                  stroke="url(#beam-pink)" 
+                  strokeWidth="2"
+                  filter="url(#glow-pink)"
+                  strokeDasharray="30 70"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite' }}
+                />
+                <path 
+                  d="M 50 0 Q 50 40, 200 70" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="1"
+                  opacity="0.6"
+                  strokeDasharray="20 80"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite' }}
+                />
+                
+                {/* Card 2 (center-left) - Yellow */}
+                <path 
+                  d="M 150 0 Q 150 30, 200 70" 
+                  fill="none" 
+                  stroke="url(#beam-yellow)" 
+                  strokeWidth="2"
+                  filter="url(#glow-yellow)"
+                  strokeDasharray="30 70"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.3s' }}
+                />
+                <path 
+                  d="M 150 0 Q 150 30, 200 70" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="1"
+                  opacity="0.6"
+                  strokeDasharray="20 80"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.3s' }}
+                />
+                
+                {/* Card 3 (center-right) - Cyan */}
+                <path 
+                  d="M 250 0 Q 250 30, 200 70" 
+                  fill="none" 
+                  stroke="url(#beam-cyan)" 
+                  strokeWidth="2"
+                  filter="url(#glow-cyan)"
+                  strokeDasharray="30 70"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.6s' }}
+                />
+                <path 
+                  d="M 250 0 Q 250 30, 200 70" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="1"
+                  opacity="0.6"
+                  strokeDasharray="20 80"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.6s' }}
+                />
+                
+                {/* Card 4 (far right) - Green */}
+                <path 
+                  d="M 350 0 Q 350 40, 200 70" 
+                  fill="none" 
+                  stroke="url(#beam-green)" 
+                  strokeWidth="2"
+                  filter="url(#glow-green)"
+                  strokeDasharray="30 70"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.9s' }}
+                />
+                <path 
+                  d="M 350 0 Q 350 40, 200 70" 
+                  fill="none" 
+                  stroke="white" 
+                  strokeWidth="1"
+                  opacity="0.6"
+                  strokeDasharray="20 80"
+                  style={{ animation: 'card-beam-flow 2.5s ease-in-out infinite', animationDelay: '0.9s' }}
+                />
+                
+                {/* Static guide lines (faint) */}
+                <path d="M 50 0 Q 50 40, 200 70" fill="none" stroke="white" strokeWidth="1" opacity="0.1" />
+                <path d="M 150 0 Q 150 30, 200 70" fill="none" stroke="white" strokeWidth="1" opacity="0.1" />
+                <path d="M 250 0 Q 250 30, 200 70" fill="none" stroke="white" strokeWidth="1" opacity="0.1" />
+                <path d="M 350 0 Q 350 40, 200 70" fill="none" stroke="white" strokeWidth="1" opacity="0.1" />
+              </svg>
             </div>
           </motion.div>
 
