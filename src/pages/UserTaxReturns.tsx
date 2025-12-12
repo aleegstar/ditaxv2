@@ -243,7 +243,7 @@ const UserTaxReturns = () => {
               </h1>
             </div>
           </div>
-          <button onClick={() => createNewTaxReturn(`${currentYear - 1}`)} className="w-12 h-12 rounded-full text-white flex items-center justify-center transition-colors bg-gradient-to-br from-[#1D64FF] to-[#3B82F6] hover:from-[#1D64FF] hover:to-[#2563EB] shadow-[0_12px_30px_-8px_rgba(29,100,255,0.6)]">
+          <button data-tour="add-year" onClick={() => createNewTaxReturn(`${currentYear - 1}`)} className="w-12 h-12 rounded-full text-white flex items-center justify-center transition-colors bg-gradient-to-br from-[#1D64FF] to-[#3B82F6] hover:from-[#1D64FF] hover:to-[#2563EB] shadow-[0_12px_30px_-8px_rgba(29,100,255,0.6)]">
             <Plus className="w-6 h-6" strokeWidth={2} />
           </button>
         </div>
