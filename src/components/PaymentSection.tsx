@@ -7,14 +7,16 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+
 interface PaymentSectionProps {
   isUpgrade?: boolean;
   upgradeReturnId?: string;
 }
+
 const PaymentSection: React.FC<PaymentSectionProps> = ({
   isUpgrade = false,
   upgradeReturnId
@@ -31,8 +33,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [expressService, setExpressService] = useState(isUpgrade);
   const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
-    // Check auth status
     const checkAuth = async () => {
       const {
         data: {
@@ -43,7 +45,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     };
     checkAuth();
 
-    // Listen for auth changes
     const {
       data: {
         subscription
@@ -53,8 +54,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     });
     return () => subscription.unsubscribe();
   }, []);
+
   useEffect(() => {
-    // For upgrades, only charge CHF 100.00
     if (isUpgrade) {
       setPriceBreakdown({
         basePrice: 0,
@@ -74,7 +75,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     }
   }, [formData, expressService, isUpgrade]);
 
-  // Load user data
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -97,6 +97,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     };
     fetchUser();
   }, []);
+
   const handlePayment = async () => {
     if (!isLoggedIn) {
       toast.error("Bitte melde dich an, um die Zahlung abzuschließen.");
@@ -110,7 +111,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error("Der Preis konnte nicht berechnet werden. Bitte lade die Seite neu.");
       }
 
-      // Get or create tax_return record
       const {
         data: {
           user
@@ -120,18 +120,15 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error("Benutzer nicht gefunden");
       }
 
-      // For upgrades, use the provided tax return ID
       let taxReturnId;
       if (isUpgrade && upgradeReturnId) {
         taxReturnId = upgradeReturnId;
       } else {
-        // First try to find existing tax_return
         let {
           data: taxReturn,
           error: fetchError
         } = await supabase.from('tax_returns').select('id').eq('user_id', user.id).eq('tax_year', year).maybeSingle();
 
-        // If not found, create one
         if (!taxReturn) {
           const {
             data: newTaxReturn,
@@ -179,7 +176,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         url: data.url
       });
 
-      // Open payment URL
       if (Capacitor.isNativePlatform()) {
         toast.info("Zahlung wird im Browser geöffnet...");
         await Browser.open({
@@ -198,112 +194,144 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       setIsLoading(false);
     }
   };
+
   const formatPrice = (cents: number) => {
     return (cents / 100).toFixed(2);
   };
+
   if (!priceBreakdown) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen bg-[#020408]" />;
   }
+
   const finalPrice = isUpgrade ? priceBreakdown.totalPrice : expressService ? priceBreakdown.totalPrice + 10000 : priceBreakdown.totalPrice;
-  return <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6">
-      <div className="w-full max-w-2xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <h1 className="text-3xl text-slate-900 tracking-tight font-semibold">
-            Deine Kostenübersicht
-          </h1>
-          <p className="text-lg text-slate-500 font-medium">
-            Transparente Preisgestaltung ohne versteckte Kosten
-          </p>
-        </div>
 
-        {/* Content Card */}
-        <div className="bg-white rounded-[2.5rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden relative">
-          <div className="p-6 sm:p-10 space-y-8">
-            {/* Express Service Toggle - Only show for non-upgrades */}
-            {!isUpgrade && <div className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 sm:p-6 bg-gradient-to-br from-blue-50 to-white border border-blue-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-blue-300 gap-4 sm:gap-0 rounded-[2rem]">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-white rounded-xl text-blue-600 shrink-0 shadow-sm ring-1 ring-blue-100">
-                    <Zap className="w-6 h-6 fill-blue-100" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-lg font-bold text-slate-900">
-                        Express-Service
-                      </p>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white uppercase tracking-wider shadow-sm">
-                        Empfohlen
-                      </span>
+  return (
+    <div className="min-h-screen bg-[#020408] flex flex-col text-zinc-100">
+      {/* Header */}
+      <header className="flex p-6 items-center justify-between">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all"
+        >
+          <ArrowLeft className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+        </button>
+      </header>
+
+      <div className="flex-1 flex items-center justify-center py-8 px-4 sm:px-6">
+        <div className="w-full max-w-lg mx-auto space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl text-white tracking-tight font-semibold font-jakarta">
+              Kostenübersicht
+            </h1>
+            <p className="text-sm text-zinc-500 font-medium font-jakarta">
+              Transparente Preisgestaltung ohne versteckte Kosten
+            </p>
+          </div>
+
+          {/* Content Card */}
+          <div className="bg-[#0A0C10] rounded-2xl border border-white/[0.08] overflow-hidden">
+            <div className="p-6 space-y-6">
+              {/* Express Service Toggle - Only show for non-upgrades */}
+              {!isUpgrade && (
+                <div className="flex items-center justify-between p-4 bg-[#1D64FF]/10 border border-[#1D64FF]/20 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-[#1D64FF]/20 rounded-lg text-[#1D64FF] shrink-0">
+                      <Zap className="w-5 h-5" />
                     </div>
-                    <p className="text-sm font-medium text-slate-600 mt-1">
-                      Bearbeitung in 10 Arbeitstagen
-                    </p>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-white font-jakarta">
+                          Express-Service
+                        </p>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#1D64FF] text-white uppercase tracking-wider">
+                          Empfohlen
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-500 mt-0.5 font-jakarta">
+                        Bearbeitung in 10 Arbeitstagen
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-white font-jakarta">
+                      +100.00
+                    </span>
+                    <Switch checked={expressService} onCheckedChange={setExpressService} />
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pl-16 sm:pl-0">
-                  <span className="text-base font-bold text-slate-900">
-                    +100.00 CHF
-                  </span>
-                  <Switch checked={expressService} onCheckedChange={setExpressService} />
+              )}
+
+              {/* Cost Breakdown */}
+              <div className="bg-white/[0.02] rounded-xl p-5 border border-white/[0.05]">
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 mb-4 font-jakarta">
+                  Kostenaufschlüsselung
+                </h3>
+
+                <div className="space-y-3 mb-4">
+                  {priceBreakdown.items.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center text-zinc-400">
+                      <span className="text-sm font-medium font-jakarta">{item.label}</span>
+                      <span className="text-sm font-semibold text-white font-jakarta">CHF {formatPrice(item.amount)}</span>
+                    </div>
+                  ))}
+                  
+                  {!isUpgrade && expressService && (
+                    <div className="flex justify-between items-center text-zinc-400">
+                      <span className="text-sm font-medium font-jakarta">Express-Service</span>
+                      <span className="text-sm font-semibold text-white font-jakarta">CHF 100.00</span>
+                    </div>
+                  )}
                 </div>
-              </div>}
 
-            {/* Cost Breakdown */}
-            <div className="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-100">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-6">
-                Kostenaufschlüsselung
-              </h3>
-
-              <div className="space-y-4 mb-6">
-                {priceBreakdown.items.map((item, index) => <div key={index} className="flex justify-between items-center text-slate-700">
-                    <span className="font-medium">{item.label}</span>
-                    <span className="font-semibold text-slate-900">CHF {formatPrice(item.amount)}</span>
-                  </div>)}
-                
-                {!isUpgrade && expressService && <div className="flex justify-between items-center text-slate-700">
-                    <span className="font-medium">Express-Service</span>
-                    <span className="font-semibold text-slate-900">CHF 100.00</span>
-                  </div>}
+                <div className="pt-4 border-t border-white/[0.08] flex justify-between items-center">
+                  <span className="text-sm font-semibold text-white font-jakarta">
+                    Gesamtpreis
+                  </span>
+                  <div className="text-right">
+                    <span className="block text-2xl font-semibold text-white tracking-tight font-jakarta">
+                      CHF {formatPrice(finalPrice)}
+                    </span>
+                    <span className="block text-[10px] text-zinc-500 font-medium mt-0.5 font-jakarta">
+                      inkl. MwSt.
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-200 flex justify-between items-center">
-                <span className="text-lg font-semibold text-slate-900">
-                  Gesamtpreis
-                </span>
-                <div className="text-right">
-                  <span className="block text-3xl font-semibold text-slate-900 tracking-tight">
-                    CHF {formatPrice(finalPrice)}
-                  </span>
-                  <span className="block text-xs text-slate-500 font-medium mt-1">
-                    inkl. MwSt.
+              {/* CTA Button */}
+              <button 
+                onClick={handlePayment} 
+                disabled={isLoading || !priceBreakdown || !isLoggedIn} 
+                className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white text-base font-medium py-3.5 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-jakarta"
+                style={{
+                  boxShadow: '0 0 20px rgba(29,100,255,0.4)'
+                }}
+              >
+                {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
+              </button>
+
+              {/* Trust Badge */}
+              <div className="flex justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.02] rounded-full border border-white/[0.08]">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-medium text-zinc-500 font-jakarta">
+                    Sichere Zahlung mit Stripe
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* CTA Button */}
-            <button onClick={handlePayment} disabled={isLoading || !priceBreakdown || !isLoggedIn} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium py-4 px-6 shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] transition-all transform active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-blue-600/20 rounded-full disabled:opacity-50 disabled:cursor-not-allowed">
-              {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
-            </button>
-
-            {/* Trust Badge */}
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]">
-                <ShieldCheck className="w-5 h-5 text-slate-400" />
-                <span className="text-sm font-medium text-slate-500">
-                  Sichere Zahlung mit Stripe
-                </span>
               </div>
             </div>
           </div>
-        </div>
 
-        {errorMessage && <div className="mt-4">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {errorMessage && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm font-jakarta">
               {errorMessage}
             </div>
-          </div>}
+          )}
+        </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PaymentSection;
