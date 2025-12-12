@@ -257,18 +257,29 @@ export const TaxYearDashboard: React.FC = () => {
           y: 0
         }} transition={{
           duration: 0.5
-        }} className="w-full z-20 rounded-[1.5rem] p-4 md:p-6 relative bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5"
+        }} className="w-full z-20 rounded-[1.5rem] p-4 md:p-6 relative bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 overflow-hidden"
         style={{
           boxShadow: angabenProgress.completed === 4 
             ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
             : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
-          border: '2px solid transparent',
+          border: '1px solid transparent',
           backgroundImage: angabenProgress.completed === 4
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
             : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
+            {/* Orange BorderBeam for outer card when in progress */}
+            {angabenProgress.completed < 4 && (
+              <BorderBeam 
+                size={200}
+                duration={10}
+                borderWidth={1.5}
+                colorFrom="#F97316"
+                colorTo="#FBBF24"
+                delay={0}
+              />
+            )}
             {/* Card Header */}
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -342,7 +353,7 @@ export const TaxYearDashboard: React.FC = () => {
           duration: 0.5,
           delay: 0.1
         }} onClick={() => allAngabenComplete && handleDocumentsClick()} 
-        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 overflow-hidden ${
           !allAngabenComplete ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         }`}
         style={{
@@ -351,7 +362,7 @@ export const TaxYearDashboard: React.FC = () => {
             : isDocumentsComplete 
               ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
               : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
-          border: '2px solid transparent',
+          border: '1px solid transparent',
           backgroundImage: !allAngabenComplete
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
             : isDocumentsComplete
@@ -360,6 +371,17 @@ export const TaxYearDashboard: React.FC = () => {
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
+            {/* Orange BorderBeam for outer card when in progress */}
+            {allAngabenComplete && !isDocumentsComplete && (
+              <BorderBeam 
+                size={200}
+                duration={10}
+                borderWidth={1.5}
+                colorFrom="#F97316"
+                colorTo="#FBBF24"
+                delay={0.5}
+              />
+            )}
             <div className="flex justify-between items-start mb-2">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${allAngabenComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
@@ -399,7 +421,7 @@ export const TaxYearDashboard: React.FC = () => {
           duration: 0.5,
           delay: 0.2
         }} 
-        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 overflow-hidden ${
           !isDocumentsComplete ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
         }`}
         style={{
@@ -408,7 +430,7 @@ export const TaxYearDashboard: React.FC = () => {
             : canSubmit 
               ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
               : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
-          border: '2px solid transparent',
+          border: '1px solid transparent',
           backgroundImage: !isDocumentsComplete
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
             : canSubmit
@@ -417,6 +439,17 @@ export const TaxYearDashboard: React.FC = () => {
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
+            {/* Orange BorderBeam for outer card when in progress */}
+            {isDocumentsComplete && !canSubmit && (
+              <BorderBeam 
+                size={200}
+                duration={10}
+                borderWidth={1.5}
+                colorFrom="#F97316"
+                colorTo="#FBBF24"
+                delay={1}
+              />
+            )}
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${isDocumentsComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
