@@ -9,7 +9,7 @@ interface WelcomeProgressProps {
 export const WelcomeProgress = ({ currentStep, totalSteps, variant = 'dark' }: WelcomeProgressProps) => {
   const colors = variant === 'light'
     ? { active: 'bg-[#1d64ff]', past: 'bg-[#1d64ff]/70', future: 'bg-gray-300' }
-    : { active: 'bg-white', past: 'bg-white/70', future: 'bg-white/30' };
+    : { active: 'bg-[#1D64FF]', past: 'bg-[#1D64FF]/70', future: 'bg-white/[0.08]' };
 
   return (
     <div className="absolute top-4 left-4 right-4 sm:top-6 sm:left-6 sm:right-6 flex items-center gap-1.5 sm:gap-2">
