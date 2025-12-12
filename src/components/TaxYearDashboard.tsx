@@ -29,28 +29,33 @@ interface DashboardSection {
 const NexusBeam: React.FC<{
   delay?: number;
   color?: 'orange' | 'green' | 'red';
+  showBeamEffect?: boolean;
 }> = ({
   delay = 0,
-  color = 'orange'
+  color = 'orange',
+  showBeamEffect = true
 }) => {
   const colorConfig = {
     orange: {
       glow: 'rgba(249,115,22,0.15)',
       beam: '#F97316',
       shadow: 'rgba(249,115,22,0.6)',
-      shadowLight: 'rgba(251,191,36,0.3)'
+      shadowLight: 'rgba(251,191,36,0.3)',
+      line: 'rgba(249,115,22,0.3)'
     },
     green: {
       glow: 'rgba(16,185,129,0.15)',
       beam: '#10B981',
       shadow: 'rgba(16,185,129,0.6)',
-      shadowLight: 'rgba(52,211,153,0.3)'
+      shadowLight: 'rgba(52,211,153,0.3)',
+      line: 'rgba(16,185,129,0.5)'
     },
     red: {
       glow: 'rgba(239,68,68,0.15)',
       beam: '#EF4444',
       shadow: 'rgba(239,68,68,0.6)',
-      shadowLight: 'rgba(248,113,113,0.3)'
+      shadowLight: 'rgba(248,113,113,0.3)',
+      line: 'rgba(239,68,68,0.3)'
     }
   };
   
@@ -58,43 +63,48 @@ const NexusBeam: React.FC<{
   
   return (
     <div className="relative w-full h-24 flex justify-center items-center z-10 overflow-visible">
-      {/* Static Guide Line - Always Visible - Now colored */}
+      {/* Static Guide Line - Always Visible */}
       <div 
         className="w-[2px] h-full absolute z-0" 
-        style={{ backgroundColor: colors.beam, opacity: 0.4 }}
+        style={{ backgroundColor: colors.line }}
       />
       
-      {/* Wide Ambient Glow */}
-      <div 
-        className="absolute w-24 h-full z-0 opacity-50" 
-        style={{
-          background: `radial-gradient(circle at center, ${colors.glow} 0%, transparent 70%)`
-        }}
-      />
-      
-      {/* The Beam Container */}
-      <div className="absolute inset-0 flex justify-center overflow-hidden">
-        {/* The Traveling High-Energy Pulse */}
-        <div 
-          className="w-[2px] h-40 absolute blur-[0.5px] z-10" 
-          style={{
-            background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
-            animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-            animationDelay: `${delay}s`,
-            boxShadow: `0 0 15px 1px ${colors.shadow}, 0 0 30px 4px ${colors.shadowLight}`
-          }} 
-        />
-        
-        {/* Brighter Core - Now colored */}
-        <div 
-          className="w-[1px] h-32 absolute z-20 opacity-80" 
-          style={{
-            background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
-            animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-            animationDelay: `${delay}s`
-          }} 
-        />
-      </div>
+      {/* Only show animated effects when showBeamEffect is true */}
+      {showBeamEffect && (
+        <>
+          {/* Wide Ambient Glow */}
+          <div 
+            className="absolute w-24 h-full z-0 opacity-50" 
+            style={{
+              background: `radial-gradient(circle at center, ${colors.glow} 0%, transparent 70%)`
+            }}
+          />
+          
+          {/* The Beam Container */}
+          <div className="absolute inset-0 flex justify-center overflow-hidden">
+            {/* The Traveling High-Energy Pulse */}
+            <div 
+              className="w-[2px] h-40 absolute blur-[0.5px] z-10" 
+              style={{
+                background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
+                animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                animationDelay: `${delay}s`,
+                boxShadow: `0 0 15px 1px ${colors.shadow}, 0 0 30px 4px ${colors.shadowLight}`
+              }} 
+            />
+            
+            {/* Brighter Core */}
+            <div 
+              className="w-[1px] h-32 absolute z-20 opacity-80" 
+              style={{
+                background: `linear-gradient(to bottom, transparent, ${colors.beam}, transparent)`,
+                animation: 'beam-drop 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                animationDelay: `${delay}s`
+              }} 
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -339,8 +349,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 1 - only shows when card above (Angaben) is completed/green */}
-          {allAngabenComplete && <NexusBeam delay={0} color="green" />}
+          {/* NEXUS BEAM CONNECTION 1 - line always visible, beam effect only when card above is green */}
+          <NexusBeam delay={0} color={allAngabenComplete ? 'green' : 'orange'} showBeamEffect={allAngabenComplete} />
 
           {/* Card 2: Unterlagen */}
           <motion.div initial={{
@@ -407,8 +417,8 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* NEXUS BEAM CONNECTION 2 - only shows when card above (Unterlagen) is completed/green */}
-          {isDocumentsComplete && <NexusBeam delay={1.25} color="green" />}
+          {/* NEXUS BEAM CONNECTION 2 - line always visible, beam effect only when card above is green */}
+          <NexusBeam delay={1.25} color={isDocumentsComplete ? 'green' : 'orange'} showBeamEffect={isDocumentsComplete} />
 
           {/* Card 3: Einreichen */}
           <motion.div initial={{
