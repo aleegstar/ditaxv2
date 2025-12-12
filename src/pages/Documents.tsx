@@ -136,7 +136,7 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   if (showUploader || hasFilesInUploader) {
     return (
       <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-        <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12 shadow-2xl overflow-hidden border-x border-white/[0.02]">
+        <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
           {/* Background Ambient Glow */}
           <div 
             className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
@@ -146,7 +146,26 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
             }}
           />
           
-          <div className="z-20 flex-1 flex flex-col w-full relative">
+          {/* Header */}
+          <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
+            {/* Back Button */}
+            <button 
+              onClick={() => {
+                setShowUploader(false);
+                setHasFilesInUploader(false);
+              }}
+              className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+            >
+              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            {/* Title */}
+            <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+              Dokumente hochladen
+            </h1>
+          </div>
+          
+          <div className="z-20 flex-1 flex flex-col w-full relative px-6 md:px-8 pb-8">
             <EnhancedDocumentUploader
               key={uploaderKey}
               onBack={() => {
