@@ -100,15 +100,31 @@ const AssetsForm = ({
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    updateFormData('assets', currentAssetsData);
-    toast({
-      title: t.forms.savedSuccessfully,
-      description: t.forms.savedSuccessfullyDescription
-    });
-    if (!embedded) {
-      setSearchParams({});
-    } else {
-      onSave();
+    try {
+      // Save to database first
+      await saveSection('assets', currentAssetsData);
+      // Update form progress
+      updateFormProgress('assets', true);
+      // Update local state
+      updateFormData('assets', currentAssetsData);
+      
+      toast({
+        title: t.forms.savedSuccessfully,
+        description: t.forms.savedSuccessfullyDescription
+      });
+      
+      if (!embedded) {
+        setSearchParams({});
+      } else {
+        onSave();
+      }
+    } catch (error) {
+      console.error('Error saving assets:', error);
+      toast({
+        title: "Fehler beim Speichern",
+        description: "Die Daten konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
     }
   };
 
