@@ -255,7 +255,7 @@ const UserTaxReturns = () => {
           const existingReturn = getExistingReturn(year);
           const progress = calculateProgress(year) ?? 0;
           const strokeDashoffset = circumference - progress / 100 * circumference;
-          return <motion.div key={year} initial={hasAnimated ? false : {
+          return <motion.div key={year} data-tour="tax-year-card" initial={hasAnimated ? false : {
             opacity: 0,
             y: 20
           }} animate={{
