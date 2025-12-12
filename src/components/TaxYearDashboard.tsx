@@ -156,6 +156,13 @@ export const TaxYearDashboard: React.FC = () => {
           80% { opacity: 1; }
           100% { transform: translateY(100%); opacity: 0; }
         }
+        @keyframes inner-beam-pulse {
+          0% { transform: translateY(100%); opacity: 0; }
+          20% { opacity: 1; }
+          50% { transform: translateY(0%); opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translateY(-100%); opacity: 0; }
+        }
       `}</style>
 
       {/* Mobile Container */}
@@ -227,11 +234,35 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
 
             {/* Grid Options */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 relative">
+              {/* Central Light Effect */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                {/* Static Guide Line */}
+                <div className="w-[2px] h-full bg-white/50 absolute" />
+                {/* Wide Ambient Glow */}
+                <div className="absolute w-32 h-full bg-[radial-gradient(circle_at_center,rgba(29,100,255,0.2)_0%,transparent_70%)] opacity-60" />
+                {/* Animated Beam */}
+                <div className="absolute inset-0 flex justify-center overflow-hidden">
+                  <div 
+                    className="w-[2px] h-24 bg-gradient-to-b from-transparent via-[#1D64FF] to-transparent absolute blur-[0.5px]" 
+                    style={{
+                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                      boxShadow: '0 0 15px 1px rgba(56, 189, 248, 0.6), 0 0 30px 4px rgba(56, 189, 248, 0.2)'
+                    }} 
+                  />
+                  <div 
+                    className="w-[1px] h-20 bg-gradient-to-b from-transparent via-white to-transparent absolute opacity-80" 
+                    style={{
+                      animation: 'inner-beam-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+                    }} 
+                  />
+                </div>
+              </div>
+
               {angabenSections.map(section => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
+              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10">
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
                       {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
