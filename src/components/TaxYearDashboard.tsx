@@ -156,11 +156,9 @@ export const TaxYearDashboard: React.FC = () => {
           80% { opacity: 1; }
           100% { transform: translateY(100%); opacity: 0; }
         }
-        @keyframes card-beam-flow {
-          0% { transform: translateY(-100%); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translateY(200%); opacity: 0; }
+        @keyframes dash-flow {
+          0% { stroke-dashoffset: 0; }
+          100% { stroke-dashoffset: -115; }
         }
       `}</style>
 
@@ -253,55 +251,118 @@ export const TaxYearDashboard: React.FC = () => {
               })}
               </div>
               
-              {/* Beam Container - positioned below cards */}
-              <div className="relative h-20 w-full overflow-visible pointer-events-none">
-                {/* Beams originating from each card position */}
-                {[
-                  { color: '#E879F9', glow: 'rgba(232, 121, 249, 0.6)', left: '12.5%', rotation: 40 },   // Kontakt - far left
-                  { color: '#FBBF24', glow: 'rgba(251, 191, 36, 0.6)', left: '37.5%', rotation: 15 },   // Abzüge - center-left
-                  { color: '#22D3EE', glow: 'rgba(34, 211, 238, 0.6)', left: '62.5%', rotation: -15 },  // Einkommen - center-right
-                  { color: '#4ADE80', glow: 'rgba(74, 222, 128, 0.6)', left: '87.5%', rotation: -40 }   // Vermögen - far right
-                ].map((beam, index) => (
-                  <div 
-                    key={index}
-                    className="absolute top-0 w-[2px] h-24"
-                    style={{ 
-                      left: beam.left,
-                      transform: `translateX(-50%) rotate(${beam.rotation}deg)`,
-                      transformOrigin: 'top center'
-                    }}
-                  >
-                    {/* Static guide */}
-                    <div className="absolute inset-0 bg-white/20" />
-                    {/* Ambient glow */}
-                    <div 
-                      className="absolute inset-0 w-6 -left-[11px] blur-md opacity-60"
-                      style={{ background: `linear-gradient(to bottom, ${beam.color}60, transparent)` }}
-                    />
-                    {/* Animated beam */}
-                    <div 
-                      className="absolute w-[2px] h-14 blur-[0.5px]"
-                      style={{
-                        background: `linear-gradient(to bottom, transparent, ${beam.color}, transparent)`,
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.25}s`,
-                        boxShadow: `0 0 15px 3px ${beam.glow}`
-                      }} 
-                    />
-                    {/* White core */}
-                    <div 
-                      className="absolute w-[1px] h-10 left-[0.5px] opacity-90"
-                      style={{
-                        background: 'linear-gradient(to bottom, transparent, white, transparent)',
-                        animation: `card-beam-flow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite`,
-                        animationDelay: `${index * 0.25}s`
-                      }} 
-                    />
-                  </div>
-                ))}
+              {/* Curved Beams Container - SVG for curved paths */}
+              <div className="relative h-16 w-full overflow-visible pointer-events-none">
+                <svg 
+                  className="absolute inset-0 w-full h-full overflow-visible"
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    {/* Gradient definitions for each beam */}
+                    <linearGradient id="beam-pink" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#E879F9" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#E879F9" stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id="beam-yellow" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id="beam-cyan" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id="beam-green" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#4ADE80" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#4ADE80" stopOpacity="0" />
+                    </linearGradient>
+                    
+                    {/* Glow filters */}
+                    <filter id="glow-pink" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="1.5" result="blur" />
+                      <feFlood floodColor="#E879F9" floodOpacity="0.6" />
+                      <feComposite in2="blur" operator="in" />
+                      <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="glow-yellow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="1.5" result="blur" />
+                      <feFlood floodColor="#FBBF24" floodOpacity="0.6" />
+                      <feComposite in2="blur" operator="in" />
+                      <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="1.5" result="blur" />
+                      <feFlood floodColor="#22D3EE" floodOpacity="0.6" />
+                      <feComposite in2="blur" operator="in" />
+                      <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="1.5" result="blur" />
+                      <feFlood floodColor="#4ADE80" floodOpacity="0.6" />
+                      <feComposite in2="blur" operator="in" />
+                      <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  {/* Static curved paths - background guides */}
+                  <path d="M 12.5 0 Q 12.5 25, 50 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.3" />
+                  <path d="M 37.5 0 Q 37.5 20, 50 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.3" />
+                  <path d="M 62.5 0 Q 62.5 20, 50 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.3" />
+                  <path d="M 87.5 0 Q 87.5 25, 50 40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.3" />
+                  
+                  {/* Animated beams */}
+                  <path 
+                    d="M 12.5 0 Q 12.5 25, 50 40" 
+                    fill="none" 
+                    stroke="url(#beam-pink)" 
+                    strokeWidth="0.8"
+                    filter="url(#glow-pink)"
+                    strokeDasharray="15 100"
+                    style={{ animation: 'dash-flow 2.5s linear infinite' }}
+                  />
+                  <path 
+                    d="M 37.5 0 Q 37.5 20, 50 40" 
+                    fill="none" 
+                    stroke="url(#beam-yellow)" 
+                    strokeWidth="0.8"
+                    filter="url(#glow-yellow)"
+                    strokeDasharray="15 100"
+                    style={{ animation: 'dash-flow 2.5s linear infinite', animationDelay: '0.3s' }}
+                  />
+                  <path 
+                    d="M 62.5 0 Q 62.5 20, 50 40" 
+                    fill="none" 
+                    stroke="url(#beam-cyan)" 
+                    strokeWidth="0.8"
+                    filter="url(#glow-cyan)"
+                    strokeDasharray="15 100"
+                    style={{ animation: 'dash-flow 2.5s linear infinite', animationDelay: '0.6s' }}
+                  />
+                  <path 
+                    d="M 87.5 0 Q 87.5 25, 50 40" 
+                    fill="none" 
+                    stroke="url(#beam-green)" 
+                    strokeWidth="0.8"
+                    filter="url(#glow-green)"
+                    strokeDasharray="15 100"
+                    style={{ animation: 'dash-flow 2.5s linear infinite', animationDelay: '0.9s' }}
+                  />
+                </svg>
                 
                 {/* Central convergence glow */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-12 bg-[radial-gradient(ellipse_at_center,rgba(29,100,255,0.3)_0%,transparent_70%)]" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-8 bg-[radial-gradient(ellipse_at_center,rgba(29,100,255,0.4)_0%,transparent_70%)]" />
               </div>
             </div>
           </motion.div>
