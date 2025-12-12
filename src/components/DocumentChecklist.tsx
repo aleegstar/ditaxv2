@@ -585,10 +585,12 @@ const DocumentChecklist: React.FC = () => {
                                         <>
                                           <button 
                                             onClick={() => setAssignmentModal({ open: true, item })}
-                                            className="w-full h-12 bg-[#1D64FF] rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/30 hover:shadow-[0_0_25px_rgba(29,100,255,0.5)]"
+                                            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full py-2 px-5 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl gap-x-3 items-center justify-center w-full"
                                           >
-                                            <FolderOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                            <span className="text-white font-semibold text-[15px]">Zuordnen</span>
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                                              <FolderOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                            </div>
+                                            <span className="text-white font-medium text-[15px]">Zuordnen</span>
                                           </button>
 
                                           {/* Divider */}
@@ -603,10 +605,12 @@ const DocumentChecklist: React.FC = () => {
                                       {/* Upload Button */}
                                       <button 
                                         onClick={() => handleUploadDocument(item.id)}
-                                        className="w-full h-12 bg-[#1D64FF] rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/30 hover:shadow-[0_0_25px_rgba(29,100,255,0.5)]"
+                                        className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full py-2 px-5 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl gap-x-3 items-center justify-center w-full"
                                       >
-                                        <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                        <span className="text-white font-semibold text-[15px]">Hochladen</span>
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                                          <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                        </div>
+                                        <span className="text-white font-medium text-[15px]">Hochladen</span>
                                       </button>
                                     </div>
                                   )}
