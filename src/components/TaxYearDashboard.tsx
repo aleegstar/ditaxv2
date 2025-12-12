@@ -212,7 +212,11 @@ export const TaxYearDashboard: React.FC = () => {
           y: 0
         }} transition={{
           duration: 0.5
-        }} className="w-full z-20 border border-white/10 rounded-[1.5rem] p-4 md:p-6 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5">
+        }} className={`w-full z-20 rounded-[1.5rem] p-4 md:p-6 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+          angabenProgress.completed === 4 
+            ? 'border-2 border-emerald-500/60' 
+            : 'border-2 border-orange-500/60'
+        }`}>
             {/* Card Header */}
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -242,18 +246,25 @@ export const TaxYearDashboard: React.FC = () => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
               const colors = beamColors[section.id] || beamColors.contact;
-              return <button key={section.id} onClick={() => handleSectionClick(section)} className="group relative overflow-hidden border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left">
-                    <BorderBeam 
-                      size={80}
-                      duration={6}
-                      borderWidth={1.5}
-                      colorFrom={colors.from}
-                      colorTo={colors.to}
-                      delay={index * 1.5}
-                    />
+              return <button key={section.id} onClick={() => handleSectionClick(section)} className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between hover:from-white/[0.12] hover:to-white/[0.02] transition-all cursor-pointer shadow-lg shadow-black/20 text-left ${
+                completed 
+                  ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80' 
+                  : 'border border-white/5 hover:border-white/20'
+              }`}>
+                    {/* Only show BorderBeam animation when NOT completed */}
+                    {!completed && (
+                      <BorderBeam 
+                        size={80}
+                        duration={6}
+                        borderWidth={1.5}
+                        colorFrom="#F97316"
+                        colorTo="#FBBF24"
+                        delay={index * 1.5}
+                      />
+                    )}
                     <div className="flex justify-between w-full">
                       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
-                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]">
+                      {completed && <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
                           <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                         </div>}
                     </div>
@@ -278,7 +289,13 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${allAngabenComplete ? 'hover:border-white/20 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`w-full rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+          !allAngabenComplete 
+            ? 'border-2 border-red-500/60 opacity-50 cursor-not-allowed' 
+            : isDocumentsComplete 
+              ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80 cursor-pointer' 
+              : 'border-2 border-orange-500/60 hover:border-orange-400/80 cursor-pointer'
+        }`}>
             <div className="flex justify-between items-start mb-2">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${allAngabenComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
@@ -317,7 +334,13 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} className={`w-full border border-white/10 rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${isDocumentsComplete ? 'hover:border-white/20 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+        }} className={`w-full rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+          !isDocumentsComplete 
+            ? 'border-2 border-red-500/60 opacity-50 cursor-not-allowed' 
+            : canSubmit 
+              ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80 cursor-pointer' 
+              : 'border-2 border-orange-500/60 hover:border-orange-400/80 cursor-pointer'
+        }`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${isDocumentsComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
