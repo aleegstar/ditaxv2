@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { FileUp, Check, X, ChevronDown, ChevronUp, RefreshCw, AlertTriangle, Eye, FileText, Folder, Upload, Trash2, User, Briefcase, Home, Calculator, ChevronRight } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Folder, Trash2, User, Briefcase, Home, Calculator, Plus, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from '@/hooks/use-toast';
@@ -17,17 +14,12 @@ import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
 
-import { Sphere } from "@/components/ui/sphere";
-import { BorderBeam } from "@/components/ui/border-beam";
-
-import { motion } from 'framer-motion';
-import { FramerButton } from "@/components/ui/framer-button";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
-import { ElementsIcon } from '@/components/ui/ElementsIcon';
 import { SubpageHeader } from '@/components/ui/subpage-header';
+
 const DocumentChecklist: React.FC = () => {
   const {
     checklistItems,
@@ -68,18 +60,19 @@ const DocumentChecklist: React.FC = () => {
     });
     return map;
   }, [documents, checklistItems, getDocumentsForItem]);
+  
   const {
     userId,
     isValid: isAuthValid,
     isLoading: isAuthLoading,
     validateSession
   } = useAuthValidation();
+  
   const [viewerDocuments, setViewerDocuments] = useState<DocumentMetadata[]>([]);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  const [spherePulse, setSpherePulse] = useState(false);
   const [assignmentModal, setAssignmentModal] = useState<{
     open: boolean;
     item: ChecklistItem | null;
@@ -90,15 +83,19 @@ const DocumentChecklist: React.FC = () => {
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  
   const handleNext = () => {
     navigate('/payment');
   };
+  
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
+  
   const handleUploadDocument = (itemId: string) => {
     navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
+  
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
       toast({
@@ -108,10 +105,12 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   }, [isAuthLoading, isAuthValid]);
+  
   const userDocuments = documents.filter(doc => {
     if (!userId) return false;
     return true;
   });
+  
   // Optimized document status tracking using memoized values
   const documentStatus = useMemo(() => {
     const itemsWithDocs = new Set<string>();
@@ -133,6 +132,7 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   }, [documentStatus, checklistItems, markUploaded]);
+  
   useEffect(() => {
     if (!initialLoadComplete && !isLoading) {
       setInitialLoadComplete(true);
@@ -155,22 +155,23 @@ const DocumentChecklist: React.FC = () => {
       // Count documents by what they could be assigned to
       const counts: Record<string, number> = {};
       checklistItems.forEach(item => {
-        counts[item.id] = data?.length || 0; // For now, show all unassigned docs for each item
+        counts[item.id] = data?.length || 0;
       });
       setUnassignedDocsCounts(counts);
     } catch (error) {
       debug.error('Error in loadUnassignedDocsCount:', error);
     }
   }, [userId, taxYear, checklistItems]);
+  
   const hasLoadedCountsRef = useRef(false);
   
   useEffect(() => {
-    // Only load if we have necessary data and haven't loaded yet
     if (userId && taxYear && checklistItems.length > 0 && !hasLoadedCountsRef.current) {
       hasLoadedCountsRef.current = true;
       loadUnassignedDocsCount();
     }
   }, [userId, taxYear, checklistItems.length, loadUnassignedDocsCount]);
+  
   // Optimized checklist generation with ref to prevent loops
   const hasGeneratedRef = useRef(false);
   const lastFormDataHashRef = useRef('');
@@ -188,24 +189,12 @@ const DocumentChecklist: React.FC = () => {
       lastFormDataHashRef.current = JSON.stringify(formData);
       generateChecklist();
       
-      // Reset flag after generation completes
       setTimeout(() => {
         hasGeneratedRef.current = false;
       }, 2000);
     }
   }, [shouldGenerateChecklist, generateChecklist, formData]);
-  useEffect(() => {
-    if (shouldGenerateChecklist) {
-      console.log('🔄 Force generating checklist - no items found');
-      hasGeneratedRef.current = true;
-      lastFormDataHashRef.current = JSON.stringify(formData);
-      generateChecklist();
-      
-      setTimeout(() => {
-        hasGeneratedRef.current = false;
-      }, 2000);
-    }
-  }, [shouldGenerateChecklist, generateChecklist, formData]);
+  
   const handleDocumentDeleted = async (docId: string, checklistItemId: string) => {
     const success = await deleteDocument(docId, checklistItemId);
     if (success) {
@@ -215,16 +204,18 @@ const DocumentChecklist: React.FC = () => {
       }
     }
   };
+  
   const handleDocumentRefresh = useCallback(() => {
     refreshDocuments();
-    setSpherePulse(true);
   }, [refreshDocuments]);
+  
   const toggleCategory = (category: string) => {
     setOpenCategories(prev => ({
       ...prev,
       [category]: !prev[category]
     }));
   };
+  
   const categoryMap: Record<string, string> = {
     'general': 'Allgemeine Dokumente',
     'income': 'Einkommen',
@@ -238,7 +229,7 @@ const DocumentChecklist: React.FC = () => {
     'assets': Home,
     'deductions': Calculator
   };
-  // Use the memoized categorized items instead of recalculating
+  
   const categorizedItems = categorizedItemsMemo;
 
   // Calculate initial category status based on completion
@@ -248,11 +239,9 @@ const DocumentChecklist: React.FC = () => {
       const items = categorizedItems[category] || [];
       const requiredItems = items.filter(item => item.required);
 
-      // If no required items, close the category
       if (requiredItems.length === 0) {
         status[category] = false;
       } else {
-        // Open if any required documents are missing
         const hasIncompleteUploads = requiredItems.some(item => !item.uploaded);
         status[category] = hasIncompleteUploads;
       }
@@ -267,9 +256,11 @@ const DocumentChecklist: React.FC = () => {
       setOpenCategories(initialStatus);
     }
   }, [checklistItems.length, userDocuments.length, initialLoadComplete, openCategories, calculateInitialCategoryStatus]);
+  
   const getUserDocumentsForItem = useCallback((itemId: string) => {
     return userDocuments.filter(doc => doc.checklistItemId === itemId);
   }, [userDocuments]);
+  
   const handleViewDocuments = (itemId: string, initialIndex = 0) => {
     const itemDocuments = getUserDocumentsForItem(itemId);
     if (itemDocuments.length > 0) {
@@ -284,11 +275,13 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   };
+  
   const handleCloseViewer = () => {
     setViewerOpen(false);
     setViewerDocuments([]);
     setViewerInitialIndex(0);
   };
+  
   const getCategoryProgress = (category: string) => {
     const items = categorizedItems[category] || [];
     if (items.length === 0) return "0/0";
@@ -301,34 +294,7 @@ const DocumentChecklist: React.FC = () => {
     if (items.length === 0) return false;
     return items.every(item => item.uploaded);
   };
-  const renderUploadedFiles = (itemId: string) => {
-    const files = getUserDocumentsForItem(itemId);
-    if (files.length === 0) return null;
-    return <div className="p-6 pt-0 flex justify-center">
-        <div className="inline-flex items-center gap-3 rounded-full px-6 py-3 bg-white max-w-full"
-          style={{
-            boxShadow: 'rgba(0, 0, 0, 0.15) 0px 32px 32px -12px'
-          }}
-        >
-          <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-          <span className="text-sm font-medium text-gray-900 truncate" title={files[0]?.fileName}>
-            {files[0]?.fileName}
-          </span>
-          <Button variant="ghost" size="sm" onClick={e => {
-          e.stopPropagation();
-          handleViewDocuments(itemId, 0);
-        }} className="text-gray-600 hover:bg-gray-100 p-2 h-auto flex-shrink-0">
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="text-gray-600 hover:bg-gray-100 p-2 h-auto flex-shrink-0" onClick={e => {
-          e.stopPropagation();
-          handleDocumentDeleted(files[0]?.id, files[0]?.checklistItemId);
-        }}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>;
-  };
+  
   const handleForceGeneration = () => {
     generateChecklist();
     refreshDocuments();
@@ -337,6 +303,7 @@ const DocumentChecklist: React.FC = () => {
       description: "Die Dokumentenliste wird aktualisiert."
     });
   };
+  
   const areRequiredDocumentsUploaded = () => {
     const requiredItems = checklistItems.filter(item => item.required);
     return requiredItems.length > 0 && requiredItems.every(item => item.uploaded);
@@ -353,322 +320,339 @@ const DocumentChecklist: React.FC = () => {
       }
     }
   }, [checklistItems, documents, updateFormProgress, formProgress.documents, isLoading]);
+  
   const handleAuthRefresh = async () => {
     await validateSession();
     refreshDocuments();
   };
+  
   if (isAuthLoading) {
-    return <div className="w-full animate-fade-in p-6">
-        <div className="flex flex-row items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2 bg-white/20" />
-            <Skeleton className="h-4 w-80 bg-white/20" />
-          </div>
+    return (
+      <div className="min-h-screen bg-[#020408]">
+        <div className="fixed inset-0 pointer-events-none -z-10" style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
+          filter: 'blur(80px)'
+        }} />
+        <div className="p-6 pt-24">
+          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full bg-white/[0.02]" />
         </div>
-        <div className="p-0">
-          <Skeleton className="h-32 w-full bg-white/20" />
-        </div>
-      </div>;
+      </div>
+    );
   }
+  
   if (!isAuthValid) {
-    return <div className="w-full animate-fade-in p-6">
-        <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/20 backdrop-blur-md">
-          <AlertTriangle className="h-4 w-4 text-red-300" />
-          <AlertTitle className="text-red-300">Authentifizierung erforderlich</AlertTitle>
-          <AlertDescription className="text-red-200">
-            Du musst angemeldet sein, um deine Dokumente zu verwalten.
-            <div className="mt-2 flex gap-2">
-              <Button size="sm" onClick={() => navigate('/auth', {
-              state: {
-                from: '/form'
-              }
-            })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                Zur Anmeldung
-              </Button>
-              <Button size="sm" onClick={handleAuthRefresh} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Session prüfen
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      </div>;
-  }
-  if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-    return <div className="w-full animate-fade-in p-6">
-        <div className="flex flex-row items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2 bg-white/20" />
-            <Skeleton className="h-4 w-80 bg-white/20" />
-          </div>
-        </div>
-        <div className="p-0">
-          <div className="space-y-6">
-            {[1, 2, 3].map(item => <div key={item} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-6 w-40 bg-white/20" />
-                  <Skeleton className="h-6 w-16 rounded-full bg-white/20" />
-                </div>
-                <Skeleton className="h-1 w-full my-2 bg-white/20" />
-                <div className="space-y-3">
-                  {[1, 2].map(subitem => <Skeleton key={subitem} className="h-24 w-full rounded-lg bg-white/20" />)}
-                </div>
-              </div>)}
-          </div>
-        </div>
-      </div>;
-  }
-  return <div className="min-h-screen">
-      <SubpageHeader title="Unterlagen" onBack={handleBack} />
-      <div className="flex flex-col items-center justify-start p-6 pt-4 relative">
-        <div className="w-full max-w-4xl">
-        
-
-        {error && <Alert variant="destructive" className="mb-4 bg-red-500/10 border-red-500/20 backdrop-blur-md">
+    return (
+      <div className="min-h-screen bg-[#020408]">
+        <div className="fixed inset-0 pointer-events-none -z-10" style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
+          filter: 'blur(80px)'
+        }} />
+        <div className="p-6 pt-24">
+          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 backdrop-blur-md">
             <AlertTriangle className="h-4 w-4 text-red-300" />
-            <AlertTitle className="text-red-300">Fehler beim Laden der Dokumente</AlertTitle>
+            <AlertTitle className="text-red-300">Authentifizierung erforderlich</AlertTitle>
             <AlertDescription className="text-red-200">
-              {error}
-              <div className="mt-2">
-                <Button size="sm" onClick={() => navigate('/auth', {
-                state: {
-                  from: '/form'
-                }
-              })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+              Du musst angemeldet sein, um deine Dokumente zu verwalten.
+              <div className="mt-2 flex gap-2">
+                <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
                   Zur Anmeldung
+                </Button>
+                <Button size="sm" onClick={handleAuthRefresh} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Session prüfen
                 </Button>
               </div>
             </AlertDescription>
-          </Alert>}
+          </Alert>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!initialLoadComplete || (isLoading && checklistItems.length === 0)) {
+    return (
+      <div className="min-h-screen bg-[#020408]">
+        <div className="fixed inset-0 pointer-events-none -z-10" style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
+          filter: 'blur(80px)'
+        }} />
+        <div className="p-6 pt-24">
+          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full bg-white/[0.02]" />
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="min-h-screen bg-[#020408] text-zinc-200">
+      {/* Background glow */}
+      <div className="fixed inset-0 pointer-events-none -z-10" style={{
+        background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
+        filter: 'blur(80px)'
+      }} />
+      
+      {/* Header */}
+      <header className="h-24 shrink-0 flex items-center justify-center px-6 relative z-30">
+        <button 
+          onClick={handleBack}
+          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
+        <h1 className="text-[15px] font-medium text-zinc-200 tracking-normal">Unterlagen</h1>
+      </header>
 
-        <div className="space-y-2.5">
-          {Object.keys(categorizedItems).length === 0 ? <div className="text-center py-8">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-2">
+        <div className="max-w-[600px] mx-auto space-y-4 pb-24">
+          
+          {error && (
+            <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 backdrop-blur-md">
+              <AlertTriangle className="h-4 w-4 text-red-300" />
+              <AlertTitle className="text-red-300">Fehler beim Laden der Dokumente</AlertTitle>
+              <AlertDescription className="text-red-200">
+                {error}
+                <div className="mt-2">
+                  <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                    Zur Anmeldung
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {Object.keys(categorizedItems).length === 0 ? (
+            <div className="text-center py-8">
               <p className="text-white/80 mb-4">
                 Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.
                 {!formDataLoaded && " Bitte warte, während deine Daten geladen werden."}
               </p>
-              <Button onClick={handleForceGeneration} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
-                {isLoading ? <div className="flex items-center gap-2">
-                    <span>Wird geladen...</span>
-                  </div> : "Checkliste jetzt generieren"}
+              <Button onClick={handleForceGeneration} className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white" disabled={isLoading}>
+                {isLoading ? "Wird geladen..." : "Checkliste jetzt generieren"}
               </Button>
-            </div> : Object.entries(categorizedItems).map(([category, items]) => {
-            const isComplete = isCategoryComplete(category);
-            const isOpen = openCategories[category];
-            const Icon = categoryIcons[category];
-            
-            return <Collapsible key={category} open={isOpen} onOpenChange={open => {
-              setOpenCategories(prev => ({
-                ...prev,
-                [category]: open
-              }));
-            }}>
-                <div className="mb-2.5">
-                  <CollapsibleTrigger className="group w-full flex items-center justify-between p-3 pl-4 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:border-slate-200 hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center space-x-3">
-                      <div className={cn(
-                        "p-1.5 rounded-lg",
-                        isComplete 
-                          ? "bg-emerald-50 text-emerald-600"
-                          : isOpen
-                            ? "bg-[#1d64ff] text-white shadow-sm"
-                            : "bg-slate-100 text-slate-500"
-                      )}>
-                        <Icon className="w-4 h-4" />
+            </div>
+          ) : (
+            Object.entries(categorizedItems).map(([category, items]) => {
+              const isComplete = isCategoryComplete(category);
+              const isOpen = openCategories[category];
+              const Icon = categoryIcons[category];
+              
+              return (
+                <Collapsible 
+                  key={category} 
+                  open={isOpen} 
+                  onOpenChange={open => {
+                    setOpenCategories(prev => ({
+                      ...prev,
+                      [category]: open
+                    }));
+                  }}
+                >
+                  {/* Collapsed State - Glass Panel */}
+                  {!isOpen ? (
+                    <CollapsibleTrigger className="group w-full rounded-xl transition-all duration-300" style={{
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(255, 255, 255, 0.05)'
+                    }}>
+                      <div className="w-full flex items-center justify-between p-4 text-left group-hover:bg-white/[0.02]">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+                            isComplete 
+                              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500"
+                              : "bg-zinc-900 border border-white/5 text-zinc-400 group-hover:text-zinc-200 group-hover:border-white/10"
+                          )}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <span className="text-base font-medium text-zinc-200 group-hover:text-white">
+                            {categoryMap[category]}
+                          </span>
+                        </div>
+                        {isComplete ? (
+                          <Check className="w-5 h-5 text-emerald-500" strokeWidth={1.5} />
+                        ) : (
+                          <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1.5} />
+                        )}
                       </div>
-                      <span className={cn(
-                        "text-sm transition-colors",
-                        isComplete || isOpen ? "font-semibold text-slate-900" : "font-medium text-slate-700 group-hover:text-slate-900"
-                      )}>
-                        {categoryMap[category]}
-                      </span>
-                    </div>
-                    <div className="pr-1">
-                      {isComplete ? (
-                        <Check className="w-5 h-5 text-emerald-500" strokeWidth={1.5} />
-                      ) : isOpen ? (
-                        <ChevronDown className="w-5 h-5 text-[#1d64ff] rotate-180 transition-transform" strokeWidth={1.5} />
-                      ) : (
-                        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400" strokeWidth={1.5} />
-                      )}
-                    </div>
-                  </CollapsibleTrigger>
-                  
-                  <CollapsibleContent className="mt-6">
-                    <div className="space-y-6 pl-4">{/* Add left padding for visual hierarchy */}
-                      {items.map(item => {
-                    const itemFiles = getUserDocumentsForItem(item.id);
-                    const fileCount = itemFiles.length;
-                        return <div 
-                          key={item.id} 
-                          className={cn(
-                            "relative overflow-hidden rounded-[24px] p-6 text-white cursor-pointer hover:scale-[1.02] transition-all duration-300",
-                            item.uploaded ? "cursor-default" : "cursor-pointer shadow-lg"
-                          )}
-                          style={{
-                            background: item.uploaded 
-                              ? 'rgb(244, 244, 244)'
-                              : 'linear-gradient(to bottom right, #1d64ff, #1d64ff)'
-                          }}
-                        >
-                          <BorderBeam 
-                            size={120} 
-                            duration={12} 
-                            anchor={90} 
-                            borderWidth={2} 
-                            colorFrom={item.uploaded ? "rgb(244, 244, 244)" : "#ffffff"} 
-                            colorTo={item.uploaded ? "rgb(244, 244, 244)" : "#ffffff"} 
-                            delay={0} 
-                            className="rounded-[24px]"
-                          />
-                          
-                          {/* Content */}
-                          <div className="relative z-10">
-                            <div className="flex flex-col items-center justify-center p-6 space-y-4">
-                              {/* Title Pill */}
-                              {item.uploaded ? (
-                                <div className="inline-flex items-center gap-3 rounded-full px-6 py-3 bg-white"
-                                  style={{
-                                    boxShadow: 'rgba(0, 0, 0, 0.15) 0px 32px 32px -12px'
-                                  }}
-                                >
-                                  <Check className="w-5 h-5 text-green-600" />
-                                  <span className="text-base font-semibold text-gray-900">
+                    </CollapsibleTrigger>
+                  ) : (
+                    /* Expanded State - Blue Border */
+                    <div className="bg-[#020408] rounded-xl border border-[#1D64FF]/20 overflow-hidden transition-all duration-300">
+                      <CollapsibleTrigger className="w-full flex items-center justify-between p-4 text-left border-b border-white/[0.04]">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-[#1D64FF]/10 border border-[#1D64FF]/20 flex items-center justify-center text-[#1D64FF]">
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <span className="text-base font-semibold text-white">
+                            {categoryMap[category]}
+                          </span>
+                        </div>
+                        <ChevronUp className="w-5 h-5 text-[#1D64FF]" strokeWidth={1.5} />
+                      </CollapsibleTrigger>
+
+                      <CollapsibleContent className="p-5 bg-white/[0.01]">
+                        <div className="space-y-5">
+                          {items.map(item => {
+                            const itemFiles = getUserDocumentsForItem(item.id);
+                            const fileCount = itemFiles.length;
+                            const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
+                            
+                            return (
+                              <div 
+                                key={item.id} 
+                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden"
+                                style={{
+                                  background: item.uploaded 
+                                    ? 'rgba(255, 255, 255, 0.02)'
+                                    : 'linear-gradient(135deg, #1D64FF, #2563EB)',
+                                  boxShadow: item.uploaded 
+                                    ? 'none'
+                                    : '0 20px 40px -10px rgba(29, 100, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+                                  border: item.uploaded ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'
+                                }}
+                              >
+                                {/* Decorative blur for non-uploaded items */}
+                                {!item.uploaded && (
+                                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-white/10 to-transparent opacity-50 pointer-events-none mix-blend-overlay" />
+                                )}
+                                
+                                <div className="relative z-10 flex flex-col items-center">
+                                  {/* Title */}
+                                  <h3 className={cn(
+                                    "text-lg font-semibold tracking-tight mb-2",
+                                    item.uploaded ? "text-zinc-200" : "text-white"
+                                  )}>
                                     {item.title}
-                                  </span>
-                                </div>
-                              ) : (
-                                <>
-                                  <h4 className="font-semibold text-xl text-white text-center">{item.title}</h4>
+                                  </h3>
                                   
-                                  {/* Description - only show if not uploaded */}
-                                  <p className="text-sm text-white/90 text-center max-w-md">{item.description}</p>
-                                  
-                                  {/* Badges - only show if not uploaded */}
-                                  <div className="flex items-center gap-2 flex-wrap justify-center">
-                                    {item.required && (
-                                      <span className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium bg-white/20 text-white border border-white/30">
-                                        Erforderlich
-                                      </span>
-                                    )}
-                                    {fileCount > 0 && (
-                                      <span className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium bg-white/20 text-white border border-white/30">
-                                        {fileCount} Datei{fileCount !== 1 ? 'en' : ''}
-                                      </span>
-                                    )}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                            
-                            {/* Uploaded Files Section */}
-                            {item.uploaded && renderUploadedFiles(item.id)}
-                            
-                            {/* Upload/Actions Section */}
-                            {!item.uploaded && <div className="p-6 pt-0">
-                                <div className="space-y-4">
-                                  {/* Assignment Button - Only show if there are unassigned documents */}
-                                  {(unassignedDocsCounts[item.id] || 0) > 0 && (
-                                    <>
-                                      <div className="flex justify-center">
-                                        <button 
-                                          onClick={() => setAssignmentModal({
-                                            open: true,
-                                            item
-                                          })} 
-                                          className="inline-flex items-center gap-3 rounded-full px-6 py-3 bg-white hover:bg-white/95 transition-colors"
-                                          style={{
-                                            boxShadow: 'rgba(0, 0, 0, 0.15) 0px 32px 32px -12px'
-                                          }}
-                                        >
-                                          {/* Outer blue circle with gradient */}
-                                          <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{
-                                            background: 'linear-gradient(rgb(54, 132, 255) 0%, rgb(10, 105, 255) 100%)',
-                                            boxShadow: 'rgba(255, 255, 255, 0.1) 0px 0.78125px 0px 0px inset'
-                                          }}>
-                                            {/* Folder icon in white */}
-                                            <Folder className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-                                          </div>
-                                          <span className="text-base font-semibold text-gray-900">
-                                            Zuordnen
-                                          </span>
-                                        </button>
-                                      </div>
-                                      
-                                      {/* Separator with "oder" */}
-                                      <div className="relative flex items-center">
-                                        <div className="flex-grow border-t border-white/30"></div>
-                                        <span className="flex-shrink mx-4 text-white/70 text-sm">oder</span>
-                                        <div className="flex-grow border-t border-white/30"></div>
-                                      </div>
-                                    </>
+                                  {/* Description */}
+                                  {!item.uploaded && item.description && (
+                                    <p className="text-base text-blue-100 max-w-sm mx-auto leading-relaxed mb-6 font-medium opacity-90">
+                                      {item.description}
+                                    </p>
                                   )}
                                   
-                                  {/* Upload Button */}
-                                  {/* Upload Button - Centered Pill */}
-                                  <div className="flex justify-center">
-                                    <button 
-                                      onClick={() => handleUploadDocument(item.id)} 
-                                      className="inline-flex items-center gap-3 rounded-full px-6 py-3 bg-white hover:bg-white/95 transition-colors"
-                                      style={{
-                                        boxShadow: 'rgba(0, 0, 0, 0.15) 0px 32px 32px -12px'
-                                      }}
-                                    >
-                                      {/* Outer blue circle with gradient */}
-                                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{
-                                        background: 'linear-gradient(rgb(54, 132, 255) 0%, rgb(10, 105, 255) 100%)',
-                                        boxShadow: 'rgba(255, 255, 255, 0.1) 0px 0.78125px 0px 0px inset'
-                                      }}>
-                                        {/* Plus icon */}
-                                        <svg 
-                                          width="14" 
-                                          height="14" 
-                                          viewBox="0 0 24 24" 
-                                          fill="none" 
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className="text-white"
-                                        >
-                                          <path 
-                                            d="M12 5V19M5 12H19" 
-                                            stroke="currentColor" 
-                                            strokeWidth="2.5" 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round"
-                                          />
-                                        </svg>
+                                  {/* Badge */}
+                                  {!item.uploaded && item.required && (
+                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/20 border border-white/20 text-[11px] font-semibold text-white tracking-wide mb-8 backdrop-blur-md shadow-sm uppercase">
+                                      Erforderlich
+                                    </div>
+                                  )}
+                                  
+                                  {/* Uploaded State */}
+                                  {item.uploaded && itemFiles.length > 0 && (
+                                    <div className="flex flex-col items-center gap-3 mt-2">
+                                      <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20">
+                                        <Check className="w-4 h-4 text-emerald-500" />
+                                        <span className="text-sm font-medium text-emerald-400">
+                                          {itemFiles.length} Datei{itemFiles.length !== 1 ? 'en' : ''} hochgeladen
+                                        </span>
                                       </div>
-                                      <span className="text-base font-semibold text-gray-900">
-                                        Hochladen
-                                      </span>
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>}
-                          </div>
-                        </div>;
-                  })}
-                    </div>
-                  </CollapsibleContent>
-                </div>
-              </Collapsible>;
-            })}
-        </div>
+                                      <div className="flex items-center gap-2">
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          onClick={() => handleViewDocuments(item.id, 0)}
+                                          className="text-zinc-400 hover:text-white hover:bg-white/[0.04] h-9 px-3"
+                                        >
+                                          <Eye className="h-4 w-4 mr-2" />
+                                          Ansehen
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm"
+                                          onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
+                                          className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 h-9 px-3"
+                                        >
+                                          <Trash2 className="h-4 w-4 mr-2" />
+                                          Löschen
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Action Buttons for non-uploaded items */}
+                                  {!item.uploaded && (
+                                    <div className="flex flex-col items-center w-full max-w-[280px] gap-3.5">
+                                      {/* Assignment Button */}
+                                      {hasUnassignedDocs && (
+                                        <>
+                                          <button 
+                                            onClick={() => setAssignmentModal({ open: true, item })}
+                                            className="w-full h-12 bg-white rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/20"
+                                          >
+                                            <div className="w-6 h-6 rounded-full bg-[#1D64FF] flex items-center justify-center text-white shrink-0">
+                                              <FolderOpen className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                            </div>
+                                            <span className="text-zinc-900 font-semibold text-[15px]">Zuordnen</span>
+                                          </button>
 
-        <DocumentViewer documents={viewerDocuments} initialDocumentIndex={viewerInitialIndex} isOpen={viewerOpen} onClose={handleCloseViewer} />
-        
-        {/* Document Assignment Modal */}
-        {assignmentModal.item && <DocumentAssignmentModal open={assignmentModal.open} onClose={() => setAssignmentModal({
-          open: false,
-          item: null
-        })} checklistItemId={assignmentModal.item.id} checklistItemTitle={assignmentModal.item.title} taxYear={taxYear} onAssignment={() => {
-          refreshDocuments();
-          setAssignmentModal({
-            open: false,
-            item: null
-          });
-        }} />}
+                                          {/* Divider */}
+                                          <div className="w-full flex items-center gap-4 px-2 opacity-80">
+                                            <div className="h-px bg-blue-200/30 flex-1" />
+                                            <span className="text-blue-100 text-[13px] font-medium">oder</span>
+                                            <div className="h-px bg-blue-200/30 flex-1" />
+                                          </div>
+                                        </>
+                                      )}
+
+                                      {/* Upload Button */}
+                                      <button 
+                                        onClick={() => handleUploadDocument(item.id)}
+                                        className="w-full h-12 bg-white rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-blue-900/20"
+                                      >
+                                        <div className="w-6 h-6 rounded-full bg-[#1D64FF] flex items-center justify-center text-white shrink-0">
+                                          <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+                                        </div>
+                                        <span className="text-zinc-900 font-semibold text-[15px]">Hochladen</span>
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  )}
+                </Collapsible>
+              );
+            })
+          )}
         </div>
       </div>
-    </div>;
+
+      <DocumentViewer 
+        documents={viewerDocuments} 
+        initialDocumentIndex={viewerInitialIndex} 
+        isOpen={viewerOpen} 
+        onClose={handleCloseViewer} 
+      />
+      
+      {/* Document Assignment Modal */}
+      {assignmentModal.item && (
+        <DocumentAssignmentModal 
+          open={assignmentModal.open} 
+          onClose={() => setAssignmentModal({ open: false, item: null })} 
+          checklistItemId={assignmentModal.item.id} 
+          checklistItemTitle={assignmentModal.item.title} 
+          taxYear={taxYear} 
+          onAssignment={() => {
+            refreshDocuments();
+            setAssignmentModal({ open: false, item: null });
+          }} 
+        />
+      )}
+    </div>
+  );
 };
+
 export default DocumentChecklist;
