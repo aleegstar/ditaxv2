@@ -69,7 +69,7 @@ const LegalDocumentPage: React.FC<LegalDocumentPageProps> = ({
               </div>
             ) : (
               <div 
-                className="getterms-document-embed" 
+                className="getterms-document-embed [&_*]:!text-white [&_a]:!text-[#1D64FF] [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-zinc-300 [&_li]:!text-zinc-300 [&_span]:!text-zinc-300" 
                 data-getterms={gettermsId} 
                 data-getterms-document={documentType} 
                 data-getterms-lang="de" 
