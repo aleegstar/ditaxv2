@@ -137,7 +137,7 @@ export const FileUpload = ({
         </div>
       )}
 
-      {/* Add More Documents Trigger */}
+      {/* Add More Documents Trigger - Larger when no previews */}
       <button 
         className="w-full group relative outline-none focus:outline-none mt-2"
         onClick={handleUploadClick}
@@ -153,8 +153,10 @@ export const FileUpload = ({
         )} />
         
         <div className={cn(
-          "relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl p-4 flex items-center gap-4 transition-all duration-300 overflow-hidden",
-          isDragOver && "border-white/[0.15]"
+          "relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl transition-all duration-300 overflow-hidden",
+          isDragOver && "border-white/[0.15]",
+          // Larger padding and centered layout when no previews
+          hasAnyPreview ? "p-4 flex items-center gap-4" : "p-8 md:p-12 flex flex-col items-center justify-center text-center"
         )}>
           {/* Shimmer Animation */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_3s_infinite_linear] bg-[length:200%_100%]" />
@@ -173,19 +175,42 @@ export const FileUpload = ({
             multiple={maxFiles > 1} 
           />
           
-          {/* Icon Box */}
-          <div className="w-12 h-12 rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300">
-            <CloudUpload className="w-6 h-6 text-white" />
+          {/* Icon Box - Larger when no previews */}
+          <div className={cn(
+            "rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300",
+            hasAnyPreview ? "w-12 h-12" : "w-16 h-16 md:w-20 md:h-20 mb-4"
+          )}>
+            <CloudUpload className={cn(
+              "text-white",
+              hasAnyPreview ? "w-6 h-6" : "w-8 h-8 md:w-10 md:h-10"
+            )} />
           </div>
           
           {/* Text Content */}
-          <div className="flex flex-col items-start text-left">
-            <span className="text-[15px] font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors">
-              {!pdfLibLoaded ? 'Initialisierung...' : 'Weitere Dokumente hinzufügen'}
+          <div className={cn(
+            "flex flex-col",
+            hasAnyPreview ? "items-start text-left" : "items-center text-center"
+          )}>
+            <span className={cn(
+              "font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors",
+              hasAnyPreview ? "text-[15px]" : "text-lg md:text-xl"
+            )}>
+              {!pdfLibLoaded ? 'Initialisierung...' : hasAnyPreview ? 'Weitere Dokumente hinzufügen' : 'Dokumente hochladen'}
             </span>
-            <span className="text-[11px] text-zinc-500 mt-1 font-medium tracking-wide">
-              Max. 10 MB • PDF, JPG, PNG, GIF, WebP
+            <span className={cn(
+              "text-zinc-500 font-medium tracking-wide",
+              hasAnyPreview ? "text-[11px] mt-1" : "text-sm mt-2"
+            )}>
+              {hasAnyPreview 
+                ? 'Max. 10 MB • PDF, JPG, PNG, GIF, WebP' 
+                : 'Klicken oder Dateien hierher ziehen • Max. 10 MB'
+              }
             </span>
+            {!hasAnyPreview && (
+              <span className="text-xs text-zinc-600 mt-1">
+                PDF, JPG, PNG, GIF, WebP
+              </span>
+            )}
           </div>
         </div>
       </button>
