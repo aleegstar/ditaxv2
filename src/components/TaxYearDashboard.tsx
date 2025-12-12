@@ -245,8 +245,9 @@ export const TaxYearDashboard: React.FC = () => {
                 { main: '#4ADE80', glow: 'rgba(74, 222, 128, 0.6)' }   // Green
               ];
               const beamColor = beamColors[index];
-              // Rotation angles: from each card corner towards center bottom
-              const rotations = [35, 15, -15, -35]; // Degrees
+              // Rotation angles: outer cards angle more towards center, inner cards less
+              // Left cards rotate right (+), right cards rotate left (-)
+              const rotations = [45, 15, -15, -45]; // Degrees - converge to center
               
               return <div key={section.id} className="relative">
                 <button onClick={() => handleSectionClick(section)} className="group border border-white/5 bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between relative hover:from-white/[0.12] hover:to-white/[0.02] hover:border-white/20 transition-all cursor-pointer shadow-lg shadow-black/20 text-left z-10 w-full">
