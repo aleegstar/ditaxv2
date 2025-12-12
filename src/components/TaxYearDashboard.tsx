@@ -212,11 +212,18 @@ export const TaxYearDashboard: React.FC = () => {
           y: 0
         }} transition={{
           duration: 0.5
-        }} className={`w-full z-20 rounded-[1.5rem] p-4 md:p-6 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
-          angabenProgress.completed === 4 
-            ? 'border-2 border-emerald-500/60' 
-            : 'border-2 border-orange-500/60'
-        }`}>
+        }} className="w-full z-20 rounded-[1.5rem] p-4 md:p-6 relative bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5"
+        style={{
+          boxShadow: angabenProgress.completed === 4 
+            ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
+            : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+          border: '2px solid transparent',
+          backgroundImage: angabenProgress.completed === 4
+            ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
+            : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+          backgroundOrigin: 'border-box',
+          backgroundClip: 'padding-box, border-box'
+        }}>
             {/* Card Header */}
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -289,13 +296,25 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`w-full rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
-          !allAngabenComplete 
-            ? 'border-2 border-red-500/60 opacity-50 cursor-not-allowed' 
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} 
+        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+          !allAngabenComplete ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        }`}
+        style={{
+          boxShadow: !allAngabenComplete 
+            ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(239,68,68,0.3), inset 0 1px 0 0 rgba(239,68,68,0.1)'
             : isDocumentsComplete 
-              ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80 cursor-pointer' 
-              : 'border-2 border-orange-500/60 hover:border-orange-400/80 cursor-pointer'
-        }`}>
+              ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
+              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+          border: '2px solid transparent',
+          backgroundImage: !allAngabenComplete
+            ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
+            : isDocumentsComplete
+              ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
+              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+          backgroundOrigin: 'border-box',
+          backgroundClip: 'padding-box, border-box'
+        }}>
             <div className="flex justify-between items-start mb-2">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${allAngabenComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
@@ -334,13 +353,25 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} className={`w-full rounded-[1.5rem] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
-          !isDocumentsComplete 
-            ? 'border-2 border-red-500/60 opacity-50 cursor-not-allowed' 
+        }} 
+        className={`w-full rounded-[1.5rem] p-6 relative z-20 group transition-all bg-gradient-to-br from-[#18181b] to-[#050505] ring-1 ring-white/5 ${
+          !isDocumentsComplete ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        }`}
+        style={{
+          boxShadow: !isDocumentsComplete 
+            ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(239,68,68,0.3), inset 0 1px 0 0 rgba(239,68,68,0.1)'
             : canSubmit 
-              ? 'border-2 border-emerald-500/60 hover:border-emerald-400/80 cursor-pointer' 
-              : 'border-2 border-orange-500/60 hover:border-orange-400/80 cursor-pointer'
-        }`}>
+              ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
+              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+          border: '2px solid transparent',
+          backgroundImage: !isDocumentsComplete
+            ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
+            : canSubmit
+              ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
+              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+          backgroundOrigin: 'border-box',
+          backgroundClip: 'padding-box, border-box'
+        }}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${isDocumentsComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
