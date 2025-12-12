@@ -30,13 +30,6 @@ const mobileTourSteps: TourStep[] = [
     position: 'bottom'
   },
   {
-    id: 'navbar',
-    title: 'Navigation',
-    description: 'Hier kannst du durch die App navigieren.',
-    targetElement: '[data-bottom-navbar], .modern-bottom-navbar',
-    position: 'top'
-  },
-  {
     id: 'add-year',
     title: 'Steuerjahr hinzufügen',
     description: 'Hier kannst du weitere Steuerjahre hinzufügen.',
@@ -52,9 +45,9 @@ const mobileTourSteps: TourStep[] = [
   },
   {
     id: 'documents',
-    title: 'Dokumente',
-    description: 'Sammle hier das ganze Jahr über deine Unterlagen und ordne sie später zu.',
-    targetElement: '[data-tour="documents-nav"]',
+    title: 'Dokumente hochladen',
+    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen und sammeln.',
+    targetElement: '[data-tour="floating-document-button"]',
     position: 'top'
   },
   {
@@ -75,13 +68,6 @@ const desktopTourSteps: TourStep[] = [
     position: 'bottom'
   },
   {
-    id: 'sidebar',
-    title: 'Navigation',
-    description: 'Hier kannst du durch die App navigieren.',
-    targetElement: 'nav, [data-sidebar], .modern-side-bar',
-    position: 'right'
-  },
-  {
     id: 'add-year',
     title: 'Steuerjahr hinzufügen',
     description: 'Hier kannst du weitere Steuerjahre hinzufügen.',
@@ -97,10 +83,10 @@ const desktopTourSteps: TourStep[] = [
   },
   {
     id: 'documents',
-    title: 'Dokumente',
-    description: 'Sammle hier das ganze Jahr über deine Unterlagen und ordne sie später zu.',
-    targetElement: '[data-tour="documents-nav"]',
-    position: 'right'
+    title: 'Dokumente hochladen',
+    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen und sammeln.',
+    targetElement: '[data-tour="floating-document-button"]',
+    position: 'top'
   },
   {
     id: 'continue-card',
