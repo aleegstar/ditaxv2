@@ -49,27 +49,15 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
   // Android-safe version without motion or blur
   if (isAndroid) {
     return <div className="w-full max-w-4xl mx-auto space-y-6">
-        {/* Header Card */}
-        <Card className="bg-card border-border">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl font-semibold">
-              {question.requiresRepeater?.title}
-            </CardTitle>
-            <p className="text-muted-foreground">
-              Bitte erfasse mindestens einen Eintrag um fortzufahren
-            </p>
-          </CardHeader>
-        </Card>
-
         {/* Repeater Content */}
         <div className="space-y-4">
           {renderRepeater()}
         </div>
 
         {/* Validation Message */}
-        {!canContinue && data.length === 0 && <div className="flex items-center gap-2 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-            <AlertCircle className="w-5 h-5 text-destructive" />
-            <p className="text-sm text-destructive">
+        {!canContinue && data.length === 0 && <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <AlertCircle className="w-5 h-5 text-red-400" />
+            <p className="text-sm text-red-400">
               Du musst mindestens einen Eintrag erfassen um fortzufahren.
             </p>
           </div>}
@@ -101,16 +89,6 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
   }} transition={{
     duration: 0.3
   }} className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Header Card */}
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl font-semibold">
-            {question.requiresRepeater?.title}
-          </CardTitle>
-          <p className="text-muted-foreground">Bitte erfasse mindestens einen Eintrag, um fortzufahren.</p>
-        </CardHeader>
-      </Card>
-
       {/* Repeater Content */}
       <div className="space-y-4">
         {renderRepeater()}
@@ -123,9 +101,9 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
     }} animate={{
       opacity: 1,
       scale: 1
-    }} className="flex items-center gap-2 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-destructive" />
-          <p className="text-sm text-destructive">Du musst mindestens einen Eintrag erfassen, um fortzufahren.</p>
+    }} className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-red-400" />
+          <p className="text-sm text-red-400">Du musst mindestens einen Eintrag erfassen, um fortzufahren.</p>
         </motion.div>}
 
       {/* Continue Button */}
