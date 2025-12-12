@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle } from 'lucide-react';
+import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoMain from '@/assets/ditax-logo-main.png';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { ChatButtonWithNotification } from '@/components/chat/ChatButtonWithNotification';
@@ -371,30 +372,14 @@ const UserTaxReturns = () => {
               </motion.div>;
         })}
 
-          {/* Show add card if no in-progress years */}
-          {inProgressYears.length === 0 && <motion.div initial={hasAnimated ? false : {
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: hasAnimated ? 0 : 0.2,
-          duration: hasAnimated ? 0 : 0.4,
-          ease: 'easeOut'
-        }} onClick={() => createNewTaxReturn(`${currentYear - 1}`)} className="group relative w-full border border-dashed border-white/10 rounded-[1.5rem] p-6 hover:border-[#1D64FF]/50 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#0a0a0a] to-[#020202]">
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-14 h-14 rounded-full bg-[#1D64FF]/10 flex items-center justify-center text-[#1D64FF] mb-4 group-hover:bg-[#1D64FF] group-hover:text-white transition-all">
-                  <Plus className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-medium text-zinc-300 font-jakarta mb-1">
-                  Neue Steuererklärung
-                </h3>
-                <p className="text-sm text-zinc-500 font-jakarta">
-                  Steuerjahr {currentYear - 1} hinzufügen
-                </p>
-              </div>
-            </motion.div>}
+          {/* Show add dropdown for adding new tax years */}
+          {availableYears.length < 7 && (
+            <AddTaxYearDropdown 
+              onYearSelect={createNewTaxReturn}
+              existingYears={existingYears}
+              isCreating={isCreatingTaxReturn}
+            />
+          )}
         </div>
 
         {/* Floating Add Document Button */}
