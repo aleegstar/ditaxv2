@@ -61,9 +61,9 @@ const LegalDocumentPage: React.FC<LegalDocumentPageProps> = ({
         <Card className="bg-[#0A0C10] border border-white/[0.08] rounded-2xl">
           <CardContent className="p-6">
             {staticContent ? (
-              <div className="prose prose-invert max-w-none">
+              <div className="prose prose-invert max-w-none [&_*]:!text-white [&_a]:!text-[#1D64FF]">
                 <div 
-                  className="text-white leading-relaxed [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_h5]:text-white [&_h6]:text-white [&_a]:text-[#1D64FF] [&_a]:hover:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1"
+                  className="!text-white leading-relaxed [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white [&_li]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#1D64FF] [&_a]:hover:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1"
                   dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                 />
               </div>
