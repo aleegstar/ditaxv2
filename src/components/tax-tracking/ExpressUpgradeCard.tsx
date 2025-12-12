@@ -1,7 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Zap } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ExpressUpgradeCardProps {
@@ -26,48 +24,58 @@ export const ExpressUpgradeCard: React.FC<ExpressUpgradeCardProps> = ({
   };
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Zap className="w-5 h-5 text-yellow-500" />
-          Express-Service
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-sm text-gray-700">
+    <div className="px-6 mt-8">
+      <div 
+        className="rounded-2xl p-5 relative overflow-hidden group"
+        style={{
+          background: 'rgba(255, 255, 255, 0.02)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.06)'
+        }}
+      >
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+        
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="flex items-center gap-2.5 mb-3">
+            <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400/20" />
+            <h3 className="text-sm font-semibold text-white">Express-Service</h3>
+          </div>
+          
+          <p className="text-xs text-zinc-400 leading-relaxed mb-6">
             Möchtest du deine Steuererklärung schneller erhalten? Mit unserem Express-Service wird deine Steuererklärung bevorzugt bearbeitet.
           </p>
-          
-          <div className="grid grid-cols-2 gap-4 py-4">
+
+          {/* Comparison Grid */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <p className="text-sm text-gray-500">Standardlieferung</p>
-              <p className="font-semibold text-gray-900">Variierende Bearbeitungszeit</p>
+              <div className="text-[10px] uppercase tracking-wider text-zinc-600 font-semibold mb-1">Standardlieferung</div>
+              <div className="text-xs font-medium text-zinc-300">Variierende Bearbeitungszeit</div>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Express-Lieferung</p>
-              <p className="font-semibold text-primary">Innert 10 Tagen</p>
+              <div className="text-[10px] uppercase tracking-wider text-zinc-600 font-semibold mb-1">Express-Lieferung</div>
+              <div className="text-xs font-semibold text-blue-400">Innert 10 Tagen</div>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Upgrade-Preis</span>
-              <span className="text-lg font-bold text-gray-900">CHF 100.00</span>
+          {/* Action Box */}
+          <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs font-medium text-zinc-400">Upgrade-Preis</span>
+              <span className="text-sm font-bold text-white">CHF 100.00</span>
             </div>
+            
+            <button
+              onClick={handleUpgrade}
+              className="w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-semibold py-3 rounded-lg shadow-[0_0_20px_-5px_rgba(37,99,235,0.6)] transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              Jetzt auf Express upgraden
+              <ArrowRight className="w-3.5 h-3.5 opacity-80" />
+            </button>
           </div>
         </div>
-
-        <Button
-          onClick={handleUpgrade}
-          className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 py-3 h-14 text-base font-medium border-0 transition-colors duration-200 flex items-center justify-center gap-2"
-          style={{
-            boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-          }}
-        >
-          Jetzt auf Express upgraden
-        </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
