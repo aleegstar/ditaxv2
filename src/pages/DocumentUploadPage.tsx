@@ -301,7 +301,7 @@ const DocumentUploadPageContent: React.FC = () => {
         {/* Upload card */}
         <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-[#0A0C10] border border-white/[0.08]">
           <div className="">
-            <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} />
+            <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} />
           </div>
         </div>
       </div>

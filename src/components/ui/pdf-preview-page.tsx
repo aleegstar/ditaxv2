@@ -29,6 +29,7 @@ interface FileUploadProps {
   maxFiles?: number;
   hasUploadedFiles?: boolean;
   autoTriggerUpload?: boolean;
+  hideBackButton?: boolean;
 }
 
 export const FileUpload = ({
@@ -44,7 +45,8 @@ export const FileUpload = ({
   accept = ".pdf,image/*",
   maxFiles = 10,
   hasUploadedFiles = false,
-  autoTriggerUpload = false
+  autoTriggerUpload = false,
+  hideBackButton = false
 }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -120,8 +122,8 @@ export const FileUpload = ({
       {/* Header - Only show when there are previews */}
       {hasAnyPreview && (
         <div className="w-full px-0 pt-2 pb-4 flex items-center justify-center relative">
-          {/* Back Button */}
-          {onBack && (
+          {/* Back Button - Only show when not hidden */}
+          {onBack && !hideBackButton && (
             <button 
               onClick={onBack}
               className="absolute left-0 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"

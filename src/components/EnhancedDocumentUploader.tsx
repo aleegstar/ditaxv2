@@ -18,6 +18,7 @@ export interface DocumentUploaderProps {
   hasUploadedFiles?: boolean;
   onPreviewChange?: (hasPreview: boolean) => void;
   autoTriggerUpload?: boolean;
+  hideBackButton?: boolean;
 }
 
 interface FileWithPreview {
@@ -50,7 +51,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   onDocumentSubmitted,
   hasUploadedFiles: externalHasUploadedFiles,
   onPreviewChange,
-  autoTriggerUpload = false
+  autoTriggerUpload = false,
+  hideBackButton = false
 }) => {
   const { taxYear } = useFormContext();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -394,6 +396,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf" 
           maxFiles={MAX_FILES}
           autoTriggerUpload={autoTriggerUpload}
+          hideBackButton={hideBackButton}
         />
 
         {/* File List Section */}
