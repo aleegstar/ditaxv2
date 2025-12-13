@@ -227,8 +227,8 @@ const UserTaxReturns = () => {
           </div>
         </header>
 
-        {/* Greeting */}
-        <div className="px-8 mb-10 flex justify-between items-center relative z-20">
+        {/* Greeting - aligned with logo */}
+        <div className="px-8 mb-10 flex items-center relative z-20">
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <div className="w-14 h-14 rounded-full p-[2px] bg-gradient-to-br from-[#1D64FF] to-[#1D64FF]/10">
@@ -244,9 +244,6 @@ const UserTaxReturns = () => {
               </h1>
             </div>
           </div>
-          <button data-tour="add-year" onClick={() => createNewTaxReturn(`${currentYear - 1}`)} className="w-12 h-12 rounded-full text-white flex items-center justify-center transition-colors bg-gradient-to-br from-[#1D64FF] to-[#3B82F6] hover:from-[#1D64FF] hover:to-[#2563EB] shadow-[0_12px_30px_-8px_rgba(29,100,255,0.6)]">
-            <Plus className="w-6 h-6" strokeWidth={2} />
-          </button>
         </div>
 
         {/* Main Content / Cards List */}
@@ -392,18 +389,9 @@ const UserTaxReturns = () => {
           y: 0
         }} transition={{
           delay: 0.3
-        }} onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
-              <Plus className="w-5 h-5 text-white stroke-[2.5px]" />
-            </div>
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
-                Dokumente anzeigen
-              </span>
-              <span className="text-[11px] text-zinc-500 group-hover:text-zinc-400 transition-colors">
-                Scan oder Upload
-              </span>
-            </div>
+        }} onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group flex items-center gap-3 px-5 py-3 rounded-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white font-medium shadow-[0_12px_40px_-8px_rgba(29,100,255,0.7)] hover:shadow-[0_16px_50px_-8px_rgba(29,100,255,0.8)] transition-all duration-300 cursor-pointer active:scale-95 border border-white/20">
+            <Plus className="w-5 h-5 stroke-[2.5px]" />
+            <span className="text-sm font-semibold">Dokumente anzeigen</span>
           </motion.button>
         </div>
       </div>
