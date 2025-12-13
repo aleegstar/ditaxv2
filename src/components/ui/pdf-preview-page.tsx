@@ -30,6 +30,7 @@ interface FileUploadProps {
   hasUploadedFiles?: boolean;
   autoTriggerUpload?: boolean;
   hideBackButton?: boolean;
+  hideHeader?: boolean;
 }
 
 export const FileUpload = ({
@@ -46,7 +47,8 @@ export const FileUpload = ({
   maxFiles = 10,
   hasUploadedFiles = false,
   autoTriggerUpload = false,
-  hideBackButton = false
+  hideBackButton = false,
+  hideHeader = false
 }: FileUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -119,8 +121,8 @@ export const FileUpload = ({
 
   return (
     <div className="relative">
-      {/* Header - Only show when there are previews */}
-      {hasAnyPreview && (
+      {/* Header - Only show when there are previews and header is not hidden */}
+      {hasAnyPreview && !hideHeader && (
         <div className="w-full px-0 pt-2 pb-4 flex items-center justify-center relative">
           {/* Back Button - Only show when not hidden */}
           {onBack && !hideBackButton && (
