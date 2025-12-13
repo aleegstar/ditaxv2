@@ -349,21 +349,8 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
         }}
       />
 
-      {/* Header */}
-      <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
-        {/* Back Button */}
-        <button 
-          onClick={onClose}
-          className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
-        >
-          <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-        </button>
-
-        {/* Title */}
-        <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
-          Upload
-        </h1>
-      </div>
+      {/* Spacer for top padding */}
+      <div className="h-4 shrink-0" />
 
       {/* Hidden file input */}
       <input
