@@ -8,6 +8,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { TourStartButton } from '@/components/ui/tour-start-button';
+import { useFormTour } from '@/contexts/FormTourContext';
 
 // Border beam color configurations for each card
 const beamColors: Record<string, { from: string; to: string }> = {
@@ -119,6 +121,7 @@ export const TaxYearDashboard: React.FC = () => {
   const {
     profile
   } = useProfile();
+  const { forceTour, tourCompleted } = useFormTour();
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   useEffect(() => {
     const loadPaymentStatus = async () => {
@@ -227,16 +230,17 @@ export const TaxYearDashboard: React.FC = () => {
       <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
         {/* Header */}
         <header className="flex z-20 p-8 relative items-center justify-between">
-          {/* Logo */}
+          {/* Back Button */}
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/')} className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
               <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
             </button>
-            
           </div>
 
-          {/* Right Icons */}
-          
+          {/* Right - Tour Start Button */}
+          {tourCompleted && (
+            <TourStartButton onStartTour={forceTour} variant="header" />
+          )}
         </header>
 
         {/* Greeting */}

@@ -122,11 +122,6 @@ const IndexContent = () => {
   return <AnimatedPageContainer className="min-h-screen bg-[#020408]">
       {renderContent()}
       
-      {/* Tour Start Button - only on dashboard when tour completed */}
-      {isOnDashboard && tourCompleted && (
-        <TourStartButton onStartTour={forceTour} />
-      )}
-      
       {/* Form Tour */}
       {showTour && (
         <FormTour onComplete={completeTour} onSkip={skipTour} />
