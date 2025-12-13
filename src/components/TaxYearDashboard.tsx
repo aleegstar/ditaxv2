@@ -305,14 +305,16 @@ export const TaxYearDashboard: React.FC = () => {
                   {angabenProgress.completed === 4 ? 'Abgeschlossen' : 'In Bearbeitung'}
                 </p>
               </div>
-              <AnimatedCircularProgressBar 
-                max={100} 
-                min={0} 
-                value={angabenProgress.percentage} 
-                gaugePrimaryColor="#1D64FF" 
-                gaugeSecondaryColor="#27272a"
-                className="size-14 text-xs"
-              />
+              {angabenProgress.percentage < 100 && (
+                <AnimatedCircularProgressBar 
+                  max={100} 
+                  min={0} 
+                  value={angabenProgress.percentage} 
+                  gaugePrimaryColor="#1D64FF" 
+                  gaugeSecondaryColor="#27272a"
+                  className="size-14 text-xs"
+                />
+              )}
             </div>
 
             {/* Grid Options */}
