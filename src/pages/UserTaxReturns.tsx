@@ -367,13 +367,13 @@ const UserTaxReturns = () => {
               <div className="group-hover:opacity-100 transition-opacity bg-white opacity-100 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
 
               {/* Main Icon Circle */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-[#1D64FF] to-[#0040CC] text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(29,100,255,0.6)] animate-[pulse-glow_3s_ease-in-out_infinite] -mt-8 border-4 border-[#030305]">
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-[#1D64FF] to-[#0040CC] text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(29,100,255,0.6)] animate-[pulse-glow_3s_ease-in-out_infinite] -mt-8 border-[#030305] border-0">
                 <ScanLine className="w-6 h-6" />
               </div>
 
               {/* Text Content */}
               <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <span className="text-white font-medium text-lg tracking-tight">
+                <span className="font-medium text-lg tracking-tight text-accent-foreground">
                   Dokumente anzeigen
                 </span>
                 <span className="text-[#1D64FF]/80 text-xs font-medium tracking-wide">
