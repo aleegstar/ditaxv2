@@ -167,7 +167,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
           />
 
           {/* Sheet */}
@@ -176,11 +176,11 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0C10] border-t border-white/[0.08] rounded-t-3xl max-h-[90vh] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 rounded-t-3xl max-h-[90vh] overflow-hidden"
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="w-10 h-1 rounded-full bg-slate-200" />
             </div>
 
             {/* Content */}
@@ -189,29 +189,29 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
               {view === 'actions' && (
                 <div className="space-y-4">
                   {/* Document Info Header */}
-                  <div className="flex items-center gap-4 py-4 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-4 py-4 border-b border-slate-100">
                     <div className={cn(
                       "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
                       document.file_type?.startsWith('image/')
-                        ? "bg-emerald-500/10 border border-emerald-500/20"
-                        : "bg-[#1D64FF]/10 border border-[#1D64FF]/20"
+                        ? "bg-emerald-50 border border-emerald-100"
+                        : "bg-red-50 border border-red-100"
                     )}>
                       {document.file_type?.startsWith('image/')
-                        ? <Image className="w-6 h-6 text-emerald-500" />
-                        : <FileText className="w-6 h-6 text-[#1D64FF]" />
+                        ? <Image className="w-6 h-6 text-emerald-600" strokeWidth={1.5} />
+                        : <FileText className="w-6 h-6 text-red-600" strokeWidth={1.5} />
                       }
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-medium text-white truncate">{document.file_name}</p>
-                      <p className="text-sm text-zinc-500 mt-0.5">
-                        {format(new Date(document.upload_date), 'dd. MMM yyyy', { locale: de })} • Steuerjahr {document.tax_year}
+                      <p className="text-base font-medium text-slate-900 truncate">{document.file_name}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">
+                        {format(new Date(document.upload_date), 'd. MMM yyyy', { locale: de })} • Steuerjahr {document.tax_year}
                       </p>
                     </div>
                     <button
                       onClick={onClose}
-                      className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                      className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-5 h-5" strokeWidth={1.5} />
                     </button>
                   </div>
 
@@ -220,40 +220,40 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                     <button
                       onClick={handlePreview}
                       disabled={loading}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/10 transition-all text-left"
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 hover:border-slate-200 transition-all text-left"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-[#1D64FF]/10 flex items-center justify-center">
-                        <Eye className="w-5 h-5 text-[#1D64FF]" />
+                      <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <Eye className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Vorschau anzeigen</p>
-                        <p className="text-xs text-zinc-500">Dokument ansehen</p>
+                        <p className="text-sm font-medium text-slate-900">Vorschau anzeigen</p>
+                        <p className="text-xs text-slate-500">Dokument ansehen</p>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setView('edit')}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/10 transition-all text-left"
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 hover:border-slate-200 transition-all text-left"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                        <Pencil className="w-5 h-5 text-amber-500" />
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <Pencil className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Bearbeiten</p>
-                        <p className="text-xs text-zinc-500">Name oder Steuerjahr ändern</p>
+                        <p className="text-sm font-medium text-slate-900">Bearbeiten</p>
+                        <p className="text-xs text-slate-500">Name oder Steuerjahr ändern</p>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setView('delete')}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-red-500/10 hover:border-red-500/20 transition-all text-left"
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-red-50 hover:border-red-100 transition-all text-left"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                        <Trash2 className="w-5 h-5 text-red-500" />
+                      <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                        <Trash2 className="w-5 h-5 text-red-600" strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Löschen</p>
-                        <p className="text-xs text-zinc-500">Dokument entfernen</p>
+                        <p className="text-sm font-medium text-slate-900">Löschen</p>
+                        <p className="text-xs text-slate-500">Dokument entfernen</p>
                       </div>
                     </button>
                   </div>
@@ -266,18 +266,18 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                   <div className="flex items-center justify-between py-2">
                     <button
                       onClick={() => setView('actions')}
-                      className="text-sm text-[#1D64FF] font-medium"
+                      className="text-sm text-blue-600 font-medium"
                     >
                       ← Zurück
                     </button>
-                    <h3 className="text-base font-medium text-white">Vorschau</h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white">
-                      <X className="w-5 h-5" />
+                    <h3 className="text-base font-medium text-slate-900">Vorschau</h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                      <X className="w-5 h-5" strokeWidth={1.5} />
                     </button>
                   </div>
 
                   {previewUrl && (
-                    <div className="rounded-2xl overflow-hidden bg-black/20 border border-white/[0.06]">
+                    <div className="rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
                       {document.file_type?.startsWith('image/') ? (
                         <img
                           src={previewUrl}
@@ -302,43 +302,43 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                   <div className="flex items-center justify-between py-2">
                     <button
                       onClick={() => setView('actions')}
-                      className="text-sm text-[#1D64FF] font-medium"
+                      className="text-sm text-blue-600 font-medium"
                     >
                       ← Zurück
                     </button>
-                    <h3 className="text-base font-medium text-white">Bearbeiten</h3>
+                    <h3 className="text-base font-medium text-slate-900">Bearbeiten</h3>
                     <div className="w-12" />
                   </div>
 
                   <div className="space-y-4">
                     {/* Name Input */}
                     <div className="space-y-2">
-                      <label className="text-sm text-zinc-400 font-medium ml-1">Dokumentname</label>
+                      <label className="text-sm text-slate-500 font-medium ml-1">Dokumentname</label>
                       <input
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-[#1D64FF]/50 focus:ring-1 focus:ring-[#1D64FF]/30 transition-all"
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all"
                         placeholder="Dokumentname eingeben"
                       />
                     </div>
 
                     {/* Year Selector */}
                     <div className="space-y-2">
-                      <label className="text-sm text-zinc-400 font-medium ml-1">Steuerjahr</label>
+                      <label className="text-sm text-slate-500 font-medium ml-1">Steuerjahr</label>
                       <div className="relative">
                         <button
                           onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                          className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white flex items-center justify-between hover:border-white/20 transition-colors"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 flex items-center justify-between hover:border-slate-300 transition-colors"
                         >
                           <span>{editYear}</span>
-                          <ChevronDown className={cn("w-5 h-5 text-zinc-500 transition-transform", isYearDropdownOpen && "rotate-180")} />
+                          <ChevronDown className={cn("w-5 h-5 text-slate-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
                         </button>
                         
                         {isYearDropdownOpen && (
                           <>
                             <div className="fixed inset-0 z-10" onClick={() => setIsYearDropdownOpen(false)} />
-                            <div className="absolute top-full mt-2 left-0 right-0 z-20 bg-[#0A0C10] border border-white/[0.08] rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                            <div className="absolute top-full mt-2 left-0 right-0 z-20 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
                               {availableYears.map(year => (
                                 <button
                                   key={year}
@@ -349,12 +349,12 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                                   className={cn(
                                     "w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between",
                                     year === editYear 
-                                      ? "bg-[#1D64FF]/20 text-white" 
-                                      : "text-zinc-300 hover:bg-white/[0.05]"
+                                      ? "bg-blue-50 text-blue-700" 
+                                      : "text-slate-700 hover:bg-slate-50"
                                   )}
                                 >
                                   {year}
-                                  {year === editYear && <Check className="w-4 h-4 text-[#1D64FF]" />}
+                                  {year === editYear && <Check className="w-4 h-4 text-blue-600" strokeWidth={1.5} />}
                                 </button>
                               ))}
                             </div>
@@ -370,7 +370,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                     disabled={loading || !editName.trim()}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full h-12 rounded-full bg-[#1D64FF] text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_30px_-5px_rgba(29,100,255,0.5)] hover:shadow-[0_0_40px_-5px_rgba(29,100,255,0.7)] transition-all"
+                    className="w-full h-12 rounded-full bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_-4px_rgba(59,130,246,0.4)] hover:shadow-[0_4px_24px_-4px_rgba(59,130,246,0.5)] hover:bg-blue-500 transition-all"
                   >
                     {loading ? 'Wird gespeichert...' : 'Speichern'}
                   </motion.button>
@@ -381,12 +381,12 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
               {view === 'delete' && (
                 <div className="space-y-6 py-4">
                   <div className="text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
-                      <Trash2 className="w-8 h-8 text-red-500" />
+                    <div className="w-16 h-16 rounded-full bg-red-100 border border-red-200 flex items-center justify-center mx-auto">
+                      <Trash2 className="w-8 h-8 text-red-600" strokeWidth={1.5} />
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-lg font-medium text-white">Dokument löschen?</h3>
-                      <p className="text-sm text-zinc-500 max-w-[280px] mx-auto">
+                      <h3 className="text-lg font-medium text-slate-900">Dokument löschen?</h3>
+                      <p className="text-sm text-slate-500 max-w-[280px] mx-auto">
                         "{document.file_name}" wird unwiderruflich gelöscht.
                       </p>
                     </div>
@@ -395,7 +395,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                   <div className="flex gap-3">
                     <button
                       onClick={() => setView('actions')}
-                      className="flex-1 h-12 rounded-full bg-white/[0.05] border border-white/[0.08] text-white font-medium text-sm hover:bg-white/[0.08] transition-colors"
+                      className="flex-1 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-200 transition-colors"
                     >
                       Abbrechen
                     </button>
@@ -403,7 +403,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
                       onClick={handleDelete}
                       disabled={loading}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 h-12 rounded-full bg-red-600 text-white font-semibold text-sm disabled:opacity-50 hover:bg-red-500 transition-colors shadow-[0_0_20px_-5px_rgba(239,68,68,0.4)]"
+                      className="flex-1 h-12 rounded-full bg-red-600 text-white font-semibold text-sm disabled:opacity-50 hover:bg-red-500 transition-colors shadow-[0_4px_16px_-4px_rgba(239,68,68,0.4)]"
                     >
                       {loading ? 'Wird gelöscht...' : 'Löschen'}
                     </motion.button>
