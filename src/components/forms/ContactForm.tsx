@@ -429,32 +429,32 @@ const ContactForm = ({
                     className={cn(darkSelectClass, !kanton && "text-zinc-500")}
                   >
                     <option value="" className="bg-[#0a0f1a]">Kanton auswählen</option>
-                    <option value="zh" className="bg-[#0a0f1a]">Zürich</option>
                     <option value="ag" className="bg-[#0a0f1a]">Aargau</option>
-                    <option value="zg" className="bg-[#0a0f1a]">Zug</option>
-                    <option value="sz" className="bg-[#0a0f1a]">Schwyz</option>
-                    <option value="be" className="bg-[#0a0f1a]">Bern</option>
-                    <option value="lu" className="bg-[#0a0f1a]">Luzern</option>
-                    <option value="ur" className="bg-[#0a0f1a]">Uri</option>
-                    <option value="ow" className="bg-[#0a0f1a]">Obwalden</option>
-                    <option value="nw" className="bg-[#0a0f1a]">Nidwalden</option>
-                    <option value="gl" className="bg-[#0a0f1a]">Glarus</option>
-                    <option value="fr" className="bg-[#0a0f1a]">Freiburg</option>
-                    <option value="so" className="bg-[#0a0f1a]">Solothurn</option>
-                    <option value="bs" className="bg-[#0a0f1a]">Basel-Stadt</option>
-                    <option value="bl" className="bg-[#0a0f1a]">Basel-Landschaft</option>
-                    <option value="sh" className="bg-[#0a0f1a]">Schaffhausen</option>
-                    <option value="ar" className="bg-[#0a0f1a]">Appenzell Ausserrhoden</option>
-                    <option value="ai" className="bg-[#0a0f1a]">Appenzell Innerrhoden</option>
-                    <option value="sg" className="bg-[#0a0f1a]">St. Gallen</option>
-                    <option value="gr" className="bg-[#0a0f1a]">Graubünden</option>
-                    <option value="tg" className="bg-[#0a0f1a]">Thurgau</option>
-                    <option value="ti" className="bg-[#0a0f1a]">Tessin</option>
-                    <option value="vd" className="bg-[#0a0f1a]">Waadt</option>
-                    <option value="vs" className="bg-[#0a0f1a]">Wallis</option>
-                    <option value="ne" className="bg-[#0a0f1a]">Neuenburg</option>
-                    <option value="ge" className="bg-[#0a0f1a]">Genf</option>
-                    <option value="ju" className="bg-[#0a0f1a]">Jura</option>
+                    <option value="zh" className="bg-[#0a0f1a]">Zürich</option>
+                    <option value="be" disabled className="bg-[#0a0f1a] text-zinc-500">Bern - noch nicht verfügbar</option>
+                    <option value="lu" disabled className="bg-[#0a0f1a] text-zinc-500">Luzern - noch nicht verfügbar</option>
+                    <option value="ur" disabled className="bg-[#0a0f1a] text-zinc-500">Uri - noch nicht verfügbar</option>
+                    <option value="sz" disabled className="bg-[#0a0f1a] text-zinc-500">Schwyz - noch nicht verfügbar</option>
+                    <option value="ow" disabled className="bg-[#0a0f1a] text-zinc-500">Obwalden - noch nicht verfügbar</option>
+                    <option value="nw" disabled className="bg-[#0a0f1a] text-zinc-500">Nidwalden - noch nicht verfügbar</option>
+                    <option value="gl" disabled className="bg-[#0a0f1a] text-zinc-500">Glarus - noch nicht verfügbar</option>
+                    <option value="zg" disabled className="bg-[#0a0f1a] text-zinc-500">Zug - noch nicht verfügbar</option>
+                    <option value="fr" disabled className="bg-[#0a0f1a] text-zinc-500">Freiburg - noch nicht verfügbar</option>
+                    <option value="so" disabled className="bg-[#0a0f1a] text-zinc-500">Solothurn - noch nicht verfügbar</option>
+                    <option value="bs" disabled className="bg-[#0a0f1a] text-zinc-500">Basel-Stadt - noch nicht verfügbar</option>
+                    <option value="bl" disabled className="bg-[#0a0f1a] text-zinc-500">Basel-Landschaft - noch nicht verfügbar</option>
+                    <option value="sh" disabled className="bg-[#0a0f1a] text-zinc-500">Schaffhausen - noch nicht verfügbar</option>
+                    <option value="ar" disabled className="bg-[#0a0f1a] text-zinc-500">Appenzell Ausserrhoden - noch nicht verfügbar</option>
+                    <option value="ai" disabled className="bg-[#0a0f1a] text-zinc-500">Appenzell Innerrhoden - noch nicht verfügbar</option>
+                    <option value="sg" disabled className="bg-[#0a0f1a] text-zinc-500">St. Gallen - noch nicht verfügbar</option>
+                    <option value="gr" disabled className="bg-[#0a0f1a] text-zinc-500">Graubünden - noch nicht verfügbar</option>
+                    <option value="tg" disabled className="bg-[#0a0f1a] text-zinc-500">Thurgau - noch nicht verfügbar</option>
+                    <option value="ti" disabled className="bg-[#0a0f1a] text-zinc-500">Tessin - noch nicht verfügbar</option>
+                    <option value="vd" disabled className="bg-[#0a0f1a] text-zinc-500">Waadt - noch nicht verfügbar</option>
+                    <option value="vs" disabled className="bg-[#0a0f1a] text-zinc-500">Wallis - noch nicht verfügbar</option>
+                    <option value="ne" disabled className="bg-[#0a0f1a] text-zinc-500">Neuenburg - noch nicht verfügbar</option>
+                    <option value="ge" disabled className="bg-[#0a0f1a] text-zinc-500">Genf - noch nicht verfügbar</option>
+                    <option value="ju" disabled className="bg-[#0a0f1a] text-zinc-500">Jura - noch nicht verfügbar</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
                     <ChevronDown className="w-4 h-4" />
