@@ -274,18 +274,18 @@ const UserTaxReturns = () => {
             duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
           }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-[2px] transition-all duration-300 cursor-pointer hover:-translate-y-1">
-                {/* Static orange gradient border */}
-                <div className="absolute inset-0 rounded-[1.5rem] bg-gradient-to-br from-[#FF6B00] via-[#FFB800] to-[#FF6B00] opacity-80" />
-                <div className="absolute inset-0 rounded-[1.5rem] shadow-[0_0_30px_rgba(255,107,0,0.4),0_0_60px_rgba(255,184,0,0.2)]" />
+                {/* Multi-color gradient border: green/cyan on left, orange on right */}
+                <div className="absolute inset-0 rounded-[1.5rem] bg-[conic-gradient(from_180deg_at_50%_50%,#10B981_0deg,#06B6D4_90deg,#F97316_180deg,#FBBF24_270deg,#10B981_360deg)] opacity-70" />
+                <div className="absolute inset-0 rounded-[1.5rem] shadow-[0_0_25px_rgba(16,185,129,0.3),0_0_25px_rgba(249,115,22,0.3)]" />
                 
                 {/* Inner card content */}
                 <div className="relative rounded-[calc(1.5rem-2px)] bg-gradient-to-b from-[#131720] to-[#020202] p-6 h-full">
-                  {/* Orange Border Beam for unsubmitted tax returns */}
+                  {/* Multi-color Border Beam */}
                   <BorderBeam 
                     size={250} 
                     duration={12} 
-                    colorFrom="#FF6B00" 
-                    colorTo="#FFB800" 
+                    colorFrom="#10B981" 
+                    colorTo="#F97316" 
                     borderWidth={2}
                     anchor={90}
                     className="z-10"
