@@ -248,6 +248,15 @@ const UserTaxReturns = () => {
 
         {/* Main Content / Cards List */}
         <div className="relative px-4 flex flex-col gap-5 md:px-8 z-20 pb-24">
+          {/* Show add dropdown at top if no in-progress tax returns */}
+          {inProgressYears.length === 0 && availableYears.length < 7 && (
+            <AddTaxYearDropdown 
+              onYearSelect={createNewTaxReturn}
+              existingYears={existingYears}
+              isCreating={isCreatingTaxReturn}
+            />
+          )}
+
           {/* In-Progress Tax Returns (Active) */}
           {inProgressYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
@@ -369,8 +378,8 @@ const UserTaxReturns = () => {
               </motion.div>;
         })}
 
-          {/* Show add dropdown for adding new tax years */}
-          {availableYears.length < 7 && (
+          {/* Show add dropdown at bottom only if there are in-progress tax returns */}
+          {inProgressYears.length > 0 && availableYears.length < 7 && (
             <AddTaxYearDropdown 
               onYearSelect={createNewTaxReturn}
               existingYears={existingYears}
