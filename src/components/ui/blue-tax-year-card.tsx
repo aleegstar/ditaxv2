@@ -83,8 +83,8 @@ export function BlueTaxYearCard({
           </div>
         </div>
 
-        {/* Main Card */}
-        <div className="z-10 -mt-[54px] overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)]">
+        {/* Main Card Wrapper for Border Effect */}
+        <div className="z-10 -mt-[54px] relative rounded-[2.2rem]">
           {/* Orange animated border for unsubmitted tax returns */}
           <BorderBeam 
             size={300} 
@@ -93,6 +93,8 @@ export function BlueTaxYearCard({
             colorTo="#FBBF24" 
             borderWidth={2}
           />
+          {/* Main Card */}
+          <div className="overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)]">
           {/* Three Dots Menu - Top Right */}
           <div className="absolute top-5 right-5 z-20">
             <DropdownMenu>
@@ -148,6 +150,7 @@ export function BlueTaxYearCard({
               <span className="text-[0.95rem] font-medium">2h</span>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
