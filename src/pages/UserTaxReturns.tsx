@@ -361,7 +361,7 @@ const UserTaxReturns = () => {
           {/* Completed Tax Returns */}
           {completedYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
-          const completedReturn = completedTaxReturns?.find(ctr => ctr.tax_year === year);
+          const completedReturn = completedTaxReturns?.[year];
           return <motion.div key={year} initial={hasAnimatedRef.current ? false : {
             opacity: 0,
             y: 20
