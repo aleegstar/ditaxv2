@@ -172,7 +172,7 @@ serve(async (req) => {
     console.error('Scan error:', error);
     return new Response(
       JSON.stringify({
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       }),
       {
         status: 500,

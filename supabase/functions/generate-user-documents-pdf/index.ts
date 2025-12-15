@@ -665,7 +665,7 @@ serve(async (req) => {
     // Save the PDF
     const pdfBytes = await pdfDoc.save();
 
-    return new Response(pdfBytes, {
+    return new Response(pdfBytes as unknown as BodyInit, {
       status: 200,
       headers: {
         ...corsHeaders,
