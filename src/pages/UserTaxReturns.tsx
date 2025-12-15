@@ -276,11 +276,13 @@ const UserTaxReturns = () => {
           }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:-translate-y-1">
                 {/* Orange Border Beam for unsubmitted tax returns */}
                 <BorderBeam 
-                  size={300} 
-                  duration={8} 
-                  colorFrom="#F97316" 
-                  colorTo="#FBBF24" 
+                  size={250} 
+                  duration={12} 
+                  colorFrom="#FF6B00" 
+                  colorTo="#FFB800" 
                   borderWidth={2}
+                  anchor={90}
+                  className="z-10"
                 />
                 {/* Active Indicator Gradient */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
