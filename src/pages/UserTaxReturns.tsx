@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle, FolderOpen } from 'lucide-react';
+import { BorderBeam } from '@/components/ui/border-beam';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoMain from '@/assets/ditax-logo-main.png';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
@@ -272,7 +273,15 @@ const UserTaxReturns = () => {
             delay: hasAnimated ? 0 : index * 0.1,
             duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
-          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full border border-white/10 rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer overflow-hidden bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:border-[rgba(29,100,255,0.5)] hover:-translate-y-1">
+          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:-translate-y-1">
+                {/* Orange Border Beam for unsubmitted tax returns */}
+                <BorderBeam 
+                  size={300} 
+                  duration={8} 
+                  colorFrom="#F97316" 
+                  colorTo="#FBBF24" 
+                  borderWidth={2}
+                />
                 {/* Active Indicator Gradient */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
 
