@@ -361,6 +361,7 @@ const UserTaxReturns = () => {
           {/* Completed Tax Returns */}
           {completedYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
+          const completedReturn = completedTaxReturns?.find(ctr => ctr.tax_year === year);
           return <motion.div key={year} initial={hasAnimatedRef.current ? false : {
             opacity: 0,
             y: 20
@@ -371,7 +372,11 @@ const UserTaxReturns = () => {
             delay: hasAnimatedRef.current ? 0 : (inProgressYears.length + index) * 0.1,
             duration: hasAnimatedRef.current ? 0 : 0.4,
             ease: 'easeOut'
-          }} onClick={() => navigate(`/tax-return-tracking?year=${year}`)} className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]">
+          }} onClick={() => {
+            if (completedReturn?.id) {
+              navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
+            }
+          }} className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-semibold tracking-wide uppercase font-jakarta mb-3">

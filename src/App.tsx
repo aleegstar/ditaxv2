@@ -193,7 +193,7 @@ const AuthenticatedApp = () => {
                     <TaxReturnTracking />
                   </ProtectedRoute>
                 } />
-                <Route path="/tax-return-actions/:taxReturnId" element={
+                <Route path="/tax-return-actions/:completedTaxReturnId" element={
                   <ProtectedRoute>
                     <TaxReturnActions />
                   </ProtectedRoute>
