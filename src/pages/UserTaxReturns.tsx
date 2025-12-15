@@ -17,6 +17,7 @@ import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
+import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -163,7 +164,7 @@ const UserTaxReturns = () => {
     });
   };
   if (authLoading || loading) {
-    return null;
+    return <UserTaxReturnsSkeleton />;
   }
   if (!loading && taxReturns.length === 0 && profile?.onboarding_tour_completed !== true) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;

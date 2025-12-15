@@ -10,6 +10,7 @@ import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-p
 import { BorderBeam } from '@/components/ui/border-beam';
 import { TourStartButton } from '@/components/ui/tour-start-button';
 import { useFormTour } from '@/contexts/FormTourContext';
+import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 
 // Border beam color configurations for each card
 const beamColors: Record<string, { from: string; to: string }> = {
@@ -114,7 +115,8 @@ const NexusBeam: React.FC<{
 export const TaxYearDashboard: React.FC = () => {
   const {
     formProgress,
-    taxYear
+    taxYear,
+    isDataLoading
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -123,6 +125,21 @@ export const TaxYearDashboard: React.FC = () => {
   } = useProfile();
   const { forceTour, tourCompleted } = useFormTour();
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
+  const [isReady, setIsReady] = useState(false);
+  
+  // Mark component as ready after initial data load
+  useEffect(() => {
+    if (!isDataLoading) {
+      // Small delay to ensure all data is settled
+      const timer = setTimeout(() => setIsReady(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isDataLoading]);
+  
+  // Show skeleton while loading
+  if (isDataLoading || !isReady) {
+    return <FormDashboardSkeleton />;
+  }
   useEffect(() => {
     const loadPaymentStatus = async () => {
       const {
