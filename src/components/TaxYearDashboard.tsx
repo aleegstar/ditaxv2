@@ -127,19 +127,7 @@ export const TaxYearDashboard: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isReady, setIsReady] = useState(false);
   
-  // Mark component as ready after initial data load
-  useEffect(() => {
-    if (!isDataLoading) {
-      // Small delay to ensure all data is settled
-      const timer = setTimeout(() => setIsReady(true), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isDataLoading]);
-  
-  // Show skeleton while loading
-  if (isDataLoading || !isReady) {
-    return <FormDashboardSkeleton />;
-  }
+  // Load payment status
   useEffect(() => {
     const loadPaymentStatus = async () => {
       const {
@@ -157,6 +145,20 @@ export const TaxYearDashboard: React.FC = () => {
     };
     loadPaymentStatus();
   }, [taxYear]);
+
+  // Mark component as ready after initial data load
+  useEffect(() => {
+    if (!isDataLoading) {
+      // Small delay to ensure all data is settled
+      const timer = setTimeout(() => setIsReady(true), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isDataLoading]);
+  
+  // Show skeleton while loading
+  if (isDataLoading || !isReady) {
+    return <FormDashboardSkeleton />;
+  }
   const angabenSections: DashboardSection[] = [{
     id: 'contact',
     title: 'Kontaktangaben',
