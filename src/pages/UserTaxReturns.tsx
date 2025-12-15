@@ -273,19 +273,25 @@ const UserTaxReturns = () => {
             delay: hasAnimated ? 0 : index * 0.1,
             duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
-          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-6 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#131720] to-[#020202] hover:shadow-[0_30px_60px_-15px_rgba(29,100,255,0.25)] hover:-translate-y-1">
-                {/* Orange Border Beam for unsubmitted tax returns */}
-                <BorderBeam 
-                  size={250} 
-                  duration={12} 
-                  colorFrom="#FF6B00" 
-                  colorTo="#FFB800" 
-                  borderWidth={2}
-                  anchor={90}
-                  className="z-10"
-                />
-                {/* Active Indicator Gradient */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
+          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-[2px] transition-all duration-300 cursor-pointer hover:-translate-y-1">
+                {/* Static orange gradient border */}
+                <div className="absolute inset-0 rounded-[1.5rem] bg-gradient-to-br from-[#FF6B00] via-[#FFB800] to-[#FF6B00] opacity-80" />
+                <div className="absolute inset-0 rounded-[1.5rem] shadow-[0_0_30px_rgba(255,107,0,0.4),0_0_60px_rgba(255,184,0,0.2)]" />
+                
+                {/* Inner card content */}
+                <div className="relative rounded-[calc(1.5rem-2px)] bg-gradient-to-b from-[#131720] to-[#020202] p-6 h-full">
+                  {/* Orange Border Beam for unsubmitted tax returns */}
+                  <BorderBeam 
+                    size={250} 
+                    duration={12} 
+                    colorFrom="#FF6B00" 
+                    colorTo="#FFB800" 
+                    borderWidth={2}
+                    anchor={90}
+                    className="z-10"
+                  />
+                  {/* Active Indicator Gradient */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
 
                 <div className="flex justify-between items-start mb-6 relative z-10">
                   <div>
@@ -333,6 +339,7 @@ const UserTaxReturns = () => {
                   <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#1D64FF] group-hover:text-white transition-all text-zinc-400">
                     <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
                   </div>
+                </div>
                 </div>
               </motion.div>;
         })}
