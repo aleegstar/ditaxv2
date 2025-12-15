@@ -89,7 +89,9 @@ const UserTaxReturns = () => {
   const [profile, setProfile] = useState<{
     onboarding_tour_completed?: boolean;
   } | null>(null);
-  const [hasAnimated, setHasAnimated] = useState(false);
+  // Use ref to track if animation has played (persists across re-renders)
+  const hasAnimatedRef = React.useRef(false);
+  const [isReady, setIsReady] = useState(false);
   
   useEffect(() => {
     if (userId) {
@@ -99,13 +101,20 @@ const UserTaxReturns = () => {
     }
   }, [userId]);
   
-  // Mark animation as complete after initial render
+  // Mark component as ready and animation as complete after initial data load
   useEffect(() => {
-    if (!loading && !authLoading) {
-      const timer = setTimeout(() => setHasAnimated(true), 600);
+    if (!loading && !authLoading && !isReady) {
+      // Small delay to ensure all data is settled before showing
+      const timer = setTimeout(() => {
+        setIsReady(true);
+        // Mark animation as complete after animation duration
+        setTimeout(() => {
+          hasAnimatedRef.current = true;
+        }, 500);
+      }, 50);
       return () => clearTimeout(timer);
     }
-  }, [loading, authLoading]);
+  }, [loading, authLoading, isReady]);
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
@@ -163,7 +172,8 @@ const UserTaxReturns = () => {
       formProgress: yearProgress?.form_sections
     });
   };
-  if (authLoading || loading) {
+  // Show skeleton while loading or waiting for ready state
+  if (authLoading || loading || !isReady) {
     return <UserTaxReturnsSkeleton />;
   }
   if (!loading && taxReturns.length === 0 && profile?.onboarding_tour_completed !== true) {
@@ -264,15 +274,15 @@ const UserTaxReturns = () => {
           const existingReturn = getExistingReturn(year);
           const progress = calculateProgress(year) ?? 0;
           const strokeDashoffset = circumference - progress / 100 * circumference;
-          return <motion.div key={year} data-tour="tax-year-card" initial={hasAnimated ? false : {
+          return <motion.div key={year} data-tour="tax-year-card" initial={hasAnimatedRef.current ? false : {
             opacity: 0,
             y: 20
           }} animate={{
             opacity: 1,
             y: 0
           }} transition={{
-            delay: hasAnimated ? 0 : index * 0.1,
-            duration: hasAnimated ? 0 : 0.4,
+            delay: hasAnimatedRef.current ? 0 : index * 0.1,
+            duration: hasAnimatedRef.current ? 0 : 0.4,
             ease: 'easeOut'
           }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1"
               style={{
@@ -351,15 +361,15 @@ const UserTaxReturns = () => {
           {/* Completed Tax Returns */}
           {completedYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
-          return <motion.div key={year} initial={hasAnimated ? false : {
+          return <motion.div key={year} initial={hasAnimatedRef.current ? false : {
             opacity: 0,
             y: 20
           }} animate={{
             opacity: 1,
             y: 0
           }} transition={{
-            delay: hasAnimated ? 0 : (inProgressYears.length + index) * 0.1,
-            duration: hasAnimated ? 0 : 0.4,
+            delay: hasAnimatedRef.current ? 0 : (inProgressYears.length + index) * 0.1,
+            duration: hasAnimatedRef.current ? 0 : 0.4,
             ease: 'easeOut'
           }} onClick={() => navigate(`/tax-return-tracking?year=${year}`)} className="group relative w-full border border-white/5 rounded-[1.5rem] p-6 hover:border-white/20 transition-all duration-300 cursor-pointer bg-gradient-to-b from-[#111111] to-[#050505] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)]">
                 <div className="flex justify-between items-start mb-6">
