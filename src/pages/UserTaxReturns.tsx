@@ -92,7 +92,6 @@ const UserTaxReturns = () => {
   // Use ref to track if animation has played (persists across re-renders)
   const hasAnimatedRef = React.useRef(false);
   const [isReady, setIsReady] = useState(false);
-  
   useEffect(() => {
     if (userId) {
       supabase.from('profiles').select('onboarding_tour_completed').eq('id', userId).single().then(({
@@ -100,7 +99,7 @@ const UserTaxReturns = () => {
       }) => setProfile(data));
     }
   }, [userId]);
-  
+
   // Mark component as ready and animation as complete after initial data load
   useEffect(() => {
     if (!loading && !authLoading && !isReady) {
@@ -261,13 +260,7 @@ const UserTaxReturns = () => {
         {/* Main Content / Cards List */}
         <div className="relative px-4 flex flex-col gap-5 md:px-8 z-20 pb-24">
           {/* Show add dropdown at top if no in-progress tax returns */}
-          {inProgressYears.length === 0 && availableYears.length < 7 && (
-            <AddTaxYearDropdown 
-              onYearSelect={createNewTaxReturn}
-              existingYears={existingYears}
-              isCreating={isCreatingTaxReturn}
-            />
-          )}
+          {inProgressYears.length === 0 && availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} />}
 
           {/* In-Progress Tax Returns (Active) */}
           {inProgressYears.map((year, index) => {
@@ -284,23 +277,15 @@ const UserTaxReturns = () => {
             delay: hasAnimatedRef.current ? 0 : index * 0.1,
             duration: hasAnimatedRef.current ? 0 : 0.4,
             ease: 'easeOut'
-          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1"
-              style={{
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
-                border: '1px solid transparent',
-                backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
-                backgroundOrigin: 'border-box',
-                backgroundClip: 'padding-box, border-box'
-              }}>
+          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1" style={{
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+            border: '1px solid transparent',
+            backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+            backgroundOrigin: 'border-box',
+            backgroundClip: 'padding-box, border-box'
+          }}>
                 {/* Orange Border Beam for incomplete tax returns */}
-                <BorderBeam 
-                  size={200}
-                  duration={10}
-                  borderWidth={1.5}
-                  colorFrom="#F97316"
-                  colorTo="#FBBF24"
-                  delay={0}
-                />
+                <BorderBeam size={200} duration={10} borderWidth={1.5} colorFrom="#F97316" colorTo="#FBBF24" delay={0} />
                 
                 {/* Inner card content */}
                 <div className="relative p-6 h-full">
@@ -321,14 +306,7 @@ const UserTaxReturns = () => {
                     </h2>
                   </div>
                   {/* Progress Circle */}
-                  <AnimatedCircularProgressBar 
-                    max={100} 
-                    min={0} 
-                    value={progress} 
-                    gaugePrimaryColor="#1D64FF" 
-                    gaugeSecondaryColor="#27272a"
-                    className="size-14 text-xs"
-                  />
+                  <AnimatedCircularProgressBar max={100} min={0} value={progress} gaugePrimaryColor="#1D64FF" gaugeSecondaryColor="#27272a" className="size-14 text-xs" />
                 </div>
 
                 <div className="space-y-3 relative z-10">
@@ -387,9 +365,7 @@ const UserTaxReturns = () => {
                       {year}
                     </h2>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                    <FileCheck className="w-5 h-5" strokeWidth={1.5} />
-                  </div>
+                  
                 </div>
 
                 <div className="space-y-1">
@@ -416,13 +392,7 @@ const UserTaxReturns = () => {
         })}
 
           {/* Show add dropdown at bottom only if there are in-progress tax returns */}
-          {inProgressYears.length > 0 && availableYears.length < 7 && (
-            <AddTaxYearDropdown 
-              onYearSelect={createNewTaxReturn}
-              existingYears={existingYears}
-              isCreating={isCreatingTaxReturn}
-            />
-          )}
+          {inProgressYears.length > 0 && availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} />}
         </div>
 
         {/* Floating Semi-Circle Island Button */}
@@ -432,14 +402,15 @@ const UserTaxReturns = () => {
 
           {/* The Semi-Circle Button Container */}
           <div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto">
-            <motion.button
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              onClick={() => navigate('/documents')}
-              data-tour="floating-document-button"
-              className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
-            >
+            <motion.button initial={{
+            opacity: 0,
+            y: 40
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            delay: 0.3
+          }} onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
               {/* Vibrant Glow Background inside button */}
               <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
 
