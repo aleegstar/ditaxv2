@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Trash2, Play, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
+import { BorderBeam } from "@/components/ui/border-beam";
 import ditaxLogoIcon from "@/assets/ditax-logo-icon.png";
 interface BlueTaxYearCardProps {
   id: string;
@@ -84,6 +85,14 @@ export function BlueTaxYearCard({
 
         {/* Main Card */}
         <div className="z-10 -mt-[54px] overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)]">
+          {/* Orange animated border for unsubmitted tax returns */}
+          <BorderBeam 
+            size={300} 
+            duration={8} 
+            colorFrom="#F97316" 
+            colorTo="#FBBF24" 
+            borderWidth={2}
+          />
           {/* Three Dots Menu - Top Right */}
           <div className="absolute top-5 right-5 z-20">
             <DropdownMenu>
