@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle, FolderOpen } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle, ScanLine } from 'lucide-react';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoMain from '@/assets/ditax-logo-main.png';
@@ -410,29 +410,40 @@ const UserTaxReturns = () => {
           )}
         </div>
 
-        {/* Floating Add Document Button */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[float_5s_ease-in-out_infinite] w-max">
-          <motion.button initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: 0.3
-        }} onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full pt-2 pr-5 pb-2 pl-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),0_0_20px_-5px_rgba(29,100,255,0.15)] backdrop-blur-xl gap-x-3 gap-y-3 items-center">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
-              <FolderOpen className="w-5 h-5 text-white stroke-[2px]" />
-            </div>
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
-                Dokumente anzeigen
-              </span>
-              <span className="text-[11px] text-zinc-500 group-hover:text-zinc-400 transition-colors">
-                Scan oder Upload
-              </span>
-            </div>
-          </motion.button>
+        {/* Floating Semi-Circle Island Button */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] pointer-events-none z-50">
+          {/* Gradient Fade Background */}
+          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
+
+          {/* The Semi-Circle Button Container */}
+          <div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto">
+            <motion.button
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={() => navigate('/documents')}
+              data-tour="floating-document-button"
+              className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
+            >
+              {/* Vibrant Glow Background inside button */}
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
+
+              {/* Main Icon Circle */}
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-[#1D64FF] to-[#0040CC] text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(29,100,255,0.6)] animate-[pulse-glow_3s_ease-in-out_infinite] -mt-8 border-4 border-[#030305]">
+                <ScanLine className="w-6 h-6" />
+              </div>
+
+              {/* Text Content */}
+              <div className="relative z-10 flex flex-col items-center gap-0.5">
+                <span className="text-white font-medium text-lg tracking-tight">
+                  Dokumente anzeigen
+                </span>
+                <span className="text-[#1D64FF]/80 text-xs font-medium tracking-wide">
+                  Scan oder Upload
+                </span>
+              </div>
+            </motion.button>
+          </div>
         </div>
       </div>
     </div>;
