@@ -273,23 +273,26 @@ const UserTaxReturns = () => {
             delay: hasAnimated ? 0 : index * 0.1,
             duration: hasAnimated ? 0 : 0.4,
             ease: 'easeOut'
-          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] p-[2px] transition-all duration-300 cursor-pointer hover:-translate-y-1">
-                {/* Multi-color gradient border: green/cyan on left, orange on right */}
-                <div className="absolute inset-0 rounded-[1.5rem] bg-[conic-gradient(from_180deg_at_50%_50%,#10B981_0deg,#06B6D4_90deg,#F97316_180deg,#FBBF24_270deg,#10B981_360deg)] opacity-70" />
-                <div className="absolute inset-0 rounded-[1.5rem] shadow-[0_0_25px_rgba(16,185,129,0.3),0_0_25px_rgba(249,115,22,0.3)]" />
+          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1"
+              style={{
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+                border: '1px solid transparent',
+                backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+                backgroundOrigin: 'border-box',
+                backgroundClip: 'padding-box, border-box'
+              }}>
+                {/* Orange Border Beam for incomplete tax returns */}
+                <BorderBeam 
+                  size={200}
+                  duration={10}
+                  borderWidth={1.5}
+                  colorFrom="#F97316"
+                  colorTo="#FBBF24"
+                  delay={0}
+                />
                 
                 {/* Inner card content */}
-                <div className="relative rounded-[calc(1.5rem-2px)] bg-gradient-to-b from-[#131720] to-[#020202] p-6 h-full">
-                  {/* Multi-color Border Beam */}
-                  <BorderBeam 
-                    size={250} 
-                    duration={12} 
-                    colorFrom="#10B981" 
-                    colorTo="#F97316" 
-                    borderWidth={2}
-                    anchor={90}
-                    className="z-10"
-                  />
+                <div className="relative p-6 h-full">
                   {/* Active Indicator Gradient */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#1D64FF]/10 blur-[50px] rounded-full pointer-events-none" />
 
