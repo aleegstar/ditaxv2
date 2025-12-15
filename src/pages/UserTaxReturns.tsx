@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle, ScanLine } from 'lucide-react';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
@@ -87,22 +86,12 @@ const UserTaxReturns = () => {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [refetch]);
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
-  // Use ref to track if animation has played (persists across re-renders)
-  const hasAnimatedRef = React.useRef(false);
   const [isReady, setIsReady] = useState(false);
 
   // Mark component as ready only when ALL data sources are loaded
   useEffect(() => {
     if (!loading && !authLoading && !profileLoading && !isReady) {
-      // Small delay to ensure all data is settled before showing
-      const timer = setTimeout(() => {
-        setIsReady(true);
-        // Mark animation as complete after animation duration
-        setTimeout(() => {
-          hasAnimatedRef.current = true;
-        }, 500);
-      }, 50);
-      return () => clearTimeout(timer);
+      setIsReady(true);
     }
   }, [loading, authLoading, profileLoading, isReady]);
   const createNewTaxReturn = async (year: string) => {
@@ -258,17 +247,7 @@ const UserTaxReturns = () => {
           const existingReturn = getExistingReturn(year);
           const progress = calculateProgress(year) ?? 0;
           const strokeDashoffset = circumference - progress / 100 * circumference;
-          return <motion.div key={year} data-tour="tax-year-card" initial={hasAnimatedRef.current ? false : {
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: hasAnimatedRef.current ? 0 : index * 0.1,
-            duration: hasAnimatedRef.current ? 0 : 0.4,
-            ease: 'easeOut'
-          }} onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1" style={{
+          return <div key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1" style={{
             boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
             border: '1px solid transparent',
             backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
@@ -324,24 +303,14 @@ const UserTaxReturns = () => {
                   </div>
                 </div>
                 </div>
-              </motion.div>;
+              </div>;
         })}
 
           {/* Completed Tax Returns */}
           {completedYears.map((year, index) => {
           const existingReturn = getExistingReturn(year);
           const completedReturn = completedTaxReturns?.[year];
-          return <motion.div key={year} initial={hasAnimatedRef.current ? false : {
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: hasAnimatedRef.current ? 0 : (inProgressYears.length + index) * 0.1,
-            duration: hasAnimatedRef.current ? 0 : 0.4,
-            ease: 'easeOut'
-          }} onClick={() => {
+          return <div key={year} onClick={() => {
             if (completedReturn?.id) {
               navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
             }
@@ -379,7 +348,7 @@ const UserTaxReturns = () => {
                     PDF Anzeigen
                   </button>
                 </div>
-              </motion.div>;
+              </div>;
         })}
 
           {/* Show add dropdown at bottom only if there are in-progress tax returns */}
@@ -393,15 +362,7 @@ const UserTaxReturns = () => {
 
           {/* The Semi-Circle Button Container */}
           <div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto">
-            <motion.button initial={{
-            opacity: 0,
-            y: 40
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.3
-          }} onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
+            <button onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
               {/* Vibrant Glow Background inside button */}
               <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
 
@@ -419,7 +380,7 @@ const UserTaxReturns = () => {
                   Scan oder Upload
                 </span>
               </div>
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
