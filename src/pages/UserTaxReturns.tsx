@@ -364,7 +364,7 @@ const UserTaxReturns = () => {
           <div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto">
             <button onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
               {/* Vibrant Glow Background inside button */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
+              <div className="group-hover:opacity-100 transition-opacity bg-white opacity-100 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
 
               {/* Main Icon Circle */}
               <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-[#1D64FF] to-[#0040CC] text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(29,100,255,0.6)] animate-[pulse-glow_3s_ease-in-out_infinite] -mt-8 border-4 border-[#030305]">
