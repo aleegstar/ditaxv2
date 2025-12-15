@@ -35,7 +35,8 @@ const UserTaxReturns = () => {
     setMenuSheetOpen
   } = useSidebar();
   const {
-    profile: userProfile
+    profile: userProfile,
+    loading: profileLoading
   } = useProfile();
   const {
     userId,
@@ -86,23 +87,13 @@ const UserTaxReturns = () => {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [refetch]);
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
-  const [profile, setProfile] = useState<{
-    onboarding_tour_completed?: boolean;
-  } | null>(null);
   // Use ref to track if animation has played (persists across re-renders)
   const hasAnimatedRef = React.useRef(false);
   const [isReady, setIsReady] = useState(false);
-  useEffect(() => {
-    if (userId) {
-      supabase.from('profiles').select('onboarding_tour_completed').eq('id', userId).single().then(({
-        data
-      }) => setProfile(data));
-    }
-  }, [userId]);
 
-  // Mark component as ready and animation as complete after initial data load
+  // Mark component as ready only when ALL data sources are loaded
   useEffect(() => {
-    if (!loading && !authLoading && !isReady) {
+    if (!loading && !authLoading && !profileLoading && !isReady) {
       // Small delay to ensure all data is settled before showing
       const timer = setTimeout(() => {
         setIsReady(true);
@@ -113,7 +104,7 @@ const UserTaxReturns = () => {
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [loading, authLoading, isReady]);
+  }, [loading, authLoading, profileLoading, isReady]);
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
@@ -172,10 +163,10 @@ const UserTaxReturns = () => {
     });
   };
   // Show skeleton while loading or waiting for ready state
-  if (authLoading || loading || !isReady) {
+  if (authLoading || loading || profileLoading || !isReady) {
     return <UserTaxReturnsSkeleton />;
   }
-  if (!loading && taxReturns.length === 0 && profile?.onboarding_tour_completed !== true) {
+  if (!loading && taxReturns.length === 0 && userProfile?.onboarding_tour_completed !== true) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
   const getExistingReturn = (year: string) => {

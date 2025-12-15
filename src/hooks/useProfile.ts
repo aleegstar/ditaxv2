@@ -9,6 +9,7 @@ interface Profile {
   last_name: string | null;
   email: string | null;
   avatar_url: string | null;
+  onboarding_tour_completed: boolean | null;
 }
 
 export const useProfile = () => {
@@ -67,6 +68,7 @@ export const useProfile = () => {
         last_name: profileData?.last_name || null,
         email: user.email || null,
         avatar_url: profileData?.avatar_url || null,
+        onboarding_tour_completed: profileData?.onboarding_tour_completed || null,
       });
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
