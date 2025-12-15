@@ -176,20 +176,26 @@ export function useEnhancedWebAuthn() {
       const credentialId = arrayBufferToBase64Url(credential.rawId);
       const response = credential.response as AuthenticatorAssertionResponse;
       const signature = arrayBufferToBase64Url(response.signature);
+      const authenticatorData = arrayBufferToBase64Url(response.authenticatorData);
+      const clientDataJSON = arrayBufferToBase64Url(response.clientDataJSON);
       
       debug.log('🔑 Credential obtained, calling Edge Function...');
       debug.log('📊 Authentication data prepared:', {
         credentialId: credentialId.substring(0, 10) + '...',
         challengeLength: challenge.length,
-        signatureLength: signature.length
+        signatureLength: signature.length,
+        hasAuthenticatorData: !!authenticatorData,
+        hasClientDataJSON: !!clientDataJSON
       });
 
-      // Call the enhanced passkey authentication Edge Function
+      // Call the enhanced passkey authentication Edge Function with full crypto data
       const { data, error } = await supabase.functions.invoke('passkey-authenticate', {
         body: {
           credentialId,
           challenge: arrayBufferToBase64Url(challenge.buffer),
           signature,
+          authenticatorData,
+          clientDataJSON,
           email
         }
       });
