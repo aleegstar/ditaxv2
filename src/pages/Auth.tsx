@@ -10,31 +10,31 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment, isDespiaEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-
 const Auth = () => {
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const {
+    t
+  } = useI18n();
   const [step, setStep] = useState<"main" | "code">("main");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
-  
   const isOAuthInProgress = useRef(false);
-  
   useEffect(() => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [resendCountdown]);
-
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const {
+        error
+      } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/`
@@ -50,7 +50,6 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
   const handleGoogleAuth = async () => {
     if (isOAuthInProgress.current) {
       console.log('⚠️ Google OAuth bereits in Bearbeitung, ignoriere Klick');
@@ -58,16 +57,15 @@ const Auth = () => {
     }
     isOAuthInProgress.current = true;
     setIsLoading(true);
-    
     const isDespia = isDespiaEnvironment();
     const isNativeCapacitor = Capacitor.isNativePlatform();
-    
     console.log('🔗 Google Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
-    
     if (isDespia) {
       console.log('🔗 Despia detected - OAuth mit Standard-Redirect');
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const {
+          error
+        } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
             redirectTo: 'https://app.ditax.ch/auth-success'
@@ -82,10 +80,12 @@ const Auth = () => {
       }
       return;
     }
-    
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const {
+          data,
+          error
+        } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
             redirectTo: 'https://app.ditax.ch/auth-success',
@@ -94,7 +94,7 @@ const Auth = () => {
         });
         if (error) throw error;
         if (data?.url) {
-          await Browser.open({ 
+          await Browser.open({
             url: data.url,
             presentationStyle: 'popover'
           });
@@ -107,7 +107,6 @@ const Auth = () => {
       }
       return;
     }
-    
     try {
       await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -122,7 +121,6 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
   const handleAppleAuth = async () => {
     if (isOAuthInProgress.current) {
       console.log('⚠️ Apple OAuth bereits in Bearbeitung, ignoriere Klick');
@@ -130,16 +128,15 @@ const Auth = () => {
     }
     isOAuthInProgress.current = true;
     setIsLoading(true);
-    
     const isDespia = isDespiaEnvironment();
     const isNativeCapacitor = Capacitor.isNativePlatform();
-    
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
-    
     if (isDespia) {
       console.log('🔗 Despia detected - Apple OAuth mit Standard-Redirect');
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
+        const {
+          error
+        } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
             redirectTo: 'https://app.ditax.ch/auth-success'
@@ -154,10 +151,12 @@ const Auth = () => {
       }
       return;
     }
-    
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const {
+          data,
+          error
+        } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
             redirectTo: 'https://app.ditax.ch/auth-success',
@@ -166,7 +165,7 @@ const Auth = () => {
         });
         if (error) throw error;
         if (data?.url) {
-          await Browser.open({ 
+          await Browser.open({
             url: data.url,
             presentationStyle: 'popover'
           });
@@ -179,7 +178,6 @@ const Auth = () => {
       }
       return;
     }
-    
     try {
       await supabase.auth.signInWithOAuth({
         provider: 'apple',
@@ -194,22 +192,21 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
   const handleWebAuthnAuth = () => {
     navigate('/webauthn-auth');
   };
-
   const handleCodeChange = (value: string) => {
     setCode(value);
     if (value.length === 6) {
       handleCodeVerification(value);
     }
   };
-
   const handleCodeVerification = async (otpCode: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
+      const {
+        error
+      } = await supabase.auth.verifyOtp({
         email,
         token: otpCode,
         type: 'email'
@@ -224,17 +221,17 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
   const handleBackClick = () => {
     setStep("main");
     setCode("");
   };
-
   const handleResendCode = async () => {
     if (resendCountdown > 0) return;
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const {
+        error
+      } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/`
@@ -249,44 +246,38 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
   const handleWeiterClick = () => {
     if (code.length === 6) {
       handleCodeVerification(code);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-[#020408] text-zinc-100 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+  return <div className="min-h-screen bg-[#020408] text-zinc-100 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72">
         {/* Background Ambient Glow */}
-        <div 
-          className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90"
-          style={{
-            background: 'radial-gradient(circle at 50% -15%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
-            filter: 'blur(60px)'
-          }}
-        />
+        <div className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90" style={{
+        background: 'radial-gradient(circle at 50% -15%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
+        filter: 'blur(60px)'
+      }} />
 
         {/* Main Login Content */}
         <div className="relative z-20 w-full">
           <AnimatePresence mode="wait">
-            {step === "main" ? (
-              <motion.div
-                key="main-step"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
+            {step === "main" ? <motion.div key="main-step" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} exit={{
+            opacity: 0,
+            y: -20
+          }} transition={{
+            duration: 0.3
+          }}>
                 {/* Logo Centered */}
                 <div className="flex justify-center mb-10">
-                  <img 
-                    src="/ditax-logo-new.png" 
-                    alt="Ditax" 
-                    className="w-auto h-10 object-contain"
-                  />
+                  <img src="/ditax-logo-new.png" alt="Ditax" className="w-auto h-10 object-contain" />
                 </div>
 
                 {/* Header */}
@@ -302,61 +293,39 @@ const Auth = () => {
                 {/* Email Form */}
                 <form onSubmit={handleEmailSubmit} className="space-y-5">
                   <div className="space-y-1.5">
-                    <label htmlFor="email" className="block text-xs font-medium text-zinc-400 font-jakarta ml-1">
-                      E-Mail Adresse
-                    </label>
+                    
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
                         <Mail className="w-4 h-4" />
                       </div>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full rounded-xl border border-[#1D64FF]/50 bg-[#0A0C10] pl-11 pr-4 py-3.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF] transition-all font-jakarta shadow-sm"
-                        placeholder="name@firma.com"
-                        required
-                        disabled={isLoading}
-                      />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full rounded-xl border border-[#1D64FF]/50 bg-[#0A0C10] pl-11 pr-4 py-3.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF] transition-all font-jakarta shadow-sm" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] font-jakarta disabled:opacity-50"
-                  >
+                  <button type="submit" disabled={isLoading} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] font-jakarta disabled:opacity-50">
                     {isLoading ? 'Code wird gesendet...' : 'Anmelden'}
                   </button>
                 </form>
 
                 {/* Footer */}
                 <div className="mt-8 text-center">
-                  <p className="text-xs text-zinc-500 font-jakarta">
-                    Noch kein Konto?{' '}
-                    <a href="#" className="text-[#1D64FF] hover:text-[#1D64FF]/80 font-medium transition-colors">
-                      Registrieren
-                    </a>
-                  </p>
+                  
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="code-step"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
+              </motion.div> : <motion.div key="code-step" initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} exit={{
+            opacity: 0,
+            y: -20
+          }} transition={{
+            duration: 0.3
+          }}>
                 {/* Logo Centered */}
                 <div className="flex justify-center mb-10">
-                  <img 
-                    src="/ditax-logo-new.png" 
-                    alt="Ditax" 
-                    className="w-auto h-10 object-contain"
-                  />
+                  <img src="/ditax-logo-new.png" alt="Ditax" className="w-auto h-10 object-contain" />
                 </div>
 
                 {/* Header with Shield Icon */}
@@ -380,44 +349,20 @@ const Auth = () => {
                   <div className="flex justify-between gap-2">
                     <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                       <InputOTPGroup className="flex justify-between gap-2 w-full">
-                        <InputOTPSlot 
-                          index={0} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
-                        <InputOTPSlot 
-                          index={1} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
-                        <InputOTPSlot 
-                          index={2} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
-                        <InputOTPSlot 
-                          index={3} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
-                        <InputOTPSlot 
-                          index={4} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
-                        <InputOTPSlot 
-                          index={5} 
-                          className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" 
-                        />
+                        <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
 
                   {/* Verify Button */}
-                  <button
-                    onClick={handleWeiterClick}
-                    disabled={isLoading || code.length !== 6}
-                    className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-full py-3 text-sm font-semibold shadow-[0_0_20px_-5px_rgba(29,100,255,0.4)] transition-all flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50"
-                  >
+                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-full py-3 text-sm font-semibold shadow-[0_0_20px_-5px_rgba(29,100,255,0.4)] transition-all flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50">
                     {isLoading ? 'Wird überprüft...' : 'Verifizieren'}
-                    {!isLoading && (
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                    )}
+                    {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
                   </button>
                 </div>
 
@@ -425,41 +370,31 @@ const Auth = () => {
                 <div className="mt-8 flex flex-col items-center gap-4 text-center">
                   <p className="text-xs text-zinc-500 font-jakarta">
                     Keinen Code erhalten?
-                    {resendCountdown > 0 ? (
-                      <>
+                    {resendCountdown > 0 ? <>
                         <span className="text-zinc-300 font-medium ml-1">Erneut senden</span>
                         <span className="ml-1 text-zinc-600">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
-                      </>
-                    ) : (
-                      <button
-                        onClick={handleResendCode}
-                        disabled={isLoading}
-                        className="text-zinc-300 hover:text-white font-medium transition-colors ml-1"
-                      >
+                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-zinc-300 hover:text-white font-medium transition-colors ml-1">
                         Erneut senden
-                      </button>
-                    )}
+                      </button>}
                   </p>
                   
-                  <button 
-                    onClick={handleBackClick}
-                    className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-jakarta mt-2"
-                  >
+                  <button onClick={handleBackClick} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-jakarta mt-2">
                     <ArrowLeft className="w-3.5 h-3.5" />
                     Zurück zum Login
                   </button>
                 </div>
-              </motion.div>
-            )}
+              </motion.div>}
           </AnimatePresence>
 
           {/* Meta Footer */}
-          <motion.div
-            className="mt-10 flex justify-center items-center gap-6 text-[13px] text-zinc-600 font-medium tracking-wide font-jakarta"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
+          <motion.div className="mt-10 flex justify-center items-center gap-6 text-[13px] text-zinc-600 font-medium tracking-wide font-jakarta" initial={{
+          opacity: 0
+        }} animate={{
+          opacity: 1
+        }} transition={{
+          duration: 0.5,
+          delay: 0.3
+        }}>
             <a href="/terms" className="hover:text-zinc-400 transition-colors">Impressum</a>
             <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
             <a href="/privacy" className="hover:text-zinc-400 transition-colors">Datenschutz</a>
@@ -470,22 +405,24 @@ const Auth = () => {
       </div>
 
       {/* Floating Bottom Social Login Island - Only show on main step */}
-      {step === "main" && (
-        <div className="fixed bottom-0 w-full max-w-[430px] pointer-events-none z-50">
+      {step === "main" && <div className="fixed bottom-0 w-full max-w-[430px] pointer-events-none z-50">
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
           {/* The Domed Button Container */}
-          <motion.div 
-            className="relative w-full flex justify-center items-end pb-0 pointer-events-auto"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div 
-              className="flex flex-col items-center overflow-hidden bg-white w-full pt-0 pr-6 pb-12 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]"
-              style={{ borderRadius: '50% 50% 0 0 / 48px 48px 0 0' }}
-            >
+          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
+        opacity: 0,
+        y: 50
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        duration: 0.5,
+        delay: 0.2
+      }}>
+            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-0 pr-6 pb-12 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
+          borderRadius: '50% 50% 0 0 / 48px 48px 0 0'
+        }}>
               {/* Subtle Top Highlight */}
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-50" />
               
@@ -497,11 +434,7 @@ const Auth = () => {
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full">
                 {/* Google Login */}
-                <button
-                  onClick={handleGoogleAuth}
-                  disabled={isLoading}
-                  className="hover:bg-slate-50 hover:text-slate-900 flex transition-all duration-200 active:scale-[0.98] hover:shadow-md group overflow-hidden text-slate-700 bg-white w-full border-slate-200/80 border rounded-xl py-3.5 px-4 relative shadow-sm gap-x-3 items-center justify-center disabled:opacity-50"
-                >
+                <button onClick={handleGoogleAuth} disabled={isLoading} className="hover:bg-slate-50 hover:text-slate-900 flex transition-all duration-200 active:scale-[0.98] hover:shadow-md group overflow-hidden text-slate-700 bg-white w-full border-slate-200/80 border rounded-xl py-3.5 px-4 relative shadow-sm gap-x-3 items-center justify-center disabled:opacity-50">
                   <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -512,11 +445,7 @@ const Auth = () => {
                 </button>
 
                 {/* Apple Login */}
-                <button
-                  onClick={handleAppleAuth}
-                  disabled={isLoading}
-                  className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md group disabled:opacity-50"
-                >
+                <button onClick={handleAppleAuth} disabled={isLoading} className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md group disabled:opacity-50">
                   <svg className="w-5 h-5 shrink-0 fill-current text-slate-800 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                   </svg>
@@ -524,21 +453,14 @@ const Auth = () => {
                 </button>
 
                 {/* Passkey Login */}
-                <button
-                  onClick={handleWebAuthnAuth}
-                  disabled={isLoading}
-                  className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md group disabled:opacity-50"
-                >
+                <button onClick={handleWebAuthnAuth} disabled={isLoading} className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md group disabled:opacity-50">
                   <Fingerprint className="w-5 h-5 shrink-0 text-slate-500 group-hover:text-slate-800 transition-colors" />
                   <span className="font-medium text-[15px] tracking-tight">Weiter mit Passkey</span>
                 </button>
               </div>
             </div>
           </motion.div>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default Auth;
