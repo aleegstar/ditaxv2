@@ -439,34 +439,36 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Inner Card - Unterlagen */}
-            <div className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
-              isDocumentsComplete 
-                ? 'border border-transparent' 
-                : 'border border-white/5 hover:border-white/20'
-            } ${!allAngabenComplete ? 'pointer-events-none' : 'hover:from-white/[0.12] hover:to-white/[0.02]'}`}>
-              {/* BorderBeam animation when NOT completed */}
-              {allAngabenComplete && !isDocumentsComplete && (
-                <BorderBeam 
-                  size={80}
-                  duration={6}
-                  borderWidth={1.5}
-                  colorFrom="#F97316"
-                  colorTo="#FBBF24"
-                  delay={0}
-                />
-              )}
-              <div className="flex justify-between w-full">
-                <UploadCloud className={`w-5 h-5 transition-colors ${allAngabenComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
-                {isDocumentsComplete && (
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-                    <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
+            {/* Grid for Inner Card - Unterlagen (matches Angaben grid) */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
+                isDocumentsComplete 
+                  ? 'border border-transparent' 
+                  : 'border border-white/5 hover:border-white/20'
+              } ${!allAngabenComplete ? 'pointer-events-none' : 'hover:from-white/[0.12] hover:to-white/[0.02]'}`}>
+                {/* BorderBeam animation when NOT completed */}
+                {allAngabenComplete && !isDocumentsComplete && (
+                  <BorderBeam 
+                    size={80}
+                    duration={6}
+                    borderWidth={1.5}
+                    colorFrom="#F97316"
+                    colorTo="#FBBF24"
+                    delay={0}
+                  />
                 )}
+                <div className="flex justify-between w-full">
+                  <UploadCloud className={`w-5 h-5 transition-colors ${allAngabenComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
+                  {isDocumentsComplete && (
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                      <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
+                </div>
+                <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${allAngabenComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
+                  Unterlagen
+                </span>
               </div>
-              <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${allAngabenComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
-                Unterlagen
-              </span>
             </div>
           </motion.div>
 
@@ -529,36 +531,38 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Inner Card - Einreichen */}
-            <div 
-              onClick={(e) => { e.stopPropagation(); if (canSubmit) handleSubmitClick(); }}
-              className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
-              canSubmit 
-                ? 'border border-transparent cursor-pointer hover:from-white/[0.12] hover:to-white/[0.02]' 
-                : 'border border-white/5'
-            } ${!isDocumentsComplete ? 'pointer-events-none' : ''}`}>
-              {/* BorderBeam animation when in progress (docs complete but not submitted) */}
-              {isDocumentsComplete && !canSubmit && (
-                <BorderBeam 
-                  size={80}
-                  duration={6}
-                  borderWidth={1.5}
-                  colorFrom="#F97316"
-                  colorTo="#FBBF24"
-                  delay={0}
-                />
-              )}
-              <div className="flex justify-between w-full">
-                <Send className={`w-5 h-5 transition-colors ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
-                {canSubmit && (
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-                    <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  </div>
+            {/* Grid for Inner Card - Einreichen (matches Angaben grid) */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div 
+                onClick={(e) => { e.stopPropagation(); if (canSubmit) handleSubmitClick(); }}
+                className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
+                canSubmit 
+                  ? 'border border-transparent cursor-pointer hover:from-white/[0.12] hover:to-white/[0.02]' 
+                  : 'border border-white/5'
+              } ${!isDocumentsComplete ? 'pointer-events-none' : ''}`}>
+                {/* BorderBeam animation when in progress (docs complete but not submitted) */}
+                {isDocumentsComplete && !canSubmit && (
+                  <BorderBeam 
+                    size={80}
+                    duration={6}
+                    borderWidth={1.5}
+                    colorFrom="#F97316"
+                    colorTo="#FBBF24"
+                    delay={0}
+                  />
                 )}
+                <div className="flex justify-between w-full">
+                  <Send className={`w-5 h-5 transition-colors ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
+                  {canSubmit && (
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                      <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
+                </div>
+                <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
+                  Einreichen
+                </span>
               </div>
-              <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
-                Einreichen
-              </span>
             </div>
           </motion.div>
         </div>
