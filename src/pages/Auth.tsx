@@ -386,21 +386,6 @@ const Auth = () => {
               </motion.div>}
           </AnimatePresence>
 
-          {/* Meta Footer */}
-          <motion.div className="mt-10 flex justify-center items-center gap-6 text-[13px] text-zinc-600 font-medium tracking-wide font-jakarta" initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          duration: 0.5,
-          delay: 0.3
-        }}>
-            <a href="/terms" className="hover:text-zinc-400 transition-colors">Impressum</a>
-            <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
-            <a href="/privacy" className="hover:text-zinc-400 transition-colors">Datenschutz</a>
-            <span className="w-1 h-1 bg-zinc-700 rounded-full"></span>
-            <a href="/help" className="hover:text-zinc-400 transition-colors">Hilfe</a>
-          </motion.div>
         </div>
       </div>
 
@@ -420,7 +405,7 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-0 pr-6 pb-12 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
+            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-0 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
           borderRadius: '50% 50% 0 0 / 48px 48px 0 0'
         }}>
               {/* Subtle Top Highlight */}
@@ -429,8 +414,12 @@ const Auth = () => {
               {/* Inner Gradient */}
               <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-50/80 to-transparent pointer-events-none" />
 
-              {/* Handle */}
-              <div className="z-10 bg-slate-300/60 w-10 h-1 rounded-full mt-6 mb-8" />
+              {/* Oder Divider */}
+              <div className="z-10 flex items-center gap-4 w-full mt-6 mb-6">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-sm text-slate-400 font-medium font-jakarta">Oder</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full">
                 {/* Google Login */}
@@ -457,6 +446,15 @@ const Auth = () => {
                   <Fingerprint className="w-5 h-5 shrink-0 text-slate-500 group-hover:text-slate-800 transition-colors" />
                   <span className="font-medium text-[15px] tracking-tight">Weiter mit Passkey</span>
                 </button>
+              </div>
+
+              {/* Footer Links */}
+              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
+                <a href="/terms" className="hover:text-slate-600 transition-colors">Impressum</a>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <a href="/privacy" className="hover:text-slate-600 transition-colors">Datenschutz</a>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <a href="/help" className="hover:text-slate-600 transition-colors">Hilfe</a>
               </div>
             </div>
           </motion.div>
