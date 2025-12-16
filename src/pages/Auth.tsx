@@ -306,7 +306,7 @@ const Auth = () => {
                       E-Mail Adresse
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
                         <Mail className="w-4 h-4" />
                       </div>
                       <input
@@ -315,7 +315,7 @@ const Auth = () => {
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full rounded-full border border-white/10 bg-white/5 pl-10 pr-3 py-3 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all font-jakarta shadow-inner"
+                        className="block w-full rounded-xl border border-[#1D64FF]/50 bg-[#0A0C10] pl-11 pr-4 py-3.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF] transition-all font-jakarta shadow-sm"
                         placeholder="name@firma.com"
                         required
                         disabled={isLoading}
@@ -323,14 +323,13 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <FramerButton
+                  <button
                     type="submit"
-                    variant="primary"
                     disabled={isLoading}
-                    className="w-full h-12 text-sm font-semibold font-jakarta"
+                    className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] font-jakarta disabled:opacity-50"
                   >
                     {isLoading ? 'Code wird gesendet...' : 'Anmelden'}
-                  </FramerButton>
+                  </button>
                 </form>
 
                 {/* Footer */}
