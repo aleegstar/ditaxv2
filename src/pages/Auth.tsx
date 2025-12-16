@@ -282,8 +282,8 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-10 space-y-2">
-                  <h1 className="text-3xl font-medium tracking-tighter font-jakarta bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">
-                    Willkommen zurück
+                  <h1 className="font-medium tracking-tighter font-jakarta bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400 text-2xl">
+                    Anmelden oder Registrieren  
                   </h1>
                   <p className="text-sm text-zinc-500 font-jakarta">
                     Melde dich an, um fortzufahren
