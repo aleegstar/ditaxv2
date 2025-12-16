@@ -412,7 +412,7 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-6 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
+            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-10 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
           borderRadius: '50% 50% 0 0 / 48px 48px 0 0'
         }}>
               {/* Subtle Top Highlight */}
