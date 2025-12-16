@@ -307,9 +307,11 @@ const Auth = () => {
                   </button>
                 </form>
 
-                {/* Footer */}
-                <div className="mt-8 text-center">
-                  
+                {/* Oder Divider */}
+                <div className="flex items-center gap-4 w-full mt-10">
+                  <div className="flex-1 h-px bg-zinc-700" />
+                  <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
+                  <div className="flex-1 h-px bg-zinc-700" />
                 </div>
               </motion.div> : <motion.div key="code-step" initial={{
             opacity: 0,
@@ -393,13 +395,6 @@ const Auth = () => {
       {step === "main" && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
-
-          {/* Oder Divider - Dark Area */}
-          <div className="relative z-10 flex items-center gap-4 w-full px-6 mb-4 pointer-events-auto">
-            <div className="flex-1 h-px bg-zinc-700" />
-            <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
-            <div className="flex-1 h-px bg-zinc-700" />
-          </div>
 
           {/* The Domed Button Container */}
           <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
