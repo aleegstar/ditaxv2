@@ -14,7 +14,13 @@ import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 // Separate content component that uses FormContext
-const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: string) => void }> = ({ selectedYear, onYearChange }) => {
+const DocumentsContent: React.FC<{
+  selectedYear: string;
+  onYearChange: (year: string) => void;
+}> = ({
+  selectedYear,
+  onYearChange
+}) => {
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
@@ -27,27 +33,40 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
   const [showUploader, setShowUploader] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-  const { checklistItems, generateChecklist, taxYear, formDataLoaded } = useFormContext();
-  const { showTour, isReady, completeTour, skipTour } = useDocumentsTour();
+  const {
+    checklistItems,
+    generateChecklist,
+    taxYear,
+    formDataLoaded
+  } = useFormContext();
+  const {
+    showTour,
+    isReady,
+    completeTour,
+    skipTour
+  } = useDocumentsTour();
 
   // Generate year options (2024-2034)
-  const allYears = Array.from({ length: 11 }, (_, i) => (2024 + i).toString());
+  const allYears = Array.from({
+    length: 11
+  }, (_, i) => (2024 + i).toString());
   const mountedRef = React.useRef(true);
-  
   useEffect(() => {
     mountedRef.current = true;
     loadCompletedTaxYears();
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
-  
   useEffect(() => {
     if (mountedRef.current) {
       loadDocuments();
     }
   }, [selectedYear]);
-
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && mountedRef.current) {
@@ -59,13 +78,11 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [selectedYear]);
-
   useEffect(() => {
     if (selectedYear === taxYear && formDataLoaded && mountedRef.current) {
       generateChecklist();
     }
   }, [selectedYear, taxYear, formDataLoaded, generateChecklist]);
-  
   useEffect(() => {
     const available = allYears.filter(year => !completedYears.includes(year));
     setAvailableYears(available);
@@ -73,12 +90,18 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       onYearChange(available[0]);
     }
   }, [completedYears, selectedYear, onYearChange, allYears]);
-
   const loadCompletedTaxYears = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-      const { data, error } = await supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
+      const {
+        data,
+        error
+      } = await supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
       if (error) throw error;
       const completed = data?.map(item => item.tax_year) || [];
       setCompletedYears(completed);
@@ -86,13 +109,21 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       console.error('Error loading completed tax years:', error);
     }
   };
-
   const loadDocuments = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-      const { data, error } = await supabase.from('uploaded_documents').select('*').eq('user_id', user.id).eq('tax_year', selectedYear).eq('status', 'active').order('upload_date', { ascending: false });
+      const {
+        data,
+        error
+      } = await supabase.from('uploaded_documents').select('*').eq('user_id', user.id).eq('tax_year', selectedYear).eq('status', 'active').order('upload_date', {
+        ascending: false
+      });
       if (error) throw error;
       setDocuments(data || []);
     } catch (error) {
@@ -106,7 +137,6 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       setLoading(false);
     }
   };
-
   const handleCameraCapture = async (blob: Blob) => {
     setShowCamera(false);
     toast({
@@ -114,48 +144,40 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
       description: "Öffne den Upload-Dialog um das Foto hochzuladen."
     });
   };
-
   const handleYearSelect = (year: string) => {
     onYearChange(year);
     setIsYearDropdownOpen(false);
   };
-
   const handleUploadSuccess = () => {
     loadDocuments();
     setUploaderKey(prev => prev + 1);
     setShowUploader(false);
     toast({
       title: "Upload erfolgreich",
-      description: "Deine Dokumente wurden hochgeladen",
+      description: "Deine Dokumente wurden hochgeladen"
     });
   };
+  const currentMonth = format(new Date(), 'MMM', {
+    locale: de
+  });
 
-  const currentMonth = format(new Date(), 'MMM', { locale: de });
-  
   // Show uploader view (keep dark theme for uploader)
   if (showUploader || hasFilesInUploader) {
-    return (
-      <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    return <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
         <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
           {/* Background Ambient Glow */}
-          <div 
-            className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
-            style={{
-              background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
-              filter: 'blur(90px)'
-            }}
-          />
+          <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100" style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+          filter: 'blur(90px)'
+        }} />
           
           {/* Header */}
           <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
             {/* Back Button */}
-            <button 
-              onClick={() => {
-                setShowUploader(false);
-                setHasFilesInUploader(false);
-              }}
-              className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
-            >
+            <button onClick={() => {
+            setShowUploader(false);
+            setHasFilesInUploader(false);
+          }} className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg">
               <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
             </button>
 
@@ -166,42 +188,24 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
           </div>
           
           <div className="z-20 flex-1 flex flex-col w-full relative px-6 md:px-8 pb-8">
-            <EnhancedDocumentUploader
-              key={uploaderKey}
-              onBack={() => {
-                setShowUploader(false);
-                setHasFilesInUploader(false);
-              }}
-              onDocumentSubmitted={handleUploadSuccess}
-              hasUploadedFiles={documents.length > 0}
-              onPreviewChange={setHasFilesInUploader}
-              autoTriggerUpload={showUploader}
-            />
+            <EnhancedDocumentUploader key={uploaderKey} onBack={() => {
+            setShowUploader(false);
+            setHasFilesInUploader(false);
+          }} onDocumentSubmitted={handleUploadSuccess} hasUploadedFiles={documents.length > 0} onPreviewChange={setHasFilesInUploader} autoTriggerUpload={showUploader} />
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
-      {showTour && isReady && (
-        <DocumentsTour 
-          onComplete={completeTour}
-          onSkip={skipTour}
-        />
-      )}
+  return <>
+      {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
       <div className="min-h-screen bg-[#F7F9FB] text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
         {/* Mobile Container */}
-        <div className="min-h-screen flex flex-col bg-[#F7F9FB] w-full max-w-[420px] pb-32 relative">
+        <div className="min-h-screen flex flex-col w-full max-w-[420px] pb-32 relative bg-primary-foreground">
           
           {/* Header */}
-          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between bg-[#F7F9FB]/80 backdrop-blur-md">
-            <button 
-              onClick={() => navigate(-1)}
-              className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2"
-            >
+          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-primary-foreground">
+            <button onClick={() => navigate(-1)} className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
               <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
             </button>
             <h1 className="font-semibold text-[17px] tracking-tight text-slate-900">Dokumente</h1>
@@ -215,10 +219,7 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
             <div className="space-y-3" data-tour="documents-year-selector">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide ml-1">Steuerjahr auswählen</label>
               <div className="relative group">
-                <button 
-                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-indigo-200 transition-all duration-300 group-active:scale-[0.99]"
-                >
+                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-indigo-200 transition-all duration-300 group-active:scale-[0.99]">
                   <div className="flex items-center gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-indigo-50/80 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
                       <Calendar className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
@@ -231,102 +232,65 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
                   <ChevronDown className={cn("w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
                 </button>
                 
-                {isYearDropdownOpen && (
-                  <>
+                {isYearDropdownOpen && <>
                     <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
                     <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
                       <div className="max-h-64 overflow-y-auto py-1">
-                        {availableYears.map(year => (
-                          <button 
-                            key={year} 
-                            onClick={() => handleYearSelect(year)}
-                            className={cn(
-                              "w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors",
-                              year === selectedYear && "bg-indigo-50 text-indigo-700"
-                            )}
-                          >
+                        {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors", year === selectedYear && "bg-indigo-50 text-indigo-700")}>
                             Steuererklärung {year}
-                          </button>
-                        ))}
+                          </button>)}
                       </div>
                     </div>
-                  </>
-                )}
+                  </>}
               </div>
             </div>
 
             {/* Section: Uploaded Documents */}
-            {documents.length > 0 ? (
-              <div className="space-y-4">
+            {documents.length > 0 ? <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <h2 className="font-semibold text-slate-900 text-[16px] tracking-tight">Hochgeladene Dokumente</h2>
                   <span className="text-xs font-medium text-slate-400 bg-slate-100 border-slate-200/60 border rounded-full py-1 px-2">{documents.length} Dateien</span>
                 </div>
 
                 <div className="space-y-3">
-                  {documents.map((doc) => (
-                    <div 
-                      key={doc.id}
-                      onClick={() => {
-                        setSelectedDocument(doc);
-                        setShowActionSheet(true);
-                      }}
-                      className="group bg-white rounded-2xl p-3 pr-4 border border-slate-200 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] hover:border-indigo-100 transition-all duration-300 flex items-center gap-3.5 cursor-pointer"
-                    >
+                  {documents.map(doc => <div key={doc.id} onClick={() => {
+                setSelectedDocument(doc);
+                setShowActionSheet(true);
+              }} className="group bg-white rounded-2xl p-3 pr-4 border border-slate-200 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] hover:border-indigo-100 transition-all duration-300 flex items-center gap-3.5 cursor-pointer">
                       {/* Icon */}
-                      <div className={cn(
-                        "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform",
-                        doc.file_type?.startsWith('image/') 
-                          ? "bg-emerald-50/80 border border-emerald-100/50 text-emerald-600"
-                          : "bg-red-50/80 border border-red-100/50 text-red-600"
-                      )}>
-                        {doc.file_type?.startsWith('image/') 
-                          ? <Image className="w-5 h-5" strokeWidth={1.5} />
-                          : <FileText className="w-5 h-5" strokeWidth={1.5} />
-                        }
+                      <div className={cn("w-12 h-12 shrink-0 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform", doc.file_type?.startsWith('image/') ? "bg-emerald-50/80 border border-emerald-100/50 text-emerald-600" : "bg-red-50/80 border border-red-100/50 text-red-600")}>
+                        {doc.file_type?.startsWith('image/') ? <Image className="w-5 h-5" strokeWidth={1.5} /> : <FileText className="w-5 h-5" strokeWidth={1.5} />}
                       </div>
                       
                       {/* Info */}
                       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
                         <span className="font-medium text-slate-800 text-[14px] truncate leading-snug">{doc.file_name}</span>
                         <span className="text-xs text-slate-400">
-                          {format(new Date(doc.upload_date), 'd. MMM yyyy', { locale: de })}
+                          {format(new Date(doc.upload_date), 'd. MMM yyyy', {
+                      locale: de
+                    })}
                         </span>
                       </div>
 
                       {/* Badge */}
-                      <div className={cn(
-                        "hidden sm:flex px-2 py-0.5 rounded-md",
-                        doc.file_type?.startsWith('image/') 
-                          ? "bg-emerald-50 border border-emerald-100/50"
-                          : "bg-red-50 border border-red-100/50"
-                      )}>
-                        <span className={cn(
-                          "text-[10px] font-bold tracking-wide uppercase",
-                          doc.file_type?.startsWith('image/') ? "text-emerald-700" : "text-red-700"
-                        )}>
+                      <div className={cn("hidden sm:flex px-2 py-0.5 rounded-md", doc.file_type?.startsWith('image/') ? "bg-emerald-50 border border-emerald-100/50" : "bg-red-50 border border-red-100/50")}>
+                        <span className={cn("text-[10px] font-bold tracking-wide uppercase", doc.file_type?.startsWith('image/') ? "text-emerald-700" : "text-red-700")}>
                           {doc.file_type?.startsWith('image/') ? 'Bild' : 'PDF'}
                         </span>
                       </div>
 
                       {/* Menu */}
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedDocument(doc);
-                          setShowActionSheet(true);
-                        }}
-                        className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-colors"
-                      >
+                      <button onClick={e => {
+                  e.stopPropagation();
+                  setSelectedDocument(doc);
+                  setShowActionSheet(true);
+                }} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-colors">
                         <MoreHorizontal className="w-5 h-5" strokeWidth={1.5} />
                       </button>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
-              </div>
-            ) : (
-              /* Empty State */
-              <div className="flex-1 flex flex-col items-center justify-center py-20">
+              </div> : (/* Empty State */
+          <div className="flex-1 flex flex-col items-center justify-center py-20">
                 <div className="text-center space-y-6 relative">
                   {/* Icon placeholder */}
                   <div className="relative mx-auto w-24 h-24 mb-4">
@@ -359,28 +323,20 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>)}
           </main>
 
           {/* Floating Action Footer */}
           <div className="fixed bottom-0 w-full max-w-[420px] pointer-events-none z-50 left-1/2 -translate-x-1/2">
             {/* Gradient Overlay */}
-            <div 
-              className="absolute bottom-0 w-full h-40 pointer-events-none"
-              style={{
-                background: 'linear-gradient(to top, #F7F9FB 10%, rgba(247,249,251,0.8) 50%, rgba(247,249,251,0) 100%)'
-              }}
-            />
+            <div className="absolute bottom-0 w-full h-40 pointer-events-none" style={{
+            background: 'linear-gradient(to top, #F7F9FB 10%, rgba(247,249,251,0.8) 50%, rgba(247,249,251,0) 100%)'
+          }} />
 
             <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4">
               
               {/* Main Action Button */}
-              <button 
-                onClick={() => setShowUploader(true)}
-                className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-[#0F172A] rounded-full shadow-[0_8px_30px_-6px_rgba(15,23,42,0.3)] hover:shadow-[0_8px_35px_-4px_rgba(15,23,42,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-300"
-                data-tour="document-upload-card"
-              >
+              <button onClick={() => setShowUploader(true)} className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-[#0F172A] rounded-full shadow-[0_8px_30px_-6px_rgba(15,23,42,0.3)] hover:shadow-[0_8px_35px_-4px_rgba(15,23,42,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-300" data-tour="document-upload-card">
                 <div className="flex group-hover:bg-indigo-400 transition-colors text-white bg-blue-500 w-10 h-10 rounded-full shadow-inner items-center justify-center">
                   <Plus className="w-6 h-6" strokeWidth={1.5} />
                 </div>
@@ -399,38 +355,22 @@ const DocumentsContent: React.FC<{ selectedYear: string; onYearChange: (year: st
           </div>
         </div>
 
-        <CameraCapture 
-          open={showCamera} 
-          onClose={() => setShowCamera(false)} 
-          onCapture={handleCameraCapture}
-          taxYear={selectedYear}
-        />
+        <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
-        <DocumentActionSheet
-          document={selectedDocument}
-          open={showActionSheet}
-          onClose={() => {
-            setShowActionSheet(false);
-            setSelectedDocument(null);
-          }}
-          onUpdate={loadDocuments}
-          availableYears={allYears}
-        />
+        <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
+        setShowActionSheet(false);
+        setSelectedDocument(null);
+      }} onUpdate={loadDocuments} availableYears={allYears} />
       </div>
-    </>
-  );
+    </>;
 };
 
 // Main component that wraps DocumentsContent with FormProvider
 const Documents: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
-
-  return (
-    <FormProvider taxYear={selectedYear}>
+  return <FormProvider taxYear={selectedYear}>
       <DocumentsContent selectedYear={selectedYear} onYearChange={setSelectedYear} />
-    </FormProvider>
-  );
+    </FormProvider>;
 };
-
 export default Documents;
