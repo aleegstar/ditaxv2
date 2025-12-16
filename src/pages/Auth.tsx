@@ -394,6 +394,13 @@ const Auth = () => {
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
+          {/* Oder Divider - Dark Area */}
+          <div className="relative z-10 flex items-center gap-4 w-full px-6 mb-4 pointer-events-auto">
+            <div className="flex-1 h-px bg-zinc-700" />
+            <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
+            <div className="flex-1 h-px bg-zinc-700" />
+          </div>
+
           {/* The Domed Button Container */}
           <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
         opacity: 0,
@@ -405,7 +412,7 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-0 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
+            <div className="flex flex-col items-center overflow-hidden bg-white w-full pt-6 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)]" style={{
           borderRadius: '50% 50% 0 0 / 48px 48px 0 0'
         }}>
               {/* Subtle Top Highlight */}
@@ -413,13 +420,6 @@ const Auth = () => {
               
               {/* Inner Gradient */}
               <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-50/80 to-transparent pointer-events-none" />
-
-              {/* Oder Divider */}
-              <div className="z-10 flex items-center gap-4 w-full mt-6 mb-6">
-                <div className="flex-1 h-px bg-slate-200" />
-                <span className="text-sm text-slate-400 font-medium font-jakarta">Oder</span>
-                <div className="flex-1 h-px bg-slate-200" />
-              </div>
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full">
                 {/* Google Login */}
