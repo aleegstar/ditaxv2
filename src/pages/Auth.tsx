@@ -390,7 +390,7 @@ const Auth = () => {
       </div>
 
       {/* Floating Bottom Social Login Island - Only show on main step */}
-      {step === "main" && <div className="fixed bottom-0 w-full max-w-[430px] pointer-events-none z-50">
+      {step === "main" && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
