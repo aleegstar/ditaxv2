@@ -294,11 +294,8 @@ const Auth = () => {
                 <form onSubmit={handleEmailSubmit} className="space-y-5">
                   <div className="space-y-1.5">
                     
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
-                        <Mail className="w-5 h-5" />
-                      </div>
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] pl-12 pr-6 py-4 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
+                    <div className="relative">
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] px-6 py-4 text-base text-white text-center placeholder:text-zinc-500 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
