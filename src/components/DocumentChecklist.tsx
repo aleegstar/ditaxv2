@@ -14,6 +14,7 @@ import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { Progress } from '@/components/ui/progress';
 
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
@@ -413,6 +414,27 @@ const DocumentChecklist: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-2">
         <div className="max-w-[600px] mx-auto space-y-4 pb-24">
           
+          {/* Progress Overview */}
+          {checklistItems.length > 0 && (
+            <div className="rounded-xl p-4" style={{
+              background: 'rgba(255, 255, 255, 0.02)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-zinc-400">Fortschritt</span>
+                <span className="text-sm font-medium text-white">
+                  {checklistItems.filter(item => item.uploaded).length} von {checklistItems.length} Unterlagen
+                </span>
+              </div>
+              <Progress 
+                value={(checklistItems.filter(item => item.uploaded).length / checklistItems.length) * 100}
+                className="h-2 bg-white/[0.05]"
+                indicatorClassName="bg-[#1D64FF]"
+              />
+            </div>
+          )}
+
           {error && (
             <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 backdrop-blur-md">
               <AlertTriangle className="h-4 w-4 text-red-300" />
