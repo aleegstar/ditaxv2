@@ -396,9 +396,9 @@ const Auth = () => {
 
           {/* Oder Divider - Dark Area */}
           <div className="relative z-10 flex items-center gap-4 w-full px-6 mb-4 pointer-events-auto">
-            <div className="flex-1 h-px bg-zinc-700" />
-            <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
-            <div className="flex-1 h-px bg-zinc-700" />
+            <div className="flex-1 h-px bg-zinc-500" />
+            <span className="text-sm text-zinc-400 font-medium font-jakarta">Oder</span>
+            <div className="flex-1 h-px bg-zinc-500" />
           </div>
 
           {/* The Domed Button Container */}
