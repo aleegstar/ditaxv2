@@ -425,7 +425,7 @@ export const TaxYearDashboard: React.FC = () => {
                 delay={0.5}
               />
             )}
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${allAngabenComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
                   Schritt 2
@@ -433,19 +433,39 @@ export const TaxYearDashboard: React.FC = () => {
                 <h2 className={`text-xl font-medium tracking-tight font-jakarta ${allAngabenComplete ? 'text-white' : 'text-zinc-500'}`}>
                   Unterlagen
                 </h2>
-                <p className="text-zinc-500 text-sm mt-1 font-light leading-relaxed font-jakarta">
-                  {allAngabenComplete ? 'Lade deine steuerrelevanten Unterlagen hoch.' : 'Schliesse zuerst alle Angaben ab.'}
+                <p className="text-zinc-500 text-xs mt-1.5 font-normal tracking-wide font-jakarta">
+                  {isDocumentsComplete ? 'Abgeschlossen' : allAngabenComplete ? 'In Bearbeitung' : 'Gesperrt'}
                 </p>
-              </div>
-              <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center ${allAngabenComplete ? 'bg-white/5' : 'bg-white/[0.02]'}`}>
-                {isDocumentsComplete ? <Check className="w-4 h-4 text-[#1D64FF]" strokeWidth={1.5} /> : <UploadCloud className={`w-4 h-4 ${allAngabenComplete ? 'text-zinc-400' : 'text-zinc-600'}`} strokeWidth={1.5} />}
               </div>
             </div>
 
-            {/* Small preview/placeholder for upload area */}
-            <div className={`mt-4 h-16 w-full border border-dashed rounded-lg flex items-center justify-center gap-2 ${allAngabenComplete ? 'border-white/10 bg-white/[0.01]' : 'border-white/5 bg-transparent'}`}>
-              <span className={`text-xs font-jakarta ${allAngabenComplete ? 'text-zinc-600' : 'text-zinc-700'}`}>
-                {allAngabenComplete ? 'Drag & Drop oder Auswählen' : 'Gesperrt'}
+            {/* Inner Card - Unterlagen */}
+            <div className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
+              isDocumentsComplete 
+                ? 'border border-transparent' 
+                : 'border border-white/5 hover:border-white/20'
+            } ${!allAngabenComplete ? 'pointer-events-none' : 'hover:from-white/[0.12] hover:to-white/[0.02]'}`}>
+              {/* BorderBeam animation when NOT completed */}
+              {allAngabenComplete && !isDocumentsComplete && (
+                <BorderBeam 
+                  size={80}
+                  duration={6}
+                  borderWidth={1.5}
+                  colorFrom="#F97316"
+                  colorTo="#FBBF24"
+                  delay={0}
+                />
+              )}
+              <div className="flex justify-between w-full">
+                <UploadCloud className={`w-5 h-5 transition-colors ${allAngabenComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
+                {isDocumentsComplete && (
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                    <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                  </div>
+                )}
+              </div>
+              <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${allAngabenComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
+                Unterlagen
               </span>
             </div>
           </motion.div>
@@ -495,7 +515,7 @@ export const TaxYearDashboard: React.FC = () => {
                 delay={1}
               />
             )}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-6">
               <div>
                 <span className={`block text-[10px] font-semibold tracking-widest font-jakarta mb-1 ${isDocumentsComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`}>
                   Schritt 3
@@ -503,33 +523,42 @@ export const TaxYearDashboard: React.FC = () => {
                 <h2 className={`text-xl font-medium tracking-tight font-jakarta ${isDocumentsComplete ? 'text-white' : 'text-zinc-500'}`}>
                   Einreichen
                 </h2>
-                <p className="text-zinc-500 text-sm mt-1 font-light leading-relaxed font-jakarta">
-                  {isDocumentsComplete ? 'Zusammenfassung und Übermittlung.' : 'Schliesse zuerst die Unterlagen ab.'}
+                <p className="text-zinc-500 text-xs mt-1.5 font-normal tracking-wide font-jakarta">
+                  {canSubmit ? 'Bereit' : isDocumentsComplete ? 'In Bearbeitung' : 'Gesperrt'}
                 </p>
-              </div>
-              <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center ${isDocumentsComplete ? 'bg-white/5' : 'bg-white/[0.02]'}`}>
-                <Send className={`w-4 h-4 ${isDocumentsComplete ? 'text-zinc-400' : 'text-zinc-600'}`} strokeWidth={1.5} />
               </div>
             </div>
 
-            {/* Action / Status Area */}
-            <div className={`flex items-center justify-between border rounded-xl p-3 transition-colors ${isDocumentsComplete ? 'bg-white/[0.02] border-white/5 group-hover:bg-white/[0.04]' : 'bg-transparent border-white/5'}`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ring-1 ${isDocumentsComplete ? 'bg-[#1D64FF]/10 ring-[#1D64FF]/20' : 'bg-white/[0.02] ring-white/5'}`}>
-                  <FileCheck className={`w-4 h-4 ${isDocumentsComplete ? 'text-[#1D64FF]' : 'text-zinc-600'}`} strokeWidth={1.5} />
-                </div>
-                <div className="flex flex-col">
-                  <span className={`text-sm font-medium font-jakarta ${isDocumentsComplete ? 'text-zinc-200' : 'text-zinc-500'}`}>
-                    {canSubmit ? 'Entwurf bereit' : 'Nicht verfügbar'}
-                  </span>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-jakarta">
-                    {canSubmit ? 'Wartet auf Freigabe' : isDocumentsComplete ? 'Zuerst alle Schritte abschliessen' : 'Gesperrt'}
-                  </span>
-                </div>
+            {/* Inner Card - Einreichen */}
+            <div 
+              onClick={(e) => { e.stopPropagation(); if (canSubmit) handleSubmitClick(); }}
+              className={`group relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent rounded-xl p-3 md:p-4 h-24 md:h-28 flex flex-col justify-between transition-all shadow-lg shadow-black/20 ${
+              canSubmit 
+                ? 'border border-transparent cursor-pointer hover:from-white/[0.12] hover:to-white/[0.02]' 
+                : 'border border-white/5'
+            } ${!isDocumentsComplete ? 'pointer-events-none' : ''}`}>
+              {/* BorderBeam animation when in progress (docs complete but not submitted) */}
+              {isDocumentsComplete && !canSubmit && (
+                <BorderBeam 
+                  size={80}
+                  duration={6}
+                  borderWidth={1.5}
+                  colorFrom="#F97316"
+                  colorTo="#FBBF24"
+                  delay={0}
+                />
+              )}
+              <div className="flex justify-between w-full">
+                <Send className={`w-5 h-5 transition-colors ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
+                {canSubmit && (
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                    <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
+                  </div>
+                )}
               </div>
-              <button onClick={handleSubmitClick} disabled={!canSubmit} className="px-5 py-2 bg-gradient-to-r from-[#1D64FF] to-[#2563eb] text-white text-xs font-medium rounded-lg hover:shadow-[0_0_25px_rgba(29,100,255,0.5)] transition-all shadow-lg shadow-blue-900/30 font-jakarta border border-white/10 tracking-wide disabled:opacity-40 disabled:cursor-not-allowed">
-                Senden
-              </button>
+              <span className={`text-xs font-light leading-tight transition-colors font-jakarta ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-zinc-200' : 'text-zinc-600'}`}>
+                Einreichen
+              </span>
             </div>
           </motion.div>
         </div>
