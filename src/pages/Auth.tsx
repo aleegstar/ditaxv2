@@ -295,10 +295,10 @@ const Auth = () => {
                   <div className="space-y-1.5">
                     
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
-                        <Mail className="w-4 h-4" />
+                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-[#1D64FF] transition-colors">
+                        <Mail className="w-5 h-5" />
                       </div>
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full rounded-xl border border-[#1D64FF]/50 bg-[#0A0C10] pl-11 pr-4 py-3.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF] transition-all font-jakarta shadow-sm" placeholder="name@firma.com" required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] pl-12 pr-6 py-4 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
