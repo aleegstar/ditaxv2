@@ -187,18 +187,11 @@ const DocumentsContent: React.FC<{
           </header>
           
           <div className="flex-1 flex flex-col w-full relative px-6 pb-8 max-w-2xl mx-auto">
-            <EnhancedDocumentUploader 
-              key={uploaderKey} 
-              onBack={() => {
-                setShowUploader(false);
-                setHasFilesInUploader(false);
-                setSelectedFiles([]);
-              }} 
-              onDocumentSubmitted={handleUploadSuccess} 
-              hasUploadedFiles={documents.length > 0} 
-              onPreviewChange={setHasFilesInUploader} 
-              initialFiles={selectedFiles}
-            />
+            <EnhancedDocumentUploader key={uploaderKey} onBack={() => {
+            setShowUploader(false);
+            setHasFilesInUploader(false);
+            setSelectedFiles([]);
+          }} onDocumentSubmitted={handleUploadSuccess} hasUploadedFiles={documents.length > 0} onPreviewChange={setHasFilesInUploader} initialFiles={selectedFiles} />
           </div>
         </div>
       </div>;
@@ -229,7 +222,7 @@ const DocumentsContent: React.FC<{
                 <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-indigo-200 transition-all duration-300 group-active:scale-[0.99]">
                   <div className="flex items-center gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-indigo-50/80 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
-                      <Calendar className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                      <Calendar strokeWidth={1.5} className="w-5 h-5 text-[#1f66ff]" />
                     </div>
                     <div className="flex flex-col items-start">
                       <span className="font-semibold text-slate-900 text-[15px] tracking-tight">Steuererklärung {selectedYear}</span>
@@ -296,14 +289,14 @@ const DocumentsContent: React.FC<{
                       </button>
                     </div>)}
                 </div>
-           </div> : (/* Empty State */
-          <div data-tour="documents-empty-state" className="flex-1 flex flex-col items-center justify-center py-20">
+              </div> : (/* Empty State */
+          <div className="flex-1 flex flex-col items-center justify-center py-20">
                 <div className="text-center space-y-6 relative">
                   {/* Icon placeholder */}
                   <div className="relative mx-auto w-24 h-24 mb-4">
                     <div className="absolute inset-0 bg-indigo-500 rounded-full blur-[40px] opacity-10" />
                     <div className="relative w-full h-full rounded-[32px] bg-white border border-slate-200 shadow-lg flex items-center justify-center group cursor-default">
-                      <FolderOpen className="w-10 h-10 text-indigo-500 group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
+                      <FolderOpen strokeWidth={1.5} className="w-10 h-10 group-hover:scale-110 transition-transform duration-500 text-[#1f66ff]" />
                     </div>
                     {/* Status Badge */}
                     <div className="absolute -top-2 -right-2 bg-white border border-slate-200 p-1.5 rounded-full shadow-lg">
@@ -343,26 +336,19 @@ const DocumentsContent: React.FC<{
             <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4">
               
               {/* Hidden File Input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,application/pdf"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    // Store the files before resetting the input
-                    setSelectedFiles(Array.from(e.target.files));
-                    setShowUploader(true);
-                  }
-                  // Reset input so same file can be selected again
-                  e.target.value = '';
-                }}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                // Store the files before resetting the input
+                setSelectedFiles(Array.from(e.target.files));
+                setShowUploader(true);
+              }
+              // Reset input so same file can be selected again
+              e.target.value = '';
+            }} />
               
               {/* Main Action Button */}
               <button onClick={() => fileInputRef.current?.click()} className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-[#0F172A] rounded-full shadow-[0_8px_30px_-6px_rgba(15,23,42,0.3)] hover:shadow-[0_8px_35px_-4px_rgba(15,23,42,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-300" data-tour="document-upload-card">
-                <div className="flex group-hover:bg-indigo-400 transition-colors text-white bg-blue-500 w-10 h-10 rounded-full shadow-inner items-center justify-center">
+                <div className="flex transition-colors text-white w-10 h-10 rounded-full shadow-inner items-center justify-center bg-primary">
                   <Plus className="w-6 h-6" strokeWidth={1.5} />
                 </div>
                 <div className="flex flex-col items-start text-left">
