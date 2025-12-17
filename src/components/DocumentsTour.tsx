@@ -285,7 +285,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
               key={index}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-700 ease-out",
-                index <= currentStep ? "bg-indigo-500 scale-110" : "bg-slate-300 scale-100"
+                index <= currentStep ? "bg-[#1D64FF] scale-110" : "bg-slate-300 scale-100"
               )}
             />
           ))}
@@ -373,7 +373,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
                 <Button
                   size={isMobile ? "sm" : "default"}
                   onClick={handleNext}
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                  className="bg-[#1D64FF] hover:bg-[#1854D9] text-white shadow-lg shadow-[#1D64FF]/25"
                 >
                   {currentStep < tourSteps.length - 1 ? 'Weiter' : 'Fertig'}
                 </Button>
