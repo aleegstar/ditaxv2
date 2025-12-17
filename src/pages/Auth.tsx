@@ -20,6 +20,7 @@ const Auth = () => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const isOAuthInProgress = useRef(false);
   useEffect(() => {
     if (resendCountdown > 0) {
@@ -295,7 +296,7 @@ const Auth = () => {
                   <div className="space-y-1.5">
                     
                     <div className="relative">
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] px-6 py-4 text-base text-white text-center placeholder:text-zinc-500 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] px-6 py-4 text-base text-white text-center placeholder:text-zinc-500 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
@@ -389,7 +390,7 @@ const Auth = () => {
       </div>
 
       {/* Floating Bottom Social Login Island - Only show on main step */}
-      {step === "main" && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
+      {step === "main" && !isInputFocused && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
