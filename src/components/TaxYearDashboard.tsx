@@ -553,7 +553,7 @@ export const TaxYearDashboard: React.FC = () => {
                 )}
                 <div className="flex justify-between w-full">
                   <Send className={`w-5 h-5 transition-colors ${isDocumentsComplete ? 'text-zinc-400 group-hover:text-white' : 'text-zinc-600'}`} strokeWidth={1.5} />
-                  {canSubmit && (
+                  {isCompleted('submit') && (
                     <div className="w-5 h-5 rounded-full flex items-center justify-center bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]">
                       <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                     </div>
