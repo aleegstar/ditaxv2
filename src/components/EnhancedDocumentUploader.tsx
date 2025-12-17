@@ -388,17 +388,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const uploadableFiles = files.filter(f => !f.uploaded && !f.error);
 
   return (
-    <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased selection:bg-[#1D64FF]/30">
-      {/* Background Ambient Glow */}
-      <div 
-        className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 70%)',
-          filter: 'blur(80px)'
-        }}
-      />
-      
-      <div className="relative z-10 flex-1 flex flex-col px-6 pb-32 pt-6 overflow-y-auto">
+    <div className="min-h-full text-slate-800 antialiased selection:bg-indigo-100">
+      <div className="relative flex-1 flex flex-col pb-32 overflow-y-auto">
         {/* File Upload Component */}
         <FileUpload 
           onFileUpload={handleFileUpload} 
@@ -419,10 +410,10 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         {/* File List Section */}
         {files.length > 0 && (
-          <div className="mt-8 space-y-3">
+          <div className="mt-6 space-y-3">
             {/* Section Header */}
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                 Ausgewählte Dateien
               </span>
             </div>
@@ -435,42 +426,42 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
               return (
                 <div 
                   key={fileWithPreview.id} 
-                  className="group relative flex items-center gap-3.5 p-3 pr-4 rounded-xl bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] hover:bg-[#0F1218] transition-all duration-300 shadow-sm"
+                  className="group relative flex items-center gap-3.5 p-3 pr-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md transition-all duration-300"
                 >
                   {/* Thumbnail/Icon */}
-                  <div className="w-10 h-10 rounded-lg bg-[#16191F] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-[#1D64FF]/30 transition-colors">
-                    <span className="text-[10px] font-bold text-zinc-400 group-hover:text-[#1D64FF] transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 group-hover:border-indigo-200 transition-colors">
+                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-indigo-600 transition-colors">
                       {ext}
                     </span>
                   </div>
                   
                   {/* File Info */}
                   <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                    <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                    <p className="text-sm font-medium text-slate-800 truncate group-hover:text-slate-900 transition-colors">
                       {fileWithPreview.file.name}
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-zinc-500 font-medium">
+                      <span className="text-[11px] text-slate-400 font-medium">
                         {fileSizeMB} MB
                       </span>
-                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                      <div className="w-1 h-1 rounded-full bg-slate-300" />
                       {fileWithPreview.uploading ? (
-                        <span className="text-[11px] text-[#1D64FF] font-medium flex items-center gap-1">
+                        <span className="text-[11px] text-blue-500 font-medium flex items-center gap-1">
                           <Loader2 className="w-3 h-3 animate-spin" />
                           {Math.round(fileWithPreview.progress)}%
                         </span>
                       ) : fileWithPreview.uploaded ? (
-                        <span className="text-[11px] text-emerald-500 font-medium flex items-center gap-1">
+                        <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
                           <Check className="w-3 h-3" />
                           Hochgeladen
                         </span>
                       ) : fileWithPreview.error ? (
-                        <span className="text-[11px] text-red-400 font-medium flex items-center gap-1">
+                        <span className="text-[11px] text-red-500 font-medium flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           Fehler
                         </span>
                       ) : (
-                        <span className="text-[11px] text-emerald-500 font-medium">
+                        <span className="text-[11px] text-emerald-600 font-medium">
                           Ready
                         </span>
                       )}
@@ -481,7 +472,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
                   {!fileWithPreview.uploading && !fileWithPreview.uploaded && (
                     <button 
                       onClick={() => handleRemoveFile(fileWithPreview.id)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all duration-200 opacity-70 group-hover:opacity-100"
+                      className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -492,9 +483,9 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
             
             {/* Error for specific files */}
             {files.some(f => f.error) && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200">
                 {files.filter(f => f.error).map(f => (
-                  <p key={f.id} className="text-sm text-red-400">
+                  <p key={f.id} className="text-sm text-red-600">
                     {f.file.name}: {f.error}
                   </p>
                 ))}
@@ -506,18 +497,15 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
 
       {/* Bottom Action Area */}
       {hasValidFiles && (
-        <div className="fixed bottom-0 left-0 w-full p-6 pt-4 bg-gradient-to-t from-[#020408] via-[#020408] to-transparent z-30">
+        <div className="fixed bottom-0 left-0 w-full p-6 pt-4 bg-gradient-to-t from-[#F7F9FB] via-[#F7F9FB] to-transparent z-30">
           <div className="max-w-md mx-auto">
             <button 
               onClick={handleUploadAll}
               disabled={uploading || uploadableFiles.length === 0}
               className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {/* Glow Effect */}
-              <div className="absolute -inset-1 bg-[#1D64FF]/30 rounded-full blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
-              
               {/* Button */}
-              <div className="relative w-full h-14 bg-[#1D64FF] hover:bg-[#1a5ae6] text-white rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] hover:shadow-[0_0_35px_-5px_rgba(29,100,255,0.6)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+              <div className="relative w-full h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
                 {uploading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />

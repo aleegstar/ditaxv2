@@ -163,34 +163,30 @@ const DocumentsContent: React.FC<{
     locale: de
   });
 
-  // Show uploader view (keep dark theme for uploader)
+  // Show uploader view (light theme)
   if (showUploader || hasFilesInUploader) {
-    return <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-        <div className="min-h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
-          {/* Background Ambient Glow */}
-          <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100" style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
-          filter: 'blur(90px)'
-        }} />
+    return <div className="min-h-screen bg-[#F7F9FB] text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
+        <div className="min-h-screen flex flex-col w-full max-w-[420px] relative bg-primary-foreground">
           
           {/* Header */}
-          <div className="z-20 w-full px-6 pt-8 pb-4 flex items-center justify-center relative shrink-0">
+          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-primary-foreground">
             {/* Back Button */}
             <button onClick={() => {
             setShowUploader(false);
             setHasFilesInUploader(false);
             setSelectedFiles([]);
-          }} className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg">
-              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+          }} className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
+              <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
             </button>
 
             {/* Title */}
-            <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight">
+            <h1 className="font-semibold text-[17px] tracking-tight text-slate-900">
               Dokumente hochladen
             </h1>
-          </div>
+            <div className="w-9" />
+          </header>
           
-          <div className="z-20 flex-1 flex flex-col w-full relative px-6 md:px-8 pb-8">
+          <div className="flex-1 flex flex-col w-full relative px-6 pb-8">
             <EnhancedDocumentUploader 
               key={uploaderKey} 
               onBack={() => {
