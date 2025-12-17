@@ -47,6 +47,13 @@ const formTourSteps: TourStep[] = [
     description: 'Zum Schluss reichst du deine Steuererklärung zur Erstellung ein. Diese Funktion wird freigeschaltet, sobald Schritt 2 abgeschlossen ist.',
     targetElement: '[data-tour="form-step-3"]',
     position: 'top'
+  },
+  {
+    id: 'start-kontaktangaben',
+    title: 'Los geht\'s!',
+    description: 'Beginne damit deine Angaben zu erfassen.',
+    targetElement: '[data-tour="kontaktangaben"]',
+    position: 'bottom'
   }
 ];
 
