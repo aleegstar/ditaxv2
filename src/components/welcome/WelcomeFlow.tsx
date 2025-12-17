@@ -128,11 +128,13 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-6 w-full max-w-md px-4">
             <div className="flex flex-col items-start gap-6 w-full">
-              <div className="relative bg-[#0A0C10] border border-white/[0.08] rounded-3xl p-7 md:p-6 shadow-sm w-full space-y-5"
+              <div className="relative bg-gradient-to-br from-[#18181b] to-[#050505] rounded-3xl p-7 md:p-6 w-full space-y-5 ring-1 ring-white/5 overflow-hidden"
                 style={{
-                  background: 'linear-gradient(#0A0C10, #0A0C10) padding-box, conic-gradient(from 180deg at 50% 50%, #F97316, #FBBF24, #F97316) border-box',
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
                   border: '1px solid transparent',
-                  boxShadow: '0 0 30px rgba(249,115,22,0.15), 0 0 60px rgba(251,191,36,0.1)'
+                  backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+                  backgroundOrigin: 'border-box',
+                  backgroundClip: 'padding-box, border-box'
                 }}
               >
                 {/* Orange BorderBeam */}
