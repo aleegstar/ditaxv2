@@ -165,17 +165,17 @@ const DocumentsContent: React.FC<{
 
   // Show uploader view (light theme)
   if (showUploader || hasFilesInUploader) {
-    return <div className="min-h-screen bg-[#F7F9FB] text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
-        <div className="min-h-screen flex flex-col w-full max-w-[420px] relative bg-primary-foreground">
+    return <div className="min-h-screen bg-white text-slate-800 antialiased overflow-x-hidden">
+        <div className="min-h-screen flex flex-col w-full relative">
           
           {/* Header */}
-          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-primary-foreground">
+          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-white/90">
             {/* Back Button */}
             <button onClick={() => {
             setShowUploader(false);
             setHasFilesInUploader(false);
             setSelectedFiles([]);
-          }} className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
+          }} className="-ml-2 hover:bg-slate-100 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
               <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
             </button>
 
@@ -186,7 +186,7 @@ const DocumentsContent: React.FC<{
             <div className="w-9" />
           </header>
           
-          <div className="flex-1 flex flex-col w-full relative px-6 pb-8">
+          <div className="flex-1 flex flex-col w-full relative px-6 pb-8 max-w-2xl mx-auto">
             <EnhancedDocumentUploader 
               key={uploaderKey} 
               onBack={() => {
