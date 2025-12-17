@@ -116,7 +116,8 @@ export const TaxYearDashboard: React.FC = () => {
   const {
     formProgress,
     taxYear,
-    isDataLoading
+    isDataLoading,
+    formDataLoaded
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -148,15 +149,17 @@ export const TaxYearDashboard: React.FC = () => {
 
   // Mark component as ready after initial data load
   useEffect(() => {
-    if (!isDataLoading) {
+    if (!isDataLoading && formDataLoaded) {
       // Small delay to ensure all data is settled
       const timer = setTimeout(() => setIsReady(true), 50);
       return () => clearTimeout(timer);
+    } else {
+      setIsReady(false);
     }
-  }, [isDataLoading]);
+  }, [isDataLoading, formDataLoaded]);
   
   // Show skeleton while loading
-  if (isDataLoading || !isReady) {
+  if (isDataLoading || !isReady || !formDataLoaded) {
     return <FormDashboardSkeleton />;
   }
   const angabenSections: DashboardSection[] = [{
