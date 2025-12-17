@@ -389,7 +389,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
 
   return (
     <div className="min-h-full text-slate-800 antialiased selection:bg-indigo-100">
-      <div className="relative flex-1 flex flex-col pb-32 overflow-y-auto">
+      <div className="relative flex-1 flex flex-col pb-32">
         {/* File Upload Component */}
         <FileUpload 
           onFileUpload={handleFileUpload} 
