@@ -33,6 +33,7 @@ const DocumentsContent: React.FC<{
   const [showUploader, setShowUploader] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const {
     toast
   } = useToast();
@@ -152,6 +153,7 @@ const DocumentsContent: React.FC<{
     loadDocuments();
     setUploaderKey(prev => prev + 1);
     setShowUploader(false);
+    setSelectedFiles([]);
     toast({
       title: "Upload erfolgreich",
       description: "Deine Dokumente wurden hochgeladen"
@@ -177,6 +179,7 @@ const DocumentsContent: React.FC<{
             <button onClick={() => {
             setShowUploader(false);
             setHasFilesInUploader(false);
+            setSelectedFiles([]);
           }} className="absolute left-6 w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg">
               <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
             </button>
@@ -188,10 +191,18 @@ const DocumentsContent: React.FC<{
           </div>
           
           <div className="z-20 flex-1 flex flex-col w-full relative px-6 md:px-8 pb-8">
-            <EnhancedDocumentUploader key={uploaderKey} onBack={() => {
-            setShowUploader(false);
-            setHasFilesInUploader(false);
-          }} onDocumentSubmitted={handleUploadSuccess} hasUploadedFiles={documents.length > 0} onPreviewChange={setHasFilesInUploader} autoTriggerUpload={showUploader} />
+            <EnhancedDocumentUploader 
+              key={uploaderKey} 
+              onBack={() => {
+                setShowUploader(false);
+                setHasFilesInUploader(false);
+                setSelectedFiles([]);
+              }} 
+              onDocumentSubmitted={handleUploadSuccess} 
+              hasUploadedFiles={documents.length > 0} 
+              onPreviewChange={setHasFilesInUploader} 
+              initialFiles={selectedFiles}
+            />
           </div>
         </div>
       </div>;
@@ -335,8 +346,26 @@ const DocumentsContent: React.FC<{
 
             <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4">
               
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    // Store the files before resetting the input
+                    setSelectedFiles(Array.from(e.target.files));
+                    setShowUploader(true);
+                  }
+                  // Reset input so same file can be selected again
+                  e.target.value = '';
+                }}
+              />
+              
               {/* Main Action Button */}
-              <button onClick={() => setShowUploader(true)} className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-[#0F172A] rounded-full shadow-[0_8px_30px_-6px_rgba(15,23,42,0.3)] hover:shadow-[0_8px_35px_-4px_rgba(15,23,42,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-300" data-tour="document-upload-card">
+              <button onClick={() => fileInputRef.current?.click()} className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-[#0F172A] rounded-full shadow-[0_8px_30px_-6px_rgba(15,23,42,0.3)] hover:shadow-[0_8px_35px_-4px_rgba(15,23,42,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-300" data-tour="document-upload-card">
                 <div className="flex group-hover:bg-indigo-400 transition-colors text-white bg-blue-500 w-10 h-10 rounded-full shadow-inner items-center justify-center">
                   <Plus className="w-6 h-6" strokeWidth={1.5} />
                 </div>
