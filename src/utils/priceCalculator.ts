@@ -14,8 +14,8 @@ export interface PriceBreakdown {
 const TEST_MODE = true;
 
 export const calculatePrice = (formData: FormData, expressService: boolean = false): PriceBreakdown => {
-  // TEST MODE: Use 100 cents (1.00 CHF) as base price instead of 200 CHF
-  const basePrice = TEST_MODE ? 100 : 20000; // 100 cents vs 200 CHF in cents
+  // TEST MODE: Use 100 cents (1.00 CHF) as base price instead of 150 CHF
+  const basePrice = TEST_MODE ? 100 : 15000; // 100 cents vs 150 CHF in cents
   let totalPrice = basePrice;
   const items: { label: string; amount: number }[] = [
     { label: "Grundpreis", amount: basePrice }
@@ -132,16 +132,6 @@ export const calculatePrice = (formData: FormData, expressService: boolean = fal
   if (formData.deductions.hasSupportedPersons) {
     deductionsDiscount += 1000;
     items.push({ label: "Unterstützungsbedürftige Personen", amount: 1000 });
-    
-    // Zusatzkosten für jede unterstützte Person
-    const additionalFee = formData.deductions.supportedPersons.length * 500; // 5 CHF pro Person
-    if (additionalFee > 0) {
-      deductionsDiscount += additionalFee;
-      items.push({ 
-        label: `Zusätzliche unterstützte Personen (${formData.deductions.supportedPersons.length})`, 
-        amount: additionalFee 
-      });
-    }
   }
 
   // Unterhaltskosten +10 CHF
@@ -150,16 +140,22 @@ export const calculatePrice = (formData: FormData, expressService: boolean = fal
     items.push({ label: "Unterhaltskosten", amount: 1000 });
   }
 
+  // Kinderbetreuungskosten +10 CHF
+  if (formData.deductions.hasChildcare) {
+    deductionsDiscount += 1000;
+    items.push({ label: "Kinderbetreuungskosten", amount: 1000 });
+  }
+
   // Vermögen Zuschläge
   let assetsAdditional = 0;
 
-  // Fahrzeug +10 CHF
+  // Fahrzeug +10 CHF (+10 CHF pro Fahrzeug)
   if (formData.assets.hasVehicle) {
     assetsAdditional += 1000;
     items.push({ label: "Fahrzeug", amount: 1000 });
     
     // Zusatzkosten für jedes Fahrzeug
-    const additionalFee = formData.assets.vehicles.length * 500; // 5 CHF pro Fahrzeug
+    const additionalFee = formData.assets.vehicles.length * 1000; // 10 CHF pro Fahrzeug
     if (additionalFee > 0) {
       assetsAdditional += additionalFee;
       items.push({ 
@@ -169,13 +165,13 @@ export const calculatePrice = (formData: FormData, expressService: boolean = fal
     }
   }
 
-  // Liegenschaft +20 CHF
+  // Liegenschaft +20 CHF (+20 CHF pro Liegenschaft)
   if (formData.assets.hasProperty) {
     assetsAdditional += 2000;
     items.push({ label: "Liegenschaft", amount: 2000 });
     
     // Zusatzkosten für jede Liegenschaft
-    const additionalFee = formData.assets.properties.length * 1000; // 10 CHF pro Liegenschaft
+    const additionalFee = formData.assets.properties.length * 2000; // 20 CHF pro Liegenschaft
     if (additionalFee > 0) {
       assetsAdditional += additionalFee;
       items.push({ 
@@ -185,6 +181,12 @@ export const calculatePrice = (formData: FormData, expressService: boolean = fal
     }
   }
 
+  // Hypothek +10 CHF
+  if (formData.assets.hasMortgage) {
+    assetsAdditional += 1000;
+    items.push({ label: "Hypothek", amount: 1000 });
+  }
+
   // Schulden +10 CHF
   if (formData.assets.hasDebt) {
     assetsAdditional += 1000;
@@ -192,7 +194,7 @@ export const calculatePrice = (formData: FormData, expressService: boolean = fal
   }
 
   // Depotkonto +20 CHF
-  if (formData.assets.hasDepositAccount) {
+  if (formData.assets.hasSecuritiesAccount) {
     assetsAdditional += 2000;
     items.push({ label: "Depotkonto", amount: 2000 });
   }
