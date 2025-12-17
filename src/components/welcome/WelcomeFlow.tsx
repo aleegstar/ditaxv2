@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Shield, Mail, CheckCircle2 } from 'lucide-react';
+import { Shield, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BorderBeam } from '@/components/ui/border-beam';
 const TAX_YEARS = Array.from({ length: 3 }, (_, i) => {
@@ -40,10 +40,6 @@ export const WelcomeFlow = () => {
     {
       id: 'year',
       title: '', // Will be set dynamically with firstName
-    },
-    {
-      id: 'ready',
-      title: 'Bereit für deine Steuererklärung?',
     },
   ];
 
@@ -234,33 +230,13 @@ export const WelcomeFlow = () => {
               </SelectContent>
             </Select>
             <Button
-              onClick={handleNext}
-              disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-            >
-              Weiter
-            </Button>
-          </div>
-        );
-      
-      case 3:
-        return (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col items-center gap-8 md:gap-8 w-full max-w-md px-4"
-          >
-            <p className="text-white text-[22px] md:text-lg max-w-md text-center leading-relaxed px-2 font-medium">
-              Hallo {firstName}! Wir freuen uns darauf, dir bei deiner Steuererklärung für {taxYear} zu helfen.
-            </p>
-            <Button
-              onClick={handleNext}
+              onClick={handleComplete}
               disabled={isLoading}
               className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               Los geht's!
             </Button>
-          </motion.div>
+          </div>
         );
       
       default:
