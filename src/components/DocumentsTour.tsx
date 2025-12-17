@@ -24,7 +24,7 @@ const documentsTourSteps: TourStep[] = [
     id: 'welcome',
     title: 'Dokumente',
     description: 'Hier kannst du während des ganzen Jahres wichtige Unterlagen speichern.\nWenn du später deine Steuererklärung ausfüllst, erstellen wir automatisch eine persönliche Checkliste. Dort kannst du neue Dokumente hochladen oder bereits gespeicherte einfach zuordnen.',
-    targetElement: '',
+    targetElement: '[data-tour="documents-empty-state"]',
     position: 'bottom'
   },
   {
@@ -39,13 +39,6 @@ const documentsTourSteps: TourStep[] = [
     title: 'Dokumente hochladen',
     description: 'Lade neue Dokumente hoch – per Kamera oder Dateiauswahl.',
     targetElement: '[data-tour="document-upload-card"]',
-    position: 'bottom'
-  },
-  {
-    id: 'uploaded-documents',
-    title: 'Deine Dokumente',
-    description: 'Alle hochgeladenen Dokumente im Überblick. Verwalte, benenne um und ordne anderen Jahren zu.',
-    targetElement: '[data-tour="uploaded-documents-accordion"]',
     position: 'top'
   }
 ];
@@ -77,7 +70,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
       const element = document.querySelector(currentStepData.targetElement);
       if (element) {
         const rect = element.getBoundingClientRect();
-        const padding = 8;
+        const padding = 12;
         setSpotlightPosition({
           x: rect.left - padding,
           y: rect.top - padding,
@@ -140,23 +133,20 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
   };
 
   const getTooltipPosition = () => {
-    if (!currentStepData.targetElement) {
-      // Centered for welcome step (both mobile and desktop)
-      const tooltipWidth = isMobile ? 280 : 320;
-      const tooltipHeight = isMobile ? 180 : 200;
-      
+    const padding = isMobile ? 16 : 24;
+    const tooltipWidth = isMobile ? 280 : 384;
+    const tooltipHeight = isMobile ? 180 : 220;
+
+    let top = 0;
+    let left = 0;
+
+    // If no target element or spotlight not set, center the tooltip
+    if (!currentStepData.targetElement || (spotlightPosition.width === 0 && spotlightPosition.height === 0)) {
       return {
         top: (window.innerHeight / 2) - (tooltipHeight / 2),
         left: (window.innerWidth / 2) - (tooltipWidth / 2)
       };
     }
-
-    const padding = isMobile ? 16 : 24;
-    const tooltipWidth = isMobile ? 280 : 384;
-    const tooltipHeight = isMobile ? 180 : 300;
-
-    let top = 0;
-    let left = 0;
 
     switch (currentStepData.position) {
       case 'bottom':
@@ -246,38 +236,46 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Dark overlay with transparent hole - only show for steps with target elements */}
-        {currentStepData.targetElement && (
-          <>
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
-              <defs>
-                <mask id="spotlight-mask">
-                  <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                  <rect
-                    x={spotlightPosition.x}
-                    y={spotlightPosition.y}
-                    width={spotlightPosition.width}
-                    height={spotlightPosition.height}
-                    rx="8"
-                    fill="black"
-                  />
-                </mask>
-              </defs>
-              <rect
-                x="0"
-                y="0"
-                width="100%"
-                height="100%"
-                fill="rgba(0, 0, 0, 0.5)"
-                mask="url(#spotlight-mask)"
-              />
-            </svg>
-          </>
+        {/* Blur backdrop layer */}
+        <div 
+          className="absolute inset-0 backdrop-blur-sm pointer-events-none"
+          style={{
+            maskImage: currentStepData.targetElement && spotlightPosition.width > 0
+              ? `radial-gradient(ellipse ${spotlightPosition.width + 60}px ${spotlightPosition.height + 60}px at ${spotlightPosition.x + spotlightPosition.width / 2}px ${spotlightPosition.y + spotlightPosition.height / 2}px, transparent 40%, black 70%)`
+              : 'none'
+          }}
+        />
+
+        {/* Light overlay with transparent hole */}
+        {currentStepData.targetElement && spotlightPosition.width > 0 && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+            <defs>
+              <mask id="spotlight-mask-docs">
+                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                <rect
+                  x={spotlightPosition.x}
+                  y={spotlightPosition.y}
+                  width={spotlightPosition.width}
+                  height={spotlightPosition.height}
+                  rx="16"
+                  fill="black"
+                />
+              </mask>
+            </defs>
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill="rgba(255, 255, 255, 0.85)"
+              mask="url(#spotlight-mask-docs)"
+            />
+          </svg>
         )}
 
-        {/* For welcome step, show a light overlay instead */}
-        {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-black/30" />
+        {/* For steps without target, show light overlay with blur */}
+        {(!currentStepData.targetElement || spotlightPosition.width === 0) && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
         )}
 
         {/* Progress indicator */}
@@ -287,22 +285,22 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
               key={index}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-700 ease-out",
-                index <= currentStep ? "bg-white scale-110" : "bg-white/30 scale-100"
+                index <= currentStep ? "bg-indigo-500 scale-110" : "bg-slate-300 scale-100"
               )}
             />
           ))}
         </div>
 
-        {/* Close button top right */}
+        {/* Close button top right - light theme */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-[#0A0C10] border border-white/[0.08] hover:bg-[#0A0C10]/80 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-all duration-200 shadow-lg"
           aria-label="Tour schließen"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Tooltip */}
+        {/* Tooltip - Light theme */}
         <motion.div
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ 
@@ -319,22 +317,22 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
             layout
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className={cn(
-              "bg-[#0A0C10] border border-white/[0.08] rounded-xl shadow-2xl relative",
+              "bg-white border border-slate-200 rounded-2xl shadow-2xl relative",
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
             )}
           >
-            {/* Arrow pointing in correct direction based on tooltip position - only for non-welcome steps */}
+            {/* Arrow pointing in correct direction - light theme */}
             <AnimatePresence mode="wait">
-              {currentStepData.targetElement && (() => {
+              {currentStepData.targetElement && spotlightPosition.width > 0 && (() => {
                 const arrowKey = `${currentStepData.position}-${isMobile}`;
                 if (currentStepData.position === 'right' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-white" />;
                 } else if (currentStepData.position === 'left' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-white" />;
                 } else if (currentStepData.position === 'top') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white" />;
                 } else if (currentStepData.position === 'bottom') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white" />;
                 }
               })()}
             </AnimatePresence>
@@ -349,13 +347,13 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
                   transition={{ duration: 0.2 }}
                 >
                   <h3 className={cn(
-                    "font-semibold text-white mb-2 transition-all duration-300",
+                    "font-semibold text-slate-900 mb-2 transition-all duration-300",
                     isMobile ? "text-base" : "text-lg"
                   )}>
                     {currentStepData.title}
                   </h3>
                   <p className={cn(
-                    "text-zinc-400 mb-4 transition-all duration-300",
+                    "text-slate-500 mb-4 transition-all duration-300 whitespace-pre-line",
                     isMobile ? "text-sm" : "text-base"
                   )}>
                     {currentStepData.description}
@@ -368,14 +366,14 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
                   variant="outline"
                   size={isMobile ? "sm" : "default"}
                   onClick={handleSkip}
-                  className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
+                  className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                 >
                   Überspringen
                 </Button>
                 <Button
                   size={isMobile ? "sm" : "default"}
                   onClick={handleNext}
-                  className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+                  className="bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
                 >
                   {currentStep < tourSteps.length - 1 ? 'Weiter' : 'Fertig'}
                 </Button>
