@@ -3,7 +3,6 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { FormProvider, useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
 import { Sphere } from "@/components/ui/sphere";
-
 import { Button } from "@/components/ui/button";
 import { SubpageHeader } from "@/components/ui/subpage-header";
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
@@ -178,7 +177,6 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
     required: true
   }
 };
-
 const DocumentUploadPageContent: React.FC = () => {
   const {
     itemId
@@ -194,7 +192,6 @@ const DocumentUploadPageContent: React.FC = () => {
   } = useFormContext();
   const [selectedItem, setSelectedItem] = useState<ChecklistItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     console.log('🔍 DocumentUploadPage effect:', {
       itemId,
@@ -202,7 +199,6 @@ const DocumentUploadPageContent: React.FC = () => {
       formDataLoaded,
       isDataLoading
     });
-
     if (!itemId) {
       setIsLoading(false);
       return;
@@ -225,7 +221,6 @@ const DocumentUploadPageContent: React.FC = () => {
         uploaded: false
       };
     }
-
     console.log('✅ Selected item:', item);
     setSelectedItem(item || null);
     setIsLoading(false);
@@ -270,11 +265,7 @@ const DocumentUploadPageContent: React.FC = () => {
       </div>;
   }
   return <div className="min-h-screen bg-white">
-      <SubpageHeader 
-        title="Dokument hochladen" 
-        onBack={handleBack}
-        variant="light"
-      />
+      <SubpageHeader title="Dokument hochladen" onBack={handleBack} variant="light" />
       
       <div className="flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-8 text-center">
@@ -287,7 +278,7 @@ const DocumentUploadPageContent: React.FC = () => {
         </div>
 
         {/* Upload card */}
-        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-white border border-slate-200 p-4">
+        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-white border-slate-200 p-4 border-0">
           <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>
@@ -296,7 +287,6 @@ const DocumentUploadPageContent: React.FC = () => {
 const DocumentUploadPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const year = searchParams.get('year') || new Date().getFullYear().toString();
-  
   return <FormProvider taxYear={year}>
       <DocumentUploadPageContent />
     </FormProvider>;
