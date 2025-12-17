@@ -134,18 +134,16 @@ export const FileUpload = ({
       >
         {/* Border Glow on Hover */}
         <div className={cn(
-          "absolute -inset-0.5 bg-gradient-to-r from-[#1D64FF]/50 to-[#1D64FF]/0 rounded-2xl blur transition duration-500",
+          "absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-blue-500/0 rounded-2xl blur transition duration-500",
           isDragOver ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )} />
         
         <div className={cn(
-          "relative w-full bg-[#0A0C10] border border-white/[0.08] hover:border-white/[0.15] rounded-2xl transition-all duration-300 overflow-hidden",
-          isDragOver && "border-white/[0.15]",
+          "relative w-full bg-white border border-slate-200 hover:border-indigo-200 rounded-2xl transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md",
+          isDragOver && "border-indigo-300 shadow-md",
           // Larger padding and centered layout when no previews
           hasAnyPreview ? "p-4 flex items-center gap-4" : "p-8 md:p-12 flex flex-col items-center justify-center text-center"
         )}>
-          {/* Shimmer Animation */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_3s_infinite_linear] bg-[length:200%_100%]" />
           
           <input 
             ref={fileInputRef} 
@@ -163,7 +161,7 @@ export const FileUpload = ({
           
           {/* Icon Box - Larger when no previews */}
           <div className={cn(
-            "rounded-xl bg-[#1D64FF] flex items-center justify-center shadow-[0_0_15px_-3px_rgba(29,100,255,0.4)] shrink-0 group-hover:scale-105 transition-transform duration-300",
+            "rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300",
             hasAnyPreview ? "w-12 h-12" : "w-16 h-16 md:w-20 md:h-20 mb-4"
           )}>
             <CloudUpload className={cn(
@@ -178,13 +176,13 @@ export const FileUpload = ({
             hasAnyPreview ? "items-start text-left" : "items-center text-center"
           )}>
             <span className={cn(
-              "font-semibold text-white tracking-tight group-hover:text-blue-100 transition-colors",
+              "font-semibold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors",
               hasAnyPreview ? "text-[15px]" : "text-lg md:text-xl"
             )}>
               {!pdfLibLoaded ? 'Initialisierung...' : hasAnyPreview ? 'Weitere Dokumente hinzufügen' : 'Dokumente hochladen'}
             </span>
             <span className={cn(
-              "text-zinc-500 font-medium tracking-wide",
+              "text-slate-500 font-medium tracking-wide",
               hasAnyPreview ? "text-[11px] mt-1" : "text-sm mt-2"
             )}>
               {hasAnyPreview 
@@ -193,7 +191,7 @@ export const FileUpload = ({
               }
             </span>
             {!hasAnyPreview && (
-              <span className="text-xs text-zinc-600 mt-1">
+              <span className="text-xs text-slate-400 mt-1">
                 PDF, JPG, PNG, GIF, WebP
               </span>
             )}
@@ -203,10 +201,10 @@ export const FileUpload = ({
 
       {/* Processing Overlay */}
       {isProcessing && (
-        <div className="absolute inset-0 bg-[#020408]/90 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-[#1D64FF] border-t-transparent"></div>
-            <p className="mt-3 text-zinc-200 text-sm">
+            <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent"></div>
+            <p className="mt-3 text-slate-700 text-sm">
               {file?.type.startsWith('image/') ? 'Bilder werden verarbeitet...' : 'PDF wird verarbeitet...'}
             </p>
           </div>
@@ -215,13 +213,13 @@ export const FileUpload = ({
 
       {/* Preview Section */}
       {hasAnyPreview && (
-        <div className="mt-8 space-y-3">
+        <div className="mt-6 space-y-3">
           {/* Preview Header */}
           <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
               Vorschau ({totalPreviewCount} {totalPreviewCount === 1 ? 'Element' : 'Elemente'})
             </span>
-            <span className="text-[11px] font-medium text-[#1D64FF] hover:text-[#1D64FF]/80 cursor-pointer transition-colors">
+            <span className="text-xs font-medium text-blue-500 hover:text-blue-600 cursor-pointer transition-colors">
               Bearbeiten
             </span>
           </div>
@@ -232,7 +230,7 @@ export const FileUpload = ({
             {imagePreviews.map(preview => (
               <div 
                 key={preview.id} 
-                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl cursor-pointer"
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden group shadow-sm cursor-pointer"
                 onClick={() => openFullPreview(preview.dataUrl)}
               >
                 {/* Image */}
@@ -244,15 +242,15 @@ export const FileUpload = ({
 
                 {/* Type Badge */}
                 <div className="absolute top-4 left-4 z-20">
-                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
-                    <Image className="w-3.5 h-3.5 text-[#1D64FF]" />
-                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Bild</span>
+                  <div className="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 flex items-center gap-2 shadow-sm">
+                    <Image className="w-3.5 h-3.5 text-blue-500" />
+                    <span className="text-[11px] font-medium text-slate-700 tracking-wide">Bild</span>
                   </div>
                 </div>
 
                 {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                  <button className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100">
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button className="bg-white/90 hover:bg-white text-slate-700 rounded-full p-3 shadow-lg border border-slate-200 transition-all transform scale-90 group-hover:scale-100">
                     <Eye className="w-5 h-5" />
                   </button>
                 </div>
@@ -263,7 +261,7 @@ export const FileUpload = ({
             {screenshots.map(shot => (
               <div 
                 key={shot.id} 
-                className="relative w-full aspect-[1.8/1] rounded-2xl border border-white/[0.08] bg-[#050608] overflow-hidden group shadow-2xl cursor-pointer"
+                className="relative w-full aspect-[1.8/1] rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden group shadow-sm cursor-pointer"
                 onClick={() => openFullPreview(shot.dataUrl)}
               >
                 {/* Image */}
@@ -275,15 +273,15 @@ export const FileUpload = ({
 
                 {/* Type Badge */}
                 <div className="absolute top-4 left-4 z-20">
-                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center gap-2 shadow-lg">
+                  <div className="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 flex items-center gap-2 shadow-sm">
                     <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                    <span className="text-[11px] font-medium text-white/90 tracking-wide">Seite {shot.pageNumber}</span>
+                    <span className="text-[11px] font-medium text-slate-700 tracking-wide">Seite {shot.pageNumber}</span>
                   </div>
                 </div>
 
                 {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                  <button className="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur-md border border-white/20 transition-all transform scale-90 group-hover:scale-100">
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <button className="bg-white/90 hover:bg-white text-slate-700 rounded-full p-3 shadow-lg border border-slate-200 transition-all transform scale-90 group-hover:scale-100">
                     <Eye className="w-5 h-5" />
                   </button>
                 </div>
@@ -295,7 +293,7 @@ export const FileUpload = ({
       
       {/* Error Message */}
       {error && (
-        <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+        <div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}
