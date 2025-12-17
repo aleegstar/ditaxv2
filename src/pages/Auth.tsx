@@ -360,7 +360,7 @@ const Auth = () => {
                   </div>
 
                   {/* Verify Button */}
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-full py-3 text-sm font-semibold shadow-[0_0_20px_-5px_rgba(29,100,255,0.4)] transition-all flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50">
+                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50">
                     {isLoading ? 'Wird überprüft...' : 'Verifizieren'}
                     {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
                   </button>
