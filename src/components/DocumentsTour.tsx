@@ -24,7 +24,7 @@ const documentsTourSteps: TourStep[] = [
     id: 'welcome',
     title: 'Dokumente',
     description: 'Hier kannst du während des ganzen Jahres wichtige Unterlagen speichern.\nWenn du später deine Steuererklärung ausfüllst, erstellen wir automatisch eine persönliche Checkliste. Dort kannst du neue Dokumente hochladen oder bereits gespeicherte einfach zuordnen.',
-    targetElement: '[data-tour="documents-empty-state"]',
+    targetElement: '',
     position: 'bottom'
   },
   {
