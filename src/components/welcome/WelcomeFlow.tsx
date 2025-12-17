@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Shield, Mail, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { BorderBeam } from '@/components/ui/border-beam';
 const TAX_YEARS = Array.from({ length: 3 }, (_, i) => {
   const year = new Date().getFullYear() - 1 + i;
   return year.toString();
@@ -132,7 +132,22 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-6 w-full max-w-md px-4">
             <div className="flex flex-col items-start gap-6 w-full">
-              <div className="bg-[#0A0C10] border border-white/[0.08] rounded-3xl p-7 md:p-6 shadow-sm w-full space-y-5">
+              <div className="relative bg-[#0A0C10] border border-white/[0.08] rounded-3xl p-7 md:p-6 shadow-sm w-full space-y-5"
+                style={{
+                  background: 'linear-gradient(#0A0C10, #0A0C10) padding-box, conic-gradient(from 180deg at 50% 50%, #F97316, #FBBF24, #F97316) border-box',
+                  border: '1px solid transparent',
+                  boxShadow: '0 0 30px rgba(249,115,22,0.15), 0 0 60px rgba(251,191,36,0.1)'
+                }}
+              >
+                {/* Orange BorderBeam */}
+                <BorderBeam 
+                  size={200} 
+                  duration={10} 
+                  colorFrom="#F97316" 
+                  colorTo="#FBBF24" 
+                  borderWidth={1.5}
+                />
+                
                 <label className="flex items-start gap-4 cursor-pointer group">
                   <Checkbox
                     checked={termsAccepted}
@@ -174,7 +189,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               Weiter
             </Button>
@@ -189,14 +204,14 @@ export const WelcomeFlow = () => {
               placeholder="Vorname"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="text-lg h-14 bg-[#0A0C10] border border-white/[0.08] text-white placeholder:text-zinc-500 rounded-[20px] px-6 focus-visible:border-[#1D64FF] focus-visible:ring-0"
+              className="text-lg h-14 bg-[#0A0C10] border border-[#1D64FF]/50 text-white placeholder:text-zinc-500 rounded-xl px-6 focus-visible:border-[#1D64FF] focus-visible:ring-0 shadow-sm"
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               Weiter
             </Button>
@@ -207,7 +222,7 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-5 w-full max-w-md px-4">
             <Select value={taxYear} onValueChange={setTaxYear}>
-              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-[#0A0C10] border border-white/[0.08] text-white rounded-lg shadow-sm px-6 focus:ring-0 focus:border-[#1D64FF]">
+              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-[#0A0C10] border border-[#1D64FF]/50 text-white rounded-xl shadow-sm px-6 focus:ring-0 focus:border-[#1D64FF]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#0A0C10] border border-white/[0.08]">
@@ -221,7 +236,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               Weiter
             </Button>
@@ -244,7 +259,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px] shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
             >
               Los geht's!
             </Button>
