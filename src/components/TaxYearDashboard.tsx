@@ -251,12 +251,15 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Mobile Container */}
       <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
         {/* Header */}
-        <header className="flex z-20 p-8 relative items-center justify-between">
-          {/* Back Button */}
+        <header className="flex z-20 p-8 pb-4 relative items-center justify-between">
+          {/* Back Button + Title */}
           <div className="flex items-center gap-4">
             <button onClick={() => navigate('/')} className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all shadow-lg backdrop-blur-sm group">
               <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
             </button>
+            <h1 className="text-white text-lg font-semibold font-jakarta">
+              Steuererklärung {taxYear}
+            </h1>
           </div>
 
           {/* Right - Tour Start Button */}
@@ -264,27 +267,6 @@ export const TaxYearDashboard: React.FC = () => {
             <TourStartButton onStartTour={forceTour} variant="header" />
           )}
         </header>
-
-        {/* Greeting */}
-        <div className="px-8 mb-8 flex justify-between items-center relative z-20">
-          <h1 className="text-2xl tracking-tight">
-            <span className="text-zinc-500 font-medium font-jakarta text-sm tracking-wider mb-0.5 block">
-              Steuerfall
-            </span>
-            <span className="text-white block font-semibold font-jakarta">
-              Steuererklärung {taxYear}
-            </span>
-          </h1>
-          <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-[#1D64FF] to-[#1D64FF]/10">
-              <img 
-                src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover border-2 border-[#020408]" 
-              />
-            </div>
-          </div>
-        </div>
 
         {/* Main Content Stream */}
         <div className="flex flex-col md:px-8 px-4 relative items-center">
