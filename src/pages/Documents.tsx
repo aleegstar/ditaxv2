@@ -296,8 +296,8 @@ const DocumentsContent: React.FC<{
                       </button>
                     </div>)}
                 </div>
-              </div> : (/* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
+           </div> : (/* Empty State */
+          <div data-tour="documents-empty-state" className="flex-1 flex flex-col items-center justify-center py-20">
                 <div className="text-center space-y-6 relative">
                   {/* Icon placeholder */}
                   <div className="relative mx-auto w-24 h-24 mb-4">
