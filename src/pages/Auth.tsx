@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, ArrowRight, Mail, Fingerprint, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment, isDespiaEnvironment } from "@/utils/platform";
@@ -330,9 +330,7 @@ const Auth = () => {
 
                 {/* Header with Shield Icon */}
                 <div className="text-center mb-8 space-y-2">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/[0.03] border border-white/10 mb-4 text-[#1D64FF]">
-                    <ShieldCheck className="w-6 h-6" strokeWidth={1.5} />
-                  </div>
+                  
                   <h1 className="text-3xl font-medium tracking-tighter font-jakarta bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">
                     Code eingeben
                   </h1>
@@ -362,7 +360,7 @@ const Auth = () => {
                   {/* Verify Button */}
                   <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50">
                     {isLoading ? 'Wird überprüft...' : 'Verifizieren'}
-                    {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+                    {!isLoading}
                   </button>
                 </div>
 
