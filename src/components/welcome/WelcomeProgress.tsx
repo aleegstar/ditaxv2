@@ -9,10 +9,10 @@ interface WelcomeProgressProps {
 export const WelcomeProgress = ({ currentStep, totalSteps, variant = 'dark' }: WelcomeProgressProps) => {
   return (
     <>
-      {/* White curved element at top - curving downward */}
+      {/* White curved element at top - subtle curve downward */}
       <div className="absolute top-0 left-0 right-0 overflow-hidden pointer-events-none">
         <div 
-          className="relative w-[200%] -left-1/2 aspect-[4/1] bg-white rounded-b-[50%]"
+          className="relative w-[200%] -left-1/2 h-16 bg-white rounded-b-[100%]"
         />
       </div>
       
