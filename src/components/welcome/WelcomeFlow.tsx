@@ -250,9 +250,6 @@ export const WelcomeFlow = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="flex flex-col items-center gap-8 md:gap-8 w-full max-w-md px-4"
           >
-            <div className="w-28 h-28 md:w-20 md:h-20 rounded-full bg-[#1D64FF]/10 border-2 border-[#1D64FF]/20 flex items-center justify-center shadow-md">
-              <CheckCircle2 className="w-14 h-14 md:w-10 md:h-10 text-[#1D64FF]" />
-            </div>
             <p className="text-white text-[22px] md:text-lg max-w-md text-center leading-relaxed px-2 font-medium">
               Hallo {firstName}! Wir freuen uns darauf, dir bei deiner Steuererklärung für {taxYear} zu helfen.
             </p>
