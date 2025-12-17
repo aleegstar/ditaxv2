@@ -20,6 +20,7 @@ export interface DocumentUploaderProps {
   autoTriggerUpload?: boolean;
   hideBackButton?: boolean;
   hideHeader?: boolean;
+  initialFiles?: File[];
 }
 
 interface FileWithPreview {
@@ -54,7 +55,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   onPreviewChange,
   autoTriggerUpload = false,
   hideBackButton = false,
-  hideHeader = false
+  hideHeader = false,
+  initialFiles
 }) => {
   const { taxYear } = useFormContext();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -169,8 +171,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     return newFiles.filter(file => !existingNames.includes(file.name.toLowerCase()));
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(event.target.files || []);
+  // Extracted file processing logic to be reusable
+  const processFiles = async (selectedFiles: File[]) => {
     if (!selectedFiles.length) return;
     setError(null);
 
@@ -270,14 +272,27 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       setFiles(prev => [...prev, ...newFiles]);
       setImagePreviews(prev => [...prev, ...newImagePreviews]);
     } catch (error) {
-      console.error('Error in handleFileUpload:', error);
+      console.error('Error in processFiles:', error);
       setError('Fehler beim Hochladen der Datei(en)');
     } finally {
       setIsProcessing(false);
     }
+  };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    await processFiles(selectedFiles);
     if (event.target) event.target.value = '';
   };
+
+  // Process initial files when provided
+  const initialFilesProcessedRef = useRef(false);
+  useEffect(() => {
+    if (initialFiles && initialFiles.length > 0 && !initialFilesProcessedRef.current) {
+      initialFilesProcessedRef.current = true;
+      processFiles(initialFiles);
+    }
+  }, [initialFiles]);
 
   const handleClear = () => {
     imagePreviews.forEach(preview => {
