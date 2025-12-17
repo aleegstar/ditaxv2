@@ -239,17 +239,13 @@ const DocumentUploadPageContent: React.FC = () => {
   };
   // Show loading state while waiting for form data or processing
   if (isLoading || isDataLoading || !formDataLoaded) {
-    return <div className="min-h-screen bg-[#020408] flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
-        <div className="fixed inset-0 pointer-events-none -z-10" style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-          filter: 'blur(80px)'
-        }} />
+    return <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-6">
           <Sphere size="medium" />
         </div>
         <div className="mb-8 text-center">
-          <h1 className="text-white text-2xl font-medium mb-3">Dokument wird geladen...</h1>
-          <p className="text-lg text-zinc-400">
+          <h1 className="text-slate-800 text-2xl font-medium mb-3">Dokument wird geladen...</h1>
+          <p className="text-lg text-slate-500">
             Bitte warten Sie einen Moment.
           </p>
         </div>
@@ -258,17 +254,13 @@ const DocumentUploadPageContent: React.FC = () => {
 
   // Show error state only if item really not found after loading is complete
   if (!selectedItem) {
-    return <div className="min-h-screen bg-[#020408] flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
-        <div className="fixed inset-0 pointer-events-none -z-10" style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-          filter: 'blur(80px)'
-        }} />
+    return <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-6">
           <Sphere size="medium" />
         </div>
         <div className="mb-8 text-center">
-          <h1 className="text-white text-2xl font-medium mb-3">Dokument nicht gefunden</h1>
-          <p className="text-lg text-zinc-400">
+          <h1 className="text-slate-800 text-2xl font-medium mb-3">Dokument nicht gefunden</h1>
+          <p className="text-lg text-slate-500">
             Das angeforderte Dokument "{itemId}" konnte nicht gefunden werden.
           </p>
         </div>
@@ -277,32 +269,26 @@ const DocumentUploadPageContent: React.FC = () => {
         </Button>
       </div>;
   }
-  return <div className="min-h-screen bg-[#020408]">
-      <div className="fixed inset-0 pointer-events-none -z-10" style={{
-        background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-        filter: 'blur(80px)'
-      }} />
-      
+  return <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Dokument hochladen" 
         onBack={handleBack}
+        variant="light"
       />
       
       <div className="flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-semibold text-white mb-2">
+          <h2 className="text-2xl font-semibold text-slate-800 mb-2">
             {selectedItem.title}
           </h2>
-          <p className="text-base text-zinc-400">
+          <p className="text-base text-slate-500">
             {selectedItem.description}
           </p>
         </div>
 
         {/* Upload card */}
-        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-[#0A0C10] border border-white/[0.08]">
-          <div className="">
-            <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
-          </div>
+        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-white border border-slate-200 p-4">
+          <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>
     </div>;
