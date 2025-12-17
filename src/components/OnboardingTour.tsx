@@ -501,6 +501,16 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
+        {/* Blur backdrop layer */}
+        <div 
+          className="absolute inset-0 backdrop-blur-sm pointer-events-none"
+          style={{
+            maskImage: currentStepData.targetElement 
+              ? `radial-gradient(ellipse ${spotlightPosition.width + 40}px ${spotlightPosition.height + 40}px at ${spotlightPosition.x + spotlightPosition.width / 2}px ${spotlightPosition.y + spotlightPosition.height / 2}px, transparent 40%, black 70%)`
+              : 'none'
+          }}
+        />
+
         {/* Dark overlay with transparent hole - only show for steps with target elements */}
         {currentStepData.targetElement && (
           <>
@@ -525,7 +535,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                   />
                 </mask>
               </defs>
-              <rect width="100%" height="100%" fill="black" opacity="0.3" mask="url(#tour-spotlight-mask)" />
+              <rect width="100%" height="100%" fill="black" opacity="0.5" mask="url(#tour-spotlight-mask)" />
             </svg>
             
             {/* Outline and glow to emphasize spotlight target */}
@@ -545,9 +555,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           </>
         )}
 
-        {/* For welcome step, show a light overlay instead */}
+        {/* For welcome step, show a blurred overlay */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
         )}
 
 
