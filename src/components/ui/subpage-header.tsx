@@ -11,6 +11,7 @@ interface SubpageHeaderProps {
   showModeToggle?: boolean;
   currentMode?: 'standard' | 'yesno';
   onModeChange?: (mode: 'standard' | 'yesno') => void;
+  variant?: 'dark' | 'light';
 }
 
 export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
@@ -19,7 +20,8 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   className,
   showModeToggle = false,
   currentMode = 'yesno',
-  onModeChange
+  onModeChange,
+  variant = 'dark'
 }) => {
   const handleToggle = () => {
     if (onModeChange) {
@@ -27,8 +29,14 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
     }
   };
 
+  const isLight = variant === 'light';
+
   return (
-    <div className={cn("px-4 py-4 sticky top-0 z-50 bg-[#020408]", className)}>
+    <div className={cn(
+      "px-4 py-4 sticky top-0 z-50",
+      isLight ? "bg-white border-b border-slate-200" : "bg-[#020408]",
+      className
+    )}>
       <motion.div 
         initial={{ opacity: 0, y: -10 }} 
         animate={{ opacity: 1, y: 0 }} 
@@ -42,7 +50,12 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               onClick={onBack}
               whileHover={{ scale: 1.05 }} 
               whileTap={{ scale: 0.95 }} 
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className={cn(
+                "w-10 h-10 rounded-full border flex items-center justify-center transition-colors",
+                isLight 
+                  ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100" 
+                  : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+              )}
             >
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
@@ -51,7 +64,10 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
 
         {/* Center: Title */}
         <div className="flex items-center gap-1.5 absolute left-1/2 -translate-x-1/2">
-          <span className="text-base font-medium text-white">{title}</span>
+          <span className={cn(
+            "text-base font-medium",
+            isLight ? "text-slate-800" : "text-white"
+          )}>{title}</span>
         </div>
 
         {/* Right side: Mode Toggle or empty space */}
@@ -62,7 +78,12 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               variant="ghost"
               size="sm"
               onClick={handleToggle}
-              className="flex items-center gap-2 text-xs rounded-full h-8 px-3 text-white hover:bg-white/10"
+              className={cn(
+                "flex items-center gap-2 text-xs rounded-full h-8 px-3",
+                isLight 
+                  ? "text-slate-700 hover:bg-slate-100" 
+                  : "text-white hover:bg-white/10"
+              )}
             >
               {currentMode === 'yesno' ? (
                 <>
