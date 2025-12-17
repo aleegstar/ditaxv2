@@ -206,12 +206,12 @@ const DocumentsContent: React.FC<{
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className="min-h-screen bg-[#F7F9FB] text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
-        {/* Mobile Container */}
-        <div className="min-h-screen flex flex-col w-full max-w-[420px] pb-32 relative bg-primary-foreground">
+      <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
+        {/* Container */}
+        <div className="min-h-screen flex flex-col w-full max-w-2xl pb-32 relative bg-white">
           
           {/* Header */}
-          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-primary-foreground">
+          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-white/90">
             <button onClick={() => navigate(-1)} className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
               <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
             </button>
