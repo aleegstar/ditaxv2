@@ -48,6 +48,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating }: 
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
         <motion.div
+          data-tour="add-year"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4, ease: 'easeOut' }}
