@@ -444,7 +444,7 @@ const Auth = () => {
               <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
                 <a href="/terms" className="hover:text-slate-600 transition-colors">Impressum</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <a href="/privacy" className="hover:text-slate-600 transition-colors">Datenschutz</a>
+                <a className="hover:text-slate-600 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a href="/help" className="hover:text-slate-600 transition-colors">Hilfe</a>
               </div>
