@@ -437,6 +437,12 @@ const App = () => {
                 <Route path="/auth-bridge" element={<AuthBridge />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
                 
+                {/* Public legal pages - accessible without authentication */}
+                <Route path="/datenschutzrichtlinie" element={<Privacy />} />
+                <Route path="/agb" element={<Terms />} />
+                <Route path="/cookie-richtlinie" element={<Cookies />} />
+                <Route path="/impressum" element={<AcceptableUse />} />
+                
                 <Route
                   path="/*"
                   element={
