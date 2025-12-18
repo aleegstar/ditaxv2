@@ -3,9 +3,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
-import { isAndroidEnvironment } from "@/utils/platform";
+import { isDespiaEnvironment, isAndroidEnvironment } from "@/utils/platform";
+import { despia } from "@/utils/despiaStatusBar";
 
 const GoogleAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,38 +14,29 @@ const GoogleAuth = () => {
   useEffect(() => {
     const initGoogleAuth = async () => {
       try {
-        console.log('🔐 GoogleAuth: Initiating Google OAuth...');
+        const isDespia = isDespiaEnvironment();
         const isNative = Capacitor.isNativePlatform() || isAndroidEnvironment();
-        const isDespia = navigator.userAgent.toLowerCase().includes('despia');
-        console.log('🔐 GoogleAuth: Is native platform?', isNative);
-        console.log('🔐 GoogleAuth: Is Despia?', isDespia);
         
-        if (isNative || isDespia) {
-          // Despia: Use window.open for OAuth in native apps
-          // This opens the OAuth flow in Chrome Custom Tab which will automatically close after redirect
-          console.log('🔐 GoogleAuth: Starting OAuth with window.open for Despia...');
-          
+        if (isDespia) {
+          // Use Despia Easy OAuth - get URL without redirecting
           const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
               redirectTo: 'https://app.ditax.ch/auth-success',
-              skipBrowserRedirect: true, // Manual URL control for Despia
+              skipBrowserRedirect: true
             }
           });
           
           if (error) {
-            console.error('❌ GoogleAuth: OAuth initialization error:', error);
             throw error;
           }
-
+          
           if (data?.url) {
-            console.log('🔗 GoogleAuth: Opening OAuth URL in Chrome Custom Tab:', data.url);
-            // Use Browser.open() to open Chrome Custom Tab
-            await Browser.open({ url: data.url });
+            // Pass the OAuth URL to Despia native handler
+            despia(`oauth://${data.url}`);
           }
-        } else {
-          // Use standard OAuth for web browsers
-          console.log('🔐 GoogleAuth: Starting standard web OAuth...');
+        } else if (isNative) {
+          // Use standard OAuth for Capacitor
           const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -54,12 +45,23 @@ const GoogleAuth = () => {
           });
           
           if (error) {
-            console.error('❌ GoogleAuth: Web OAuth error:', error);
+            throw error;
+          }
+        } else {
+          // Use standard OAuth for web browsers
+          const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: 'https://app.ditax.ch/auth-success'
+            }
+          });
+          
+          if (error) {
             throw error;
           }
         }
       } catch (error: any) {
-        console.error('❌ GoogleAuth: Failed:', error);
+        console.error('Google auth failed:', error);
         setError(error.message || "Fehler bei der Google-Anmeldung");
         setIsLoading(false);
       }
