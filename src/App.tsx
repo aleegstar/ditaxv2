@@ -441,7 +441,8 @@ const App = () => {
                 <Route path="/datenschutzrichtlinie" element={<Privacy />} />
                 <Route path="/agb" element={<Terms />} />
                 <Route path="/cookie-richtlinie" element={<Cookies />} />
-                <Route path="/impressum" element={<AcceptableUse />} />
+          <Route path="/impressum" element={<AcceptableUse />} />
+          <Route path="/nutzungsbedingungen" element={<Terms />} />
                 
                 <Route
                   path="/*"
