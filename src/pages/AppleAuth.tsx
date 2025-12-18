@@ -3,9 +3,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Browser } from "@capacitor/browser";
 import { Capacitor } from "@capacitor/core";
-import { isAndroidEnvironment } from "@/utils/platform";
+import { isDespiaEnvironment, isAndroidEnvironment } from "@/utils/platform";
+import { despia } from "@/utils/despiaStatusBar";
 
 const AppleAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,10 +14,29 @@ const AppleAuth = () => {
   useEffect(() => {
     const initAppleAuth = async () => {
       try {
+        const isDespia = isDespiaEnvironment();
         const isNative = Capacitor.isNativePlatform() || isAndroidEnvironment();
         
-        if (isNative) {
-          // Use Capacitor Browser Plugin for mobile - this allows auto-close
+        if (isDespia) {
+          // Use Despia Easy OAuth - get URL without redirecting
+          const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'apple',
+            options: {
+              redirectTo: 'https://app.ditax.ch/auth-success',
+              skipBrowserRedirect: true
+            }
+          });
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data?.url) {
+            // Pass the OAuth URL to Despia native handler
+            despia(`oauth://${data.url}`);
+          }
+        } else if (isNative) {
+          // Use standard OAuth for Capacitor
           const { error } = await supabase.auth.signInWithOAuth({
             provider: 'apple',
             options: {
