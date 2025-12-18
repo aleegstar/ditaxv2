@@ -12,6 +12,7 @@ import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useStatusBar } from '@/hooks/useStatusBar';
 
 // Separate content component that uses FormContext
 const DocumentsContent: React.FC<{
@@ -50,6 +51,9 @@ const DocumentsContent: React.FC<{
     completeTour,
     skipTour
   } = useDocumentsTour();
+  
+  // Set light status bar for this page (white background, dark text)
+  useStatusBar('light');
 
   // Generate year options (2024-2034)
   const allYears = Array.from({

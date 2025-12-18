@@ -62,6 +62,8 @@ import { useAuthValidation } from "@/hooks/use-auth-validation";
 import { MfaSetupPrompt } from "@/components/auth/MfaSetupPrompt";
 import { MfaEnrollmentFlow } from "@/components/auth/MfaEnrollmentFlow";
 import { useMfaPrompt } from "@/hooks/useMfaPrompt";
+import { setStatusBarDark } from "@/utils/despiaStatusBar";
+import { isDespiaEnvironment } from "@/utils/platform";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -268,6 +270,11 @@ const App = () => {
     if (Capacitor.isNativePlatform()) {
       NativeErrorMonitor.init();
       androidDebug.log('App initialized with native error monitoring');
+    }
+    
+    // Set default dark status bar for Despia environment
+    if (isDespiaEnvironment()) {
+      setStatusBarDark();
     }
   }, []);
 
