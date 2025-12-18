@@ -625,23 +625,23 @@ const MultiStepContactForm = ({
           </motion.div>
 
           {/* Navigation Buttons */}
-          <div className="flex gap-4 pt-6">
+          <div className="flex gap-3 pt-6">
             <button
               type="button"
               onClick={handleBack}
               disabled={currentStep === 1 && !embedded}
-              className="bg-white/5 hover:bg-white/10 text-white border border-white/10 font-medium px-6 py-3 h-14 text-base rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="bg-[#111] hover:bg-[#222] text-white border border-white/10 font-medium px-5 py-3 h-12 text-sm rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              <span>Zurück</span>
+              Zurück
             </button>
 
             <button
               type="submit"
               disabled={!validateCurrentStep()}
-              className="bg-[#1D64FF] text-white hover:bg-[#1D64FF]/90 rounded-full px-6 py-3 h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-1"
+              className="bg-[#1D64FF] text-white hover:bg-[#1D64FF]/90 rounded-full px-6 py-3 h-12 text-sm font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-1"
               style={{ boxShadow: 'rgba(29, 100, 255, 0.3) 0px 8px 20px 0px' }}
             >
-              <span>{currentStep === steps.length ? 'Abschliessen' : 'Weiter'}</span>
+              {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
             </button>
           </div>
         </form>
