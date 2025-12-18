@@ -62,17 +62,20 @@ const Auth = () => {
     const isNativeCapacitor = Capacitor.isNativePlatform();
     console.log('🔗 Google Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     if (isDespia) {
-      console.log('🔗 Despia detected - OAuth mit Standard-Redirect');
+      console.log('🔗 Despia Easy OAuth detected - Native OAuth Handler');
       try {
-        const {
-          error
-        } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'https://app.ditax.ch/auth-success'
+            redirectTo: 'https://app.ditax.ch/auth-success',
+            skipBrowserRedirect: true
           }
         });
         if (error) throw error;
+        if (data?.url) {
+          console.log('🔗 Triggering Despia native OAuth with URL');
+          (window as any).despia(`oauth://${data.url}`);
+        }
       } catch (error) {
         console.error('Google auth error (Despia):', error);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -133,17 +136,20 @@ const Auth = () => {
     const isNativeCapacitor = Capacitor.isNativePlatform();
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     if (isDespia) {
-      console.log('🔗 Despia detected - Apple OAuth mit Standard-Redirect');
+      console.log('🔗 Despia Easy OAuth detected - Native Apple OAuth Handler');
       try {
-        const {
-          error
-        } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
-            redirectTo: 'https://app.ditax.ch/auth-success'
+            redirectTo: 'https://app.ditax.ch/auth-success',
+            skipBrowserRedirect: true
           }
         });
         if (error) throw error;
+        if (data?.url) {
+          console.log('🔗 Triggering Despia native Apple OAuth with URL');
+          (window as any).despia(`oauth://${data.url}`);
+        }
       } catch (error) {
         console.error('Apple auth error (Despia):', error);
         toast.error("Fehler bei der Apple-Anmeldung");
