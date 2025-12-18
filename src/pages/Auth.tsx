@@ -60,7 +60,12 @@ const Auth = () => {
     setIsLoading(true);
     const isDespia = isDespiaEnvironment();
     const isNativeCapacitor = Capacitor.isNativePlatform();
-    console.log('🔗 Google Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
+    console.log('🔗 Google Auth Debug:', {
+      windowDespia: typeof (window as any).despia,
+      userAgent: navigator.userAgent,
+      isDespia,
+      isNativeCapacitor
+    });
     if (isDespia) {
       console.log('🔗 Despia Easy OAuth detected - Native OAuth Handler');
       try {

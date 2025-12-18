@@ -11,6 +11,11 @@ export const isAndroidNative = (): boolean => {
 
 // Check if running in Despia environment specifically
 export const isDespiaEnvironment = (): boolean => {
+  // Primary check: window.despia function exists (most reliable)
+  if (typeof window !== 'undefined' && typeof (window as any).despia !== 'undefined') {
+    return true;
+  }
+  // Fallback: userAgent check
   const userAgent = navigator.userAgent.toLowerCase();
   return userAgent.includes('despia');
 };
