@@ -316,12 +316,14 @@ const Auth = () => {
                   </button>
                 </form>
 
-                {/* Oder Divider */}
-                <div className="flex items-center gap-4 w-full mt-10">
-                  <div className="flex-1 h-px bg-zinc-700" />
-                  <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
-                  <div className="flex-1 h-px bg-zinc-700" />
-                </div>
+                {/* Oder Divider - hidden when input is focused */}
+                {!isInputFocused && (
+                  <div className="flex items-center gap-4 w-full mt-10">
+                    <div className="flex-1 h-px bg-zinc-700" />
+                    <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
+                    <div className="flex-1 h-px bg-zinc-700" />
+                  </div>
+                )}
               </motion.div> : <motion.div key="code-step" initial={{
             opacity: 0,
             y: 20
