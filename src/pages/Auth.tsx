@@ -208,10 +208,20 @@ const Auth = () => {
   const handleWebAuthnAuth = () => {
     const isDespia = isDespiaNative();
     
+    console.log('🔐 handleWebAuthnAuth called:', { isDespia, email });
+    
     if (isDespia) {
       // In Despia: Open passkey auth in system browser via Easy OAuth
+      // If no email is entered, we still open the page and let user enter email there
       console.log('🔐 Despia detected - opening passkey auth in system browser');
-      triggerDespiaPasskeyAuth(email);
+      if (email) {
+        triggerDespiaPasskeyAuth(email);
+      } else {
+        // Open WebAuthn page without email - user can enter it there
+        const authUrl = `${window.location.origin}/webauthn-auth?despia=true`;
+        console.log('🔐 No email provided, opening auth page:', authUrl);
+        triggerDespiaOAuth(authUrl);
+      }
       return;
     }
     
