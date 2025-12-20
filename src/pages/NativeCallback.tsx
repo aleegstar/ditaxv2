@@ -1,27 +1,77 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { buildDeeplinkUrl } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 /**
- * NativeCallback - Proxy page for Despia Easy OAuth
+ * NativeCallback - Proxy page for Despia Easy OAuth and Passkey Auth
  * 
- * This page receives OAuth tokens in the URL hash (Implicit Flow),
- * validates the session with Supabase, and redirects back to the
- * native app via deeplink.
+ * This page receives OAuth tokens in the URL hash (Implicit Flow) or
+ * query params (for passkey auth), validates the session with Supabase,
+ * and redirects back to the native app via deeplink.
  */
 const NativeCallback = () => {
+  const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     const handleTokens = async () => {
       try {
-        console.log('🔐 NativeCallback: Processing OAuth tokens...');
+        console.log('🔐 NativeCallback: Processing authentication...');
         console.log('🔗 Full URL:', window.location.href);
         console.log('🔗 Hash:', window.location.hash);
+        console.log('🔗 Search params:', Object.fromEntries(searchParams.entries()));
 
-        // Extract tokens from URL hash (Implicit Flow)
+        // Check if this is a passkey auth callback (query params)
+        const authType = searchParams.get('auth_type');
+        const success = searchParams.get('success');
+        
+        if (authType === 'passkey') {
+          console.log('🔐 NativeCallback: Passkey auth callback detected');
+          
+          if (success === 'false') {
+            const error = searchParams.get('error');
+            throw new Error(error || 'Passkey authentication failed');
+          }
+          
+          // For passkey auth, tokens should already be set in the session
+          // Just verify and redirect
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (!session) {
+            throw new Error('No session found after passkey authentication');
+          }
+
+          console.log('✅ NativeCallback: Passkey session verified', {
+            userId: session.user?.id,
+            email: session.user?.email
+          });
+
+          setStatus('success');
+
+          // Build deeplink URL to redirect back to native app
+          const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + 3600;
+          
+          const deeplinkUrl = buildDeeplinkUrl('oauth/auth', {
+            success: 'true',
+            access_token: session.access_token,
+            refresh_token: session.refresh_token || '',
+            expires_at: expiresAt.toString(),
+            auth_type: 'passkey'
+          });
+
+          console.log('🔗 NativeCallback: Redirecting to app via deeplink:', deeplinkUrl);
+
+          setTimeout(() => {
+            window.location.href = deeplinkUrl;
+          }, 500);
+          
+          return;
+        }
+
+        // Standard OAuth flow - Extract tokens from URL hash (Implicit Flow)
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
@@ -103,7 +153,7 @@ const NativeCallback = () => {
     };
 
     handleTokens();
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-[#020408] text-zinc-100 flex items-center justify-center p-6">

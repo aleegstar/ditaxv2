@@ -10,7 +10,7 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth } from "@/lib/despia";
+import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth, triggerDespiaPasskeyAuth } from "@/lib/despia";
 const Auth = () => {
   const navigate = useNavigate();
   const {
@@ -206,6 +206,16 @@ const Auth = () => {
     }
   };
   const handleWebAuthnAuth = () => {
+    const isDespia = isDespiaNative();
+    
+    if (isDespia) {
+      // In Despia: Open passkey auth in system browser via Easy OAuth
+      console.log('🔐 Despia detected - opening passkey auth in system browser');
+      triggerDespiaPasskeyAuth(email);
+      return;
+    }
+    
+    // Normal web flow
     navigate('/webauthn-auth');
   };
   const handleCodeChange = (value: string) => {

@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Fingerprint, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Fingerprint, Loader2, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
+import { isDespiaNative, triggerDespiaPasskeyAuth } from '@/lib/despia';
 
 interface ConditionalPasskeyButtonProps {
   onSuccess?: () => void;
@@ -87,6 +87,13 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
       return;
     }
 
+    // Check if running in Despia - open system browser for passkey auth
+    if (isDespiaNative()) {
+      debug.log('🔐 ConditionalPasskeyButton: Despia detected - opening system browser');
+      triggerDespiaPasskeyAuth(email);
+      return;
+    }
+
     try {
       debug.log('🚀 ConditionalPasskeyButton: Starting authentication for:', email);
       await authenticateWithPasskey(email);
@@ -101,7 +108,10 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
     checkForPasskeys();
   };
 
-  if (!isSupported || checkingPasskeys) {
+  const isInDespia = isDespiaNative();
+
+  // In Despia, WebAuthn is not directly supported but we can use system browser
+  if (!isInDespia && (!isSupported || checkingPasskeys)) {
     return (
       <div className="w-full text-center text-sm text-muted-foreground">
         {!isSupported && (
@@ -116,6 +126,16 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
             Prüfe Fingerprint-Verfügbarkeit...
           </div>
         )}
+      </div>
+    );
+  }
+
+  // In Despia, show special button that opens system browser
+  if (isInDespia && checkingPasskeys) {
+    return (
+      <div className="w-full text-center text-sm text-muted-foreground">
+        <Loader2 className="inline h-4 w-4 mr-2 animate-spin" />
+        Prüfe Fingerprint-Verfügbarkeit...
       </div>
     );
   }
@@ -163,8 +183,22 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
         ) : (
           <Fingerprint className="mr-2 h-4 w-4" />
         )}
-        {isLoading ? 'Authentifizierung...' : 'Mit Fingerprint anmelden'}
+        {isLoading 
+          ? 'Authentifizierung...' 
+          : isInDespia 
+            ? 'Mit Fingerprint anmelden' 
+            : 'Mit Fingerprint anmelden'
+        }
+        {isInDespia && !isLoading && (
+          <ExternalLink className="ml-2 h-3 w-3 opacity-50" />
+        )}
       </Button>
+      
+      {isInDespia && (
+        <p className="text-xs text-muted-foreground text-center">
+          Öffnet den System-Browser für sichere Authentifizierung
+        </p>
+      )}
       
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Debug: {debugInfo}</span>

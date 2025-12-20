@@ -76,3 +76,19 @@ export const triggerDespiaOAuth = (oauthUrl: string): void => {
   console.error('❌ Despia SDK not available - neither despia-native nor window.despia found');
   throw new Error('Despia SDK not available');
 };
+
+/**
+ * Trigger Despia Passkey Authentication via System Browser
+ * Opens the WebAuthn auth page in the system browser (not WebView)
+ * which allows full access to the device's keychain for passkey auth
+ */
+export const triggerDespiaPasskeyAuth = (email: string): void => {
+  // Build the WebAuthn auth URL with email parameter
+  // The native-callback page will handle the redirect back to the app
+  const authUrl = `${window.location.origin}/webauthn-auth?email=${encodeURIComponent(email)}&despia=true`;
+  
+  console.log('🔐 Triggering Despia Passkey Auth via System Browser:', authUrl);
+  
+  // Use the Easy OAuth mechanism to open in system browser
+  triggerDespiaOAuth(authUrl);
+};
