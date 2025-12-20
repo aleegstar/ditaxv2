@@ -1640,6 +1640,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_storage_policies: { Args: { p_bucket_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
