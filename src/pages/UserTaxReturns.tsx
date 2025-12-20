@@ -257,14 +257,14 @@ const UserTaxReturns = () => {
           const progress = calculateProgress(year) ?? 0;
           const strokeDashoffset = circumference - progress / 100 * circumference;
           return <div key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative w-full rounded-[1.5rem] transition-all duration-300 cursor-pointer hover:-translate-y-1" style={{
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(29,100,255,0.3), inset 0 1px 0 0 rgba(29,100,255,0.1)',
             border: '1px solid transparent',
-            backgroundImage: 'linear-gradient(to bottom, #0c1220 0%, #0a0f18 50%, #060a10 100%), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+            backgroundImage: 'linear-gradient(to bottom, #0c1220 0%, #0a0f18 50%, #060a10 100%), linear-gradient(135deg, rgba(29,100,255,0.6), rgba(59,130,246,0.3), rgba(29,100,255,0.6))',
             backgroundOrigin: 'border-box',
             backgroundClip: 'padding-box, border-box'
           }}>
-                {/* Orange Border Beam for incomplete tax returns */}
-                <BorderBeam size={200} duration={10} borderWidth={1.5} colorFrom="#F97316" colorTo="#FBBF24" delay={0} />
+                {/* Blue Border Beam for incomplete tax returns */}
+                <BorderBeam size={200} duration={10} borderWidth={1.5} colorFrom="#1D64FF" colorTo="#3B82F6" delay={0} />
                 
                 {/* Inner card content */}
                 <div className="relative p-6 h-full">
