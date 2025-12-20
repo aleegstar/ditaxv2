@@ -51,70 +51,34 @@ serve(async (req) => {
       });
     }
 
-    // Enhanced Health check - NO AUTH REQUIRED
+    // Health check - NO AUTH REQUIRED (minimal info for security)
     if (req.method === "GET") {
-      logStep("Enhanced health check requested", { requestId });
-      
+      // Log detailed info server-side only for debugging
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
       const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
       const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
 
-      const envCheck = {
+      const allConfigured = !!(supabaseUrl && supabaseAnonKey && supabaseServiceKey && stripeSecretKey);
+
+      // Log detailed diagnostics server-side only (not exposed to client)
+      console.log(`[${new Date().toISOString()}] [HEALTH-CHECK] Request ${requestId}`, {
+        allConfigured,
         supabaseUrl: !!supabaseUrl,
         supabaseAnonKey: !!supabaseAnonKey,
         supabaseServiceKey: !!supabaseServiceKey,
-        stripeSecretKey: !!stripeSecretKey,
-        supabaseUrlValue: supabaseUrl?.substring(0, 30) + "...",
-        stripeKeyType: stripeSecretKey?.startsWith('sk_test_') ? 'test' : stripeSecretKey?.startsWith('sk_live_') ? 'live' : 'unknown'
-      };
+        stripeSecretKey: !!stripeSecretKey
+      });
 
-      logStep("Detailed environment check", { ...envCheck, requestId });
-
-      let stripeTest = null;
-      if (stripeSecretKey) {
-        try {
-          const stripe = new Stripe(stripeSecretKey, { apiVersion: "2023-10-16" });
-          const account = await stripe.accounts.retrieve();
-          stripeTest = {
-            connected: true,
-            accountId: account.id,
-            country: account.country,
-            chargesEnabled: account.charges_enabled
-          };
-          logStep("Stripe connection test successful", stripeTest);
-        } catch (stripeError) {
-          stripeTest = {
-            connected: false,
-            error: stripeError instanceof Error ? stripeError.message : 'Unknown error'
-          };
-          logStep("Stripe connection test failed", stripeTest);
-        }
-      }
-
+      // Return minimal health response - no sensitive info exposed
       const healthResponse = { 
-        status: "healthy", 
-        version: "11.3-CUSTOMER-PREFILL",
-        testMode: stripeSecretKey?.startsWith('sk_test_') || false,
-        timestamp: new Date().toISOString(),
-        requestId,
-        environment: {
-          ...envCheck,
-          allConfigured: Object.values(envCheck).slice(0, 4).every(Boolean)
-        },
-        stripe: stripeTest,
-        deployment: {
-          functionName: "create-payment",
-          region: Deno.env.get("DENO_REGION") || "unknown",
-          projectId: supabaseUrl?.match(/https:\/\/([^.]+)/)?.[1] || "unknown"
-        }
+        healthy: allConfigured,
+        timestamp: new Date().toISOString()
       };
-
-      logStep("Enhanced health check response", healthResponse);
       
       return new Response(JSON.stringify(healthResponse), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200
+        status: allConfigured ? 200 : 503
       });
     }
 
