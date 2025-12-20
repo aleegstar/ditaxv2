@@ -45,12 +45,30 @@ const openUserInNewTab = (userId: string) => {
   window.open(`/user-detail/${userId}`, '_blank');
 };
 
+// Helper to get signed URL for ticket attachments
+const getSignedUrl = async (filePath: string): Promise<string | null> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('ticket-attachments')
+      .createSignedUrl(filePath, 3600); // 1 hour expiry
+    
+    if (error) {
+      console.error('Error creating signed URL:', error);
+      return null;
+    }
+    return data?.signedUrl || null;
+  } catch (error) {
+    console.error('Error getting signed URL:', error);
+    return null;
+  }
+};
+
 export const TicketManagement = () => {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [ticketMessages, setTicketMessages] = useState<TicketMessage[]>([]);
-  const [ticketAttachments, setTicketAttachments] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string }>>([]);
+  const [ticketAttachments, setTicketAttachments] = useState<Array<{ id: string; file_name: string; file_path: string; file_type: string; signedUrl?: string }>>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -279,13 +297,21 @@ export const TicketManagement = () => {
         .select('id, file_name, file_path, file_type, message_id')
         .in('message_id', messageIds);
 
+      // Get signed URLs for all attachments
+      const attachmentsWithUrls = await Promise.all(
+        (attachmentsData || []).map(async (att) => ({
+          ...att,
+          signedUrl: await getSignedUrl(att.file_path)
+        }))
+      );
+
       const formattedMessages = data.map((msg: any) => ({
         id: msg.id,
         message: msg.message,
         is_admin_message: msg.is_admin_message,
         created_at: msg.created_at,
         sender_name: msg.is_admin_message ? 'Admin' : `${msg.profiles.first_name} ${msg.profiles.last_name}`,
-        attachments: attachmentsData?.filter(att => att.message_id === msg.id) || []
+        attachments: attachmentsWithUrls.filter(att => att.message_id === msg.id) || []
       }));
 
       setTicketMessages(formattedMessages);
@@ -303,7 +329,16 @@ export const TicketManagement = () => {
 
       if (error) throw error;
 
-      setTicketAttachments((data || []).filter((att: any) => !att.message_id));
+      // Filter to ticket-level attachments (not message-level) and get signed URLs
+      const ticketLevelAttachments = (data || []).filter((att: any) => !att.message_id);
+      const attachmentsWithUrls = await Promise.all(
+        ticketLevelAttachments.map(async (att) => ({
+          ...att,
+          signedUrl: await getSignedUrl(att.file_path)
+        }))
+      );
+
+      setTicketAttachments(attachmentsWithUrls);
     } catch (error) {
       console.error('Error fetching ticket attachments:', error);
       setTicketAttachments([]);
@@ -575,16 +610,16 @@ export const TicketManagement = () => {
                       <div className="grid grid-cols-1 gap-3">
                         {ticketAttachments.map((att) => (
                           <div key={att.id} className="text-center">
-                            {att.file_type.startsWith('image/') ? (
+                            {att.file_type.startsWith('image/') && att.signedUrl ? (
                               <img
-                                src={`https://gqbhilftduwxjszznnzy.supabase.co/storage/v1/object/public/ticket-attachments/${att.file_path}`}
+                                src={att.signedUrl}
                                 alt={att.file_name}
                                 className="mx-auto max-w-full h-auto rounded-lg border border-white/30"
                                 style={{ maxHeight: '300px' }}
                               />
-                            ) : (
+                            ) : att.signedUrl ? (
                               <a
-                                href={`https://gqbhilftduwxjszznnzy.supabase.co/storage/v1/object/public/ticket-attachments/${att.file_path}`}
+                                href={att.signedUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
@@ -592,6 +627,8 @@ export const TicketManagement = () => {
                                 <FileText className="h-4 w-4" />
                                 {att.file_name}
                               </a>
+                            ) : (
+                              <span className="text-black/50 text-sm">{att.file_name} (Wird geladen...)</span>
                             )}
                           </div>
                         ))}
@@ -624,18 +661,18 @@ export const TicketManagement = () => {
                         <p className="text-black mb-2">{message.message}</p>
                         {message.attachments && message.attachments.length > 0 && (
                           <div className="mt-3 space-y-2">
-                            {message.attachments.map((attachment) => (
+                            {message.attachments.map((attachment: any) => (
                               <div key={attachment.id}>
-                                {attachment.file_type.startsWith('image/') ? (
+                                {attachment.file_type.startsWith('image/') && attachment.signedUrl ? (
                                   <img
-                                    src={`https://gqbhilftduwxjszznnzy.supabase.co/storage/v1/object/public/ticket-attachments/${attachment.file_path}`}
+                                    src={attachment.signedUrl}
                                     alt={attachment.file_name}
                                     className="max-w-full h-auto rounded-lg border border-white/30"
                                     style={{ maxHeight: '300px' }}
                                   />
-                                ) : (
+                                ) : attachment.signedUrl ? (
                                   <a
-                                    href={`https://gqbhilftduwxjszznnzy.supabase.co/storage/v1/object/public/ticket-attachments/${attachment.file_path}`}
+                                    href={attachment.signedUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
@@ -643,6 +680,8 @@ export const TicketManagement = () => {
                                     <FileText className="h-4 w-4" />
                                     {attachment.file_name}
                                   </a>
+                                ) : (
+                                  <span className="text-black/50 text-sm">{attachment.file_name} (Wird geladen...)</span>
                                 )}
                               </div>
                             ))}
