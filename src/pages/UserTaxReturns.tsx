@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Menu, ArrowRight, Check, FileCheck, Archive, Bell, MessageCircle, ScanLine } from 'lucide-react';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
@@ -87,6 +87,15 @@ const UserTaxReturns = () => {
   }, [refetch]);
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleDocumentsClick = useCallback(() => {
+    setIsTransitioning(true);
+    // Wait for animation to complete before navigating
+    setTimeout(() => {
+      navigate('/documents');
+    }, 500);
+  }, [navigate]);
 
   // Mark component as ready only when ALL data sources are loaded
   useEffect(() => {
@@ -355,14 +364,25 @@ const UserTaxReturns = () => {
           {inProgressYears.length > 0 && availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} />}
         </div>
 
+        {/* White Overlay for Transition */}
+        <div 
+          className={`fixed inset-0 bg-white z-[100] transition-opacity duration-500 pointer-events-none ${
+            isTransitioning ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+
         {/* Floating Semi-Circle Island Button */}
-        <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
+        <div 
+          className={`fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50 transition-transform duration-500 ease-out ${
+            isTransitioning ? '-translate-y-[100vh]' : 'translate-y-0'
+          }`}
+        >
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
           {/* The Semi-Circle Button Container */}
           <div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto">
-            <button onClick={() => navigate('/documents')} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
+            <button onClick={handleDocumentsClick} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
               {/* Vibrant Glow Background inside button */}
               <div className="group-hover:opacity-100 transition-opacity bg-white opacity-100 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
 
