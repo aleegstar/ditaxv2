@@ -12,25 +12,19 @@ export const SUPABASE_URL = "https://gqbhilftduwxjszznnzy.supabase.co";
 
 /**
  * Check if running in Despia native environment
+ * IMPORTANT: Only use UserAgent check - the despia-native package is always available,
+ * even in browsers, so checking for it would give false positives
  */
 export const isDespiaNative = (): boolean => {
-  // Check 1: despia-native package function available
-  if (typeof despia === 'function') {
-    console.log('✅ Despia detected via despia-native package');
-    return true;
-  }
-  // Check 2: window.despia injected by native app
-  if (typeof window !== 'undefined' && typeof (window as any).despia === 'function') {
-    console.log('✅ Despia detected via window.despia');
-    return true;
-  }
-  // Check 3: UserAgent fallback
-  const hasUserAgent = typeof navigator !== 'undefined' && 
+  const isDespia = typeof navigator !== 'undefined' && 
          navigator.userAgent.toLowerCase().includes('despia');
-  if (hasUserAgent) {
-    console.log('✅ Despia detected via UserAgent');
-  }
-  return hasUserAgent;
+  
+  console.log('🔍 Despia detection:', {
+    userAgent: navigator?.userAgent,
+    includesDespia: isDespia
+  });
+  
+  return isDespia;
 };
 
 /**
