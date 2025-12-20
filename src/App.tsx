@@ -19,7 +19,6 @@ import WebAuthnAuth from "./pages/WebAuthnAuth";
 import AuthSuccess from "./pages/AuthSuccess";
 import NativeCallback from "./pages/NativeCallback";
 import AuthBridge from "./pages/AuthBridge";
-import PasskeyRegister from "./pages/PasskeyRegister";
 import Profile from "./pages/Profile";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PriceCalculator from "./pages/PriceCalculator";
@@ -445,7 +444,6 @@ const App = () => {
                 <Route path="/auth-success" element={<AuthSuccess />} />
                 <Route path="/native-callback" element={<NativeCallback />} />
                 <Route path="/auth-bridge" element={<AuthBridge />} />
-                <Route path="/passkey-register" element={<PasskeyRegister />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
                 
                 {/* Public legal pages - accessible without authentication */}

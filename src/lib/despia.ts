@@ -56,42 +56,25 @@ export const buildOAuthUrl = (provider: 'google' | 'apple', redirectTo: string):
  */
 export const triggerDespiaOAuth = (oauthUrl: string): void => {
   const encodedUrl = encodeURIComponent(oauthUrl);
-  const command = `oauth://?url=${encodedUrl}`;
-  
   console.log('🔗 Triggering Despia OAuth with URL:', oauthUrl);
-  console.log('🔗 Encoded command:', command);
+  console.log('🔗 Encoded command:', `oauth://?url=${encodedUrl}`);
   
   // Try despia-native package first
   if (typeof despia === 'function') {
     console.log('📱 Using despia-native package');
-    try {
-      despia(command);
-      console.log('✅ despia-native called successfully');
-      return;
-    } catch (e) {
-      console.error('❌ despia-native call failed:', e);
-    }
+    despia(`oauth://?url=${encodedUrl}`);
+    return;
   }
   
   // Fallback to window.despia
   if (typeof (window as any).despia === 'function') {
     console.log('📱 Using window.despia fallback');
-    try {
-      (window as any).despia(command);
-      console.log('✅ window.despia called successfully');
-      return;
-    } catch (e) {
-      console.error('❌ window.despia call failed:', e);
-    }
+    (window as any).despia(`oauth://?url=${encodedUrl}`);
+    return;
   }
   
   console.error('❌ Despia SDK not available - neither despia-native nor window.despia found');
-  console.log('🔍 typeof despia:', typeof despia);
-  console.log('🔍 typeof window.despia:', typeof (window as any).despia);
-  
-  // As a last resort, try to open the URL directly (won't work in WebView but better than nothing)
-  console.log('🔗 Attempting direct window.location redirect as fallback...');
-  window.location.href = oauthUrl;
+  throw new Error('Despia SDK not available');
 };
 
 /**
@@ -108,18 +91,4 @@ export const triggerDespiaPasskeyAuth = (email: string): void => {
   
   // Use the Easy OAuth mechanism to open in system browser
   triggerDespiaOAuth(authUrl);
-};
-
-/**
- * Trigger Despia Passkey Registration via System Browser
- * Opens the passkey registration page in the system browser (not WebView)
- * which allows full access to the device's keychain for passkey creation
- */
-export const triggerDespiaPasskeyRegistration = (): void => {
-  const registerUrl = `${window.location.origin}/passkey-register?despia=true`;
-  
-  console.log('🔐 Opening Passkey Registration in System Browser:', registerUrl);
-  
-  // Use the Easy OAuth mechanism to open in system browser
-  triggerDespiaOAuth(registerUrl);
 };
