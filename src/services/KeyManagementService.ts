@@ -81,67 +81,154 @@ export class KeyManagementService {
   }
   
   /**
-   * Server-side document decryption for admins
-   * The master key NEVER leaves the server - decryption happens on the edge function
+   * Get master key from Supabase secrets (admin only)
    */
-  async adminDecryptDocumentServerSide(
-    documentId: string,
-    justification?: string
-  ): Promise<{ blob: Blob; fileName: string; fileType: string }> {
-    console.log('🔐 Requesting server-side document decryption for:', documentId);
+  private async getMasterKey(): Promise<string> {
+    console.log('🔑 Attempting to retrieve master key from edge function');
     
+    // Step 1: Validate and refresh session if needed
+    console.log('🔄 Validating auth session before edge function call');
     try {
-      // Validate session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
+      if (sessionError) {
+        console.error('❌ Session validation failed:', sessionError);
+        throw new Error(`Session-Validierung fehlgeschlagen: ${sessionError.message}`);
+      }
+      
+      if (!session) {
+        console.error('❌ No active session found');
         throw new Error('Keine aktive Session gefunden - bitte erneut anmelden');
       }
-
-      // Call edge function for server-side decryption
-      const { data, error } = await supabase.functions.invoke('admin-decrypt-document', {
-        body: { documentId, justification },
-        headers: { 'Content-Type': 'application/json' }
+      
+      console.log('✅ Session validated, access token present');
+    } catch (error) {
+      console.error('❌ Session validation error:', error);
+      throw new Error(`Session-Fehler: ${error instanceof Error ? error.message : 'Unbekannt'}`);
+    }
+    
+    // Step 2: Try edge function with enhanced error handling
+    try {
+      console.log('📤 Invoking get-master-key edge function');
+      const { data, error } = await supabase.functions.invoke('get-master-key', {
+        body: {},
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       if (error) {
-        console.error('❌ Server-side decryption error:', error);
-        throw new Error(error.message || 'Fehler bei der Server-seitigen Entschlüsselung');
+        console.error('❌ Edge function invoke error:', error);
+        console.log('🔄 Attempting direct fetch fallback...');
+        return await this.getMasterKeyDirectFetch();
       }
 
-      if (!data?.success || !data?.data) {
-        console.error('❌ Invalid response from decryption service:', data);
-        throw new Error('Ungültige Antwort vom Entschlüsselungsdienst');
+      if (!data?.masterKey) {
+        console.warn('⚠️ No master key in response, data received:', data);
+        console.log('🔄 Attempting direct fetch fallback...');
+        return await this.getMasterKeyDirectFetch();
       }
 
-      // Convert base64 back to blob
-      const binaryString = atob(data.data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
+      console.log('✅ Master key retrieved successfully via invoke');
+      console.log('🔍 Master key length:', data.masterKey.length);
+      console.log('🔍 Master key starts with:', data.masterKey.substring(0, 8) + '...');
       
-      const blob = new Blob([bytes], { type: data.fileType });
-      
-      console.log('✅ Server-side decryption successful for document:', documentId);
-      
-      return {
-        blob,
-        fileName: data.fileName,
-        fileType: data.fileType
-      };
+      return data.masterKey;
     } catch (error) {
-      console.error('❌ Error in server-side decryption:', error);
-      throw new Error(`Fehler bei der Entschlüsselung: ${error instanceof Error ? error.message : 'Unbekannt'}`);
+      console.error('❌ Error getting master key via invoke:', error);
+      console.log('🔄 Final fallback: attempting direct fetch...');
+      try {
+        return await this.getMasterKeyDirectFetch();
+      } catch (fetchError) {
+        console.error('❌ Direct fetch also failed:', fetchError);
+        throw new Error(`Fehler beim Abrufen des Master-Schlüssels: ${error instanceof Error ? error.message : 'Unbekannt'}`);
+      }
     }
   }
 
   /**
-   * @deprecated Use adminDecryptDocumentServerSide instead
-   * This method is kept for backwards compatibility but should not be used
+   * Fallback method using Supabase client
+   */
+  private async getMasterKeyDirectFetch(): Promise<string> {
+    console.log('📡 Using Supabase client to get master key...');
+    
+    const { data, error } = await supabase.functions.invoke('get-master-key', {
+      body: {}
+    });
+
+    if (error) {
+      console.error('❌ Supabase client error:', error);
+      throw new Error(`Client error: ${error.message}`);
+    }
+
+    if (!data || !data.masterKey) {
+      throw new Error('Master key not found in response');
+    }
+
+    console.log('✅ Master key retrieved successfully via Supabase client');
+    console.log('🔍 Master key length (direct fetch):', data.masterKey.length);
+    console.log('🔍 Master key starts with (direct fetch):', data.masterKey.substring(0, 8) + '...');
+    
+    return data.masterKey;
+  }
+  
+  /**
+   * Admin function to get user key for decryption using master key
+   * This allows admins to decrypt any user's documents
    */
   async getAdminDecryptionKey(userId: string, adminUserId: string): Promise<string> {
-    console.warn('⚠️ DEPRECATED: getAdminDecryptionKey should not be used. Use adminDecryptDocumentServerSide instead.');
-    throw new Error('Diese Methode ist veraltet. Bitte verwenden Sie die Server-seitige Entschlüsselung.');
+    try {
+      // Use robust admin verification from SecurityService
+      const { SecurityService } = await import('./SecurityService');
+      
+      console.log('🔐 Verifying admin access for user:', adminUserId);
+      const isAdmin = await SecurityService.verifyAdminAccess('document_decryption');
+      
+      if (!isAdmin) {
+        console.error('❌ Admin verification failed for user:', adminUserId);
+        throw new Error('Keine Admin-Berechtigung für Dokument-Entschlüsselung');
+      }
+      
+      console.log('✅ Admin access verified for user:', adminUserId);
+      
+      // Log admin access
+      try {
+        await supabase
+          .from('admin_access_logs')
+          .insert({
+            admin_user_id: adminUserId,
+            accessed_user_id: userId,
+            action: 'key_access',
+            timestamp: new Date().toISOString()
+          });
+      } catch (logError) {
+        console.warn('⚠️ Failed to log admin access:', logError);
+        // Continue execution - logging shouldn't block the process
+      }
+      
+      console.log('🔑 Retrieving master key for user decryption...');
+      // Get master key and derive user key
+      const masterKey = await this.getMasterKey();
+      
+      console.log('🔐 Generating user key from master key...');
+      console.log('🔍 Using master key of length:', masterKey.length);
+      console.log('🔍 For user ID:', userId);
+      
+      const userKey = await this.cryptoService.generateUserKey(userId, masterKey);
+      
+      console.log('✅ Successfully generated admin decryption key for user:', userId);
+      console.log('🔍 Generated user key length:', userKey.length);
+      
+      return userKey;
+    } catch (error) {
+      console.error('❌ Error in getAdminDecryptionKey:', error);
+      
+      // Re-throw with more context
+      if (error.message?.includes('Keine Admin-Berechtigung')) {
+        throw error; // Keep original admin error
+      }
+      
+      throw new Error(`Fehler beim Abrufen des Admin-Entschlüsselungsschlüssels: ${error.message || 'Unbekannter Fehler'}`);
+    }
   }
   
   /**
