@@ -315,6 +315,7 @@ class EncryptedDocumentService {
   
   /**
    * Admin function to download and decrypt any user's document
+   * Uses server-side decryption - master key never leaves the server
    */
   async adminDownloadDecryptedDocument(documentId: string, adminUserId: string): Promise<{
     blob: Blob;
@@ -322,7 +323,7 @@ class EncryptedDocumentService {
     fileType: string;
   }> {
     try {
-      console.log('🔧 Admin downloading document:', documentId, 'by admin:', adminUserId);
+      console.log('🔧 Admin requesting server-side document decryption:', documentId, 'by admin:', adminUserId);
       
       // Validate current session first
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -332,129 +333,20 @@ class EncryptedDocumentService {
         console.error('❌ No authenticated user found');
         throw new Error('Keine Authentifizierung gefunden');
       }
-      
-      // Get document metadata
-      const { data: document, error: docError } = await supabase
-        .from('uploaded_documents')
-        .select('*')
-        .eq('id', documentId)
-        .single();
-      
-      if (docError || !document) {
-        console.error('Document not found:', docError);
-        throw new Error('Dokument nicht gefunden');
-      }
-      
-      console.log('📄 Document found:', document);
-      
-      // Check if document is actually encrypted
-      const metadata = document.metadata as EncryptedDocumentMetadata;
-      if (!metadata || !metadata.encrypted) {
-        console.log('📄 Document is not encrypted, downloading directly');
-        // For non-encrypted documents, download directly
-        const { data: fileData, error: downloadError } = await supabase.storage
-          .from('documents')
-          .download(document.file_path);
-        
-        if (downloadError || !fileData) {
-          console.error('Download error:', downloadError);
-          throw new Error('Fehler beim Herunterladen der Datei');
-        }
-        
-        const blob = new Blob([fileData], { type: document.file_type });
-        return {
-          blob,
-          fileName: document.file_name,
-          fileType: document.file_type
-        };
-      }
-      
-      // Get admin decryption key for the document owner
-      const encryptionKey = await this.keyService.getAdminDecryptionKey(
-        document.user_id,
-        adminUserId
+
+      // Use server-side decryption - master key never leaves the server
+      const result = await this.keyService.adminDecryptDocumentServerSide(
+        documentId,
+        'Admin document access via UI'
       );
       
-      console.log('🔑 Got admin decryption key for user:', document.user_id);
+      console.log('✅ Server-side decryption completed for document:', documentId);
       
-      // Download encrypted file
-      const { data: fileData, error: downloadError } = await supabase.storage
-        .from('documents')
-        .download(document.file_path);
-      
-      if (downloadError || !fileData) {
-        console.error('Download error:', downloadError);
-        throw new Error('Fehler beim Herunterladen der verschlüsselten Datei');
-      }
-      
-      console.log('📥 Downloaded encrypted file, size:', fileData.size);
-      
-      // Decrypt file
-      const encryptedBuffer = await fileData.arrayBuffer();
-      const decryptedBuffer = await this.cryptoService.decryptFile(
-        encryptedBuffer,
-        encryptionKey,
-        metadata.iv!
-      );
-      
-      console.log('🔓 Decrypted file, size:', decryptedBuffer.byteLength);
-      
-      // Get original metadata
-      let fileName = document.file_name;
-      let fileType = document.file_type;
-      
-      if (metadata.encryptedMetadata && metadata.metadataIv) {
-        try {
-          const originalMetadata = await this.cryptoService.decryptMetadata(
-            metadata.encryptedMetadata,
-            encryptionKey,
-            metadata.metadataIv
-          );
-          fileName = originalMetadata.original_name || fileName;
-          fileType = originalMetadata.original_type || fileType;
-          console.log('📝 Decrypted metadata:', { fileName, fileType });
-        } catch (err) {
-          console.warn('Could not decrypt metadata, using fallback values');
-        }
-      }
-      
-      // Verify integrity if available
-      if (metadata.integrity_hash) {
-        try {
-          const isValid = await this.cryptoService.verifyIntegrity(
-            decryptedBuffer,
-            metadata.integrity_hash
-          );
-          
-          if (!isValid) {
-            console.warn('⚠️ Integrity check failed for document:', documentId);
-          } else {
-            console.log('✅ Integrity check passed');
-          }
-        } catch (integrityError) {
-          console.warn('Could not verify integrity:', integrityError);
-        }
-      }
-      
-      // Log successful admin access
-      await supabase
-        .from('admin_access_logs')
-        .insert({
-          admin_user_id: adminUserId,
-          accessed_user_id: document.user_id,
-          document_id: documentId,
-          action: 'document_decrypt_download'
-        });
-      
-      return {
-        blob: new Blob([decryptedBuffer], { type: fileType }),
-        fileName,
-        fileType
-      };
+      return result;
       
     } catch (error) {
       console.error('Error in admin download:', error);
-      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error instanceof Error ? error.message : 'Unbekannt'}`);
     }
   }
   
