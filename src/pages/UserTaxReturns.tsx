@@ -378,9 +378,6 @@ const UserTaxReturns = () => {
             isTransitioning ? '-translate-y-[100vh]' : 'translate-y-0'
           }`}
         >
-          {/* White background that extends below for transition */}
-          <div className="absolute bottom-0 w-full h-[200vh] bg-white pointer-events-none -z-10" />
-          
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
 
