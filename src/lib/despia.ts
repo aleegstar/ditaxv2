@@ -56,25 +56,42 @@ export const buildOAuthUrl = (provider: 'google' | 'apple', redirectTo: string):
  */
 export const triggerDespiaOAuth = (oauthUrl: string): void => {
   const encodedUrl = encodeURIComponent(oauthUrl);
+  const command = `oauth://?url=${encodedUrl}`;
+  
   console.log('🔗 Triggering Despia OAuth with URL:', oauthUrl);
-  console.log('🔗 Encoded command:', `oauth://?url=${encodedUrl}`);
+  console.log('🔗 Encoded command:', command);
   
   // Try despia-native package first
   if (typeof despia === 'function') {
     console.log('📱 Using despia-native package');
-    despia(`oauth://?url=${encodedUrl}`);
-    return;
+    try {
+      despia(command);
+      console.log('✅ despia-native called successfully');
+      return;
+    } catch (e) {
+      console.error('❌ despia-native call failed:', e);
+    }
   }
   
   // Fallback to window.despia
   if (typeof (window as any).despia === 'function') {
     console.log('📱 Using window.despia fallback');
-    (window as any).despia(`oauth://?url=${encodedUrl}`);
-    return;
+    try {
+      (window as any).despia(command);
+      console.log('✅ window.despia called successfully');
+      return;
+    } catch (e) {
+      console.error('❌ window.despia call failed:', e);
+    }
   }
   
   console.error('❌ Despia SDK not available - neither despia-native nor window.despia found');
-  throw new Error('Despia SDK not available');
+  console.log('🔍 typeof despia:', typeof despia);
+  console.log('🔍 typeof window.despia:', typeof (window as any).despia);
+  
+  // As a last resort, try to open the URL directly (won't work in WebView but better than nothing)
+  console.log('🔗 Attempting direct window.location redirect as fallback...');
+  window.location.href = oauthUrl;
 };
 
 /**
