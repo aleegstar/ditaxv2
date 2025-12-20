@@ -361,13 +361,13 @@ const DocumentsContent: React.FC<{
           </main>
 
           {/* Floating Action Footer */}
-          <div className="fixed bottom-0 w-full max-w-[420px] pointer-events-none z-50 left-1/2 -translate-x-1/2">
+          <div className="fixed bottom-0 w-full max-w-[500px] pointer-events-none z-50 left-1/2 -translate-x-1/2 overflow-visible">
             {/* Gradient Overlay */}
             <div className="absolute bottom-0 w-full h-40 pointer-events-none" style={{
-            background: 'linear-gradient(to top, #F7F9FB 10%, rgba(247,249,251,0.8) 50%, rgba(247,249,251,0) 100%)'
+            background: 'linear-gradient(to top, #ffffff 10%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)'
           }} />
 
-            <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4">
+            <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4 overflow-visible">
               
               {/* Hidden File Input */}
               <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
