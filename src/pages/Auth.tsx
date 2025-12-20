@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -8,8 +8,9 @@ import { useI18n } from "@/contexts/I18nContext";
 import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
-import { isAndroidEnvironment, isDespiaEnvironment } from "@/utils/platform";
+import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
+import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth } from "@/lib/despia";
 const Auth = () => {
   const navigate = useNavigate();
   const {
@@ -58,29 +59,26 @@ const Auth = () => {
     }
     isOAuthInProgress.current = true;
     setIsLoading(true);
-    const isDespia = isDespiaEnvironment();
+    
+    const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
+    
     console.log('🔗 Google Auth Debug:', {
-      windowDespia: typeof (window as any).despia,
-      userAgent: navigator.userAgent,
       isDespia,
       isNativeCapacitor
     });
+    
+    // Despia Easy OAuth - New format as per updated documentation
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Native OAuth Handler');
+      console.log('🔗 Despia Easy OAuth detected - Using new URL format');
       try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success',
-            skipBrowserRedirect: true
-          }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          console.log('🔗 Triggering Despia native OAuth with URL');
-          (window as any).despia(`oauth://${data.url}`);
-        }
+        const redirectTo = `${window.location.origin}/native-callback`;
+        const oauthUrl = buildOAuthUrl('google', redirectTo);
+        
+        console.log('🔗 OAuth URL:', oauthUrl);
+        console.log('🔗 Redirect URL:', redirectTo);
+        
+        triggerDespiaOAuth(oauthUrl);
       } catch (error) {
         console.error('Google auth error (Despia):', error);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -89,6 +87,8 @@ const Auth = () => {
       }
       return;
     }
+    
+    // Capacitor native browser
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
         const {
@@ -137,24 +137,23 @@ const Auth = () => {
     }
     isOAuthInProgress.current = true;
     setIsLoading(true);
-    const isDespia = isDespiaEnvironment();
+    
+    const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
+    
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
+    
+    // Despia Easy OAuth - New format as per updated documentation
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Native Apple OAuth Handler');
+      console.log('🔗 Despia Easy OAuth detected - Using new Apple OAuth URL format');
       try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'apple',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success',
-            skipBrowserRedirect: true
-          }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          console.log('🔗 Triggering Despia native Apple OAuth with URL');
-          (window as any).despia(`oauth://${data.url}`);
-        }
+        const redirectTo = `${window.location.origin}/native-callback`;
+        const oauthUrl = buildOAuthUrl('apple', redirectTo);
+        
+        console.log('🔗 Apple OAuth URL:', oauthUrl);
+        console.log('🔗 Redirect URL:', redirectTo);
+        
+        triggerDespiaOAuth(oauthUrl);
       } catch (error) {
         console.error('Apple auth error (Despia):', error);
         toast.error("Fehler bei der Apple-Anmeldung");
@@ -163,6 +162,8 @@ const Auth = () => {
       }
       return;
     }
+    
+    // Capacitor native browser
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
         const {
