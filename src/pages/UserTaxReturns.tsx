@@ -366,9 +366,10 @@ const UserTaxReturns = () => {
 
         {/* White Overlay for Transition */}
         <div 
-          className={`fixed inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-700 ease-out ${
+          className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${
             isTransitioning ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{ backgroundColor: '#ffffff' }}
         />
 
         {/* Floating Semi-Circle Island Button */}
