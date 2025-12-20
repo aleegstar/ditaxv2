@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Fingerprint, Loader2, ArrowLeft } from 'lucide-react';
+import { Fingerprint, Loader2, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
+import { isDespiaNative, triggerDespiaPasskeyRegistration } from '@/lib/despia';
 
 interface PasskeyRegistrationProps {
   onRegistrationSuccess?: () => void;
@@ -18,6 +19,7 @@ export const PasskeyRegistration: React.FC<PasskeyRegistrationProps> = ({
   const [deviceName, setDeviceName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const { isSupported, isLoading, registerPasskey } = useEnhancedWebAuthn();
+  const isDespia = isDespiaNative();
 
   const handleRegister = async () => {
     if (!deviceName.trim()) {
@@ -35,11 +37,66 @@ export const PasskeyRegistration: React.FC<PasskeyRegistrationProps> = ({
     }
   };
 
+  const handleDespiaRegister = () => {
+    console.log('🔐 Opening passkey registration in system browser...');
+    triggerDespiaPasskeyRegistration();
+  };
+
   const handleCancel = () => {
     setIsOpen(false);
     setDeviceName('');
     onCancel?.();
   };
+
+  // In Despia: Show system browser option
+  if (isDespia) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {onCancel && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancel}
+                className="mr-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <Fingerprint className="h-5 w-5" />
+            Fingerprint einrichten
+          </CardTitle>
+          <CardDescription>
+            Fügen Sie einen Fingerprint/Passkey für schnelle und sichere Anmeldung hinzu.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Die Registrierung wird im System-Browser geöffnet, um sicheren Zugriff auf Ihren Fingerprint/Face ID zu ermöglichen.
+          </p>
+          <Button
+            type="button"
+            onClick={handleDespiaRegister}
+            className="w-full"
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Im Browser registrieren
+          </Button>
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              className="w-full"
+            >
+              Abbrechen
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!isSupported) {
     return (

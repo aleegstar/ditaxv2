@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Fingerprint, Trash2, Loader2, CheckCircle, ScanLine } from 'lucide-react';
+import { Fingerprint, Trash2, Loader2, CheckCircle, ScanLine, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { PasskeyRegistration } from './PasskeyRegistration';
 import { OtpSecuritySettings } from './OtpSecuritySettings';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { isDespiaNative, triggerDespiaPasskeyRegistration } from '@/lib/despia';
 
 interface PasskeyCredential {
   id: string;
@@ -19,6 +20,7 @@ export const PasskeyManager: React.FC = () => {
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null);
   const [showRegistration, setShowRegistration] = useState(false);
   const { isSupported, getUserPasskeys, deletePasskey } = useEnhancedWebAuthn();
+  const isDespia = isDespiaNative();
 
   const loadPasskeys = async () => {
     try {
@@ -52,7 +54,12 @@ export const PasskeyManager: React.FC = () => {
     loadPasskeys();
   };
 
-  if (!isSupported) {
+  const handleDespiaRegister = () => {
+    console.log('🔐 Opening passkey registration in system browser...');
+    triggerDespiaPasskeyRegistration();
+  };
+
+  if (!isSupported && !isDespia) {
     return (
       <section className="space-y-6">
         <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
@@ -96,13 +103,23 @@ export const PasskeyManager: React.FC = () => {
               </p>
             </div>
 
-            <button
-              onClick={() => setShowRegistration(true)}
-              className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
-            >
-              <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
-              Fingerprint jetzt einrichten
-            </button>
+            {isDespia ? (
+              <button
+                onClick={handleDespiaRegister}
+                className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+              >
+                <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+                Im Browser registrieren
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowRegistration(true)}
+                className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+              >
+                <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+                Fingerprint jetzt einrichten
+              </button>
+            )}
 
             <div className="flex items-start gap-2.5">
               <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -141,13 +158,23 @@ export const PasskeyManager: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowRegistration(true)}
-            className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
-          >
-            <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
-            Weiteren Fingerprint hinzufügen
-          </button>
+          {isDespia ? (
+            <button
+              onClick={handleDespiaRegister}
+              className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+            >
+              <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+              Im Browser hinzufügen
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowRegistration(true)}
+              className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+            >
+              <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+              Weiteren Fingerprint hinzufügen
+            </button>
+          )}
         </div>
 
         {/* Existing Passkeys */}

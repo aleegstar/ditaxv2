@@ -92,3 +92,17 @@ export const triggerDespiaPasskeyAuth = (email: string): void => {
   // Use the Easy OAuth mechanism to open in system browser
   triggerDespiaOAuth(authUrl);
 };
+
+/**
+ * Trigger Despia Passkey Registration via System Browser
+ * Opens the passkey registration page in the system browser (not WebView)
+ * which allows full access to the device's keychain for passkey creation
+ */
+export const triggerDespiaPasskeyRegistration = (): void => {
+  const registerUrl = `${window.location.origin}/passkey-register?despia=true`;
+  
+  console.log('🔐 Opening Passkey Registration in System Browser:', registerUrl);
+  
+  // Use the Easy OAuth mechanism to open in system browser
+  triggerDespiaOAuth(registerUrl);
+};
