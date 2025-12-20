@@ -93,8 +93,8 @@ const UserTaxReturns = () => {
     setIsTransitioning(true);
     // Wait for animation to complete before navigating
     setTimeout(() => {
-      navigate('/documents');
-    }, 500);
+      navigate('/documents?transition=true');
+    }, 600);
   }, [navigate]);
 
   // Mark component as ready only when ALL data sources are loaded
@@ -366,14 +366,14 @@ const UserTaxReturns = () => {
 
         {/* White Overlay for Transition */}
         <div 
-          className={`fixed inset-0 bg-white z-[100] transition-opacity duration-500 pointer-events-none ${
+          className={`fixed inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-700 ease-out ${
             isTransitioning ? 'opacity-100' : 'opacity-0'
           }`}
         />
 
         {/* Floating Semi-Circle Island Button */}
         <div 
-          className={`fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50 transition-transform duration-500 ease-out ${
+          className={`fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50 transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
             isTransitioning ? '-translate-y-[100vh]' : 'translate-y-0'
           }`}
         >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, Calendar, FileText, Image, MoreHorizontal, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,12 +18,14 @@ import { useStatusBar } from '@/hooks/useStatusBar';
 const DocumentsContent: React.FC<{
   selectedYear: string;
   onYearChange: (year: string) => void;
+  isTransitionEntry: boolean;
 }> = ({
   selectedYear,
-  onYearChange
+  onYearChange,
+  isTransitionEntry
 }) => {
   const [documents, setDocuments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showCamera, setShowCamera] = useState(false);
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [completedYears, setCompletedYears] = useState<string[]>([]);
@@ -35,6 +37,8 @@ const DocumentsContent: React.FC<{
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [contentReady, setContentReady] = useState(false);
+  const [showContent, setShowContent] = useState(!isTransitionEntry);
   const {
     toast
   } = useToast();
@@ -54,6 +58,24 @@ const DocumentsContent: React.FC<{
   
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
+
+  // Handle transition entry - wait for content to load then fade in
+  useEffect(() => {
+    if (isTransitionEntry && contentReady && !showContent) {
+      // Small delay to ensure everything is painted
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitionEntry, contentReady, showContent]);
+
+  // Mark content as ready when documents are loaded
+  useEffect(() => {
+    if (!loading) {
+      setContentReady(true);
+    }
+  }, [loading]);
 
   // Generate year options (2024-2034)
   const allYears = Array.from({
@@ -200,10 +222,18 @@ const DocumentsContent: React.FC<{
         </div>
       </div>;
   }
+  // Show white screen during transition until content is ready
+  if (isTransitionEntry && !showContent) {
+    return <div className="min-h-screen bg-white" />;
+  }
+
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700">
+      <div className={cn(
+        "min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700",
+        isTransitionEntry && "animate-fade-in"
+      )}>
         {/* Container */}
         <div className="min-h-screen flex flex-col w-full max-w-2xl pb-32 relative bg-white">
           
@@ -382,10 +412,17 @@ const DocumentsContent: React.FC<{
 
 // Main component that wraps DocumentsContent with FormProvider
 const Documents: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
+  const isTransitionEntry = searchParams.get('transition') === 'true';
+  
   return <FormProvider taxYear={selectedYear}>
-      <DocumentsContent selectedYear={selectedYear} onYearChange={setSelectedYear} />
+      <DocumentsContent 
+        selectedYear={selectedYear} 
+        onYearChange={setSelectedYear} 
+        isTransitionEntry={isTransitionEntry}
+      />
     </FormProvider>;
 };
 export default Documents;
