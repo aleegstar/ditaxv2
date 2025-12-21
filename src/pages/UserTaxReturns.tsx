@@ -197,7 +197,7 @@ const UserTaxReturns = () => {
       <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
         {/* Background Ambient Glow */}
         <div className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90" style={{
-        background: 'radial-gradient(circle at 50% -15%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
+        background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
         filter: 'blur(60px)'
       }} />
 

@@ -59,7 +59,7 @@ const Profile = () => {
     <div className="min-h-screen bg-[#020408] text-zinc-200 flex flex-col overflow-hidden">
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none -z-10" style={{
-        background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
+        background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
         filter: 'blur(80px)'
       }} />
 

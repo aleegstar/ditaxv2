@@ -578,7 +578,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           <div 
             className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
             style={{
-              background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+              background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
               filter: 'blur(90px)'
             }}
           />
@@ -648,7 +648,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         <div 
           className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
           style={{
-            background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
+            background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
             filter: 'blur(90px)'
           }}
         />

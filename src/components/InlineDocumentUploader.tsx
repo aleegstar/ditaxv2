@@ -344,7 +344,7 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       <div 
         className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-100"
         style={{
-          background: 'radial-gradient(circle at 50% 30%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 70%)',
+          background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.12) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 70%)',
           filter: 'blur(80px)'
         }}
       />
