@@ -330,7 +330,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
       <div className="flex flex-col h-full bg-[#020408] relative overflow-hidden">
         {/* Background Ambient Glow */}
         <div className="absolute top-0 left-0 w-full h-[400px] z-0 pointer-events-none opacity-100" style={{
-        background: 'radial-gradient(circle at 50% -20%, rgba(29, 100, 255, 0.15) 0%, rgba(29, 100, 255, 0.02) 50%, transparent 80%)',
+        background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.15) 0%, rgba(29, 100, 255, 0.02) 50%, transparent 80%)',
         filter: 'blur(80px)'
       }} />
 
