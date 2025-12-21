@@ -12,12 +12,12 @@ import { TourStartButton } from '@/components/ui/tour-start-button';
 import { useFormTour } from '@/contexts/FormTourContext';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 
-// Border beam color configurations for each card
+// Border beam color configurations for each card - now using blue theme
 const beamColors: Record<string, { from: string; to: string }> = {
-  contact: { from: "#F97316", to: "#FBBF24" }, // Orange to Yellow
-  deductions: { from: "#9b87f5", to: "#1EAEDB" }, // Purple to Cyan  
-  income: { from: "#FBBF24", to: "#F97316" }, // Yellow to Orange
-  assets: { from: "#10B981", to: "#34D399" }, // Green shades
+  contact: { from: "#1D64FF", to: "#60A5FA" }, // Blue shades
+  deductions: { from: "#1D64FF", to: "#60A5FA" }, // Blue shades  
+  income: { from: "#1D64FF", to: "#60A5FA" }, // Blue shades
+  assets: { from: "#1D64FF", to: "#60A5FA" }, // Blue shades
 };
 
 interface DashboardSection {
@@ -31,20 +31,20 @@ interface DashboardSection {
 // Beam animation component
 const NexusBeam: React.FC<{
   delay?: number;
-  color?: 'orange' | 'green' | 'red';
+  color?: 'blue' | 'green' | 'red';
   showBeamEffect?: boolean;
 }> = ({
   delay = 0,
-  color = 'orange',
+  color = 'blue',
   showBeamEffect = true
 }) => {
   const colorConfig = {
-    orange: {
-      glow: 'rgba(249,115,22,0.15)',
-      beam: '#F97316',
-      shadow: 'rgba(249,115,22,0.6)',
-      shadowLight: 'rgba(251,191,36,0.3)',
-      line: 'rgba(249,115,22,0.3)'
+    blue: {
+      glow: 'rgba(29,100,255,0.15)',
+      beam: '#1D64FF',
+      shadow: 'rgba(29,100,255,0.6)',
+      shadowLight: 'rgba(96,165,250,0.3)',
+      line: 'rgba(29,100,255,0.3)'
     },
     green: {
       glow: 'rgba(16,185,129,0.15)',
@@ -250,6 +250,11 @@ export const TaxYearDashboard: React.FC = () => {
 
       {/* Mobile Container */}
       <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
+        {/* Background Ambient Glow */}
+        <div className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90" style={{
+          background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
+          filter: 'blur(60px)'
+        }} />
         {/* Header */}
         <header className="flex z-20 p-8 relative items-center justify-between">
           {/* Back Button */}
@@ -303,11 +308,11 @@ export const TaxYearDashboard: React.FC = () => {
         style={{
           boxShadow: angabenProgress.completed === 4 
             ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
-            : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+            : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(29,100,255,0.3), inset 0 1px 0 0 rgba(29,100,255,0.1)',
           border: '1px solid transparent',
           backgroundImage: angabenProgress.completed === 4
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
-            : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+            : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(29,100,255,0.6), rgba(96,165,250,0.3), rgba(29,100,255,0.6))',
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
@@ -317,8 +322,8 @@ export const TaxYearDashboard: React.FC = () => {
                 size={200}
                 duration={10}
                 borderWidth={1.5}
-                colorFrom="#F97316"
-                colorTo="#FBBF24"
+                colorFrom="#1D64FF"
+                colorTo="#60A5FA"
                 delay={0}
               />
             )}
@@ -364,8 +369,8 @@ export const TaxYearDashboard: React.FC = () => {
                         size={80}
                         duration={6}
                         borderWidth={1.5}
-                        colorFrom="#F97316"
-                        colorTo="#FBBF24"
+                        colorFrom="#1D64FF"
+                        colorTo="#60A5FA"
                         delay={index * 1.5}
                       />
                     )}
@@ -384,7 +389,7 @@ export const TaxYearDashboard: React.FC = () => {
           </motion.div>
 
           {/* NEXUS BEAM CONNECTION 1 - line always visible, beam effect only when card above is green */}
-          <NexusBeam delay={0} color={allAngabenComplete ? 'green' : 'orange'} showBeamEffect={allAngabenComplete} />
+          <NexusBeam delay={0} color={allAngabenComplete ? 'green' : 'blue'} showBeamEffect={allAngabenComplete} />
 
           {/* Card 2: Unterlagen */}
           <motion.div 
@@ -407,13 +412,13 @@ export const TaxYearDashboard: React.FC = () => {
             ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(239,68,68,0.3), inset 0 1px 0 0 rgba(239,68,68,0.1)'
             : isDocumentsComplete 
               ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
-              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(29,100,255,0.3), inset 0 1px 0 0 rgba(29,100,255,0.1)',
           border: '1px solid transparent',
           backgroundImage: !allAngabenComplete
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
             : isDocumentsComplete
               ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
-              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(29,100,255,0.6), rgba(96,165,250,0.3), rgba(29,100,255,0.6))',
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
@@ -423,8 +428,8 @@ export const TaxYearDashboard: React.FC = () => {
                 size={200}
                 duration={10}
                 borderWidth={1.5}
-                colorFrom="#F97316"
-                colorTo="#FBBF24"
+                colorFrom="#1D64FF"
+                colorTo="#60A5FA"
                 delay={0.5}
               />
             )}
@@ -455,8 +460,8 @@ export const TaxYearDashboard: React.FC = () => {
                     size={80}
                     duration={6}
                     borderWidth={1.5}
-                    colorFrom="#F97316"
-                    colorTo="#FBBF24"
+                    colorFrom="#1D64FF"
+                    colorTo="#60A5FA"
                     delay={0}
                   />
                 )}
@@ -476,7 +481,7 @@ export const TaxYearDashboard: React.FC = () => {
           </motion.div>
 
           {/* NEXUS BEAM CONNECTION 2 - line always visible, beam effect only when card above is green */}
-          <NexusBeam delay={1.25} color={isDocumentsComplete ? 'green' : 'orange'} showBeamEffect={isDocumentsComplete} />
+          <NexusBeam delay={1.25} color={isDocumentsComplete ? 'green' : 'blue'} showBeamEffect={isDocumentsComplete} />
 
           {/* Card 3: Einreichen */}
           <motion.div 
@@ -499,13 +504,13 @@ export const TaxYearDashboard: React.FC = () => {
             ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(239,68,68,0.3), inset 0 1px 0 0 rgba(239,68,68,0.1)'
             : canSubmit 
               ? '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(16,185,129,0.3), inset 0 1px 0 0 rgba(16,185,129,0.1)' 
-              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
+              : '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(29,100,255,0.3), inset 0 1px 0 0 rgba(29,100,255,0.1)',
           border: '1px solid transparent',
           backgroundImage: !isDocumentsComplete
             ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(239,68,68,0.6), rgba(248,113,113,0.3), rgba(239,68,68,0.6))'
             : canSubmit
               ? 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(16,185,129,0.6), rgba(52,211,153,0.3), rgba(16,185,129,0.6))'
-              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
+              : 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(29,100,255,0.6), rgba(96,165,250,0.3), rgba(29,100,255,0.6))',
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box'
         }}>
@@ -515,8 +520,8 @@ export const TaxYearDashboard: React.FC = () => {
                 size={200}
                 duration={10}
                 borderWidth={1.5}
-                colorFrom="#F97316"
-                colorTo="#FBBF24"
+                colorFrom="#1D64FF"
+                colorTo="#60A5FA"
                 delay={1}
               />
             )}
@@ -549,8 +554,8 @@ export const TaxYearDashboard: React.FC = () => {
                     size={80}
                     duration={6}
                     borderWidth={1.5}
-                    colorFrom="#F97316"
-                    colorTo="#FBBF24"
+                    colorFrom="#1D64FF"
+                    colorTo="#60A5FA"
                     delay={0}
                   />
                 )}
