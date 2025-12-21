@@ -32,7 +32,7 @@ export const isDespiaNative = (): boolean => {
  */
 export const buildDeeplinkUrl = (path: string, params: Record<string, string>): string => {
   const queryString = new URLSearchParams(params).toString();
-  return `${DEEPLINK_SCHEME}://${path}${queryString ? `?${queryString}` : ''}`;
+  return `${DEEPLINK_SCHEME}://oauth/${path}${queryString ? `?${queryString}` : ''}`;
 };
 
 /**
