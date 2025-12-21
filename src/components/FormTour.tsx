@@ -275,16 +275,16 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                 y="0"
                 width="100%"
                 height="100%"
-                fill="rgba(0, 0, 0, 0.5)"
+                fill="#020408"
                 mask="url(#form-spotlight-mask)"
               />
             </svg>
           </>
         )}
 
-        {/* For welcome step, show a light overlay instead */}
+        {/* For welcome step, show solid background */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-[#020408]" />
         )}
 
         {/* Progress indicator */}
