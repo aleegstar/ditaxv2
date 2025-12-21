@@ -51,30 +51,50 @@ export const buildOAuthUrl = (provider: 'google' | 'apple', redirectTo: string):
 };
 
 /**
+ * Detect if running on iOS in Despia
+ */
+export const isDespiaIOS = (): boolean => {
+  const ua = navigator.userAgent.toLowerCase();
+  return isDespiaNative() && (ua.includes('iphone') || ua.includes('ipad'));
+};
+
+/**
+ * Detect if running on Android in Despia
+ */
+export const isDespiaAndroid = (): boolean => {
+  const ua = navigator.userAgent.toLowerCase();
+  return isDespiaNative() && ua.includes('android');
+};
+
+/**
  * Trigger Despia Easy OAuth flow
- * Uses the new format: oauth://?url=ENCODED_URL
+ * 
+ * According to Despia documentation:
+ * - Android: Use window.location.href - Despia automatically opens OAuth URLs in external browser
+ * - iOS: Use window.open with _blank to open in in-app browser
+ * 
+ * No special protocol needed - Despia intercepts standard navigation for OAuth
  */
 export const triggerDespiaOAuth = (oauthUrl: string): void => {
-  const encodedUrl = encodeURIComponent(oauthUrl);
   console.log('🔗 Triggering Despia OAuth with URL:', oauthUrl);
-  console.log('🔗 Encoded command:', `oauth://?url=${encodedUrl}`);
   
-  // Try despia-native package first
-  if (typeof despia === 'function') {
-    console.log('📱 Using despia-native package');
-    despia(`oauth://?url=${encodedUrl}`);
+  if (isDespiaIOS()) {
+    // iOS: Use window.open to open in in-app browser
+    console.log('📱 iOS: Opening OAuth in in-app browser via window.open');
+    window.open(oauthUrl, '_blank');
     return;
   }
   
-  // Fallback to window.despia
-  if (typeof (window as any).despia === 'function') {
-    console.log('📱 Using window.despia fallback');
-    (window as any).despia(`oauth://?url=${encodedUrl}`);
+  if (isDespiaAndroid()) {
+    // Android: Use window.location.href - Despia opens external OAuth links in system browser
+    console.log('📱 Android: Redirecting to OAuth (Despia opens in external browser)');
+    window.location.href = oauthUrl;
     return;
   }
   
-  console.error('❌ Despia SDK not available - neither despia-native nor window.despia found');
-  throw new Error('Despia SDK not available');
+  // Fallback for unknown Despia platform - try window.location.href
+  console.log('📱 Unknown Despia platform: Using window.location.href fallback');
+  window.location.href = oauthUrl;
 };
 
 /**
@@ -89,6 +109,6 @@ export const triggerDespiaPasskeyAuth = (email: string): void => {
   
   console.log('🔐 Triggering Despia Passkey Auth via System Browser:', authUrl);
   
-  // Use the Easy OAuth mechanism to open in system browser
+  // Use the same mechanism as OAuth to open in system browser
   triggerDespiaOAuth(authUrl);
 };
