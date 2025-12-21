@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
 import { isDespiaEnvironment, isAndroidEnvironment } from "@/utils/platform";
-import { despia } from "@/utils/despiaStatusBar";
+import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth } from "@/lib/despia";
+import { supabase } from "@/integrations/supabase/client";
 
 const AppleAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,28 +13,28 @@ const AppleAuth = () => {
   useEffect(() => {
     const initAppleAuth = async () => {
       try {
-        const isDespia = isDespiaEnvironment();
+        const isDespia = isDespiaNative() || isDespiaEnvironment();
         const isNative = Capacitor.isNativePlatform() || isAndroidEnvironment();
         
+        console.log('🔐 AppleAuth: Starting authentication', { isDespia, isNative });
+        
         if (isDespia) {
-          // Use Despia Easy OAuth - get URL without redirecting
-          const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'apple',
-            options: {
-              redirectTo: 'https://app.ditax.ch/auth-success',
-              skipBrowserRedirect: true
-            }
-          });
+          // Use Despia Easy OAuth with correct URL format
+          console.log('🔗 AppleAuth: Using Despia Easy OAuth');
           
-          if (error) {
-            throw error;
-          }
+          // Build OAuth URL with redirect to native-callback
+          const redirectTo = `${window.location.origin}/native-callback`;
+          const oauthUrl = buildOAuthUrl('apple', redirectTo);
           
-          if (data?.url) {
-            // Pass the OAuth URL to Despia native handler
-            despia(`oauth://${data.url}`);
-          }
-        } else if (isNative) {
+          console.log('🔗 AppleAuth: OAuth URL:', oauthUrl);
+          console.log('🔗 AppleAuth: Redirect URL:', redirectTo);
+          
+          // Trigger Despia Easy OAuth with correct format: oauth://?url=ENCODED_URL
+          triggerDespiaOAuth(oauthUrl);
+          return;
+        }
+        
+        if (isNative) {
           // Use standard OAuth for Capacitor
           const { error } = await supabase.auth.signInWithOAuth({
             provider: 'apple',

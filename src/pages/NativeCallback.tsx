@@ -54,7 +54,7 @@ const NativeCallback = () => {
           // Build deeplink URL to redirect back to native app
           const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + 3600;
           
-          const deeplinkUrl = buildDeeplinkUrl('oauth/auth', {
+          const deeplinkUrl = buildDeeplinkUrl('auth', {
             success: 'true',
             access_token: session.access_token,
             refresh_token: session.refresh_token || '',
@@ -122,7 +122,7 @@ const NativeCallback = () => {
           : Math.floor(Date.now() / 1000) + 3600; // Default 1 hour
 
         // Build deeplink URL to redirect back to native app
-        const deeplinkUrl = buildDeeplinkUrl('oauth/auth', {
+        const deeplinkUrl = buildDeeplinkUrl('auth', {
           success: 'true',
           access_token: accessToken,
           refresh_token: refreshToken || '',
@@ -143,7 +143,7 @@ const NativeCallback = () => {
 
         // Still try to redirect back to app with error
         setTimeout(() => {
-          const errorDeeplink = buildDeeplinkUrl('oauth/auth', {
+          const errorDeeplink = buildDeeplinkUrl('auth', {
             success: 'false',
             error: error.message || 'auth_failed',
           });

@@ -13,6 +13,7 @@ import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth, triggerDespiaPasskeyAuth } from "@/lib/despia";
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const {
     t
   } = useI18n();
@@ -23,6 +24,65 @@ const Auth = () => {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const isOAuthInProgress = useRef(false);
+
+  // Handle deeplink callback from Despia native app
+  useEffect(() => {
+    const handleDeeplinkAuth = async () => {
+      const success = searchParams.get('success');
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const errorParam = searchParams.get('error');
+
+      console.log('🔐 Auth: Checking for deeplink parameters', {
+        success,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        error: errorParam
+      });
+
+      // If no deeplink parameters, do nothing
+      if (!success) return;
+
+      if (success === 'false') {
+        toast.error(errorParam || 'Anmeldung fehlgeschlagen');
+        return;
+      }
+
+      if (success === 'true' && accessToken) {
+        console.log('🔐 Auth: Processing deeplink authentication');
+        setIsLoading(true);
+
+        try {
+          // Set the session with the tokens from the deeplink
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+
+          if (error) {
+            console.error('❌ Auth: Session error:', error);
+            throw error;
+          }
+
+          console.log('✅ Auth: Session set successfully', {
+            userId: data.user?.id,
+            email: data.user?.email
+          });
+
+          toast.success('Erfolgreich angemeldet!');
+          navigate('/');
+        } catch (error: any) {
+          console.error('❌ Auth: Deeplink auth error:', error);
+          toast.error(error.message || 'Fehler bei der Anmeldung');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    handleDeeplinkAuth();
+  }, [searchParams, navigate]);
+
   useEffect(() => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
