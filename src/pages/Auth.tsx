@@ -128,17 +128,30 @@ const Auth = () => {
       isNativeCapacitor
     });
     
-    // Despia Easy OAuth - New format as per updated documentation
+    // Despia Easy OAuth - Using auth-start Edge Function and oauth:// protocol
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Using new URL format');
+      console.log('🔗 Despia Easy OAuth detected - Using auth-start Edge Function');
       try {
-        const redirectTo = `${window.location.origin}/native-callback`;
-        const oauthUrl = buildOAuthUrl('google', redirectTo);
+        // Call auth-start Edge Function to get OAuth URL
+        const { data, error } = await supabase.functions.invoke('auth-start', {
+          body: {
+            provider: 'google',
+            deeplink_scheme: 'ditax',
+          },
+        });
+
+        if (error || !data?.url) {
+          console.error('Failed to get OAuth URL:', error);
+          toast.error("Fehler bei der Google-Anmeldung");
+          isOAuthInProgress.current = false;
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('🔗 OAuth URL from Edge Function:', data.url);
         
-        console.log('🔗 OAuth URL:', oauthUrl);
-        console.log('🔗 Redirect URL:', redirectTo);
-        
-        triggerDespiaOAuth(oauthUrl);
+        // Use Despia oauth:// protocol to open in secure browser session
+        triggerDespiaOAuth(data.url);
       } catch (error) {
         console.error('Google auth error (Despia):', error);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -203,17 +216,30 @@ const Auth = () => {
     
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     
-    // Despia Easy OAuth - New format as per updated documentation
+    // Despia Easy OAuth - Using auth-start Edge Function and oauth:// protocol
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Using new Apple OAuth URL format');
+      console.log('🔗 Despia Easy OAuth detected - Using auth-start Edge Function for Apple');
       try {
-        const redirectTo = `${window.location.origin}/native-callback`;
-        const oauthUrl = buildOAuthUrl('apple', redirectTo);
+        // Call auth-start Edge Function to get OAuth URL
+        const { data, error } = await supabase.functions.invoke('auth-start', {
+          body: {
+            provider: 'apple',
+            deeplink_scheme: 'ditax',
+          },
+        });
+
+        if (error || !data?.url) {
+          console.error('Failed to get Apple OAuth URL:', error);
+          toast.error("Fehler bei der Apple-Anmeldung");
+          isOAuthInProgress.current = false;
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('🔗 Apple OAuth URL from Edge Function:', data.url);
         
-        console.log('🔗 Apple OAuth URL:', oauthUrl);
-        console.log('🔗 Redirect URL:', redirectTo);
-        
-        triggerDespiaOAuth(oauthUrl);
+        // Use Despia oauth:// protocol to open in secure browser session
+        triggerDespiaOAuth(data.url);
       } catch (error) {
         console.error('Apple auth error (Despia):', error);
         toast.error("Fehler bei der Apple-Anmeldung");

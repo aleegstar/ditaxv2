@@ -67,34 +67,20 @@ export const isDespiaAndroid = (): boolean => {
 };
 
 /**
- * Trigger Despia Easy OAuth flow
+ * Trigger Despia Easy OAuth flow using the oauth:// protocol
  * 
  * According to Despia documentation:
- * - Android: Use window.location.href - Despia automatically opens OAuth URLs in external browser
- * - iOS: Use window.open with _blank to open in in-app browser
- * 
- * No special protocol needed - Despia intercepts standard navigation for OAuth
+ * Uses despia('oauth://?url=...') to open OAuth in secure browser session
+ * (ASWebAuthenticationSession on iOS, Chrome Custom Tabs on Android)
  */
 export const triggerDespiaOAuth = (oauthUrl: string): void => {
   console.log('🔗 Triggering Despia OAuth with URL:', oauthUrl);
   
-  if (isDespiaIOS()) {
-    // iOS: Use window.open to open in in-app browser
-    console.log('📱 iOS: Opening OAuth in in-app browser via window.open');
-    window.open(oauthUrl, '_blank');
-    return;
-  }
+  // Use Despia SDK oauth:// protocol to open in secure browser session
+  const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
+  console.log('📱 Despia: Calling despia() with command:', despiaCommand);
   
-  if (isDespiaAndroid()) {
-    // Android: Use window.location.href - Despia opens external OAuth links in system browser
-    console.log('📱 Android: Redirecting to OAuth (Despia opens in external browser)');
-    window.location.href = oauthUrl;
-    return;
-  }
-  
-  // Fallback for unknown Despia platform - try window.location.href
-  console.log('📱 Unknown Despia platform: Using window.location.href fallback');
-  window.location.href = oauthUrl;
+  despia(despiaCommand);
 };
 
 /**
