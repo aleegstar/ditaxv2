@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ditax</title>
+    <script>
+      // SPA fallback - preserve OAuth tokens during 404 redirect
+      // Lovable/static hosts return 404 for SPA routes, this preserves the hash fragment
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+        
+        // Encode the full path for the redirect
+        var redirect = encodeURIComponent(path + search);
+        
+        // Redirect to root with the original path as a query param
+        // The SpaRedirector component will handle the navigation
+        window.location.replace('/?redirect=' + redirect + hash);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>JavaScript is required to use this application.</noscript>
+  </body>
+</html>
