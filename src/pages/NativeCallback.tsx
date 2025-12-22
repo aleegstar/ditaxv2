@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { buildDeeplinkUrl } from "@/lib/despia";
+import { DEEPLINK_SCHEME } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 /**
@@ -16,6 +16,15 @@ const NativeCallback = () => {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // Get deeplink_scheme from query params or use default
+  const deeplinkScheme = searchParams.get('deeplink_scheme') || DEEPLINK_SCHEME;
+
+  // Helper function to build deeplink URL - defined at component level so it's accessible in catch block
+  const buildDeeplink = (path: string, params: Record<string, string>): string => {
+    const queryString = new URLSearchParams(params).toString();
+    return `${deeplinkScheme}://oauth/${path}${queryString ? `?${queryString}` : ''}`;
+  };
+
   useEffect(() => {
     const handleTokens = async () => {
       try {
@@ -23,6 +32,7 @@ const NativeCallback = () => {
         console.log('🔗 Full URL:', window.location.href);
         console.log('🔗 Hash:', window.location.hash);
         console.log('🔗 Search params:', Object.fromEntries(searchParams.entries()));
+        console.log('🔗 Using deeplink scheme:', deeplinkScheme);
 
         // Check if this is a passkey auth callback (query params)
         const authType = searchParams.get('auth_type');
@@ -54,7 +64,7 @@ const NativeCallback = () => {
           // Build deeplink URL to redirect back to native app
           const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + 3600;
           
-          const deeplinkUrl = buildDeeplinkUrl('auth', {
+          const deeplinkUrl = buildDeeplink('auth', {
             success: 'true',
             access_token: session.access_token,
             refresh_token: session.refresh_token || '',
@@ -122,7 +132,7 @@ const NativeCallback = () => {
           : Math.floor(Date.now() / 1000) + 3600; // Default 1 hour
 
         // Build deeplink URL to redirect back to native app
-        const deeplinkUrl = buildDeeplinkUrl('auth', {
+        const deeplinkUrl = buildDeeplink('auth', {
           success: 'true',
           access_token: accessToken,
           refresh_token: refreshToken || '',
@@ -143,7 +153,7 @@ const NativeCallback = () => {
 
         // Still try to redirect back to app with error
         setTimeout(() => {
-          const errorDeeplink = buildDeeplinkUrl('auth', {
+          const errorDeeplink = buildDeeplink('auth', {
             success: 'false',
             error: error.message || 'auth_failed',
           });
