@@ -72,15 +72,26 @@ export const isDespiaAndroid = (): boolean => {
  * According to Despia documentation:
  * Uses despia('oauth://?url=...') to open OAuth in secure browser session
  * (ASWebAuthenticationSession on iOS, Chrome Custom Tabs on Android)
+ * 
+ * @returns true if despia() was called successfully, false otherwise
  */
-export const triggerDespiaOAuth = (oauthUrl: string): void => {
-  console.log('🔗 Triggering Despia OAuth with URL:', oauthUrl);
+export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
+  console.log('🔗 triggerDespiaOAuth called');
+  console.log('📱 User Agent:', navigator.userAgent);
+  console.log('🔗 OAuth URL:', oauthUrl);
   
   // Use Despia SDK oauth:// protocol to open in secure browser session
   const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
-  console.log('📱 Despia: Calling despia() with command:', despiaCommand);
+  console.log('📱 Despia command:', despiaCommand);
   
-  despia(despiaCommand);
+  try {
+    despia(despiaCommand);
+    console.log('✅ despia() called successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ despia() call failed:', error);
+    return false;
+  }
 };
 
 /**

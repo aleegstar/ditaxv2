@@ -20,10 +20,14 @@ const Auth = () => {
   const [step, setStep] = useState<"main" | "code">("main");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const isOAuthInProgress = useRef(false);
+  
+  // Combined loading state for backward compatibility
+  const isLoading = isEmailLoading || isOAuthLoading;
 
   // Handle deeplink callback from Despia native app
   useEffect(() => {
@@ -50,7 +54,7 @@ const Auth = () => {
 
       if (success === 'true' && accessToken) {
         console.log('🔐 Auth: Processing deeplink authentication');
-        setIsLoading(true);
+        setIsOAuthLoading(true);
 
         try {
           // Set the session with the tokens from the deeplink
@@ -75,7 +79,7 @@ const Auth = () => {
           console.error('❌ Auth: Deeplink auth error:', error);
           toast.error(error.message || 'Fehler bei der Anmeldung');
         } finally {
-          setIsLoading(false);
+          setIsOAuthLoading(false);
         }
       }
     };
@@ -92,7 +96,7 @@ const Auth = () => {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setIsLoading(true);
+    setIsEmailLoading(true);
     try {
       const {
         error
@@ -109,7 +113,7 @@ const Auth = () => {
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Senden des Codes");
     } finally {
-      setIsLoading(false);
+      setIsEmailLoading(false);
     }
   };
   const handleGoogleAuth = async () => {
@@ -118,7 +122,7 @@ const Auth = () => {
       return;
     }
     isOAuthInProgress.current = true;
-    setIsLoading(true);
+    setIsOAuthLoading(true);
     
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
@@ -144,19 +148,30 @@ const Auth = () => {
           console.error('Failed to get OAuth URL:', error);
           toast.error("Fehler bei der Google-Anmeldung");
           isOAuthInProgress.current = false;
-          setIsLoading(false);
+          setIsOAuthLoading(false);
           return;
         }
 
         console.log('🔗 OAuth URL from Edge Function:', data.url);
         
         // Use Despia oauth:// protocol to open in secure browser session
-        triggerDespiaOAuth(data.url);
+        const success = triggerDespiaOAuth(data.url);
+        
+        // Reset loading state after triggering OAuth - the app will be in background
+        // The user will return via deeplink with tokens
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 1000);
+        
+        if (!success) {
+          toast.error("Fehler beim Öffnen des Browsers");
+        }
       } catch (error) {
         console.error('Google auth error (Despia):', error);
         toast.error("Fehler bei der Google-Anmeldung");
         isOAuthInProgress.current = false;
-        setIsLoading(false);
+        setIsOAuthLoading(false);
       }
       return;
     }
@@ -185,7 +200,7 @@ const Auth = () => {
         console.error('Google auth error:', error);
         toast.error("Fehler bei der Google-Anmeldung");
         isOAuthInProgress.current = false;
-        setIsLoading(false);
+        setIsOAuthLoading(false);
       }
       return;
     }
@@ -200,7 +215,7 @@ const Auth = () => {
       console.error('Google auth error:', error);
       toast.error("Fehler bei der Google-Anmeldung");
       isOAuthInProgress.current = false;
-      setIsLoading(false);
+      setIsOAuthLoading(false);
     }
   };
   const handleAppleAuth = async () => {
@@ -209,7 +224,7 @@ const Auth = () => {
       return;
     }
     isOAuthInProgress.current = true;
-    setIsLoading(true);
+    setIsOAuthLoading(true);
     
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
@@ -232,19 +247,29 @@ const Auth = () => {
           console.error('Failed to get Apple OAuth URL:', error);
           toast.error("Fehler bei der Apple-Anmeldung");
           isOAuthInProgress.current = false;
-          setIsLoading(false);
+          setIsOAuthLoading(false);
           return;
         }
 
         console.log('🔗 Apple OAuth URL from Edge Function:', data.url);
         
         // Use Despia oauth:// protocol to open in secure browser session
-        triggerDespiaOAuth(data.url);
+        const success = triggerDespiaOAuth(data.url);
+        
+        // Reset loading state after triggering OAuth
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 1000);
+        
+        if (!success) {
+          toast.error("Fehler beim Öffnen des Browsers");
+        }
       } catch (error) {
         console.error('Apple auth error (Despia):', error);
         toast.error("Fehler bei der Apple-Anmeldung");
         isOAuthInProgress.current = false;
-        setIsLoading(false);
+        setIsOAuthLoading(false);
       }
       return;
     }
@@ -273,7 +298,7 @@ const Auth = () => {
         console.error('Apple auth error:', error);
         toast.error("Fehler bei der Apple-Anmeldung");
         isOAuthInProgress.current = false;
-        setIsLoading(false);
+        setIsOAuthLoading(false);
       }
       return;
     }
@@ -288,7 +313,7 @@ const Auth = () => {
       console.error('Apple auth error:', error);
       toast.error("Fehler bei der Apple-Anmeldung");
       isOAuthInProgress.current = false;
-      setIsLoading(false);
+      setIsOAuthLoading(false);
     }
   };
   const handleWebAuthnAuth = () => {
@@ -311,7 +336,7 @@ const Auth = () => {
     }
   };
   const handleCodeVerification = async (otpCode: string) => {
-    setIsLoading(true);
+    setIsEmailLoading(true);
     try {
       const {
         error
@@ -327,7 +352,7 @@ const Auth = () => {
       toast.error(error.message || "Fehler bei der Code-Verifikation");
       setCode("");
     } finally {
-      setIsLoading(false);
+      setIsEmailLoading(false);
     }
   };
   const handleBackClick = () => {
@@ -336,7 +361,7 @@ const Auth = () => {
   };
   const handleResendCode = async () => {
     if (resendCountdown > 0) return;
-    setIsLoading(true);
+    setIsEmailLoading(true);
     try {
       const {
         error
@@ -352,7 +377,7 @@ const Auth = () => {
     } catch (error: any) {
       toast.error(error.message || "Fehler beim erneuten Senden des Codes");
     } finally {
-      setIsLoading(false);
+      setIsEmailLoading(false);
     }
   };
   const handleWeiterClick = () => {
@@ -409,7 +434,7 @@ const Auth = () => {
                   </div>
 
                   <button type="submit" disabled={isLoading} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] font-jakarta disabled:opacity-50">
-                    {isLoading ? 'Code wird gesendet...' : 'Anmelden'}
+                    {isEmailLoading ? 'Code wird gesendet...' : 'Anmelden'}
                   </button>
                 </form>
 
