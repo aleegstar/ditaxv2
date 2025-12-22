@@ -60,6 +60,7 @@ import TaxReturnTracking from "./pages/TaxReturnTracking";
 import TaxReturnActions from "./pages/TaxReturnActions";
 import { useFontLoader } from "@/hooks/useFontLoader";
 import { useAuthValidation } from "@/hooks/use-auth-validation";
+import SpaRedirector from "@/components/SpaRedirector";
 import { MfaSetupPrompt } from "@/components/auth/MfaSetupPrompt";
 import { MfaEnrollmentFlow } from "@/components/auth/MfaEnrollmentFlow";
 import { useMfaPrompt } from "@/hooks/useMfaPrompt";
@@ -435,6 +436,7 @@ const App = () => {
         <I18nProvider>
           <TooltipProvider>
             <BrowserRouter>
+              <SpaRedirector />
               <Routes>
                 <Route path="/preisrechner" element={<PriceCalculator />} />
                 <Route path="/auth" element={<Auth />} />
