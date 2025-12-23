@@ -302,10 +302,16 @@ export const WelcomeFlow = () => {
       <AnimatePresence>
         {showTransition && (
           <>
-            {/* Blue arc sliding up */}
+            {/* Blue arc sliding up - extra height to hide curved edge */}
             <motion.div
-              className="fixed inset-0 z-50"
-              style={{ background: '#1d64ff' }}
+              className="fixed z-50"
+              style={{ 
+                background: '#1d64ff',
+                left: 0,
+                right: 0,
+                height: '120vh',
+                bottom: 0,
+              }}
               initial={{ y: '100%' }}
               animate={{ 
                 y: '0%',
