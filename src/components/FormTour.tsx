@@ -279,6 +279,37 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                 mask="url(#form-spotlight-mask)"
               />
             </svg>
+            {/* Enhanced spotlight border for native app visibility */}
+            <motion.div 
+              className="absolute pointer-events-none rounded-3xl border-2 border-white shadow-[0_0_0_4px_rgba(29,100,255,0.5),0_0_30px_rgba(29,100,255,0.6)]"
+              animate={{
+                left: spotlightPosition.x - 4,
+                top: spotlightPosition.y - 4,
+                width: spotlightPosition.width + 8,
+                height: spotlightPosition.height + 8
+              }}
+              transition={{ 
+                duration: 0.5, 
+                ease: [0.4, 0, 0.2, 1]
+              }}
+            />
+            {/* Pulsing ring for better visibility */}
+            <motion.div 
+              className="absolute pointer-events-none rounded-3xl border-2 border-[#1D64FF]/60"
+              animate={{
+                left: spotlightPosition.x - 8,
+                top: spotlightPosition.y - 8,
+                width: spotlightPosition.width + 16,
+                height: spotlightPosition.height + 16,
+                opacity: [0.6, 0.2, 0.6],
+                scale: [1, 1.02, 1]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
           </>
         )}
 

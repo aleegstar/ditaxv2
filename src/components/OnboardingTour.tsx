@@ -501,15 +501,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Blur backdrop layer */}
-        <div 
-          className="absolute inset-0 backdrop-blur-sm pointer-events-none"
-          style={{
-            maskImage: currentStepData.targetElement 
-              ? `radial-gradient(ellipse ${spotlightPosition.width + 40}px ${spotlightPosition.height + 40}px at ${spotlightPosition.x + spotlightPosition.width / 2}px ${spotlightPosition.y + spotlightPosition.height / 2}px, transparent 40%, black 70%)`
-              : 'none'
-          }}
-        />
+        {/* Solid dark overlay layer - no blur for native app compatibility */}
 
         {/* Dark overlay with transparent hole - only show for steps with target elements */}
         {currentStepData.targetElement && (
@@ -538,9 +530,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               <rect width="100%" height="100%" fill="black" opacity="0.5" mask="url(#tour-spotlight-mask)" />
             </svg>
             
-            {/* Outline and glow to emphasize spotlight target */}
+            {/* Outline and glow to emphasize spotlight target - enhanced for native app */}
             <motion.div 
-              className="absolute pointer-events-none rounded-lg"
+              className="absolute pointer-events-none rounded-xl border-2 border-white shadow-[0_0_0_4px_rgba(29,100,255,0.5),0_0_30px_rgba(29,100,255,0.6),inset_0_0_20px_rgba(255,255,255,0.1)]"
               animate={{
                 left: spotlightPosition.x - 6,
                 top: spotlightPosition.y - 6,
@@ -552,12 +544,29 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                 ease: [0.4, 0, 0.2, 1]
               }}
             />
+            {/* Pulsing ring animation for better visibility */}
+            <motion.div 
+              className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF]/60"
+              animate={{
+                left: spotlightPosition.x - 10,
+                top: spotlightPosition.y - 10,
+                width: spotlightPosition.width + 20,
+                height: spotlightPosition.height + 20,
+                opacity: [0.6, 0.2, 0.6],
+                scale: [1, 1.02, 1]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
           </>
         )}
 
-        {/* For welcome step, show a blurred overlay */}
+        {/* For welcome step, show solid overlay - no blur for native app */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/70" />
         )}
 
 
