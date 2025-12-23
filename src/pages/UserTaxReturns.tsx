@@ -386,7 +386,7 @@ const UserTaxReturns = () => {
             {/* White background extension that goes below viewport during transition */}
             <div className="absolute top-24 left-0 right-0 h-[200vh] bg-white pointer-events-none" />
             
-            <button onClick={handleDocumentsClick} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95">
+            <button onClick={handleDocumentsClick} data-tour="floating-document-button" className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28">
               {/* Vibrant Glow Background inside button */}
               <div className="group-hover:opacity-100 transition-opacity bg-white opacity-100 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
 
