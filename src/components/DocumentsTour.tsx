@@ -236,46 +236,71 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Blur backdrop layer */}
-        <div 
-          className="absolute inset-0 backdrop-blur-sm pointer-events-none"
-          style={{
-            maskImage: currentStepData.targetElement && spotlightPosition.width > 0
-              ? `radial-gradient(ellipse ${spotlightPosition.width + 60}px ${spotlightPosition.height + 60}px at ${spotlightPosition.x + spotlightPosition.width / 2}px ${spotlightPosition.y + spotlightPosition.height / 2}px, transparent 40%, black 70%)`
-              : 'none'
-          }}
-        />
+        {/* Solid overlay layer - no blur for native app compatibility */}
 
-        {/* Light overlay with transparent hole */}
+        {/* Light overlay with transparent hole - enhanced spotlight border */}
         {currentStepData.targetElement && spotlightPosition.width > 0 && (
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
-            <defs>
-              <mask id="spotlight-mask-docs">
-                <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                <rect
-                  x={spotlightPosition.x}
-                  y={spotlightPosition.y}
-                  width={spotlightPosition.width}
-                  height={spotlightPosition.height}
-                  rx="16"
-                  fill="black"
-                />
-              </mask>
-            </defs>
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill="rgba(255, 255, 255, 0.85)"
-              mask="url(#spotlight-mask-docs)"
+          <>
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+              <defs>
+                <mask id="spotlight-mask-docs">
+                  <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                  <rect
+                    x={spotlightPosition.x}
+                    y={spotlightPosition.y}
+                    width={spotlightPosition.width}
+                    height={spotlightPosition.height}
+                    rx="16"
+                    fill="black"
+                  />
+                </mask>
+              </defs>
+              <rect
+                x="0"
+                y="0"
+                width="100%"
+                height="100%"
+                fill="rgba(255, 255, 255, 0.92)"
+                mask="url(#spotlight-mask-docs)"
+              />
+            </svg>
+            {/* Enhanced spotlight border for native app visibility */}
+            <motion.div 
+              className="absolute pointer-events-none rounded-2xl border-2 border-[#1D64FF] shadow-[0_0_0_4px_rgba(29,100,255,0.3),0_0_25px_rgba(29,100,255,0.4)]"
+              animate={{
+                left: spotlightPosition.x - 2,
+                top: spotlightPosition.y - 2,
+                width: spotlightPosition.width + 4,
+                height: spotlightPosition.height + 4
+              }}
+              transition={{ 
+                duration: 0.5, 
+                ease: [0.4, 0, 0.2, 1]
+              }}
             />
-          </svg>
+            {/* Pulsing ring for better visibility */}
+            <motion.div 
+              className="absolute pointer-events-none rounded-2xl border-2 border-[#1D64FF]/50"
+              animate={{
+                left: spotlightPosition.x - 6,
+                top: spotlightPosition.y - 6,
+                width: spotlightPosition.width + 12,
+                height: spotlightPosition.height + 12,
+                opacity: [0.5, 0.2, 0.5],
+                scale: [1, 1.01, 1]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </>
         )}
 
-        {/* For steps without target, show light overlay with blur */}
+        {/* For steps without target, show solid light overlay - no blur for native app */}
         {(!currentStepData.targetElement || spotlightPosition.width === 0) && (
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-white/92" />
         )}
 
         {/* Progress indicator */}
