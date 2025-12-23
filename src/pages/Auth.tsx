@@ -30,57 +30,93 @@ const Auth = () => {
   const isLoading = isEmailLoading || isOAuthLoading;
 
   // Handle deeplink callback from Despia native app
+  // This handles tokens passed from NativeCallback via deeplink: ditax://oauth/auth?tokens
   useEffect(() => {
     const handleDeeplinkAuth = async () => {
+      // Check query params (from deeplink)
       const success = searchParams.get('success');
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const errorParam = searchParams.get('error');
+      const errorDescription = searchParams.get('error_description');
 
-      console.log('🔐 Auth: Checking for deeplink parameters', {
+      // Also check URL hash (for web OAuth flow: /auth#access_token=xxx)
+      const hash = window.location.hash.substring(1);
+      const hashParams = new URLSearchParams(hash);
+      const hashAccessToken = hashParams.get('access_token');
+      const hashRefreshToken = hashParams.get('refresh_token');
+      const hashError = hashParams.get('error');
+      const hashErrorDescription = hashParams.get('error_description');
+
+      // Use either source
+      const finalAccessToken = accessToken || hashAccessToken;
+      const finalRefreshToken = refreshToken || hashRefreshToken;
+      const finalError = errorParam || hashError;
+      const finalErrorDescription = errorDescription || hashErrorDescription;
+
+      console.log('🔐 Auth: Checking for auth parameters', {
+        source: accessToken ? 'query' : hashAccessToken ? 'hash' : 'none',
+        hasAccessToken: !!finalAccessToken,
+        hasRefreshToken: !!finalRefreshToken,
         success,
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!refreshToken,
-        error: errorParam
+        error: finalError
       });
 
-      // If no deeplink parameters, do nothing
-      if (!success) return;
-
-      if (success === 'false') {
-        toast.error(errorParam || 'Anmeldung fehlgeschlagen');
+      // Handle errors first
+      if (finalError) {
+        toast.error(finalErrorDescription || finalError || 'Anmeldung fehlgeschlagen');
         return;
       }
 
-      if (success === 'true' && accessToken) {
-        console.log('🔐 Auth: Processing deeplink authentication');
-        setIsOAuthLoading(true);
+      // If success is explicitly false (from deeplink)
+      if (success === 'false') {
+        toast.error(finalErrorDescription || 'Anmeldung fehlgeschlagen');
+        return;
+      }
 
-        try {
-          // Set the session with the tokens from the deeplink
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || '',
-          });
-
-          if (error) {
-            console.error('❌ Auth: Session error:', error);
-            throw error;
-          }
-
-          console.log('✅ Auth: Session set successfully', {
-            userId: data.user?.id,
-            email: data.user?.email
-          });
-
-          toast.success('Erfolgreich angemeldet!');
-          navigate('/');
-        } catch (error: any) {
-          console.error('❌ Auth: Deeplink auth error:', error);
-          toast.error(error.message || 'Fehler bei der Anmeldung');
-        } finally {
-          setIsOAuthLoading(false);
+      // If no tokens, check if already authenticated
+      if (!finalAccessToken) {
+        // Check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log('🔐 Auth: Already logged in, redirecting to home');
+          navigate('/', { replace: true });
         }
+        // Otherwise show login UI (handled by render)
+        return;
+      }
+
+      // Process tokens
+      console.log('🔐 Auth: Processing authentication tokens');
+      setIsOAuthLoading(true);
+
+      try {
+        // Set the session with the tokens
+        const { data, error } = await supabase.auth.setSession({
+          access_token: finalAccessToken,
+          refresh_token: finalRefreshToken || '',
+        });
+
+        if (error) {
+          console.error('❌ Auth: Session error:', error);
+          throw error;
+        }
+
+        console.log('✅ Auth: Session set successfully', {
+          userId: data.user?.id,
+          email: data.user?.email
+        });
+
+        // Clear URL to remove tokens
+        window.history.replaceState({}, '', '/auth');
+        
+        toast.success('Erfolgreich angemeldet!');
+        navigate('/', { replace: true });
+      } catch (error: any) {
+        console.error('❌ Auth: Auth error:', error);
+        toast.error(error.message || 'Fehler bei der Anmeldung');
+      } finally {
+        setIsOAuthLoading(false);
       }
     };
 

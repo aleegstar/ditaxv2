@@ -1,6 +1,16 @@
 /**
  * Despia SDK Helper Functions
  * Centralized utilities for Despia native app integration
+ * 
+ * Deeplink Format: {scheme}://oauth/{path}?params
+ * - scheme: Your app's deeplink scheme (e.g., ditax)
+ * - oauth/: Required prefix - tells native code to close browser session
+ * - path: Where to navigate in your app (e.g., auth)
+ * - params: Query params passed to that page
+ * 
+ * Example: ditax://oauth/auth?access_token=xxx
+ * -> Closes ASWebAuthenticationSession/Chrome Custom Tab
+ * -> Navigates WebView to /auth?access_token=xxx
  */
 import despia from 'despia-native';
 
@@ -19,10 +29,10 @@ export const isDespiaNative = (): boolean => {
   const isDespia = typeof navigator !== 'undefined' && 
          navigator.userAgent.toLowerCase().includes('despia');
   
-  console.log('🔍 Despia detection:', {
-    userAgent: navigator?.userAgent,
-    includesDespia: isDespia
-  });
+  // Only log in development to reduce noise
+  if (isDespia) {
+    console.log('📱 Despia native detected');
+  }
   
   return isDespia;
 };
