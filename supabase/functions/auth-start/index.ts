@@ -6,10 +6,20 @@ const corsHeaders = {
 };
 
 /**
- * auth-start Edge Function
+ * auth-start Edge Function - Despia Easy OAuth Flow
  * 
- * Generates OAuth URL for Despia Easy OAuth flow.
- * Returns a URL that can be used with despia('oauth://...') to start authentication.
+ * Generates OAuth URL for Despia native apps.
+ * The redirect goes to /native-callback which then redirects to a deeplink
+ * to close the ASWebAuthenticationSession/Chrome Custom Tab.
+ * 
+ * Flow:
+ * 1. App calls this function with provider + deeplink_scheme
+ * 2. App opens URL with despia('oauth://?url=...')
+ * 3. User authenticates with Google/Apple
+ * 4. Supabase redirects to /native-callback#access_token=xxx
+ * 5. NativeCallback redirects to {scheme}://oauth/auth?tokens
+ * 6. Native app intercepts deeplink, closes browser, navigates to /auth?tokens
+ * 7. Auth.tsx calls setSession() with the tokens
  */
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -46,10 +56,13 @@ serve(async (req) => {
       );
     }
 
-    // Build redirect URL with deeplink_scheme for NativeCallback to use
+    // CRITICAL: Redirect to /native-callback (NOT /auth)
+    // NativeCallback.tsx will parse tokens and redirect to deeplink to close the browser session
+    // Using app.ditax.ch as the production URL
     const redirectUrl = `https://app.ditax.ch/native-callback?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}`;
 
     // Build OAuth URL using Supabase's authorize endpoint
+    // Using implicit flow (response_type: token) for client-side apps
     const params = new URLSearchParams({
       provider,
       redirect_to: redirectUrl,
@@ -57,7 +70,12 @@ serve(async (req) => {
 
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
 
-    console.log('✅ auth-start: Generated OAuth URL', { oauthUrl, redirectUrl });
+    console.log('✅ auth-start: Generated OAuth URL', { 
+      oauthUrl, 
+      redirectUrl,
+      provider,
+      deeplink_scheme 
+    });
 
     return new Response(
       JSON.stringify({ url: oauthUrl }),
