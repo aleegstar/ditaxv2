@@ -109,10 +109,15 @@ export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
  * Opens the WebAuthn auth page in the system browser (not WebView)
  * which allows full access to the device's keychain for passkey auth
  */
-export const triggerDespiaPasskeyAuth = (email: string): void => {
-  // Build the WebAuthn auth URL with email parameter
-  // The native-callback page will handle the redirect back to the app
-  const authUrl = `${window.location.origin}/webauthn-auth?email=${encodeURIComponent(email)}&despia=true`;
+export const triggerDespiaPasskeyAuth = (email?: string): void => {
+  // Build the WebAuthn auth URL with optional email parameter
+  // The WebAuthn page will handle email input if not provided
+  const params = new URLSearchParams({ despia: 'true' });
+  if (email) {
+    params.set('email', email);
+  }
+  
+  const authUrl = `https://app.ditax.ch/webauthn-auth?${params.toString()}`;
   
   console.log('🔐 Triggering Despia Passkey Auth via System Browser:', authUrl);
   
