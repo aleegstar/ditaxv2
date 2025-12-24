@@ -1,13 +1,15 @@
 {
   "applinks": {
-    "apps": [],
     "details": [
       {
-        "appID": "TEAMID.ch.ditax.app",
-        "paths": [
-          "/auth-success",
-          "/auth-bridge",
-          "/*"
+        "appIDs": [
+          "7CS76AQT6P.com.despia.ditax"
+        ],
+        "components": [
+          {
+            "/": "/*",
+            "comment": "Matches any URL path"
+          }
         ]
       }
     ]
