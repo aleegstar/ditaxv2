@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isDespiaEnvironment } from "@/utils/platform";
+import { isDespiaNative } from "@/lib/despia";
 
 /**
  * AuthSuccess - OAuth-Redirect-Handler
  * 
- * Flow für Despia (wenn "Always Open in Browser" korrekt konfiguriert ist):
- * 1. OAuth läuft im externen System-Browser (Safari/Chrome)
+ * Flow für Despia (OAuth im In-App WebView):
+ * 1. OAuth läuft im WebView (In-App-Tab)
  * 2. Nach OAuth redirected Google/Apple zu https://app.ditax.ch/auth-success#tokens
- * 3. Despia interceptiert diesen Universal Link und öffnet die App
- * 4. Diese Seite wird IN der App geladen (nicht im externen Browser)
- * 5. Wir extrahieren die Tokens und setzen die Session
- * 6. Navigation zur Home-Seite
+ * 3. Diese Seite extrahiert die Tokens und setzt die Session
+ * 4. Navigation zur Home-Seite
  * 
  * Flow für Web Browser:
  * 1. OAuth läuft im gleichen Browser-Tab/Popup
@@ -24,9 +22,10 @@ const AuthSuccess = () => {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
+      const isDespia = isDespiaNative();
       console.log('🔗 AuthSuccess: Starting auth callback handling...');
       console.log('🔗 AuthSuccess: URL:', window.location.href);
-      console.log('🔗 AuthSuccess: Is Despia?', isDespiaEnvironment());
+      console.log('🔗 AuthSuccess: Is Despia?', isDespia);
 
       const url = new URL(window.location.href);
       

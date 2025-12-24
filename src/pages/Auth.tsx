@@ -168,41 +168,19 @@ const Auth = () => {
       isNativeCapacitor
     });
     
-    // Despia Easy OAuth - Using auth-start Edge Function and oauth:// protocol
+  // Despia WebView: OAuth direkt im WebView (In-App-Tab)
+    // Nach OAuth redirected zu /auth-success, dort wird via Universal Link zur App zurückgeleitet
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Using auth-start Edge Function');
+      console.log('🔗 Despia WebView detected - OAuth direkt im WebView');
       try {
-        // Call auth-start Edge Function to get OAuth URL
-        const { data, error } = await supabase.functions.invoke('auth-start', {
-          body: {
-            provider: 'google',
-            deeplink_scheme: 'ditax',
-          },
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'https://app.ditax.ch/auth-success'
+          }
         });
-
-        if (error || !data?.url) {
-          console.error('Failed to get OAuth URL:', error);
-          toast.error("Fehler bei der Google-Anmeldung");
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-          return;
-        }
-
-        console.log('🔗 OAuth URL from Edge Function:', data.url);
-        
-        // Use Despia oauth:// protocol to open in secure browser session
-        const success = triggerDespiaOAuth(data.url);
-        
-        // Reset loading state after triggering OAuth - the app will be in background
-        // The user will return via deeplink with tokens
-        setTimeout(() => {
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-        }, 1000);
-        
-        if (!success) {
-          toast.error("Fehler beim Öffnen des Browsers");
-        }
+        if (error) throw error;
+        // OAuth läuft jetzt im WebView, keine weitere Aktion nötig
       } catch (error) {
         console.error('Google auth error (Despia):', error);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -267,40 +245,17 @@ const Auth = () => {
     
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     
-    // Despia Easy OAuth - Using auth-start Edge Function and oauth:// protocol
+    // Despia WebView: OAuth direkt im WebView (In-App-Tab)
     if (isDespia) {
-      console.log('🔗 Despia Easy OAuth detected - Using auth-start Edge Function for Apple');
+      console.log('🔗 Despia WebView detected - Apple OAuth direkt im WebView');
       try {
-        // Call auth-start Edge Function to get OAuth URL
-        const { data, error } = await supabase.functions.invoke('auth-start', {
-          body: {
-            provider: 'apple',
-            deeplink_scheme: 'ditax',
-          },
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'apple',
+          options: {
+            redirectTo: 'https://app.ditax.ch/auth-success'
+          }
         });
-
-        if (error || !data?.url) {
-          console.error('Failed to get Apple OAuth URL:', error);
-          toast.error("Fehler bei der Apple-Anmeldung");
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-          return;
-        }
-
-        console.log('🔗 Apple OAuth URL from Edge Function:', data.url);
-        
-        // Use Despia oauth:// protocol to open in secure browser session
-        const success = triggerDespiaOAuth(data.url);
-        
-        // Reset loading state after triggering OAuth
-        setTimeout(() => {
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-        }, 1000);
-        
-        if (!success) {
-          toast.error("Fehler beim Öffnen des Browsers");
-        }
+        if (error) throw error;
       } catch (error) {
         console.error('Apple auth error (Despia):', error);
         toast.error("Fehler bei der Apple-Anmeldung");
