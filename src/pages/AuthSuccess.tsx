@@ -9,7 +9,8 @@ import { isDespiaNative } from "@/lib/despia";
  * 1. OAuth läuft im WebView (In-App-Tab)
  * 2. Nach OAuth redirected Google/Apple zu https://app.ditax.ch/auth-success#tokens
  * 3. Diese Seite extrahiert die Tokens und setzt die Session
- * 4. Navigation zur Home-Seite
+ * 4. Deeplink wird ausgelöst um Tokens zur nativen App zurückzuschicken
+ * 5. Chrome Custom Tab wird geschlossen, Haupt-WebView setzt Session
  * 
  * Flow für Web Browser:
  * 1. OAuth läuft im gleichen Browser-Tab/Popup
@@ -63,8 +64,17 @@ const AuthSuccess = () => {
             
             // Kurze Verzögerung um sicherzustellen dass Session gespeichert ist
             setTimeout(() => {
-              console.log('🔗 AuthSuccess: Navigating to home...');
-              window.location.href = '/';
+              if (isDespia) {
+                // Despia: Deeplink auslösen um Tokens zur nativen App zurückzuschicken
+                // Das schließt den Chrome Custom Tab und navigiert den Haupt-WebView
+                console.log('🔗 AuthSuccess: Triggering deeplink for Despia...');
+                const deeplinkUrl = `ditax://oauth/auth?success=true&at=${finalAccessToken}&rt=${finalRefreshToken}`;
+                window.location.href = deeplinkUrl;
+              } else {
+                // Web-Flow: Normal zur Home navigieren
+                console.log('🔗 AuthSuccess: Navigating to home...');
+                window.location.href = '/';
+              }
             }, 100);
           } else {
             console.log('⚠️ AuthSuccess: No session data returned');
@@ -83,9 +93,17 @@ const AuthSuccess = () => {
           const { data: { session } } = await supabase.auth.getSession();
           
           if (session) {
-            console.log('✅ AuthSuccess: Existing session found - redirecting to home');
+            console.log('✅ AuthSuccess: Existing session found');
             setStatus('success');
-            window.location.href = '/';
+            
+            if (isDespia) {
+              // Despia: Deeplink mit vorhandenen Tokens
+              console.log('🔗 AuthSuccess: Triggering deeplink with existing session...');
+              const deeplinkUrl = `ditax://oauth/auth?success=true&at=${session.access_token}&rt=${session.refresh_token}`;
+              window.location.href = deeplinkUrl;
+            } else {
+              window.location.href = '/';
+            }
           } else {
             console.log('❌ AuthSuccess: No session - redirecting to auth');
             setStatus('error');
