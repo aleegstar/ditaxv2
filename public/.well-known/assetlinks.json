@@ -12,5 +12,18 @@
         "76:47:C7:0D:88:76:16:D0:D5:08:11:F7:05:8A:C2:DB:62:2D:6A:0D:36:F3:07:C9:12:23:05:0F:76:7D:3D:90"
       ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.despia.ditax",
+      "sha256_cert_fingerprints": [
+        "4B:34:80:52:93:40:98:B0:13:1A:C3:91:AE:6D:7B:3A:49:60:32:7E:F1:D6:C0:C0:81:D1:98:79:70:26:CA:7F"
+      ]
+    }
   }
 ]
