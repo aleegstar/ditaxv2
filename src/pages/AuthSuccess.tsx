@@ -23,12 +23,16 @@ const AuthSuccess = () => {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      const isDespia = isDespiaNative();
+      const url = new URL(window.location.href);
+      
+      // Check if we came from Despia (via query param OR user agent)
+      // The query param is more reliable since isDespiaNative() may not work in Chrome Custom Tab
+      const despiaParam = url.searchParams.get('despia') === 'true';
+      const isDespia = isDespiaNative() || despiaParam;
+      
       console.log('🔗 AuthSuccess: Starting auth callback handling...');
       console.log('🔗 AuthSuccess: URL:', window.location.href);
-      console.log('🔗 AuthSuccess: Is Despia?', isDespia);
-
-      const url = new URL(window.location.href);
+      console.log('🔗 AuthSuccess: Is Despia?', isDespia, '(param:', despiaParam, ', native:', isDespiaNative(), ')');
       
       // Extract tokens from URL hash (OAuth redirect format: #access_token=xxx&refresh_token=yyy)
       const hashParams = new URLSearchParams(url.hash.substring(1));

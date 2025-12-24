@@ -33,10 +33,10 @@ const Auth = () => {
   // This handles tokens passed from NativeCallback via deeplink: ditax://oauth/auth?tokens
   useEffect(() => {
     const handleDeeplinkAuth = async () => {
-      // Check query params (from deeplink)
+      // Check query params (from deeplink) - support both full names and short forms (at/rt)
       const success = searchParams.get('success');
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
+      const accessToken = searchParams.get('access_token') || searchParams.get('at');
+      const refreshToken = searchParams.get('refresh_token') || searchParams.get('rt');
       const errorParam = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
 
@@ -176,7 +176,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'https://app.ditax.ch/auth-success'
+            redirectTo: 'https://app.ditax.ch/auth-success?despia=true'
           }
         });
         if (error) throw error;
@@ -252,7 +252,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
-            redirectTo: 'https://app.ditax.ch/auth-success'
+            redirectTo: 'https://app.ditax.ch/auth-success?despia=true'
           }
         });
         if (error) throw error;
