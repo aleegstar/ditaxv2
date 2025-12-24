@@ -312,8 +312,9 @@ const Auth = () => {
     
     if (isDespia) {
       // In Despia: Open passkey auth in system browser via Easy OAuth
+      // Email is optional - the WebAuthn page will ask for it if not provided
       console.log('🔐 Despia detected - opening passkey auth in system browser');
-      triggerDespiaPasskeyAuth(email);
+      triggerDespiaPasskeyAuth(email || undefined);
       return;
     }
     

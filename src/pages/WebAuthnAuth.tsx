@@ -72,13 +72,12 @@ const WebAuthnAuth = () => {
 
       // If from Despia, redirect back to app via deeplink with tokens
       if (isFromDespia) {
-        const expiresAt = session.expires_at || Math.floor(Date.now() / 1000) + 3600;
-        
-        const deeplinkUrl = buildDeeplinkUrl('oauth/auth', {
+        // Format: ditax://oauth/auth?tokens...
+        // buildDeeplinkUrl already adds oauth/ prefix, so just pass 'auth'
+        const deeplinkUrl = buildDeeplinkUrl('auth', {
           success: 'true',
-          access_token: session.access_token,
-          refresh_token: session.refresh_token || '',
-          expires_at: expiresAt.toString(),
+          at: session.access_token,
+          rt: session.refresh_token || '',
           auth_type: 'passkey'
         });
 
@@ -100,7 +99,7 @@ const WebAuthnAuth = () => {
       // If from Despia and error, redirect back with error
       if (isFromDespia) {
         setTimeout(() => {
-          const errorDeeplink = buildDeeplinkUrl('oauth/auth', {
+          const errorDeeplink = buildDeeplinkUrl('auth', {
             success: 'false',
             error: error.message || 'passkey_auth_failed',
             auth_type: 'passkey'
@@ -130,7 +129,7 @@ const WebAuthnAuth = () => {
   const handleBackToMain = () => {
     if (isFromDespia) {
       // Redirect back to app with cancel
-      const cancelDeeplink = buildDeeplinkUrl('oauth/auth', {
+      const cancelDeeplink = buildDeeplinkUrl('auth', {
         success: 'false',
         error: 'user_cancelled',
         auth_type: 'passkey'
