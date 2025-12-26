@@ -89,17 +89,31 @@ export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
   console.log('🔗 triggerDespiaOAuth called');
   console.log('📱 User Agent:', navigator.userAgent);
   console.log('🔗 OAuth URL:', oauthUrl);
+  console.log('📱 Is Despia Native?', isDespiaNative());
+  console.log('📱 despia function available?', typeof despia);
   
   // Use Despia SDK oauth:// protocol to open in secure browser session
   const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
   console.log('📱 Despia command:', despiaCommand);
   
   try {
+    // Check if we're actually in Despia environment
+    if (!isDespiaNative()) {
+      console.warn('⚠️ Not in Despia environment, falling back to window.location');
+      // Fallback: open URL directly (will work in system browser)
+      window.location.href = oauthUrl;
+      return true;
+    }
+    
+    console.log('📱 Calling despia() with command...');
     despia(despiaCommand);
     console.log('✅ despia() called successfully');
     return true;
   } catch (error) {
     console.error('❌ despia() call failed:', error);
+    // Fallback: try opening URL directly
+    console.log('📱 Attempting fallback: window.location.href');
+    window.location.href = oauthUrl;
     return false;
   }
 };
