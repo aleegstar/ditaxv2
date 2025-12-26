@@ -10,7 +10,9 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth, triggerDespiaPasskeyAuth } from "@/lib/despia";
+import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
+import despia from 'despia-native';
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -194,12 +196,12 @@ const Auth = () => {
           return;
         }
 
-        console.log('🔗 Got OAuth URL, calling triggerDespiaOAuth:', data.url);
+        console.log('🔗 Got OAuth URL, calling despia() directly:', data.url);
         
         // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
-        // Dies ist der korrekte Despia Easy OAuth Flow
-        const result = triggerDespiaOAuth(data.url);
-        console.log('🔗 triggerDespiaOAuth result:', result);
+        // Direkter despia() Aufruf gemäß Despia-Dokumentation
+        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        console.log('✅ despia() called');
         
         // Loading-Status bleibt aktiv bis deeplink zurückkommt
       } catch (err) {
@@ -288,10 +290,10 @@ const Auth = () => {
           return;
         }
 
-        console.log('🔗 Opening Apple OAuth URL in secure browser session:', data.url);
+        console.log('🔗 Opening Apple OAuth URL, calling despia() directly:', data.url);
         
-        // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
-        triggerDespiaOAuth(data.url);
+        // Direkter despia() Aufruf gemäß Despia-Dokumentation
+        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
         
       } catch (err) {
         console.error('Error starting native Apple auth:', err);
