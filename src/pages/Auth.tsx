@@ -162,9 +162,18 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
     
+    // DEBUG: Log environment details
+    console.log('====== DESPIA OAUTH DEBUG ======');
+    console.log('📱 UserAgent:', navigator.userAgent);
+    console.log('📱 isDespiaNative():', isDespia);
+    console.log('📱 isNativeCapacitor:', isNativeCapacitor);
+    console.log('📱 window.despia (before):', (window as any).despia);
+    
     // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
+        console.log('📱 Starting Despia OAuth flow...');
+        
         const { data, error } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
@@ -173,18 +182,35 @@ const Auth = () => {
         });
 
         if (error || !data?.url) {
-          console.error('Failed to get OAuth URL:', error);
+          console.error('❌ Failed to get OAuth URL:', error);
           toast.error("Fehler beim Starten der Anmeldung");
           isOAuthInProgress.current = false;
           setIsOAuthLoading(false);
           return;
         }
 
-        // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        console.log('✅ OAuth URL from edge function:', data.url);
+        
+        const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
+        console.log('📱 Despia command:', despiaCommand);
+        
+        // Method 1: NPM Package
+        console.log('📱 Calling despia() via NPM package...');
+        despia(despiaCommand);
+        console.log('📱 window.despia (after NPM):', (window as any).despia);
+        
+        // Method 2: Direct assignment (fallback test)
+        console.log('📱 Also setting window.despia directly...');
+        (window as any).despia = despiaCommand;
+        console.log('📱 window.despia (after direct):', (window as any).despia);
+        
+        console.log('====== DESPIA OAUTH DEBUG END ======');
+        
+        // Visual feedback for user
+        toast.info("OAuth wird gestartet...");
         
       } catch (err) {
-        console.error('Error starting native auth:', err);
+        console.error('❌ Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
         isOAuthInProgress.current = false;
         setIsOAuthLoading(false);
