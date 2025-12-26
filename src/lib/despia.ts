@@ -12,48 +12,13 @@
  * -> Closes ASWebAuthenticationSession/Chrome Custom Tab
  * -> Navigates WebView to /auth?access_token=xxx
  */
+import despia from 'despia-native';
 
 // Deeplink scheme configured in Despia Dashboard
 export const DEEPLINK_SCHEME = "ditax";
 
 // Supabase configuration
 export const SUPABASE_URL = "https://gqbhilftduwxjszznnzy.supabase.co";
-
-// Type declaration for window.despia
-declare global {
-  interface Window {
-    despia?: (command: string) => void;
-  }
-}
-
-/**
- * Get the despia function - prefer window.despia (native bridge) over npm package
- */
-const getDespiaFunction = (): ((command: string) => void) | null => {
-  // First check if window.despia is available (native bridge)
-  if (typeof window !== 'undefined' && typeof window.despia === 'function') {
-    console.log('📱 Using window.despia (native bridge)');
-    return window.despia;
-  }
-  
-  // Fallback to npm package import (may not work in all contexts)
-  try {
-    // Dynamic import to avoid issues
-    const despiaNative = require('despia-native');
-    if (typeof despiaNative === 'function') {
-      console.log('📱 Using despia-native npm package');
-      return despiaNative;
-    }
-    if (typeof despiaNative.default === 'function') {
-      console.log('📱 Using despia-native npm package (default export)');
-      return despiaNative.default;
-    }
-  } catch (e) {
-    console.warn('📱 despia-native package not available:', e);
-  }
-  
-  return null;
-};
 
 /**
  * Check if running in Despia native environment
@@ -64,7 +29,6 @@ export const isDespiaNative = (): boolean => {
   const isDespia = typeof navigator !== 'undefined' && 
          navigator.userAgent.toLowerCase().includes('despia');
   
-  // Only log in development to reduce noise
   if (isDespia) {
     console.log('📱 Despia native detected via userAgent');
   }
@@ -122,35 +86,25 @@ export const isDespiaAndroid = (): boolean => {
  */
 export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
   console.log('🔗 triggerDespiaOAuth called');
-  console.log('📱 User Agent:', navigator.userAgent);
   console.log('🔗 OAuth URL:', oauthUrl);
-  console.log('📱 Is Despia Native?', isDespiaNative());
-  console.log('📱 window.despia available?', typeof window.despia);
   
   // Use Despia SDK oauth:// protocol to open in secure browser session
   const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
   console.log('📱 Despia command:', despiaCommand);
   
-  // Get the despia function (prefer window.despia)
-  const despiaFn = getDespiaFunction();
-  
-  if (despiaFn) {
-    try {
-      console.log('📱 Calling despia() with command...');
-      despiaFn(despiaCommand);
-      console.log('✅ despia() called successfully');
-      return true;
-    } catch (error) {
-      console.error('❌ despia() call failed:', error);
-    }
-  } else {
-    console.warn('⚠️ No despia function available');
+  try {
+    // Call despia() directly from the npm package
+    console.log('📱 Calling despia() with command...');
+    despia(despiaCommand);
+    console.log('✅ despia() called successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ despia() call failed:', error);
+    // Fallback: open URL directly in browser
+    console.log('📱 Attempting fallback: window.location.href');
+    window.location.href = oauthUrl;
+    return false;
   }
-  
-  // Fallback: try window.location.href to open URL directly
-  console.log('📱 Attempting fallback: window.location.href');
-  window.location.href = oauthUrl;
-  return false;
 };
 
 /**
@@ -160,7 +114,6 @@ export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
  */
 export const triggerDespiaPasskeyAuth = (email?: string): void => {
   // Build the WebAuthn auth URL with optional email parameter
-  // The WebAuthn page will handle email input if not provided
   const params = new URLSearchParams({ despia: 'true' });
   if (email) {
     params.set('email', email);
