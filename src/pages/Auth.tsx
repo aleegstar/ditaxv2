@@ -176,12 +176,15 @@ const Auth = () => {
       console.log('🔗 Despia detected - using Easy OAuth flow');
       try {
         // Rufe auth-start Edge Function auf
+        console.log('🔗 Calling auth-start edge function...');
         const { data, error } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
             deeplink_scheme: 'ditax',
           },
         });
+
+        console.log('🔗 auth-start response:', { data, error });
 
         if (error || !data?.url) {
           console.error('Failed to get OAuth URL:', error);
@@ -191,11 +194,12 @@ const Auth = () => {
           return;
         }
 
-        console.log('🔗 Opening OAuth URL in secure browser session:', data.url);
+        console.log('🔗 Got OAuth URL, calling triggerDespiaOAuth:', data.url);
         
         // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
         // Dies ist der korrekte Despia Easy OAuth Flow
-        triggerDespiaOAuth(data.url);
+        const result = triggerDespiaOAuth(data.url);
+        console.log('🔗 triggerDespiaOAuth result:', result);
         
         // Loading-Status bleibt aktiv bis deeplink zurückkommt
       } catch (err) {
