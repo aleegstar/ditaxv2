@@ -84,7 +84,7 @@ export const isDespiaAndroid = (): boolean => {
  * 
  * @returns true if despia() was called successfully, false otherwise
  */
-export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
+export const triggerDespiaOAuth = (oauthUrl: string): void => {
   console.log('🔗 triggerDespiaOAuth called');
   console.log('🔗 OAuth URL:', oauthUrl);
   
@@ -92,19 +92,10 @@ export const triggerDespiaOAuth = (oauthUrl: string): boolean => {
   const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
   console.log('📱 Despia command:', despiaCommand);
   
-  try {
-    // Call despia() directly from the npm package
-    console.log('📱 Calling despia() with command...');
-    despia(despiaCommand);
-    console.log('✅ despia() called successfully');
-    return true;
-  } catch (error) {
-    console.error('❌ despia() call failed:', error);
-    // Fallback: open URL directly in browser
-    console.log('📱 Attempting fallback: window.location.href');
-    window.location.href = oauthUrl;
-    return false;
-  }
+  // Direkter Aufruf gemäß Despia-Dokumentation - kein Try/Catch nötig
+  console.log('📱 Calling despia() with command...');
+  despia(despiaCommand);
+  console.log('✅ despia() called');
 };
 
 /**
