@@ -168,21 +168,38 @@ const Auth = () => {
       isNativeCapacitor
     });
     
-  // Despia WebView: OAuth direkt im WebView (In-App-Tab)
-    // Nach OAuth redirected zu /auth-success, dort wird via Universal Link zur App zurückgeleitet
+    // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
+    // 1. Rufe auth-start Edge Function auf um OAuth URL zu bekommen
+    // 2. Öffne URL in ASWebAuthenticationSession/Chrome Custom Tab via despia()
+    // 3. Nach OAuth → /native-callback → Deeplink → Auth.tsx setzt Session
     if (isDespia) {
-      console.log('🔗 Despia WebView detected - OAuth direkt im WebView');
+      console.log('🔗 Despia detected - using Easy OAuth flow');
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success?despia=true'
-          }
+        // Rufe auth-start Edge Function auf
+        const { data, error } = await supabase.functions.invoke('auth-start', {
+          body: {
+            provider: 'google',
+            deeplink_scheme: 'ditax',
+          },
         });
-        if (error) throw error;
-        // OAuth läuft jetzt im WebView, keine weitere Aktion nötig
-      } catch (error) {
-        console.error('Google auth error (Despia):', error);
+
+        if (error || !data?.url) {
+          console.error('Failed to get OAuth URL:', error);
+          toast.error("Fehler beim Starten der Anmeldung");
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+          return;
+        }
+
+        console.log('🔗 Opening OAuth URL in secure browser session:', data.url);
+        
+        // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
+        // Dies ist der korrekte Despia Easy OAuth Flow
+        triggerDespiaOAuth(data.url);
+        
+        // Loading-Status bleibt aktiv bis deeplink zurückkommt
+      } catch (err) {
+        console.error('Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
         isOAuthInProgress.current = false;
         setIsOAuthLoading(false);
@@ -218,6 +235,8 @@ const Auth = () => {
       }
       return;
     }
+    
+    // Web Flow - Standard Supabase OAuth
     try {
       await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -245,19 +264,33 @@ const Auth = () => {
     
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     
-    // Despia WebView: OAuth direkt im WebView (In-App-Tab)
+    // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
     if (isDespia) {
-      console.log('🔗 Despia WebView detected - Apple OAuth direkt im WebView');
+      console.log('🔗 Despia detected - using Easy OAuth flow for Apple');
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'apple',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success?despia=true'
-          }
+        // Rufe auth-start Edge Function auf
+        const { data, error } = await supabase.functions.invoke('auth-start', {
+          body: {
+            provider: 'apple',
+            deeplink_scheme: 'ditax',
+          },
         });
-        if (error) throw error;
-      } catch (error) {
-        console.error('Apple auth error (Despia):', error);
+
+        if (error || !data?.url) {
+          console.error('Failed to get Apple OAuth URL:', error);
+          toast.error("Fehler beim Starten der Anmeldung");
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+          return;
+        }
+
+        console.log('🔗 Opening Apple OAuth URL in secure browser session:', data.url);
+        
+        // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
+        triggerDespiaOAuth(data.url);
+        
+      } catch (err) {
+        console.error('Error starting native Apple auth:', err);
         toast.error("Fehler bei der Apple-Anmeldung");
         isOAuthInProgress.current = false;
         setIsOAuthLoading(false);
@@ -293,6 +326,8 @@ const Auth = () => {
       }
       return;
     }
+    
+    // Web Flow
     try {
       await supabase.auth.signInWithOAuth({
         provider: 'apple',
