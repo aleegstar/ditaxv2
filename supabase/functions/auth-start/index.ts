@@ -66,6 +66,8 @@ serve(async (req) => {
     const params = new URLSearchParams({
       provider,
       redirect_to: redirectUrl,
+      scopes: 'openid email profile',
+      flow_type: 'implicit',
     });
 
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
