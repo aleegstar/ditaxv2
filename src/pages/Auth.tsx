@@ -170,12 +170,14 @@ const Auth = () => {
       isNativeCapacitor
     });
     
-    // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
+  // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
     // 1. Rufe auth-start Edge Function auf um OAuth URL zu bekommen
-    // 2. Öffne URL in ASWebAuthenticationSession/Chrome Custom Tab via despia()
+    // 2. Öffne URL via despia('oauth://...') oder window.open() als Fallback
     // 3. Nach OAuth → /native-callback → Deeplink → Auth.tsx setzt Session
     if (isDespia) {
       console.log('🔗 Despia detected - using Easy OAuth flow');
+      console.log('🔗 User Agent:', navigator.userAgent);
+      
       try {
         // Rufe auth-start Edge Function auf
         console.log('🔗 Calling auth-start edge function...');
@@ -196,12 +198,29 @@ const Auth = () => {
           return;
         }
 
-        console.log('🔗 Got OAuth URL, calling despia() directly:', data.url);
+        const oauthUrl = data.url;
+        console.log('🔗 Got OAuth URL:', oauthUrl);
         
-        // Öffne URL in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android)
-        // Direkter despia() Aufruf gemäß Despia-Dokumentation
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        // Show toast to confirm we're about to call despia
+        toast.info("Öffne Anmeldefenster...");
+        
+        // Method 1: Try despia('oauth://...') - opens ASWebAuthenticationSession/Chrome Custom Tab
+        // This is the preferred method according to Despia Easy OAuth documentation
+        const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
+        console.log('📱 Despia command:', despiaCommand);
+        console.log('📱 Calling despia()...');
+        despia(despiaCommand);
         console.log('✅ despia() called');
+        
+        // Method 2 (Fallback): If oauth:// doesn't work after 2 seconds, try window.open
+        // According to npm.despia.com/external-link-handling, window.open opens in-app browser
+        setTimeout(() => {
+          // Only trigger fallback if still loading (meaning oauth:// didn't work)
+          if (isOAuthLoading) {
+            console.log('🔗 Fallback: oauth:// seems inactive, trying window.open()...');
+            window.open(oauthUrl, '_blank');
+          }
+        }, 2000);
         
         // Loading-Status bleibt aktiv bis deeplink zurückkommt
       } catch (err) {
@@ -270,17 +289,22 @@ const Auth = () => {
     
     console.log('🔗 Apple Auth - isDespia:', isDespia, 'isNativeCapacitor:', isNativeCapacitor);
     
-    // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
+  // DESPIA NATIVE FLOW (Easy OAuth gemäß Despia-Dokumentation)
     if (isDespia) {
-      console.log('🔗 Despia detected - using Easy OAuth flow for Apple');
+      console.log('🍎 Despia detected - using Easy OAuth flow for Apple');
+      console.log('🍎 User Agent:', navigator.userAgent);
+      
       try {
         // Rufe auth-start Edge Function auf
+        console.log('🍎 Calling auth-start edge function...');
         const { data, error } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'apple',
             deeplink_scheme: 'ditax',
           },
         });
+
+        console.log('🍎 auth-start response:', { data, error });
 
         if (error || !data?.url) {
           console.error('Failed to get Apple OAuth URL:', error);
@@ -290,10 +314,26 @@ const Auth = () => {
           return;
         }
 
-        console.log('🔗 Opening Apple OAuth URL, calling despia() directly:', data.url);
+        const oauthUrl = data.url;
+        console.log('🍎 Got Apple OAuth URL:', oauthUrl);
         
-        // Direkter despia() Aufruf gemäß Despia-Dokumentation
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        // Show toast to confirm we're about to call despia
+        toast.info("Öffne Anmeldefenster...");
+        
+        // Method 1: Try despia('oauth://...') - opens ASWebAuthenticationSession/Chrome Custom Tab
+        const despiaCommand = `oauth://?url=${encodeURIComponent(oauthUrl)}`;
+        console.log('📱 Despia command:', despiaCommand);
+        console.log('📱 Calling despia()...');
+        despia(despiaCommand);
+        console.log('✅ despia() called');
+        
+        // Method 2 (Fallback): If oauth:// doesn't work after 2 seconds, try window.open
+        setTimeout(() => {
+          if (isOAuthLoading) {
+            console.log('🍎 Fallback: oauth:// seems inactive, trying window.open()...');
+            window.open(oauthUrl, '_blank');
+          }
+        }, 2000);
         
       } catch (err) {
         console.error('Error starting native Apple auth:', err);
