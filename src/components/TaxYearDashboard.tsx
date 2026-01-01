@@ -141,7 +141,7 @@ export const TaxYearDashboard: React.FC = () => {
   const isDocumentsComplete = isCompleted('documents');
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
-  return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-slate-50">
+  return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-white">
       {/* Mobile: Back button + Tour button row */}
       <div className="md:hidden flex items-center justify-between mb-4 pt-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
