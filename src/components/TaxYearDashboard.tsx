@@ -142,24 +142,14 @@ export const TaxYearDashboard: React.FC = () => {
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
   return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-white">
-      {/* Mobile: Back button + Tour button row */}
-      <div className="md:hidden flex items-center justify-between mb-4 pt-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between mb-6 pt-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900 -ml-2">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        {tourCompleted && <TourStartButton onStartTour={forceTour} variant="header" />}
-      </div>
-
-      {/* Mobile: Title + Avatar row */}
-      <div className="md:hidden flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
-            Steuererklärung {taxYear}
-          </h1>
-          <p className="text-slate-500 font-medium text-xs">
-            Entwurf • Zuletzt gespeichert heute
-          </p>
-        </div>
+        <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+          Steuererklärung {taxYear}
+        </h1>
         <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
           <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
         </div>
