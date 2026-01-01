@@ -198,7 +198,7 @@ export const TaxYearDashboard: React.FC = () => {
         y: 0
       }} transition={{
         duration: 0.5
-      }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden relative">
+      }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-50 overflow-hidden relative">
           {/* Progress Header */}
           <div className="p-8 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-50">
             <div className="space-y-2">
