@@ -116,68 +116,68 @@ export const TaxYearDashboard: React.FC = () => {
   const canSubmit = allAngabenComplete && isDocumentsComplete;
 
   return (
-    <div className="text-slate-900 antialiased min-h-screen px-4 py-6 sm:p-6 md:p-12 bg-slate-50">
+    <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-slate-50">
       {/* Header Navigation */}
-      <header className="max-w-4xl mx-auto mb-6 md:mb-8 pt-2 md:pt-8 relative z-10">
-        <div className="flex items-start justify-between gap-3">
-          {/* Left: Icon + Title */}
-          <div className="flex items-start gap-3 min-w-0 flex-1">
-            <div className="bg-blue-600 text-white p-2 sm:p-2.5 rounded-xl shadow-lg shadow-blue-600/20 shrink-0">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-slate-900 leading-tight truncate">
-                Steuererklärung {taxYear}
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                Entwurf • Zuletzt gespeichert heute
-              </p>
-            </div>
+      <header className="max-w-4xl mx-auto flex items-center justify-between mb-8 pt-8 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 text-white p-2.5 rounded-xl shadow-lg shadow-blue-600/20">
+            <FileText className="w-6 h-6" />
           </div>
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
+              Steuererklärung {taxYear}
+            </h1>
+            <p className="text-sm text-slate-500 font-medium">
+              Entwurf • Zuletzt gespeichert heute
+            </p>
+          </div>
+        </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {tourCompleted && (
-              <TourStartButton onStartTour={forceTour} variant="header" />
-            )}
-            <button 
-              onClick={() => navigate('/help')}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-900 text-white border border-slate-800 shadow-sm rounded-full hover:bg-slate-800 transition-all"
-            >
-              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">Anleitung starten</span>
-              <span className="xs:hidden">Anleitung</span>
-            </button>
+        <div className="flex items-center gap-4">
+          {tourCompleted && (
+            <TourStartButton onStartTour={forceTour} variant="header" />
+          )}
+          <button 
+            onClick={() => navigate('/help')}
+            className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 shadow-sm rounded-lg hover:bg-slate-50 transition-all"
+          >
+            <BookOpen className="w-4 h-4 text-slate-400" />
+            <span>Anleitung</span>
+          </button>
+          <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden">
+            <img 
+              src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
+              alt="User" 
+              className="h-full w-full object-cover" 
+            />
           </div>
         </div>
       </header>
 
       {/* Main Content / Timeline */}
-      <main className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-24">
+      <main className="max-w-4xl mx-auto space-y-6 pb-24">
         {/* Active Step Card - Persönliche Angaben */}
         <motion.section
           data-tour="form-step-1"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden relative"
+          className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden relative"
         >
           {/* Progress Header */}
-          <div className="p-5 sm:p-8 pb-4 sm:pb-6 border-b border-slate-50">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+          <div className="p-8 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-50">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
                 <span>Schritt 1 von 3</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
                 Persönliche Angaben
               </h2>
-              <p className="text-slate-500 text-base sm:text-lg">
+              <p className="text-slate-500 text-lg">
                 Erfassen Sie Ihre Grunddaten für die korrekte Berechnung.
               </p>
             </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-5 sm:mt-6">
+            <div className="w-full md:w-48">
               <div className="flex justify-between text-xs font-semibold text-slate-900 mb-2">
                 <span>Fortschritt</span>
                 <span>{angabenProgress.percentage}%</span>
@@ -192,8 +192,8 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Action Grid */}
-          <div className="p-4 sm:p-8 bg-slate-50/50">
-            <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+          <div className="p-8 bg-slate-50/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {angabenSections.map((section) => {
                 const Icon = section.icon;
                 const completed = isCompleted(section.id);
@@ -203,28 +203,28 @@ export const TaxYearDashboard: React.FC = () => {
                     key={section.id}
                     onClick={() => handleSectionClick(section)}
                     data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                    className={`group w-full flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 text-left bg-white border rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${
+                    className={`group flex items-center gap-4 p-4 text-left bg-white border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${
                       completed 
                         ? 'border-slate-200/60' 
                         : 'border-slate-200/60 hover:border-blue-300 hover:ring-1 hover:ring-blue-300'
                     }`}
                   >
-                    <div className={`h-10 w-10 sm:h-12 sm:w-12 shrink-0 rounded-lg sm:rounded-xl flex items-center justify-center border transition-colors ${
+                    <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center border transition-colors ${
                       completed 
                         ? 'bg-green-50 text-green-600 border-green-100' 
                         : 'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600'
                     }`}>
                       {completed ? (
-                        <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <Check className="w-6 h-6" />
                       ) : (
-                        <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <Icon className="w-6 h-6" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="block text-sm sm:text-base font-semibold text-slate-900">
+                      <span className="block text-base font-semibold text-slate-900">
                         {section.title}
                       </span>
-                      <span className={`block text-xs sm:text-sm font-medium ${
+                      <span className={`block text-sm font-medium ${
                         completed ? 'text-green-600' : 'text-slate-500'
                       }`}>
                         {completed ? 'Erledigt' : 'Ausstehend'}
@@ -241,7 +241,7 @@ export const TaxYearDashboard: React.FC = () => {
         </motion.section>
 
         {/* Upcoming Steps */}
-        <section className={`space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+        <section className={`grid md:grid-cols-2 gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
           <motion.div
             data-tour="form-step-2"
@@ -249,29 +249,29 @@ export const TaxYearDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             onClick={() => allAngabenComplete && handleDocumentsClick()}
-            className={`bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 flex items-center gap-3 sm:gap-4 ${
+            className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${
               allAngabenComplete ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''
             }`}
           >
-            <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-full border flex items-center justify-center font-bold text-sm ${
+            <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${
               isDocumentsComplete 
                 ? 'bg-green-50 border-green-100 text-green-600' 
                 : allAngabenComplete
                   ? 'bg-blue-50 border-blue-100 text-blue-600'
                   : 'bg-slate-100 border-slate-200 text-slate-400'
             }`}>
-              {isDocumentsComplete ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : '2'}
+              {isDocumentsComplete ? <Check className="w-5 h-5" /> : '2'}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+            <div className="flex-1">
+              <h3 className="font-semibold text-slate-900">
                 Belege & Unterlagen
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-sm text-slate-500">
                 {isDocumentsComplete ? 'Erledigt' : 'Dokumente hochladen'}
               </p>
             </div>
             {allAngabenComplete && (
-              <ChevronRight className="w-5 h-5 text-slate-300 shrink-0" />
+              <ChevronRight className="w-5 h-5 text-slate-300" />
             )}
           </motion.div>
 
@@ -282,29 +282,29 @@ export const TaxYearDashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             onClick={() => canSubmit && handleSubmitClick()}
-            className={`bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 flex items-center gap-3 sm:gap-4 ${
+            className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${
               canSubmit ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''
             } ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}
           >
-            <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-full border flex items-center justify-center font-bold text-sm ${
+            <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${
               isCompleted('submit')
                 ? 'bg-green-50 border-green-100 text-green-600' 
                 : canSubmit
                   ? 'bg-blue-50 border-blue-100 text-blue-600'
                   : 'bg-slate-100 border-slate-200 text-slate-400'
             }`}>
-              {isCompleted('submit') ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : '3'}
+              {isCompleted('submit') ? <Check className="w-5 h-5" /> : '3'}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
+            <div className="flex-1">
+              <h3 className="font-semibold text-slate-900">
                 Prüfung & Versand
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-sm text-slate-500">
                 {isCompleted('submit') ? 'Erledigt' : 'Abschließen'}
               </p>
             </div>
             {canSubmit && (
-              <ChevronRight className="w-5 h-5 text-slate-300 shrink-0" />
+              <ChevronRight className="w-5 h-5 text-slate-300" />
             )}
           </motion.div>
         </section>
