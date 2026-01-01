@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Wallet, Shield, Landmark, ChevronRight, Check, FileText, BookOpen, UploadCloud, Send, LucideIcon } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, Check, FileText, BookOpen, UploadCloud, Send, LucideIcon, ArrowLeft } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { TourStartButton } from '@/components/ui/tour-start-button';
 import { useFormTour } from '@/contexts/FormTourContext';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
+import { Button } from '@/components/ui/button';
 interface DashboardSection {
   id: string;
   title: string;
@@ -141,10 +142,37 @@ export const TaxYearDashboard: React.FC = () => {
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
   return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-slate-50">
-      {/* Header Navigation */}
-      <header className="max-w-4xl mx-auto flex items-center justify-between mb-8 pt-8 relative z-10">
+      {/* Mobile: Back button + Tour button row */}
+      <div className="md:hidden flex items-center justify-between mb-4 pt-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/')}
+          className="text-slate-600 hover:text-slate-900"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        {tourCompleted && <TourStartButton onStartTour={forceTour} variant="header" />}
+      </div>
+
+      {/* Mobile: Title + Avatar row */}
+      <div className="md:hidden flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
+            Steuererklärung {taxYear}
+          </h1>
+          <p className="text-sm text-slate-500 font-medium">
+            Entwurf • Zuletzt gespeichert heute
+          </p>
+        </div>
+        <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
+          <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
+        </div>
+      </div>
+
+      {/* Desktop Header Navigation */}
+      <header className="hidden md:flex max-w-4xl mx-auto items-center justify-between mb-8 pt-8 relative z-10">
         <div className="flex items-center gap-3">
-          
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
               Steuererklärung {taxYear}
