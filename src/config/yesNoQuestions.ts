@@ -80,11 +80,6 @@ export const assetsQuestions: QuestionConfig = {
       }
     },
     {
-      id: 'hasDepositAccount',
-      text: 'Hast du Sparkonten oder Festgeld?',
-      explanation: 'Alle Bank- und Postkonten in der Schweiz und im Ausland müssen deklariert werden. Dazu gehören Sparkonten, Lohnkonti, Festgeldanlagen, Termingelder, Kassenobligationen sowie Guthaben bei ausländischen Banken. Der Saldo per 31. Dezember ist massgebend, auch bei ausländischen Konten.'
-    },
-    {
       id: 'hasSecuritiesAccount',
       text: 'Hast du ein Depotkonto?',
       explanation: 'Depotkonten enthalten Wertpapiere wie Aktien, Obligationen, Anlagefonds, ETFs, strukturierte Produkte sowie andere börsengehandelte Anlagen. Alle Wertpapiere in der Schweiz und im Ausland müssen mit dem Kurswert per 31. Dezember deklariert werden. Auch ausländische Depots und Online-Broker wie Interactive Brokers, Swissquote oder Trading 212 gehören dazu.'
