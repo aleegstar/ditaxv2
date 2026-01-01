@@ -343,7 +343,7 @@ const UserTaxReturns = () => {
         <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
           {/* Scanner Button */}
           <button onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2 pr-5 py-2 rounded-full hover:bg-gray-100 transition-colors group">
-            <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg shadow-gray-900/20 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-full text-white flex items-center justify-center shadow-lg shadow-gray-900/20 group-hover:scale-105 transition-transform bg-[#2463eb]">
               <ScanLine className="w-5 h-5" strokeWidth={1.5} />
             </div>
             <div className="text-left">
