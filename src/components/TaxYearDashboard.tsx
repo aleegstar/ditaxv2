@@ -144,12 +144,7 @@ export const TaxYearDashboard: React.FC = () => {
   return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-slate-50">
       {/* Mobile: Back button + Tour button row */}
       <div className="md:hidden flex items-center justify-between mb-4 pt-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/')}
-          className="text-slate-600 hover:text-slate-900"
-        >
+        <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         {tourCompleted && <TourStartButton onStartTour={forceTour} variant="header" />}
@@ -161,7 +156,7 @@ export const TaxYearDashboard: React.FC = () => {
           <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
             Steuererklärung {taxYear}
           </h1>
-          <p className="text-sm text-slate-500 font-medium">
+          <p className="text-slate-500 font-medium text-xs">
             Entwurf • Zuletzt gespeichert heute
           </p>
         </div>
@@ -208,12 +203,12 @@ export const TaxYearDashboard: React.FC = () => {
           <div className="p-8 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-50">
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
-                <span>Schritt 1 von 3</span>
+                <span>Schritt 1 von 3 </span>
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="font-bold tracking-tight text-slate-900 text-2xl">
                 Persönliche Angaben
               </h2>
-              <p className="text-slate-500 text-lg">
+              <p className="text-slate-500 text-sm">
                 Erfassen Sie Ihre Grunddaten für die korrekte Berechnung.
               </p>
             </div>
@@ -231,7 +226,7 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Action Grid */}
-          <div className="p-8 bg-slate-50/50">
+          <div className="p-8 bg-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {angabenSections.map(section => {
               const Icon = section.icon;
