@@ -248,9 +248,7 @@ const UserTaxReturns = () => {
                     <h2 className="text-2xl font-medium tracking-tight text-gray-900 font-jakarta">
                       Steuererklärung
                     </h2>
-                    <div className="text-blue-500 bg-blue-50 p-0.5 rounded-full" title="Verifiziert">
-                      <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                    </div>
+                    
                   </div>
 
                   <p className="text-gray-500 text-[15px] leading-relaxed font-jakarta">
