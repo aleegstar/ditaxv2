@@ -119,7 +119,7 @@ const IndexContent = () => {
 
   // Show floating button only on main dashboard
   const showFloatingButton = !section;
-  return <AnimatedPageContainer className="min-h-screen bg-[#020408]">
+  return <AnimatedPageContainer className="min-h-screen bg-slate-50">
       {renderContent()}
       
       {/* Form Tour */}
