@@ -67,7 +67,15 @@ const IncomeForm = ({
   // Use ref to track if data has been loaded
   const hasLoadedRef = useRef(false);
 
-  // Load existing data - only once
+  // Reset hasLoadedRef when switching to standard mode (expert view)
+  // This ensures data is reloaded after questionnaire completion
+  useEffect(() => {
+    if (formMode === 'standard') {
+      hasLoadedRef.current = false;
+    }
+  }, [formMode]);
+
+  // Load existing data - reload when mode changes to standard
   useEffect(() => {
     if (hasLoadedRef.current) return;
     
@@ -87,7 +95,7 @@ const IncomeForm = ({
       setDividends(formData.income.dividends || []);
       setFreelanceIncome(formData.income.freelanceIncome || []);
     }
-  }, [formData]);
+  }, [formData, formMode]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
