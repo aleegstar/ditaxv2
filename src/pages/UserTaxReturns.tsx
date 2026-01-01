@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Bell, ScanLine, Inbox } from 'lucide-react';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
-import ditaxLogoMain from '@/assets/ditax-logo-main.png';
+import ditaxLogoIcon from '@/assets/ditax-logo-icon.png';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { ChatButtonWithNotification } from '@/components/chat/ChatButtonWithNotification';
 import { useNavigate } from 'react-router-dom';
@@ -213,14 +213,12 @@ const UserTaxReturns = () => {
         {/* Header */}
         <header className="flex pb-8 items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo Mark */}
-            <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center shadow-sm text-white">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="4"></circle>
-                <circle cx="12" cy="12" r="1" fill="currentColor"></circle>
-              </svg>
-            </div>
+            {/* Logo */}
+            <img 
+              src={ditaxLogoIcon} 
+              alt="ditax" 
+              className="w-10 h-10 rounded-xl"
+            />
             <span className="text-xl font-semibold tracking-tight text-gray-900 font-jakarta">
               ditax
             </span>
