@@ -1,16 +1,21 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import ditaxLogoIcon from "@/assets/ditax-logo-icon.png";
 
 export function UserTaxReturnsSkeleton() {
   return (
     <div className="min-h-screen bg-white text-gray-900 antialiased">
       {/* Mobile Container */}
       <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
-        {/* Header Skeleton */}
+        {/* Header with Logo */}
         <header className="flex pt-6 px-4 pb-8 items-center justify-between">
           <div className="flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-xl bg-gray-200" />
-            <Skeleton className="h-6 w-16 bg-gray-200" />
+            <img 
+              src={ditaxLogoIcon} 
+              alt="ditax" 
+              className="w-10 h-10 rounded-xl"
+            />
+            <span className="text-xl font-semibold text-gray-900">ditax</span>
           </div>
           <Skeleton className="w-10 h-10 rounded-full bg-gray-200" />
         </header>
