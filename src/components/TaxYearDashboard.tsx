@@ -141,7 +141,7 @@ export const TaxYearDashboard: React.FC = () => {
   const isDocumentsComplete = isCompleted('documents');
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
-  return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-white">
+  return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-slate-50">
       {/* Mobile: Back button + Tour button row */}
       <div className="md:hidden flex items-center justify-between mb-4 pt-4">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
@@ -151,19 +151,7 @@ export const TaxYearDashboard: React.FC = () => {
       </div>
 
       {/* Mobile: Title + Avatar row */}
-      <div className="md:hidden flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
-            Steuererklärung {taxYear}
-          </h1>
-          <p className="text-slate-500 font-medium text-xs">
-            Entwurf • Zuletzt gespeichert heute
-          </p>
-        </div>
-        <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
-          <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
-        </div>
-      </div>
+      
 
       {/* Desktop Header Navigation */}
       <header className="hidden md:flex max-w-4xl mx-auto items-center justify-between mb-8 pt-8 relative z-10">
@@ -198,7 +186,7 @@ export const TaxYearDashboard: React.FC = () => {
         y: 0
       }} transition={{
         duration: 0.5
-      }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-50 overflow-hidden relative">
+      }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-white overflow-hidden relative">
           {/* Progress Header */}
           <div className="p-8 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-50">
             <div className="space-y-2">
