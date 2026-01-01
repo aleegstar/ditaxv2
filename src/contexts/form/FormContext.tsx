@@ -330,6 +330,9 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       // Clear validation errors
       setValidationErrors({});
       
+      // Reset question progress
+      setQuestionProgress({});
+      
       // Reset form data and progress to fresh defaults
       const freshDefaults = JSON.parse(JSON.stringify(defaultFormData));
       setFormData(freshDefaults);
