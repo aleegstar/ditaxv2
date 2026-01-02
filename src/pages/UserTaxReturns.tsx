@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Bell, ScanLine, Inbox } from 'lucide-react';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
-import ditaxLogoIcon from '@/assets/ditax-logo-icon.png';
+import ditaxLogoFull from '@/assets/ditax-logo-full.png';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { ChatButtonWithNotification } from '@/components/chat/ChatButtonWithNotification';
 import { useNavigate } from 'react-router-dom';
@@ -192,12 +192,9 @@ const UserTaxReturns = () => {
       <main className="min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4 relative">
         {/* Header */}
         <header className="flex pb-8 items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             {/* Logo */}
-            <img src={ditaxLogoIcon} alt="ditax" className="w-10 h-10 rounded-xl" />
-            <span className="text-xl font-semibold tracking-tight text-gray-900 font-jakarta">
-              ditax
-            </span>
+            <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
 
           {/* Notification Bell */}
