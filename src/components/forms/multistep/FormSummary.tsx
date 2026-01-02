@@ -38,13 +38,13 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
   if (isAndroid) {
     return <div className="w-full max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <Card className="bg-card border-border">
+        <Card className="bg-white border-slate-200 shadow-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-              <Check className="w-6 h-6 text-primary" />
+            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-slate-900">
+              <Check className="w-6 h-6 text-[#1d64ff]" />
               {title} - Zusammenfassung
             </CardTitle>
-            <p className="text-muted-foreground">
+            <p className="text-slate-500">
               Überprüfen Sie Ihre Angaben bevor Sie fortfahren
             </p>
           </CardHeader>
@@ -52,44 +52,44 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
 
         {/* Statistics */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-primary/5 border-primary/20">
+          <Card className="bg-emerald-50 border-emerald-200">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{yesAnswers.length}</div>
-              <div className="text-sm text-muted-foreground">Ja-Antworten</div>
+              <div className="text-2xl font-bold text-emerald-600">{yesAnswers.length}</div>
+              <div className="text-sm text-slate-600">Ja-Antworten</div>
             </CardContent>
           </Card>
-          <Card className="bg-muted/30">
+          <Card className="bg-slate-50 border-slate-200">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-muted-foreground">{noAnswers.length}</div>
-              <div className="text-sm text-muted-foreground">Nein-Antworten</div>
+              <div className="text-2xl font-bold text-slate-600">{noAnswers.length}</div>
+              <div className="text-sm text-slate-500">Nein-Antworten</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Yes Answers (Relevant Items) */}
-        {yesAnswers.length > 0 && <Card className="bg-card border-border">
+        {yesAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg text-primary">
+              <CardTitle className="text-lg text-emerald-600">
                 Ihre relevanten Angaben (Ja-Antworten)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {yesAnswers.map((item, index) => {
             try {
-              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
+              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-primary" />
-                          <span className="font-medium">{item.questionText}</span>
-                          <Badge variant="secondary" className="bg-primary/10 text-primary">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                          <span className="font-medium text-slate-800">{item.questionText}</span>
+                          <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                             Ja
                           </Badge>
                         </div>
-                        {item.repeaterData && Array.isArray(item.repeaterData) && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-muted-foreground">
+                        {item.repeaterData && Array.isArray(item.repeaterData) && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-slate-500">
                             {item.repeaterTitle}: {item.repeaterData.length} Eintrag(e) erfasst
                           </div>}
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-primary/10">
+                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-emerald-100 text-slate-600">
                         <Edit className="w-4 h-4" />
                       </Button>
                     </div>;
@@ -102,26 +102,26 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
           </Card>}
 
         {/* No Answers (Not Relevant Items) */}
-        {noAnswers.length > 0 && <Card className="bg-card border-border">
+        {noAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg text-muted-foreground">
+              <CardTitle className="text-lg text-slate-500">
                 Nicht zutreffende Angaben (Nein-Antworten)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {noAnswers.map((item, index) => {
             try {
-              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-muted/10 rounded-lg border border-muted/30">
+              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <ChevronRight className="w-4 h-4 text-muted-foreground rotate-45" />
-                          <span className="font-medium text-muted-foreground">{item.questionText}</span>
-                          <Badge variant="outline" className="bg-muted/20 text-muted-foreground">
+                          <ChevronRight className="w-4 h-4 text-slate-400 rotate-45" />
+                          <span className="font-medium text-slate-600">{item.questionText}</span>
+                          <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300">
                             Nein
                           </Badge>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-muted/20">
+                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-slate-100 text-slate-500">
                         <Edit className="w-4 h-4" />
                       </Button>
                     </div>;
@@ -135,7 +135,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-center pt-4 px-4 pb-6">
-          <Button onClick={onConfirm} size="lg" className="w-full max-w-sm h-14 text-lg font-medium bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button onClick={onConfirm} size="lg" className="w-full max-w-sm h-14 text-lg font-medium bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90 rounded-full">
             <Check className="w-5 h-5 mr-2" />
             Bestätigen & Weiter
           </Button>
@@ -152,36 +152,36 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
     duration: reduceMotion ? 0.01 : 0.4
   }} className="w-full max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <Card className="bg-white border-slate-200 shadow-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-            <Check className="w-6 h-6 text-primary" />
+          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-slate-900">
+            <Check className="w-6 h-6 text-[#1d64ff]" />
             {title} - Zusammenfassung
           </CardTitle>
-          <p className="text-muted-foreground">Überprüfen deine Angaben bevor du fortfährst</p>
+          <p className="text-slate-500">Überprüfe deine Angaben bevor du fortfährst</p>
         </CardHeader>
       </Card>
 
       {/* Statistics */}
       <div className="grid grid-cols-2 gap-4">
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-emerald-50 border-emerald-200">
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{yesAnswers.length}</div>
-            <div className="text-sm text-muted-foreground">Ja-Antworten</div>
+            <div className="text-2xl font-bold text-emerald-600">{yesAnswers.length}</div>
+            <div className="text-sm text-slate-600">Ja-Antworten</div>
           </CardContent>
         </Card>
-        <Card className="bg-muted/30">
+        <Card className="bg-slate-50 border-slate-200">
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-muted-foreground">{noAnswers.length}</div>
-            <div className="text-sm text-muted-foreground">Nein-Antworten</div>
+            <div className="text-2xl font-bold text-slate-600">{noAnswers.length}</div>
+            <div className="text-sm text-slate-500">Nein-Antworten</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Yes Answers (Relevant Items) */}
-      {yesAnswers.length > 0 && <Card className="bg-card/30 backdrop-blur-sm">
+      {yesAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg text-primary">Deine relevanten Angaben (Ja-Antworten)</CardTitle>
+            <CardTitle className="text-lg text-emerald-600">Deine relevanten Angaben (Ja-Antworten)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {yesAnswers.map((item, index) => <motion.div key={item.questionId} initial={{
@@ -193,20 +193,20 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
         }} transition={{
           delay: reduceMotion ? 0 : index * 0.1,
           duration: reduceMotion ? 0.01 : 0.2
-        }} className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
+        }} className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-primary" />
-                    <span className="font-medium">{item.questionText}</span>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary">
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    <span className="font-medium text-slate-800">{item.questionText}</span>
+                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                       Ja
                     </Badge>
                   </div>
-                  {item.repeaterData && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-muted-foreground">
+                  {item.repeaterData && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-slate-500">
                       {item.repeaterTitle}: {item.repeaterData.length} Eintrag(e) erfasst
                     </div>}
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-primary/10">
+                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-emerald-100 text-slate-600">
                   <Edit className="w-4 h-4" />
                 </Button>
               </motion.div>)}
@@ -214,9 +214,9 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
         </Card>}
 
       {/* No Answers (Not Relevant Items) */}
-      {noAnswers.length > 0 && <Card className="bg-card/20 backdrop-blur-sm">
+      {noAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg text-muted-foreground">
+            <CardTitle className="text-lg text-slate-500">
               Nicht zutreffende Angaben (Nein-Antworten)
             </CardTitle>
           </CardHeader>
@@ -229,17 +229,17 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
           x: 0
         }} transition={{
           delay: (yesAnswers.length + index) * 0.1
-        }} className="flex items-center justify-between p-4 bg-muted/10 rounded-lg border border-muted/30">
+        }} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-muted-foreground rotate-45" />
-                    <span className="font-medium text-muted-foreground">{item.questionText}</span>
-                    <Badge variant="outline" className="bg-muted/20 text-muted-foreground">
+                    <ChevronRight className="w-4 h-4 text-slate-400 rotate-45" />
+                    <span className="font-medium text-slate-600">{item.questionText}</span>
+                    <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300">
                       Nein
                     </Badge>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-muted/20">
+                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-slate-100 text-slate-500">
                   <Edit className="w-4 h-4" />
                 </Button>
               </motion.div>)}
