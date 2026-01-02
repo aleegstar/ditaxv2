@@ -36,8 +36,8 @@ const CustomCheckbox = ({
       className={cn(
         'relative flex items-center gap-4 p-4 rounded-2xl cursor-pointer group transition-all duration-200',
         checked 
-          ? 'border border-[#1D64FF] bg-[#1D64FF]/[0.03] shadow-[0_0_20px_-10px_rgba(29,100,255,0.15)]' 
-          : 'border border-white/[0.08] bg-[#0A0C10] hover:bg-white/[0.02] hover:border-white/20',
+          ? 'border border-[#1D64FF] bg-blue-50 shadow-[0_0_20px_-10px_rgba(29,100,255,0.15)]' 
+          : 'border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
         className
       )}
       onClick={handleClick}
@@ -56,7 +56,7 @@ const CustomCheckbox = ({
             'w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200',
             checked 
               ? 'border border-[#1D64FF] bg-[#1D64FF]' 
-              : 'border border-white/20 bg-transparent group-hover:border-white/40'
+              : 'border border-slate-300 bg-white group-hover:border-slate-400'
           )}
         >
           {checked && (
@@ -70,7 +70,7 @@ const CustomCheckbox = ({
         <span 
           className={cn(
             'text-[15px] font-medium leading-snug flex-1 transition-colors',
-            checked ? 'text-white' : 'text-zinc-300 group-hover:text-zinc-100',
+            checked ? 'text-slate-800' : 'text-slate-700 group-hover:text-slate-900',
             labelClassName
           )}
         >
@@ -83,7 +83,7 @@ const CustomCheckbox = ({
         <div 
           className={cn(
             'shrink-0 transition-colors',
-            checked ? 'text-[#1D64FF]' : 'text-zinc-600 group-hover:text-zinc-400'
+            checked ? 'text-[#1D64FF]' : 'text-slate-400 group-hover:text-slate-500'
           )}
           title={explanation}
         >
