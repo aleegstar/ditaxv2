@@ -25,8 +25,8 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
           className={cn(
             "h-1 flex-1 rounded-full transition-all duration-300",
             index <= safeCurrent
-              ? "bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]"
-              : "bg-white/[0.08]"
+              ? "bg-[#1D64FF]"
+              : "bg-slate-200"
           )}
         />
       ))}
