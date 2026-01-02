@@ -201,10 +201,7 @@ const UserTaxReturns = () => {
           </div>
 
           {/* Notification Bell */}
-          <button className="relative group p-2 text-gray-400 transition-colors hover:text-gray-900 hover:bg-gray-50 rounded-full">
-            <Bell className="w-6 h-6" strokeWidth={1.5} />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full border border-white"></span>
-          </button>
+          <NotificationDropdown className="text-gray-400 hover:text-gray-900 hover:bg-gray-50" />
         </header>
 
         {/* Greeting Section */}
