@@ -115,30 +115,26 @@ const CreateTicket = () => {
   };
 
   return (
-    <div className="bg-zinc-950 text-zinc-200 min-h-screen relative overflow-x-hidden">
-      {/* Ambient Background Gradients */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[128px] pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px] pointer-events-none" />
-
+    <div className="bg-white text-slate-700 min-h-screen relative overflow-x-hidden">
       {/* Main Page Layout */}
       <main className="w-full max-w-3xl mx-auto px-6 py-12 md:py-20 relative z-10">
         
         {/* Header Section */}
         <div className="mb-12">
-          <div className="flex items-center space-x-4 text-zinc-400 mb-8">
+          <div className="flex items-center space-x-4 text-slate-500 mb-8">
             <button 
               onClick={() => navigate(-1)}
-              className="p-2 -ml-2 rounded-full hover:bg-zinc-900 hover:text-white transition-colors group"
+              className="p-2 -ml-2 rounded-full hover:bg-slate-100 hover:text-slate-800 transition-colors group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform stroke-[1.5]" />
             </button>
             <span className="text-sm font-medium tracking-wide">Problem melden — {taxYear}</span>
           </div>
 
-          <h1 className="text-4xl font-medium tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-400 mb-3">
+          <h1 className="text-4xl font-medium tracking-tight text-slate-800 mb-3">
             Neues Ticket erstellen
           </h1>
-          <p className="text-lg text-zinc-500 font-normal">
+          <p className="text-lg text-slate-500 font-normal">
             Füllen Sie die Details unten aus, um den Support zu kontaktieren.
           </p>
         </div>
@@ -148,8 +144,8 @@ const CreateTicket = () => {
           
           {/* Title Input */}
           <div className="space-y-3">
-            <label htmlFor="title" className="text-sm font-medium text-zinc-300">
-              Titel <span className="text-indigo-400">*</span>
+            <label htmlFor="title" className="text-sm font-medium text-slate-700">
+              Titel <span className="text-[#1D64FF]">*</span>
             </label>
             <div className="relative group">
               <input 
@@ -158,7 +154,7 @@ const CreateTicket = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Kurze Beschreibung des Problems" 
-                className="w-full bg-zinc-900 text-base border border-zinc-800 rounded-lg px-4 py-3 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all shadow-sm text-white"
+                className="w-full bg-slate-50 text-base border border-slate-200 rounded-lg px-4 py-3 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1D64FF]/20 focus:border-[#1D64FF]/50 transition-all shadow-sm text-slate-800"
                 required
               />
             </div>
@@ -166,8 +162,8 @@ const CreateTicket = () => {
 
           {/* Description Textarea */}
           <div className="space-y-3">
-            <label htmlFor="description" className="text-sm font-medium text-zinc-300">
-              Beschreibung <span className="text-indigo-400">*</span>
+            <label htmlFor="description" className="text-sm font-medium text-slate-700">
+              Beschreibung <span className="text-[#1D64FF]">*</span>
             </label>
             <div className="relative">
               <textarea 
@@ -176,7 +172,7 @@ const CreateTicket = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Detaillierte Beschreibung des Problems oder der gewünschten Anpassung..." 
-                className="w-full bg-zinc-900 text-base border border-zinc-800 rounded-lg px-4 py-3 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all resize-none shadow-sm text-white"
+                className="w-full bg-slate-50 text-base border border-slate-200 rounded-lg px-4 py-3 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1D64FF]/20 focus:border-[#1D64FF]/50 transition-all resize-none shadow-sm text-slate-800"
                 required
               />
             </div>
@@ -184,22 +180,22 @@ const CreateTicket = () => {
 
           {/* Attachments */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-zinc-300">
-              Anhänge <span className="text-zinc-500 font-normal">(optional)</span>
+            <label className="text-sm font-medium text-slate-700">
+              Anhänge <span className="text-slate-400 font-normal">(optional)</span>
             </label>
             <label 
-              className="flex items-center justify-between w-full px-4 py-4 border border-dashed border-zinc-800 bg-zinc-900/50 rounded-lg cursor-pointer hover:bg-zinc-900 hover:border-zinc-700 transition-all group"
+              className="flex items-center justify-between w-full px-4 py-4 border border-dashed border-slate-300 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 hover:border-slate-400 transition-all group"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2.5 bg-zinc-800 rounded-md group-hover:bg-zinc-700 transition-colors border border-zinc-700/50">
-                  <Paperclip className="w-5 h-5 text-zinc-400 stroke-[1.5]" />
+                <div className="p-2.5 bg-white rounded-md group-hover:bg-slate-50 transition-colors border border-slate-200">
+                  <Paperclip className="w-5 h-5 text-slate-500 stroke-[1.5]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-zinc-300 group-hover:text-zinc-200 transition-colors">Datei auswählen...</span>
-                  <span className="text-xs text-zinc-500">JPG, PNG, PDF bis zu 10MB</span>
+                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-800 transition-colors">Datei auswählen...</span>
+                  <span className="text-xs text-slate-400">JPG, PNG, PDF bis zu 10MB</span>
                 </div>
               </div>
-              <span className="text-xs text-zinc-600 px-3 py-1 rounded-full bg-zinc-800/50">
+              <span className="text-xs text-slate-400 px-3 py-1 rounded-full bg-slate-100">
                 {attachments.length === 0 ? 'Keine ausgewählt' : `${attachments.length} Datei(en)`}
               </span>
               <input 
@@ -218,17 +214,17 @@ const CreateTicket = () => {
                 {attachments.map((file, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3 rounded-lg"
+                    className="flex items-center justify-between bg-slate-50 border border-slate-200 p-3 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
-                      <Paperclip className="w-4 h-4 text-zinc-500" />
-                      <span className="text-sm text-zinc-300 truncate max-w-[200px]">{file.name}</span>
-                      <span className="text-xs text-zinc-600">{(file.size / 1024).toFixed(1)} KB</span>
+                      <Paperclip className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm text-slate-700 truncate max-w-[200px]">{file.name}</span>
+                      <span className="text-xs text-slate-400">{(file.size / 1024).toFixed(1)} KB</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeAttachment(index)}
-                      className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors"
+                      className="p-1.5 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -239,21 +235,21 @@ const CreateTicket = () => {
           </div>
 
           {/* Divider */}
-          <div className="h-px w-full bg-zinc-900" />
+          <div className="h-px w-full bg-slate-200" />
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-2">
             <button 
               type="button"
               onClick={() => navigate(-1)}
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
             >
               Abbrechen
             </button>
             <button 
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-semibold rounded-lg shadow-lg shadow-white/5 border border-transparent transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white text-sm font-semibold rounded-lg shadow-lg shadow-blue-500/20 border border-transparent transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {isSubmitting ? 'Erstelle...' : 'Ticket absenden'}

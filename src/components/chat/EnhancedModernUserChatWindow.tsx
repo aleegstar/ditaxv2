@@ -60,7 +60,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
 
   if (!isValid || !userId) {
     return (
-      <div className="flex items-center justify-center h-full bg-[#020408] text-zinc-400">
+      <div className="flex items-center justify-center h-full bg-white text-slate-500">
         <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -74,7 +74,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-[#020408] text-zinc-400">
+      <div className="flex items-center justify-center h-full bg-white text-slate-500">
         <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -87,7 +87,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#020408]">
+    <div className="h-full flex flex-col bg-white">
       <ChatBotInterface
         userId={userId}
         onEscalate={handleEscalate}

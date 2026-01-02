@@ -6,7 +6,7 @@ const Roadmap = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Roadmap" 
         onBack={() => navigate(-1)} 

@@ -187,14 +187,14 @@ const PrivacySettings = () => {
 
   if (!isValid) {
     return (
-      <div className="min-h-screen bg-[#020408] flex items-center justify-center">
-        <p className="text-white">Bitte melden Sie sich an.</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-slate-600">Bitte melden Sie sich an.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Datenschutz-Einstellungen" 
         onBack={() => navigate(-1)} 
@@ -202,9 +202,9 @@ const PrivacySettings = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="grid gap-6 max-w-4xl">
           {/* Privacy Preferences */}
-          <Card className="bg-[#0A0C10] border border-white/[0.08] rounded-2xl">
+          <Card className="bg-white border border-slate-200 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-white flex items-center">
+              <CardTitle className="text-slate-800 flex items-center">
                 <Shield className="h-5 w-5 mr-2" />
                 Datenschutz-Präferenzen
               </CardTitle>
@@ -212,8 +212,8 @@ const PrivacySettings = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-medium">Marketing-E-Mails</h3>
-                  <p className="text-zinc-500 text-sm">Erhalten Sie Updates und Angebote</p>
+                  <h3 className="text-slate-800 font-medium">Marketing-E-Mails</h3>
+                  <p className="text-slate-500 text-sm">Erhalten Sie Updates und Angebote</p>
                 </div>
                 <Switch 
                   checked={preferences.marketing_emails} 
@@ -236,21 +236,21 @@ const PrivacySettings = () => {
           </Card>
 
           {/* Data Export */}
-          <Card className="bg-[#0A0C10] border border-white/[0.08] rounded-2xl">
+          <Card className="bg-white border border-slate-200 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-white flex items-center">
+              <CardTitle className="text-slate-800 flex items-center">
                 <Download className="h-5 w-5 mr-2" />
                 Datenportabilität
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-zinc-500 mb-4">
+              <p className="text-slate-500 mb-4">
                 Laden Sie alle Ihre gespeicherten Daten als JSON-Datei herunter.
               </p>
               <Button 
                 onClick={downloadUserData} 
                 variant="outline" 
-                className="w-full border-white/[0.08] text-white hover:bg-white/10"
+                className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Meine Daten herunterladen
@@ -259,15 +259,15 @@ const PrivacySettings = () => {
           </Card>
 
           {/* Account Deletion */}
-          <Card className="bg-[#0A0C10] border border-red-500/30 rounded-2xl">
+          <Card className="bg-white border border-red-200 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-red-500 flex items-center">
+              <CardTitle className="text-red-600 flex items-center">
                 <Trash2 className="h-5 w-5 mr-2" />
                 Account löschen
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-zinc-500 mb-4">
+              <p className="text-slate-500 mb-4">
                 Diese Aktion löscht unwiderruflich alle Ihre Daten und kann nicht rückgängig gemacht werden.
               </p>
               <div className="space-y-4">
@@ -276,7 +276,7 @@ const PrivacySettings = () => {
                   placeholder="Geben Sie 'LÖSCHEN' ein, um zu bestätigen" 
                   value={deleteConfirm} 
                   onChange={(e) => setDeleteConfirm(e.target.value)} 
-                  className="w-full p-3 bg-[#020408] border border-white/[0.08] rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
                 />
                 <Button 
                   onClick={deleteAllUserData} 

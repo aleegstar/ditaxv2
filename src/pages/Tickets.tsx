@@ -65,12 +65,12 @@ const Tickets = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#020408]">
+      <div className="min-h-screen bg-white">
         <SubpageHeader 
           title="Meine Support-Tickets"
           onBack={() => navigate(-1)}
         />
-        <div className="container mx-auto p-6 text-center text-zinc-400">
+        <div className="container mx-auto p-6 text-center text-slate-500">
           Lade Tickets...
         </div>
       </div>
@@ -78,7 +78,7 @@ const Tickets = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Meine Support-Tickets"
         onBack={() => navigate(-1)}
@@ -86,25 +86,25 @@ const Tickets = () => {
       
       <div className="container mx-auto p-6 max-w-4xl">
         {tickets.length === 0 ? (
-          <Card className="bg-[#0A0C10] border border-white/[0.08]">
+          <Card className="bg-slate-50 border border-slate-200">
             <CardContent className="p-8 text-center">
-              <Ticket className="mx-auto h-12 w-12 text-zinc-500 mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">Keine Tickets vorhanden</h3>
-              <p className="text-zinc-500">Du hast noch keine Support-Tickets erstellt.</p>
+              <Ticket className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+              <h3 className="text-lg font-medium text-slate-800 mb-2">Keine Tickets vorhanden</h3>
+              <p className="text-slate-500">Du hast noch keine Support-Tickets erstellt.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">Deine Tickets</h2>
+            <h2 className="text-lg font-semibold text-slate-800">Deine Tickets</h2>
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="bg-[#0A0C10] border border-white/[0.08]">
+              <Card key={ticket.id} className="bg-white border border-slate-200 hover:border-slate-300 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-medium text-white truncate">{ticket.title}</h3>
+                    <h3 className="font-medium text-slate-800 truncate">{ticket.title}</h3>
                     <TicketStatusBadge status={ticket.status} />
                   </div>
-                  <p className="text-sm text-zinc-400 mb-2 line-clamp-2">{ticket.description}</p>
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <p className="text-sm text-slate-500 mb-2 line-clamp-2">{ticket.description}</p>
+                  <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>Steuerjahr: {ticket.tax_year}</span>
                     <span>{new Date(ticket.created_at).toLocaleDateString('de-DE')}</span>
                   </div>

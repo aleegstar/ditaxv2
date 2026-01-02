@@ -148,7 +148,7 @@ privacyofficer@ditax.ch
   `;
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Datenschutz" 
         onBack={() => navigate(-1)} 
@@ -156,7 +156,7 @@ privacyofficer@ditax.ch
       <LegalDocumentPage
         title=""
         staticContent={privacyContent}
-        useDarkBackground={true}
+        useWhiteBackground={true}
       />
     </div>
   );
