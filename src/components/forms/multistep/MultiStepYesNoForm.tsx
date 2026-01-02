@@ -572,29 +572,20 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const summaryItems = generateSummaryItems();
     
     return (
-      <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-        <div className="h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
-          {/* Background Ambient Glow */}
-          <div 
-            className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
-            style={{
-              background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
-              filter: 'blur(90px)'
-            }}
-          />
-
+      <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+        <div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
+          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between border-b border-slate-200">
             <motion.button 
               onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+              className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-100 transition-all duration-300 group"
             >
-              <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
             </motion.button>
 
-            <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight absolute left-1/2 -translate-x-1/2">
+            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
               {getSectionTitle()}
             </h1>
 
@@ -614,7 +605,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
           {/* Footer Info */}
           <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="12" 
@@ -630,7 +621,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                 <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
                 <path d="m9 12 2 2 4-4" />
               </svg>
-              <p className="text-[10px] text-zinc-500 font-medium tracking-wide uppercase">
+              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
                 Verschlüsselt &amp; Sicher
               </p>
             </div>
@@ -641,32 +632,23 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#020408] text-zinc-200 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
-      <div className="h-screen md:max-w-2xl bg-[#020408] w-full max-w-[500px] mr-auto ml-auto relative flex flex-col shadow-2xl overflow-hidden border-x border-white/[0.02]">
-        {/* Background Ambient Glow */}
-        <div 
-          className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100"
-          style={{
-            background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.01) 50%, transparent 70%)',
-            filter: 'blur(90px)'
-          }}
-        />
-
+      <div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
+        <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between border-b border-slate-200">
           {/* Back Button */}
           <motion.button 
             onClick={handleHeaderBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 rounded-full border border-white/[0.08] bg-white/[0.02] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
+            className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-100 transition-all duration-300 group"
           >
-            <ArrowLeft className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
+            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
           </motion.button>
 
           {/* Title */}
-          <h1 className="font-medium text-lg tracking-tight text-white/90 leading-tight absolute left-1/2 -translate-x-1/2">
+          <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
             {getSectionTitle()}
           </h1>
 
@@ -693,10 +675,10 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className="bg-[#1D64FF]/10 border border-[#1D64FF]/20 rounded-2xl p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-[#1D64FF] rounded-full shadow-[0_0_8px_rgba(29,100,255,0.5)]" />
-                  <div className="text-sm text-zinc-300">
+                  <div className="w-2 h-2 bg-[#1D64FF] rounded-full" />
+                  <div className="text-sm text-slate-600">
                     Du warst bei Frage {(questionProgress[section]! + 1)} von {questions.length}.
                   </div>
                 </div>
@@ -707,7 +689,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                       setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
                       dispatchViewState({ type: 'RESET_VIEW' });
                     }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-zinc-400 hover:text-white transition-all"
+                    className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 transition-all"
                   >
                     Neu beginnen
                   </button>
@@ -723,11 +705,11 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-4"
             >
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-                  <div className="text-sm text-zinc-300">
-                    <span className="font-medium text-orange-400">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                  <div className="text-sm text-slate-600">
+                    <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
                   </div>
                 </div>
               </div>
@@ -737,7 +719,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           {/* Question Content */}
           <AnimatePresence mode="wait">
             {!currentQuestion ? (
-              <div className="flex-1 flex items-center justify-center text-zinc-500">
+              <div className="flex-1 flex items-center justify-center text-slate-500">
                 Keine Frage verfügbar. Bitte versuche es erneut.
               </div>
             ) : viewState.showRepeater ? (
@@ -762,7 +744,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
         {/* Footer Info */}
         <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="12" 
@@ -778,7 +760,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
               <path d="m9 12 2 2 4-4" />
             </svg>
-            <p className="text-[10px] text-zinc-500 font-medium tracking-wide uppercase">
+            <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
               Verschlüsselt &amp; Sicher
             </p>
           </div>
