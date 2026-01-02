@@ -169,13 +169,19 @@ export const TaxYearDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {tourCompleted && <TourStartButton onStartTour={forceTour} variant="header" />}
           
           <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden">
             <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
           </div>
         </div>
       </header>
+
+      {/* Tour Start Button - zwischen Header und Cards */}
+      {tourCompleted && (
+        <div className="max-w-4xl mx-auto mb-4">
+          <TourStartButton onStartTour={forceTour} variant="default" />
+        </div>
+      )}
 
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto space-y-6 pb-24">
