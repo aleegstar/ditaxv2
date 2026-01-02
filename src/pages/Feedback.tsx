@@ -7,7 +7,7 @@ const Feedback = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Feedback" 
         onBack={() => navigate(-1)} 

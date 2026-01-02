@@ -121,7 +121,7 @@ export default function TaxReturnTracking() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-[#020408]" />;
+    return <div className="min-h-screen bg-white" />;
   }
 
   if (!taxReturn || !profile) {
@@ -129,27 +129,19 @@ export default function TaxReturnTracking() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020408] text-zinc-300 antialiased flex justify-center">
+    <div className="min-h-screen bg-white text-slate-700 antialiased flex justify-center">
       {/* Main Container */}
-      <div className="w-full max-w-[480px] min-h-screen bg-[#020408] relative flex flex-col overflow-hidden border-x border-white/5">
-        
-        {/* Ambient Background Glows */}
-        <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="w-full max-w-[480px] min-h-screen bg-white relative flex flex-col overflow-hidden border-x border-slate-200">
 
         {/* Sticky Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#020408]/80 border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
           <button 
             onClick={() => navigate('/')}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors group"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.02))',
-              border: '1px solid rgba(255,255,255,0.08)'
-            }}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors group bg-slate-50 border border-slate-200"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           </button>
-          <h1 className="text-sm font-semibold text-white tracking-tight">Steuererklärung {taxReturn.tax_year}</h1>
+          <h1 className="text-sm font-semibold text-slate-800 tracking-tight">Steuererklärung {taxReturn.tax_year}</h1>
           <div className="w-9 h-9" /> {/* Spacer for centering */}
         </header>
 
@@ -160,26 +152,26 @@ export default function TaxReturnTracking() {
           <div className="p-6 pb-2">
             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
               <div>
-                <div className="text-[11px] font-medium text-zinc-500 mb-1">Name</div>
-                <div className="text-sm font-medium text-white">{profile.first_name}</div>
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Name</div>
+                <div className="text-sm font-medium text-slate-800">{profile.first_name}</div>
               </div>
               <div>
-                <div className="text-[11px] font-medium text-zinc-500 mb-1">Steuerjahr</div>
-                <div className="text-sm font-medium text-white">{taxReturn.tax_year}</div>
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Steuerjahr</div>
+                <div className="text-sm font-medium text-slate-800">{taxReturn.tax_year}</div>
               </div>
               <div>
-                <div className="text-[11px] font-medium text-zinc-500 mb-1">Service</div>
-                <div className="text-sm font-medium text-white">
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Service</div>
+                <div className="text-sm font-medium text-slate-800">
                   {taxReturn.express_service ? 'Express-Service' : 'Standard-Service'}
                 </div>
               </div>
               <div>
-                <div className="text-[11px] font-medium text-zinc-500 mb-1">Voraussichtliche Lieferung</div>
-                <div className="text-sm font-medium text-white">{getEstimatedDeliveryDate()}</div>
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Voraussichtliche Lieferung</div>
+                <div className="text-sm font-medium text-slate-800">{getEstimatedDeliveryDate()}</div>
               </div>
               <div className="col-span-2">
-                <div className="text-[11px] font-medium text-zinc-500 mb-1">Status</div>
-                <button className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5">
+                <div className="text-[11px] font-medium text-slate-400 mb-1">Status</div>
+                <button className="text-sm font-medium text-[#1D64FF] hover:text-blue-600 transition-colors flex items-center gap-1.5">
                   {getStatusText()}
                   <ExternalLink className="w-3 h-3 opacity-50" />
                 </button>
@@ -187,7 +179,7 @@ export default function TaxReturnTracking() {
             </div>
           </div>
 
-          <div className="h-px bg-white/5 mx-6 my-4" />
+          <div className="h-px bg-slate-200 mx-6 my-4" />
 
           {/* Timeline Section */}
           <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />

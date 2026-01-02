@@ -57,7 +57,7 @@ const Terms = () => {
 <p>Diese Nutzungsbedingungen unterliegen den Gesetzen von Schweiz und werden in Übereinstimmung mit diesen ausgelegt. Sie unterwerfen sich unwiderruflich der ausschließlichen Zuständigkeit der Gerichte in diesem Staat oder an diesem Ort.</p>`;
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Nutzungsbedingungen" 
         onBack={() => navigate(-1)} 
@@ -65,7 +65,7 @@ const Terms = () => {
       <LegalDocumentPage
         title=""
         staticContent={termsContent}
-        useDarkBackground={true}
+        useWhiteBackground={true}
       />
     </div>
   );

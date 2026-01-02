@@ -21,7 +21,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   showModeToggle = false,
   currentMode = 'yesno',
   onModeChange,
-  variant = 'dark'
+  variant = 'light'
 }) => {
   const handleToggle = () => {
     if (onModeChange) {
