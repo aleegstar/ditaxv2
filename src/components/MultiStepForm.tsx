@@ -440,17 +440,16 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, onSubmit })
   // Show loading state until form data is loaded and initialized
   if (!formDataLoaded || !isInitialized) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center">
+      <div className="h-screen flex flex-col items-center justify-center bg-white">
         <Sphere className="w-16 h-16 mb-4" />
-        <p className="text-white">Formular wird geladen...</p>
+        <p className="text-slate-600">Formular wird geladen...</p>
       </div>
     );
   }
 
   return (
     <div 
-      className="h-screen flex flex-col bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url()` }}
+      className="h-screen flex flex-col bg-white"
     >
       {/* Fixed Header */}
       <div className="flex-shrink-0 p-4 flex flex-col items-center">
@@ -521,7 +520,7 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({ steps, onSubmit })
         </div>
 
         {/* Fixed Input Area */}
-        <div className="flex-shrink-0 border-t border-white/20 pt-4 pb-4">
+        <div className="flex-shrink-0 border-t border-slate-200 pt-4 pb-4">
           <div className="space-y-4">
             {/* Use only individual step input for all sections */}
             {currentStep && (
