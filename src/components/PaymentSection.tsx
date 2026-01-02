@@ -200,20 +200,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   if (!priceBreakdown) {
-    return <div className="min-h-screen bg-[#020408]" />;
+    return <div className="min-h-screen bg-white" />;
   }
 
   const finalPrice = isUpgrade ? priceBreakdown.totalPrice : expressService ? priceBreakdown.totalPrice + 10000 : priceBreakdown.totalPrice;
 
   return (
-    <div className="min-h-screen bg-[#020408] flex flex-col text-zinc-100">
+    <div className="min-h-screen bg-white flex flex-col text-slate-800">
       {/* Header */}
-      <header className="flex p-6 items-center justify-between">
+      <header className="flex p-6 items-center justify-between border-b border-slate-200">
         <button 
           onClick={() => navigate(-1)} 
-          className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent hover:from-white/10 hover:to-white/5 transition-all"
+          className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all"
         >
-          <ArrowLeft className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+          <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
         </button>
       </header>
 
@@ -221,40 +221,40 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         <div className="w-full max-w-lg mx-auto space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl text-white tracking-tight font-semibold font-jakarta">
+            <h1 className="text-2xl text-slate-800 tracking-tight font-semibold font-jakarta">
               Kostenübersicht
             </h1>
-            <p className="text-sm text-zinc-500 font-medium font-jakarta">
+            <p className="text-sm text-slate-500 font-medium font-jakarta">
               Transparente Preisgestaltung ohne versteckte Kosten
             </p>
           </div>
 
           {/* Content Card */}
-          <div className="bg-[#0A0C10] rounded-2xl border border-white/[0.08] overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-6 space-y-6">
               {/* Express Service Toggle - Only show for non-upgrades */}
               {!isUpgrade && (
-                <div className="flex items-center justify-between p-4 bg-[#1D64FF]/10 border border-[#1D64FF]/20 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-xl">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-[#1D64FF]/20 rounded-lg text-[#1D64FF] shrink-0">
                       <Zap className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-white font-jakarta">
+                        <p className="text-sm font-semibold text-slate-800 font-jakarta">
                           Express-Service
                         </p>
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#1D64FF] text-white uppercase tracking-wider">
                           Empfohlen
                         </span>
                       </div>
-                      <p className="text-xs text-zinc-500 mt-0.5 font-jakarta">
+                      <p className="text-xs text-slate-500 mt-0.5 font-jakarta">
                         Bearbeitung in 10 Arbeitstagen
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-white font-jakarta">
+                    <span className="text-sm font-semibold text-slate-800 font-jakarta">
                       +100.00
                     </span>
                     <Switch checked={expressService} onCheckedChange={setExpressService} />
@@ -263,36 +263,36 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               )}
 
               {/* Cost Breakdown */}
-              <div className="bg-white/[0.02] rounded-xl p-5 border border-white/[0.05]">
-                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 mb-4 font-jakarta">
+              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-4 font-jakarta">
                   Kostenaufschlüsselung
                 </h3>
 
                 <div className="space-y-3 mb-4">
                   {priceBreakdown.items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-zinc-400">
+                    <div key={index} className="flex justify-between items-center text-slate-600">
                       <span className="text-sm font-medium font-jakarta">{item.label}</span>
-                      <span className="text-sm font-semibold text-white font-jakarta">CHF {formatPrice(item.amount)}</span>
+                      <span className="text-sm font-semibold text-slate-800 font-jakarta">CHF {formatPrice(item.amount)}</span>
                     </div>
                   ))}
                   
                   {!isUpgrade && expressService && (
-                    <div className="flex justify-between items-center text-zinc-400">
+                    <div className="flex justify-between items-center text-slate-600">
                       <span className="text-sm font-medium font-jakarta">Express-Service</span>
-                      <span className="text-sm font-semibold text-white font-jakarta">CHF 100.00</span>
+                      <span className="text-sm font-semibold text-slate-800 font-jakarta">CHF 100.00</span>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-4 border-t border-white/[0.08] flex justify-between items-center">
-                  <span className="text-sm font-semibold text-white font-jakarta">
+                <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+                  <span className="text-sm font-semibold text-slate-800 font-jakarta">
                     Gesamtpreis
                   </span>
                   <div className="text-right">
-                    <span className="block text-2xl font-semibold text-white tracking-tight font-jakarta">
+                    <span className="block text-2xl font-semibold text-slate-800 tracking-tight font-jakarta">
                       CHF {formatPrice(finalPrice)}
                     </span>
-                    <span className="block text-[10px] text-zinc-500 font-medium mt-0.5 font-jakarta">
+                    <span className="block text-[10px] text-slate-500 font-medium mt-0.5 font-jakarta">
                       inkl. MwSt.
                     </span>
                   </div>
@@ -303,19 +303,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               <button 
                 onClick={handlePayment} 
                 disabled={isLoading || !priceBreakdown || !isLoggedIn} 
-                className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white text-base font-medium py-3.5 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-jakarta"
-                style={{
-                  boxShadow: '0 0 20px rgba(29,100,255,0.4)'
-                }}
+                className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white text-base font-medium py-3.5 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-jakarta shadow-md"
               >
                 {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
               </button>
 
               {/* Trust Badge */}
               <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.02] rounded-full border border-white/[0.08]">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span className="text-xs font-medium text-zinc-500 font-jakarta">
+                  <span className="text-xs font-medium text-slate-500 font-jakarta">
                     Sichere Zahlung mit Stripe
                   </span>
                 </div>
@@ -324,7 +321,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           </div>
 
           {errorMessage && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm font-jakarta">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-jakarta">
               {errorMessage}
             </div>
           )}

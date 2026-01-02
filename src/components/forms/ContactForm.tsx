@@ -30,11 +30,11 @@ interface ContactFormProps {
   embedded?: boolean;
 }
 
-// Dark theme input class
-const darkInputClass = "w-full h-14 px-4 text-sm bg-[#0a0f1a] border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 text-white placeholder-zinc-500 transition-all duration-200";
-const darkSelectClass = "w-full h-14 px-4 text-sm bg-[#0a0f1a] border border-white/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 text-white appearance-none cursor-pointer transition-all duration-200";
-const darkLabelClass = "text-sm font-medium text-zinc-400 ml-1";
-const darkButtonClass = "w-full h-14 px-4 flex items-center gap-3 text-sm bg-[#0a0f1a] border border-white/10 rounded-2xl hover:border-white/20 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 text-zinc-400 hover:text-zinc-300 transition-all duration-200 text-left";
+// Light theme input class
+const lightInputClass = "w-full h-14 px-4 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 text-slate-800 placeholder-slate-400 transition-all duration-200";
+const lightSelectClass = "w-full h-14 px-4 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 text-slate-800 appearance-none cursor-pointer transition-all duration-200";
+const lightLabelClass = "text-sm font-medium text-slate-600 ml-1";
+const lightButtonClass = "w-full h-14 px-4 flex items-center gap-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 text-slate-600 hover:text-slate-700 transition-all duration-200 text-left";
 
 const ContactForm = ({
   onSave,
@@ -190,18 +190,9 @@ const ContactForm = ({
   };
 
   const renderContactForm = () => (
-    <div className="min-h-screen bg-[#020408] text-zinc-100 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12">
-        {/* Background Ambient Glow */}
-        <div 
-          className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90"
-          style={{
-            background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.15) 0%, rgba(29, 100, 255, 0.03) 50%, transparent 80%)',
-            filter: 'blur(60px)'
-          }}
-        />
-
         {/* Main Content */}
         <div className="relative z-20 w-full flex-1 flex flex-col">
           
@@ -209,63 +200,63 @@ const ContactForm = ({
           <div className="flex items-center justify-between mb-8">
             <button 
               onClick={() => embedded ? handleBack() : setSearchParams({})}
-              className="p-2 -ml-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-full transition-colors group"
+              className="p-2 -ml-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" strokeWidth={1.5} />
             </button>
-            <h1 className="font-semibold text-lg tracking-tight text-white">Kontaktdaten</h1>
+            <h1 className="font-semibold text-lg tracking-tight text-slate-800">Kontaktdaten</h1>
             <div className="w-9"></div>
           </div>
 
           {/* Progress Bar */}
           <div className="grid grid-cols-4 gap-2 mb-10">
-            <div className="h-1 rounded-full bg-[#1D64FF] shadow-[0_0_10px_rgba(29,100,255,0.5)]"></div>
-            <div className="h-1 rounded-full bg-white/10"></div>
-            <div className="h-1 rounded-full bg-white/10"></div>
-            <div className="h-1 rounded-full bg-white/10"></div>
+            <div className="h-1 rounded-full bg-[#1D64FF]"></div>
+            <div className="h-1 rounded-full bg-slate-200"></div>
+            <div className="h-1 rounded-full bg-slate-200"></div>
+            <div className="h-1 rounded-full bg-slate-200"></div>
           </div>
 
           {/* Form Section */}
           <form onSubmit={handleSubmit} className="space-y-6 flex-1">
-            <h2 className="text-xl font-semibold text-white tracking-tight">Persönliche Daten</h2>
+            <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Persönliche Daten</h2>
 
             {/* Name Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className={darkLabelClass}>Vorname</label>
+                <label className={lightLabelClass}>Vorname</label>
                 <input 
                   type="text" 
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Vorname" 
-                  className={darkInputClass}
+                  className={lightInputClass}
                 />
               </div>
               <div className="space-y-2">
-                <label className={darkLabelClass}>Nachname</label>
+                <label className={lightLabelClass}>Nachname</label>
                 <input 
                   type="text" 
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Nachname" 
-                  className={darkInputClass}
+                  className={lightInputClass}
                 />
               </div>
             </div>
 
             {/* Birth Date */}
             <div className="space-y-2">
-              <label className={darkLabelClass}>Geburtsdatum <span className="text-red-400">*</span></label>
+              <label className={lightLabelClass}>Geburtsdatum <span className="text-red-500">*</span></label>
               <button
                 type="button"
-                className={darkButtonClass}
+                className={lightButtonClass}
                 onClick={() => {
                   const input = document.getElementById('birthDateInput');
                   if (input) (input as HTMLInputElement).showPicker?.();
                 }}
               >
-                <Calendar className="w-4 h-4 text-zinc-500" />
-                <span className={birthDate ? "text-white" : "text-zinc-500"}>{birthDate ? new Date(birthDate).toLocaleDateString('de-CH') : 'Datum auswählen'}</span>
+                <Calendar className="w-4 h-4 text-slate-400" />
+                <span className={birthDate ? "text-slate-800" : "text-slate-400"}>{birthDate ? new Date(birthDate).toLocaleDateString('de-CH') : 'Datum auswählen'}</span>
               </button>
               <input 
                 id="birthDateInput"
@@ -278,21 +269,21 @@ const ContactForm = ({
 
             {/* Religion */}
             <div className="space-y-2">
-              <label className={darkLabelClass}>Religion</label>
+              <label className={lightLabelClass}>Religion</label>
               <div className="relative">
                 <select 
                   value={religion}
                   onChange={(e) => setReligion(e.target.value)}
-                  className={cn(darkSelectClass, !religion && "text-zinc-500")}
+                  className={cn(lightSelectClass, !religion && "text-slate-400")}
                 >
-                  <option value="" className="bg-[#0a0f1a]">Religion auswählen</option>
-                  <option value="catholic" className="bg-[#0a0f1a]">Katholisch</option>
-                  <option value="reformed" className="bg-[#0a0f1a]">Reformiert</option>
-                  <option value="christCatholic" className="bg-[#0a0f1a]">Christkatholisch</option>
-                  <option value="other" className="bg-[#0a0f1a]">Andere</option>
-                  <option value="none" className="bg-[#0a0f1a]">Keine</option>
+                  <option value="" className="bg-white">Religion auswählen</option>
+                  <option value="catholic" className="bg-white">Katholisch</option>
+                  <option value="reformed" className="bg-white">Reformiert</option>
+                  <option value="christCatholic" className="bg-white">Christkatholisch</option>
+                  <option value="other" className="bg-white">Andere</option>
+                  <option value="none" className="bg-white">Keine</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
@@ -300,20 +291,20 @@ const ContactForm = ({
 
             {/* Zivilstand */}
             <div className="space-y-2">
-              <label className={darkLabelClass}>Zivilstand</label>
+              <label className={lightLabelClass}>Zivilstand</label>
               <div className="relative">
                 <select 
                   value={maritalStatus}
                   onChange={(e) => setMaritalStatus(e.target.value)}
-                  className={cn(darkSelectClass, !maritalStatus && "text-zinc-500")}
+                  className={cn(lightSelectClass, !maritalStatus && "text-slate-400")}
                 >
-                  <option value="" className="bg-[#0a0f1a]">Zivilstand</option>
-                  <option value="single" className="bg-[#0a0f1a]">Ledig</option>
-                  <option value="married" className="bg-[#0a0f1a]">Verheiratet</option>
-                  <option value="divorced" className="bg-[#0a0f1a]">Geschieden</option>
-                  <option value="widowed" className="bg-[#0a0f1a]">Verwitwet</option>
+                  <option value="" className="bg-white">Zivilstand</option>
+                  <option value="single" className="bg-white">Ledig</option>
+                  <option value="married" className="bg-white">Verheiratet</option>
+                  <option value="divorced" className="bg-white">Geschieden</option>
+                  <option value="widowed" className="bg-white">Verwitwet</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </div>
@@ -321,48 +312,48 @@ const ContactForm = ({
 
             {/* Spouse Section - Conditional */}
             {maritalStatus === 'married' && (
-              <div className="space-y-6 pt-4 border-t border-white/10">
-                <h2 className="text-xl font-semibold text-white tracking-tight">Ehepartner/in</h2>
+              <div className="space-y-6 pt-4 border-t border-slate-200">
+                <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Ehepartner/in</h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className={darkLabelClass}>Vorname Ehepartner/in</label>
+                    <label className={lightLabelClass}>Vorname Ehepartner/in</label>
                     <input 
                       type="text" 
                       value={spouseFirstName}
                       onChange={(e) => setSpouseFirstName(e.target.value)}
                       placeholder="Vorname" 
-                      className={darkInputClass}
+                      className={lightInputClass}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className={darkLabelClass}>Nachname Ehepartner/in</label>
+                    <label className={lightLabelClass}>Nachname Ehepartner/in</label>
                     <input 
                       type="text" 
                       value={spouseLastName}
                       onChange={(e) => setSpouseLastName(e.target.value)}
                       placeholder="Nachname" 
-                      className={darkInputClass}
+                      className={lightInputClass}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className={darkLabelClass}>Religion Ehepartner/in</label>
+                  <label className={lightLabelClass}>Religion Ehepartner/in</label>
                   <div className="relative">
                     <select 
                       value={spouseReligion}
                       onChange={(e) => setSpouseReligion(e.target.value)}
-                      className={cn(darkSelectClass, !spouseReligion && "text-zinc-500")}
+                      className={cn(lightSelectClass, !spouseReligion && "text-slate-400")}
                     >
-                      <option value="" className="bg-[#0a0f1a]">Religion auswählen</option>
-                      <option value="catholic" className="bg-[#0a0f1a]">Katholisch</option>
-                      <option value="reformed" className="bg-[#0a0f1a]">Reformiert</option>
-                      <option value="christCatholic" className="bg-[#0a0f1a]">Christkatholisch</option>
-                      <option value="other" className="bg-[#0a0f1a]">Andere</option>
-                      <option value="none" className="bg-[#0a0f1a]">Keine</option>
+                      <option value="" className="bg-white">Religion auswählen</option>
+                      <option value="catholic" className="bg-white">Katholisch</option>
+                      <option value="reformed" className="bg-white">Reformiert</option>
+                      <option value="christCatholic" className="bg-white">Christkatholisch</option>
+                      <option value="other" className="bg-white">Andere</option>
+                      <option value="none" className="bg-white">Keine</option>
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                       <ChevronDown className="w-4 h-4" />
                     </div>
                   </div>
@@ -371,92 +362,92 @@ const ContactForm = ({
             )}
 
             {/* Address Section */}
-            <div className="space-y-6 pt-4 border-t border-white/10">
-              <h2 className="text-xl font-semibold text-white tracking-tight">Adresse</h2>
+            <div className="space-y-6 pt-4 border-t border-slate-200">
+              <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Adresse</h2>
               
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2 space-y-2">
-                  <label className={darkLabelClass}>Strasse</label>
+                  <label className={lightLabelClass}>Strasse</label>
                   <input 
                     type="text" 
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Musterstrasse" 
-                    className={darkInputClass}
+                    className={lightInputClass}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className={darkLabelClass}>Nr.</label>
+                  <label className={lightLabelClass}>Nr.</label>
                   <input 
                     type="text" 
                     value={adressnummer}
                     onChange={(e) => setAdressnummer(e.target.value)}
                     placeholder="123" 
-                    className={darkInputClass}
+                    className={lightInputClass}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className={darkLabelClass}>PLZ</label>
+                  <label className={lightLabelClass}>PLZ</label>
                   <input 
                     type="text" 
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
                     placeholder="8001" 
-                    className={darkInputClass}
+                    className={lightInputClass}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className={darkLabelClass}>Stadt</label>
+                  <label className={lightLabelClass}>Stadt</label>
                   <input 
                     type="text" 
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Zürich" 
-                    className={darkInputClass}
+                    className={lightInputClass}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className={darkLabelClass}>Kanton</label>
+                <label className={lightLabelClass}>Kanton</label>
                 <div className="relative">
                   <select 
                     value={kanton}
                     onChange={(e) => setKanton(e.target.value)}
-                    className={cn(darkSelectClass, !kanton && "text-zinc-500")}
+                    className={cn(lightSelectClass, !kanton && "text-slate-400")}
                   >
-                    <option value="" className="bg-[#0a0f1a]">Kanton auswählen</option>
-                    <option value="ag" className="bg-[#0a0f1a]">Aargau</option>
-                    <option value="zh" className="bg-[#0a0f1a]">Zürich</option>
-                    <option value="be" disabled className="bg-[#0a0f1a] text-zinc-500">Bern - noch nicht verfügbar</option>
-                    <option value="lu" disabled className="bg-[#0a0f1a] text-zinc-500">Luzern - noch nicht verfügbar</option>
-                    <option value="ur" disabled className="bg-[#0a0f1a] text-zinc-500">Uri - noch nicht verfügbar</option>
-                    <option value="sz" disabled className="bg-[#0a0f1a] text-zinc-500">Schwyz - noch nicht verfügbar</option>
-                    <option value="ow" disabled className="bg-[#0a0f1a] text-zinc-500">Obwalden - noch nicht verfügbar</option>
-                    <option value="nw" disabled className="bg-[#0a0f1a] text-zinc-500">Nidwalden - noch nicht verfügbar</option>
-                    <option value="gl" disabled className="bg-[#0a0f1a] text-zinc-500">Glarus - noch nicht verfügbar</option>
-                    <option value="zg" disabled className="bg-[#0a0f1a] text-zinc-500">Zug - noch nicht verfügbar</option>
-                    <option value="fr" disabled className="bg-[#0a0f1a] text-zinc-500">Freiburg - noch nicht verfügbar</option>
-                    <option value="so" disabled className="bg-[#0a0f1a] text-zinc-500">Solothurn - noch nicht verfügbar</option>
-                    <option value="bs" disabled className="bg-[#0a0f1a] text-zinc-500">Basel-Stadt - noch nicht verfügbar</option>
-                    <option value="bl" disabled className="bg-[#0a0f1a] text-zinc-500">Basel-Landschaft - noch nicht verfügbar</option>
-                    <option value="sh" disabled className="bg-[#0a0f1a] text-zinc-500">Schaffhausen - noch nicht verfügbar</option>
-                    <option value="ar" disabled className="bg-[#0a0f1a] text-zinc-500">Appenzell Ausserrhoden - noch nicht verfügbar</option>
-                    <option value="ai" disabled className="bg-[#0a0f1a] text-zinc-500">Appenzell Innerrhoden - noch nicht verfügbar</option>
-                    <option value="sg" disabled className="bg-[#0a0f1a] text-zinc-500">St. Gallen - noch nicht verfügbar</option>
-                    <option value="gr" disabled className="bg-[#0a0f1a] text-zinc-500">Graubünden - noch nicht verfügbar</option>
-                    <option value="tg" disabled className="bg-[#0a0f1a] text-zinc-500">Thurgau - noch nicht verfügbar</option>
-                    <option value="ti" disabled className="bg-[#0a0f1a] text-zinc-500">Tessin - noch nicht verfügbar</option>
-                    <option value="vd" disabled className="bg-[#0a0f1a] text-zinc-500">Waadt - noch nicht verfügbar</option>
-                    <option value="vs" disabled className="bg-[#0a0f1a] text-zinc-500">Wallis - noch nicht verfügbar</option>
-                    <option value="ne" disabled className="bg-[#0a0f1a] text-zinc-500">Neuenburg - noch nicht verfügbar</option>
-                    <option value="ge" disabled className="bg-[#0a0f1a] text-zinc-500">Genf - noch nicht verfügbar</option>
-                    <option value="ju" disabled className="bg-[#0a0f1a] text-zinc-500">Jura - noch nicht verfügbar</option>
+                    <option value="" className="bg-white">Kanton auswählen</option>
+                    <option value="ag" className="bg-white">Aargau</option>
+                    <option value="zh" className="bg-white">Zürich</option>
+                    <option value="be" disabled className="bg-white text-slate-400">Bern - noch nicht verfügbar</option>
+                    <option value="lu" disabled className="bg-white text-slate-400">Luzern - noch nicht verfügbar</option>
+                    <option value="ur" disabled className="bg-white text-slate-400">Uri - noch nicht verfügbar</option>
+                    <option value="sz" disabled className="bg-white text-slate-400">Schwyz - noch nicht verfügbar</option>
+                    <option value="ow" disabled className="bg-white text-slate-400">Obwalden - noch nicht verfügbar</option>
+                    <option value="nw" disabled className="bg-white text-slate-400">Nidwalden - noch nicht verfügbar</option>
+                    <option value="gl" disabled className="bg-white text-slate-400">Glarus - noch nicht verfügbar</option>
+                    <option value="zg" disabled className="bg-white text-slate-400">Zug - noch nicht verfügbar</option>
+                    <option value="fr" disabled className="bg-white text-slate-400">Freiburg - noch nicht verfügbar</option>
+                    <option value="so" disabled className="bg-white text-slate-400">Solothurn - noch nicht verfügbar</option>
+                    <option value="bs" disabled className="bg-white text-slate-400">Basel-Stadt - noch nicht verfügbar</option>
+                    <option value="bl" disabled className="bg-white text-slate-400">Basel-Landschaft - noch nicht verfügbar</option>
+                    <option value="sh" disabled className="bg-white text-slate-400">Schaffhausen - noch nicht verfügbar</option>
+                    <option value="ar" disabled className="bg-white text-slate-400">Appenzell Ausserrhoden - noch nicht verfügbar</option>
+                    <option value="ai" disabled className="bg-white text-slate-400">Appenzell Innerrhoden - noch nicht verfügbar</option>
+                    <option value="sg" disabled className="bg-white text-slate-400">St. Gallen - noch nicht verfügbar</option>
+                    <option value="gr" disabled className="bg-white text-slate-400">Graubünden - noch nicht verfügbar</option>
+                    <option value="tg" disabled className="bg-white text-slate-400">Thurgau - noch nicht verfügbar</option>
+                    <option value="ti" disabled className="bg-white text-slate-400">Tessin - noch nicht verfügbar</option>
+                    <option value="vd" disabled className="bg-white text-slate-400">Waadt - noch nicht verfügbar</option>
+                    <option value="vs" disabled className="bg-white text-slate-400">Wallis - noch nicht verfügbar</option>
+                    <option value="ne" disabled className="bg-white text-slate-400">Neuenburg - noch nicht verfügbar</option>
+                    <option value="ge" disabled className="bg-white text-slate-400">Genf - noch nicht verfügbar</option>
+                    <option value="ju" disabled className="bg-white text-slate-400">Jura - noch nicht verfügbar</option>
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 </div>
@@ -464,7 +455,7 @@ const ContactForm = ({
             </div>
 
             {/* End Year Address Checkbox */}
-            <div className="space-y-6 pt-4 border-t border-white/10">
+            <div className="space-y-6 pt-4 border-t border-slate-200">
               <label 
                 className="flex items-center gap-3 cursor-pointer group"
                 onClick={() => setHadDifferentAddressEnd(!hadDifferentAddressEnd)}
@@ -473,7 +464,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   hadDifferentAddressEnd 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-white/20 bg-white/5 group-hover:border-white/30"
+                    : "border-slate-300 bg-white group-hover:border-slate-400"
                 )}>
                   {hadDifferentAddressEnd && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -481,96 +472,96 @@ const ContactForm = ({
                     </svg>
                   )}
                 </div>
-                <span className="text-sm text-zinc-300">Per 31.12.{taxYear} hatte ich eine andere Wohnadresse</span>
+                <span className="text-sm text-slate-600">Per 31.12.{taxYear} hatte ich eine andere Wohnadresse</span>
               </label>
 
               {hadDifferentAddressEnd && (
                 <div className="space-y-6 pl-8">
-                  <h3 className="text-lg font-medium text-white">Adresse per 31.12.{taxYear}</h3>
+                  <h3 className="text-lg font-medium text-slate-800">Adresse per 31.12.{taxYear}</h3>
                   
                   <div className="grid grid-cols-3 gap-4">
                     <div className="col-span-2 space-y-2">
-                      <label className={darkLabelClass}>Strasse</label>
+                      <label className={lightLabelClass}>Strasse</label>
                       <input 
                         type="text" 
                         value={endYearAddress}
                         onChange={(e) => setEndYearAddress(e.target.value)}
                         placeholder="Musterstrasse" 
-                        className={darkInputClass}
+                        className={lightInputClass}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className={darkLabelClass}>Nr.</label>
+                      <label className={lightLabelClass}>Nr.</label>
                       <input 
                         type="text" 
                         value={endYearAdressnummer}
                         onChange={(e) => setEndYearAdressnummer(e.target.value)}
                         placeholder="123" 
-                        className={darkInputClass}
+                        className={lightInputClass}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className={darkLabelClass}>PLZ</label>
+                      <label className={lightLabelClass}>PLZ</label>
                       <input 
                         type="text" 
                         value={endYearPostalCode}
                         onChange={(e) => setEndYearPostalCode(e.target.value)}
                         placeholder="8001" 
-                        className={darkInputClass}
+                        className={lightInputClass}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className={darkLabelClass}>Stadt</label>
+                      <label className={lightLabelClass}>Stadt</label>
                       <input 
                         type="text" 
                         value={endYearCity}
                         onChange={(e) => setEndYearCity(e.target.value)}
                         placeholder="Zürich" 
-                        className={darkInputClass}
+                        className={lightInputClass}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className={darkLabelClass}>Kanton</label>
+                    <label className={lightLabelClass}>Kanton</label>
                     <div className="relative">
                       <select 
                         value={endYearKanton}
                         onChange={(e) => setEndYearKanton(e.target.value)}
-                        className={cn(darkSelectClass, !endYearKanton && "text-zinc-500")}
+                        className={cn(lightSelectClass, !endYearKanton && "text-slate-400")}
                       >
-                        <option value="" className="bg-[#0a0f1a]">Kanton auswählen</option>
-                        <option value="zh" className="bg-[#0a0f1a]">Zürich</option>
-                        <option value="ag" className="bg-[#0a0f1a]">Aargau</option>
-                        <option value="zg" className="bg-[#0a0f1a]">Zug</option>
-                        <option value="sz" className="bg-[#0a0f1a]">Schwyz</option>
-                        <option value="be" className="bg-[#0a0f1a]">Bern</option>
-                        <option value="lu" className="bg-[#0a0f1a]">Luzern</option>
-                        <option value="ur" className="bg-[#0a0f1a]">Uri</option>
-                        <option value="ow" className="bg-[#0a0f1a]">Obwalden</option>
-                        <option value="nw" className="bg-[#0a0f1a]">Nidwalden</option>
-                        <option value="gl" className="bg-[#0a0f1a]">Glarus</option>
-                        <option value="fr" className="bg-[#0a0f1a]">Freiburg</option>
-                        <option value="so" className="bg-[#0a0f1a]">Solothurn</option>
-                        <option value="bs" className="bg-[#0a0f1a]">Basel-Stadt</option>
-                        <option value="bl" className="bg-[#0a0f1a]">Basel-Landschaft</option>
-                        <option value="sh" className="bg-[#0a0f1a]">Schaffhausen</option>
-                        <option value="ar" className="bg-[#0a0f1a]">Appenzell Ausserrhoden</option>
-                        <option value="ai" className="bg-[#0a0f1a]">Appenzell Innerrhoden</option>
-                        <option value="sg" className="bg-[#0a0f1a]">St. Gallen</option>
-                        <option value="gr" className="bg-[#0a0f1a]">Graubünden</option>
-                        <option value="tg" className="bg-[#0a0f1a]">Thurgau</option>
-                        <option value="ti" className="bg-[#0a0f1a]">Tessin</option>
-                        <option value="vd" className="bg-[#0a0f1a]">Waadt</option>
-                        <option value="vs" className="bg-[#0a0f1a]">Wallis</option>
-                        <option value="ne" className="bg-[#0a0f1a]">Neuenburg</option>
-                        <option value="ge" className="bg-[#0a0f1a]">Genf</option>
-                        <option value="ju" className="bg-[#0a0f1a]">Jura</option>
+                        <option value="" className="bg-white">Kanton auswählen</option>
+                        <option value="zh" className="bg-white">Zürich</option>
+                        <option value="ag" className="bg-white">Aargau</option>
+                        <option value="zg" className="bg-white">Zug</option>
+                        <option value="sz" className="bg-white">Schwyz</option>
+                        <option value="be" className="bg-white">Bern</option>
+                        <option value="lu" className="bg-white">Luzern</option>
+                        <option value="ur" className="bg-white">Uri</option>
+                        <option value="ow" className="bg-white">Obwalden</option>
+                        <option value="nw" className="bg-white">Nidwalden</option>
+                        <option value="gl" className="bg-white">Glarus</option>
+                        <option value="fr" className="bg-white">Freiburg</option>
+                        <option value="so" className="bg-white">Solothurn</option>
+                        <option value="bs" className="bg-white">Basel-Stadt</option>
+                        <option value="bl" className="bg-white">Basel-Landschaft</option>
+                        <option value="sh" className="bg-white">Schaffhausen</option>
+                        <option value="ar" className="bg-white">Appenzell Ausserrhoden</option>
+                        <option value="ai" className="bg-white">Appenzell Innerrhoden</option>
+                        <option value="sg" className="bg-white">St. Gallen</option>
+                        <option value="gr" className="bg-white">Graubünden</option>
+                        <option value="tg" className="bg-white">Thurgau</option>
+                        <option value="ti" className="bg-white">Tessin</option>
+                        <option value="vd" className="bg-white">Waadt</option>
+                        <option value="vs" className="bg-white">Wallis</option>
+                        <option value="ne" className="bg-white">Neuenburg</option>
+                        <option value="ge" className="bg-white">Genf</option>
+                        <option value="ju" className="bg-white">Jura</option>
                       </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <ChevronDown className="w-4 h-4" />
                       </div>
                     </div>
@@ -580,8 +571,8 @@ const ContactForm = ({
             </div>
 
             {/* Special Services */}
-            <div className="space-y-6 pt-4 border-t border-white/10">
-              <h2 className="text-xl font-semibold text-white tracking-tight">Besondere Dienste</h2>
+            <div className="space-y-6 pt-4 border-t border-slate-200">
+              <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Besondere Dienste</h2>
               
               <label 
                 className="flex items-center gap-3 cursor-pointer group"
@@ -591,7 +582,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   firefighterService 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-white/20 bg-white/5 group-hover:border-white/30"
+                    : "border-slate-300 bg-white group-hover:border-slate-400"
                 )}>
                   {firefighterService && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -599,13 +590,13 @@ const ContactForm = ({
                     </svg>
                   )}
                 </div>
-                <span className="text-sm text-zinc-300">{t.contact.firefighterService}</span>
+                <span className="text-sm text-slate-600">{t.contact.firefighterService}</span>
               </label>
             </div>
 
             {/* Children Section */}
-            <div className="space-y-6 pt-4 border-t border-white/10">
-              <h2 className="text-xl font-semibold text-white tracking-tight">Kinder</h2>
+            <div className="space-y-6 pt-4 border-t border-slate-200">
+              <h2 className="text-xl font-semibold text-slate-800 tracking-tight">Kinder</h2>
               
               <label 
                 className="flex items-center gap-3 cursor-pointer group"
@@ -615,7 +606,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   hasChildren 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-white/20 bg-white/5 group-hover:border-white/30"
+                    : "border-slate-300 bg-white group-hover:border-slate-400"
                 )}>
                   {hasChildren && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -623,7 +614,7 @@ const ContactForm = ({
                     </svg>
                   )}
                 </div>
-                <span className="text-sm text-zinc-300">{t.contact.hasChildren}</span>
+                <span className="text-sm text-slate-600">{t.contact.hasChildren}</span>
               </label>
 
               {hasChildren && (
@@ -641,7 +632,7 @@ const ContactForm = ({
               <button 
                 type="button"
                 onClick={() => embedded ? handleBack() : setSearchParams({})}
-                className="px-6 bg-[#0a0f1a] hover:bg-[#0f1520] border border-white/10 hover:border-white/20 text-zinc-400 rounded-2xl py-3.5 text-sm font-medium transition-all"
+                className="px-6 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-2xl py-3.5 text-sm font-medium transition-all"
               >
                 Zurück
               </button>
