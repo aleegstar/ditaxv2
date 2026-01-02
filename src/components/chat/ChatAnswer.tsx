@@ -24,12 +24,12 @@ export const ChatAnswer: React.FC<ChatAnswerProps> = ({
   };
   return <div className="flex items-start justify-end gap-3 mb-4 animate-fade-in">
       <div className="flex-1 flex justify-end">
-        <div className="max-w-md backdrop-blur-sm rounded-tr-sm px-4 py-3 shadow-lg border border-blue-400/20 rounded-full bg-blue-500/[0.12]">
+        <div className="max-w-md rounded-tr-sm px-4 py-3 shadow-sm border border-[#1D64FF]/20 rounded-full bg-[#1D64FF]/10">
           <div className="flex items-center gap-2">
-            <span className="text-white font-medium">
+            <span className="text-slate-800 font-medium">
               {formatAnswer()}
             </span>
-            {isConfirmed && <Check className="w-4 h-4 text-green-400 flex-shrink-0" />}
+            {isConfirmed && <Check className="w-4 h-4 text-green-600 flex-shrink-0" />}
           </div>
         </div>
       </div>
