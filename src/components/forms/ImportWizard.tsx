@@ -118,7 +118,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-slate-50">
       {/* Header with back button */}
       <SubpageHeader 
         title={sectionName}
@@ -130,16 +130,16 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0A0C10] rounded-3xl p-8 border border-white/[0.08]"
+          className="bg-white rounded-3xl p-8 border border-slate-200"
           style={{
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)'
+            boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)'
           }}
         >
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-white">
+            <h2 className="text-2xl font-bold mb-4 text-slate-800">
               Daten aus {previousYear} übernehmen?
             </h2>
-            <p className="text-zinc-400">
+            <p className="text-slate-500">
               Du hast bereits Daten für "{sectionName}" aus dem Jahr {previousYear} eingegeben.
             </p>
           </div>
@@ -148,7 +148,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           <Button
             className="w-full mb-4 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{
-              boxShadow: '0 0 20px rgba(29, 100, 255, 0.4)'
+              boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
             }}
             onClick={handleImportClick}
             disabled={isImporting}
@@ -159,7 +159,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Enter new data button */}
           <Button
-            className="w-full bg-transparent hover:bg-white/5 text-white border border-white/[0.15] font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
             onClick={handleSkipImport}
             disabled={isImporting}
           >
@@ -171,12 +171,12 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       {/* Changes dialog */}
       <AlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <AlertDialogContent className="bg-[#0A0C10] border border-white/[0.08]" style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}>
+        <AlertDialogContent className="bg-white border border-slate-200" style={{ boxShadow: '0 10px 40px -10px rgba(0,0,0,0.2)' }}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-slate-800">
               Gibt es Änderungen?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogDescription className="text-slate-500">
               Haben sich deine Daten seit dem letzten Jahr geändert?
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -186,7 +186,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
               disabled={isImporting}
               className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50"
               style={{
-                boxShadow: '0 0 20px rgba(29, 100, 255, 0.4)'
+                boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
               }}
             >
               Nein, keine Änderungen
@@ -194,7 +194,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
             <Button
               onClick={handleWithChanges}
               disabled={isImporting}
-              className="w-full bg-transparent hover:bg-white/5 text-white border border-white/[0.15] font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 disabled:opacity-50"
+              className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 disabled:opacity-50"
             >
               Ja, ich möchte Änderungen vornehmen
             </Button>
