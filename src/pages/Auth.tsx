@@ -451,7 +451,7 @@ const Auth = () => {
                   <div className="space-y-1.5">
                     
                     <div className="relative">
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)} className="block w-full min-h-[56px] rounded-xl border border-slate-200 bg-slate-50 px-6 py-4 text-base text-slate-900 text-center placeholder:text-slate-400 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full min-h-[56px] rounded-xl border border-slate-200 bg-slate-50 px-6 py-4 text-base text-slate-900 text-center placeholder:text-slate-400 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
