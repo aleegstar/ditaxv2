@@ -53,7 +53,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               className={cn(
                 "w-10 h-10 rounded-full border flex items-center justify-center transition-colors",
                 isLight 
-                  ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100" 
+                  ? "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100" 
                   : "bg-white/5 border-white/10 text-white hover:bg-white/10"
               )}
             >
