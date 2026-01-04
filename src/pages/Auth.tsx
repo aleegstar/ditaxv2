@@ -12,7 +12,6 @@ import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
 import despia from 'despia-native';
-
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -27,7 +26,7 @@ const Auth = () => {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const isOAuthInProgress = useRef(false);
-  
+
   // Combined loading state for backward compatibility
   const isLoading = isEmailLoading || isOAuthLoading;
 
@@ -55,7 +54,6 @@ const Auth = () => {
       const finalRefreshToken = refreshToken || hashRefreshToken;
       const finalError = errorParam || hashError;
       const finalErrorDescription = errorDescription || hashErrorDescription;
-
       console.log('🔐 Auth: Checking for auth parameters', {
         source: accessToken ? 'query' : hashAccessToken ? 'hash' : 'none',
         hasAccessToken: !!finalAccessToken,
@@ -79,10 +77,16 @@ const Auth = () => {
       // If no tokens, check if already authenticated
       if (!finalAccessToken) {
         // Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: {
+            session
+          }
+        } = await supabase.auth.getSession();
         if (session) {
           console.log('🔐 Auth: Already logged in, redirecting to home');
-          navigate('/', { replace: true });
+          navigate('/', {
+            replace: true
+          });
         }
         // Otherwise show login UI (handled by render)
         return;
@@ -91,19 +95,19 @@ const Auth = () => {
       // Process tokens
       console.log('🔐 Auth: Processing authentication tokens');
       setIsOAuthLoading(true);
-
       try {
         // Set the session with the tokens
-        const { data, error } = await supabase.auth.setSession({
+        const {
+          data,
+          error
+        } = await supabase.auth.setSession({
           access_token: finalAccessToken,
-          refresh_token: finalRefreshToken || '',
+          refresh_token: finalRefreshToken || ''
         });
-
         if (error) {
           console.error('❌ Auth: Session error:', error);
           throw error;
         }
-
         console.log('✅ Auth: Session set successfully', {
           userId: data.user?.id,
           email: data.user?.email
@@ -111,9 +115,10 @@ const Auth = () => {
 
         // Clear URL to remove tokens
         window.history.replaceState({}, '', '/auth');
-        
         toast.success('Erfolgreich angemeldet!');
-        navigate('/', { replace: true });
+        navigate('/', {
+          replace: true
+        });
       } catch (error: any) {
         console.error('❌ Auth: Auth error:', error);
         toast.error(error.message || 'Fehler bei der Anmeldung');
@@ -121,10 +126,8 @@ const Auth = () => {
         setIsOAuthLoading(false);
       }
     };
-
     handleDeeplinkAuth();
   }, [searchParams, navigate]);
-
   useEffect(() => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
@@ -158,29 +161,29 @@ const Auth = () => {
     if (isOAuthInProgress.current) return;
     isOAuthInProgress.current = true;
     setIsOAuthLoading(true);
-    
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
-    
+
     // DEBUG: Log environment details
     console.log('====== DESPIA OAUTH DEBUG ======');
     console.log('📱 UserAgent:', navigator.userAgent);
     console.log('📱 isDespiaNative():', isDespia);
     console.log('📱 isNativeCapacitor:', isNativeCapacitor);
     console.log('📱 window.despia (before):', (window as any).despia);
-    
+
     // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
         console.log('📱 Starting Despia OAuth flow...');
-        
-        const { data, error } = await supabase.functions.invoke('auth-start', {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
-            deeplink_scheme: 'ditax',
-          },
+            deeplink_scheme: 'ditax'
+          }
         });
-
         if (error || !data?.url) {
           console.error('❌ Failed to get OAuth URL:', error);
           toast.error("Fehler beim Starten der Anmeldung");
@@ -188,27 +191,23 @@ const Auth = () => {
           setIsOAuthLoading(false);
           return;
         }
-
         console.log('✅ OAuth URL from edge function:', data.url);
-        
         const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
         console.log('📱 Despia command:', despiaCommand);
-        
+
         // Method 1: NPM Package
         console.log('📱 Calling despia() via NPM package...');
         despia(despiaCommand);
         console.log('📱 window.despia (after NPM):', (window as any).despia);
-        
+
         // Method 2: Direct assignment (fallback test)
         console.log('📱 Also setting window.despia directly...');
         (window as any).despia = despiaCommand;
         console.log('📱 window.despia (after direct):', (window as any).despia);
-        
         console.log('====== DESPIA OAUTH DEBUG END ======');
-        
+
         // Visual feedback for user
         toast.info("OAuth wird gestartet...");
-        
       } catch (err) {
         console.error('❌ Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -217,7 +216,7 @@ const Auth = () => {
       }
       return;
     }
-    
+
     // Capacitor native browser
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
@@ -246,7 +245,7 @@ const Auth = () => {
       }
       return;
     }
-    
+
     // Web Flow - Standard Supabase OAuth
     try {
       await supabase.auth.signInWithOAuth({
@@ -266,20 +265,21 @@ const Auth = () => {
     if (isOAuthInProgress.current) return;
     isOAuthInProgress.current = true;
     setIsOAuthLoading(true);
-    
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
-    
+
     // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
-        const { data, error } = await supabase.functions.invoke('auth-start', {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'apple',
-            deeplink_scheme: 'ditax',
-          },
+            deeplink_scheme: 'ditax'
+          }
         });
-
         if (error || !data?.url) {
           console.error('Failed to get Apple OAuth URL:', error);
           toast.error("Fehler beim Starten der Anmeldung");
@@ -290,7 +290,6 @@ const Auth = () => {
 
         // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
         despia(`oauth://?url=${encodeURIComponent(data.url)}`);
-        
       } catch (err) {
         console.error('Error starting native Apple auth:', err);
         toast.error("Fehler bei der Apple-Anmeldung");
@@ -299,7 +298,7 @@ const Auth = () => {
       }
       return;
     }
-    
+
     // Capacitor native browser
     if (isNativeCapacitor || isAndroidEnvironment()) {
       try {
@@ -328,7 +327,7 @@ const Auth = () => {
       }
       return;
     }
-    
+
     // Web Flow
     try {
       await supabase.auth.signInWithOAuth({
@@ -346,7 +345,6 @@ const Auth = () => {
   };
   const handleWebAuthnAuth = () => {
     const isDespia = isDespiaNative();
-    
     if (isDespia) {
       // In Despia: Open passkey auth in system browser via Easy OAuth
       // Email is optional - the WebAuthn page will ask for it if not provided
@@ -354,7 +352,7 @@ const Auth = () => {
       triggerDespiaPasskeyAuth(email || undefined);
       return;
     }
-    
+
     // Normal web flow
     navigate('/webauthn-auth');
   };
@@ -435,7 +433,7 @@ const Auth = () => {
           }}>
                 {/* Logo Centered */}
                 <div className="flex justify-center mb-10">
-                  <img src="/ditax-logo-new.png" alt="Ditax" className="w-auto h-10 object-contain" />
+                  <img alt="Ditax" className="w-auto h-10 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
                 {/* Header */}
@@ -463,13 +461,11 @@ const Auth = () => {
                 </form>
 
                 {/* Oder Divider - hidden when input is focused */}
-                {!isInputFocused && (
-                  <div className="flex items-center gap-4 w-full mt-10">
+                {!isInputFocused && <div className="flex items-center gap-4 w-full mt-10">
                     <div className="flex-1 h-px bg-slate-200" />
                     <span className="text-sm text-slate-500 font-medium font-jakarta">Oder</span>
                     <div className="flex-1 h-px bg-slate-200" />
-                  </div>
-                )}
+                  </div>}
               </motion.div> : <motion.div key="code-step" initial={{
             opacity: 0,
             y: 20
