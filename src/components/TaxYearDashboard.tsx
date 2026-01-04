@@ -162,9 +162,7 @@ export const TaxYearDashboard: React.FC = () => {
             <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
               Steuererklärung {taxYear}
             </h1>
-            <p className="text-sm text-slate-500 font-medium">
-              Entwurf • Zuletzt gespeichert heute
-            </p>
+            
           </div>
         </div>
 
@@ -177,11 +175,9 @@ export const TaxYearDashboard: React.FC = () => {
       </header>
 
       {/* Tour Start Button - zwischen Header und Cards */}
-      {tourCompleted && (
-        <div className="max-w-4xl mx-auto mb-4">
+      {tourCompleted && <div className="max-w-4xl mx-auto mb-4">
           <TourStartButton onStartTour={forceTour} variant="default" />
-        </div>
-      )}
+        </div>}
 
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto space-y-6 pb-24">
