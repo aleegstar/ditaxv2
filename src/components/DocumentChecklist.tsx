@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Folder, Trash2, User, Briefcase, Home, Calculator, Plus, FolderOpen, FileCheck } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -246,6 +246,12 @@ const DocumentChecklist: React.FC = () => {
   
   const categorizedItems = categorizedItemsMemo;
 
+  // Get description for category based on items
+  const getCategoryDescription = (category: string, items: ChecklistItem[]) => {
+    const titles = items.slice(0, 2).map(item => item.title);
+    return titles.join(', ');
+  };
+
   // Calculate initial category status based on completion
   const calculateInitialCategoryStatus = useCallback(() => {
     const status: Record<string, boolean> = {};
@@ -415,41 +421,52 @@ const DocumentChecklist: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-white text-slate-800">
+    <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center sm:py-12 sm:px-6 pt-8 px-4 pb-8">
       {/* Header */}
-      <header className="h-24 shrink-0 flex items-center justify-center px-6 relative z-30 border-b border-slate-100">
+      <header className="w-full max-w-2xl mb-8 flex items-center justify-between relative px-1">
         <button 
           onClick={handleBack}
-          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
+          className="group flex items-center justify-center w-10 h-10 -ml-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 transition-all hover:bg-white hover:border-slate-300 hover:text-slate-900 hover:shadow-sm"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 transition-transform group-hover:-translate-x-0.5">
+            <path d="m12 19-7-7 7-7"></path>
+            <path d="M19 12H5"></path>
           </svg>
         </button>
-        <h1 className="text-[15px] font-medium text-slate-800 tracking-normal">Unterlagen</h1>
+        
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <h1 className="text-sm font-semibold tracking-tight text-gray-900">
+            Unterlagen
+          </h1>
+        </div>
+        <div className="w-9" />
       </header>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-6">
-        <div className="max-w-[600px] mx-auto space-y-4 pb-24">
-          
-          {/* Progress Overview */}
-          {checklistItems.length > 0 && (
-            <div className="rounded-xl p-4 bg-slate-50 border border-slate-200">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-slate-500">Fortschritt</span>
-                <span className="text-sm font-medium text-slate-800">
-                  {checklistItems.filter(item => item.uploaded).length} von {checklistItems.length} Unterlagen
-                </span>
-              </div>
-              <Progress 
-                value={(checklistItems.filter(item => item.uploaded).length / checklistItems.length) * 100}
-                className="h-2 bg-slate-200"
-                indicatorClassName="bg-[#1D64FF]"
+      {/* Main Content */}
+      <main className="w-full max-w-2xl space-y-8">
+        {/* Progress Section */}
+        {checklistItems.length > 0 && (
+          <div className="px-1">
+            <div className="flex justify-between items-baseline mb-3">
+              <span className="text-xs text-gray-500 font-medium tracking-wide uppercase">
+                Fortschritt
+              </span>
+              <span className="text-xs text-gray-900 font-semibold tabular-nums">
+                {checklistItems.filter(item => item.uploaded).length} / {checklistItems.length}
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1 overflow-hidden">
+              <div 
+                className="h-1 rounded-full bg-[#1D64FF] transition-all duration-500 ease-out" 
+                style={{ width: `${Math.max(5, (checklistItems.filter(item => item.uploaded).length / checklistItems.length) * 100)}%` }}
+                role="progressbar"
               />
             </div>
-          )}
+          </div>
+        )}
 
+        {/* Accordion Group */}
+        <div className="space-y-3">
           {error && (
             <Alert variant="destructive" className="bg-red-50 border-red-200">
               <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -480,6 +497,7 @@ const DocumentChecklist: React.FC = () => {
               const isComplete = isCategoryComplete(category);
               const isOpen = openCategories[category];
               const Icon = categoryIcons[category];
+              const categoryDescription = getCategoryDescription(category, items);
               
               return (
                 <Collapsible 
@@ -492,159 +510,142 @@ const DocumentChecklist: React.FC = () => {
                     }));
                   }}
                 >
-                  {/* Collapsed State - Light Panel */}
+                  {/* Collapsed State */}
                   {!isOpen ? (
-                    <CollapsibleTrigger className="group w-full rounded-xl transition-all duration-300 bg-slate-50 border border-slate-200 hover:border-slate-300">
-                      <div className="w-full flex items-center justify-between p-4 text-left">
+                    <CollapsibleTrigger className="group relative w-full bg-white border border-gray-200 rounded-xl transition-all duration-200 hover:border-gray-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                      <div className="w-full p-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+                            "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
                             isComplete 
                               ? "bg-emerald-50 border border-emerald-200 text-emerald-600"
-                              : "bg-white border border-slate-200 text-slate-500 group-hover:text-slate-700 group-hover:border-slate-300"
+                              : "bg-gray-50 border border-gray-100 text-gray-500 group-hover:text-gray-900 group-hover:border-gray-200"
                           )}>
-                            <Icon className="w-5 h-5" />
+                            {isComplete ? (
+                              <Check className="w-4 h-4" strokeWidth={1.5} />
+                            ) : (
+                              <Icon className="w-4 h-4" />
+                            )}
                           </div>
-                          <span className="text-base font-medium text-slate-700 group-hover:text-slate-900">
-                            {categoryMap[category]}
-                          </span>
+                          <div className="text-left">
+                            <span className="block text-sm font-medium text-gray-900">
+                              {categoryMap[category]}
+                            </span>
+                            <span className="block text-xs text-gray-500 mt-0.5">
+                              {categoryDescription}
+                            </span>
+                          </div>
                         </div>
                         {isComplete ? (
-                          <Check className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
+                          <Check className="w-4 h-4 text-emerald-600" strokeWidth={1.5} />
                         ) : (
-                          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" strokeWidth={1.5} />
+                          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" strokeWidth={1.5} />
                         )}
                       </div>
                     </CollapsibleTrigger>
                   ) : (
-                    /* Expanded State - Blue Border */
-                    <div className="bg-white rounded-xl border border-[#1D64FF]/30 overflow-hidden transition-all duration-300 shadow-sm">
-                      <CollapsibleTrigger className="w-full flex items-center justify-between p-4 text-left border-b border-slate-100">
+                    /* Expanded State */
+                    <div className="relative w-full bg-white border border-gray-300 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+                      {/* Header */}
+                      <CollapsibleTrigger className="w-full p-4 flex items-center justify-between border-b border-gray-100 bg-white">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-[#1D64FF]/10 border border-[#1D64FF]/20 flex items-center justify-center text-[#1D64FF]">
-                            <Icon className="w-5 h-5" />
+                          <div className="w-10 h-10 rounded-lg bg-[#1D64FF] text-white flex items-center justify-center shadow-sm">
+                            <Icon className="w-4 h-4" />
                           </div>
-                          <span className="text-base font-semibold text-slate-800">
+                          <span className="text-sm font-semibold text-gray-900">
                             {categoryMap[category]}
                           </span>
                         </div>
-                        <ChevronUp className="w-5 h-5 text-[#1D64FF]" strokeWidth={1.5} />
+                        <ChevronUp className="w-4 h-4 text-gray-900" strokeWidth={1.5} />
                       </CollapsibleTrigger>
 
-                      <CollapsibleContent className="p-5 bg-slate-50/50">
-                        <div className="space-y-5">
+                      {/* Content Area */}
+                      <CollapsibleContent className="p-5 bg-gray-50/50">
+                        <div className="space-y-4">
                           {items.map(item => {
                             const itemFiles = getUserDocumentsForItem(item.id);
-                            const fileCount = itemFiles.length;
                             const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                             
                             return (
                               <div 
                                 key={item.id} 
-                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden bg-white border border-slate-200"
+                                className="bg-white border border-gray-200 rounded-lg p-6 flex flex-col items-center text-center"
                               >
-                                {/* Orange BorderBeam for non-uploaded items */}
-                                {!item.uploaded && (
-                                  <BorderBeam 
-                                    size={120}
-                                    duration={6}
-                                    borderWidth={1.5}
-                                    colorFrom="#F97316"
-                                    colorTo="#FBBF24"
-                                    delay={Math.random() * 3}
-                                  />
+                                {/* Badge */}
+                                {!item.uploaded && item.required && (
+                                  <div className="mb-4">
+                                    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-100 text-amber-700">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                      <span className="text-[10px] font-semibold uppercase tracking-wide">
+                                        Erforderlich
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Title */}
+                                <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                                  {item.title}
+                                </h3>
+                                
+                                {/* Description */}
+                                {!item.uploaded && item.description && (
+                                  <p className="text-sm text-gray-500 max-w-[280px] leading-relaxed mb-6">
+                                    {item.description}
+                                  </p>
                                 )}
                                 
-                                <div className="relative z-10 flex flex-col items-center">
-                                  {/* Title */}
-                                  <h3 className="text-lg font-semibold tracking-tight mb-2 text-slate-800">
-                                    {item.title}
-                                  </h3>
-                                  
-                                  {/* Description */}
-                                  {!item.uploaded && item.description && (
-                                    <p className="text-base text-slate-500 max-w-sm mx-auto leading-relaxed mb-6 font-medium">
-                                      {item.description}
-                                    </p>
-                                  )}
-                                  
-                                  {/* Badge */}
-                                  {!item.uploaded && item.required && (
-                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-600 tracking-wide mb-8 uppercase">
-                                      Erforderlich
+                                {/* Uploaded State */}
+                                {item.uploaded && itemFiles.length > 0 && (
+                                  <div className="flex flex-col items-center gap-3 mt-2">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-700">
+                                      <Check className="w-3.5 h-3.5" />
+                                      <span className="text-xs font-semibold">
+                                        {itemFiles.length} Datei{itemFiles.length !== 1 ? 'en' : ''} hochgeladen
+                                      </span>
                                     </div>
-                                  )}
-                                  
-                                  {/* Uploaded State */}
-                                  {item.uploaded && itemFiles.length > 0 && (
-                                    <div className="flex flex-col items-center gap-3 mt-2">
-                                      <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 bg-emerald-50 border border-emerald-200">
-                                        <Check className="w-4 h-4 text-emerald-600" />
-                                        <span className="text-sm font-medium text-emerald-700">
-                                          {itemFiles.length} Datei{itemFiles.length !== 1 ? 'en' : ''} hochgeladen
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <Button 
-                                          variant="ghost" 
-                                          size="sm" 
-                                          onClick={() => handleViewDocuments(item.id, 0)}
-                                          className="text-slate-500 hover:text-slate-700 hover:bg-slate-100 h-9 px-3"
-                                        >
-                                          <Eye className="h-4 w-4 mr-2" />
-                                          Ansehen
-                                        </Button>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="sm"
-                                          onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
-                                          className="text-slate-500 hover:text-red-600 hover:bg-red-50 h-9 px-3"
-                                        >
-                                          <Trash2 className="h-4 w-4 mr-2" />
-                                          Löschen
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Action Buttons for non-uploaded items */}
-                                  {!item.uploaded && (
-                                    <div className="flex flex-col items-center w-full max-w-[280px] gap-3.5">
-                                      {/* Assignment Button */}
-                                      {hasUnassignedDocs && (
-                                        <>
-                                          <button 
-                                            onClick={() => setAssignmentModal({ open: true, item })}
-                                            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.3)] transition-all duration-300 cursor-pointer active:scale-95 bg-white border-slate-200 border rounded-full py-2 px-5 shadow-sm gap-x-3 items-center justify-center w-full"
-                                          >
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
-                                              <FolderOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                            </div>
-                                            <span className="text-slate-700 font-medium text-[15px]">Zuordnen</span>
-                                          </button>
-
-                                          {/* Divider */}
-                                          <div className="w-full flex items-center gap-4 px-2 opacity-80">
-                                            <div className="h-px bg-slate-200 flex-1" />
-                                            <span className="text-slate-400 text-[13px] font-medium">oder</span>
-                                            <div className="h-px bg-slate-200 flex-1" />
-                                          </div>
-                                        </>
-                                      )}
-
-                                      {/* Upload Button */}
+                                    <div className="flex items-center gap-2">
                                       <button 
-                                        onClick={() => handleUploadDocument(item.id)}
-                                        className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.3)] transition-all duration-300 cursor-pointer active:scale-95 bg-white border-slate-200 border rounded-full py-2 px-5 shadow-sm gap-x-3 items-center justify-center w-full"
+                                        onClick={() => handleViewDocuments(item.id, 0)}
+                                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
                                       >
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
-                                          <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                        </div>
-                                        <span className="text-slate-700 font-medium text-[15px]">Hochladen</span>
+                                        <Eye className="w-3.5 h-3.5" />
+                                        Ansehen
+                                      </button>
+                                      <span className="text-gray-300">|</span>
+                                      <button 
+                                        onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
+                                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 transition-colors"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        Löschen
                                       </button>
                                     </div>
-                                  )}
-                                </div>
+                                  </div>
+                                )}
+                                
+                                {/* Action Buttons */}
+                                {!item.uploaded && (
+                                  <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+                                    {/* Select/Assign Button */}
+                                    <button 
+                                      onClick={() => hasUnassignedDocs ? setAssignmentModal({ open: true, item }) : handleUploadDocument(item.id)}
+                                      className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 hover:shadow-sm font-medium py-2.5 px-4 rounded-lg transition-all text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-gray-100"
+                                    >
+                                      <FolderSearch className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                                      <span>Auswählen</span>
+                                    </button>
+
+                                    {/* Upload Button */}
+                                    <button 
+                                      onClick={() => handleUploadDocument(item.id)}
+                                      className="flex items-center justify-center gap-2 text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-[#1D64FF] hover:bg-[#1050E0] focus:ring-[#1D64FF]"
+                                    >
+                                      <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
+                                      <span>Upload</span>
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -657,7 +658,7 @@ const DocumentChecklist: React.FC = () => {
             })
           )}
         </div>
-      </div>
+      </main>
 
       <DocumentViewer 
         documents={viewerDocuments} 
