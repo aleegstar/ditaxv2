@@ -414,14 +414,9 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen bg-[#020408] text-zinc-100 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+  return <div className="min-h-screen bg-white text-slate-900 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72">
-        {/* Background Ambient Glow */}
-        <div className="absolute top-0 left-0 w-full h-[500px] z-0 pointer-events-none opacity-90" style={{
-        background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.22) 0%, rgba(29, 100, 255, 0.05) 50%, transparent 90%)',
-        filter: 'blur(60px)'
-      }} />
 
         {/* Main Login Content */}
         <div className="relative z-20 w-full">
@@ -445,10 +440,10 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-10 space-y-2">
-                  <h1 className="font-medium tracking-tighter font-jakarta bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400 text-2xl">
+                  <h1 className="font-medium tracking-tighter font-jakarta text-slate-900 text-2xl">
                     Anmelden oder Registrieren  
                   </h1>
-                  <p className="text-sm text-zinc-500 font-jakarta">
+                  <p className="text-sm text-slate-500 font-jakarta">
                     Melde dich an, um fortzufahren
                   </p>
                 </div>
@@ -458,7 +453,7 @@ const Auth = () => {
                   <div className="space-y-1.5">
                     
                     <div className="relative">
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)} className="block w-full min-h-[56px] rounded-xl border border-white/10 bg-[#0a0f1a] px-6 py-4 text-base text-white text-center placeholder:text-zinc-500 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setIsInputFocused(false)} className="block w-full min-h-[56px] rounded-xl border border-slate-200 bg-slate-50 px-6 py-4 text-base text-slate-900 text-center placeholder:text-slate-400 placeholder:text-center focus:outline-none focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 transition-all font-jakarta" placeholder="name@firma.com" required disabled={isLoading} />
                     </div>
                   </div>
 
@@ -470,9 +465,9 @@ const Auth = () => {
                 {/* Oder Divider - hidden when input is focused */}
                 {!isInputFocused && (
                   <div className="flex items-center gap-4 w-full mt-10">
-                    <div className="flex-1 h-px bg-zinc-700" />
-                    <span className="text-sm text-zinc-500 font-medium font-jakarta">Oder</span>
-                    <div className="flex-1 h-px bg-zinc-700" />
+                    <div className="flex-1 h-px bg-slate-200" />
+                    <span className="text-sm text-slate-500 font-medium font-jakarta">Oder</span>
+                    <div className="flex-1 h-px bg-slate-200" />
                   </div>
                 )}
               </motion.div> : <motion.div key="code-step" initial={{
@@ -495,12 +490,12 @@ const Auth = () => {
                 {/* Header with Shield Icon */}
                 <div className="text-center mb-8 space-y-2">
                   
-                  <h1 className="text-3xl font-medium tracking-tighter font-jakarta bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">
+                  <h1 className="text-3xl font-medium tracking-tighter font-jakarta text-slate-900">
                     Code eingeben
                   </h1>
-                  <p className="text-sm text-zinc-500 font-jakarta max-w-[80%] mx-auto leading-relaxed">
+                  <p className="text-sm text-slate-500 font-jakarta max-w-[80%] mx-auto leading-relaxed">
                     Wir haben einen 6-stelligen Code an{' '}
-                    <span className="text-zinc-200 font-medium">{email}</span>{' '}
+                    <span className="text-slate-800 font-medium">{email}</span>{' '}
                     gesendet.
                   </p>
                 </div>
@@ -511,12 +506,12 @@ const Auth = () => {
                   <div className="flex justify-between gap-2">
                     <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                       <InputOTPGroup className="flex justify-between gap-2 w-full">
-                        <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
-                        <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
-                        <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
-                        <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
-                        <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
-                        <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-white" />
+                        <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
+                        <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
+                        <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
+                        <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
+                        <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
+                        <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
@@ -530,17 +525,17 @@ const Auth = () => {
 
                 {/* Footer Actions */}
                 <div className="mt-8 flex flex-col items-center gap-4 text-center">
-                  <p className="text-xs text-zinc-500 font-jakarta">
+                  <p className="text-xs text-slate-500 font-jakarta">
                     Keinen Code erhalten?
                     {resendCountdown > 0 ? <>
-                        <span className="text-zinc-300 font-medium ml-1">Erneut senden</span>
-                        <span className="ml-1 text-zinc-600">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
-                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-zinc-300 hover:text-white font-medium transition-colors ml-1">
+                        <span className="text-slate-700 font-medium ml-1">Erneut senden</span>
+                        <span className="ml-1 text-slate-400">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-slate-700 hover:text-slate-900 font-medium transition-colors ml-1">
                         Erneut senden
                       </button>}
                   </p>
                   
-                  <button onClick={handleBackClick} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-jakarta mt-2">
+                  <button onClick={handleBackClick} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors font-jakarta mt-2">
                     <ArrowLeft className="w-3.5 h-3.5" />
                     Zurück zum Login
                   </button>
@@ -554,7 +549,7 @@ const Auth = () => {
       {/* Floating Bottom Social Login Island - Only show on main step */}
       {step === "main" && !isInputFocused && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
 
           {/* The Domed Button Container */}
           <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
@@ -567,15 +562,9 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full pt-3 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(255,255,255,0.1)] rounded-t-3xl bg-primary-foreground">
+            <div className="flex flex-col items-center overflow-hidden w-full pt-3 pr-6 pb-8 pl-6 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.08)] rounded-t-3xl bg-slate-50 border-t border-slate-200">
               {/* Pill Handle Divider */}
-              <div className="w-10 h-1 rounded-full bg-zinc-600 mb-4" />
-              
-              {/* Subtle Top Highlight */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-50" />
-              
-              {/* Inner Gradient */}
-              <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-50/80 to-transparent pointer-events-none" />
+              <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full">
                 {/* Google Login */}
