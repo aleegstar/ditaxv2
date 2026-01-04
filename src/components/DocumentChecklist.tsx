@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Folder, Trash2, User, Briefcase, Home, Calculator, Plus, FolderOpen } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Folder, Trash2, User, Briefcase, Home, Calculator, Plus, FolderOpen, FileCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -15,6 +15,16 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { Progress } from '@/components/ui/progress';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
@@ -83,6 +93,8 @@ const DocumentChecklist: React.FC = () => {
     item: null
   });
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const hasShownCompletionDialog = useRef(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   
@@ -310,6 +322,31 @@ const DocumentChecklist: React.FC = () => {
     const requiredItems = checklistItems.filter(item => item.required);
     return requiredItems.length > 0 && requiredItems.every(item => item.uploaded);
   };
+
+  // Check if all documents are uploaded and show completion dialog
+  const allDocumentsUploaded = useMemo(() => {
+    if (checklistItems.length === 0) return false;
+    return checklistItems.every(item => item.uploaded);
+  }, [checklistItems]);
+
+  // Show completion dialog when all documents are uploaded
+  useEffect(() => {
+    if (allDocumentsUploaded && !hasShownCompletionDialog.current && !isLoading && initialLoadComplete) {
+      // Small delay to ensure the UI has updated
+      const timer = setTimeout(() => {
+        setShowCompletionDialog(true);
+        hasShownCompletionDialog.current = true;
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [allDocumentsUploaded, isLoading, initialLoadComplete]);
+
+  // Reset the dialog flag when documents change (user deletes a document)
+  useEffect(() => {
+    if (!allDocumentsUploaded) {
+      hasShownCompletionDialog.current = false;
+    }
+  }, [allDocumentsUploaded]);
 
   // Auto-update documents progress when all required documents are uploaded
   useEffect(() => {
@@ -643,6 +680,34 @@ const DocumentChecklist: React.FC = () => {
           }} 
         />
       )}
+
+      {/* Completion Dialog */}
+      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+              <FileCheck className="w-8 h-8 text-emerald-600" />
+            </div>
+            <AlertDialogTitle className="text-xl font-semibold text-slate-800">
+              Alle Unterlagen vollständig!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 mt-2">
+              Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+            <AlertDialogCancel className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50">
+              Später
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => navigate('/payment')}
+              className="w-full sm:w-auto bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white"
+            >
+              Ja, jetzt erstellen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
