@@ -247,33 +247,24 @@ const MultiStepContactForm = ({
   };
 
 
-  // Dark theme classes
-  const darkInputClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-[#0a0f1a] border-white/10 text-white placeholder:text-zinc-500 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20";
-  const darkSelectTriggerClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-[#0a0f1a] border-white/10 text-white";
-  const darkLabelClass = "block mb-3 text-zinc-400 text-base font-medium";
+  // Light theme classes
+  const lightInputClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20";
+  const lightSelectTriggerClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800";
+  const lightLabelClass = "block mb-3 text-slate-600 text-base font-medium";
 
   return (
-    <div className="min-h-screen bg-[#020408] relative overflow-hidden flex justify-center">
-      {/* Blue ambient glow */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(29, 100, 255, 0.15) 0%, transparent 70%)',
-          filter: 'blur(60px)'
-        }}
-      />
-
+    <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
       <div className="relative z-10 px-6 py-8 w-full max-w-[500px] md:max-w-2xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <div className="relative flex items-center justify-between mb-8">
             <button
               onClick={() => window.history.back()}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-medium text-white absolute left-1/2 transform -translate-x-1/2">Kontaktangaben</h1>
+            <h1 className="text-lg font-medium text-slate-800 absolute left-1/2 transform -translate-x-1/2">Kontaktangaben</h1>
             <div className="w-10 h-10" /> {/* Spacer for centering */}
           </div>
         )}
@@ -285,7 +276,7 @@ const MultiStepContactForm = ({
               key={step.id}
               className={cn(
                 "h-1.5 flex-1 rounded-full transition-colors",
-                index < currentStep ? "bg-[#1D64FF]" : "bg-white/10"
+                index < currentStep ? "bg-[#1D64FF]" : "bg-slate-200"
               )}
             />
           ))}
@@ -293,7 +284,7 @@ const MultiStepContactForm = ({
 
         {/* Section Heading */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-slate-800">
             {steps.find(step => step.id === currentStep)?.title || 'Kontaktdaten'}
           </h2>
         </div>
@@ -312,68 +303,68 @@ const MultiStepContactForm = ({
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className={darkLabelClass}>{t.contact.firstName}</Label>
+                    <Label htmlFor="firstName" className={lightLabelClass}>{t.contact.firstName}</Label>
                     <Input
                       id="firstName"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder={t.contact.firstNamePlaceholder}
-                      className={darkInputClass}
+                      className={lightInputClass}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className={darkLabelClass}>{t.contact.lastName}</Label>
+                    <Label htmlFor="lastName" className={lightLabelClass}>{t.contact.lastName}</Label>
                     <Input
                       id="lastName"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder={t.contact.lastNamePlaceholder}
-                      className={darkInputClass}
+                      className={lightInputClass}
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="birthDate" className={darkLabelClass}>{t.contact.birthDate}</Label>
+                  <Label htmlFor="birthDate" className={lightLabelClass}>{t.contact.birthDate}</Label>
                   <Input
                     id="birthDate"
                     type="date"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
-                    className={darkInputClass}
+                    className={lightInputClass}
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="religion" className={darkLabelClass}>Religion</Label>
+                  <Label htmlFor="religion" className={lightLabelClass}>Religion</Label>
                   <Select value={religion} onValueChange={setReligion}>
-                    <SelectTrigger className={darkSelectTriggerClass}>
+                    <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder="Religion auswählen" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0a0f1a] border-white/10">
-                      <SelectItem value="catholic" className="text-white hover:bg-white/10">Katholisch</SelectItem>
-                      <SelectItem value="reformed" className="text-white hover:bg-white/10">Reformiert</SelectItem>
-                      <SelectItem value="christCatholic" className="text-white hover:bg-white/10">Christkatholisch</SelectItem>
-                      <SelectItem value="other" className="text-white hover:bg-white/10">Andere</SelectItem>
-                      <SelectItem value="none" className="text-white hover:bg-white/10">Keine</SelectItem>
+                    <SelectContent className="bg-white border-slate-200">
+                      <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-100">Katholisch</SelectItem>
+                      <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-100">Reformiert</SelectItem>
+                      <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-100">Christkatholisch</SelectItem>
+                      <SelectItem value="other" className="text-slate-800 hover:bg-slate-100">Andere</SelectItem>
+                      <SelectItem value="none" className="text-slate-800 hover:bg-slate-100">Keine</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="maritalStatus" className={darkLabelClass}>{t.contact.maritalStatus}</Label>
+                  <Label htmlFor="maritalStatus" className={lightLabelClass}>{t.contact.maritalStatus}</Label>
                   <Select value={maritalStatus} onValueChange={setMaritalStatus}>
-                    <SelectTrigger className={darkSelectTriggerClass}>
+                    <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder={t.contact.maritalStatus} />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0a0f1a] border-white/10">
-                      <SelectItem value="ledig" className="text-white hover:bg-white/10">Ledig</SelectItem>
-                      <SelectItem value="verheiratet" className="text-white hover:bg-white/10">Verheiratet</SelectItem>
-                      <SelectItem value="geschieden" className="text-white hover:bg-white/10">Geschieden</SelectItem>
-                      <SelectItem value="verwitwet" className="text-white hover:bg-white/10">Verwitwet</SelectItem>
+                    <SelectContent className="bg-white border-slate-200">
+                      <SelectItem value="ledig" className="text-slate-800 hover:bg-slate-100">Ledig</SelectItem>
+                      <SelectItem value="verheiratet" className="text-slate-800 hover:bg-slate-100">Verheiratet</SelectItem>
+                      <SelectItem value="geschieden" className="text-slate-800 hover:bg-slate-100">Geschieden</SelectItem>
+                      <SelectItem value="verwitwet" className="text-slate-800 hover:bg-slate-100">Verwitwet</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -385,86 +376,86 @@ const MultiStepContactForm = ({
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <Label htmlFor="address" className={darkLabelClass}>Strasse</Label>
+                    <Label htmlFor="address" className={lightLabelClass}>Strasse</Label>
                     <Input
                       id="address"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="Musterstrasse"
-                      className={darkInputClass}
+                      className={lightInputClass}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="adressnummer" className={darkLabelClass}>Nr.</Label>
+                    <Label htmlFor="adressnummer" className={lightLabelClass}>Nr.</Label>
                     <Input
                       id="adressnummer"
                       value={adressnummer}
                       onChange={(e) => setAdressnummer(e.target.value)}
                       placeholder="123"
-                      className={darkInputClass}
+                      className={lightInputClass}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="postalCode" className={darkLabelClass}>{t.contact.postalCode}</Label>
+                    <Label htmlFor="postalCode" className={lightLabelClass}>{t.contact.postalCode}</Label>
                     <Input
                       id="postalCode"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                       placeholder={t.contact.postalCodePlaceholder}
-                      className={darkInputClass}
+                      className={lightInputClass}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="city" className={darkLabelClass}>{t.contact.city}</Label>
+                    <Label htmlFor="city" className={lightLabelClass}>{t.contact.city}</Label>
                     <Input
                       id="city"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder={t.contact.cityPlaceholder}
-                      className={darkInputClass}
+                      className={lightInputClass}
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="kanton" className={darkLabelClass}>Kanton</Label>
+                  <Label htmlFor="kanton" className={lightLabelClass}>Kanton</Label>
                   <Select value={kanton} onValueChange={setKanton}>
-                    <SelectTrigger className={darkSelectTriggerClass}>
+                    <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder="Kanton auswählen" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0a0f1a] border-white/10 max-h-[300px]">
-                      <SelectItem value="AG" className="text-white hover:bg-white/10">Aargau (AG)</SelectItem>
-                      <SelectItem value="ZH" className="text-white hover:bg-white/10">Zürich (ZH)</SelectItem>
-                      <SelectItem value="AI" disabled className="text-zinc-500 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="AR" disabled className="text-zinc-500 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BE" disabled className="text-zinc-500 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BL" disabled className="text-zinc-500 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BS" disabled className="text-zinc-500 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="FR" disabled className="text-zinc-500 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GE" disabled className="text-zinc-500 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GL" disabled className="text-zinc-500 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GR" disabled className="text-zinc-500 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="JU" disabled className="text-zinc-500 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="LU" disabled className="text-zinc-500 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NE" disabled className="text-zinc-500 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NW" disabled className="text-zinc-500 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="OW" disabled className="text-zinc-500 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SG" disabled className="text-zinc-500 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SH" disabled className="text-zinc-500 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SO" disabled className="text-zinc-500 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SZ" disabled className="text-zinc-500 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TG" disabled className="text-zinc-500 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TI" disabled className="text-zinc-500 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="UR" disabled className="text-zinc-500 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VD" disabled className="text-zinc-500 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VS" disabled className="text-zinc-500 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="ZG" disabled className="text-zinc-500 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
+                    <SelectContent className="bg-white border-slate-200 max-h-[300px]">
+                      <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
+                      <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
+                      <SelectItem value="AI" disabled className="text-slate-400 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="AR" disabled className="text-slate-400 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BE" disabled className="text-slate-400 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BL" disabled className="text-slate-400 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BS" disabled className="text-slate-400 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="FR" disabled className="text-slate-400 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GE" disabled className="text-slate-400 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GL" disabled className="text-slate-400 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GR" disabled className="text-slate-400 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="JU" disabled className="text-slate-400 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="LU" disabled className="text-slate-400 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NE" disabled className="text-slate-400 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NW" disabled className="text-slate-400 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="OW" disabled className="text-slate-400 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SG" disabled className="text-slate-400 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SH" disabled className="text-slate-400 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SO" disabled className="text-slate-400 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SZ" disabled className="text-slate-400 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TG" disabled className="text-slate-400 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TI" disabled className="text-slate-400 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="UR" disabled className="text-slate-400 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VD" disabled className="text-slate-400 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VS" disabled className="text-slate-400 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="ZG" disabled className="text-slate-400 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -475,7 +466,7 @@ const MultiStepContactForm = ({
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <Label className={darkLabelClass}>Adresse per 31.12.{taxYear}</Label>
+                  <Label className={lightLabelClass}>Adresse per 31.12.{taxYear}</Label>
                   <CustomCheckbox
                     checked={hadDifferentAddressEnd === true}
                     onCheckedChange={(checked) => setHadDifferentAddressEnd(checked === true ? true : undefined)}
@@ -484,62 +475,62 @@ const MultiStepContactForm = ({
                 </div>
 
                 {hadDifferentAddressEnd && (
-                  <div className="space-y-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="col-span-2">
-                        <Label htmlFor="endYearAddress" className={darkLabelClass}>Strasse per 31.12.</Label>
+                        <Label htmlFor="endYearAddress" className={lightLabelClass}>Strasse per 31.12.</Label>
                         <Input
                           id="endYearAddress"
                           value={endYearAddress}
                           onChange={(e) => setEndYearAddress(e.target.value)}
                           placeholder="Strasse"
-                          className={darkInputClass}
+                          className={lightInputClass}
                         />
                       </div>
                       <div>
-                        <Label htmlFor="endYearAdressnummer" className={darkLabelClass}>Nr.</Label>
+                        <Label htmlFor="endYearAdressnummer" className={lightLabelClass}>Nr.</Label>
                         <Input
                           id="endYearAdressnummer"
                           value={endYearAdressnummer}
                           onChange={(e) => setEndYearAdressnummer(e.target.value)}
                           placeholder="123"
-                          className={darkInputClass}
+                          className={lightInputClass}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="endYearPostalCode" className={darkLabelClass}>PLZ</Label>
+                        <Label htmlFor="endYearPostalCode" className={lightLabelClass}>PLZ</Label>
                         <Input
                           id="endYearPostalCode"
                           value={endYearPostalCode}
                           onChange={(e) => setEndYearPostalCode(e.target.value)}
                           placeholder="1234"
-                          className={darkInputClass}
+                          className={lightInputClass}
                         />
                       </div>
                       <div>
-                        <Label htmlFor="endYearCity" className={darkLabelClass}>Ort</Label>
+                        <Label htmlFor="endYearCity" className={lightLabelClass}>Ort</Label>
                         <Input
                           id="endYearCity"
                           value={endYearCity}
                           onChange={(e) => setEndYearCity(e.target.value)}
                           placeholder="Musterort"
-                          className={darkInputClass}
+                          className={lightInputClass}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="endYearKanton" className={darkLabelClass}>Kanton</Label>
+                      <Label htmlFor="endYearKanton" className={lightLabelClass}>Kanton</Label>
                       <Select value={endYearKanton} onValueChange={setEndYearKanton}>
-                        <SelectTrigger className={darkSelectTriggerClass}>
+                        <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Kanton auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0a0f1a] border-white/10">
-                          <SelectItem value="AG" className="text-white hover:bg-white/10">Aargau (AG)</SelectItem>
-                          <SelectItem value="ZH" className="text-white hover:bg-white/10">Zürich (ZH)</SelectItem>
+                        <SelectContent className="bg-white border-slate-200">
+                          <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
+                          <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -547,7 +538,7 @@ const MultiStepContactForm = ({
                 )}
 
                 <div className="space-y-4">
-                  <Label className={darkLabelClass}>Feuerwehrdienst</Label>
+                  <Label className={lightLabelClass}>Feuerwehrdienst</Label>
                   <CustomCheckbox
                     checked={firefighterService === true}
                     onCheckedChange={(checked) => setFirefighterService(checked === true ? true : undefined)}
@@ -561,44 +552,44 @@ const MultiStepContactForm = ({
             {currentStep === 4 && (
               <div className="space-y-6">
                 {maritalStatus === 'verheiratet' && (
-                  <div className="space-y-4 p-4 bg-white/5 rounded-xl border border-white/10">
-                    <h3 className="text-lg font-medium text-white">Ehepartner/in</h3>
+                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <h3 className="text-lg font-medium text-slate-800">Ehepartner/in</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="spouseFirstName" className={darkLabelClass}>Vorname</Label>
+                        <Label htmlFor="spouseFirstName" className={lightLabelClass}>Vorname</Label>
                         <Input
                           id="spouseFirstName"
                           value={spouseFirstName}
                           onChange={(e) => setSpouseFirstName(e.target.value)}
                           placeholder="Vorname"
-                          className={darkInputClass}
+                          className={lightInputClass}
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="spouseLastName" className={darkLabelClass}>Nachname</Label>
+                        <Label htmlFor="spouseLastName" className={lightLabelClass}>Nachname</Label>
                         <Input
                           id="spouseLastName"
                           value={spouseLastName}
                           onChange={(e) => setSpouseLastName(e.target.value)}
                           placeholder="Nachname"
-                          className={darkInputClass}
+                          className={lightInputClass}
                           required
                         />
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="spouseReligion" className={darkLabelClass}>Religion</Label>
+                      <Label htmlFor="spouseReligion" className={lightLabelClass}>Religion</Label>
                       <Select value={spouseReligion} onValueChange={setSpouseReligion}>
-                        <SelectTrigger className={darkSelectTriggerClass}>
+                        <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Religion auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#0a0f1a] border-white/10">
-                          <SelectItem value="catholic" className="text-white hover:bg-white/10">Katholisch</SelectItem>
-                          <SelectItem value="reformed" className="text-white hover:bg-white/10">Reformiert</SelectItem>
-                          <SelectItem value="christCatholic" className="text-white hover:bg-white/10">Christkatholisch</SelectItem>
-                          <SelectItem value="other" className="text-white hover:bg-white/10">Andere</SelectItem>
-                          <SelectItem value="none" className="text-white hover:bg-white/10">Keine</SelectItem>
+                        <SelectContent className="bg-white border-slate-200">
+                          <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-100">Katholisch</SelectItem>
+                          <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-100">Reformiert</SelectItem>
+                          <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-100">Christkatholisch</SelectItem>
+                          <SelectItem value="other" className="text-slate-800 hover:bg-slate-100">Andere</SelectItem>
+                          <SelectItem value="none" className="text-slate-800 hover:bg-slate-100">Keine</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -606,7 +597,7 @@ const MultiStepContactForm = ({
                 )}
 
                 <div className="space-y-4">
-                  <Label className={darkLabelClass}>Kinder</Label>
+                  <Label className={lightLabelClass}>Kinder</Label>
                   <CustomCheckbox
                     checked={hasChildren === true}
                     onCheckedChange={(checked) => setHasChildren(checked === true ? true : undefined)}
@@ -630,7 +621,7 @@ const MultiStepContactForm = ({
               type="button"
               onClick={handleBack}
               disabled={currentStep === 1 && !embedded}
-              className="bg-[#111] hover:bg-[#222] text-white border border-white/10 font-medium px-5 py-3 h-12 text-sm rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium px-5 py-3 h-12 text-sm rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               Zurück
             </button>
