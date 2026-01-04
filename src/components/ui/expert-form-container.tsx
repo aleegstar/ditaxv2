@@ -71,7 +71,7 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
 
         {/* Footer Action */}
         {showFooter && (
-          <div className="absolute bottom-0 w-full z-20 p-6 bg-gradient-to-t from-white via-white to-transparent">
+          <div className="absolute bottom-0 w-full z-20 p-6 bg-white">
             <button 
               type="submit"
               onClick={onSubmit}
