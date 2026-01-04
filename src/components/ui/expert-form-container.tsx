@@ -36,7 +36,7 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
   };
   return <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
-      <div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden border-x border-slate-200 shadow-none border-0">
+      <div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden shadow-none">
         {/* Header */}
         <div className="flex shrink-0 z-20 border-slate-200 bg-white w-full border-b pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
           {/* Back Button */}
