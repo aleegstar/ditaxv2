@@ -330,15 +330,11 @@ const DocumentChecklist: React.FC = () => {
   
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#020408]">
-        <div className="fixed inset-0 pointer-events-none -z-10" style={{
-          background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-          filter: 'blur(80px)'
-        }} />
+      <div className="min-h-screen bg-white">
         <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
-          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
-          <Skeleton className="h-16 w-full bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
+          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
+          <Skeleton className="h-16 w-full bg-slate-100" />
         </div>
       </div>
     );
@@ -346,22 +342,18 @@ const DocumentChecklist: React.FC = () => {
   
   if (!isAuthValid) {
     return (
-      <div className="min-h-screen bg-[#020408]">
-        <div className="fixed inset-0 pointer-events-none -z-10" style={{
-          background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-          filter: 'blur(80px)'
-        }} />
+      <div className="min-h-screen bg-white">
         <div className="p-6 pt-24">
-          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 backdrop-blur-md">
-            <AlertTriangle className="h-4 w-4 text-red-300" />
-            <AlertTitle className="text-red-300">Authentifizierung erforderlich</AlertTitle>
-            <AlertDescription className="text-red-200">
+          <Alert variant="destructive" className="bg-red-50 border-red-200">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertTitle className="text-red-700">Authentifizierung erforderlich</AlertTitle>
+            <AlertDescription className="text-red-600">
               Du musst angemeldet sein, um deine Dokumente zu verwalten.
               <div className="mt-2 flex gap-2">
-                <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
                   Zur Anmeldung
                 </Button>
-                <Button size="sm" onClick={handleAuthRefresh} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Button size="sm" onClick={handleAuthRefresh} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Session prüfen
                 </Button>
@@ -375,74 +367,60 @@ const DocumentChecklist: React.FC = () => {
   
   if (!initialLoadComplete || (isLoading && checklistItems.length === 0)) {
     return (
-      <div className="min-h-screen bg-[#020408]">
-        <div className="fixed inset-0 pointer-events-none -z-10" style={{
-          background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-          filter: 'blur(80px)'
-        }} />
+      <div className="min-h-screen bg-white">
         <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
-          <Skeleton className="h-16 w-full mb-4 bg-white/[0.02]" />
-          <Skeleton className="h-16 w-full bg-white/[0.02]" />
+          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
+          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
+          <Skeleton className="h-16 w-full bg-slate-100" />
         </div>
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen bg-[#020408] text-zinc-200">
-      {/* Background glow */}
-      <div className="fixed inset-0 pointer-events-none -z-10" style={{
-        background: 'radial-gradient(circle at 50% 60%, rgba(29, 100, 255, 0.08) 0%, rgba(29, 100, 255, 0.02) 40%, transparent 60%)',
-        filter: 'blur(80px)'
-      }} />
-      
+    <div className="min-h-screen bg-white text-slate-800">
       {/* Header */}
-      <header className="h-24 shrink-0 flex items-center justify-center px-6 relative z-30">
+      <header className="h-24 shrink-0 flex items-center justify-center px-6 relative z-30 border-b border-slate-100">
         <button 
           onClick={handleBack}
-          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-200"
+          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
         </button>
-        <h1 className="text-[15px] font-medium text-zinc-200 tracking-normal">Unterlagen</h1>
+        <h1 className="text-[15px] font-medium text-slate-800 tracking-normal">Unterlagen</h1>
       </header>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-2">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 pt-6">
         <div className="max-w-[600px] mx-auto space-y-4 pb-24">
           
           {/* Progress Overview */}
           {checklistItems.length > 0 && (
-            <div className="rounded-xl p-4" style={{
-              background: 'rgba(255, 255, 255, 0.02)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.05)'
-            }}>
+            <div className="rounded-xl p-4 bg-slate-50 border border-slate-200">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-zinc-400">Fortschritt</span>
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm text-slate-500">Fortschritt</span>
+                <span className="text-sm font-medium text-slate-800">
                   {checklistItems.filter(item => item.uploaded).length} von {checklistItems.length} Unterlagen
                 </span>
               </div>
               <Progress 
                 value={(checklistItems.filter(item => item.uploaded).length / checklistItems.length) * 100}
-                className="h-2 bg-white/[0.05]"
+                className="h-2 bg-slate-200"
                 indicatorClassName="bg-[#1D64FF]"
               />
             </div>
           )}
 
           {error && (
-            <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 backdrop-blur-md">
-              <AlertTriangle className="h-4 w-4 text-red-300" />
-              <AlertTitle className="text-red-300">Fehler beim Laden der Dokumente</AlertTitle>
-              <AlertDescription className="text-red-200">
+            <Alert variant="destructive" className="bg-red-50 border-red-200">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <AlertTitle className="text-red-700">Fehler beim Laden der Dokumente</AlertTitle>
+              <AlertDescription className="text-red-600">
                 {error}
                 <div className="mt-2">
-                  <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                  <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
                     Zur Anmeldung
                   </Button>
                 </div>
@@ -452,7 +430,7 @@ const DocumentChecklist: React.FC = () => {
 
           {Object.keys(categorizedItems).length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-white/80 mb-4">
+              <p className="text-slate-600 mb-4">
                 Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.
                 {!formDataLoaded && " Bitte warte, während deine Daten geladen werden."}
               </p>
@@ -477,50 +455,46 @@ const DocumentChecklist: React.FC = () => {
                     }));
                   }}
                 >
-                  {/* Collapsed State - Glass Panel */}
+                  {/* Collapsed State - Light Panel */}
                   {!isOpen ? (
-                    <CollapsibleTrigger className="group w-full rounded-xl transition-all duration-300" style={{
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(255, 255, 255, 0.05)'
-                    }}>
-                      <div className="w-full flex items-center justify-between p-4 text-left group-hover:bg-white/[0.02]">
+                    <CollapsibleTrigger className="group w-full rounded-xl transition-all duration-300 bg-slate-50 border border-slate-200 hover:border-slate-300">
+                      <div className="w-full flex items-center justify-between p-4 text-left">
                         <div className="flex items-center gap-4">
                           <div className={cn(
                             "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
                             isComplete 
-                              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500"
-                              : "bg-zinc-900 border border-white/5 text-zinc-400 group-hover:text-zinc-200 group-hover:border-white/10"
+                              ? "bg-emerald-50 border border-emerald-200 text-emerald-600"
+                              : "bg-white border border-slate-200 text-slate-500 group-hover:text-slate-700 group-hover:border-slate-300"
                           )}>
                             <Icon className="w-5 h-5" />
                           </div>
-                          <span className="text-base font-medium text-zinc-200 group-hover:text-white">
+                          <span className="text-base font-medium text-slate-700 group-hover:text-slate-900">
                             {categoryMap[category]}
                           </span>
                         </div>
                         {isComplete ? (
-                          <Check className="w-5 h-5 text-emerald-500" strokeWidth={1.5} />
+                          <Check className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
                         ) : (
-                          <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1.5} />
+                          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" strokeWidth={1.5} />
                         )}
                       </div>
                     </CollapsibleTrigger>
                   ) : (
                     /* Expanded State - Blue Border */
-                    <div className="bg-[#020408] rounded-xl border border-[#1D64FF]/20 overflow-hidden transition-all duration-300">
-                      <CollapsibleTrigger className="w-full flex items-center justify-between p-4 text-left border-b border-white/[0.04]">
+                    <div className="bg-white rounded-xl border border-[#1D64FF]/30 overflow-hidden transition-all duration-300 shadow-sm">
+                      <CollapsibleTrigger className="w-full flex items-center justify-between p-4 text-left border-b border-slate-100">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-[#1D64FF]/10 border border-[#1D64FF]/20 flex items-center justify-center text-[#1D64FF]">
                             <Icon className="w-5 h-5" />
                           </div>
-                          <span className="text-base font-semibold text-white">
+                          <span className="text-base font-semibold text-slate-800">
                             {categoryMap[category]}
                           </span>
                         </div>
                         <ChevronUp className="w-5 h-5 text-[#1D64FF]" strokeWidth={1.5} />
                       </CollapsibleTrigger>
 
-                      <CollapsibleContent className="p-5 bg-white/[0.01]">
+                      <CollapsibleContent className="p-5 bg-slate-50/50">
                         <div className="space-y-5">
                           {items.map(item => {
                             const itemFiles = getUserDocumentsForItem(item.id);
@@ -530,10 +504,7 @@ const DocumentChecklist: React.FC = () => {
                             return (
                               <div 
                                 key={item.id} 
-                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden bg-gradient-to-br from-white/[0.08] to-transparent"
-                                style={{
-                                  border: '1px solid rgba(255, 255, 255, 0.05)'
-                                }}
+                                className="rounded-2xl p-6 md:p-8 text-center relative overflow-hidden bg-white border border-slate-200"
                               >
                                 {/* Orange BorderBeam for non-uploaded items */}
                                 {!item.uploaded && (
@@ -549,20 +520,20 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 <div className="relative z-10 flex flex-col items-center">
                                   {/* Title */}
-                                  <h3 className="text-lg font-semibold tracking-tight mb-2 text-zinc-200">
+                                  <h3 className="text-lg font-semibold tracking-tight mb-2 text-slate-800">
                                     {item.title}
                                   </h3>
                                   
                                   {/* Description */}
                                   {!item.uploaded && item.description && (
-                                    <p className="text-base text-zinc-400 max-w-sm mx-auto leading-relaxed mb-6 font-medium">
+                                    <p className="text-base text-slate-500 max-w-sm mx-auto leading-relaxed mb-6 font-medium">
                                       {item.description}
                                     </p>
                                   )}
                                   
                                   {/* Badge */}
                                   {!item.uploaded && item.required && (
-                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-[11px] font-semibold text-orange-400 tracking-wide mb-8 uppercase">
+                                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-semibold text-orange-600 tracking-wide mb-8 uppercase">
                                       Erforderlich
                                     </div>
                                   )}
@@ -570,9 +541,9 @@ const DocumentChecklist: React.FC = () => {
                                   {/* Uploaded State */}
                                   {item.uploaded && itemFiles.length > 0 && (
                                     <div className="flex flex-col items-center gap-3 mt-2">
-                                      <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20">
-                                        <Check className="w-4 h-4 text-emerald-500" />
-                                        <span className="text-sm font-medium text-emerald-400">
+                                      <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 bg-emerald-50 border border-emerald-200">
+                                        <Check className="w-4 h-4 text-emerald-600" />
+                                        <span className="text-sm font-medium text-emerald-700">
                                           {itemFiles.length} Datei{itemFiles.length !== 1 ? 'en' : ''} hochgeladen
                                         </span>
                                       </div>
@@ -581,7 +552,7 @@ const DocumentChecklist: React.FC = () => {
                                           variant="ghost" 
                                           size="sm" 
                                           onClick={() => handleViewDocuments(item.id, 0)}
-                                          className="text-zinc-400 hover:text-white hover:bg-white/[0.04] h-9 px-3"
+                                          className="text-slate-500 hover:text-slate-700 hover:bg-slate-100 h-9 px-3"
                                         >
                                           <Eye className="h-4 w-4 mr-2" />
                                           Ansehen
@@ -590,7 +561,7 @@ const DocumentChecklist: React.FC = () => {
                                           variant="ghost" 
                                           size="sm"
                                           onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
-                                          className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 h-9 px-3"
+                                          className="text-slate-500 hover:text-red-600 hover:bg-red-50 h-9 px-3"
                                         >
                                           <Trash2 className="h-4 w-4 mr-2" />
                                           Löschen
@@ -607,19 +578,19 @@ const DocumentChecklist: React.FC = () => {
                                         <>
                                           <button 
                                             onClick={() => setAssignmentModal({ open: true, item })}
-                                            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full py-2 px-5 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl gap-x-3 items-center justify-center w-full"
+                                            className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.3)] transition-all duration-300 cursor-pointer active:scale-95 bg-white border-slate-200 border rounded-full py-2 px-5 shadow-sm gap-x-3 items-center justify-center w-full"
                                           >
                                             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
                                               <FolderOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
                                             </div>
-                                            <span className="text-white font-medium text-[15px]">Zuordnen</span>
+                                            <span className="text-slate-700 font-medium text-[15px]">Zuordnen</span>
                                           </button>
 
                                           {/* Divider */}
                                           <div className="w-full flex items-center gap-4 px-2 opacity-80">
-                                            <div className="h-px bg-white/10 flex-1" />
-                                            <span className="text-zinc-500 text-[13px] font-medium">oder</span>
-                                            <div className="h-px bg-white/10 flex-1" />
+                                            <div className="h-px bg-slate-200 flex-1" />
+                                            <span className="text-slate-400 text-[13px] font-medium">oder</span>
+                                            <div className="h-px bg-slate-200 flex-1" />
                                           </div>
                                         </>
                                       )}
@@ -627,12 +598,12 @@ const DocumentChecklist: React.FC = () => {
                                       {/* Upload Button */}
                                       <button 
                                         onClick={() => handleUploadDocument(item.id)}
-                                        className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.4)] transition-all duration-300 cursor-pointer active:scale-95 bg-[#0A0C10] border-white/10 border rounded-full py-2 px-5 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl gap-x-3 items-center justify-center w-full"
+                                        className="group flex hover:border-[#1D64FF]/50 hover:shadow-[0_0_25px_-5px_rgba(29,100,255,0.3)] transition-all duration-300 cursor-pointer active:scale-95 bg-white border-slate-200 border rounded-full py-2 px-5 shadow-sm gap-x-3 items-center justify-center w-full"
                                       >
                                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-[#1D64FF] to-[#0040CC] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border border-white/10 group-hover:scale-105 transition-transform duration-300">
                                           <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
                                         </div>
-                                        <span className="text-white font-medium text-[15px]">Hochladen</span>
+                                        <span className="text-slate-700 font-medium text-[15px]">Hochladen</span>
                                       </button>
                                     </div>
                                   )}
