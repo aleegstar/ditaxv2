@@ -616,24 +616,29 @@ const MultiStepContactForm = ({
           </motion.div>
 
           {/* Navigation Buttons */}
-          <div className="flex gap-3 pt-6">
-            <button
-              type="button"
-              onClick={handleBack}
-              disabled={currentStep === 1 && !embedded}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium px-5 py-3 h-12 text-sm rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              Zurück
-            </button>
-
+          <div className="flex flex-col gap-3 pt-6">
             <button
               type="submit"
               disabled={!validateCurrentStep()}
-              className="bg-[#1D64FF] text-white hover:bg-[#1D64FF]/90 rounded-full px-6 py-3 h-12 text-sm font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-1"
-              style={{ boxShadow: 'rgba(29, 100, 255, 0.3) 0px 8px 20px 0px' }}
+              className="w-full relative overflow-hidden rounded-xl bg-[#1D64FF] p-[1px] shadow-[0_0_20px_-5px_rgba(29,100,255,0.3)] active:scale-[0.99] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative py-4 flex items-center justify-center gap-2 bg-[#1D64FF] rounded-xl w-full">
+                <span className="text-white font-semibold text-lg tracking-tight">
+                  {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
+                </span>
+              </div>
             </button>
+
+            {(currentStep > 1 || embedded) && (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="w-full py-3 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors duration-200"
+              >
+                Zurück
+              </button>
+            )}
           </div>
         </form>
       </div>
