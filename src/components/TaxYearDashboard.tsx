@@ -158,16 +158,17 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Desktop Header Navigation */}
       <header className="hidden md:flex max-w-4xl mx-auto items-center justify-between mb-8 pt-8 relative z-10">
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
               Steuererklärung {taxYear}
             </h1>
-            
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          
           <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden">
             <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
           </div>
