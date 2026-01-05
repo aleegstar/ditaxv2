@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Redirecting...</title>
+    <script>
+      (function () {
+        // Preserve both query params and hash fragment during client-side redirect
+        var search = window.location.search || "";
+        var hash = window.location.hash || "";
+        // Client-side redirect to React app route - this preserves the hash!
+        window.location.replace("/native-callback" + search + hash);
+      })();
+    </script>
+  </head>
+  <body style="background: #0a0a0a; color: #888; font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
+    <p>Redirecting...</p>
+  </body>
+</html>
