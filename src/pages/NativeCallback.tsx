@@ -240,6 +240,43 @@ const NativeCallback = () => {
           </p>
         )}
       </div>
+
+      {/* Debug Section - Shows received URL for troubleshooting */}
+      <div className="fixed bottom-4 left-4 right-4 bg-slate-800 border border-slate-600 rounded-xl p-4 z-50 max-w-md mx-auto">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-zinc-300">Debug Info</span>
+          <button
+            onClick={() => {
+              const hashParams = new URLSearchParams(window.location.hash.substring(1));
+              const debugInfo = {
+                fullUrl: window.location.href,
+                pathname: window.location.pathname,
+                search: window.location.search,
+                hash: window.location.hash,
+                hashLength: window.location.hash.length,
+                searchParams: Object.fromEntries(searchParams.entries()),
+                hashParams: Object.fromEntries(hashParams.entries())
+              };
+              navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+            }}
+            className="text-xs bg-[#1D64FF] text-white px-3 py-1 rounded-lg"
+          >
+            Copy All
+          </button>
+        </div>
+        <textarea
+          readOnly
+          className="w-full h-32 text-xs font-mono bg-slate-900 text-zinc-300 border border-slate-700 rounded-lg p-2 resize-none"
+          value={JSON.stringify({
+            url: window.location.href,
+            search: window.location.search,
+            hash: window.location.hash,
+            hashLength: window.location.hash.length,
+            params: Object.fromEntries(searchParams.entries()),
+            hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
+          }, null, 2)}
+        />
+      </div>
     </div>
   );
 };
