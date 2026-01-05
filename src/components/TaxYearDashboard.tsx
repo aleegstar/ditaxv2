@@ -252,7 +252,7 @@ export const TaxYearDashboard: React.FC = () => {
         </motion.section>
 
         {/* Upcoming Steps */}
-        <section className={`grid md:grid-cols-2 gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+        <section className={`flex flex-col gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
           <motion.div data-tour="form-step-2" initial={{
           opacity: 0,
