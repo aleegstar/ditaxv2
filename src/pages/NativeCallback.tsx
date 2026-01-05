@@ -80,9 +80,9 @@ const NativeCallback = () => {
       console.log('🔗 Triggering deeplink with multi-method approach:', url);
       
       // Method 1: Android Intent URL (works better in Custom Tabs)
-      // Package name from assetlinks.json: com.nicholasabt.despia
+      // Package name from assetlinks.json: ch.ditax.app
       const intentUrl = url.replace(`${deeplinkScheme}://`, 'intent://') 
-        + '#Intent;scheme=' + deeplinkScheme + ';package=com.nicholasabt.despia;end';
+        + '#Intent;scheme=' + deeplinkScheme + ';package=ch.ditax.app;end';
       console.log('🔗 Intent URL:', intentUrl);
       
       // Method 2: Meta refresh tag (some browsers follow this)
@@ -133,7 +133,7 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage(errorDescription || error);
       
-      const errorUrl = `${deeplinkScheme}://oauth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
+      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
       console.log('🔗 Redirecting to app with error:', errorUrl);
       
       setTimeout(() => {
@@ -148,7 +148,7 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage('Keine Zugangstokens in der URL gefunden');
       
-      const errorUrl = `${deeplinkScheme}://oauth?success=false&error=no_token`;
+      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=no_token`;
       setTimeout(() => {
         triggerDeeplink(errorUrl);
       }, 1500);
@@ -169,7 +169,7 @@ const NativeCallback = () => {
       params.set('expires_at', expiresAt.toString());
     }
 
-    const deeplinkUrl = `${deeplinkScheme}://oauth?${params.toString()}`;
+    const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
     
     console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
     console.log('🔗 Deeplink scheme:', deeplinkScheme);
