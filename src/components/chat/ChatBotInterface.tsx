@@ -394,7 +394,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                   <div className="flex flex-col gap-1">
                     {message.isAdmin && message.senderName && <p className="text-xs font-medium text-slate-500 ml-1">{message.senderName}</p>}
                     <div className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${message.isBot || message.isAdmin ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'}`}>
-                      <p className="whitespace-pre-wrap text-white">{message.content}</p>
+                      <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-[#1d283a]' : 'text-white'}`}>{message.content}</p>
                     </div>
                     <span className={`text-[10px] text-slate-400 font-medium ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1'}`}>
                       {formatTime(message.timestamp)}
