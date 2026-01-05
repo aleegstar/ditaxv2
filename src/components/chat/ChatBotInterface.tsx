@@ -329,7 +329,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   return <>
       <div className="flex flex-col h-full bg-white relative overflow-hidden">
         {/* Header */}
-        <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b border-slate-200 bg-white shrink-0">
+        <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b bg-white shrink-0 border-white border-0">
           <button onClick={handleGoBack} className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-100 transition-all duration-300">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -371,7 +371,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
         </div>
 
         {/* Messages Area */}
-        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-slate-50">
+        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
           {isLoadingHistory ? <div className="flex items-center justify-center h-64 text-slate-500">
               Chat wird geladen...
             </div> : messages.length === 0 ? <ChatEmptyState userId={userId} /> : <div className="max-w-2xl mx-auto space-y-4">
@@ -427,7 +427,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
         </div>
 
         {/* Footer Input Area */}
-        <div className="z-20 p-4 w-full bg-white border-t border-slate-200 shrink-0 pb-24 md:pb-8">
+        <div className="z-20 p-4 w-full bg-white border-t shrink-0 pb-24 md:pb-8 border-white border-0">
           <div className="max-w-2xl mx-auto">
             <PromptInputBox onSend={sendMessage} isLoading={isLoading} placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."} className="!bg-slate-50 !border-slate-200 hover:!border-slate-300 focus-within:!border-[#1D64FF]/50 focus-within:!ring-1 focus-within:!ring-[#1D64FF]/20 shadow-sm" />
             <div className="text-center mt-3">
