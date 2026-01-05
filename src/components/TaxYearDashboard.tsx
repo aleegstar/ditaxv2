@@ -198,21 +198,21 @@ export const TaxYearDashboard: React.FC = () => {
       }} transition={{
         duration: 0.5
       }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border overflow-hidden relative border-gray-200">
-          {/* Progress Header */}
-          <div className="p-8 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-50">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
-                <span>Schritt 1 von 3 </span>
-              </div>
-              <h2 className="font-bold tracking-tight text-slate-900 text-2xl">
+          {/* Step Header - matching design of steps 2 and 3 */}
+          <div className="p-6 flex items-center gap-4 border-b border-slate-100">
+            <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 ${allAngabenComplete ? 'bg-green-50 border-green-100 text-green-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
+              {allAngabenComplete ? <Check className="w-5 h-5" /> : '1'}
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-slate-900">
                 Persönliche Angaben
               </h2>
-              <p className="text-slate-500 text-sm">
+              <p className="text-sm text-slate-500">
                 Erfassen Sie Ihre Grunddaten für die korrekte Berechnung.
               </p>
             </div>
-            <div className="w-full md:w-48">
-              <div className="flex justify-between text-xs font-semibold text-slate-900 mb-2">
+            <div className="w-32 hidden md:block">
+              <div className="flex justify-between text-xs font-semibold text-slate-900 mb-1">
                 <span>Fortschritt</span>
                 <span>{angabenProgress.percentage}%</span>
               </div>
@@ -225,7 +225,7 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Action Grid */}
-          <div className="p-8 bg-white">
+          <div className="p-6 bg-white">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {angabenSections.map(section => {
               const Icon = section.icon;
