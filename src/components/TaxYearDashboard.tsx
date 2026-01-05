@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { TourStartButton } from '@/components/ui/tour-start-button';
 import { useFormTour } from '@/contexts/FormTourContext';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
-import { Button } from '@/components/ui/button';
+
 interface DashboardSection {
   id: string;
   title: string;
@@ -144,9 +144,12 @@ export const TaxYearDashboard: React.FC = () => {
   return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-white">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between mb-6 pt-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900 -ml-2">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        <button
+          onClick={() => navigate('/')}
+          className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
           Steuererklärung {taxYear}
         </h1>
@@ -158,9 +161,12 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Desktop Header Navigation */}
       <header className="hidden md:flex max-w-4xl mx-auto items-center justify-between mb-8 pt-8 relative z-10">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-slate-600 hover:text-slate-900">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <button
+            onClick={() => navigate('/')}
+            className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
               Steuererklärung {taxYear}
