@@ -59,7 +59,8 @@ serve(async (req) => {
     // CRITICAL: Use static HTML file to preserve hash fragment during OAuth callback
     // The static file does a client-side redirect to /native-callback, preserving the #access_token
     // This avoids server-side redirects that strip the hash fragment
-    const redirectUrl = `https://app.ditax.ch/native-callback.html?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}`;
+    // NOTE: The trailing # ensures Supabase appends tokens after it (e.g., #access_token=xxx)
+    const redirectUrl = `https://app.ditax.ch/native-callback.html?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}#`;
 
     // Build OAuth URL using Supabase's authorize endpoint
     // Let Supabase handle state parameter internally with flow_type=implicit
