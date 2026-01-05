@@ -63,7 +63,7 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({
       }} className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center shadow-[0_0_30px_-5px_rgba(29,100,255,0.4)] border border-[#1D64FF]/30 overflow-hidden" style={{
         background: 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
       }}>
-          <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />
+          <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover border-0 shadow-none" />
         </motion.div>
 
         {/* Greeting */}
