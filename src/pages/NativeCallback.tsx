@@ -133,12 +133,12 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage(errorDescription || error);
       
-      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
-      console.log('🔗 Redirecting to app with error:', errorUrl);
-      
-      setTimeout(() => {
-        triggerDeeplink(errorUrl);
-      }, 1500);
+      // COMMENTED OUT FOR DEBUGGING - auto redirect disabled
+      // const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
+      // console.log('🔗 Redirecting to app with error:', errorUrl);
+      // setTimeout(() => {
+      //   triggerDeeplink(errorUrl);
+      // }, 1500);
       return;
     }
 
@@ -148,10 +148,11 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage('Keine Zugangstokens in der URL gefunden');
       
-      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=no_token`;
-      setTimeout(() => {
-        triggerDeeplink(errorUrl);
-      }, 1500);
+      // COMMENTED OUT FOR DEBUGGING - auto redirect disabled
+      // const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=no_token`;
+      // setTimeout(() => {
+      //   triggerDeeplink(errorUrl);
+      // }, 1500);
       return;
     }
 
@@ -178,11 +179,12 @@ const NativeCallback = () => {
     console.log('🔗 FULL DEEPLINK URL:', deeplinkUrl);
     console.log('🔗 Deeplink URL length:', deeplinkUrl.length);
 
+    // COMMENTED OUT FOR DEBUGGING - auto redirect disabled
     // Trigger multi-method deeplink redirect
-    setTimeout(() => {
-      console.log('🔗 Executing multi-method redirect now...');
-      triggerDeeplink(deeplinkUrl);
-    }, 500);
+    // setTimeout(() => {
+    //   console.log('🔗 Executing multi-method redirect now...');
+    //   triggerDeeplink(deeplinkUrl);
+    // }, 500);
   }, [deeplinkScheme]);
 
   return (
