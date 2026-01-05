@@ -1,6 +1,1 @@
-# Native callback routes - explicit handling to preserve hash fragments
-/native-callback /index.html 200
-/native-callback/* /index.html 200
-
-# SPA fallback
 /* /index.html 200
