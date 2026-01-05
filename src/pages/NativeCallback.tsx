@@ -27,26 +27,45 @@ const NativeCallback = () => {
     hasRun.current = true;
 
     console.log('🔐 NativeCallback: Processing authentication...');
-    console.log('🔗 Full URL:', window.location.href);
-    console.log('🔗 Hash:', window.location.hash);
-    console.log('🔗 Using deeplink scheme:', deeplinkScheme);
+    console.log('🔗 Debug info:', {
+      fullUrl: window.location.href,
+      hash: window.location.hash,
+      search: window.location.search,
+      pathname: window.location.pathname,
+      deeplinkScheme
+    });
 
     // Parse tokens from URL hash (Supabase Implicit Flow)
     const hash = window.location.hash.substring(1);
     const hashParams = new URLSearchParams(hash);
+    
+    // Also check query params as fallback (some OAuth flows use query params)
+    const queryParams = new URLSearchParams(window.location.search);
 
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-    const expiresIn = hashParams.get('expires_in');
-    const error = hashParams.get('error');
-    const errorDescription = hashParams.get('error_description');
+    // Try hash first (implicit flow), then query params as fallback
+    const accessToken = hashParams.get('access_token') || queryParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token');
+    const expiresIn = hashParams.get('expires_in') || queryParams.get('expires_in');
+    const error = hashParams.get('error') || queryParams.get('error');
+    const errorDescription = hashParams.get('error_description') || queryParams.get('error_description');
+    
+    // Check for PKCE authorization code (should NOT happen with implicit flow)
+    const authCode = queryParams.get('code');
 
     console.log('🔐 Token extraction:', {
       hasAccessToken: !!accessToken,
       hasRefreshToken: !!refreshToken,
+      hasAuthCode: !!authCode,
       expiresIn,
-      error
+      error,
+      tokenSource: hashParams.get('access_token') ? 'hash' : queryParams.get('access_token') ? 'query' : 'none'
     });
+    
+    // Warn if PKCE code received instead of tokens
+    if (authCode && !accessToken) {
+      console.error('❌ NativeCallback: PKCE authorization code received but implicit flow expected!');
+      console.error('❌ This means Supabase is using PKCE flow. Check Supabase OAuth configuration.');
+    }
 
     // Handle errors
     if (error) {
