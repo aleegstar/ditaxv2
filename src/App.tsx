@@ -447,6 +447,7 @@ const App = () => {
                 <Route path="/auth-success" element={<AuthSuccess />} />
                 <Route path="/native-callback" element={<NativeCallback />} />
                 <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
+                <Route path="/native-callback/:deeplinkScheme/*" element={<NativeCallback />} />
                 
                 <Route path="/auth-bridge" element={<AuthBridge />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
