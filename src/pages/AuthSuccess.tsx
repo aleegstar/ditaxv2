@@ -71,9 +71,9 @@ const AuthSuccess = () => {
               if (isDespia) {
                 // Despia: Deeplink auslösen um Tokens zur nativen App zurückzuschicken
                 // Das schließt den Chrome Custom Tab und navigiert den Haupt-WebView
-                // CRITICAL: Use oauth (not oauth/auth) to match Android deeplink registration
+                // Format: ditax://oauth/auth?params - oauth/ prefix closes browser session
                 console.log('🔗 AuthSuccess: Triggering deeplink for Despia...');
-                const deeplinkUrl = `ditax://oauth?success=true&at=${finalAccessToken}&rt=${finalRefreshToken}`;
+                const deeplinkUrl = `ditax://oauth/auth?success=true&at=${finalAccessToken}&rt=${finalRefreshToken}`;
                 window.location.href = deeplinkUrl;
               } else {
                 // Web-Flow: Normal zur Home navigieren
@@ -102,9 +102,9 @@ const AuthSuccess = () => {
             setStatus('success');
             
             if (isDespia) {
-              // Despia: Deeplink mit vorhandenen Tokens - use oauth (not oauth/auth) 
+              // Despia: Deeplink mit vorhandenen Tokens - oauth/auth format
               console.log('🔗 AuthSuccess: Triggering deeplink with existing session...');
-              const deeplinkUrl = `ditax://oauth?success=true&at=${session.access_token}&rt=${session.refresh_token}`;
+              const deeplinkUrl = `ditax://oauth/auth?success=true&at=${session.access_token}&rt=${session.refresh_token}`;
               window.location.href = deeplinkUrl;
             } else {
               window.location.href = '/';

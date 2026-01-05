@@ -18,7 +18,7 @@ import AppleAuth from "./pages/AppleAuth";
 import WebAuthnAuth from "./pages/WebAuthnAuth";
 import AuthSuccess from "./pages/AuthSuccess";
 import NativeCallback from "./pages/NativeCallback";
-import OAuthCallback from "./pages/OAuthCallback";
+
 import AuthBridge from "./pages/AuthBridge";
 import Profile from "./pages/Profile";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -446,7 +446,7 @@ const App = () => {
                 <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
                 <Route path="/auth-success" element={<AuthSuccess />} />
                 <Route path="/native-callback" element={<NativeCallback />} />
-                <Route path="/oauth" element={<OAuthCallback />} />
+                
                 <Route path="/auth-bridge" element={<AuthBridge />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
                 
