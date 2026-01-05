@@ -71,18 +71,73 @@ const NativeCallback = () => {
       console.error('❌ This means Supabase is using PKCE flow. Check Supabase OAuth configuration.');
     }
 
+    /**
+     * Multi-method deeplink trigger for Chrome Custom Tabs
+     * Chrome Custom Tabs don't handle custom URL schemes via window.location.href
+     * We use multiple methods to maximize success rate
+     */
+    const triggerDeeplink = (url: string) => {
+      console.log('🔗 Triggering deeplink with multi-method approach:', url);
+      
+      // Method 1: Android Intent URL (works better in Custom Tabs)
+      // Package name from assetlinks.json: com.nicholasabt.despia
+      const intentUrl = url.replace(`${deeplinkScheme}://`, 'intent://') 
+        + '#Intent;scheme=' + deeplinkScheme + ';package=com.nicholasabt.despia;end';
+      console.log('🔗 Intent URL:', intentUrl);
+      
+      // Method 2: Meta refresh tag (some browsers follow this)
+      try {
+        const meta = document.createElement('meta');
+        meta.httpEquiv = 'refresh';
+        meta.content = `0;url=${url}`;
+        document.head.appendChild(meta);
+        console.log('🔗 Meta refresh tag added');
+      } catch (e) {
+        console.log('🔗 Meta refresh failed:', e);
+      }
+      
+      // Method 3: window.location.replace (more aggressive than .href)
+      try {
+        window.location.replace(url);
+        console.log('🔗 location.replace called');
+      } catch (e) {
+        console.log('🔗 location.replace failed:', e);
+      }
+      
+      // Method 4: Fallback with Intent URL after timeout
+      setTimeout(() => {
+        console.log('🔗 Fallback: Trying Intent URL...');
+        try {
+          window.location.replace(intentUrl);
+        } catch (e) {
+          console.log('🔗 Intent URL failed:', e);
+          // Last resort: try regular href
+          window.location.href = url;
+        }
+      }, 500);
+      
+      // Method 5: Second fallback - try opening in new context
+      setTimeout(() => {
+        console.log('🔗 Second fallback: window.open...');
+        try {
+          window.open(url, '_self');
+        } catch (e) {
+          console.log('🔗 window.open failed:', e);
+        }
+      }, 1000);
+    };
+
     // Handle errors
     if (error) {
       console.error('❌ NativeCallback: OAuth error:', error, errorDescription);
       setStatus('error');
       setErrorMessage(errorDescription || error);
       
-      // Redirect back to app with error - use oauth (not oauth/auth) to match Android registration
       const errorUrl = `${deeplinkScheme}://oauth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
       console.log('🔗 Redirecting to app with error:', errorUrl);
       
       setTimeout(() => {
-        window.location.href = errorUrl;
+        triggerDeeplink(errorUrl);
       }, 1500);
       return;
     }
@@ -93,16 +148,14 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage('Keine Zugangstokens in der URL gefunden');
       
-      // Use oauth (not oauth/auth) to match Android registration
       const errorUrl = `${deeplinkScheme}://oauth?success=false&error=no_token`;
       setTimeout(() => {
-        window.location.href = errorUrl;
+        triggerDeeplink(errorUrl);
       }, 1500);
       return;
     }
 
     // Success - build deeplink with tokens
-    // KEIN setSession() hier! Das macht Auth.tsx im WebView
     setStatus('success');
 
     const params = new URLSearchParams();
@@ -116,22 +169,19 @@ const NativeCallback = () => {
       params.set('expires_at', expiresAt.toString());
     }
 
-    // CRITICAL: Use oauth (not oauth/auth) to match Android deeplink registration
     const deeplinkUrl = `${deeplinkScheme}://oauth?${params.toString()}`;
     
-    // DEBUG: Log complete deeplink details
     console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
     console.log('🔗 Deeplink scheme:', deeplinkScheme);
     console.log('🔗 Access token length:', accessToken?.length);
     console.log('🔗 Refresh token length:', refreshToken?.length);
-    console.log('🔗 Params string:', params.toString());
     console.log('🔗 FULL DEEPLINK URL:', deeplinkUrl);
     console.log('🔗 Deeplink URL length:', deeplinkUrl.length);
 
-    // Redirect - this closes the browser session and opens WebView at /auth?tokens
+    // Trigger multi-method deeplink redirect
     setTimeout(() => {
-      console.log('🔗 Executing redirect now...');
-      window.location.href = deeplinkUrl;
+      console.log('🔗 Executing multi-method redirect now...');
+      triggerDeeplink(deeplinkUrl);
     }, 500);
   }, [deeplinkScheme]);
 
