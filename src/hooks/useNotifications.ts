@@ -121,6 +121,67 @@ export const useNotifications = () => {
     }
   };
 
+  // Delete a single notification
+  const deleteNotification = async (notificationId: string) => {
+    if (!userId || !isValid) return;
+
+    try {
+      const notification = notifications.find(n => n.id === notificationId);
+      
+      const { error } = await supabase
+        .from('user_notifications')
+        .delete()
+        .eq('id', notificationId)
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error deleting notification:', error);
+        toast({
+          title: "Fehler",
+          description: "Benachrichtigung konnte nicht gelöscht werden.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update local state
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      if (notification && !notification.read) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  // Delete all notifications
+  const deleteAllNotifications = async () => {
+    if (!userId || !isValid) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_notifications')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error deleting all notifications:', error);
+        toast({
+          title: "Fehler",
+          description: "Benachrichtigungen konnten nicht gelöscht werden.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update local state
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error deleting all notifications:', error);
+    }
+  };
+
   // Initialize
   useEffect(() => {
     fetchNotifications();
@@ -207,6 +268,8 @@ export const useNotifications = () => {
     loading,
     markAsRead,
     markAllAsRead,
+    deleteNotification,
+    deleteAllNotifications,
     refetch: fetchNotifications
   };
 };
