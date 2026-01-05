@@ -39,9 +39,16 @@ export const isDespiaNative = (): boolean => {
 /**
  * Build a deeplink URL for native app navigation
  */
-export const buildDeeplinkUrl = (path: string, params: Record<string, string>): string => {
+/**
+ * Build a deeplink URL for native app navigation
+ * IMPORTANT: Deeplink must be exactly ditax://oauth (not ditax://oauth/auth)
+ * because that's what's registered in Android. The path param is ignored.
+ * Despia will navigate WebView to /?params when receiving this deeplink.
+ */
+export const buildDeeplinkUrl = (_path: string, params: Record<string, string>): string => {
   const queryString = new URLSearchParams(params).toString();
-  return `${DEEPLINK_SCHEME}://oauth/${path}${queryString ? `?${queryString}` : ''}`;
+  // Use just oauth without sub-path to match Android deeplink registration
+  return `${DEEPLINK_SCHEME}://oauth${queryString ? `?${queryString}` : ''}`;
 };
 
 /**

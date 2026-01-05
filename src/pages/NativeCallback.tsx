@@ -77,8 +77,8 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage(errorDescription || error);
       
-      // Redirect back to app with error
-      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
+      // Redirect back to app with error - use oauth (not oauth/auth) to match Android registration
+      const errorUrl = `${deeplinkScheme}://oauth?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
       console.log('🔗 Redirecting to app with error:', errorUrl);
       
       setTimeout(() => {
@@ -93,7 +93,8 @@ const NativeCallback = () => {
       setStatus('error');
       setErrorMessage('Keine Zugangstokens in der URL gefunden');
       
-      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=no_token`;
+      // Use oauth (not oauth/auth) to match Android registration
+      const errorUrl = `${deeplinkScheme}://oauth?success=false&error=no_token`;
       setTimeout(() => {
         window.location.href = errorUrl;
       }, 1500);
@@ -115,7 +116,8 @@ const NativeCallback = () => {
       params.set('expires_at', expiresAt.toString());
     }
 
-    const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
+    // CRITICAL: Use oauth (not oauth/auth) to match Android deeplink registration
+    const deeplinkUrl = `${deeplinkScheme}://oauth?${params.toString()}`;
     
     // DEBUG: Log complete deeplink details
     console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
