@@ -34,6 +34,14 @@ const Auth = () => {
   // This handles tokens passed from NativeCallback via deeplink: ditax://oauth/auth?tokens
   useEffect(() => {
     const handleDeeplinkAuth = async () => {
+      // DEBUG: Log all URL details for troubleshooting Despia OAuth
+      console.log('🔐🔐🔐 Auth.tsx handleDeeplinkAuth DEBUG 🔐🔐🔐');
+      console.log('🔐 Full URL:', window.location.href);
+      console.log('🔐 Pathname:', window.location.pathname);
+      console.log('🔐 Search:', window.location.search);
+      console.log('🔐 Hash:', window.location.hash);
+      console.log('🔐 All searchParams:', Object.fromEntries(searchParams.entries()));
+      
       // Check query params (from deeplink) - support both full names and short forms (at/rt)
       const success = searchParams.get('success');
       const accessToken = searchParams.get('access_token') || searchParams.get('at');
@@ -54,10 +62,13 @@ const Auth = () => {
       const finalRefreshToken = refreshToken || hashRefreshToken;
       const finalError = errorParam || hashError;
       const finalErrorDescription = errorDescription || hashErrorDescription;
-      console.log('🔐 Auth: Checking for auth parameters', {
+      
+      console.log('🔐 Token extraction results:', {
         source: accessToken ? 'query' : hashAccessToken ? 'hash' : 'none',
         hasAccessToken: !!finalAccessToken,
+        accessTokenLength: finalAccessToken?.length || 0,
         hasRefreshToken: !!finalRefreshToken,
+        refreshTokenLength: finalRefreshToken?.length || 0,
         success,
         error: finalError
       });
