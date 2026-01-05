@@ -384,9 +384,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
 
               {messages.map(message => <div key={message.id} className={`flex ${message.isBot || message.isAdmin ? 'items-start gap-3' : 'flex-col items-end'} ${message.isBot || message.isAdmin ? 'max-w-[90%]' : 'ml-auto max-w-[85%]'}`}>
                   {/* Bot/Admin Avatar */}
-                  {(message.isBot || message.isAdmin) && <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-md border mt-1 overflow-hidden" style={{
-              background: message.isAdmin ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)',
-              borderColor: message.isAdmin ? 'rgba(5, 150, 105, 0.3)' : 'rgba(29, 100, 255, 0.3)'
+                  {(message.isBot || message.isAdmin) && <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden" style={{
+              background: message.isAdmin ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
             }}>
                       {message.isAdmin ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
                     </div>}
