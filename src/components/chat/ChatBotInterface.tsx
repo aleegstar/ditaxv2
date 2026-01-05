@@ -336,7 +336,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
 
           <div className="flex items-center gap-3">
             {/* Bot Avatar */}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-md border border-[#1D64FF]/30 relative overflow-hidden" style={{
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden" style={{
             background: escalatedMode ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
           }}>
               {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
