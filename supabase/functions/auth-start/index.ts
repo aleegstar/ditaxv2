@@ -59,19 +59,15 @@ serve(async (req) => {
     // CRITICAL: Use static HTML file to preserve hash fragment during OAuth callback
     // The static file does a client-side redirect to /native-callback, preserving the #access_token
     // This avoids server-side redirects that strip the hash fragment
-    // NOTE: The trailing # ensures Supabase appends tokens after it (e.g., #access_token=xxx)
-    const redirectUrl = `https://app.ditax.ch/native-callback.html?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}#`;
+    // NOTE: We manually build the URL to ensure # is not encoded to %23
+    const redirectUrl = `https://app.ditax.ch/native-callback.html?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}`;
+    
+    // Manually encode redirect URL and append %23 (which Supabase will decode to #)
+    // URLSearchParams would encode # to %23, but at the wrong position
+    const encodedRedirectWithHash = encodeURIComponent(redirectUrl) + '%23';
 
-    // Build OAuth URL using Supabase's authorize endpoint
-    // Let Supabase handle state parameter internally with flow_type=implicit
-    const params = new URLSearchParams({
-      provider,
-      redirect_to: redirectUrl,
-      scopes: 'openid email profile',
-      flow_type: 'implicit',
-    });
-
-    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
+    // Build OAuth URL manually to control exact encoding
+    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodedRedirectWithHash}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
 
     console.log('✅ auth-start: Generated OAuth URL', { 
       oauthUrl, 
