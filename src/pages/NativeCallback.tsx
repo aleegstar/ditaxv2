@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { DEEPLINK_SCHEME } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
@@ -13,13 +13,14 @@ import { Loader2, CheckCircle2, XCircle } from "lucide-react";
  * - Die Session wird in Auth.tsx gesetzt (im WebView)
  */
 const NativeCallback = () => {
+  const { deeplinkScheme: pathScheme } = useParams();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const hasRun = useRef(false);
 
-  // Get deeplink_scheme from query params or use default
-  const deeplinkScheme = searchParams.get('deeplink_scheme') || DEEPLINK_SCHEME;
+  // Get deeplink_scheme from path params first, then query params, then default
+  const deeplinkScheme = pathScheme || searchParams.get('deeplink_scheme') || DEEPLINK_SCHEME;
 
   useEffect(() => {
     // Prevent double execution
