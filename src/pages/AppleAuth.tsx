@@ -5,13 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { isDespiaEnvironment, isAndroidEnvironment } from "@/utils/platform";
 import { isDespiaNative, DEEPLINK_SCHEME } from "@/lib/despia";
 import { supabase } from "@/integrations/supabase/client";
-
-// Despia SDK helper
-declare global {
-  interface Window {
-    despia?: (command: string) => void;
-  }
-}
+import despia from "despia-native";
 
 const AppleAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,12 +18,15 @@ const AppleAuth = () => {
         const isNative = Capacitor.isNativePlatform() || isAndroidEnvironment();
         
         console.log('🔐 AppleAuth: Starting authentication', { isDespia, isNative });
+        console.log('🔐 AppleAuth: Debug info:', {
+          userAgent: navigator.userAgent,
+          despiaPackageType: typeof despia,
+        });
         
         if (isDespia) {
           // Use Despia Easy OAuth via auth-start Edge Function
           console.log('🔗 AppleAuth: Using Despia Easy OAuth via auth-start Edge Function');
           
-          // Call auth-start Edge Function to get the OAuth URL with correct redirect
           const { data, error: fnError } = await supabase.functions.invoke('auth-start', {
             body: {
               provider: 'apple',
@@ -43,15 +40,21 @@ const AppleAuth = () => {
             throw new Error(fnError?.message || 'Failed to get OAuth URL from auth-start');
           }
           
-          // Trigger Despia Easy OAuth with correct format: oauth://?url=ENCODED_URL
+          // Trigger Despia Easy OAuth using the despia-native NPM package
           const oauthCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
-          console.log('🔗 AppleAuth: Triggering Despia OAuth:', oauthCommand);
+          console.log('🔗 AppleAuth: Executing despia command:', oauthCommand);
           
-          if (typeof window.despia === 'function') {
-            window.despia(oauthCommand);
-          } else {
-            throw new Error('Despia SDK not available');
-          }
+          despia(oauthCommand);
+          
+          // Timeout: Show error if OAuth doesn't proceed within 5 seconds
+          setTimeout(() => {
+            if (isLoading) {
+              console.warn('⚠️ AppleAuth: OAuth timeout - browser may not have opened');
+              setError("OAuth konnte nicht gestartet werden. Bitte versuche es erneut.");
+              setIsLoading(false);
+            }
+          }, 5000);
+          
           return;
         }
         
