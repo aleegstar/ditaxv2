@@ -112,10 +112,19 @@ const NativeCallback = () => {
     }
 
     const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
-    console.log('🔗 NativeCallback: Redirecting to app via deeplink:', deeplinkUrl);
+    
+    // DEBUG: Log complete deeplink details
+    console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
+    console.log('🔗 Deeplink scheme:', deeplinkScheme);
+    console.log('🔗 Access token length:', accessToken?.length);
+    console.log('🔗 Refresh token length:', refreshToken?.length);
+    console.log('🔗 Params string:', params.toString());
+    console.log('🔗 FULL DEEPLINK URL:', deeplinkUrl);
+    console.log('🔗 Deeplink URL length:', deeplinkUrl.length);
 
     // Redirect - this closes the browser session and opens WebView at /auth?tokens
     setTimeout(() => {
+      console.log('🔗 Executing redirect now...');
       window.location.href = deeplinkUrl;
     }, 500);
   }, [deeplinkScheme]);
