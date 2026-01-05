@@ -62,11 +62,13 @@ serve(async (req) => {
     const redirectUrl = `https://app.ditax.ch/native-callback?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}`;
 
     // Build OAuth URL using Supabase's authorize endpoint
-    // Supabase uses implicit flow by default for the authorize endpoint
+    // CRITICAL: Use response_type=token to force implicit flow (returns tokens in hash)
+    // Without this, Supabase may use PKCE flow (returns code in query params)
     const params = new URLSearchParams({
       provider,
       redirect_to: redirectUrl,
       scopes: 'openid email profile',
+      response_type: 'token',
     });
 
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
