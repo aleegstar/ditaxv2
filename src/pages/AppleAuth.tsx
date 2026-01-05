@@ -3,8 +3,15 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
 import { isDespiaEnvironment, isAndroidEnvironment } from "@/utils/platform";
-import { isDespiaNative, buildOAuthUrl, triggerDespiaOAuth } from "@/lib/despia";
+import { isDespiaNative, DEEPLINK_SCHEME } from "@/lib/despia";
 import { supabase } from "@/integrations/supabase/client";
+
+// Despia SDK helper
+declare global {
+  interface Window {
+    despia?: (command: string) => void;
+  }
+}
 
 const AppleAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,18 +26,32 @@ const AppleAuth = () => {
         console.log('🔐 AppleAuth: Starting authentication', { isDespia, isNative });
         
         if (isDespia) {
-          // Use Despia Easy OAuth with correct URL format
-          console.log('🔗 AppleAuth: Using Despia Easy OAuth');
+          // Use Despia Easy OAuth via auth-start Edge Function
+          console.log('🔗 AppleAuth: Using Despia Easy OAuth via auth-start Edge Function');
           
-          // Build OAuth URL with redirect to native-callback
-          const redirectTo = `${window.location.origin}/native-callback`;
-          const oauthUrl = buildOAuthUrl('apple', redirectTo);
+          // Call auth-start Edge Function to get the OAuth URL with correct redirect
+          const { data, error: fnError } = await supabase.functions.invoke('auth-start', {
+            body: {
+              provider: 'apple',
+              deeplink_scheme: DEEPLINK_SCHEME
+            }
+          });
           
-          console.log('🔗 AppleAuth: OAuth URL:', oauthUrl);
-          console.log('🔗 AppleAuth: Redirect URL:', redirectTo);
+          console.log('🔗 AppleAuth: auth-start response:', { data, error: fnError });
+          
+          if (fnError || !data?.url) {
+            throw new Error(fnError?.message || 'Failed to get OAuth URL from auth-start');
+          }
           
           // Trigger Despia Easy OAuth with correct format: oauth://?url=ENCODED_URL
-          triggerDespiaOAuth(oauthUrl);
+          const oauthCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
+          console.log('🔗 AppleAuth: Triggering Despia OAuth:', oauthCommand);
+          
+          if (typeof window.despia === 'function') {
+            window.despia(oauthCommand);
+          } else {
+            throw new Error('Despia SDK not available');
+          }
           return;
         }
         
