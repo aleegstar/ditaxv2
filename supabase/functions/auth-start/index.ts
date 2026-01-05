@@ -59,7 +59,8 @@ serve(async (req) => {
     // CRITICAL: Redirect to /native-callback (NOT /auth)
     // NativeCallback.tsx will parse tokens and redirect to deeplink to close the browser session
     // Using app.ditax.ch as the production URL
-    const redirectUrl = `https://app.ditax.ch/native-callback?deeplink_scheme=${encodeURIComponent(deeplink_scheme)}`;
+    // Use path param instead of query param to preserve hash fragment
+    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}`;
 
     // Build OAuth URL using Supabase's authorize endpoint
     // Let Supabase handle state parameter internally with flow_type=implicit
