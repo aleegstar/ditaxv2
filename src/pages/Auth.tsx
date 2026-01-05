@@ -175,15 +175,18 @@ const Auth = () => {
     if (isDespia) {
       try {
         console.log('📱 Starting Despia OAuth flow...');
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke('auth-start', {
+        console.log('📱 Debug info:', {
+          userAgent: navigator.userAgent,
+          despiaPackageType: typeof despia,
+        });
+        
+        const { data, error } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
             deeplink_scheme: 'ditax'
           }
         });
+        
         if (error || !data?.url) {
           console.error('❌ Failed to get OAuth URL:', error);
           toast.error("Fehler beim Starten der Anmeldung");
@@ -191,23 +194,24 @@ const Auth = () => {
           setIsOAuthLoading(false);
           return;
         }
-        console.log('✅ OAuth URL from edge function:', data.url);
+        
+        console.log('✅ OAuth URL received:', data.url);
         const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
-        console.log('📱 Despia command:', despiaCommand);
-
-        // Method 1: NPM Package
-        console.log('📱 Calling despia() via NPM package...');
+        console.log('📱 Executing despia command:', despiaCommand);
+        
+        // Use despia NPM package - it handles window.despia internally
         despia(despiaCommand);
-        console.log('📱 window.despia (after NPM):', (window as any).despia);
-
-        // Method 2: Direct assignment (fallback test)
-        console.log('📱 Also setting window.despia directly...');
-        (window as any).despia = despiaCommand;
-        console.log('📱 window.despia (after direct):', (window as any).despia);
-        console.log('====== DESPIA OAUTH DEBUG END ======');
-
-        // Visual feedback for user
-        toast.info("OAuth wird gestartet...");
+        
+        // Timeout: Reset loading state if OAuth doesn't proceed within 5 seconds
+        setTimeout(() => {
+          if (isOAuthInProgress.current) {
+            console.warn('⚠️ OAuth timeout - browser may not have opened');
+            isOAuthInProgress.current = false;
+            setIsOAuthLoading(false);
+            toast.error("OAuth konnte nicht gestartet werden. Bitte versuche es erneut.");
+          }
+        }, 5000);
+        
       } catch (err) {
         console.error('❌ Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
