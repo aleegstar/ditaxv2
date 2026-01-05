@@ -80,9 +80,9 @@ const NativeCallback = () => {
       console.log('🔗 Triggering deeplink with multi-method approach:', url);
       
       // Method 1: Android Intent URL (works better in Custom Tabs)
-      // Package name from assetlinks.json: ch.ditax.app
+      // Package name: com.despia.ditax
       const intentUrl = url.replace(`${deeplinkScheme}://`, 'intent://') 
-        + '#Intent;scheme=' + deeplinkScheme + ';package=ch.ditax.app;end';
+        + '#Intent;scheme=' + deeplinkScheme + ';package=com.despia.ditax;end';
       console.log('🔗 Intent URL:', intentUrl);
       
       // Method 2: Meta refresh tag (some browsers follow this)
