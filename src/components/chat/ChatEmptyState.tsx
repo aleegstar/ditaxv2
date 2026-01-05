@@ -74,7 +74,7 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({
       }} transition={{
         duration: 0.5,
         delay: 0.4
-      }} className="text-2xl font-bold text-white/90 mb-3">
+      }} className="text-2xl font-bold mb-3 text-[#1d283a]">
           Hallo{userName ? `, ${userName}` : ''}!
         </motion.h2>
 
