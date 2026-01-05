@@ -26,14 +26,18 @@ const NativeCallback = () => {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    console.log('🔐 NativeCallback: Processing authentication...');
-    console.log('🔗 Debug info:', {
-      fullUrl: window.location.href,
-      hash: window.location.hash,
-      search: window.location.search,
-      pathname: window.location.pathname,
-      deeplinkScheme
-    });
+    // EXTENSIVE DEBUG LOGGING - Log everything about the received URL
+    console.log('🔐🔐🔐 NativeCallback RECEIVED URL 🔐🔐🔐');
+    console.log('🔐 FULL URL:', window.location.href);
+    console.log('🔐 Protocol:', window.location.protocol);
+    console.log('🔐 Host:', window.location.host);
+    console.log('🔐 Hostname:', window.location.hostname);
+    console.log('🔐 Pathname:', window.location.pathname);
+    console.log('🔐 Search (query params):', window.location.search);
+    console.log('🔐 Hash (fragment):', window.location.hash);
+    console.log('🔐 Hash length:', window.location.hash.length);
+    console.log('🔐 deeplinkScheme from query:', deeplinkScheme);
+    console.log('🔐🔐🔐 END URL DEBUG 🔐🔐🔐');
 
     // Parse tokens from URL hash (Supabase Implicit Flow)
     const hash = window.location.hash.substring(1);
