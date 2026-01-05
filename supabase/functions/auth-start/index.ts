@@ -64,11 +64,15 @@ serve(async (req) => {
     // Build OAuth URL using Supabase's authorize endpoint
     // CRITICAL: Use flow_type=implicit for proper state management (CSRF protection)
     // This ensures Supabase generates and validates the state parameter
+    // Some providers / configurations may omit state unless explicitly set, so we set one too.
+    const state = crypto.randomUUID();
+
     const params = new URLSearchParams({
       provider,
       redirect_to: redirectUrl,
       scopes: 'openid email profile',
       flow_type: 'implicit',
+      state,
     });
 
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
