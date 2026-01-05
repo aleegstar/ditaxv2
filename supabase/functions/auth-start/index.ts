@@ -68,7 +68,8 @@ serve(async (req) => {
       provider,
       redirect_to: redirectUrl,
       scopes: 'openid email profile',
-      flow_type: 'implicit',
+      flow_type: 'implicit',      // Supabase state management (CSRF protection)
+      response_type: 'token',     // Tell Google to return tokens in hash fragment
     });
 
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?${params.toString()}`;
