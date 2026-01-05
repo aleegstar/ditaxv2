@@ -90,26 +90,64 @@
           log('Hash: ' + window.location.hash);
           log('Search: ' + window.location.search);
           
-          // Parse hash params (tokens come after #)
+          // STRATEGY: Try multiple locations for tokens
+          // 1. Hash fragment (standard OAuth implicit flow)
+          // 2. Query parameters (some OAuth implementations)
+          // 3. Combined URL parsing (for malformed URLs where # was stripped)
+          
           var hash = window.location.hash.substring(1);
           var hashParams = new URLSearchParams(hash);
-          
-          // Parse query params for deeplink_scheme
           var queryParams = new URLSearchParams(window.location.search);
-          var scheme = queryParams.get('deeplink_scheme') || 'ditax';
           
+          // Get scheme from query params
+          var scheme = queryParams.get('deeplink_scheme') || 'ditax';
           log('Scheme: ' + scheme);
           
-          // Extract tokens
-          var accessToken = hashParams.get('access_token');
-          var refreshToken = hashParams.get('refresh_token');
-          var expiresIn = hashParams.get('expires_in');
-          var tokenType = hashParams.get('token_type');
-          var error = hashParams.get('error');
-          var errorDescription = hashParams.get('error_description');
+          // Try to find tokens - first in hash, then in query
+          var accessToken = hashParams.get('access_token') || queryParams.get('access_token');
+          var refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token');
+          var expiresIn = hashParams.get('expires_in') || queryParams.get('expires_in');
+          var tokenType = hashParams.get('token_type') || queryParams.get('token_type');
+          var expiresAt = hashParams.get('expires_at') || queryParams.get('expires_at');
+          var providerToken = hashParams.get('provider_token') || queryParams.get('provider_token');
+          var error = hashParams.get('error') || queryParams.get('error');
+          var errorDescription = hashParams.get('error_description') || queryParams.get('error_description');
+          
+          // FALLBACK: If no token found, try parsing the full URL for embedded tokens
+          // This handles cases where Supabase appends tokens without proper separators
+          if (!accessToken) {
+            log('No token in hash/query, trying URL parse...');
+            var fullUrl = window.location.href;
+            
+            // Look for access_token= anywhere in URL
+            var tokenMatch = fullUrl.match(/access_token=([^&]+)/);
+            if (tokenMatch) {
+              accessToken = decodeURIComponent(tokenMatch[1]);
+              log('Found access_token via regex');
+            }
+            
+            // Look for refresh_token=
+            var refreshMatch = fullUrl.match(/refresh_token=([^&]+)/);
+            if (refreshMatch) {
+              refreshToken = decodeURIComponent(refreshMatch[1]);
+            }
+            
+            // Look for expires_at=
+            var expiresAtMatch = fullUrl.match(/expires_at=([^&]+)/);
+            if (expiresAtMatch) {
+              expiresAt = decodeURIComponent(expiresAtMatch[1]);
+            }
+            
+            // Look for expires_in=
+            var expiresInMatch = fullUrl.match(/expires_in=([^&]+)/);
+            if (expiresInMatch) {
+              expiresIn = decodeURIComponent(expiresInMatch[1]);
+            }
+          }
           
           log('Access token: ' + (accessToken ? accessToken.substring(0, 20) + '...' : 'null'));
           log('Refresh token: ' + (refreshToken ? 'present' : 'null'));
+          log('Expires at: ' + (expiresAt || expiresIn || 'null'));
           log('Error: ' + (error || 'none'));
           
           // Handle OAuth error
@@ -124,7 +162,7 @@
           
           // If no tokens found, show error
           if (!accessToken) {
-            log('ERROR: No access token found in hash');
+            log('ERROR: No access token found anywhere in URL');
             showError('Fehler: Keine Anmeldedaten gefunden');
             return;
           }
