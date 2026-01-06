@@ -99,9 +99,12 @@
           var hashParams = new URLSearchParams(hash);
           var queryParams = new URLSearchParams(window.location.search);
           
-          // Get scheme from query params
-          var scheme = queryParams.get('deeplink_scheme') || 'ditax';
-          log('Scheme: ' + scheme);
+          // Get scheme from query params - clean up if tokens were incorrectly appended
+          var rawScheme = queryParams.get('deeplink_scheme') || '';
+          // If Supabase stripped the & separator, the scheme might contain _access_token or &access_token
+          var scheme = rawScheme.split('_access_token')[0].split('&access_token')[0] || 'ditax';
+          log('Raw scheme: ' + rawScheme);
+          log('Cleaned scheme: ' + scheme);
           
           // Try to find tokens - first in hash, then in query
           var accessToken = hashParams.get('access_token') || queryParams.get('access_token');
