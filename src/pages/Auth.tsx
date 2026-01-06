@@ -34,14 +34,6 @@ const Auth = () => {
   // This handles tokens passed from NativeCallback via deeplink: ditax://oauth/auth?tokens
   useEffect(() => {
     const handleDeeplinkAuth = async () => {
-      // DEBUG: Log all URL details for troubleshooting Despia OAuth
-      console.log('🔐🔐🔐 Auth.tsx handleDeeplinkAuth DEBUG 🔐🔐🔐');
-      console.log('🔐 Full URL:', window.location.href);
-      console.log('🔐 Pathname:', window.location.pathname);
-      console.log('🔐 Search:', window.location.search);
-      console.log('🔐 Hash:', window.location.hash);
-      console.log('🔐 All searchParams:', Object.fromEntries(searchParams.entries()));
-      
       // Check query params (from deeplink) - support both full names and short forms (at/rt)
       const success = searchParams.get('success');
       const accessToken = searchParams.get('access_token') || searchParams.get('at');
@@ -62,16 +54,6 @@ const Auth = () => {
       const finalRefreshToken = refreshToken || hashRefreshToken;
       const finalError = errorParam || hashError;
       const finalErrorDescription = errorDescription || hashErrorDescription;
-      
-      console.log('🔐 Token extraction results:', {
-        source: accessToken ? 'query' : hashAccessToken ? 'hash' : 'none',
-        hasAccessToken: !!finalAccessToken,
-        accessTokenLength: finalAccessToken?.length || 0,
-        hasRefreshToken: !!finalRefreshToken,
-        refreshTokenLength: finalRefreshToken?.length || 0,
-        success,
-        error: finalError
-      });
 
       // Handle errors first
       if (finalError) {
@@ -87,51 +69,28 @@ const Auth = () => {
 
       // If no tokens, check if already authenticated
       if (!finalAccessToken) {
-        // Check for existing session
-        const {
-          data: {
-            session
-          }
-        } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          console.log('🔐 Auth: Already logged in, redirecting to home');
-          navigate('/', {
-            replace: true
-          });
+          navigate('/', { replace: true });
         }
-        // Otherwise show login UI (handled by render)
         return;
       }
 
-      // Process tokens
-      console.log('🔐 Auth: Processing authentication tokens');
+      // Process tokens immediately
       setIsOAuthLoading(true);
       try {
-        // Set the session with the tokens
-        const {
-          data,
-          error
-        } = await supabase.auth.setSession({
+        const { data, error } = await supabase.auth.setSession({
           access_token: finalAccessToken,
           refresh_token: finalRefreshToken || ''
         });
-        if (error) {
-          console.error('❌ Auth: Session error:', error);
-          throw error;
-        }
-        console.log('✅ Auth: Session set successfully', {
-          userId: data.user?.id,
-          email: data.user?.email
-        });
+        if (error) throw error;
 
-        // Clear URL to remove tokens
+        // Fast redirect - clear URL and navigate immediately
         window.history.replaceState({}, '', '/auth');
         toast.success('Erfolgreich angemeldet!');
-        navigate('/', {
-          replace: true
-        });
+        navigate('/', { replace: true });
       } catch (error: any) {
-        console.error('❌ Auth: Auth error:', error);
+        console.error('Auth error:', error);
         toast.error(error.message || 'Fehler bei der Anmeldung');
       } finally {
         setIsOAuthLoading(false);
@@ -175,22 +134,10 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-    // DEBUG: Log environment details
-    console.log('====== DESPIA OAUTH DEBUG ======');
-    console.log('📱 UserAgent:', navigator.userAgent);
-    console.log('📱 isDespiaNative():', isDespia);
-    console.log('📱 isNativeCapacitor:', isNativeCapacitor);
-    console.log('📱 window.despia (before):', (window as any).despia);
 
     // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
-        console.log('📱 Starting Despia OAuth flow...');
-        console.log('📱 Debug info:', {
-          userAgent: navigator.userAgent,
-          despiaPackageType: typeof despia,
-        });
-        
         const { data, error } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
@@ -206,22 +153,7 @@ const Auth = () => {
           return;
         }
         
-        console.log('✅ OAuth URL received:', data.url);
-        const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
-        console.log('📱 Executing despia command:', despiaCommand);
-        
-        // Use despia NPM package - it handles window.despia internally
-        despia(despiaCommand);
-        
-        // Timeout: Reset loading state if OAuth doesn't proceed within 5 seconds
-        setTimeout(() => {
-          if (isOAuthInProgress.current) {
-            console.warn('⚠️ OAuth timeout - browser may not have opened');
-            isOAuthInProgress.current = false;
-            setIsOAuthLoading(false);
-            toast.error("OAuth konnte nicht gestartet werden. Bitte versuche es erneut.");
-          }
-        }, 5000);
+        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
         
       } catch (err) {
         console.error('❌ Error starting native auth:', err);
@@ -361,14 +293,9 @@ const Auth = () => {
   const handleWebAuthnAuth = () => {
     const isDespia = isDespiaNative();
     if (isDespia) {
-      // In Despia: Open passkey auth in system browser via Easy OAuth
-      // Email is optional - the WebAuthn page will ask for it if not provided
-      console.log('🔐 Despia detected - opening passkey auth in system browser');
       triggerDespiaPasskeyAuth(email || undefined);
       return;
     }
-
-    // Normal web flow
     navigate('/webauthn-auth');
   };
   const handleCodeChange = (value: string) => {
