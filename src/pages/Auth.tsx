@@ -533,8 +533,8 @@ const Auth = () => {
 
               </div>
 
-              {/* Footer Links with Aikido Badge */}
-              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
+              {/* Aikido Security Badge - Centered */}
+              <div className="mt-6 flex justify-center">
                 <a 
                   href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" 
                   target="_blank"
@@ -548,6 +548,10 @@ const Auth = () => {
                     className="h-4"
                   />
                 </a>
+              </div>
+
+              {/* Footer Links */}
+              <div className="mt-4 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
                 <a href="/terms" className="hover:text-slate-600 transition-colors">Impressum</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a className="hover:text-slate-600 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
