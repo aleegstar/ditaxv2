@@ -253,7 +253,7 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Dark overlay with transparent hole - only show for steps with target elements */}
+        {/* Light overlay with transparent hole - only show for steps with target elements */}
         {currentStepData.targetElement && (
           <>
             <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
@@ -275,13 +275,13 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                 y="0"
                 width="100%"
                 height="100%"
-                fill="#020408"
+                fill="rgba(255, 255, 255, 0.92)"
                 mask="url(#form-spotlight-mask)"
               />
             </svg>
             {/* Enhanced spotlight border for native app visibility */}
             <motion.div 
-              className="absolute pointer-events-none rounded-3xl border-2 border-white shadow-[0_0_0_4px_rgba(29,100,255,0.5),0_0_30px_rgba(29,100,255,0.6)]"
+              className="absolute pointer-events-none rounded-3xl border-2 border-[#1D64FF] shadow-[0_0_0_4px_rgba(29,100,255,0.3),0_0_25px_rgba(29,100,255,0.4)]"
               animate={{
                 left: spotlightPosition.x - 4,
                 top: spotlightPosition.y - 4,
@@ -295,13 +295,13 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
             />
             {/* Pulsing ring for better visibility */}
             <motion.div 
-              className="absolute pointer-events-none rounded-3xl border-2 border-[#1D64FF]/60"
+              className="absolute pointer-events-none rounded-3xl border-2 border-[#1D64FF]/50"
               animate={{
                 left: spotlightPosition.x - 8,
                 top: spotlightPosition.y - 8,
                 width: spotlightPosition.width + 16,
                 height: spotlightPosition.height + 16,
-                opacity: [0.6, 0.2, 0.6],
+                opacity: [0.5, 0.2, 0.5],
                 scale: [1, 1.02, 1]
               }}
               transition={{ 
@@ -313,9 +313,9 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
           </>
         )}
 
-        {/* For welcome step, show solid background */}
+        {/* For welcome step, show solid light background */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-[#020408]" />
+          <div className="absolute inset-0 bg-white/92" />
         )}
 
         {/* Progress indicator */}
@@ -325,16 +325,16 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
               key={index}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-700 ease-out",
-                index <= currentStep ? "bg-white scale-110" : "bg-white/30 scale-100"
+                index <= currentStep ? "bg-[#1D64FF] scale-110" : "bg-slate-300 scale-100"
               )}
             />
           ))}
         </div>
 
-        {/* Close button top right */}
+        {/* Close button top right - light theme */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-[#0A0C10] border border-white/[0.08] hover:bg-[#0A0C10]/80 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 transition-all duration-200 shadow-lg"
           aria-label="Tour schließen"
         >
           <X className="w-5 h-5" />
@@ -357,22 +357,22 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
             layout
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className={cn(
-              "bg-[#0A0C10] border border-white/[0.08] rounded-xl shadow-2xl relative",
+              "bg-white border border-slate-200 rounded-2xl shadow-2xl relative",
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
             )}
           >
-            {/* Arrow pointing in correct direction based on tooltip position - only for non-welcome steps */}
+            {/* Arrow pointing in correct direction - light theme */}
             <AnimatePresence mode="wait">
               {currentStepData.targetElement && (() => {
                 const arrowKey = `${currentStepData.position}-${isMobile}`;
                 if (currentStepData.position === 'right' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-white" />;
                 } else if (currentStepData.position === 'left' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-white" />;
                 } else if (currentStepData.position === 'top') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white" />;
                 } else if (currentStepData.position === 'bottom') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white" />;
                 }
               })()}
             </AnimatePresence>
@@ -387,13 +387,13 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                   transition={{ duration: 0.2 }}
                 >
                   <h3 className={cn(
-                    "font-semibold text-white mb-2 transition-all duration-300",
+                    "font-semibold text-slate-900 mb-2 transition-all duration-300",
                     isMobile ? "text-base" : "text-lg"
                   )}>
                     {currentStepData.title}
                   </h3>
                   <p className={cn(
-                    "text-zinc-400 mb-4 transition-all duration-300",
+                    "text-slate-500 mb-4 transition-all duration-300",
                     isMobile ? "text-sm" : "text-base"
                   )}>
                     {currentStepData.description}
@@ -406,14 +406,14 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                   variant="outline"
                   size={isMobile ? "sm" : "default"}
                   onClick={handleSkip}
-                  className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
+                  className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                 >
                   Überspringen
                 </Button>
                 <Button
                   size={isMobile ? "sm" : "default"}
                   onClick={handleNext}
-                  className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+                  className="bg-[#1D64FF] hover:bg-[#1854D9] text-white shadow-lg shadow-[#1D64FF]/25"
                 >
                   {currentStep < tourSteps.length - 1 ? 'Weiter' : 'Fertig'}
                 </Button>
