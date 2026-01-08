@@ -519,19 +519,18 @@ export function Sidebar() {
       </aside>;
   }
 
-  // Mobile sidebar - overlay pattern with light design
+  // Mobile sidebar - overlay pattern with clean white design
   return <>
     {/* Overlay - positioned behind the sidebar */}
     <div className={`fixed inset-0 z-[10000] ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`} style={{
-      backgroundColor: 'rgba(0, 0, 0, 0.3)'
+      backgroundColor: 'rgba(0, 0, 0, 0.4)'
     }} onClick={handleClose} />
     
-    {/* Sidebar - positioned in front of overlay with light design */}
-    <div data-sidebar className={`fixed left-0 top-0 z-[10001] h-screen w-full flex flex-col transform ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`} style={{
-      maxWidth: '85%',
-      backgroundColor: '#ffffff'
+    {/* Sidebar - positioned in front of overlay with clean white design */}
+    <div data-sidebar className={`fixed left-0 top-0 z-[10001] h-screen w-full flex flex-col transform ${isClosing ? 'animate-slide-out' : 'animate-slide-in'} bg-white`} style={{
+      maxWidth: '85%'
     }}>
-      <div className="flex items-center justify-between h-14 px-4 shrink-0 border-b border-slate-200">
+      <div className="flex items-center justify-between h-14 px-4 shrink-0 border-b border-slate-200 bg-white">
         <div className="flex items-center space-x-3">
           <img src="/ditax-logo-new.png" alt="Ditax" className="h-5 w-auto" />
         </div>
@@ -540,7 +539,7 @@ export function Sidebar() {
         </button>
       </div>
       
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 bg-white scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
         {/* Navigation Section */}
         <SidebarGroup>
           <button onClick={() => setNavigationExpanded(!navigationExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition-colors">
