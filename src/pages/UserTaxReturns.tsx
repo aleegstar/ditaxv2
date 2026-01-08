@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Bell, ScanLine, Inbox } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, ScanLine, Inbox } from 'lucide-react';
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoFull from '@/assets/ditax-logo-full.png';
-import { NotificationDropdown } from '@/components/ui/notification-dropdown';
-import { ChatButtonWithNotification } from '@/components/chat/ChatButtonWithNotification';
+import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -197,12 +196,15 @@ const UserTaxReturns = () => {
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
 
-          {/* Notification Bell */}
-          <NotificationDropdown className="text-gray-400 hover:text-gray-900 hover:bg-gray-50" />
+          {/* Profile with Notifications */}
+          <ProfileWithNotifications
+            avatarUrl={userProfile?.avatar_url}
+            firstName={userProfile?.first_name}
+          />
         </header>
 
         {/* Greeting Section */}
-        <section className="flex pb-10 items-end justify-between">
+        <section className="pb-10">
           <div className="flex flex-col gap-1">
             <p className="font-medium text-gray-500 font-jakarta text-sm">
               {getGreeting()}
@@ -210,9 +212,6 @@ const UserTaxReturns = () => {
             <h1 className="text-gray-900 font-medium tracking-tight font-jakarta leading-none text-2xl">
               {getUserDisplayName()}
             </h1>
-          </div>
-          <div className="relative shrink-0">
-            <img src={userProfile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="Profile" className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100" />
           </div>
         </section>
 
