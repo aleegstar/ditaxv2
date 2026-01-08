@@ -531,24 +531,23 @@ const Auth = () => {
                   <span className="font-medium text-[15px] tracking-tight">Weiter mit Passkey</span>
                 </button>
 
-                {/* Aikido Security Badge */}
+              </div>
+
+              {/* Footer Links with Aikido Badge */}
+              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
                 <a 
                   href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex justify-center mt-4"
+                  className="hover:opacity-80 transition-opacity"
                 >
                   <img 
                     src="https://app.aikido.dev/assets/badges/full-light-theme.svg" 
                     alt="Aikido Security Audit Report" 
-                    height="24"
-                    className="h-6"
+                    height="16"
+                    className="h-4"
                   />
                 </a>
-              </div>
-
-              {/* Footer Links */}
-              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
                 <a href="/terms" className="hover:text-slate-600 transition-colors">Impressum</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a className="hover:text-slate-600 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
