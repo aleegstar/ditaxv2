@@ -302,7 +302,7 @@ export default function TaxReturnActions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020408]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="h-8 w-8 animate-spin text-[#1D64FF]" />
       </div>
     );
@@ -310,9 +310,9 @@ export default function TaxReturnActions() {
 
   if (!completedTaxReturn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020408] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-white">Keine Steuererklärung gefunden</h1>
+          <h1 className="text-2xl font-bold mb-4 text-slate-900">Keine Steuererklärung gefunden</h1>
           <Button 
             onClick={() => navigate('/')}
             className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-full"
@@ -326,21 +326,17 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#020408]">
-        {/* Ambient Background Glows */}
-        <div className="fixed top-[-150px] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="fixed bottom-[-100px] right-[-100px] w-[300px] h-[300px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
-
+      <div className="min-h-screen bg-slate-50">
         {/* Header */}
-        <div className="sticky top-0 z-50 bg-[#020408]/80 backdrop-blur-xl border-b border-white/[0.08]">
+        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
             <button 
               onClick={() => navigate('/')}
-              className="w-10 h-10 rounded-full border border-white/[0.08] flex items-center justify-center text-zinc-400 hover:text-white hover:border-white/20 transition-colors"
+              className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-100 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-white flex-1 text-center pr-10">
+            <h1 className="text-lg font-semibold text-slate-900 flex-1 text-center pr-10">
               Steuererklärung {taxYear}
             </h1>
           </div>
@@ -348,32 +344,32 @@ export default function TaxReturnActions() {
         
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-24 md:pb-6 space-y-6 relative z-10">
             {/* Abgeschlossene Steuererklärung */}
-            <div className="relative w-full overflow-hidden rounded-[2rem] bg-[#0A0C10] border border-white/[0.08] transition-transform duration-500 hover:scale-[1.005]">
+            <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
               <div className="relative z-10 flex flex-col h-full p-6">
                 <div className="mb-4">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 border border-emerald-500/20 cursor-default">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 border border-emerald-200 cursor-default">
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                    <span className="text-xs font-medium tracking-wide text-emerald-500 uppercase">
+                    <span className="text-xs font-medium tracking-wide text-emerald-700 uppercase">
                       Abgeschlossen
                     </span>
                   </div>
                 </div>
                 <div className="max-w-2xl mb-6">
-                  <h2 className="font-medium tracking-tight text-white text-2xl mb-0 leading-tight">
+                  <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
                     Steuerjahr {taxYear}
                   </h2>
                 </div>
                 <div className="mt-auto flex flex-col gap-3">
                   <button 
                     onClick={handleView}
-                    className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Eye className="w-5 h-5" />
                     <span>Ansehen</span>
                   </button>
                   <button 
                     onClick={handleDownload}
-                    className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Download className="w-5 h-5" />
                     <span>Herunterladen</span>
@@ -383,27 +379,27 @@ export default function TaxReturnActions() {
             </div>
 
             {/* Definitive Steuerrechnung */}
-            <div className="relative w-full overflow-hidden rounded-[2rem] bg-[#0A0C10] border border-white/[0.08] transition-transform duration-500 hover:scale-[1.005]">
+            <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
               <div className="relative z-10 flex flex-col h-full p-6">
                 <div className="mb-4">
                   {definitiveTaxBill ? (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 border border-emerald-500/20 cursor-default">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 border border-emerald-200 cursor-default">
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                      <span className="text-xs font-medium tracking-wide text-emerald-500 uppercase">
+                      <span className="text-xs font-medium tracking-wide text-emerald-700 uppercase">
                         Vorhanden
                       </span>
                     </div>
                   ) : (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-4 py-1.5 border border-amber-500/20 cursor-default">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 border border-amber-200 cursor-default">
                       <div className="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
-                      <span className="text-xs font-medium tracking-wide text-amber-500 uppercase">
+                      <span className="text-xs font-medium tracking-wide text-amber-700 uppercase">
                         Ausstehend
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="max-w-2xl mb-6">
-                  <h2 className="font-medium tracking-tight text-white text-2xl mb-0 leading-tight">
+                  <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
                     Definitive Steuerrechnung
                   </h2>
                 </div>
@@ -412,14 +408,14 @@ export default function TaxReturnActions() {
                   <div className="mt-auto flex flex-col gap-3">
                     <button 
                       onClick={handleTaxBillView}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <Eye className="w-5 h-5" />
                       <span>Rechnung ansehen</span>
                     </button>
                     <button 
                       onClick={handleTaxBillDownload}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <Download className="w-5 h-5" />
                       <span>Rechnung herunterladen</span>
@@ -427,12 +423,12 @@ export default function TaxReturnActions() {
                   </div>
                 ) : (
                   <div className="mt-auto flex flex-col gap-3">
-                    <p className="text-sm text-zinc-500 mb-2">
+                    <p className="text-sm text-slate-500 mb-2">
                       Noch keine Steuerrechnung vorhanden. Lade sie hier hoch, sobald du sie erhalten hast.
                     </p>
                     <button 
                       onClick={() => setUploadDialogOpen(true)}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <Upload className="w-5 h-5" />
                       <span>Steuerrechnung hochladen</span>
@@ -443,27 +439,27 @@ export default function TaxReturnActions() {
             </div>
 
             {/* Problem melden */}
-            <div className="relative w-full overflow-hidden rounded-[2rem] bg-[#0A0C10] border border-white/[0.08] transition-transform duration-500 hover:scale-[1.005]">
+            <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
               <div className="relative z-10 flex flex-col h-full p-6">
                 <div className="mb-4">
                   {supportTickets.length > 0 ? (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#1D64FF]/10 px-4 py-1.5 border border-[#1D64FF]/20 cursor-default">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 border border-blue-200 cursor-default">
                       <div className="h-1.5 w-1.5 rounded-full bg-[#1D64FF]"></div>
                       <span className="text-xs font-medium tracking-wide text-[#1D64FF] uppercase">
                         {supportTickets.length} {supportTickets.length === 1 ? 'Ticket' : 'Tickets'}
                       </span>
                     </div>
                   ) : (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 border border-white/[0.08] cursor-default">
-                      <div className="h-1.5 w-1.5 rounded-full bg-zinc-500"></div>
-                      <span className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 border border-slate-200 cursor-default">
+                      <div className="h-1.5 w-1.5 rounded-full bg-slate-500"></div>
+                      <span className="text-xs font-medium tracking-wide text-slate-500 uppercase">
                         Support
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="max-w-2xl mb-6">
-                  <h2 className="font-medium tracking-tight text-white text-2xl mb-0 leading-tight">
+                  <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
                     Hilfe benötigt?
                   </h2>
                 </div>
@@ -474,12 +470,12 @@ export default function TaxReturnActions() {
                       {supportTickets.map((ticket) => (
                         <div 
                           key={ticket.id}
-                          className="p-3 bg-white/5 rounded-xl border border-white/[0.08]"
+                          className="p-3 bg-slate-50 rounded-xl border border-slate-200"
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium text-sm text-white">{ticket.title}</p>
-                              <p className="text-xs text-zinc-500">
+                              <p className="font-medium text-sm text-slate-900">{ticket.title}</p>
+                              <p className="text-xs text-slate-500">
                                 Status: {
                                   ticket.status === 'open' ? 'Offen' :
                                   ticket.status === 'in_progress' ? 'In Bearbeitung' :
@@ -494,14 +490,14 @@ export default function TaxReturnActions() {
                     </div>
                     <button 
                       onClick={() => navigate(`/tickets?year=${taxYear}`)}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <Eye className="w-5 h-5" />
                       <span>Tickets anzeigen</span>
                     </button>
                     <button 
                       onClick={handleCreateTicket}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <AlertTriangle className="w-5 h-5" />
                       <span>Neues Ticket</span>
@@ -509,12 +505,12 @@ export default function TaxReturnActions() {
                   </div>
                 ) : (
                   <div className="mt-auto flex flex-col gap-3">
-                    <p className="text-sm text-zinc-500 mb-2">
+                    <p className="text-sm text-slate-500 mb-2">
                       Falls du Fragen hast oder ein Problem feststellst, kannst du uns hier kontaktieren.
                     </p>
                     <button 
                       onClick={handleCreateTicket}
-                      className="group relative overflow-hidden bg-white/5 text-white rounded-full font-semibold text-sm sm:text-base border border-white/[0.08] hover:bg-white/10 hover:border-white/20 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                      className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     >
                       <AlertTriangle className="w-5 h-5" />
                       <span>Problem melden</span>
@@ -528,26 +524,26 @@ export default function TaxReturnActions() {
 
       {/* Upload Dialog */}
       <ModernUploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <ModernUploadDialogContent className="sm:max-w-md bg-[#0A0C10] border border-white/[0.08]">
+        <ModernUploadDialogContent className="sm:max-w-md bg-white border border-slate-200">
           <ModernUploadDialogHeader>
-            <ModernUploadDialogTitle className="text-white">Steuerrechnung hochladen</ModernUploadDialogTitle>
+            <ModernUploadDialogTitle className="text-slate-900">Steuerrechnung hochladen</ModernUploadDialogTitle>
           </ModernUploadDialogHeader>
           <div className="space-y-4 mt-4">
             <div>
-              <Label htmlFor="tax-bill-upload" className="text-zinc-400">PDF-Datei oder Bild auswählen</Label>
+              <Label htmlFor="tax-bill-upload" className="text-slate-600">PDF-Datei oder Bild auswählen</Label>
               <Input
                 id="tax-bill-upload"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,image/*"
                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                className="mt-2 bg-[#020408] border-white/[0.08] text-white file:text-white file:bg-white/10 file:border-0 file:rounded-md"
+                className="mt-2 bg-slate-50 border-slate-200 text-slate-900 file:text-slate-700 file:bg-slate-100 file:border-0 file:rounded-md"
               />
             </div>
             <div className="flex gap-3 flex-col sm:flex-row">
               <Button 
                 variant="outline" 
                 onClick={() => setUploadDialogOpen(false)} 
-                className="w-full bg-transparent hover:bg-white/5 border border-white/[0.15] text-white font-medium h-12 rounded-full"
+                className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-medium h-12 rounded-full"
               >
                 Abbrechen
               </Button>
