@@ -70,9 +70,15 @@ const Auth = () => {
 
       // If no tokens, check if already authenticated
       if (!finalAccessToken) {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: {
+            session
+          }
+        } = await supabase.auth.getSession();
         if (session) {
-          navigate('/', { replace: true });
+          navigate('/', {
+            replace: true
+          });
         }
         return;
       }
@@ -80,7 +86,10 @@ const Auth = () => {
       // Process tokens immediately
       setIsOAuthLoading(true);
       try {
-        const { data, error } = await supabase.auth.setSession({
+        const {
+          data,
+          error
+        } = await supabase.auth.setSession({
           access_token: finalAccessToken,
           refresh_token: finalRefreshToken || ''
         });
@@ -89,7 +98,9 @@ const Auth = () => {
         // Fast redirect - clear URL and navigate immediately
         window.history.replaceState({}, '', '/auth');
         toast.success('Erfolgreich angemeldet!');
-        navigate('/', { replace: true });
+        navigate('/', {
+          replace: true
+        });
       } catch (error: any) {
         console.error('Auth error:', error);
         toast.error(error.message || 'Fehler bei der Anmeldung');
@@ -135,17 +146,18 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-
     // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
-        const { data, error } = await supabase.functions.invoke('auth-start', {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
             deeplink_scheme: 'ditax'
           }
         });
-        
         if (error || !data?.url) {
           console.error('❌ Failed to get OAuth URL:', error);
           toast.error("Fehler beim Starten der Anmeldung");
@@ -153,9 +165,7 @@ const Auth = () => {
           setIsOAuthLoading(false);
           return;
         }
-        
         despia(`oauth://?url=${encodeURIComponent(data.url)}`);
-        
       } catch (err) {
         console.error('❌ Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -537,72 +547,50 @@ const Auth = () => {
               <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
                 <a href="/terms" className="hover:text-slate-600 transition-colors">Impressum</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <a 
-                  href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  <img 
-                    src="https://app.aikido.dev/assets/badges/full-light-theme.svg" 
-                    alt="Aikido Security Audit Report" 
-                    height="16"
-                    className="h-4"
-                  />
+                <a href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                  <img src="https://app.aikido.dev/assets/badges/full-light-theme.svg" alt="Aikido Security Audit Report" height="16" className="h-4" />
                 </a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a className="hover:text-slate-600 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <a href="/help" className="hover:text-slate-600 transition-colors">Hilfe</a>
+                
+                
               </div>
             </div>
           </motion.div>
         </div>}
 
         {/* Debug Section - Shows current URL for troubleshooting */}
-        {showDebug && (
-          <div className="fixed bottom-4 left-4 right-4 bg-slate-100 border border-slate-300 rounded-xl p-4 z-50 max-w-md mx-auto">
+        {showDebug && <div className="fixed bottom-4 left-4 right-4 bg-slate-100 border border-slate-300 rounded-xl p-4 z-50 max-w-md mx-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-slate-700">🔍 Debug Info</span>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    const debugInfo = {
-                      fullUrl: window.location.href,
-                      pathname: window.location.pathname,
-                      search: window.location.search,
-                      hash: window.location.hash,
-                      searchParams: Object.fromEntries(searchParams.entries()),
-                      hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
-                    };
-                    navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
-                    toast.success('Debug info copied!');
-                  }}
-                  className="text-xs bg-[#1D64FF] text-white px-3 py-1 rounded-lg"
-                >
+                <button onClick={() => {
+            const debugInfo = {
+              fullUrl: window.location.href,
+              pathname: window.location.pathname,
+              search: window.location.search,
+              hash: window.location.hash,
+              searchParams: Object.fromEntries(searchParams.entries()),
+              hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
+            };
+            navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+            toast.success('Debug info copied!');
+          }} className="text-xs bg-[#1D64FF] text-white px-3 py-1 rounded-lg">
                   Copy All
                 </button>
-                <button
-                  onClick={() => setShowDebug(false)}
-                  className="text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1 rounded-lg"
-                >
+                <button onClick={() => setShowDebug(false)} className="text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1 rounded-lg">
                   Schliessen
                 </button>
               </div>
             </div>
-            <textarea
-              readOnly
-              className="w-full h-32 text-xs font-mono bg-white border border-slate-200 rounded-lg p-2 resize-none"
-              value={JSON.stringify({
-                url: window.location.href,
-                search: window.location.search,
-                hash: window.location.hash,
-                params: Object.fromEntries(searchParams.entries()),
-                hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
-              }, null, 2)}
-            />
-          </div>
-        )}
+            <textarea readOnly className="w-full h-32 text-xs font-mono bg-white border border-slate-200 rounded-lg p-2 resize-none" value={JSON.stringify({
+        url: window.location.href,
+        search: window.location.search,
+        hash: window.location.hash,
+        params: Object.fromEntries(searchParams.entries()),
+        hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
+      }, null, 2)} />
+          </div>}
     </div>;
 };
 export default Auth;
