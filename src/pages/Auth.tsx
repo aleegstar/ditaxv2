@@ -530,6 +530,21 @@ const Auth = () => {
                   <Fingerprint className="w-5 h-5 shrink-0 text-slate-500 group-hover:text-slate-800 transition-colors" />
                   <span className="font-medium text-[15px] tracking-tight">Weiter mit Passkey</span>
                 </button>
+
+                {/* Aikido Security Badge */}
+                <a 
+                  href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex justify-center mt-4"
+                >
+                  <img 
+                    src="https://app.aikido.dev/assets/badges/full-light-theme.svg" 
+                    alt="Aikido Security Audit Report" 
+                    height="40"
+                    className="h-10"
+                  />
+                </a>
               </div>
 
               {/* Footer Links */}
