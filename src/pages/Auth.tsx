@@ -541,8 +541,8 @@ const Auth = () => {
                   <img 
                     src="https://app.aikido.dev/assets/badges/full-light-theme.svg" 
                     alt="Aikido Security Audit Report" 
-                    height="40"
-                    className="h-10"
+                    height="24"
+                    className="h-6"
                   />
                 </a>
               </div>
