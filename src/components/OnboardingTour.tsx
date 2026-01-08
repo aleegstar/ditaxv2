@@ -31,9 +31,9 @@ const mobileTourSteps: TourStep[] = [
   },
   {
     id: 'add-year',
-    title: 'Steuerjahr hinzufügen',
-    description: 'Hier kannst du weitere Steuerjahre hinzufügen.',
-    targetElement: '[data-tour="add-year"], .year-dropdown-button',
+    title: 'Neues Steuerjahr',
+    description: 'Hier kannst du eine neue Steuererklärung starten.',
+    targetElement: '[data-tour="add-year-card"]',
     position: 'bottom'
   },
   {
@@ -45,16 +45,16 @@ const mobileTourSteps: TourStep[] = [
   },
   {
     id: 'documents',
-    title: 'Dokumente hochladen',
-    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen und sammeln.',
+    title: 'Unterlagen hochladen',
+    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen.',
     targetElement: '[data-tour="floating-document-button"]',
     position: 'top'
   },
   {
     id: 'continue-card',
     title: 'Steuerjahr fortsetzen',
-    description: 'Steuererklärung öffnen und weiter verarbeiten.',
-    targetElement: '[data-tour="tax-year-card"], .blue-tax-year-card',
+    description: 'Steuererklärung öffnen und weiter bearbeiten.',
+    targetElement: '[data-tour="tax-year-card"]',
     position: 'bottom'
   }
 ];
@@ -69,9 +69,9 @@ const desktopTourSteps: TourStep[] = [
   },
   {
     id: 'add-year',
-    title: 'Steuerjahr hinzufügen',
-    description: 'Hier kannst du weitere Steuerjahre hinzufügen.',
-    targetElement: '[data-tour="add-year"], .year-dropdown-button',
+    title: 'Neues Steuerjahr',
+    description: 'Hier kannst du eine neue Steuererklärung starten.',
+    targetElement: '[data-tour="add-year-card"]',
     position: 'bottom'
   },
   {
@@ -83,16 +83,16 @@ const desktopTourSteps: TourStep[] = [
   },
   {
     id: 'documents',
-    title: 'Dokumente hochladen',
-    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen und sammeln.',
+    title: 'Unterlagen hochladen',
+    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen.',
     targetElement: '[data-tour="floating-document-button"]',
     position: 'top'
   },
   {
     id: 'continue-card',
     title: 'Steuerjahr fortsetzen',
-    description: 'Steuererklärung öffnen und weiter verarbeiten.',
-    targetElement: '[data-tour="tax-year-card"], .blue-tax-year-card',
+    description: 'Steuererklärung öffnen und weiter bearbeiten.',
+    targetElement: '[data-tour="tax-year-card"]',
     position: 'bottom'
   }
 ];
@@ -501,9 +501,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Solid dark overlay layer - no blur for native app compatibility */}
-
-        {/* Dark overlay with transparent hole - only show for steps with target elements */}
+        {/* Light overlay with transparent hole - only show for steps with target elements */}
         {currentStepData.targetElement && (
           <>
             <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
@@ -527,12 +525,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                   />
                 </mask>
               </defs>
-              <rect width="100%" height="100%" fill="black" opacity="0.5" mask="url(#tour-spotlight-mask)" />
+              <rect width="100%" height="100%" fill="rgba(255,255,255,0.92)" mask="url(#tour-spotlight-mask)" />
             </svg>
             
-            {/* Outline and glow to emphasize spotlight target - enhanced for native app */}
+            {/* Outline and glow to emphasize spotlight target */}
             <motion.div 
-              className="absolute pointer-events-none rounded-xl border-2 border-white shadow-[0_0_0_4px_rgba(29,100,255,0.5),0_0_30px_rgba(29,100,255,0.6),inset_0_0_20px_rgba(255,255,255,0.1)]"
+              className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF] shadow-[0_0_0_4px_rgba(29,100,255,0.2),0_0_30px_rgba(29,100,255,0.3)]"
               animate={{
                 left: spotlightPosition.x - 6,
                 top: spotlightPosition.y - 6,
@@ -546,13 +544,13 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             />
             {/* Pulsing ring animation for better visibility */}
             <motion.div 
-              className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF]/60"
+              className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF]/40"
               animate={{
                 left: spotlightPosition.x - 10,
                 top: spotlightPosition.y - 10,
                 width: spotlightPosition.width + 20,
                 height: spotlightPosition.height + 20,
-                opacity: [0.6, 0.2, 0.6],
+                opacity: [0.4, 0.1, 0.4],
                 scale: [1, 1.02, 1]
               }}
               transition={{ 
@@ -564,9 +562,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           </>
         )}
 
-        {/* For welcome step, show solid overlay - no blur for native app */}
+        {/* For welcome step, show light overlay */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-black/70" />
+          <div className="absolute inset-0 bg-white/90" />
         )}
 
 
@@ -577,7 +575,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               key={index}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-700 ease-out",
-                index <= currentStep ? "bg-white scale-110" : "bg-white/30 scale-100"
+                index <= currentStep ? "bg-[#1D64FF] scale-110" : "bg-slate-300 scale-100"
               )}
             />
           ))}
@@ -586,7 +584,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         {/* Close button top right */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-[#0A0C10] border border-white/[0.08] hover:bg-[#0A0C10]/80 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 hover:text-slate-800 transition-all duration-200 shadow-lg"
           aria-label="Tour schließen"
         >
           <X className="w-5 h-5" />
@@ -609,7 +607,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             layout
             transition={{ duration: 0.4, ease: "easeInOut" }}
             className={cn(
-              "bg-[#0A0C10] border border-white/[0.08] rounded-xl shadow-2xl relative",
+              "bg-white border border-slate-200 rounded-xl shadow-2xl relative",
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
             )}
           >
@@ -618,14 +616,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               {currentStepData.targetElement && (() => {
                 const arrowKey = `${currentStepData.position}-${isMobile}`;
                 if (currentStepData.position === 'right' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-white" />;
                 } else if (currentStepData.position === 'left' && !isMobile) {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-white" />;
                 } else if (currentStepData.position === 'top') {
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white" />;
                 } else if (currentStepData.position === 'bottom') {
                   // position === 'bottom' or mobile fallback
-                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-[#0A0C10]" />;
+                  return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white" />;
                 }
               })()}
             </AnimatePresence>
@@ -640,15 +638,15 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                   transition={{ duration: 0.2 }}
                 >
                   <h3 className={cn(
-                    "font-semibold text-white mb-2 transition-all duration-300",
+                    "font-semibold text-slate-900 mb-2 transition-all duration-300",
                     isMobile ? "text-base" : "text-lg"
                   )}>
                     {currentStepData.id === 'welcome' 
-                      ? `Grüezi ${userFirstName}👋` 
+                      ? `Grüezi ${userFirstName} 👋` 
                       : currentStepData.title}
                   </h3>
                   <p className={cn(
-                    "text-zinc-400 mb-4 transition-all duration-300",
+                    "text-slate-500 mb-4 transition-all duration-300",
                     isMobile ? "text-sm" : "text-base"
                   )}>
                     {currentStepData.description}
@@ -665,14 +663,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       variant="outline"
                       size={isMobile ? "sm" : "default"}
                       onClick={handleSkip}
-                      className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
+                      className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                     >
                       Überspringen
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
-                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-md"
                     >
                       Weiter
                     </Button>
@@ -684,14 +682,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       variant="outline"
                       size={isMobile ? "sm" : "default"}
                       onClick={handlePrevious}
-                      className="text-zinc-400 border-white/[0.08] bg-transparent hover:bg-white/[0.05] hover:text-white"
+                      className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                     >
                       Zurück
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
-                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+                      className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-md"
                     >
                       {currentStep === tourSteps.length - 1 ? "Fertig" : "Weiter"}
                     </Button>
