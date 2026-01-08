@@ -25,6 +25,7 @@ const Auth = () => {
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showDebug, setShowDebug] = useState(true);
   const isOAuthInProgress = useRef(false);
 
   // Combined loading state for backward compatibility
@@ -544,39 +545,49 @@ const Auth = () => {
         </div>}
 
         {/* Debug Section - Shows current URL for troubleshooting */}
-        <div className="fixed bottom-4 left-4 right-4 bg-slate-100 border border-slate-300 rounded-xl p-4 z-50 max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-700">🔍 Debug Info</span>
-            <button
-              onClick={() => {
-                const debugInfo = {
-                  fullUrl: window.location.href,
-                  pathname: window.location.pathname,
-                  search: window.location.search,
-                  hash: window.location.hash,
-                  searchParams: Object.fromEntries(searchParams.entries()),
-                  hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
-                };
-                navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
-                toast.success('Debug info copied!');
-              }}
-              className="text-xs bg-[#1D64FF] text-white px-3 py-1 rounded-lg"
-            >
-              Copy All
-            </button>
+        {showDebug && (
+          <div className="fixed bottom-4 left-4 right-4 bg-slate-100 border border-slate-300 rounded-xl p-4 z-50 max-w-md mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-700">🔍 Debug Info</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const debugInfo = {
+                      fullUrl: window.location.href,
+                      pathname: window.location.pathname,
+                      search: window.location.search,
+                      hash: window.location.hash,
+                      searchParams: Object.fromEntries(searchParams.entries()),
+                      hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
+                    };
+                    navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+                    toast.success('Debug info copied!');
+                  }}
+                  className="text-xs bg-[#1D64FF] text-white px-3 py-1 rounded-lg"
+                >
+                  Copy All
+                </button>
+                <button
+                  onClick={() => setShowDebug(false)}
+                  className="text-xs bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1 rounded-lg"
+                >
+                  Schliessen
+                </button>
+              </div>
+            </div>
+            <textarea
+              readOnly
+              className="w-full h-32 text-xs font-mono bg-white border border-slate-200 rounded-lg p-2 resize-none"
+              value={JSON.stringify({
+                url: window.location.href,
+                search: window.location.search,
+                hash: window.location.hash,
+                params: Object.fromEntries(searchParams.entries()),
+                hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
+              }, null, 2)}
+            />
           </div>
-          <textarea
-            readOnly
-            className="w-full h-32 text-xs font-mono bg-white border border-slate-200 rounded-lg p-2 resize-none"
-            value={JSON.stringify({
-              url: window.location.href,
-              search: window.location.search,
-              hash: window.location.hash,
-              params: Object.fromEntries(searchParams.entries()),
-              hashParams: Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries())
-            }, null, 2)}
-          />
-        </div>
+        )}
     </div>;
 };
 export default Auth;
