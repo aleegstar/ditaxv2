@@ -542,23 +542,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                 ease: [0.4, 0, 0.2, 1]
               }}
             />
-            {/* Pulsing ring animation for better visibility */}
-            <motion.div 
-              className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF]/40"
-              animate={{
-                left: spotlightPosition.x - 10,
-                top: spotlightPosition.y - 10,
-                width: spotlightPosition.width + 20,
-                height: spotlightPosition.height + 20,
-                opacity: [0.4, 0.1, 0.4],
-                scale: [1, 1.02, 1]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
           </>
         )}
 
