@@ -175,13 +175,35 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   const clearMessagesCompletely = async () => {
     setIsDeleting(true);
     try {
-      const {
-        error: messagesError
-      } = await supabase.from('chat_messages').delete().or(`sender_id.eq.${userId},recipient_id.eq.${userId},and(sender_id.is.null,recipient_id.eq.${userId})`);
-      if (messagesError) throw messagesError;
-      await supabase.from('chat_attachments').delete().eq('uploaded_by', userId);
+      console.log('Deleting chat attachments for user:', userId);
+      
+      // First delete attachments (to avoid FK constraints if any)
+      const { error: attachmentsError } = await supabase
+        .from('chat_attachments')
+        .delete()
+        .eq('uploaded_by', userId);
+      
+      if (attachmentsError) {
+        console.error('Attachments delete error:', attachmentsError);
+        throw attachmentsError;
+      }
+
+      console.log('Deleting chat messages for user:', userId);
+      
+      // Then delete messages where user is sender OR recipient
+      const { error: messagesError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`);
+      
+      if (messagesError) {
+        console.error('Messages delete error:', messagesError);
+        throw messagesError;
+      }
+
       setMessages([]);
       setEscalatedMode(false);
+      
       toast({
         title: "Chat erfolgreich gelöscht",
         description: "Alle Nachrichten wurden entfernt."
@@ -190,7 +212,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
       console.error('Error during chat deletion:', error);
       toast({
         title: "Fehler beim Löschen",
-        description: error.message || "Der Chat konnte nicht vollständig gelöscht werden.",
+        description: error.message || "Der Chat konnte nicht gelöscht werden.",
         variant: "destructive"
       });
     } finally {
