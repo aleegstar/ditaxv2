@@ -3,6 +3,7 @@ import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, ScanLine,
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoFull from '@/assets/ditax-logo-full.png';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -54,6 +55,7 @@ const UserTaxReturns = () => {
   const {
     forceTour
   } = useOnboardingTour();
+  const { unreadCount } = useUnreadMessages();
   useEffect(() => {
     if (authLoading) return;
     if (!isValid || !userId) {
@@ -354,7 +356,9 @@ const UserTaxReturns = () => {
           {/* Inbox */}
           <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="p-3 text-gray-500 rounded-full hover:text-gray-900 hover:bg-gray-100 transition-colors relative">
             <Inbox className="w-6 h-6" strokeWidth={1.5} />
-            <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+            {unreadCount > 0 && (
+              <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+            )}
           </button>
 
           {/* Menu */}
