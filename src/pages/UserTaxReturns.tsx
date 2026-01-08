@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, ScanLine, Inbox } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, ScanLine, Inbox, Trash2, MoreVertical } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoFull from '@/assets/ditax-logo-full.png';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
@@ -87,6 +90,41 @@ const UserTaxReturns = () => {
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [yearToDelete, setYearToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteTaxYear = async (year: string) => {
+    if (!userId) return;
+    setIsDeleting(true);
+    try {
+      const taxReturn = taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
+      if (!taxReturn) {
+        toast.error('Steuererklärung nicht gefunden');
+        return;
+      }
+
+      // Delete associated data
+      await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year);
+      await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year);
+      await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year);
+      
+      // Delete the tax return
+      const { error } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
+      
+      if (error) throw error;
+      
+      toast.success(`Steuererklärung ${year} wurde gelöscht`);
+      await refetch();
+    } catch (error) {
+      console.error('Error deleting tax year:', error);
+      toast.error('Fehler beim Löschen der Steuererklärung');
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setYearToDelete(null);
+    }
+  };
   const handleDocumentsClick = useCallback(() => {
     setIsTransitioning(true);
     setTimeout(() => {
@@ -224,6 +262,27 @@ const UserTaxReturns = () => {
           const progress = calculateProgress(year) ?? 0;
           const documentCount = getDocumentCount(year);
           return <article key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
+                {/* Delete Menu */}
+                <div className="absolute top-5 right-5 z-20">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/20 rounded-full">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={e => {
+                        e.stopPropagation();
+                        setYearToDelete(year);
+                        setDeleteDialogOpen(true);
+                      }} className="text-red-600 hover:text-red-700">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Löschen
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
                 {/* Top Image/Visual Area */}
                 <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-blue-600 flex items-center justify-center">
                   <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
@@ -372,6 +431,33 @@ const UserTaxReturns = () => {
       <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{
       backgroundColor: '#ffffff'
     }} />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Steuererklärung löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchtest du die Steuererklärung für {yearToDelete} wirklich löschen? Alle zugehörigen Daten und Dokumente werden unwiderruflich entfernt.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
+            <AlertDialogCancel 
+              disabled={isDeleting}
+              className="w-full bg-white hover:bg-gray-50 border border-gray-200 font-medium h-12 rounded-full text-gray-900"
+            >
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} 
+              disabled={isDeleting}
+              className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium"
+            >
+              {isDeleting ? 'Wird gelöscht...' : 'Löschen'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
 export default UserTaxReturns;
