@@ -222,7 +222,7 @@ const UserTaxReturns = () => {
           {inProgressYears.map(year => {
           const progress = calculateProgress(year) ?? 0;
           const documentCount = getDocumentCount(year);
-          return <article key={year} onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
+          return <article key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
                 {/* Top Image/Visual Area */}
                 <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-blue-600 flex items-center justify-center">
                   <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
@@ -336,7 +336,7 @@ const UserTaxReturns = () => {
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
           {/* Scanner Button */}
-          <button onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2 pr-5 py-2 rounded-full hover:bg-gray-100 transition-colors group">
+          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2 pr-5 py-2 rounded-full hover:bg-gray-100 transition-colors group">
             <div className="w-10 h-10 rounded-full text-white flex items-center justify-center shadow-lg shadow-gray-900/20 group-hover:scale-105 transition-transform bg-[#2463eb]">
               <ScanLine className="w-5 h-5" strokeWidth={1.5} />
             </div>
@@ -353,7 +353,7 @@ const UserTaxReturns = () => {
           <div className="w-px h-8 bg-gray-200"></div>
 
           {/* Inbox */}
-          <button onClick={() => navigate('/chat')} className="p-3 text-gray-500 rounded-full hover:text-gray-900 hover:bg-gray-100 transition-colors relative">
+          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="p-3 text-gray-500 rounded-full hover:text-gray-900 hover:bg-gray-100 transition-colors relative">
             <Inbox className="w-6 h-6" strokeWidth={1.5} />
             <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
           </button>
