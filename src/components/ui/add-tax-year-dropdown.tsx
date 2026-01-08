@@ -49,6 +49,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerTrigger asChild>
           <button 
+            data-tour="add-year-card"
             className={`group relative flex flex-col p-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 items-center justify-center text-center min-h-[420px] ${
               isCreating ? 'opacity-50 cursor-not-allowed' : ''
             }`}

@@ -7,7 +7,7 @@ interface AddTaxYearCardProps {
 
 export function AddTaxYearCard({ onAddYear }: AddTaxYearCardProps) {
   return (
-    <div className="w-full group">
+    <div className="w-full group" data-tour="add-year-card">
       <div 
         className="relative w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1d64ff] via-[#1550d6] to-[#002988] shadow-[0_30px_60px_-12px_rgba(29,100,255,0.4)] transition-transform duration-500 hover:scale-[1.005] cursor-pointer"
         onClick={onAddYear}
