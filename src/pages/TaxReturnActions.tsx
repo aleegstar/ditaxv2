@@ -326,9 +326,9 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-white">
         {/* Header */}
-        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
             <button 
               onClick={() => navigate('/')}
