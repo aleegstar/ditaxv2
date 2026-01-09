@@ -128,21 +128,18 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-6 w-full max-w-md px-4">
             <div className="flex flex-col items-start gap-6 w-full">
-              <div className="relative bg-gradient-to-br from-[#18181b] to-[#050505] rounded-3xl p-7 md:p-6 w-full space-y-5 ring-1 ring-white/5 overflow-hidden"
+              <div className="relative bg-white rounded-3xl p-7 md:p-6 w-full space-y-5 overflow-hidden"
                 style={{
-                  boxShadow: '0 25px 50px -12px rgba(0,0,0,1), 0 0 30px -5px rgba(249,115,22,0.3), inset 0 1px 0 0 rgba(249,115,22,0.1)',
-                  border: '1px solid transparent',
-                  backgroundImage: 'linear-gradient(to bottom right, #18181b, #050505), linear-gradient(135deg, rgba(249,115,22,0.6), rgba(251,191,36,0.3), rgba(249,115,22,0.6))',
-                  backgroundOrigin: 'border-box',
-                  backgroundClip: 'padding-box, border-box'
+                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1), 0 0 30px -5px rgba(29,100,255,0.15)',
+                  border: '1px solid rgba(0,0,0,0.08)'
                 }}
               >
-                {/* Orange BorderBeam */}
+                {/* Blue BorderBeam */}
                 <BorderBeam 
                   size={200} 
                   duration={10} 
-                  colorFrom="#F97316" 
-                  colorTo="#FBBF24" 
+                  colorFrom="#1D64FF" 
+                  colorTo="#60A5FA" 
                   borderWidth={1.5}
                 />
                 
@@ -150,9 +147,9 @@ export const WelcomeFlow = () => {
                   <Checkbox
                     checked={termsAccepted}
                     onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                    className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-white/[0.08] data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
+                    className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
                   />
-                  <div className="flex-1 text-white text-[15px] md:text-sm leading-relaxed text-left">
+                  <div className="flex-1 text-slate-700 text-[15px] md:text-sm leading-relaxed text-left">
                     Ich akzeptiere die{' '}
                     <Link to="/privacy" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
                       Datenschutzbestimmungen
@@ -164,18 +161,18 @@ export const WelcomeFlow = () => {
                   </div>
                 </label>
 
-                <div className="pt-3 border-t border-white/[0.08]">
+                <div className="pt-3 border-t border-slate-200">
                   <label className="flex items-start gap-4 cursor-pointer group">
                     <Checkbox
                       checked={marketingConsent}
                       onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
-                      className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-white/[0.08] data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
+                      className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]"
                     />
-                    <div className="flex-1 text-white leading-relaxed text-left">
-                      <div className="font-medium mb-2 text-[15px] md:text-sm">
+                    <div className="flex-1 text-slate-700 leading-relaxed text-left">
+                      <div className="font-medium mb-2 text-[15px] md:text-sm text-slate-800">
                         Newsletter & Marketing-E-Mails
                       </div>
-                      <div className="text-zinc-400 text-[14px] md:text-xs leading-relaxed">
+                      <div className="text-slate-500 text-[14px] md:text-xs leading-relaxed">
                         Erhalte Updates zu Steueränderungen und hilfreiche Tipps (optional)
                       </div>
                     </div>
@@ -187,7 +184,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             >
               Weiter
             </Button>
@@ -202,14 +199,14 @@ export const WelcomeFlow = () => {
               placeholder="Vorname"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="text-lg h-14 bg-[#0A0C10] border border-[#1D64FF]/50 text-white placeholder:text-zinc-500 rounded-xl px-6 focus-visible:border-[#1D64FF] focus-visible:ring-0 shadow-sm"
+              className="text-lg h-14 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl px-6 focus-visible:border-[#1D64FF] focus-visible:ring-0 shadow-sm"
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
             <Button
               onClick={handleNext}
               disabled={isLoading || !canProceed()}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             >
               Weiter
             </Button>
@@ -220,12 +217,12 @@ export const WelcomeFlow = () => {
         return (
           <div className="space-y-5 w-full max-w-md px-4">
             <Select value={taxYear} onValueChange={setTaxYear}>
-              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-[#0A0C10] border border-[#1D64FF]/50 text-white rounded-xl shadow-sm px-6 focus:ring-0 focus:border-[#1D64FF]">
+              <SelectTrigger className="text-xl md:text-xl h-16 md:h-14 bg-white border border-slate-200 text-slate-900 rounded-xl shadow-sm px-6 focus:ring-0 focus:border-[#1D64FF]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0A0C10] border border-white/[0.08]">
+              <SelectContent className="bg-white border border-slate-200">
                 {TAX_YEARS.map((year) => (
-                  <SelectItem key={year} value={year} className="text-white text-xl hover:bg-white/[0.05] focus:bg-white/[0.05]">
+                  <SelectItem key={year} value={year} className="text-slate-900 text-xl hover:bg-slate-50 focus:bg-slate-50">
                     {year}
                   </SelectItem>
                 ))}
@@ -234,7 +231,7 @@ export const WelcomeFlow = () => {
             <Button
               onClick={handleComplete}
               disabled={isLoading}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium border border-[#1D64FF]/50 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-xl py-3.5 px-4 h-14 text-base font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             >
               Los geht's!
             </Button>
@@ -253,12 +250,12 @@ export const WelcomeFlow = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden bg-[#020408]">
+    <div className="min-h-screen w-full relative overflow-hidden bg-slate-50">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,100,255,0.08)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,100,255,0.05)_0%,_transparent_70%)] pointer-events-none" />
 
       {/* Top Progress Dots */}
-      <WelcomeProgress currentStep={currentStep} totalSteps={steps.length} variant="dark" />
+      <WelcomeProgress currentStep={currentStep} totalSteps={steps.length} variant="light" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-between min-h-screen px-4 sm:px-6 py-8 md:py-12">
@@ -287,6 +284,7 @@ export const WelcomeFlow = () => {
                   ? `Grüezi ${firstName}, welches Steuerjahr möchtest du erstellen?`
                   : steps[currentStep].title
                 }
+                variant="light"
               >
                 {renderStepContent()}
               </WelcomeStep>
@@ -322,9 +320,9 @@ export const WelcomeFlow = () => {
               }}
             />
 
-            {/* Dark fade covering blue */}
+            {/* White fade covering blue */}
             <motion.div
-              className="fixed inset-0 z-[51] bg-[#020408] flex items-center justify-center"
+              className="fixed inset-0 z-[51] bg-slate-50 flex items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ 
                 opacity: 1,
