@@ -191,6 +191,20 @@ export const WelcomeFlow = () => {
     return steps[currentStep].title;
   };
   return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
+      {/* Logo above card */}
+      <motion.div 
+        className="mb-8 flex items-center justify-center"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <img 
+          alt="ditax" 
+          src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" 
+          className="h-10 w-auto object-contain" 
+        />
+      </motion.div>
+
       {/* Main Card Container */}
       <motion.main className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5" initial={{
       opacity: 0,
@@ -208,18 +222,6 @@ export const WelcomeFlow = () => {
 
         {/* Content */}
         <div className="px-6 py-10 sm:px-10 sm:pb-16 flex flex-col items-center text-center">
-          {/* Logo */}
-          <motion.div className="mb-10 flex items-center justify-center gap-3" initial={{
-          opacity: 0,
-          y: -10
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.4
-        }}>
-            <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-8 w-auto object-contain" />
-          </motion.div>
 
           {/* Heading */}
           <AnimatePresence mode="wait">
