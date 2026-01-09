@@ -293,23 +293,6 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                 ease: [0.4, 0, 0.2, 1]
               }}
             />
-            {/* Pulsing ring for better visibility */}
-            <motion.div 
-              className="absolute pointer-events-none rounded-3xl border-2 border-[#1D64FF]/50"
-              animate={{
-                left: spotlightPosition.x - 8,
-                top: spotlightPosition.y - 8,
-                width: spotlightPosition.width + 16,
-                height: spotlightPosition.height + 16,
-                opacity: [0.5, 0.2, 0.5],
-                scale: [1, 1.02, 1]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
           </>
         )}
 
