@@ -218,7 +218,7 @@ export const WelcomeFlow = () => {
         }} transition={{
           duration: 0.4
         }}>
-            <img alt="ditax" className="h-10 w-auto object-contain" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" />
+            <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-8 w-auto object-contain" />
           </motion.div>
 
           {/* Heading */}
