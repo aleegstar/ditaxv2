@@ -37,7 +37,7 @@ privacy@ditax.ch</p>
   `;
 
   return (
-    <div className="min-h-screen bg-[#020408]">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Cookie-Richtlinie" 
         onBack={() => navigate(-1)} 
@@ -45,7 +45,7 @@ privacy@ditax.ch</p>
       <LegalDocumentPage
         title=""
         staticContent={cookieContent}
-        useDarkBackground={true}
+        useDarkBackground={false}
       />
     </div>
   );
