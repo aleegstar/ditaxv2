@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Shield, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { BorderBeam } from '@/components/ui/border-beam';
+
 const TAX_YEARS = Array.from({
   length: 3
 }, (_, i) => {
@@ -119,12 +119,7 @@ export const WelcomeFlow = () => {
       case 0:
         return <div className="space-y-6 w-full max-w-md px-4">
             <div className="flex flex-col items-start gap-6 w-full">
-              <div className="relative bg-white rounded-3xl p-7 md:p-6 w-full space-y-5 overflow-hidden" style={{
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1), 0 0 30px -5px rgba(29,100,255,0.15)',
-              border: '1px solid rgba(0,0,0,0.08)'
-            }}>
-                {/* Blue BorderBeam */}
-                <BorderBeam size={200} duration={10} colorFrom="#1D64FF" colorTo="#60A5FA" borderWidth={1.5} />
+              <div className="bg-white rounded-3xl p-7 md:p-6 w-full space-y-5 border border-slate-200">
                 
                 <label className="flex items-start gap-4 cursor-pointer group">
                   <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-7 w-7 md:h-6 md:w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
@@ -192,7 +187,7 @@ export const WelcomeFlow = () => {
     if (currentStep === 1) return firstName.trim().length > 0;
     return true;
   };
-  return <div className="min-h-screen w-full relative overflow-hidden bg-slate-50">
+  return <div className="min-h-screen w-full relative overflow-hidden bg-white">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,100,255,0.05)_0%,_transparent_70%)] pointer-events-none" />
 
