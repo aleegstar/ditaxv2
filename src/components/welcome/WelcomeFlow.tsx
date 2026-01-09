@@ -223,7 +223,7 @@ export const WelcomeFlow = () => {
 
           {/* Heading */}
           <AnimatePresence mode="wait">
-            <motion.h1 key={currentStep} className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 mb-10 leading-tight" initial={{
+            <motion.h1 key={currentStep} initial={{
             opacity: 0,
             y: 10
           }} animate={{
@@ -234,7 +234,7 @@ export const WelcomeFlow = () => {
             y: -10
           }} transition={{
             duration: 0.3
-          }}>
+          }} className="text-3xl font-semibold tracking-tight text-slate-900 mb-10 leading-tight sm:text-2xl">
               {getStepTitle()}
             </motion.h1>
           </AnimatePresence>
