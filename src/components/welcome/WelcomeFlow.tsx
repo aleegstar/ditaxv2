@@ -188,8 +188,6 @@ export const WelcomeFlow = () => {
     return true;
   };
   return <div className="min-h-screen w-full relative overflow-hidden bg-white">
-      {/* Background glow effect */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(29,100,255,0.05)_0%,_transparent_70%)] pointer-events-none" />
 
       {/* Top Progress Dots */}
       <WelcomeProgress currentStep={currentStep} totalSteps={steps.length} variant="light" />
