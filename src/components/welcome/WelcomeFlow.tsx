@@ -261,7 +261,7 @@ export const WelcomeFlow = () => {
       {/* Footer */}
       <footer className="mt-8 text-center">
         <a href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" target="_blank" rel="noopener noreferrer">
-          <img src="https://app.aikido.dev/assets/badges/full-light-theme.svg" alt="Aikido Security Audit Report" className="h-10" />
+          <img src="https://app.aikido.dev/assets/badges/full-light-theme.svg" alt="Aikido Security Audit Report" className="h-7" />
         </a>
       </footer>
 
