@@ -268,6 +268,9 @@ export type Database = {
           file_path: string
           file_type: string
           id: string
+          signature_status: string | null
+          signed_at: string | null
+          signed_pdf_path: string | null
           status: string
           tax_year: string
           updated_at: string
@@ -281,6 +284,9 @@ export type Database = {
           file_path: string
           file_type?: string
           id?: string
+          signature_status?: string | null
+          signed_at?: string | null
+          signed_pdf_path?: string | null
           status?: string
           tax_year: string
           updated_at?: string
@@ -294,6 +300,9 @@ export type Database = {
           file_path?: string
           file_type?: string
           id?: string
+          signature_status?: string | null
+          signed_at?: string | null
+          signed_pdf_path?: string | null
           status?: string
           tax_year?: string
           updated_at?: string
@@ -1012,6 +1021,81 @@ export type Database = {
           },
           {
             foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_return_signatures: {
+        Row: {
+          authorization_accepted: boolean
+          authorization_text: string
+          completed_tax_return_id: string
+          created_at: string
+          document_hash: string
+          id: string
+          ip_address: unknown
+          signature_hash: string
+          signed_at: string
+          signer_date_of_birth: string | null
+          signer_email: string
+          signer_name: string
+          status: string
+          tax_year: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          authorization_accepted?: boolean
+          authorization_text: string
+          completed_tax_return_id: string
+          created_at?: string
+          document_hash: string
+          id?: string
+          ip_address?: unknown
+          signature_hash: string
+          signed_at?: string
+          signer_date_of_birth?: string | null
+          signer_email: string
+          signer_name: string
+          status?: string
+          tax_year: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          authorization_accepted?: boolean
+          authorization_text?: string
+          completed_tax_return_id?: string
+          created_at?: string
+          document_hash?: string
+          id?: string
+          ip_address?: unknown
+          signature_hash?: string
+          signed_at?: string
+          signer_date_of_birth?: string | null
+          signer_email?: string
+          signer_name?: string
+          status?: string
+          tax_year?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_return_signatures_completed_tax_return_id_fkey"
+            columns: ["completed_tax_return_id"]
+            isOneToOne: false
+            referencedRelation: "completed_tax_returns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_return_signatures_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
