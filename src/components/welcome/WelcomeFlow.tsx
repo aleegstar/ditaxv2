@@ -244,7 +244,7 @@ export const WelcomeFlow = () => {
         }} />
 
             {/* White fade covering blue */}
-            <motion.div className="fixed inset-0 z-[51] bg-[#1d64ff] flex items-center justify-center" initial={{
+            <motion.div className="fixed inset-0 z-[51] bg-white flex items-center justify-center" initial={{
           opacity: 0
         }} animate={{
           opacity: 1,
@@ -267,7 +267,7 @@ export const WelcomeFlow = () => {
               ease: [0.34, 1.56, 0.64, 1]
             }
           }}>
-                <img src="/ditax-logo-new.png" alt="ditax" className="w-32 h-32 md:w-40 md:h-40 object-contain" />
+                <img src="/lovable-uploads/Group_1_24.png" alt="ditax" className="h-12 md:h-16 w-auto object-contain" />
               </motion.div>
             </motion.div>
           </>}
