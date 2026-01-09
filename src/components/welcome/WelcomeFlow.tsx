@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ditaxLogoTransition from '@/assets/ditax-logo-transition.png';
 const TAX_YEARS = Array.from({
   length: 3
 }, (_, i) => {
@@ -267,52 +268,26 @@ export const WelcomeFlow = () => {
 
       {/* Smooth Transition Animation */}
       <AnimatePresence>
-        {showTransition && <>
-            {/* Blue arc sliding up */}
-            <motion.div className="fixed z-50" style={{
-          background: '#1d64ff',
-          left: 0,
-          right: 0,
-          height: '120vh',
-          bottom: 0
-        }} initial={{
-          y: '100%'
-        }} animate={{
-          y: '0%',
-          transition: {
-            duration: 0.8,
-            ease: [0.32, 0.72, 0, 1]
-          }
-        }} />
-
-            {/* White fade covering blue */}
-            <motion.div className="fixed inset-0 z-[51] bg-white flex items-center justify-center" initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1,
-          transition: {
-            delay: 0.6,
-            duration: 0.4,
-            ease: "easeInOut"
-          }
-        }}>
-              {/* Logo appears */}
-              <motion.div initial={{
-            opacity: 0,
-            scale: 0.9
-          }} animate={{
-            opacity: 1,
-            scale: 1,
-            transition: {
-              delay: 0.9,
-              duration: 0.6,
-              ease: [0.34, 1.56, 0.64, 1]
-            }
-          }}>
-                <img src="/lovable-uploads/Group_1_24.png" alt="ditax" className="h-12 md:h-16 w-auto object-contain" />
-              </motion.div>
+        {showTransition && (
+          <motion.div 
+            className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            {/* Logo appears */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                transition: { delay: 0.2, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }
+              }}
+            >
+              <img src={ditaxLogoTransition} alt="ditax" className="h-12 md:h-16 w-auto object-contain" />
             </motion.div>
-          </>}
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>;
 };
