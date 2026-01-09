@@ -234,7 +234,7 @@ export const WelcomeFlow = () => {
             y: -10
           }} transition={{
             duration: 0.3
-          }} className="text-3xl font-semibold tracking-tight text-slate-900 mb-10 leading-tight sm:text-2xl">
+          }} className="font-semibold tracking-tight text-slate-900 mb-10 leading-tight sm:text-2xl text-xl">
               {getStepTitle()}
             </motion.h1>
           </AnimatePresence>
