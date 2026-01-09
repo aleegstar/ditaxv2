@@ -244,7 +244,7 @@ export const WelcomeFlow = () => {
         }} />
 
             {/* White fade covering blue */}
-            <motion.div className="fixed inset-0 z-[51] bg-slate-50 flex items-center justify-center" initial={{
+            <motion.div className="fixed inset-0 z-[51] bg-[#1d64ff] flex items-center justify-center" initial={{
           opacity: 0
         }} animate={{
           opacity: 1,
