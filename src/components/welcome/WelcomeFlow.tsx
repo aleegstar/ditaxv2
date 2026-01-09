@@ -239,10 +239,10 @@ export const WelcomeFlow = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
+    <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
       {/* Main Card Container */}
       <motion.main 
-        className="w-full max-w-lg bg-white sm:rounded-3xl sm:shadow-xl sm:shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5"
+        className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
@@ -307,7 +307,9 @@ export const WelcomeFlow = () => {
 
       {/* Footer */}
       <footer className="mt-8 text-center">
-        <p className="text-sm text-slate-400">© 2025 Ditax AG. Alle Rechte vorbehalten.</p>
+        <a href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" target="_blank" rel="noopener noreferrer">
+          <img src="https://app.aikido.dev/assets/badges/full-light-theme.svg" alt="Aikido Security Audit Report" className="h-10" />
+        </a>
       </footer>
 
       {/* Smooth Transition Animation */}
