@@ -1,77 +1,107 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import ditaxLogoIcon from "@/assets/ditax-logo-icon.png";
+import ditaxLogoFull from "@/assets/ditax-logo-full.png";
 
 export function UserTaxReturnsSkeleton() {
   return (
-    <div className="min-h-screen bg-white text-gray-900 antialiased">
-      {/* Mobile Container */}
-      <div className="overflow-hidden min-h-screen md:max-w-2xl w-full max-w-[430px] mx-auto relative">
-        {/* Header with Logo */}
-        <header className="flex pt-6 px-4 pb-8 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src={ditaxLogoIcon} 
-              alt="ditax" 
-              className="w-10 h-10 rounded-xl"
-            />
-            <span className="text-xl font-semibold text-gray-900">ditax</span>
+    <div className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-28 text-gray-900 bg-white">
+      {/* Main Container */}
+      <main className="min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4 relative">
+        {/* Header */}
+        <header className="flex pb-8 items-center justify-between">
+          <div className="flex items-center">
+            <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
           <Skeleton className="w-10 h-10 rounded-full bg-gray-200" />
         </header>
 
-        {/* Greeting Skeleton */}
-        <section className="px-4 pb-10 flex items-end justify-between">
-          <div className="space-y-2">
+        {/* Greeting Section */}
+        <section className="pb-10">
+          <div className="flex flex-col gap-1">
             <Skeleton className="h-4 w-24 bg-gray-200" />
-            <Skeleton className="h-10 w-36 bg-gray-200" />
+            <Skeleton className="h-8 w-32 bg-gray-200" />
           </div>
-          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
         </section>
 
-        {/* Cards Skeleton */}
-        <div className="grid grid-cols-1 gap-6 px-4 pb-24">
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
           {/* Active Tax Year Card Skeleton */}
-          <div className="p-3 bg-white rounded-[2.5rem] ring-1 ring-gray-200/80 shadow-lg">
-            <Skeleton className="h-64 w-full rounded-[2rem] bg-gray-200" />
-            <div className="pt-6 px-2 space-y-3">
-              <Skeleton className="h-6 w-40 bg-gray-200" />
-              <Skeleton className="h-4 w-full bg-gray-200" />
-              <div className="flex justify-between items-center mt-4">
-                <div className="flex gap-4">
-                  <Skeleton className="h-4 w-12 bg-gray-200" />
-                  <Skeleton className="h-4 w-8 bg-gray-200" />
+          <article className="relative flex flex-col p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80">
+            {/* Top Image/Visual Area */}
+            <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-blue-600/80 flex items-center justify-center">
+              <Skeleton className="h-12 w-24 bg-white/20" />
+              {/* Badge */}
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                <Skeleton className="w-2 h-2 rounded-full bg-gray-300" />
+                <Skeleton className="h-3 w-10 bg-gray-300" />
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex flex-col pt-6 pr-2 pb-0 pl-2">
+              <Skeleton className="h-7 w-40 bg-gray-200 mb-2" />
+              <Skeleton className="h-4 w-full bg-gray-200 mb-1" />
+              <Skeleton className="h-4 w-3/4 bg-gray-200" />
+
+              {/* Bottom Action Row */}
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="w-4 h-4 rounded bg-gray-200" />
+                    <Skeleton className="h-4 w-8 bg-gray-200" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="w-4 h-4 rounded bg-gray-200" />
+                    <Skeleton className="h-4 w-4 bg-gray-200" />
+                  </div>
                 </div>
                 <Skeleton className="h-10 w-24 rounded-full bg-gray-200" />
               </div>
             </div>
-          </div>
+          </article>
 
           {/* Completed Tax Year Card Skeleton */}
-          <div className="p-3 bg-white rounded-[2.5rem] ring-1 ring-gray-200/80 shadow-md">
-            <div className="flex items-center gap-4 p-4">
-              <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-24 bg-gray-200" />
-                <Skeleton className="h-4 w-16 bg-gray-200" />
+          <article className="relative flex flex-col p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80">
+            <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
+              <Skeleton className="h-20 w-28 bg-gray-200" />
+              {/* Badge */}
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                <Skeleton className="w-3.5 h-3.5 rounded-full bg-gray-300" />
+                <Skeleton className="h-3 w-10 bg-gray-300" />
               </div>
-              <Skeleton className="w-8 h-8 rounded-full bg-gray-200" />
             </div>
-          </div>
 
-          {/* Add New Year Card Skeleton */}
-          <div className="p-6 bg-white rounded-[2.5rem] ring-1 ring-gray-200/80 shadow-sm flex items-center justify-center">
-            <Skeleton className="h-12 w-12 rounded-full bg-gray-200" />
-          </div>
+            <div className="px-2 pt-6 pb-0 flex flex-col">
+              <div className="flex items-center gap-2 mb-2">
+                <Skeleton className="h-7 w-40 bg-gray-200" />
+                <Skeleton className="h-5 w-5 rounded-full bg-gray-200" />
+              </div>
+              <Skeleton className="h-4 w-full bg-gray-200 mb-1" />
+              <Skeleton className="h-4 w-2/3 bg-gray-200" />
+
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="w-4 h-4 rounded bg-gray-200" />
+                  <Skeleton className="h-4 w-12 bg-gray-200" />
+                </div>
+                <Skeleton className="h-10 w-24 rounded-full bg-gray-200" />
+              </div>
+            </div>
+          </article>
+
+          {/* Add Year Card Skeleton */}
+          <article className="flex flex-col items-center justify-center p-3 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-gray-200/80 h-[420px]">
+            <Skeleton className="h-16 w-16 rounded-full bg-gray-200" />
+          </article>
         </div>
+      </main>
 
-        {/* Bottom Navigation Skeleton */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-4">
-          <div className="max-w-[430px] mx-auto flex justify-around">
-            <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
-            <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
-            <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
-          </div>
+      {/* Bottom Navigation - Glassmorphism Style */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
+          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
+          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
         </div>
       </div>
     </div>
