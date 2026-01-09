@@ -264,7 +264,7 @@ export const WelcomeFlow = () => {
         <a href="https://app.aikido.dev/audit-report/external/jUMJfoUtocMicRlqZJr9ymg0/request" target="_blank" rel="noopener noreferrer">
           <img src="https://app.aikido.dev/assets/badges/full-light-theme.svg" alt="Aikido Security Audit Report" className="h-7" />
         </a>
-        <svg width="46" height="45" viewBox="0 0 46 45" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
+        <svg width="46" height="45" viewBox="0 0 46 45" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-auto">
           <g>
             <rect x="3" y="0.863281" width="40" height="40" rx="20" fill="url(#paint0_linear_1_4914)"></rect>
             <path d="M30.6146 31.3062L31.2991 33.4127L33.5139 33.4127L31.7221 34.7145L32.4065 36.821L30.6146 35.5191L28.8228 36.821L29.5072 34.7145L27.7153 33.4127L29.9302 33.4127L30.6146 31.3062Z" fill="url(#paint1_linear_1_4914)"></path>
@@ -301,26 +301,30 @@ export const WelcomeFlow = () => {
 
       {/* Smooth Transition Animation */}
       <AnimatePresence>
-        {showTransition && (
-          <motion.div 
-            className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
+        {showTransition && <motion.div className="fixed inset-0 z-[51] bg-white flex items-center justify-center" initial={{
+        opacity: 0
+      }} animate={{
+        opacity: 1
+      }} transition={{
+        duration: 0.4,
+        ease: "easeInOut"
+      }}>
             {/* Logo appears */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                transition: { delay: 0.2, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }
-              }}
-            >
+            <motion.div initial={{
+          opacity: 0,
+          scale: 0.9
+        }} animate={{
+          opacity: 1,
+          scale: 1,
+          transition: {
+            delay: 0.2,
+            duration: 0.6,
+            ease: [0.34, 1.56, 0.64, 1]
+          }
+        }}>
               <img src={ditaxLogoTransition} alt="ditax" className="h-12 md:h-16 w-auto object-contain" />
             </motion.div>
-          </motion.div>
-        )}
+          </motion.div>}
       </AnimatePresence>
     </div>;
 };
