@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, DollarSign, FileText, CheckCircle, Upload } from 'lucide-react';
+import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 
