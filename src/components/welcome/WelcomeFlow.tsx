@@ -322,7 +322,7 @@ export const WelcomeFlow = () => {
             ease: [0.34, 1.56, 0.64, 1]
           }
         }}>
-              <img src={ditaxLogoTransition} alt="ditax" className="h-12 md:h-16 w-auto object-contain" />
+              <img src={ditaxLogoTransition} alt="ditax" className="h-24 md:h-32 w-auto object-contain" />
             </motion.div>
           </motion.div>}
       </AnimatePresence>
