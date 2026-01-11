@@ -120,7 +120,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
             <h3 className="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
             <div className="flex items-center gap-1">
               {(unreadCount > 0 || notifications.length > 0) && (
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
@@ -130,7 +130,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white z-50">
+                  <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg z-[100]">
                     {unreadCount > 0 && (
                       <DropdownMenuItem onClick={handleMarkAllAsRead} className="cursor-pointer">
                         <CheckCheck className="h-4 w-4 mr-2 text-[#1D64FF]" />
