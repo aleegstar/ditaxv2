@@ -1,19 +1,12 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Bell, MessageSquare, FileText, CheckCheck, X, Trash2, MoreVertical } from 'lucide-react';
 import { CustomNotificationIcon } from './custom-notification-icon';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-
 interface ProfileWithNotificationsProps {
   avatarUrl?: string | null;
   firstName?: string | null;
@@ -59,6 +52,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
     deleteAllNotifications
   } = useNotifications();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
@@ -120,31 +114,44 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
             <h3 className="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
             <div className="flex items-center gap-1">
               {(unreadCount > 0 || notifications.length > 0) && (
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="p-1.5 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg z-[100]">
-                    {unreadCount > 0 && (
-                      <DropdownMenuItem onClick={handleMarkAllAsRead} className="cursor-pointer">
-                        <CheckCheck className="h-4 w-4 mr-2 text-[#1D64FF]" />
-                        <span>Alle als gelesen</span>
-                      </DropdownMenuItem>
-                    )}
-                    {notifications.length > 0 && (
-                      <DropdownMenuItem onClick={handleDeleteAll} className="cursor-pointer text-red-500 focus:text-red-500">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        <span>Alle löschen</span>
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="relative">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-1.5 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                  {menuOpen && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-[9998]" 
+                        onClick={() => setMenuOpen(false)}
+                      />
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-[9999] py-1">
+                        {unreadCount > 0 && (
+                          <button 
+                            onClick={() => { handleMarkAllAsRead(); setMenuOpen(false); }}
+                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <CheckCheck className="h-4 w-4 mr-2 text-[#1D64FF]" />
+                            <span>Alle als gelesen</span>
+                          </button>
+                        )}
+                        {notifications.length > 0 && (
+                          <button 
+                            onClick={() => { handleDeleteAll(); setMenuOpen(false); }}
+                            className="flex items-center w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            <span>Alle löschen</span>
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
               <SheetClose asChild>
                 <Button
