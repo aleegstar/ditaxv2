@@ -1,9 +1,15 @@
 import React from 'react';
-import { Bell, MessageSquare, FileText, CheckCheck, X, Trash2 } from 'lucide-react';
+import { Bell, MessageSquare, FileText, CheckCheck, X, Trash2, MoreVertical } from 'lucide-react';
 import { CustomNotificationIcon } from './custom-notification-icon';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -112,28 +118,33 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
-            <div className="flex items-center gap-2">
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleMarkAllAsRead}
-                  className="text-xs text-[#1D64FF] hover:text-[#1D64FF] hover:bg-gray-100 h-auto py-1 px-2"
-                >
-                  <CheckCheck className="h-3 w-3 mr-1" />
-                  Alle lesen
-                </Button>
-              )}
-              {notifications.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDeleteAll}
-                  className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50 h-auto py-1 px-2"
-                >
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  Alle löschen
-                </Button>
+            <div className="flex items-center gap-1">
+              {(unreadCount > 0 || notifications.length > 0) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-1.5 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-white z-50">
+                    {unreadCount > 0 && (
+                      <DropdownMenuItem onClick={handleMarkAllAsRead} className="cursor-pointer">
+                        <CheckCheck className="h-4 w-4 mr-2 text-[#1D64FF]" />
+                        <span>Alle als gelesen</span>
+                      </DropdownMenuItem>
+                    )}
+                    {notifications.length > 0 && (
+                      <DropdownMenuItem onClick={handleDeleteAll} className="cursor-pointer text-red-500 focus:text-red-500">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        <span>Alle löschen</span>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               <SheetClose asChild>
                 <Button
