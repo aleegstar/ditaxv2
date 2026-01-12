@@ -52,7 +52,7 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-zinc-400 text-base font-medium">
+        <Label className="text-slate-600 text-base font-medium">
           {t.contactForm.childrenSection}
         </Label>
         <Button
@@ -68,9 +68,9 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
       </div>
 
       {children.map((child, index) => (
-        <div key={child.id} className="space-y-6 p-6 bg-[#0A0C10] rounded-xl border border-white/[0.08]">
+        <div key={child.id} className="space-y-6 p-6 bg-slate-50 rounded-xl border border-slate-200">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-white">
+            <h4 className="text-sm font-medium text-slate-800">
               Kind {index + 1}
             </h4>
             <Button
@@ -78,7 +78,7 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
               onClick={() => removeChild(child.id)}
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+              className="text-red-500 hover:text-red-600 hover:bg-red-50"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -86,14 +86,14 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="block mb-3 text-zinc-400 text-base font-medium">
+              <Label className="block mb-3 text-slate-600 text-base font-medium">
                 {t.contactForm.childFirstName}
               </Label>
               <SecureFormInput
                 value={child.firstName}
                 onChange={(e) => updateChild(child.id, 'firstName', e.target.value)}
                 placeholder={t.contactForm.firstNamePlaceholder}
-                className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-white/[0.08] bg-[#0A0C10] text-white placeholder:text-zinc-500 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
+                className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
                 validationOptions={{
                   maxLength: 100,
                   strictMode: true,
@@ -104,14 +104,14 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
             </div>
 
             <div>
-              <Label className="block mb-3 text-zinc-400 text-base font-medium">
+              <Label className="block mb-3 text-slate-600 text-base font-medium">
                 {t.contactForm.childLastName}
               </Label>
               <SecureFormInput
                 value={child.lastName}
                 onChange={(e) => updateChild(child.id, 'lastName', e.target.value)}
                 placeholder={t.contactForm.lastNamePlaceholder}
-                className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-white/[0.08] bg-[#0A0C10] text-white placeholder:text-zinc-500 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
+                className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
                 validationOptions={{
                   maxLength: 100,
                   strictMode: true,
@@ -128,47 +128,47 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
               onChange={(value) => updateChild(child.id, 'birthDate', value)}
               label={t.contactForm.childBirthDate}
               defaultYear={2010}
-              className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-white/[0.08] bg-[#0A0C10] text-white placeholder:text-zinc-500 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
+              className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 shadow-none focus:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[#1D64FF]"
             />
           </div>
 
           <div>
-            <Label className="block mb-3 text-zinc-400 text-base font-medium">
+            <Label className="block mb-3 text-slate-600 text-base font-medium">
               {t.contactForm.childReligion}
             </Label>
             <Select 
               value={child.religion} 
               onValueChange={(value) => updateChild(child.id, 'religion', value)}
             >
-              <SelectTrigger className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-white/[0.08] bg-[#0A0C10] text-white shadow-none focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:border-[#1D64FF]">
-                <SelectValue placeholder="Religion auswählen" className="text-zinc-500" />
+              <SelectTrigger className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-slate-200 bg-white text-slate-800 shadow-none focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:border-[#1D64FF]">
+                <SelectValue placeholder="Religion auswählen" className="text-slate-400" />
               </SelectTrigger>
-              <SelectContent className="bg-[#0A0C10] border border-white/[0.08] z-50">
-                <SelectItem value="catholic" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.religionOptions.catholic}</SelectItem>
-                <SelectItem value="reformed" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.religionOptions.reformed}</SelectItem>
-                <SelectItem value="christCatholic" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.religionOptions.christCatholic}</SelectItem>
-                <SelectItem value="other" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.religionOptions.other}</SelectItem>
-                <SelectItem value="none" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.religionOptions.none}</SelectItem>
+              <SelectContent className="bg-white border border-slate-200 z-50">
+                <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.religionOptions.catholic}</SelectItem>
+                <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.religionOptions.reformed}</SelectItem>
+                <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.religionOptions.christCatholic}</SelectItem>
+                <SelectItem value="other" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.religionOptions.other}</SelectItem>
+                <SelectItem value="none" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.religionOptions.none}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="block mb-3 text-zinc-400 text-base font-medium">
+            <Label className="block mb-3 text-slate-600 text-base font-medium">
               {t.contactForm.childDeduction}
             </Label>
             <Select 
               value={child.deduction} 
               onValueChange={(value) => updateChild(child.id, 'deduction', value)}
             >
-              <SelectTrigger className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-white/[0.08] bg-[#0A0C10] text-white shadow-none focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:border-[#1D64FF]">
-                <SelectValue placeholder="Abzugsregelung auswählen" className="text-zinc-500" />
+              <SelectTrigger className="min-h-[56px] px-6 py-4 text-base rounded-xl border border-slate-200 bg-white text-slate-800 shadow-none focus:shadow-none focus:ring-0 focus:ring-offset-0 focus:border-[#1D64FF]">
+                <SelectValue placeholder="Abzugsregelung auswählen" className="text-slate-400" />
               </SelectTrigger>
-              <SelectContent className="bg-[#0A0C10] border border-white/[0.08] z-50">
-                <SelectItem value="fatherHigher" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.childDeductionOptions.fatherHigher}</SelectItem>
-                <SelectItem value="motherHigher" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.childDeductionOptions.motherHigher}</SelectItem>
-                <SelectItem value="childSelf" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.childDeductionOptions.childSelf}</SelectItem>
-                <SelectItem value="differentHousehold" className="text-white hover:bg-white/[0.08] focus:bg-white/[0.08] focus:text-white">{t.contactForm.childDeductionOptions.differentHousehold}</SelectItem>
+              <SelectContent className="bg-white border border-slate-200 z-50">
+                <SelectItem value="fatherHigher" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.childDeductionOptions.fatherHigher}</SelectItem>
+                <SelectItem value="motherHigher" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.childDeductionOptions.motherHigher}</SelectItem>
+                <SelectItem value="childSelf" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.childDeductionOptions.childSelf}</SelectItem>
+                <SelectItem value="differentHousehold" className="text-slate-800 hover:bg-slate-50 focus:bg-slate-50 focus:text-slate-800">{t.contactForm.childDeductionOptions.differentHousehold}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -176,13 +176,13 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
       ))}
 
       {children.length === 0 && (
-        <div className="text-center py-8 text-zinc-500">
+        <div className="text-center py-8 text-slate-500">
           <p className="mb-4">Keine Kinder hinzugefügt</p>
           <Button
             type="button"
             onClick={addChild}
             variant="outline"
-            className="flex items-center gap-2 bg-transparent border-white/[0.08] text-white hover:bg-white/[0.08] hover:text-white"
+            className="flex items-center gap-2 bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800"
           >
             <Plus className="w-4 h-4" />
             Erstes Kind hinzufügen
@@ -196,7 +196,7 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
           type="button"
           onClick={addChild}
           variant="outline"
-          className="w-full flex items-center justify-center gap-2 min-h-[56px] rounded-xl border-dashed border-2 border-white/[0.08] text-zinc-400 bg-transparent hover:border-[#1D64FF] hover:text-[#1D64FF] hover:bg-[#1D64FF]/5"
+          className="w-full flex items-center justify-center gap-2 min-h-[56px] rounded-xl border-dashed border-2 border-slate-200 text-slate-500 bg-transparent hover:border-[#1D64FF] hover:text-[#1D64FF] hover:bg-[#1D64FF]/5"
         >
           <Plus className="w-5 h-5" />
           Weiteres Kind hinzufügen
