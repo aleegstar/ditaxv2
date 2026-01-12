@@ -18,6 +18,7 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import DefinitiveTaxBills from './admin/DefinitiveTaxBills';
+import DeletionFeedback from './admin/DeletionFeedback';
 import { UpdatePaymentStatusForm } from '@/components/admin/UpdatePaymentStatusForm';
 import { UserCard } from '@/components/ui/user-card';
 
@@ -284,6 +285,7 @@ const Admin: React.FC = () => {
               </div>
             </div>
           } />
+          <Route path="deletion-feedback" element={<DeletionFeedback />} />
           </Routes>
         </div>
       </main>

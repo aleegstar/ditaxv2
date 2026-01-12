@@ -6,14 +6,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Download, Trash2, Shield } from 'lucide-react';
+import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Json } from '@/integrations/supabase/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
 
 interface PrivacyPreferences {
   marketing_emails: boolean;
 }
+
+const DELETION_REASONS = [
+  { value: 'not_using', label: 'Ich nutze den Service nicht mehr' },
+  { value: 'too_expensive', label: 'Zu teuer' },
+  { value: 'privacy_concerns', label: 'Datenschutzbedenken' },
+  { value: 'bad_experience', label: 'Schlechte Benutzererfahrung' },
+  { value: 'found_alternative', label: 'Andere Steuerlösung gefunden' },
+  { value: 'other', label: 'Sonstiges' },
+];
 
 const PrivacySettings = () => {
   const { userId, isValid } = useAuthValidation();
@@ -22,7 +44,14 @@ const PrivacySettings = () => {
     marketing_emails: false
   });
   const [loading, setLoading] = useState(true);
+  
+  // Deletion dialog states
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedReason, setSelectedReason] = useState('');
+  const [additionalFeedback, setAdditionalFeedback] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (isValid && userId) {
@@ -112,6 +141,26 @@ const PrivacySettings = () => {
     }
   };
 
+  const handleStartDeletion = () => {
+    setSelectedReason('');
+    setAdditionalFeedback('');
+    setDeleteConfirm('');
+    setShowFeedbackDialog(true);
+  };
+
+  const handleFeedbackNext = () => {
+    if (!selectedReason) {
+      toast({
+        title: "Grund erforderlich",
+        description: "Bitte wählen Sie einen Grund für die Kontolöschung.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setShowFeedbackDialog(false);
+    setShowConfirmDialog(true);
+  };
+
   const deleteAllUserData = async () => {
     if (deleteConfirm !== 'LÖSCHEN') {
       toast({
@@ -122,7 +171,7 @@ const PrivacySettings = () => {
       return;
     }
 
-    setLoading(true);
+    setIsDeleting(true);
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -131,9 +180,16 @@ const PrivacySettings = () => {
         throw new Error('Keine aktive Sitzung gefunden');
       }
 
+      // Get the reason label for storage
+      const reasonLabel = DELETION_REASONS.find(r => r.value === selectedReason)?.label || selectedReason;
+
       const { data, error } = await supabase.functions.invoke('delete-user-account', {
         headers: {
           Authorization: `Bearer ${session.access_token}`
+        },
+        body: {
+          reason: reasonLabel,
+          additional_feedback: additionalFeedback || null
         }
       });
 
@@ -181,7 +237,8 @@ const PrivacySettings = () => {
       
       setTimeout(() => navigate('/auth'), 1000);
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
+      setShowConfirmDialog(false);
     }
   };
 
@@ -270,28 +327,125 @@ const PrivacySettings = () => {
               <p className="text-slate-500 mb-4">
                 Diese Aktion löscht unwiderruflich alle Ihre Daten und kann nicht rückgängig gemacht werden.
               </p>
-              <div className="space-y-4">
-                <input 
-                  type="text" 
-                  placeholder="Geben Sie 'LÖSCHEN' ein, um zu bestätigen" 
-                  value={deleteConfirm} 
-                  onChange={(e) => setDeleteConfirm(e.target.value)} 
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
-                />
-                <Button 
-                  onClick={deleteAllUserData} 
-                  variant="destructive" 
-                  className="w-full bg-red-600 hover:bg-red-700" 
-                  disabled={deleteConfirm !== 'LÖSCHEN' || loading}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Account unwiderruflich löschen
-                </Button>
-              </div>
+              <Button 
+                onClick={handleStartDeletion}
+                variant="destructive" 
+                className="w-full bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Account löschen
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Feedback Dialog - Step 1 */}
+      <AlertDialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Warum möchten Sie gehen?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Ihr Feedback hilft uns, unseren Service zu verbessern.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4 space-y-4">
+            <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
+              {DELETION_REASONS.map((reason) => (
+                <div key={reason.value} className="flex items-center space-x-3">
+                  <RadioGroupItem value={reason.value} id={reason.value} />
+                  <Label htmlFor={reason.value} className="cursor-pointer text-slate-700">
+                    {reason.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+
+            <div className="space-y-2">
+              <Label htmlFor="additional-feedback" className="text-slate-700">
+                Zusätzliches Feedback (optional)
+              </Label>
+              <Textarea
+                id="additional-feedback"
+                placeholder="Was können wir besser machen?"
+                value={additionalFeedback}
+                onChange={(e) => setAdditionalFeedback(e.target.value)}
+                className="resize-none bg-slate-50 border-slate-200"
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleFeedbackNext}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Weiter
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirmation Dialog - Step 2 */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Endgültige Bestätigung
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600">
+              <span className="font-semibold text-red-600">Achtung:</span> Diese Aktion löscht unwiderruflich:
+              <ul className="list-disc list-inside mt-2 space-y-1 text-slate-500">
+                <li>Ihr Benutzerprofil</li>
+                <li>Alle Steuererklärungen</li>
+                <li>Alle hochgeladenen Dokumente</li>
+                <li>Alle Chat-Nachrichten</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4 space-y-2">
+            <Label htmlFor="confirm-delete" className="text-slate-700">
+              Geben Sie <span className="font-bold text-red-600">LÖSCHEN</span> ein, um zu bestätigen
+            </Label>
+            <input 
+              id="confirm-delete"
+              type="text" 
+              placeholder="LÖSCHEN" 
+              value={deleteConfirm} 
+              onChange={(e) => setDeleteConfirm(e.target.value)} 
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setShowConfirmDialog(false);
+                setDeleteConfirm('');
+              }}
+            >
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={deleteAllUserData}
+              disabled={deleteConfirm !== 'LÖSCHEN' || isDeleting}
+              className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+            >
+              {isDeleting ? 'Wird gelöscht...' : 'Unwiderruflich löschen'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
