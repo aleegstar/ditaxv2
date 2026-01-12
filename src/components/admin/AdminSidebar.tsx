@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FileText, Ticket, FolderOpen, MessageCircle, Users, BarChart3, DollarSign, LogOut, Settings, User as UserIcon, ChevronDown } from 'lucide-react';
+import { FileText, Ticket, FolderOpen, MessageCircle, Users, BarChart3, DollarSign, LogOut, Settings, User as UserIcon, ChevronDown, UserMinus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -166,6 +166,10 @@ export function AdminSidebar() {
     title: "Zahlungen",
     url: "/admin/payment-status",
     icon: DollarSign
+  }, {
+    title: "Lösch-Feedback",
+    url: "/admin/deletion-feedback",
+    icon: UserMinus
   }];
 
   const getInitials = (name: string) => {

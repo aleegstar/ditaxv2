@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_feedback: {
+        Row: {
+          additional_feedback: string | null
+          created_at: string | null
+          deleted_user_id: string | null
+          id: string
+          reason: string
+          user_email: string
+        }
+        Insert: {
+          additional_feedback?: string | null
+          created_at?: string | null
+          deleted_user_id?: string | null
+          id?: string
+          reason: string
+          user_email: string
+        }
+        Update: {
+          additional_feedback?: string | null
+          created_at?: string | null
+          deleted_user_id?: string | null
+          id?: string
+          reason?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       admin_access_logs: {
         Row: {
           accessed_user_id: string

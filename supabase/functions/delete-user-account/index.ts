@@ -5,6 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface DeleteRequest {
+  reason?: string;
+  additional_feedback?: string;
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -47,6 +52,7 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.user.id
+    const userEmail = user.user.email || 'unknown@email.com'
     
     // Validate userId is a valid UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -54,8 +60,43 @@ Deno.serve(async (req) => {
       console.error('Invalid user ID format')
       throw new Error('INVALID_REQUEST')
     }
+
+    // Parse request body for feedback
+    let feedbackData: DeleteRequest = {}
+    try {
+      const body = await req.text()
+      if (body) {
+        feedbackData = JSON.parse(body)
+      }
+    } catch (parseError) {
+      console.log('No feedback data provided or invalid JSON')
+    }
     
     console.log(`Starting account deletion for user: ${userId}`)
+
+    // Store deletion feedback if provided
+    if (feedbackData.reason) {
+      try {
+        const { error: feedbackError } = await supabaseAdmin
+          .from('account_deletion_feedback')
+          .insert({
+            user_email: userEmail,
+            reason: feedbackData.reason,
+            additional_feedback: feedbackData.additional_feedback || null,
+            deleted_user_id: userId
+          })
+
+        if (feedbackError) {
+          console.error('Failed to store deletion feedback:', feedbackError)
+          // Continue with deletion even if feedback storage fails
+        } else {
+          console.log('Deletion feedback stored successfully')
+        }
+      } catch (feedbackStoreError) {
+        console.error('Error storing feedback:', feedbackStoreError)
+        // Continue with deletion
+      }
+    }
 
     // Log the deletion attempt
     await supabaseAdmin.from('security_audit_logs').insert({
@@ -63,7 +104,7 @@ Deno.serve(async (req) => {
       action: 'USER_ACCOUNT_DELETION_STARTED',
       success: true,
       resource: 'account_deletion',
-      error_message: 'User initiated complete account deletion'
+      error_message: `User initiated complete account deletion. Reason: ${feedbackData.reason || 'Not provided'}`
     })
 
     // Get all storage files for this user before deletion
