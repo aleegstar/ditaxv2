@@ -4,7 +4,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
-import ditaxLogoFull from '@/assets/ditax-logo-full.png';
+import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate } from 'react-router-dom';

@@ -112,7 +112,7 @@ const AppleAuth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-6 text-center">
         <div className="flex justify-center mb-8">
-          <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-10 w-auto" />
+          <img src="/ditax-logo-new.svg" alt="Ditax Logo" className="h-10 w-auto" />
         </div>
         
         {isLoading ? (

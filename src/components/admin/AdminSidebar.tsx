@@ -185,7 +185,7 @@ export function AdminSidebar() {
     <div data-sidebar className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0" style={{ backgroundColor: 'rgb(244, 244, 244)' }}>
       <div className="flex items-center h-16 px-4 shrink-0">
         <div className="flex items-center space-x-3">
-          <img src="/ditax-logo-new.png" alt="Ditax" className="h-6 w-auto" />
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-6 w-auto" />
         </div>
       </div>
       

@@ -1,6 +1,6 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import ditaxLogoFull from "@/assets/ditax-logo-full.png";
+import ditaxLogoFull from "@/assets/ditax-logo.svg";
 
 export function UserTaxReturnsSkeleton() {
   return (

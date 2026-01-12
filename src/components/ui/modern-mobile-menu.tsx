@@ -211,7 +211,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
         {/* Header with Logo */}
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <img alt="Ditax" className="h-8" src="/lovable-uploads/ac530a1b-308c-49a3-878d-4241bdf70cbe.png" />
+            <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
           </div>
           <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
             <X className="w-5 h-5 text-slate-400" />

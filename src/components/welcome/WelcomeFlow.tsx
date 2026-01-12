@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ditaxLogoTransition from '@/assets/ditax-logo-transition.gif';
+import ditaxLogoTransition from '@/assets/ditax-logo.svg';
 const TAX_YEARS = Array.from({
   length: 3
 }, (_, i) => {

@@ -433,7 +433,7 @@ const Auth = () => {
           }}>
                 {/* Logo Centered */}
                 <div className="flex justify-center mb-10">
-                  <img src="/ditax-logo-new.png" alt="Ditax" className="w-auto h-10 object-contain" />
+                  <img src="/ditax-logo-new.svg" alt="Ditax" className="w-auto h-10 object-contain" />
                 </div>
 
                 {/* Header with Shield Icon */}

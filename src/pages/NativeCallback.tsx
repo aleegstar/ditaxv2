@@ -194,7 +194,7 @@ const NativeCallback = () => {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <img 
-            src="/ditax-logo-new.png" 
+            src="/ditax-logo-new.svg" 
             alt="Ditax" 
             className="w-auto h-10 object-contain" 
           />

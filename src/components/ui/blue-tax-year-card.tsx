@@ -5,7 +5,7 @@ import { MoreVertical, Trash2, Play, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import ditaxLogoIcon from "@/assets/ditax-logo-icon.png";
+import ditaxLogoIcon from "@/assets/ditax-logo.svg";
 interface BlueTaxYearCardProps {
   id: string;
   taxYear: string;
