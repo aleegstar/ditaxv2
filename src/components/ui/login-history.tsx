@@ -92,20 +92,20 @@ export const LoginHistory: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="space-y-5">
+      <section className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-            <History className="w-5 h-5 text-zinc-400" />
+          <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <History className="w-5 h-5 text-gray-600" />
             Login-Historie
           </h2>
         </div>
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white/[0.02] border border-white/[0.05] p-3.5 rounded-xl flex items-center gap-3.5 animate-pulse">
-              <div className="w-9 h-9 bg-zinc-800 rounded-lg"></div>
+            <div key={i} className="bg-gray-50 border border-gray-200 p-3.5 rounded-xl flex items-center gap-3.5 animate-pulse">
+              <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
-                <div className="h-3 bg-zinc-800 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
               </div>
             </div>
           ))}
@@ -115,50 +115,50 @@ export const LoginHistory: React.FC = () => {
   }
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-          <History className="w-5 h-5 text-zinc-400" />
+        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <History className="w-5 h-5 text-gray-600" />
           Login-Historie
         </h2>
-        <p className="text-sm text-zinc-400">Ihre letzten Anmeldungen und verwendeten Geräte.</p>
+        <p className="text-sm text-gray-600">Ihre letzten Anmeldungen und verwendeten Geräte.</p>
       </div>
 
       {sessions.length === 0 ? (
-        <div className="bg-white/[0.02] backdrop-blur-[12px] border border-dashed border-white/10 rounded-xl p-10 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-full bg-zinc-900/80 flex items-center justify-center text-zinc-600 mb-4 border border-white/5 shadow-inner">
-            <History className="w-7 h-7" strokeWidth={1.5} />
+        <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3 border border-gray-200">
+            <History className="w-6 h-6" strokeWidth={1.5} />
           </div>
-          <h3 className="text-sm font-medium text-zinc-200">Keine Login-Historie verfügbar</h3>
+          <h3 className="text-sm font-medium text-gray-700">Keine Login-Historie verfügbar</h3>
         </div>
       ) : (
         <div className="space-y-2">
           {sessions.map((session, index) => (
             <div 
               key={session.id} 
-              className={`bg-white/[0.02] backdrop-blur-[12px] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08] p-3.5 rounded-xl flex items-center justify-between group transition-colors ${index > 0 ? 'border-white/[0.03]' : ''}`}
+              className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-3.5 rounded-xl flex items-center justify-between group transition-colors"
             >
-              <div className={`flex items-center gap-3.5 ${index > 0 ? 'opacity-60' : ''}`}>
+              <div className={`flex items-center gap-3.5 ${index > 0 ? 'opacity-70' : ''}`}>
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center border ${
                   index === 0 
-                    ? 'bg-[#1D64FF]/10 text-[#1D64FF] border-[#1D64FF]/20' 
-                    : 'bg-zinc-800 text-zinc-400 border-white/5'
+                    ? 'bg-blue-100 text-[#1D64FF] border-blue-200' 
+                    : 'bg-gray-100 text-gray-500 border-gray-200'
                 }`}>
                   {getDeviceIcon(session.user_agent)}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <div className={`text-sm font-medium ${index === 0 ? 'text-zinc-200' : 'text-zinc-300'}`}>
+                  <div className={`text-sm font-medium ${index === 0 ? 'text-gray-900' : 'text-gray-700'}`}>
                     {index === 0 ? 'Aktuelle Sitzung' : `Login #${session.login_count}`}
                   </div>
-                  <div className={`text-[11px] ${index === 0 ? 'text-zinc-500' : 'text-zinc-600'}`}>
+                  <div className="text-xs text-gray-500">
                     {getDeviceInfo(session.user_agent)}
                   </div>
                 </div>
               </div>
               <div className={`text-xs ${
                 index === 0 
-                  ? 'font-medium text-[#1D64FF] bg-[#1D64FF]/10 px-2.5 py-1 rounded-md border border-[#1D64FF]/20' 
-                  : 'text-zinc-500'
+                  ? 'font-medium text-[#1D64FF] bg-blue-100 px-2.5 py-1 rounded-md border border-blue-200' 
+                  : 'text-gray-500'
               }`}>
                 {formatDistanceToNow(new Date(session.login_time), { 
                   addSuffix: true, 
@@ -171,7 +171,7 @@ export const LoginHistory: React.FC = () => {
           {hasMore && !showAll && (
             <button
               onClick={() => setShowAll(true)}
-              className="w-full py-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-300 border border-dashed border-white/10 hover:border-white/20 rounded-lg transition-all flex items-center justify-center gap-1.5 hover:bg-white/[0.02]"
+              className="w-full py-2.5 text-xs font-medium text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 hover:border-gray-400 rounded-lg transition-all flex items-center justify-center gap-1.5 hover:bg-gray-50"
             >
               <ChevronDown className="w-3.5 h-3.5" />
               Weitere Logins anzeigen
@@ -181,7 +181,7 @@ export const LoginHistory: React.FC = () => {
           {showAll && sessions.length > 3 && (
             <button
               onClick={() => setShowAll(false)}
-              className="w-full py-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-300 border border-dashed border-white/10 hover:border-white/20 rounded-lg transition-all flex items-center justify-center gap-1.5 hover:bg-white/[0.02]"
+              className="w-full py-2.5 text-xs font-medium text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 hover:border-gray-400 rounded-lg transition-all flex items-center justify-center gap-1.5 hover:bg-gray-50"
             >
               <ChevronUp className="w-3.5 h-3.5" />
               Weniger anzeigen

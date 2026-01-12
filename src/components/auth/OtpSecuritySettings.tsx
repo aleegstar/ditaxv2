@@ -95,22 +95,22 @@ export const OtpSecuritySettings: React.FC<OtpSecuritySettingsProps> = ({
   }
 
   return (
-    <section className="rounded-xl border border-orange-500/20 bg-orange-500/[0.03] p-6 space-y-6">
+    <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 space-y-5">
       <div className="space-y-1">
-        <h2 className="text-base font-semibold text-orange-200/90 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-orange-400" />
+        <h2 className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+          <Lock className="w-4 h-4 text-amber-600" />
           Erweiterte Sicherheitseinstellungen
         </h2>
-        <p className="text-xs text-orange-200/50">Erhöhe deine Sicherheit durch Deaktivierung von E-Mail-Codes.</p>
+        <p className="text-xs text-amber-700">Erhöhe deine Sicherheit durch Deaktivierung von E-Mail-Codes.</p>
       </div>
 
       {showWarning ? (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-4">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div className="space-y-2">
-              <h4 className="font-medium text-red-300">Wichtige Sicherheitswarnung</h4>
-              <div className="text-sm text-red-200/70 space-y-2">
+              <h4 className="font-medium text-red-700">Wichtige Sicherheitswarnung</h4>
+              <div className="text-sm text-red-600 space-y-2">
                 <p><strong>Du bist dabei, E-Mail-Codes zu deaktivieren!</strong></p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
                   <li>Du kannst dich nur noch mit deinen Fingerprints anmelden</li>
@@ -124,13 +124,13 @@ export const OtpSecuritySettings: React.FC<OtpSecuritySettingsProps> = ({
             <button
               onClick={() => handleToggleOtp(true)}
               disabled={loading}
-              className="flex-1 h-9 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-medium transition-colors disabled:opacity-50"
+              className="flex-1 h-9 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 text-xs font-medium transition-colors disabled:opacity-50 border border-red-200"
             >
               Ja, OTP deaktivieren
             </button>
             <button
               onClick={() => setShowWarning(false)}
-              className="flex-1 h-9 rounded-lg border border-white/10 bg-white/[0.02] text-zinc-300 hover:bg-white/[0.05] text-xs font-medium transition-colors"
+              className="flex-1 h-9 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-xs font-medium transition-colors"
             >
               Abbrechen
             </button>
@@ -140,20 +140,20 @@ export const OtpSecuritySettings: React.FC<OtpSecuritySettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <div className="text-sm font-medium text-orange-100/90">OTP-Codes deaktivieren</div>
-              <div className="text-xs text-orange-200/40">Nur Fingerprint-Anmeldung</div>
+              <div className="text-sm font-medium text-amber-900">OTP-Codes deaktivieren</div>
+              <div className="text-xs text-amber-700">Nur Fingerprint-Anmeldung</div>
             </div>
             <Switch
               checked={otpDisabled}
               onCheckedChange={handleToggleOtp}
               disabled={loading || (passkeyCount === 0 && !otpDisabled)}
-              className="data-[state=checked]:bg-orange-500"
+              className="data-[state=checked]:bg-amber-500"
             />
           </div>
 
           {otpDisabled && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-              <div className="flex items-center gap-2 text-emerald-400">
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <div className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle className="h-4 w-4" />
                 <span className="text-xs font-medium">
                   Maximale Sicherheit aktiv - Nur Fingerprint-Anmeldung möglich
@@ -163,13 +163,13 @@ export const OtpSecuritySettings: React.FC<OtpSecuritySettingsProps> = ({
           )}
 
           {passkeyCount === 0 && (
-            <div className="rounded-lg bg-orange-900/20 border border-orange-500/20 p-3.5 flex gap-3 items-center">
-              <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0" />
-              <p className="text-xs text-orange-200/70 font-medium">Richte mindestens einen Fingerprint ein, um OTP deaktivieren zu können.</p>
+            <div className="rounded-lg bg-amber-100 border border-amber-200 p-3 flex gap-3 items-center">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <p className="text-xs text-amber-800 font-medium">Richte mindestens einen Fingerprint ein, um OTP deaktivieren zu können.</p>
             </div>
           )}
 
-          <ul className="text-[11px] text-orange-200/40 space-y-1.5 list-disc list-inside pl-1 marker:text-orange-500/40">
+          <ul className="text-xs text-amber-700 space-y-1.5 list-disc list-inside pl-1">
             <li>Bei Verlust aller Fingerprints wird OTP automatisch reaktiviert</li>
             <li>Administratoren können im Notfall Zugang wiederherstellen</li>
           </ul>
