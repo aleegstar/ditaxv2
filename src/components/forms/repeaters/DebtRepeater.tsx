@@ -39,12 +39,12 @@ export const DebtRepeater: React.FC<DebtRepeaterProps> = ({ debts, onUpdate }) =
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-black font-medium">Schulden</h4>
+        <h4 className="text-slate-600 font-medium">Schulden</h4>
         <Button
           type="button"
           onClick={addDebt}
           size="sm"
-          className="bg-white/10 border-white/30 text-black hover:bg-white/20"
+          className="border-slate-200 text-slate-600 hover:bg-slate-100"
           variant="outline"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -124,12 +124,12 @@ export const DebtRepeater: React.FC<DebtRepeaterProps> = ({ debts, onUpdate }) =
       ))}
 
       {debts.length === 0 && (
-        <div className="text-center py-8 text-white/60">
+        <div className="text-center py-8 bg-slate-50 border border-slate-200 rounded-2xl text-slate-500">
           <p>Noch keine Schulden hinzugefügt</p>
           <Button
             type="button"
             onClick={addDebt}
-            className="mt-2 bg-white/10 border-white/30 text-black hover:bg-white/20"
+            className="mt-2 border-slate-200 text-slate-600 hover:bg-slate-100"
             variant="outline"
           >
             Erste Schuld hinzufügen
