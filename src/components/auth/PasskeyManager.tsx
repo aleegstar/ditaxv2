@@ -54,12 +54,12 @@ export const PasskeyManager: React.FC = () => {
 
   if (!isSupported) {
     return (
-      <section className="space-y-6">
-        <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-          <Fingerprint className="w-5 h-5 text-zinc-400" />
+      <section className="space-y-5">
+        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <Fingerprint className="w-5 h-5 text-gray-600" />
           Fingerprint & Passkey nicht verfügbar
         </h2>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-gray-600">
           Ihr Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
         </p>
       </section>
@@ -79,34 +79,34 @@ export const PasskeyManager: React.FC = () => {
   if (passkeys.length === 0) {
     return (
       <>
-        <section className="space-y-6">
-          <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-            <Fingerprint className="w-5 h-5 text-zinc-400" />
+        <section className="space-y-5">
+          <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <Fingerprint className="w-5 h-5 text-gray-600" />
             Fingerprint & Passkeys
           </h2>
 
-          <div className="space-y-5 pl-0 md:pl-7">
+          <div className="space-y-4 pl-0 md:pl-7">
             <div>
-              <h3 className="text-[15px] font-medium text-zinc-200 flex items-center gap-2.5">
+              <h3 className="text-sm font-medium text-gray-800 flex items-center gap-2">
                 <ScanLine className="w-4 h-4 text-[#1D64FF]" />
                 Fingerprint & Passkey einrichten
               </h3>
-              <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed max-w-lg">
+              <p className="text-sm text-gray-600 mt-1.5 leading-relaxed max-w-lg">
                 Richte einen Fingerprint/Passkey ein, um dich zukünftig schnell und sicher mit deinem Fingerprint, Face ID oder PIN anzumelden.
               </p>
             </div>
 
             <button
               onClick={() => setShowRegistration(true)}
-              className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+              className="w-full h-11 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 text-gray-700 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
             >
-              <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+              <Fingerprint className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
               Fingerprint jetzt einrichten
             </button>
 
             <div className="flex items-start gap-2.5">
               <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-zinc-500 leading-relaxed">Nach der Einrichtung können Sie sich mit Fingerprint, Face ID oder PIN anmelden.</p>
+              <p className="text-xs text-gray-600 leading-relaxed">Nach der Einrichtung können Sie sich mit Fingerprint, Face ID oder PIN anmelden.</p>
             </div>
           </div>
         </section>
@@ -123,55 +123,55 @@ export const PasskeyManager: React.FC = () => {
   // If passkeys exist, show management UI
   return (
     <>
-      <section className="space-y-6">
-        <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-          <Fingerprint className="w-5 h-5 text-zinc-400" />
+      <section className="space-y-5">
+        <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <Fingerprint className="w-5 h-5 text-gray-600" />
           Fingerprint & Passkeys
         </h2>
 
         {/* Add new passkey */}
-        <div className="space-y-5 pl-0 md:pl-7">
+        <div className="space-y-4 pl-0 md:pl-7">
           <div>
-            <h3 className="text-[15px] font-medium text-zinc-200 flex items-center gap-2.5">
+            <h3 className="text-sm font-medium text-gray-800 flex items-center gap-2">
               <ScanLine className="w-4 h-4 text-[#1D64FF]" />
               Neuen Fingerprint hinzufügen
             </h3>
-            <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed max-w-lg">
+            <p className="text-sm text-gray-600 mt-1.5 leading-relaxed max-w-lg">
               Fügen Sie einen weiteren Fingerprint/Passkey für ein anderes Gerät hinzu.
             </p>
           </div>
 
           <button
             onClick={() => setShowRegistration(true)}
-            className="w-full h-11 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 text-zinc-200 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
+            className="w-full h-11 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 text-gray-700 text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 group"
           >
-            <Fingerprint className="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+            <Fingerprint className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
             Weiteren Fingerprint hinzufügen
           </button>
         </div>
 
         {/* Existing Passkeys */}
-        <div className="space-y-3">
-          <span className="text-sm font-medium text-zinc-300 px-1">Registrierte Geräte</span>
+        <div className="space-y-2">
+          <span className="text-sm font-medium text-gray-700 px-1">Registrierte Geräte</span>
           {passkeys.map((passkey) => (
             <div
               key={passkey.id}
-              className="bg-white/[0.02] backdrop-blur-[12px] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.08] p-4 rounded-xl flex items-center justify-between gap-3 transition-colors"
+              className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center justify-between gap-3 transition-colors"
             >
               <div className="flex items-center gap-3 flex-1">
-                <div className="w-9 h-9 rounded-lg bg-[#1D64FF]/10 flex items-center justify-center text-[#1D64FF] border border-[#1D64FF]/20">
+                <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center text-[#1D64FF] border border-blue-200">
                   <Fingerprint className="w-4 h-4" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <div className="text-sm font-medium text-zinc-200">{passkey.device_name}</div>
-                  <div className="text-[11px] text-zinc-500">
+                  <div className="text-sm font-medium text-gray-900">{passkey.device_name}</div>
+                  <div className="text-xs text-gray-500">
                     Erstellt {formatDistanceToNow(new Date(passkey.created_at), { 
                       addSuffix: true, 
                       locale: de 
                     })}
                   </div>
                   {passkey.last_used_at && (
-                    <div className="text-[11px] text-zinc-600">
+                    <div className="text-xs text-gray-400">
                       Zuletzt verwendet {formatDistanceToNow(new Date(passkey.last_used_at), { 
                         addSuffix: true, 
                         locale: de 
@@ -181,13 +181,13 @@ export const PasskeyManager: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
+                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
                   Aktiv
                 </Badge>
                 <button
                   onClick={() => handleDelete(passkey.id)}
                   disabled={loadingDelete === passkey.id}
-                  className="w-8 h-8 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-center text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-50"
+                  className="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
                 >
                   {loadingDelete === passkey.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

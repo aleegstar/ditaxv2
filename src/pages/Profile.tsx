@@ -74,25 +74,25 @@ const Profile = () => {
         <div className="max-w-[640px] mx-auto space-y-10 pb-24">
           
           {/* Section: Profilbild */}
-          <section className="space-y-6">
+          <section className="space-y-5">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-slate-500" />
+              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <Camera className="w-5 h-5 text-gray-600" />
                 Profilbild
               </h2>
-              <p className="text-sm text-slate-500">Laden Sie Ihr Profilbild hoch oder ändern Sie es.</p>
+              <p className="text-sm text-gray-600">Laden Sie Ihr Profilbild hoch oder ändern Sie es.</p>
             </div>
             
             <div className="flex items-center">
               <div className="relative group cursor-pointer">
-                <div className="w-28 h-28 rounded-full bg-slate-100 border-2 border-slate-200 overflow-hidden relative shadow-lg">
+                <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden relative shadow-md">
                   <Avatar className="w-full h-full">
                     <AvatarImage 
                       src={profile?.avatar_url || undefined} 
                       alt="Profilbild"
-                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                      className="w-full h-full object-cover"
                     />
-                    <AvatarFallback className="w-full h-full bg-slate-100 text-slate-500 text-3xl">
+                    <AvatarFallback className="w-full h-full bg-gray-100 text-gray-600 text-2xl font-medium">
                       {getInitials()}
                     </AvatarFallback>
                   </Avatar>
@@ -104,9 +104,9 @@ const Profile = () => {
                   renderTrigger={(onClick) => (
                     <button 
                       onClick={onClick}
-                      className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#1D64FF] text-white flex items-center justify-center border-[3px] border-white hover:bg-blue-500 hover:scale-105 transition-all shadow-lg z-10"
+                      className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#1D64FF] text-white flex items-center justify-center border-2 border-white hover:bg-blue-600 hover:scale-105 transition-all shadow-md z-10"
                     >
-                      <Upload className="w-4 h-4" />
+                      <Upload className="w-3.5 h-3.5" />
                     </button>
                   )}
                 />
@@ -117,41 +117,41 @@ const Profile = () => {
           <div className="h-px bg-slate-200 w-full" />
 
           {/* Section: Profil-Informationen */}
-          <section className="space-y-5">
+          <section className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                <User className="w-5 h-5 text-slate-500" />
+              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <User className="w-5 h-5 text-gray-600" />
                 Profil-Informationen
               </h2>
-              <p className="text-sm text-slate-500">Ihre persönlichen Daten und Kontoinformationen.</p>
+              <p className="text-sm text-gray-600">Ihre persönlichen Daten und Kontoinformationen.</p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 p-5 rounded-2xl flex items-center gap-5 transition-colors group">
-              <div className="w-14 h-14 rounded-full bg-slate-200 border border-slate-300 overflow-hidden shrink-0">
+            <div className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+              <div className="w-12 h-12 rounded-full bg-gray-200 border border-gray-300 overflow-hidden shrink-0">
                 <Avatar className="w-full h-full">
                   <AvatarImage 
                     src={profile?.avatar_url || undefined} 
                     alt="Avatar"
                     className="w-full h-full object-cover"
                   />
-                  <AvatarFallback className="w-full h-full bg-slate-200 text-slate-500">
+                  <AvatarFallback className="w-full h-full bg-gray-200 text-gray-600 font-medium">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-medium text-slate-800 flex items-center gap-2">
+              <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                <span className="text-sm font-semibold text-gray-900">
                   {profile?.first_name || profile?.last_name 
                     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
                     : 'Name nicht verfügbar'
                   }
                 </span>
-                <span className="text-sm text-slate-500 flex items-center gap-1.5 font-normal">
-                  <Mail className="w-3.5 h-3.5" />
+                <span className="text-sm text-gray-600 flex items-center gap-1.5 truncate">
+                  <Mail className="w-3.5 h-3.5 shrink-0" />
                   {profile?.email || 'E-Mail nicht verfügbar'}
                 </span>
               </div>
-              <button className="ml-auto text-xs font-medium text-slate-600 hover:text-slate-800 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-all">
+              <button className="text-xs font-medium text-gray-700 hover:text-gray-900 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-all shrink-0">
                 Bearbeiten
               </button>
             </div>
