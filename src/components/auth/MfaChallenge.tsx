@@ -59,7 +59,7 @@ export const MfaChallenge: React.FC<MfaChallengeProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 !m-0">
       <Card className="w-full max-w-md mx-auto bg-background border-border">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
