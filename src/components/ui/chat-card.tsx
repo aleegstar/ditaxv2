@@ -104,9 +104,9 @@ export function ChatCard({
     }
     return <Check className="w-4 h-4 text-gray-400" />;
   };
-  return <div className={cn("flex flex-col h-full pb-20 md:pb-0", className)}>
+  return <div className={cn("flex flex-col h-full", className)}>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[180px] md:pb-4">
         {loading ? <div className="flex justify-center items-center h-64 text-white/70">
             Nachrichten werden geladen...
           </div> : messages.length === 0 ? <div className="flex justify-center items-center h-64 text-white/70 text-center">
@@ -148,50 +148,50 @@ export function ChatCard({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* File Preview */}
-      {selectedFile && <div className="p-3 bg-white/5 backdrop-blur-sm border-t border-white/10">
-          <div className="flex items-center gap-3 bg-white/10 rounded-lg p-2">
-            <File className="h-4 w-4 text-white" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-white truncate">{selectedFile.name}</p>
-              <p className="text-xs text-white/60">
-                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-              </p>
+      {/* Input - Fixed at bottom on mobile */}
+      <div className="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto bg-white/95 backdrop-blur-md border-t border-gray-200 md:border-white/20 md:bg-transparent md:backdrop-blur-none z-50">
+        {/* File Preview */}
+        {selectedFile && <div className="p-3 bg-gray-50 md:bg-white/5 md:backdrop-blur-sm border-b border-gray-200 md:border-white/10">
+            <div className="flex items-center gap-3 bg-gray-100 md:bg-white/10 rounded-lg p-2">
+              <File className="h-4 w-4 text-gray-600 md:text-white" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-900 md:text-white truncate">{selectedFile.name}</p>
+                <p className="text-xs text-gray-500 md:text-white/60">
+                  {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
+              <button onClick={() => setSelectedFile(null)} className="text-gray-500 hover:text-gray-700 md:text-white/60 md:hover:text-white text-sm" type="button">
+                ✕
+              </button>
             </div>
-            <button onClick={() => setSelectedFile(null)} className="text-white/60 hover:text-white text-sm" type="button">
-              ✕
-            </button>
-          </div>
-        </div>}
+          </div>}
 
-      {/* Input */}
-      <div className="border-t border-white/20">
-        <div className="p-4">
-          <div className="flex gap-2 items-end p-3 transition-all duration-200 backdrop-blur-[25px] border border-white shadow-lg shadow-black/10" style={{
-          backgroundColor: '#fff6',
+        <div className="p-4 pb-6 md:pb-4">
+          <div className="flex gap-2 items-end p-3 transition-all duration-200 backdrop-blur-[25px] border border-gray-200 md:border-white shadow-lg shadow-black/5 md:shadow-black/10" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '20px'
         }}>
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,.pdf" className="hidden" />
             
-            <Button type="button" variant="ghost" size="icon" onClick={handleFileClick} disabled={uploading} className="hover:bg-white/10 shrink-0 text-[#333333]">
+            <Button type="button" variant="ghost" size="icon" onClick={handleFileClick} disabled={uploading} className="hover:bg-gray-100 md:hover:bg-white/10 shrink-0 text-gray-600 md:text-[#333333]">
               <Paperclip className="h-5 w-5" />
             </Button>
 
-            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Schreiben Sie eine Nachricht oder fügen Sie ein Bild/PDF hinzu..." disabled={uploading} className="flex-1 bg-transparent border-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:ring-offset-0 text-base py-2" onKeyDown={e => {
+            <Input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Schreibe eine Nachricht..." disabled={uploading} className="flex-1 bg-transparent border-none text-gray-900 md:text-white placeholder:text-gray-500 md:placeholder:text-white/50 focus-visible:ring-0 focus-visible:ring-offset-0 text-base py-2" onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               handleSendMessage();
             }
           }} />
             
-            <Button onClick={handleSendMessage} size="icon" disabled={!inputValue.trim() && !selectedFile || uploading} className="shrink-0 bg-white text-[#333333]">
+            <Button onClick={handleSendMessage} size="icon" disabled={!inputValue.trim() && !selectedFile || uploading} className="shrink-0 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white">
               <Send className="h-5 w-5" />
             </Button>
           </div>
           
-          {uploading && <div className="text-center mt-2">
-              <span className="text-xs text-white/60">Nachricht wird gesendet...</span>
-            </div>}
+          <p className="text-center mt-2 text-xs text-gray-400">
+            Ditax AI kann Fehler machen. Überprüfe wichtige Infos.
+          </p>
         </div>
       </div>
     </div>;
