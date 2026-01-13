@@ -2,29 +2,62 @@ import React, { useState } from 'react';
 import { Shield, Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useMfa } from '@/hooks/useMfa';
 import { MfaEnrollmentFlow } from './MfaEnrollmentFlow';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const MfaSettings: React.FC = () => {
   const [showEnrollment, setShowEnrollment] = useState(false);
+  const [factorToRemove, setFactorToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [removalCode, setRemovalCode] = useState('');
+  const [isRemoving, setIsRemoving] = useState(false);
   const { factors, isLoading, unenrollFactor, loadFactors } = useMfa();
 
-  const handleRemoveFactor = async (factorId: string) => {
+  const handleRemoveFactorWithMfa = async () => {
+    if (!factorToRemove || removalCode.length !== 6) return;
+    
+    setIsRemoving(true);
     try {
-      await unenrollFactor(factorId);
+      // First, create a challenge and verify to reach AAL2
+      const challenge = await supabase.auth.mfa.challenge({ factorId: factorToRemove.id });
+      if (challenge.error) throw challenge.error;
+      
+      const verify = await supabase.auth.mfa.verify({
+        factorId: factorToRemove.id,
+        challengeId: challenge.data.id,
+        code: removalCode
+      });
+      if (verify.error) throw verify.error;
+      
+      // Now we have AAL2 and can unenroll
+      await unenrollFactor(factorToRemove.id);
+      setFactorToRemove(null);
+      setRemovalCode('');
     } catch (error) {
-      // Error handling is done in the hook
+      console.error('Error removing MFA factor:', error);
+      toast.error('Ungültiger Code. Bitte versuchen Sie es erneut.');
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -45,7 +78,7 @@ export const MfaSettings: React.FC = () => {
         </div>
 
         {/* Alert Box */}
-        {factors.length === 0 ? (
+        {factors.filter(f => f.status === 'verified').length === 0 ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
             <div className="p-2 rounded-lg bg-amber-100 text-amber-600 shrink-0">
               <AlertTriangle className="w-4 h-4" />
@@ -83,9 +116,9 @@ export const MfaSettings: React.FC = () => {
             </button>
           </div>
 
-          {factors.length > 0 ? (
+          {factors.filter(f => f.status === 'verified').length > 0 ? (
             <div className="space-y-2">
-              {factors.map((factor) => (
+              {factors.filter(f => f.status === 'verified').map((factor) => (
                 <div 
                   key={factor.id}
                   className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center justify-between gap-3 transition-colors"
@@ -99,51 +132,25 @@ export const MfaSettings: React.FC = () => {
                         {factor.friendly_name || 'Authenticator App'}
                       </div>
                       <div className="text-xs text-gray-500">
-                        TOTP • {factor.status === 'verified' ? 'Verifiziert' : 'Nicht verifiziert'}
+                        TOTP • Verifiziert
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge 
-                      variant={factor.status === 'verified' ? 'default' : 'secondary'} 
-                      className={factor.status === 'verified' 
-                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200 text-xs' 
-                        : 'bg-gray-100 text-gray-600 border-gray-200 text-xs'
-                      }
+                      variant="default"
+                      className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs"
                     >
-                      {factor.status === 'verified' ? 'Aktiv' : 'Inaktiv'}
+                      Aktiv
                     </Badge>
                   
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button 
-                          className="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors"
-                          disabled={isLoading}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-white border-gray-200">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="text-gray-900">MFA-Gerät entfernen</AlertDialogTitle>
-                          <AlertDialogDescription className="text-gray-600">
-                            Sind Sie sicher, dass Sie dieses MFA-Gerät entfernen möchten? 
-                            Dies reduziert die Sicherheit Ihres Kontos.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200">
-                            Abbrechen
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleRemoveFactor(factor.id)}
-                            className="bg-red-100 text-red-700 hover:bg-red-200 border border-red-200"
-                          >
-                            Entfernen
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <button 
+                      onClick={() => setFactorToRemove({ id: factor.id, name: factor.friendly_name || 'Authenticator App' })}
+                      className="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors"
+                      disabled={isLoading}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -160,6 +167,60 @@ export const MfaSettings: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* MFA Code Dialog for Removal */}
+      <Dialog open={!!factorToRemove} onOpenChange={(open) => !open && setFactorToRemove(null)}>
+        <DialogContent className="bg-white border-gray-200 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">MFA-Gerät entfernen</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Geben Sie zur Bestätigung den 6-stelligen Code aus Ihrer Authenticator-App ein, um "{factorToRemove?.name}" zu entfernen.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="removal-code" className="text-gray-700">Authenticator-Code</Label>
+              <Input
+                id="removal-code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="000000"
+                value={removalCode}
+                onChange={(e) => setRemovalCode(e.target.value.replace(/\D/g, ''))}
+                className="text-center text-2xl tracking-widest font-mono border-gray-300"
+                autoComplete="one-time-code"
+              />
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <p className="text-xs text-amber-800">
+                <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
+                Dies reduziert die Sicherheit Ihres Kontos.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setFactorToRemove(null);
+                setRemovalCode('');
+              }}
+              className="border-gray-200"
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={handleRemoveFactorWithMfa}
+              disabled={removalCode.length !== 6 || isRemoving}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isRemoving ? 'Wird entfernt...' : 'Entfernen'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {showEnrollment && (
         <MfaEnrollmentFlow
