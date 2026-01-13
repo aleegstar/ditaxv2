@@ -231,106 +231,162 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
       <div className={cn(
-        "min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-indigo-100 selection:text-indigo-700",
+        "min-h-screen w-full flex flex-col text-slate-900 antialiased relative overflow-hidden bg-white selection:bg-[#1D64FF]/10 selection:text-[#1D64FF]",
         isTransitionEntry && "animate-fade-in"
       )}>
-        {/* Container */}
-        <div className="min-h-screen flex flex-col w-full max-w-2xl pb-32 relative bg-white">
-          
-          {/* Header */}
-          <header className="sticky top-0 z-30 px-6 py-5 flex items-center justify-between backdrop-blur-md bg-white/90">
-            <button onClick={() => navigate(-1)} className="-ml-2 hover:bg-slate-200/50 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
-              <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
-            </button>
-            <h1 className="font-semibold text-[17px] tracking-tight text-slate-900">Dokumente</h1>
-            <div className="w-9" /> {/* Spacer for optical centering */}
-          </header>
+        {/* Top Navigation */}
+        <header className="flex-none px-6 py-6 flex items-center justify-between relative z-10">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="group p-2.5 -ml-2 rounded-full bg-white/50 hover:bg-white hover:shadow-md hover:ring-1 hover:ring-gray-100 transition-all duration-200 text-slate-600 hover:text-slate-900 backdrop-blur-sm"
+          >
+            <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
+          </button>
 
-          {/* Main Content */}
-          <main className="px-6 flex flex-col gap-8 mt-2">
-            
+          <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+            Dokumente
+          </h1>
+
+          {/* Placeholder for symmetry */}
+          <div className="w-10" />
+        </header>
+
+        {/* Main Scrollable Content */}
+        <main className="flex-1 overflow-y-auto no-scrollbar pb-32">
+          <div className="max-w-2xl mx-auto px-6 w-full flex flex-col gap-8">
             {/* Section: Year Selection */}
             <div className="space-y-3" data-tour="documents-year-selector">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide ml-1">Steuerjahr auswählen</label>
-              <div className="relative group">
-                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-indigo-200 transition-all duration-300 group-active:scale-[0.99]">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50/80 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
-                      <Calendar strokeWidth={1.5} className="w-5 h-5 text-[#1f66ff]" />
+              <label className="block text-xs font-bold text-slate-400 tracking-widest mb-2 ml-4 uppercase">
+                Steuerjahr auswählen
+              </label>
+
+              <div className="relative">
+                <button 
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl text-white shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 bg-[#1D64FF] shadow-[#1D64FF]/25">
+                      <Calendar className="w-6 h-6" strokeWidth={1.5} />
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold text-slate-900 text-[15px] tracking-tight">Steuererklärung {selectedYear}</span>
-                      <span className="text-xs text-slate-500 font-medium">Aktuelles Jahr</span>
-                    </div>
-                  </div>
-                  <ChevronDown className={cn("w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
-                </button>
-                
-                {isYearDropdownOpen && <>
-                    <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                    <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-                      <div className="max-h-64 overflow-y-auto py-1">
-                        {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors", year === selectedYear && "bg-indigo-50 text-indigo-700")}>
-                            Steuererklärung {year}
-                          </button>)}
+                    <div className="text-left">
+                      <div className="text-base font-semibold text-slate-900 transition-colors group-hover:text-[#1D64FF]">
+                        Steuererklärung {selectedYear}
+                      </div>
+                      <div className="text-sm text-slate-500 mt-0.5 font-medium">
+                        Aktuelles Jahr
                       </div>
                     </div>
-                  </>}
+                  </div>
+                  <ChevronDown className={cn("w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors", isYearDropdownOpen && "rotate-180")} />
+                </button>
+
+                {isYearDropdownOpen && <>
+                  <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+                    <div className="max-h-64 overflow-y-auto py-1">
+                      {availableYears.map(year => (
+                        <button 
+                          key={year} 
+                          onClick={() => handleYearSelect(year)} 
+                          className={cn(
+                            "w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors",
+                            year === selectedYear && "bg-[#1D64FF]/5 text-[#1D64FF]"
+                          )}
+                        >
+                          Steuererklärung {year}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>}
               </div>
             </div>
 
             {/* Section: Uploaded Documents */}
-            {documents.length > 0 ? <div className="space-y-4">
+            {documents.length > 0 ? (
+              <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="font-semibold text-slate-900 text-[16px] tracking-tight">Hochgeladene Dokumente</h2>
-                  <span className="text-xs font-medium text-slate-400 bg-slate-100 border-slate-200/60 border rounded-full py-1 px-2">{documents.length} Dateien</span>
+                  <h2 className="text-base font-semibold text-slate-900 tracking-tight pl-2">
+                    Hochgeladene Dokumente
+                  </h2>
+                  <span className="bg-white border border-slate-100 shadow-sm text-slate-600 text-xs font-bold px-3 py-1 rounded-full">
+                    {documents.length} {documents.length === 1 ? 'Datei' : 'Dateien'}
+                  </span>
                 </div>
 
-                <div className="space-y-3">
-                  {documents.map(doc => <div key={doc.id} onClick={() => {
-                setSelectedDocument(doc);
-                setShowActionSheet(true);
-              }} className="group bg-white rounded-2xl p-3 pr-4 border border-slate-200 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] hover:border-indigo-100 transition-all duration-300 flex items-center gap-3.5 cursor-pointer">
-                      {/* Icon */}
-                      <div className={cn("w-12 h-12 shrink-0 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform", doc.file_type?.startsWith('image/') ? "bg-emerald-50/80 border border-emerald-100/50 text-emerald-600" : "bg-red-50/80 border border-red-100/50 text-red-600")}>
-                        {doc.file_type?.startsWith('image/') ? <Image className="w-5 h-5" strokeWidth={1.5} /> : <FileText className="w-5 h-5" strokeWidth={1.5} />}
-                      </div>
-                      
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                        <span className="font-medium text-slate-800 text-[14px] truncate leading-snug">{doc.file_name}</span>
-                        <span className="text-xs text-slate-400">
-                          {format(new Date(doc.upload_date), 'd. MMM yyyy', {
-                      locale: de
-                    })}
-                        </span>
-                      </div>
+                {/* Document List */}
+                <div className="flex flex-col gap-3">
+                  {documents.map(doc => (
+                    <div 
+                      key={doc.id}
+                      onClick={() => {
+                        setSelectedDocument(doc);
+                        setShowActionSheet(true);
+                      }}
+                      className="group bg-white/60 backdrop-blur-md rounded-[2rem] p-4 border border-white/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-0.5"
+                    >
+                      <div className="flex items-center gap-4 relative z-10">
+                        {/* Icon / Preview */}
+                        <div className={cn(
+                          "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center",
+                          doc.file_type?.startsWith('image/') 
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                            : "bg-red-50 text-red-600 border border-red-100"
+                        )}>
+                          {doc.file_type?.startsWith('image/') 
+                            ? <Image className="w-6 h-6" strokeWidth={1.5} /> 
+                            : <FileText className="w-6 h-6" strokeWidth={1.5} />
+                          }
+                        </div>
 
-                      {/* Badge */}
-                      <div className={cn("hidden sm:flex px-2 py-0.5 rounded-md", doc.file_type?.startsWith('image/') ? "bg-emerald-50 border border-emerald-100/50" : "bg-red-50 border border-red-100/50")}>
-                        <span className={cn("text-[10px] font-bold tracking-wide uppercase", doc.file_type?.startsWith('image/') ? "text-emerald-700" : "text-red-700")}>
-                          {doc.file_type?.startsWith('image/') ? 'Bild' : 'PDF'}
-                        </span>
-                      </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 py-1">
+                          <h3 className="text-sm font-medium text-slate-900 truncate pr-4 transition-colors group-hover:text-[#1D64FF]">
+                            {doc.file_name}
+                          </h3>
+                          <div className="flex items-center gap-3 mt-1">
+                            <p className="text-xs text-slate-500 font-medium">
+                              {format(new Date(doc.upload_date), 'd. MMM yyyy', { locale: de })}
+                            </p>
 
-                      {/* Menu */}
-                      <button onClick={e => {
-                  e.stopPropagation();
-                  setSelectedDocument(doc);
-                  setShowActionSheet(true);
-                }} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-colors">
-                        <MoreHorizontal className="w-5 h-5" strokeWidth={1.5} />
-                      </button>
-                    </div>)}
+                            {/* Badge */}
+                            <span className={cn(
+                              "inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset tracking-wide uppercase",
+                              doc.file_type?.startsWith('image/') 
+                                ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10" 
+                                : "bg-red-50 text-red-700 ring-red-600/10"
+                            )}>
+                              {doc.file_type?.startsWith('image/') ? 'Bild' : 'PDF'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <button 
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectedDocument(doc);
+                            setShowActionSheet(true);
+                          }}
+                          className="shrink-0 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <MoreHorizontal className="w-5 h-5" strokeWidth={1.5} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div> : (/* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
+              </div>
+            ) : (
+              /* Empty State */
+              <div className="flex-1 flex flex-col items-center justify-center py-20">
                 <div className="text-center space-y-6 relative">
                   {/* Icon placeholder */}
                   <div className="relative mx-auto w-24 h-24 mb-4">
-                    <div className="absolute inset-0 bg-indigo-500 rounded-full blur-[40px] opacity-10" />
+                    <div className="absolute inset-0 bg-[#1D64FF] rounded-full blur-[40px] opacity-10" />
                     <div className="relative w-full h-full rounded-[32px] bg-white border border-slate-200 shadow-lg flex items-center justify-center group cursor-default">
-                      <FolderOpen strokeWidth={1.5} className="w-10 h-10 group-hover:scale-110 transition-transform duration-500 text-[#1f66ff]" />
+                      <FolderOpen strokeWidth={1.5} className="w-10 h-10 group-hover:scale-110 transition-transform duration-500 text-[#1D64FF]" />
                     </div>
                     {/* Status Badge */}
                     <div className="absolute -top-2 -right-2 bg-white border border-slate-200 p-1.5 rounded-full shadow-lg">
@@ -357,55 +413,80 @@ const DocumentsContent: React.FC<{
                     </div>
                   </div>
                 </div>
-              </div>)}
-          </main>
-
-          {/* Floating Action Footer */}
-          <div className="fixed bottom-0 w-full max-w-[500px] pointer-events-none z-50 left-1/2 -translate-x-1/2 overflow-visible">
-            {/* Gradient Overlay */}
-            <div className="absolute bottom-0 w-full h-40 pointer-events-none" style={{
-            background: 'linear-gradient(to top, #ffffff 10%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)'
-          }} />
-
-            <div className="relative w-full flex flex-col items-center pb-6 pt-4 pointer-events-auto gap-4 overflow-visible">
-              
-              {/* Hidden File Input */}
-              <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
-              if (e.target.files && e.target.files.length > 0) {
-                // Store the files before resetting the input
-                setSelectedFiles(Array.from(e.target.files));
-                setShowUploader(true);
-              }
-              // Reset input so same file can be selected again
-              e.target.value = '';
-            }} />
-              
-              {/* Main Action Button */}
-              <button onClick={() => fileInputRef.current?.click()} className="group relative flex items-center gap-3 pl-2 pr-6 py-2 bg-primary rounded-full shadow-[0_8px_30px_-6px_rgba(29,100,255,0.4)] hover:shadow-[0_8px_35px_-4px_rgba(29,100,255,0.5)] hover:scale-[1.02] active:scale-95 transition-all duration-300" data-tour="document-upload-card">
-                <div className="flex transition-colors text-primary w-10 h-10 rounded-full shadow-inner items-center justify-center bg-white">
-                  <Plus className="w-6 h-6" strokeWidth={1.5} />
-                </div>
-                <div className="flex flex-col items-start text-left">
-                  <span className="text-[14px] font-semibold text-white tracking-tight">Dokument hinzufügen</span>
-                  <span className="text-[11px] font-medium text-white/70">Scan oder Upload</span>
-                </div>
-              </button>
-
-              {/* Security Text */}
-              <div className="flex items-center gap-1.5 text-slate-400/80">
-                <Lock className="w-3 h-3" strokeWidth={1.5} />
-                <span className="text-[10px] font-semibold tracking-wider uppercase">Verschlüsselt & Sicher</span>
               </div>
+            )}
+          </div>
+        </main>
+
+        {/* Floating Action Button Area */}
+        <div className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+          {/* Gradient Fade */}
+          <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t to-transparent from-white via-white/95" />
+
+          {/* Button Container */}
+          <div className="relative pb-8 px-6 flex flex-col items-center pointer-events-auto max-w-2xl mx-auto w-full">
+            {/* Hidden File Input */}
+            <input 
+              ref={fileInputRef} 
+              type="file" 
+              accept="image/*,application/pdf" 
+              multiple 
+              className="hidden" 
+              onChange={e => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setSelectedFiles(Array.from(e.target.files));
+                  setShowUploader(true);
+                }
+                e.target.value = '';
+              }} 
+            />
+
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="group relative w-auto min-w-[280px] active:scale-95 text-white pl-4 pr-6 py-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-4 overflow-hidden bg-[#1D64FF] hover:bg-[#1854D9] shadow-[0_20px_40px_-12px_rgba(29,100,255,0.4)]"
+              data-tour="document-upload-card"
+            >
+              {/* Icon Circle */}
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center transition-colors border border-white/10 shadow-inner backdrop-blur-sm">
+                <Plus className="w-6 h-6 text-white" strokeWidth={2} />
+              </div>
+
+              {/* Text Content */}
+              <div className="flex flex-col items-start mr-2">
+                <span className="text-base font-semibold tracking-tight text-lg">
+                  Dokument hinzufügen
+                </span>
+                <span className="text-xs font-medium group-hover:text-white transition-colors text-white/80">
+                  Scan oder Upload
+                </span>
+              </div>
+
+              {/* Subtle Shine Effect */}
+              <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/20" />
+            </button>
+
+            {/* Security Footer */}
+            <div className="mt-5 flex items-center gap-1.5 text-slate-400 select-none">
+              <Lock className="w-3 h-3" strokeWidth={2} />
+              <span className="text-[10px] font-semibold tracking-widest uppercase opacity-80">
+                Verschlüsselt &amp; Sicher
+              </span>
             </div>
           </div>
         </div>
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
-        <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
-        setShowActionSheet(false);
-        setSelectedDocument(null);
-      }} onUpdate={loadDocuments} availableYears={allYears} />
+        <DocumentActionSheet 
+          document={selectedDocument} 
+          open={showActionSheet} 
+          onClose={() => {
+            setShowActionSheet(false);
+            setSelectedDocument(null);
+          }} 
+          onUpdate={loadDocuments} 
+          availableYears={allYears} 
+        />
       </div>
     </>;
 };
