@@ -131,6 +131,7 @@ export function Sidebar() {
   const [isClosing, setIsClosing] = useState(false);
   const [navigationExpanded, setNavigationExpanded] = useState(true);
   const [helpExpanded, setHelpExpanded] = useState(false);
+  const [feedbackExpanded, setFeedbackExpanded] = useState(false);
   const [legalExpanded, setLegalExpanded] = useState(false);
   const {
     userId,
@@ -336,6 +337,10 @@ export function Sidebar() {
     icon: CustomChatIcon
   }];
   const helpItems = [{
+    title: "Wissensdatenbank",
+    url: "/help",
+    icon: HelpCircle
+  }, {
     title: "Anleitung starten",
     onClick: handleStartTour,
     icon: CustomTourIcon
@@ -343,11 +348,8 @@ export function Sidebar() {
     title: "Dokumenten Anleitung starten",
     onClick: handleStartDocumentsTour,
     icon: CustomFolderIcon
-  }, {
-    title: t.navigation.help,
-    url: "/help",
-    icon: HelpCircle
-  }, {
+  }];
+  const feedbackItems = [{
     title: t.navigation.feedback,
     url: "/feedback",
     icon: MessageCircle
@@ -439,6 +441,22 @@ export function Sidebar() {
                       <item.icon className="w-4 h-4 text-slate-400" />
                       {item.title}
                     </button>)}
+              </div>}
+          </div>
+
+          {/* Feedback & Roadmap Section - Collapsible */}
+          <div className="mt-4 pt-4 border-t border-slate-200/50">
+            <button onClick={() => setFeedbackExpanded(!feedbackExpanded)} className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600 transition-colors">
+              <span>Feedback & Roadmap</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${feedbackExpanded ? 'rotate-180' : ''}`} />
+            </button>
+            {feedbackExpanded && <div className="mt-1 space-y-1">
+                {feedbackItems.map(item => <NavLink key={item.title} to={item.url} onClick={handleNavigationClick} className={({
+              isActive
+            }) => `flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-full transition-all ${isActive ? 'text-slate-900 bg-white/60' : 'text-slate-500 hover:text-slate-900 hover:bg-white/60 hover:shadow-sm'}`}>
+                    <item.icon className="w-4 h-4 text-slate-400" />
+                    {item.title}
+                  </NavLink>)}
               </div>}
           </div>
 
@@ -581,6 +599,28 @@ export function Sidebar() {
                           <item.icon className="h-5 w-5 flex-shrink-0" />
                           <span className="ml-3">{item.title}</span>
                         </button>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>)}
+              </SidebarMenu>
+            </SidebarGroupContent>}
+        </SidebarGroup>
+
+        {/* Feedback & Roadmap Section */}
+        <SidebarGroup className="mt-6">
+          <button onClick={() => setFeedbackExpanded(!feedbackExpanded)} className="flex items-center justify-between w-full px-2 py-2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition-colors">
+            <span className="uppercase tracking-wide">Feedback & Roadmap</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${feedbackExpanded ? 'rotate-180' : ''}`} />
+          </button>
+          {feedbackExpanded && <SidebarGroupContent>
+              <SidebarMenu className="space-y-0.5 pl-2 mt-1">
+                {feedbackItems.map(item => <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} onClick={handleNavigationClick} className={({
+                    isActive
+                  }) => `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${isActive ? 'bg-[#1D64FF]/10 text-slate-900 border border-[#1D64FF]/20' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="ml-3">{item.title}</span>
+                      </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>)}
               </SidebarMenu>
