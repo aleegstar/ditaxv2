@@ -14,46 +14,45 @@ interface MfaStepperProps {
 
 export const MfaStepper: React.FC<MfaStepperProps> = ({ steps, currentStep }) => {
   return (
-    <div className="w-full py-4">
-      <div className="flex items-center justify-between">
+    <div className="w-full py-6">
+      <div className="flex items-center justify-between w-full px-2">
         {steps.map((step, index) => (
-          <div key={index} className="flex flex-col items-center flex-1">
-            <div className="flex items-center w-full">
-              {/* Step Circle */}
+          <React.Fragment key={index}>
+            {/* Step Circle */}
+            <div className="relative flex flex-col items-center shrink-0">
               <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors",
+                "w-8 h-8 rounded-full flex items-center justify-center ring-4 ring-white z-10 transition-all",
                 index < currentStep 
-                  ? "bg-primary border-primary text-primary-foreground"
+                  ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/20"
                   : index === currentStep
-                  ? "border-primary text-primary bg-background"
-                  : "border-muted text-muted-foreground bg-background"
+                  ? "bg-white border-2 border-blue-500 text-blue-600 shadow-lg shadow-blue-500/30"
+                  : "bg-slate-100 border border-slate-200 text-slate-400"
               )}>
                 {index < currentStep ? (
-                  <Check className="w-4 h-4 text-white" />
+                  <Check className="w-4 h-4" />
                 ) : (
-                  <span className="text-sm font-medium">{index + 1}</span>
+                  <span className="text-xs font-semibold">{index + 1}</span>
                 )}
               </div>
               
-              {/* Connecting Line */}
-              {index < steps.length - 1 && (
-                <div className={cn(
-                  "flex-1 h-0.5 mx-2 transition-colors",
-                  index < currentStep ? "bg-primary" : "bg-muted"
-                )} />
+              {/* Step Label - only show for current step */}
+              {index === currentStep && (
+                <span className="absolute top-10 text-[10px] font-semibold text-blue-600 uppercase tracking-wider whitespace-nowrap">
+                  {step.title}
+                </span>
               )}
             </div>
             
-            {/* Step Label */}
-            <div className="mt-2 text-center max-w-24">
+            {/* Connecting Line */}
+            {index < steps.length - 1 && (
               <div className={cn(
-                "text-xs font-medium",
-                index <= currentStep ? "text-foreground" : "text-muted-foreground"
-              )}>
-                {step.title}
-              </div>
-            </div>
-          </div>
+                "flex-1 h-1 rounded-full mx-2 transition-all",
+                index < currentStep 
+                  ? "bg-gradient-to-r from-blue-600 to-blue-500" 
+                  : "bg-slate-200"
+              )} />
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>
