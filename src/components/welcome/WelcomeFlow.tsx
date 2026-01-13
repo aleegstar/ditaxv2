@@ -94,7 +94,7 @@ export const WelcomeFlow = () => {
         // Ignore duplicate error
         throw taxReturnError;
       }
-      toast.success('Willkommen bei ditax!');
+      
 
       // Wait for DB transaction to commit before navigating
       await new Promise(resolve => setTimeout(resolve, 300));
