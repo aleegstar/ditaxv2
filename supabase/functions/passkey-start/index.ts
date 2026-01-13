@@ -5,19 +5,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Supabase project URL for the redirect function
+const SUPABASE_URL = "https://gqbhilftduwxjszznnzy.supabase.co";
+
 /**
  * passkey-start Edge Function - Despia Passkey Authentication Flow
  * 
- * Generates URL for passkey authentication in Despia native apps.
- * The flow uses the same pattern as OAuth but for WebAuthn/Passkey authentication.
+ * Generates URL for passkey authentication that goes through a Supabase redirect.
+ * This is necessary because Despia's oauth:// command only opens an In-App Tab
+ * for EXTERNAL domains. Since app.ditax.ch is the same domain as the WebView,
+ * we redirect through supabase.co first.
  * 
  * Flow:
  * 1. App calls this function with email + deeplink_scheme
- * 2. App opens URL with despia('oauth://?url=...') in In-App Tab
- * 3. User authenticates with Passkey on /webauthn-auth
- * 4. WebAuthnAuth.tsx redirects to {scheme}://oauth/auth?tokens
- * 5. Native app intercepts deeplink, closes browser, navigates to /auth?tokens
- * 6. Auth.tsx calls setSession() with the tokens
+ * 2. This returns URL to passkey-redirect Edge Function (supabase.co = external!)
+ * 3. App opens URL with despia('oauth://?url=...') → In-App Tab opens
+ * 4. passkey-redirect does 302 to https://app.ditax.ch/webauthn-auth
+ * 5. User authenticates with Passkey on /webauthn-auth
+ * 6. WebAuthnAuth.tsx redirects to {scheme}://oauth/auth?tokens
+ * 7. Native app intercepts deeplink, closes browser, navigates to /auth?tokens
+ * 8. Auth.tsx calls setSession() with the tokens
  */
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -28,7 +35,7 @@ serve(async (req) => {
   try {
     const { email, deeplink_scheme } = await req.json();
 
-    console.log('🔐 passkey-start: Generating Passkey Auth URL', { email, deeplink_scheme });
+    console.log('🔐 passkey-start: Generating Passkey Redirect URL', { email, deeplink_scheme });
 
     if (!deeplink_scheme) {
       return new Response(
@@ -37,10 +44,10 @@ serve(async (req) => {
       );
     }
 
-    // Build the WebAuthn auth URL
-    // IMPORTANT: Use app.ditax.ch because that's the domain registered as the Relying Party
+    // Build URL to passkey-redirect Edge Function (external domain!)
+    // This function will do a 302 redirect to app.ditax.ch/webauthn-auth
     const params = new URLSearchParams({
-      despia: 'true',
+      target: 'https://app.ditax.ch/webauthn-auth',
       callback_scheme: deeplink_scheme,
     });
     
@@ -48,16 +55,17 @@ serve(async (req) => {
       params.set('email', email);
     }
     
-    const passkeyUrl = `https://app.ditax.ch/webauthn-auth?${params.toString()}`;
+    // URL goes to Supabase (external domain) which redirects to app.ditax.ch
+    const passkeyRedirectUrl = `${SUPABASE_URL}/functions/v1/passkey-redirect?${params.toString()}`;
 
-    console.log('✅ passkey-start: Generated Passkey URL', { 
-      passkeyUrl,
+    console.log('✅ passkey-start: Generated Redirect URL', { 
+      passkeyRedirectUrl,
       email: email || '(none)',
       deeplink_scheme 
     });
 
     return new Response(
-      JSON.stringify({ url: passkeyUrl }),
+      JSON.stringify({ url: passkeyRedirectUrl }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

@@ -337,7 +337,8 @@ const Auth = () => {
       setIsOAuthLoading(false);
     }
   };
-  const handleWebAuthnAuth = () => {
+
+  const handleWebAuthnAuth = async () => {
     // Prevent multiple attempts
     if (isOAuthInProgress.current) {
       console.log('[Auth] Passkey auth already in progress, ignoring');
@@ -346,38 +347,55 @@ const Auth = () => {
     
     const isDespia = isDespiaNative();
     if (isDespia) {
-      console.log('[Auth] Triggering Despia passkey auth - SYNCHRONOUS (no Edge Function)');
+      console.log('[Auth] Triggering Despia passkey auth via Supabase redirect');
       isOAuthInProgress.current = true;
       setIsOAuthLoading(true);
       
-      // Generate URL directly - NO async call to preserve user gesture context!
-      const params = new URLSearchParams({
-        despia: 'true',
-        callback_scheme: 'ditax',
-      });
-      if (email) {
-        params.set('email', email);
-      }
-      const passkeyUrl = `https://app.ditax.ch/webauthn-auth?${params.toString()}`;
-      
-      console.log('[Auth] Passkey URL (generated client-side):', passkeyUrl);
-      
-      // SYNCHRONOUS despia() call - directly after user click, no await!
-      const despiaCommand = `oauth://?url=${encodeURIComponent(passkeyUrl)}`;
-      console.log('[Auth] Calling despia() with:', despiaCommand);
-      despia(despiaCommand);
-      
-      // Reset loading state after timeout (in case user cancels)
-      setTimeout(() => {
-        if (isOAuthInProgress.current) {
-          console.log('[Auth] Passkey auth timeout - resetting state');
+      try {
+        // Call Edge Function to get redirect URL (goes to supabase.co = external domain!)
+        const { data, error } = await supabase.functions.invoke('passkey-start', {
+          body: { 
+            email: email || undefined, 
+            deeplink_scheme: 'ditax' 
+          }
+        });
+        
+        if (error || !data?.url) {
+          console.error('[Auth] passkey-start error:', error || 'No URL returned');
+          toast.error('Fehler beim Starten der Passkey-Anmeldung');
           isOAuthInProgress.current = false;
           setIsOAuthLoading(false);
+          return;
         }
-      }, 60000);
+        
+        // URL points to supabase.co/functions/v1/passkey-redirect (EXTERNAL domain!)
+        // → Despia will open In-App Tab because it's external
+        // → passkey-redirect does 302 to app.ditax.ch/webauthn-auth
+        console.log('[Auth] Got passkey redirect URL:', data.url);
+        
+        const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
+        console.log('[Auth] Calling despia() with:', despiaCommand);
+        despia(despiaCommand);
+        
+        // Reset loading state after timeout (in case user cancels)
+        setTimeout(() => {
+          if (isOAuthInProgress.current) {
+            console.log('[Auth] Passkey auth timeout - resetting state');
+            isOAuthInProgress.current = false;
+            setIsOAuthLoading(false);
+          }
+        }, 60000);
+        
+      } catch (err) {
+        console.error('[Auth] Passkey auth error:', err);
+        toast.error('Fehler bei der Passkey-Anmeldung');
+        isOAuthInProgress.current = false;
+        setIsOAuthLoading(false);
+      }
       
       return;
     }
+    
     navigate('/webauthn-auth');
   };
   const handleCodeChange = (value: string) => {
