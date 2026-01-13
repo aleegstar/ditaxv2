@@ -55,7 +55,7 @@ const DocumentsContent: React.FC<{
     completeTour,
     skipTour
   } = useDocumentsTour();
-  
+
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
 
@@ -226,20 +226,13 @@ const DocumentsContent: React.FC<{
   if (isTransitionEntry && !showContent) {
     return <div className="min-h-screen bg-white" />;
   }
-
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn(
-        "min-h-screen w-full flex flex-col text-slate-900 antialiased relative overflow-hidden bg-white selection:bg-[#1D64FF]/10 selection:text-[#1D64FF]",
-        isTransitionEntry && "animate-fade-in"
-      )}>
+      <div className={cn("min-h-screen w-full flex flex-col text-slate-900 antialiased relative overflow-hidden bg-white selection:bg-[#1D64FF]/10 selection:text-[#1D64FF]", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <header className="flex-none px-6 py-6 flex items-center justify-between relative z-10">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors active:scale-95"
-          >
+          <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors active:scale-95">
             <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
           </button>
 
@@ -256,15 +249,12 @@ const DocumentsContent: React.FC<{
           <div className="max-w-2xl mx-auto px-6 w-full flex flex-col gap-8">
             {/* Section: Year Selection */}
             <div className="space-y-3" data-tour="documents-year-selector">
-              <label className="block text-xs font-bold text-slate-400 tracking-widest mb-2 ml-4 uppercase">
+              <label className="block text-xs font-bold text-slate-400 tracking-widest mb-2 ml-4 ">
                 Steuerjahr auswählen
               </label>
 
               <div className="relative">
-                <button 
-                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                  className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20"
-                >
+                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl text-white shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 bg-[#1D64FF] shadow-[#1D64FF]/25">
                       <Calendar className="w-6 h-6" strokeWidth={1.5} />
@@ -285,18 +275,9 @@ const DocumentsContent: React.FC<{
                   <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
                   <div className="absolute top-full mt-2 left-0 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
                     <div className="max-h-64 overflow-y-auto py-1">
-                      {availableYears.map(year => (
-                        <button 
-                          key={year} 
-                          onClick={() => handleYearSelect(year)} 
-                          className={cn(
-                            "w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors",
-                            year === selectedYear && "bg-[#1D64FF]/5 text-[#1D64FF]"
-                          )}
-                        >
+                      {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full text-left px-5 py-3 text-slate-700 hover:bg-slate-50 transition-colors", year === selectedYear && "bg-[#1D64FF]/5 text-[#1D64FF]")}>
                           Steuererklärung {year}
-                        </button>
-                      ))}
+                        </button>)}
                     </div>
                   </div>
                 </>}
@@ -304,8 +285,7 @@ const DocumentsContent: React.FC<{
             </div>
 
             {/* Section: Uploaded Documents */}
-            {documents.length > 0 ? (
-              <div className="space-y-4">
+            {documents.length > 0 ? <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <h2 className="text-base font-semibold text-slate-900 tracking-tight pl-2">
                     Hochgeladene Dokumente
@@ -317,27 +297,14 @@ const DocumentsContent: React.FC<{
 
                 {/* Document List */}
                 <div className="flex flex-col gap-3">
-                  {documents.map(doc => (
-                    <div 
-                      key={doc.id}
-                      onClick={() => {
-                        setSelectedDocument(doc);
-                        setShowActionSheet(true);
-                      }}
-                      className="group bg-white/60 backdrop-blur-md rounded-[2rem] p-4 border border-white/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-0.5"
-                    >
+                  {documents.map(doc => <div key={doc.id} onClick={() => {
+                setSelectedDocument(doc);
+                setShowActionSheet(true);
+              }} className="group bg-white/60 backdrop-blur-md rounded-[2rem] p-4 border border-white/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-0.5">
                       <div className="flex items-center gap-4 relative z-10">
                         {/* Icon / Preview */}
-                        <div className={cn(
-                          "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center",
-                          doc.file_type?.startsWith('image/') 
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
-                            : "bg-red-50 text-red-600 border border-red-100"
-                        )}>
-                          {doc.file_type?.startsWith('image/') 
-                            ? <Image className="w-6 h-6" strokeWidth={1.5} /> 
-                            : <FileText className="w-6 h-6" strokeWidth={1.5} />
-                          }
+                        <div className={cn("w-12 h-12 shrink-0 rounded-xl flex items-center justify-center", doc.file_type?.startsWith('image/') ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100")}>
+                          {doc.file_type?.startsWith('image/') ? <Image className="w-6 h-6" strokeWidth={1.5} /> : <FileText className="w-6 h-6" strokeWidth={1.5} />}
                         </div>
 
                         {/* Info */}
@@ -347,40 +314,31 @@ const DocumentsContent: React.FC<{
                           </h3>
                           <div className="flex items-center gap-3 mt-1">
                             <p className="text-xs text-slate-500 font-medium">
-                              {format(new Date(doc.upload_date), 'd. MMM yyyy', { locale: de })}
+                              {format(new Date(doc.upload_date), 'd. MMM yyyy', {
+                          locale: de
+                        })}
                             </p>
 
                             {/* Badge */}
-                            <span className={cn(
-                              "inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset tracking-wide uppercase",
-                              doc.file_type?.startsWith('image/') 
-                                ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10" 
-                                : "bg-red-50 text-red-700 ring-red-600/10"
-                            )}>
+                            <span className={cn("inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset tracking-wide uppercase", doc.file_type?.startsWith('image/') ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10" : "bg-red-50 text-red-700 ring-red-600/10")}>
                               {doc.file_type?.startsWith('image/') ? 'Bild' : 'PDF'}
                             </span>
                           </div>
                         </div>
 
                         {/* Actions */}
-                        <button 
-                          onClick={e => {
-                            e.stopPropagation();
-                            setSelectedDocument(doc);
-                            setShowActionSheet(true);
-                          }}
-                          className="shrink-0 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                        >
+                        <button onClick={e => {
+                    e.stopPropagation();
+                    setSelectedDocument(doc);
+                    setShowActionSheet(true);
+                  }} className="shrink-0 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
                           <MoreHorizontal className="w-5 h-5" strokeWidth={1.5} />
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
-              </div>
-            ) : (
-              /* Empty State */
-              <div className="flex-1 flex flex-col items-center justify-center py-20">
+              </div> : (/* Empty State */
+          <div className="flex-1 flex flex-col items-center justify-center py-20">
                 <div className="text-center space-y-6 relative">
                   {/* Icon placeholder */}
                   <div className="relative mx-auto w-24 h-24 mb-4">
@@ -413,8 +371,7 @@ const DocumentsContent: React.FC<{
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>)}
           </div>
         </main>
 
@@ -426,26 +383,15 @@ const DocumentsContent: React.FC<{
           {/* Button Container */}
           <div className="relative pb-8 px-6 flex flex-col items-center pointer-events-auto max-w-2xl mx-auto w-full">
             {/* Hidden File Input */}
-            <input 
-              ref={fileInputRef} 
-              type="file" 
-              accept="image/*,application/pdf" 
-              multiple 
-              className="hidden" 
-              onChange={e => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setSelectedFiles(Array.from(e.target.files));
-                  setShowUploader(true);
-                }
-                e.target.value = '';
-              }} 
-            />
+            <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
+            if (e.target.files && e.target.files.length > 0) {
+              setSelectedFiles(Array.from(e.target.files));
+              setShowUploader(true);
+            }
+            e.target.value = '';
+          }} />
 
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="group relative w-auto min-w-[280px] active:scale-95 text-white pl-4 pr-6 py-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-4 overflow-hidden bg-[#1D64FF] hover:bg-[#1854D9] shadow-[0_20px_40px_-12px_rgba(29,100,255,0.4)]"
-              data-tour="document-upload-card"
-            >
+            <button onClick={() => fileInputRef.current?.click()} className="group relative w-auto min-w-[280px] active:scale-95 text-white pl-4 pr-6 py-4 rounded-full transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-4 overflow-hidden bg-[#1D64FF] hover:bg-[#1854D9] shadow-[0_20px_40px_-12px_rgba(29,100,255,0.4)]" data-tour="document-upload-card">
               {/* Icon Circle */}
               <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center transition-colors border border-white/10 shadow-inner backdrop-blur-sm">
                 <Plus className="w-6 h-6 text-white" strokeWidth={2} />
@@ -477,16 +423,10 @@ const DocumentsContent: React.FC<{
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
-        <DocumentActionSheet 
-          document={selectedDocument} 
-          open={showActionSheet} 
-          onClose={() => {
-            setShowActionSheet(false);
-            setSelectedDocument(null);
-          }} 
-          onUpdate={loadDocuments} 
-          availableYears={allYears} 
-        />
+        <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
+        setShowActionSheet(false);
+        setSelectedDocument(null);
+      }} onUpdate={loadDocuments} availableYears={allYears} />
       </div>
     </>;
 };
@@ -497,13 +437,8 @@ const Documents: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
   const isTransitionEntry = searchParams.get('transition') === 'true';
-  
   return <FormProvider taxYear={selectedYear}>
-      <DocumentsContent 
-        selectedYear={selectedYear} 
-        onYearChange={setSelectedYear} 
-        isTransitionEntry={isTransitionEntry}
-      />
+      <DocumentsContent selectedYear={selectedYear} onYearChange={setSelectedYear} isTransitionEntry={isTransitionEntry} />
     </FormProvider>;
 };
 export default Documents;
