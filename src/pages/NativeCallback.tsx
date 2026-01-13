@@ -78,15 +78,9 @@ const NativeCallback = () => {
      * We use multiple methods to maximize success rate
      */
     const triggerDeeplink = (url: string) => {
-      console.log('🔗 Triggering deeplink with multi-method approach:', url);
+      console.log('🔗 Triggering deeplink:', url);
       
-      // Method 1: Android Intent URL (works better in Custom Tabs)
-      // Package name: com.despia.ditax
-      const intentUrl = url.replace(`${deeplinkScheme}://`, 'intent://') 
-        + '#Intent;scheme=' + deeplinkScheme + ';package=com.despia.ditax;end';
-      console.log('🔗 Intent URL:', intentUrl);
-      
-      // Method 2: Meta refresh tag (some browsers follow this)
+      // Method 1: Meta refresh tag
       try {
         const meta = document.createElement('meta');
         meta.httpEquiv = 'refresh';
@@ -97,7 +91,7 @@ const NativeCallback = () => {
         console.log('🔗 Meta refresh failed:', e);
       }
       
-      // Method 3: window.location.replace (more aggressive than .href)
+      // Method 2: window.location.replace (primary method)
       try {
         window.location.replace(url);
         console.log('🔗 location.replace called');
@@ -105,27 +99,17 @@ const NativeCallback = () => {
         console.log('🔗 location.replace failed:', e);
       }
       
-      // Method 4: Fallback with Intent URL after timeout
+      // Method 3: Fallback with window.open after timeout
       setTimeout(() => {
-        console.log('🔗 Fallback: Trying Intent URL...');
-        try {
-          window.location.replace(intentUrl);
-        } catch (e) {
-          console.log('🔗 Intent URL failed:', e);
-          // Last resort: try regular href
-          window.location.href = url;
-        }
-      }, 500);
-      
-      // Method 5: Second fallback - try opening in new context
-      setTimeout(() => {
-        console.log('🔗 Second fallback: window.open...');
+        console.log('🔗 Fallback: window.open...');
         try {
           window.open(url, '_self');
         } catch (e) {
           console.log('🔗 window.open failed:', e);
+          // Last resort: try regular href
+          window.location.href = url;
         }
-      }, 1000);
+      }, 500);
     };
 
     // Handle errors
