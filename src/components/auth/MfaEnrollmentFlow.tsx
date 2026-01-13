@@ -45,7 +45,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
 
     try {
       await verifyEnrollment(enrollmentData.id, verificationCode);
-      setCurrentStep(2);
+      setCurrentStep(3); // Move to "Abgeschlossen" step
     } catch (error) {
       // Error handling is done in the hook
     }

@@ -18,6 +18,7 @@ import AppleAuth from "./pages/AppleAuth";
 import WebAuthnAuth from "./pages/WebAuthnAuth";
 import AuthSuccess from "./pages/AuthSuccess";
 import NativeCallback from "./pages/NativeCallback";
+import MfaVerify from "./pages/MfaVerify";
 
 import AuthBridge from "./pages/AuthBridge";
 import Profile from "./pages/Profile";
@@ -482,6 +483,7 @@ const App = () => {
                 <Route path="/google-auth" element={<GoogleAuth />} />
                 <Route path="/apple-auth" element={<AppleAuth />} />
                 <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
+                <Route path="/mfa-verify" element={<MfaVerify />} />
                 <Route path="/auth-success" element={<AuthSuccess />} />
                 <Route path="/native-callback" element={<NativeCallback />} />
                 <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
