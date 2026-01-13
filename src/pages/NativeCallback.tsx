@@ -40,22 +40,56 @@ const NativeCallback = () => {
     console.log('🔐 deeplinkScheme from query:', deeplinkScheme);
     console.log('🔐🔐🔐 END URL DEBUG 🔐🔐🔐');
 
-    // Parse tokens from URL hash (Supabase Implicit Flow)
+    // Parse tokens from multiple sources:
+    // 1. URL hash (standard implicit flow)
+    // 2. Query params (fallback)
+    // 3. Path (for when # is lost and tokens end up in path - Despia Easy OAuth issue)
+    
     const hash = window.location.hash.substring(1);
     const hashParams = new URLSearchParams(hash);
-    
-    // Also check query params as fallback (some OAuth flows use query params)
     const queryParams = new URLSearchParams(window.location.search);
+    
+    // NEW: Parse tokens from path if they ended up there (hash was lost during redirect)
+    // Path looks like: /native-callback/ditax/access_token=xxx&refresh_token=yyy
+    let pathParams = new URLSearchParams();
+    const pathname = window.location.pathname;
+    const tokenMatch = pathname.match(/access_token=(.+?)(?:&|$)/);
+    if (tokenMatch) {
+      // Extract everything after the scheme in the path that looks like query params
+      const pathTokenIndex = pathname.indexOf('access_token=');
+      if (pathTokenIndex !== -1) {
+        const tokenString = pathname.substring(pathTokenIndex);
+        pathParams = new URLSearchParams(tokenString);
+        console.log('🔐 Tokens found in PATH (hash was lost during redirect)');
+        console.log('🔐 Path token string:', tokenString.substring(0, 100) + '...');
+      }
+    }
 
-    // Try hash first (implicit flow), then query params as fallback
-    const accessToken = hashParams.get('access_token') || queryParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token');
-    const expiresIn = hashParams.get('expires_in') || queryParams.get('expires_in');
-    const error = hashParams.get('error') || queryParams.get('error');
-    const errorDescription = hashParams.get('error_description') || queryParams.get('error_description');
+    // Try multiple sources: hash first, then path, then query params
+    const accessToken = hashParams.get('access_token') 
+      || pathParams.get('access_token') 
+      || queryParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token') 
+      || pathParams.get('refresh_token') 
+      || queryParams.get('refresh_token');
+    const expiresIn = hashParams.get('expires_in') 
+      || pathParams.get('expires_in') 
+      || queryParams.get('expires_in');
+    const error = hashParams.get('error') 
+      || pathParams.get('error') 
+      || queryParams.get('error');
+    const errorDescription = hashParams.get('error_description') 
+      || pathParams.get('error_description') 
+      || queryParams.get('error_description');
     
     // Check for PKCE authorization code (should NOT happen with implicit flow)
     const authCode = queryParams.get('code');
+
+    // Determine token source for debugging
+    let tokenSource = 'none';
+    if (hashParams.get('access_token')) tokenSource = 'hash';
+    else if (pathParams.get('access_token')) tokenSource = 'path';
+    else if (queryParams.get('access_token')) tokenSource = 'query';
 
     console.log('🔐 Token extraction:', {
       hasAccessToken: !!accessToken,
@@ -63,7 +97,7 @@ const NativeCallback = () => {
       hasAuthCode: !!authCode,
       expiresIn,
       error,
-      tokenSource: hashParams.get('access_token') ? 'hash' : queryParams.get('access_token') ? 'query' : 'none'
+      tokenSource
     });
     
     // Warn if PKCE code received instead of tokens
