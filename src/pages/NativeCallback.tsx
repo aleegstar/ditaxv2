@@ -127,21 +127,18 @@ const NativeCallback = () => {
           const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
           console.log('🔗 Triggering deeplink:', shortDeeplinkUrl);
           
-          setTimeout(() => {
-            window.location.href = shortDeeplinkUrl;
-          }, 500);
+          // Trigger immediately
+          window.location.href = shortDeeplinkUrl;
           
-          // Fallback: If deeplink doesn't work after 3 seconds, navigate directly
+          // Fallback: If deeplink doesn't work after 1.5 seconds, navigate directly
           setTimeout(() => {
             console.log('🔗 Deeplink fallback: navigating to home...');
             window.location.href = '/?success=true';
-          }, 3000);
+          }, 1500);
         } else {
-          // Not in native - just navigate to home
+          // Not in native - navigate to home immediately
           console.log('🔗 Not in native, navigating to home...');
-          setTimeout(() => {
-            navigate('/', { replace: true });
-          }, 1000);
+          navigate('/', { replace: true });
         }
 
       } catch (err) {
