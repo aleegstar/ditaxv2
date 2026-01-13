@@ -278,23 +278,6 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
                 ease: [0.4, 0, 0.2, 1]
               }}
             />
-            {/* Pulsing ring for better visibility */}
-            <motion.div 
-              className="absolute pointer-events-none rounded-2xl border-2 border-[#1D64FF]/50"
-              animate={{
-                left: spotlightPosition.x - 6,
-                top: spotlightPosition.y - 6,
-                width: spotlightPosition.width + 12,
-                height: spotlightPosition.height + 12,
-                opacity: [0.5, 0.2, 0.5],
-                scale: [1, 1.01, 1]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
           </>
         )}
 
