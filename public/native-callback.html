@@ -116,7 +116,7 @@
           if (expiresIn) params.set('expires_at', (Math.floor(Date.now() / 1000) + parseInt(expiresIn, 10)).toString());
           if (tokenType) params.set('token_type', tokenType);
           
-          var deeplinkUrl = scheme + '://oauth/auth?' + params.toString();
+          var deeplinkUrl = scheme + '://oauth/auth#' + params.toString();
           statusEl.textContent = 'Zurück zur App...';
           
           // Immediate redirect
