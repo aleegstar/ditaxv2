@@ -362,6 +362,22 @@ const Auth = () => {
         type: 'email'
       });
       if (error) throw error;
+      
+      // Check if MFA is required
+      const { data: mfaData } = await supabase.auth.mfa.listFactors();
+      const verifiedFactors = mfaData?.totp?.filter(f => f.status === 'verified') || [];
+      
+      if (verifiedFactors.length > 0) {
+        // MFA is enabled - check if we need to verify
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        
+        if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
+          // User needs to complete MFA challenge
+          navigate('/mfa-verify', { state: { factorId: verifiedFactors[0].id } });
+          return;
+        }
+      }
+      
       toast.success("Erfolgreich angemeldet!");
       navigate("/");
     } catch (error: any) {
