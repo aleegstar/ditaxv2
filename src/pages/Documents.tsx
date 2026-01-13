@@ -254,7 +254,7 @@ const DocumentsContent: React.FC<{
               </label>
 
               <div className="relative">
-                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20 border-border">
+                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl text-white shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 bg-[#1D64FF] shadow-[#1D64FF]/25">
                       <Calendar className="w-6 h-6" strokeWidth={1.5} />
