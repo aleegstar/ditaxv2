@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
 import { DEEPLINK_SCHEME } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * NativeCallback - Proxy page for Despia Easy OAuth
@@ -26,6 +27,8 @@ const NativeCallback = () => {
     // Prevent double execution
     if (hasRun.current) return;
     hasRun.current = true;
+
+    const processAuth = async () => {
 
     // EXTENSIVE DEBUG LOGGING - Log everything about the received URL
     console.log('🔐🔐🔐 NativeCallback RECEIVED URL 🔐🔐🔐');
@@ -175,30 +178,58 @@ const NativeCallback = () => {
       return;
     }
 
-    // Success - build deeplink with tokens
-    setStatus('success');
-
-    // Build deeplink - only essential params
-    const params = new URLSearchParams();
-    params.set('access_token', accessToken);
-    if (refreshToken) {
-      params.set('refresh_token', refreshToken);
-    }
-
-    const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
+    // Success - set session here and send short deeplink
+    console.log('🔐 Setting session in NativeCallback (Chrome Custom Tab)...');
     
-    console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
-    console.log('🔗 Deeplink scheme:', deeplinkScheme);
-    console.log('🔗 Access token length:', accessToken?.length);
-    console.log('🔗 Refresh token length:', refreshToken?.length);
-    console.log('🔗 FULL DEEPLINK URL:', deeplinkUrl);
-    console.log('🔗 Deeplink URL length:', deeplinkUrl.length);
+    try {
+      // Set session BEFORE sending deeplink - Chrome Custom Tab shares storage with WebView
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+      });
 
-    // Trigger multi-method deeplink redirect
-    setTimeout(() => {
-      console.log('🔗 Executing multi-method redirect now...');
-      triggerDeeplink(deeplinkUrl);
-    }, 500);
+      if (sessionError) {
+        console.error('❌ Failed to set session:', sessionError);
+        setStatus('error');
+        setErrorMessage('Session konnte nicht gesetzt werden');
+        
+        const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=session_error`;
+        setTimeout(() => {
+          window.location.href = errorUrl;
+        }, 1000);
+        return;
+      }
+
+      console.log('✅ Session set successfully in Chrome Custom Tab!');
+      setStatus('success');
+
+      // Send SHORT deeplink - no tokens needed, just success signal
+      // This avoids the 2048 character URL limit that was blocking the deeplink
+      const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
+      
+      console.log('🔗🔗🔗 NativeCallback SHORT DEEPLINK 🔗🔗🔗');
+      console.log('🔗 Deeplink URL:', shortDeeplinkUrl);
+      console.log('🔗 Deeplink URL length:', shortDeeplinkUrl.length);
+
+      // Simple redirect - Despia docs recommend just window.location.href
+      setTimeout(() => {
+        console.log('🔗 Triggering short deeplink...');
+        window.location.href = shortDeeplinkUrl;
+      }, 500);
+
+    } catch (err) {
+      console.error('❌ Error in session setup:', err);
+      setStatus('error');
+      setErrorMessage('Fehler beim Setzen der Session');
+      
+      const errorUrl = `${deeplinkScheme}://oauth/auth?success=false&error=unknown`;
+      setTimeout(() => {
+        window.location.href = errorUrl;
+      }, 1000);
+    }
+  };
+
+    processAuth();
   }, [deeplinkScheme]);
 
   return (

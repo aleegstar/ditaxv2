@@ -32,10 +32,11 @@ const Auth = () => {
   const isLoading = isEmailLoading || isOAuthLoading;
 
   // Handle deeplink callback from Despia native app
-  // This handles tokens passed from NativeCallback via deeplink: ditax://oauth/auth?tokens
+  // NEW: Session is now set in NativeCallback (Chrome Custom Tab) 
+  // We just need to check for success=true and retrieve the existing session
   useEffect(() => {
     const handleDeeplinkAuth = async () => {
-      // Check query params (from deeplink) - support both full names and short forms (at/rt)
+      // Check query params (from deeplink)
       const success = searchParams.get('success');
       const accessToken = searchParams.get('access_token') || searchParams.get('at');
       const refreshToken = searchParams.get('refresh_token') || searchParams.get('rt');
@@ -59,53 +60,88 @@ const Auth = () => {
       // Handle errors first
       if (finalError) {
         toast.error(finalErrorDescription || finalError || 'Anmeldung fehlgeschlagen');
+        window.history.replaceState({}, '', '/auth');
         return;
       }
 
       // If success is explicitly false (from deeplink)
       if (success === 'false') {
         toast.error(finalErrorDescription || 'Anmeldung fehlgeschlagen');
+        window.history.replaceState({}, '', '/auth');
         return;
       }
 
-      // If no tokens, check if already authenticated
-      if (!finalAccessToken) {
-        const {
-          data: {
-            session
+      // NEW: Handle success=true from short deeplink
+      // Session was already set in NativeCallback (Chrome Custom Tab shares storage)
+      if (success === 'true') {
+        console.log('🔐 Success signal received, checking for existing session...');
+        setIsOAuthLoading(true);
+        
+        // Small delay to ensure session storage is synced
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session) {
+            console.log('✅ Session found! User authenticated.');
+            window.history.replaceState({}, '', '/auth');
+            toast.success('Erfolgreich angemeldet!');
+            navigate('/', { replace: true });
+            return;
+          } else {
+            console.log('⚠️ No session found after success signal, retrying...');
+            // Retry once more after a longer delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const { data: { session: retrySession } } = await supabase.auth.getSession();
+            
+            if (retrySession) {
+              console.log('✅ Session found on retry!');
+              window.history.replaceState({}, '', '/auth');
+              toast.success('Erfolgreich angemeldet!');
+              navigate('/', { replace: true });
+              return;
+            }
+            
+            console.error('❌ No session found after retries');
+            toast.error('Session konnte nicht geladen werden');
           }
-        } = await supabase.auth.getSession();
-        if (session) {
-          navigate('/', {
-            replace: true
-          });
+        } catch (err) {
+          console.error('Error checking session:', err);
+          toast.error('Fehler beim Laden der Session');
+        } finally {
+          setIsOAuthLoading(false);
+          window.history.replaceState({}, '', '/auth');
         }
         return;
       }
 
-      // Process tokens immediately
-      setIsOAuthLoading(true);
-      try {
-        const {
-          data,
-          error
-        } = await supabase.auth.setSession({
-          access_token: finalAccessToken,
-          refresh_token: finalRefreshToken || ''
-        });
-        if (error) throw error;
+      // LEGACY: Handle tokens passed directly in URL (for web flow or old deeplinks)
+      if (finalAccessToken) {
+        setIsOAuthLoading(true);
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: finalAccessToken,
+            refresh_token: finalRefreshToken || ''
+          });
+          if (error) throw error;
 
-        // Fast redirect - clear URL and navigate immediately
-        window.history.replaceState({}, '', '/auth');
-        toast.success('Erfolgreich angemeldet!');
-        navigate('/', {
-          replace: true
-        });
-      } catch (error: any) {
-        console.error('Auth error:', error);
-        toast.error(error.message || 'Fehler bei der Anmeldung');
-      } finally {
-        setIsOAuthLoading(false);
+          window.history.replaceState({}, '', '/auth');
+          toast.success('Erfolgreich angemeldet!');
+          navigate('/', { replace: true });
+        } catch (error: any) {
+          console.error('Auth error:', error);
+          toast.error(error.message || 'Fehler bei der Anmeldung');
+        } finally {
+          setIsOAuthLoading(false);
+        }
+        return;
+      }
+
+      // No tokens and no success signal - check if already authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/', { replace: true });
       }
     };
     handleDeeplinkAuth();
