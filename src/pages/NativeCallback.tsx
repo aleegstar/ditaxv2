@@ -151,7 +151,7 @@ const NativeCallback = () => {
       params.set('refresh_token', refreshToken);
     }
 
-    const deeplinkUrl = `${deeplinkScheme}://oauth/auth#${params.toString()}`;
+    const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
     
     console.log('🔗🔗🔗 NativeCallback DEEPLINK DEBUG 🔗🔗🔗');
     console.log('🔗 Deeplink scheme:', deeplinkScheme);
