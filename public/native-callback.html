@@ -122,12 +122,7 @@
           // Immediate redirect
           window.location.replace(deeplinkUrl);
           
-          // Android intent fallback (100ms)
-          setTimeout(function() {
-            window.location.replace('intent://oauth/auth?' + params.toString() + '#Intent;scheme=' + scheme + ';package=ch.ditax.app;end');
-          }, 100);
-          
-          // Manual fallback (800ms)
+          // Manual fallback (500ms)
           setTimeout(function() {
             statusEl.textContent = 'Bitte kehren Sie zur App zurück';
           }, 800);
