@@ -113,7 +113,7 @@
           params.set('access_token', accessToken);
           if (refreshToken) params.set('refresh_token', refreshToken);
           
-          var deeplinkUrl = scheme + '://oauth/auth#' + params.toString();
+          var deeplinkUrl = scheme + '://oauth/auth?' + params.toString();
           statusEl.textContent = 'Zurück zur App...';
           
           // Immediate redirect
