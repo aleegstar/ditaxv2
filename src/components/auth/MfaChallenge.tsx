@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useMfa } from '@/hooks/useMfa';
 
@@ -82,19 +81,25 @@ export const MfaChallenge: React.FC<MfaChallengeProps> = ({
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="mfa-code">Verifizierungscode</Label>
-            <Input
-              id="mfa-code"
-              type="text"
-              placeholder="000000"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              onKeyPress={handleKeyPress}
-              className="text-center text-lg font-mono tracking-widest"
-              maxLength={6}
-              disabled={!challengeId}
-            />
+          <div className="space-y-4">
+            <p className="text-sm font-medium text-foreground text-center">Verifizierungscode</p>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={(value) => setCode(value)}
+                disabled={!challengeId}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
           </div>
 
           <div className="space-y-2">
