@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ditaxLogoTransition from '@/assets/ditax-logo.svg';
+import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
 const TAX_YEARS = Array.from({
   length: 3
 }, (_, i) => {
@@ -289,7 +289,7 @@ export const WelcomeFlow = () => {
             ease: [0.34, 1.56, 0.64, 1]
           }
         }}>
-              <img src={ditaxLogoTransition} alt="ditax" className="h-72 md:h-80 w-auto object-contain" />
+              <img src={ditaxSplashTransition} alt="ditax" className="h-72 md:h-80 w-auto object-contain" />
             </motion.div>
           </motion.div>}
       </AnimatePresence>
