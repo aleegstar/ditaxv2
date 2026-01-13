@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, AlertCircle, Fingerprint } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { ConsentStep } from './ConsentStep';
 import { MfaChallenge } from './MfaChallenge';
+import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
+import { isDespiaNative, triggerDespiaPasskeyAuth } from '@/lib/despia';
 
 export const EnhancedLoginFlow: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +18,15 @@ export const EnhancedLoginFlow: React.FC = () => {
   const [step, setStep] = useState<'email' | 'otp' | 'consent' | 'mfa'>('email');
   const [otpDisabled, setOtpDisabled] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const [hasPasskeys, setHasPasskeys] = useState(false);
   const navigate = useNavigate();
+  
+  const { 
+    checkPasskeysForEmail, 
+    authenticateWithPasskey, 
+    isSupported: isWebAuthnSupported,
+    isLoading: isPasskeyLoading 
+  } = useEnhancedWebAuthn();
 
   // Check if user has OTP disabled when email is entered
   const checkOtpStatus = async (userEmail: string) => {
@@ -44,6 +54,10 @@ export const EnhancedLoginFlow: React.FC = () => {
     try {
       // Check if user has disabled OTP
       await checkOtpStatus(email);
+      
+      // Check if user has passkeys
+      const passkeyCheck = await checkPasskeysForEmail(email.trim());
+      setHasPasskeys(passkeyCheck.has_passkeys);
 
       if (otpDisabled) {
         toast({
@@ -75,6 +89,51 @@ export const EnhancedLoginFlow: React.FC = () => {
       toast({
         title: 'Fehler beim Senden',
         description: error.message || 'E-Mail-Code konnte nicht gesendet werden.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasskeyAuth = async () => {
+    if (!email.trim()) return;
+    
+    // Check if running in Despia - open system browser for passkey auth
+    if (isDespiaNative()) {
+      triggerDespiaPasskeyAuth(email.trim());
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const result = await authenticateWithPasskey(email.trim());
+      
+      if (result.success) {
+        // Check consent for passkey users too
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const hasConsent = await checkConsentStatus(user.id);
+          
+          if (!hasConsent) {
+            setStep('consent');
+            setLoading(false);
+            return;
+          }
+        }
+        
+        toast({
+          title: 'Anmeldung erfolgreich',
+          description: 'Du wurdest erfolgreich angemeldet.',
+        });
+        navigate('/');
+      }
+    } catch (error: any) {
+      console.error('Passkey authentication error:', error);
+      toast({
+        title: 'Fehler bei Fingerprint-Anmeldung',
+        description: error.message || 'Die Fingerprint-Anmeldung ist fehlgeschlagen.',
         variant: 'destructive',
       });
     } finally {
@@ -232,6 +291,35 @@ export const EnhancedLoginFlow: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Passkey Button - Only show if user has passkeys */}
+            {hasPasskeys && isWebAuthnSupported && (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePasskeyAuth}
+                  disabled={loading || isPasskeyLoading}
+                  className="w-full"
+                >
+                  {isPasskeyLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Fingerprint className="mr-2 h-4 w-4" />
+                  )}
+                  {isPasskeyLoading ? 'Authentifizierung...' : 'Mit Fingerprint anmelden'}
+                </Button>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">oder Code eingeben</span>
+                  </div>
+                </div>
+              </>
+            )}
+
             <form onSubmit={handleOtpSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Input
@@ -263,6 +351,7 @@ export const EnhancedLoginFlow: React.FC = () => {
                 onClick={() => {
                   setStep('email');
                   setOtpCode('');
+                  setHasPasskeys(false);
                 }}
                 className="text-sm"
               >
