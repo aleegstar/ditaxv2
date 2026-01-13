@@ -460,7 +460,7 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] font-jakarta disabled:opacity-50">
+                  <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
                     {isEmailLoading ? 'Code wird gesendet...' : 'Anmelden'}
                   </button>
                 </form>
@@ -518,9 +518,8 @@ const Auth = () => {
                   </div>
 
                   {/* Verify Button */}
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-xl py-3.5 px-4 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50">
+                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50 disabled:pointer-events-none">
                     {isLoading ? 'Wird überprüft...' : 'Verifizieren'}
-                    {!isLoading}
                   </button>
                 </div>
 
