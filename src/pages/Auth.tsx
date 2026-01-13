@@ -587,12 +587,6 @@ const Auth = () => {
                   <span className="font-medium text-[15px] tracking-tight">Weiter mit Apple</span>
                 </button>
 
-                {/* Passkey Login */}
-                <button onClick={handleWebAuthnAuth} disabled={isLoading} className="w-full bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md group disabled:opacity-50">
-                  <Fingerprint className="w-5 h-5 shrink-0 text-slate-500 group-hover:text-slate-800 transition-colors" />
-                  <span className="font-medium text-[15px] tracking-tight">Weiter mit Passkey</span>
-                </button>
-
               </div>
 
               {/* Footer Links with centered Aikido Badge */}
