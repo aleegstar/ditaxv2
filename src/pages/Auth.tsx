@@ -10,7 +10,7 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
+import { isDespiaNative } from "@/lib/despia";
 import despia from 'despia-native';
 const Auth = () => {
   const navigate = useNavigate();
@@ -337,7 +337,7 @@ const Auth = () => {
       setIsOAuthLoading(false);
     }
   };
-  const handleWebAuthnAuth = () => {
+  const handleWebAuthnAuth = async () => {
     // Prevent multiple OAuth attempts
     if (isOAuthInProgress.current) {
       console.log('[Auth] Passkey auth already in progress, ignoring');
@@ -346,19 +346,50 @@ const Auth = () => {
     
     const isDespia = isDespiaNative();
     if (isDespia) {
-      console.log('[Auth] Triggering Despia passkey auth via In-App Tab');
+      console.log('[Auth] Triggering Despia passkey auth via Edge Function + In-App Tab');
       isOAuthInProgress.current = true;
       setIsOAuthLoading(true);
-      triggerDespiaPasskeyAuth(email || undefined);
       
-      // Reset loading state after timeout (in case user cancels)
-      setTimeout(() => {
-        if (isOAuthInProgress.current) {
-          console.log('[Auth] Passkey auth timeout - resetting state');
+      try {
+        // Call Edge Function to get the passkey auth URL (same pattern as OAuth)
+        const { data, error } = await supabase.functions.invoke('passkey-start', {
+          body: { 
+            email: email || undefined, 
+            deeplink_scheme: 'ditax' 
+          }
+        });
+        
+        if (error || !data?.url) {
+          console.error('[Auth] passkey-start error:', error || 'No URL returned');
+          toast.error('Fehler beim Starten der Passkey-Anmeldung');
           isOAuthInProgress.current = false;
           setIsOAuthLoading(false);
+          return;
         }
-      }, 60000); // 60 second timeout
+        
+        console.log('[Auth] Got passkey URL from Edge Function:', data.url);
+        
+        // Use despia oauth:// protocol to open in In-App Tab (same as Google/Apple)
+        const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
+        console.log('[Auth] Calling despia() with:', despiaCommand);
+        despia(despiaCommand);
+        
+        // Reset loading state after timeout (in case user cancels)
+        setTimeout(() => {
+          if (isOAuthInProgress.current) {
+            console.log('[Auth] Passkey auth timeout - resetting state');
+            isOAuthInProgress.current = false;
+            setIsOAuthLoading(false);
+          }
+        }, 60000); // 60 second timeout
+        
+      } catch (err) {
+        console.error('[Auth] Passkey auth error:', err);
+        toast.error('Fehler bei der Passkey-Anmeldung');
+        isOAuthInProgress.current = false;
+        setIsOAuthLoading(false);
+      }
+      
       return;
     }
     navigate('/webauthn-auth');

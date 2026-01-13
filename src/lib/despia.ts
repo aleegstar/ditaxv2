@@ -105,22 +105,6 @@ export const triggerDespiaOAuth = (oauthUrl: string): void => {
   console.log('✅ despia() called');
 };
 
-/**
- * Trigger Despia Passkey Authentication via System Browser
- * Opens the WebAuthn auth page in the system browser (not WebView)
- * which allows full access to the device's keychain for passkey auth
- */
-export const triggerDespiaPasskeyAuth = (email?: string): void => {
-  // Build the WebAuthn auth URL with optional email parameter
-  const params = new URLSearchParams({ despia: 'true' });
-  if (email) {
-    params.set('email', email);
-  }
-  
-  const authUrl = `https://app.ditax.ch/webauthn-auth?${params.toString()}`;
-  
-  console.log('🔐 Triggering Despia Passkey Auth via System Browser:', authUrl);
-  
-  // Use the same mechanism as OAuth to open in system browser
-  triggerDespiaOAuth(authUrl);
-};
+// Note: triggerDespiaPasskeyAuth has been removed.
+// Passkey auth now uses the passkey-start Edge Function directly from Auth.tsx
+// This ensures the same In-App Tab flow as OAuth providers.
