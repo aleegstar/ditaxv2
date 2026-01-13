@@ -392,8 +392,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Messages Area */}
-        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
+        {/* Messages Area - add bottom padding for fixed input on mobile */}
+        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white pb-[160px] md:pb-6">
           {isLoadingHistory ? <div className="flex items-center justify-center h-64 text-slate-500">
               Chat wird geladen...
             </div> : messages.length === 0 ? <ChatEmptyState userId={userId} /> : <div className="max-w-2xl mx-auto space-y-4">
@@ -447,8 +447,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             </div>}
         </div>
 
-        {/* Footer Input Area */}
-        <div className="z-20 p-4 w-full bg-white border-t shrink-0 pb-24 md:pb-8 border-white border-0">
+        {/* Footer Input Area - fixed to bottom on mobile */}
+        <div className="z-20 p-4 w-full bg-white shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4 md:border-t md:border-slate-100">
           <div className="max-w-2xl mx-auto">
             <PromptInputBox onSend={sendMessage} isLoading={isLoading} placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."} className="!bg-slate-50 !border-slate-200 hover:!border-slate-300 focus-within:!border-[#1D64FF]/50 focus-within:!ring-1 focus-within:!ring-[#1D64FF]/20 shadow-sm" />
             <div className="text-center mt-3">
