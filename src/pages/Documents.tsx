@@ -249,7 +249,7 @@ const DocumentsContent: React.FC<{
           <div className="max-w-2xl mx-auto px-6 w-full flex flex-col gap-8">
             {/* Section: Year Selection */}
             <div className="space-y-3" data-tour="documents-year-selector">
-              <label className="block text-xs font-bold text-slate-400 tracking-widest mb-2 ml-4 ">
+              <label className="block text-xs font-bold text-slate-400 mb-2 ml-4 ">
                 Steuerjahr auswählen
               </label>
 
