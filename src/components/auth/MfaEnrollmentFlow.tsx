@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Smartphone, Copy, Check, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Shield, ShieldCheck, Smartphone, Copy, Check, ArrowRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,202 +44,245 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
 
     try {
       await verifyEnrollment(enrollmentData.id, verificationCode);
-      setCurrentStep(3); // Move to "Abgeschlossen" step
+      setCurrentStep(3);
     } catch (error) {
       // Error handling is done in the hook
     }
   };
 
   const steps = [
-    {
-      title: 'Vorbereitung',
-      description: 'Installieren Sie eine Authenticator-App'
-    },
-    {
-      title: 'Einrichtung',
-      description: 'Scannen Sie den QR-Code oder geben Sie das Secret ein'
-    },
-    {
-      title: 'Verifizierung',
-      description: 'Geben Sie den 6-stelligen Code ein'
-    },
-    {
-      title: 'Abgeschlossen',
-      description: 'MFA ist erfolgreich aktiviert'
-    }
+    { title: 'Vorbereitung', description: 'Installieren Sie eine Authenticator-App' },
+    { title: 'Einrichtung', description: 'Scannen Sie den QR-Code' },
+    { title: 'Verifizierung', description: 'Geben Sie den Code ein' },
+    { title: 'Abschluss', description: 'MFA ist aktiviert' }
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-lg mx-auto bg-background border-border">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onCancel}
-              className="p-0 h-auto"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div className="flex-1">
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                Zwei-Faktor-Authentifizierung einrichten
-              </CardTitle>
-              <CardDescription>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      {/* Modal Container */}
+      <div className="bg-white w-full max-w-lg rounded-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] border border-slate-100/80 overflow-hidden relative">
+        {/* Close Button */}
+        <button 
+          onClick={onCancel}
+          className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 transition-colors focus:outline-none hover:bg-slate-50 p-2 rounded-xl z-20"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header Section */}
+        <div className="p-8 pb-0">
+          <div className="flex items-start gap-5">
+            <div className="flex-1 pt-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 text-blue-600 mb-4 border border-blue-100/50">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider">
+                  Sicherheit
+                </span>
+              </div>
+              <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-snug">
+                MFA Einrichtung
+              </h1>
+              <p className="text-slate-500 text-sm mt-1.5 font-medium">
                 Schritt {currentStep + 1} von {steps.length}
-              </CardDescription>
+              </p>
             </div>
           </div>
+        </div>
+
+        {/* Stepper */}
+        <div className="px-8">
           <MfaStepper steps={steps} currentStep={currentStep} />
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
+        </div>
+
+        {/* Main Content */}
+        <div className="px-8 pb-8">
+          {/* Step 0: Preparation */}
           {currentStep === 0 && (
-            <div className="space-y-4">
-              <div className="text-center space-y-4">
-                <Smartphone className="w-16 h-16 mx-auto text-primary" />
-                <div>
-                  <h3 className="font-semibold">Authenticator-App installieren</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Installieren Sie eine der folgenden Apps auf Ihrem Smartphone:
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="p-3 border rounded-lg">
-                  <div className="font-medium">Google Authenticator</div>
-                  <div className="text-sm text-muted-foreground">Kostenlos für iOS und Android</div>
-                </div>
-                <div className="p-3 border rounded-lg">
-                  <div className="font-medium">Microsoft Authenticator</div>
-                  <div className="text-sm text-muted-foreground">Kostenlos für iOS und Android</div>
-                </div>
-                <div className="p-3 border rounded-lg">
-                  <div className="font-medium">Authy</div>
-                  <div className="text-sm text-muted-foreground">Kostenlos für iOS und Android</div>
+            <div className="flex flex-col items-center text-center">
+              {/* Icon */}
+              <div className="mb-6 relative">
+                <div className="absolute inset-0 bg-blue-100 rounded-full blur-xl opacity-50" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100/80 rounded-full flex items-center justify-center shadow-inner border border-blue-100/50">
+                  <Smartphone className="w-9 h-9 text-blue-600" />
                 </div>
               </div>
 
-              <Button 
-                onClick={handleStartEnrollment} 
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-2">
+                Authenticator-App installieren
+              </h2>
+              <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
+                Installieren Sie eine der folgenden Apps auf Ihrem Smartphone.
+              </p>
+
+              {/* App Options */}
+              <div className="w-full space-y-2 mb-8">
+                {['Google Authenticator', 'Microsoft Authenticator', 'Authy'].map((app) => (
+                  <div 
+                    key={app}
+                    className="w-full bg-slate-50 rounded-2xl p-4 text-left flex gap-4 border border-slate-100 shadow-sm"
+                  >
+                    <div className="shrink-0 w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600 border border-slate-100/50">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div className="text-sm text-slate-600 leading-relaxed py-0.5">
+                      <span className="font-semibold text-slate-900 block mb-0.5">
+                        {app}
+                      </span>
+                      Kostenlos für iOS und Android
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Button */}
+              <button 
+                onClick={handleStartEnrollment}
                 disabled={isLoading}
+                className="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                Weiter zur Einrichtung
-              </Button>
+                <span>Weiter zur Einrichtung</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           )}
 
+          {/* Step 1: Setup QR Code */}
           {currentStep === 1 && enrollmentData && (
-            <div className="space-y-4">
-              <div className="text-center space-y-4">
-                <h3 className="font-semibold">QR-Code scannen</h3>
-                <p className="text-sm text-muted-foreground">
-                  Scannen Sie diesen QR-Code mit Ihrer Authenticator-App
-                </p>
-                
-                <div className="bg-white p-4 rounded-lg border inline-block">
-                  <img 
-                    src={enrollmentData.totp.qr_code} 
-                    alt="QR Code für MFA Setup"
-                    className="w-48 h-48"
-                  />
-                </div>
+            <div className="flex flex-col items-center text-center">
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-2">
+                QR-Code scannen
+              </h2>
+              <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
+                Scannen Sie diesen QR-Code mit Ihrer Authenticator-App.
+              </p>
+
+              {/* QR Code */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-6">
+                <img 
+                  src={enrollmentData.totp.qr_code} 
+                  alt="QR Code für MFA Setup"
+                  className="w-48 h-48"
+                />
               </div>
 
-              <div className="border-t pt-4">
-                <Label className="text-sm font-medium">
+              {/* Secret Input */}
+              <div className="w-full bg-slate-50 rounded-2xl p-4 text-left border border-slate-100 shadow-sm mb-8">
+                <Label className="text-sm font-semibold text-slate-900 mb-2 block">
                   Oder geben Sie dieses Secret manuell ein:
                 </Label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2">
                   <Input 
                     value={enrollmentData.totp.secret}
                     readOnly
-                    className="font-mono text-sm"
+                    className="font-mono text-sm bg-white border-slate-200"
                   />
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={handleCopySecret}
+                    className="shrink-0 bg-white border-slate-200 hover:bg-slate-50"
                   >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
 
-              <Button 
-                onClick={() => setCurrentStep(2)} 
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+              {/* Button */}
+              <button 
+                onClick={() => setCurrentStep(2)}
+                className="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
               >
-                Weiter zur Verifizierung
-              </Button>
+                <span>Weiter zur Verifizierung</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           )}
 
+          {/* Step 2: Verification */}
           {currentStep === 2 && (
-            <div className="space-y-4">
-              <div className="text-center space-y-4">
-                <h3 className="font-semibold">Code eingeben</h3>
-                <p className="text-sm text-muted-foreground">
-                  Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein
-                </p>
+            <div className="flex flex-col items-center text-center">
+              {/* Icon */}
+              <div className="mb-6 relative">
+                <div className="absolute inset-0 bg-blue-100 rounded-full blur-xl opacity-50" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100/80 rounded-full flex items-center justify-center shadow-inner border border-blue-100/50">
+                  <Shield className="w-9 h-9 text-blue-600" />
+                </div>
               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="mfa-code">Verifizierungscode</Label>
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-2">
+                Code eingeben
+              </h2>
+              <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
+                Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.
+              </p>
+
+              {/* Code Input */}
+              <div className="w-full mb-8">
                 <Input
-                  id="mfa-code"
                   type="text"
                   placeholder="000000"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="text-center text-lg font-mono tracking-widest"
+                  className="text-center text-2xl font-mono tracking-[0.5em] py-6 bg-slate-50 border-slate-200 rounded-2xl"
                   maxLength={6}
                 />
               </div>
 
-              <Button 
+              {/* Button */}
+              <button 
                 onClick={handleVerifyCode}
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
                 disabled={verificationCode.length !== 6 || isLoading}
+                className="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                Code verifizieren
-              </Button>
+                <span>Code verifizieren</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           )}
 
+          {/* Step 3: Success */}
           {currentStep === 3 && (
-            <div className="space-y-4 text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <Check className="w-8 h-8 text-green-600" />
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-green-600">Erfolgreich eingerichtet!</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Ihre Zwei-Faktor-Authentifizierung ist jetzt aktiv
-                </p>
+            <div className="flex flex-col items-center text-center">
+              {/* Success Icon */}
+              <div className="mb-6 relative">
+                <div className="absolute inset-0 bg-emerald-100 rounded-full blur-xl opacity-50" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100/80 rounded-full flex items-center justify-center shadow-inner border border-emerald-100/50">
+                  <Check className="w-9 h-9 text-emerald-600" />
+                </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
-                  <strong>Wichtig:</strong> Bei Ihrem nächsten Login benötigen Sie zusätzlich zu Ihrem Passwort einen Code aus Ihrer Authenticator-App.
-                </p>
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight mb-2">
+                Erfolgreich eingerichtet!
+              </h2>
+              <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-8 leading-relaxed">
+                Ihre Zwei-Faktor-Authentifizierung ist jetzt aktiv und Ihr Konto geschützt.
+              </p>
+
+              {/* Info Box */}
+              <div className="w-full bg-slate-50 rounded-2xl p-4 text-left flex gap-4 mb-8 border border-slate-100 shadow-sm">
+                <div className="shrink-0 w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600 border border-slate-100/50">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div className="text-sm text-slate-600 leading-relaxed py-0.5">
+                  <span className="font-semibold text-slate-900 block mb-0.5">
+                    Wichtig
+                  </span>
+                  Verwenden Sie beim nächsten Login den Code aus Ihrer Authenticator-App.
+                </div>
               </div>
 
-              <Button onClick={onComplete} className="w-full">
-                Fertig
-              </Button>
+              {/* Button */}
+              <button 
+                onClick={onComplete}
+                className="w-full group bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+              >
+                <span>Fertigstellen</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
