@@ -338,9 +338,27 @@ const Auth = () => {
     }
   };
   const handleWebAuthnAuth = () => {
+    // Prevent multiple OAuth attempts
+    if (isOAuthInProgress.current) {
+      console.log('[Auth] Passkey auth already in progress, ignoring');
+      return;
+    }
+    
     const isDespia = isDespiaNative();
     if (isDespia) {
+      console.log('[Auth] Triggering Despia passkey auth via In-App Tab');
+      isOAuthInProgress.current = true;
+      setIsOAuthLoading(true);
       triggerDespiaPasskeyAuth(email || undefined);
+      
+      // Reset loading state after timeout (in case user cancels)
+      setTimeout(() => {
+        if (isOAuthInProgress.current) {
+          console.log('[Auth] Passkey auth timeout - resetting state');
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }
+      }, 60000); // 60 second timeout
       return;
     }
     navigate('/webauthn-auth');
