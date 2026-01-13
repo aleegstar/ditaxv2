@@ -201,8 +201,8 @@ const DocumentsContent: React.FC<{
             setShowUploader(false);
             setHasFilesInUploader(false);
             setSelectedFiles([]);
-          }} className="-ml-2 hover:bg-slate-100 transition-colors active:scale-95 text-slate-500 border-slate-200 border rounded-full p-2">
-              <ArrowLeft className="w-6 h-5" strokeWidth={1.5} />
+          }} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors active:scale-95">
+              <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
             </button>
 
             {/* Title */}
@@ -238,9 +238,9 @@ const DocumentsContent: React.FC<{
         <header className="flex-none px-6 py-6 flex items-center justify-between relative z-10">
           <button 
             onClick={() => navigate(-1)} 
-            className="group p-2.5 -ml-2 rounded-full bg-white/50 hover:bg-white hover:shadow-md hover:ring-1 hover:ring-gray-100 transition-all duration-200 text-slate-600 hover:text-slate-900 backdrop-blur-sm"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors active:scale-95"
           >
-            <ArrowLeft className="w-6 h-6" strokeWidth={1.5} />
+            <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
           </button>
 
           <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
