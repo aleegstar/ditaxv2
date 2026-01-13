@@ -13,9 +13,8 @@ import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useI18n } from "@/contexts/I18nContext";
 import { AuthErrorHandler } from "./auth-error-handler";
 import { useAuthRetry } from "@/hooks/use-auth-retry";
-import { useEnhancedWebAuthn } from "@/hooks/use-enhanced-webauthn";
 import { supabase } from "@/integrations/supabase/client";
-import { Fingerprint, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment, isDespiaEnvironment } from "@/utils/platform";
@@ -36,13 +35,11 @@ export const SignInPage = ({
   const isMobile = useIsMobile();
   const { t } = useI18n();
   const [email, setEmail] = useState(prefilledEmail);
-  const [step, setStep] = useState<"email" | "passkey-choice" | "code" | "success">("email");
+  const [step, setStep] = useState<"email" | "code" | "success">("email");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [authError, setAuthError] = useState<string>("");
-  const [hasPasskeys, setHasPasskeys] = useState(false);
-  const [passkeyCount, setPasskeyCount] = useState(0);
   const from = location.state?.from || '/';
   const {
     sendOTPWithRetry,
@@ -51,8 +48,6 @@ export const SignInPage = ({
     isRetrying,
     reset: resetRetry
   } = useAuthRetry();
-
-  const { checkPasskeysForEmail, authenticateWithPasskey, isLoading: passkeyLoading } = useEnhancedWebAuthn();
 
   // Ref-basierter Schutz gegen Doppelklicks (synchron!)
   const isOAuthInProgress = useRef(false);
@@ -65,83 +60,16 @@ export const SignInPage = ({
     setAuthError("");
     
     try {
-      // First check if user has passkeys with improved error handling
-      console.log('🔍 Checking for passkeys...');
-      const passkeyResult = await checkPasskeysForEmail(email);
-      console.log('📊 Passkey check result:', passkeyResult);
-      
-      if (passkeyResult && passkeyResult.has_passkeys && passkeyResult.passkey_count > 0) {
-        // User has passkeys, show passkey choice
-        console.log(`✅ Found ${passkeyResult.passkey_count} passkeys for user`);
-        setHasPasskeys(true);
-        setPasskeyCount(passkeyResult.passkey_count);
-        setStep("passkey-choice");
-        toast.success(`${passkeyResult.passkey_count} Fingerprint-Geräte gefunden!`);
-      } else {
-        // No passkeys found, proceed with OTP
-        console.log('📧 No passkeys found, sending OTP...');
-        setHasPasskeys(false);
-        setPasskeyCount(0);
-        await sendOTPWithRetry(email);
-        console.log('✅ OTP sent successfully');
-        toast.success(t.auth.codeSent);
-        setStep("code");
-        resetRetry();
-      }
-    } catch (error: any) {
-      console.error('❌ Email submission failed:', error);
-      // Always fallback to OTP if passkey check fails
-      console.log('🔄 Falling back to OTP due to error');
-      setHasPasskeys(false);
-      setPasskeyCount(0);
-      try {
-        await sendOTPWithRetry(email);
-        console.log('✅ Fallback OTP sent successfully');
-        toast.success(t.auth.codeSent);
-        setStep("code");
-        resetRetry();
-      } catch (otpError: any) {
-        console.error('❌ Fallback OTP also failed:', otpError);
-        setAuthError(otpError.message || "Fehler beim Verarbeiten der E-Mail");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePasskeyAuth = async () => {
-    console.log('🔐 Starting passkey authentication...');
-    setIsLoading(true);
-    setAuthError("");
-    
-    try {
-      await authenticateWithPasskey(email);
-      console.log('✅ Passkey authentication successful');
-      await loadUserProfile();
-      toast.success("Erfolgreich mit Fingerprint angemeldet!");
-      navigate(from);
-    } catch (error: any) {
-      console.error('❌ Passkey authentication failed:', error);
-      setAuthError(error.message || "Fingerprint-Anmeldung fehlgeschlagen");
-      // Don't automatically fall back to OTP here, let user choose
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleContinueWithCode = async () => {
-    setIsLoading(true);
-    setAuthError("");
-    
-    try {
+      // Send OTP directly without passkey check
+      console.log('📧 Sending OTP...');
       await sendOTPWithRetry(email);
       console.log('✅ OTP sent successfully');
       toast.success(t.auth.codeSent);
       setStep("code");
       resetRetry();
     } catch (error: any) {
-      console.error('❌ OTP request failed:', error);
-      setAuthError(error.message || "Fehler beim Senden des Codes");
+      console.error('❌ Email submission failed:', error);
+      setAuthError(error.message || "Fehler beim Verarbeiten der E-Mail");
     } finally {
       setIsLoading(false);
     }
@@ -198,16 +126,8 @@ export const SignInPage = ({
   };
 
   const handleBackClick = () => {
-    if (step === "passkey-choice") {
+    if (step === "code") {
       setStep("email");
-      setHasPasskeys(false);
-      setPasskeyCount(0);
-    } else if (step === "code") {
-      if (hasPasskeys) {
-        setStep("passkey-choice");
-      } else {
-        setStep("email");
-      }
     } else if (onBack) {
       onBack();
     } else {
@@ -303,8 +223,6 @@ export const SignInPage = ({
       handleEmailSubmit(new Event('submit') as any);
     } else if (step === "code") {
       handleResendCode();
-    } else if (step === "passkey-choice") {
-      handleContinueWithCode();
     }
   };
 
@@ -399,56 +317,6 @@ export const SignInPage = ({
                     <p className="text-xs pt-10 text-[#333333]/20">
                       {t.auth.termsText}
                     </p>
-                  </motion.div>
-                ) : step === "passkey-choice" ? (
-                  <motion.div 
-                    key="passkey-choice-step" 
-                    initial={{ opacity: 0, x: 100 }} 
-                    animate={{ opacity: 1, x: 0 }} 
-                    exit={{ opacity: 0, x: 100 }} 
-                    transition={{ duration: 0.4, ease: "easeOut" }} 
-                    className="space-y-6 text-center"
-                  >
-                    <div className="space-y-6">
-                      <div className="flex justify-center mb-8">
-                        <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-10 w-auto" />
-                      </div>
-                      <div className="space-y-1">
-                        <h1 className="font-bold leading-[1.1] tracking-tight text-black text-2xl">Anmeldung wählen</h1>
-                        <p className="text-black/50 text-xl font-light">
-                          {passkeyCount > 0 ? `${passkeyCount} Fingerprint-Geräte gefunden` : 'Wie möchten Sie sich anmelden?'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <button 
-                        onClick={handlePasskeyAuth}
-                        disabled={isLoading || passkeyLoading}
-                        className="w-full bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90 font-medium px-6 py-4 min-h-[56px] text-base rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-none flex items-center justify-center gap-3"
-                      >
-                        <Fingerprint className="w-5 h-5 text-white" />
-                        <span className="text-white">
-                          {isLoading || passkeyLoading ? 'Fingerprint wird geprüft...' : 'Mit Fingerprint anmelden'}
-                        </span>
-                      </button>
-                      
-                      <button 
-                        onClick={handleContinueWithCode}
-                        disabled={isLoading}
-                        className="w-full bg-white hover:bg-gray-50 text-black border border-[#E2E8F0] font-medium px-6 py-4 min-h-[56px] text-base rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-none"
-                      >
-                        {isLoading ? 'Code wird gesendet...' : 'Mit Code fortfahren'}
-                      </button>
-                    </div>
-                    
-                    <button 
-                      onClick={handleBackClick}
-                      className="flex items-center justify-center gap-2 text-black/50 hover:text-black/70 transition-colors text-sm mx-auto"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Zurück zur E-Mail
-                    </button>
                   </motion.div>
                 ) : step === "code" ? (
                   <motion.div 

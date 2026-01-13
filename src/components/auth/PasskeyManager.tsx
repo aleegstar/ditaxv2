@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Fingerprint, Trash2, Loader2, CheckCircle, ScanLine } from 'lucide-react';
+import { Fingerprint, Trash2, Loader2, CheckCircle, ScanLine, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { PasskeyRegistration } from './PasskeyRegistration';
@@ -85,6 +85,16 @@ export const PasskeyManager: React.FC = () => {
             Fingerprint & Passkeys
           </h2>
 
+          {/* Mobile App Warning */}
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2 text-amber-800">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span className="text-sm">
+                <strong>Hinweis:</strong> Die Fingerprint-Anmeldung funktioniert derzeit nur im Web-Browser. In der Mobile App ist diese Funktion noch nicht verfügbar.
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-4 pl-0 md:pl-7">
             <div>
               <h3 className="text-sm font-medium text-gray-800 flex items-center gap-2">
@@ -128,6 +138,16 @@ export const PasskeyManager: React.FC = () => {
           <Fingerprint className="w-5 h-5 text-gray-600" />
           Fingerprint & Passkeys
         </h2>
+
+        {/* Mobile App Warning */}
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-start gap-2 text-amber-800">
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <span className="text-sm">
+              <strong>Hinweis:</strong> Die Fingerprint-Anmeldung funktioniert derzeit nur im Web-Browser. In der Mobile App ist diese Funktion noch nicht verfügbar.
+            </span>
+          </div>
+        </div>
 
         {/* Add new passkey */}
         <div className="space-y-4 pl-0 md:pl-7">

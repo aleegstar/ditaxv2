@@ -1,15 +1,11 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Mail, Fingerprint, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
-import { ConditionalPasskeyButton } from './ConditionalPasskeyButton';
 import { ConsentStep } from './ConsentStep';
 import { MfaChallenge } from './MfaChallenge';
 
@@ -21,7 +17,6 @@ export const EnhancedLoginFlow: React.FC = () => {
   const [otpDisabled, setOtpDisabled] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { authenticateWithPasskey, checkPasskeysForEmail, isSupported } = useEnhancedWebAuthn();
 
   // Check if user has OTP disabled when email is entered
   const checkOtpStatus = async (userEmail: string) => {
@@ -50,28 +45,17 @@ export const EnhancedLoginFlow: React.FC = () => {
       // Check if user has disabled OTP
       await checkOtpStatus(email);
 
-      // Check if user has passkeys
-      const passkeyCheck = await checkPasskeysForEmail(email);
-      
-      if (otpDisabled && !passkeyCheck.has_passkeys) {
-        toast({
-          title: 'Kein Zugang möglich',
-          description: 'Für dieses Konto sind OTP-Codes deaktiviert, aber keine Fingerprints vorhanden. Kontaktieren Sie den Support.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       if (otpDisabled) {
         toast({
-          title: 'Nur Fingerprint-Anmeldung',
-          description: 'Für dieses Konto sind E-Mail-Codes deaktiviert. Bitte verwende deinen Fingerprint.',
+          title: 'OTP deaktiviert',
+          description: 'Für dieses Konto sind E-Mail-Codes deaktiviert. Bitte aktivieren Sie einen Fingerprint in den Profileinstellungen.',
           variant: 'default',
         });
+        setLoading(false);
         return;
       }
 
-      // Send OTP if not disabled
+      // Send OTP
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -298,31 +282,10 @@ export const EnhancedLoginFlow: React.FC = () => {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Anmelden</CardTitle>
           <CardDescription>
-            Melde dich mit deiner E-Mail oder deinem Fingerprint an
+            Melde dich mit deiner E-Mail an
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Passkey Authentication Section */}
-          {isSupported && (
-            <>
-              <ConditionalPasskeyButton 
-                onSuccess={handlePasskeySuccess}
-                email={email}
-              />
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    oder mit E-Mail fortfahren
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-
           {/* Email/OTP Authentication Section */}
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
