@@ -1,14 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Json } from '@/integrations/supabase/types';
 import {
   AlertDialog,
@@ -251,94 +247,132 @@ const PrivacySettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <SubpageHeader 
-        title="Datenschutz-Einstellungen" 
-        onBack={() => navigate(-1)} 
-      />
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid gap-6 max-w-4xl">
-          {/* Privacy Preferences */}
-          <Card className="bg-white border border-slate-200 rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-slate-800 flex items-center">
-                <Shield className="h-5 w-5 mr-2" />
-                Datenschutz-Präferenzen
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-slate-800 font-medium">Marketing-E-Mails</h3>
-                  <p className="text-slate-500 text-sm">Erhalten Sie Updates und Angebote</p>
-                </div>
-                <Switch 
-                  checked={preferences.marketing_emails} 
-                  onCheckedChange={(checked) => setPreferences(prev => ({
-                    ...prev,
-                    marketing_emails: checked
-                  }))} 
-                />
-              </div>
+    <div className="antialiased min-h-screen flex flex-col text-gray-900 bg-white">
+      {/* Header / Navigation */}
+      <header className="sticky z-10 supports-[backdrop-filter]:bg-white/60 bg-white/70 border-gray-200/50 border-b top-0 backdrop-blur-xl">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+          <button 
+            onClick={() => navigate(-1)}
+            className="group p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <path d="m12 19-7-7 7-7" />
+              <path d="M19 12H5" />
+            </svg>
+          </button>
 
-              <div className="pt-4">
-                <Button 
-                  onClick={savePreferences} 
-                  className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white"
-                >
-                  Einstellungen speichern
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-medium text-gray-900">
+            Datenschutz-Einstellungen
+          </h1>
 
-          {/* Data Export */}
-          <Card className="bg-white border border-slate-200 rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-slate-800 flex items-center">
-                <Download className="h-5 w-5 mr-2" />
-                Datenportabilität
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-slate-500 mb-4">
-                Laden Sie alle Ihre gespeicherten Daten als JSON-Datei herunter.
-              </p>
-              <Button 
-                onClick={downloadUserData} 
-                variant="outline" 
-                className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Meine Daten herunterladen
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Account Deletion */}
-          <Card className="bg-white border border-red-200 rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-red-600 flex items-center">
-                <Trash2 className="h-5 w-5 mr-2" />
-                Account löschen
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-slate-500 mb-4">
-                Diese Aktion löscht unwiderruflich alle Ihre Daten und kann nicht rückgängig gemacht werden.
-              </p>
-              <Button 
-                onClick={handleStartDeletion}
-                variant="destructive" 
-                className="w-full bg-red-600 hover:bg-red-700"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Account löschen
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="w-8" />
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-8">
+        {/* Card 1: Privacy Preferences */}
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+          <div className="p-8 pb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-blue-100/50 shadow-sm">
+                <Shield className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h2 className="text-xl tracking-tight text-gray-900 font-semibold">
+                  Datenschutz-Präferenzen
+                </h2>
+              </div>
+            </div>
+
+            <div className="flex items-start justify-between py-2">
+              <div className="pr-8">
+                <p className="text-base font-medium text-gray-900">
+                  Marketing-E-Mails
+                </p>
+                <p className="text-base text-gray-500 mt-1">
+                  Erhalten Sie Updates, Newsletter und exklusive Angebote.
+                </p>
+              </div>
+
+              <Switch 
+                checked={preferences.marketing_emails} 
+                onCheckedChange={(checked) => setPreferences(prev => ({
+                  ...prev,
+                  marketing_emails: checked
+                }))} 
+                className="mt-1"
+              />
+            </div>
+          </div>
+
+          <div className="px-8 pb-8 pt-2">
+            <button 
+              onClick={savePreferences}
+              className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:-translate-y-0.5"
+            >
+              Einstellungen speichern
+            </button>
+          </div>
+        </section>
+
+        {/* Card 2: Data Portability */}
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+          <div className="p-8">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-violet-100/50 shadow-sm">
+                <Download className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <h2 className="text-xl tracking-tight text-gray-900 font-semibold">
+                Datenportabilität
+              </h2>
+            </div>
+
+            <p className="text-base text-gray-500 mb-8 max-w-xl">
+              Laden Sie eine Kopie aller Ihrer gespeicherten Daten inklusive
+              Einstellungen und Historie im JSON-Format herunter.
+            </p>
+
+            <button 
+              onClick={downloadUserData}
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-white border border-gray-200 rounded-xl shadow-sm text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+            >
+              <Download className="w-4 h-4" strokeWidth={1.5} />
+              Meine Daten herunterladen
+            </button>
+          </div>
+        </section>
+
+        {/* Card 3: Delete Account (Danger Zone) */}
+        <section className="bg-white rounded-2xl border border-red-100 shadow-xl shadow-red-100/40 overflow-hidden relative">
+          {/* Subtle red accent background */}
+          <div className="absolute inset-0 bg-red-50/30 pointer-events-none" />
+
+          <div className="relative p-8">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 text-red-600 ring-1 ring-red-100/50 shadow-sm">
+                <Trash2 className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <h2 className="text-xl tracking-tight text-red-700 font-semibold">
+                Account löschen
+              </h2>
+            </div>
+
+            <p className="text-base text-gray-600 mb-8 max-w-xl">
+              Diese Aktion löscht unwiderruflich alle Ihre Daten. Sobald Sie
+              fortfahren, kann dieser Prozess nicht rückgängig gemacht werden.
+            </p>
+
+            <button 
+              onClick={handleStartDeletion}
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-red-600/20 text-base font-semibold text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 hover:-translate-y-0.5"
+            >
+              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+              Account löschen
+            </button>
+          </div>
+        </section>
+      </main>
 
       {/* Feedback Dialog - Step 1 */}
       <AlertDialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
