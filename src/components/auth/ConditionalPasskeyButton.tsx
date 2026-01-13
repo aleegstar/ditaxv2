@@ -4,8 +4,7 @@ import { Fingerprint, Loader2, AlertCircle, RefreshCw, ExternalLink } from 'luci
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
-import { isDespiaNative } from '@/lib/despia';
-import despia from 'despia-native';
+import { isDespiaNative, triggerDespiaPasskeyAuth } from '@/lib/despia';
 
 interface ConditionalPasskeyButtonProps {
   onSuccess?: () => void;
@@ -88,27 +87,10 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
       return;
     }
 
-    // Check if running in Despia - use Edge Function + In-App Tab
+    // Check if running in Despia - open system browser for passkey auth
     if (isDespiaNative()) {
-      debug.log('🔐 ConditionalPasskeyButton: Despia detected - using Edge Function + In-App Tab');
-      
-      try {
-        const { data, error } = await supabase.functions.invoke('passkey-start', {
-          body: { email, deeplink_scheme: 'ditax' }
-        });
-        
-        if (error || !data?.url) {
-          debug.error('❌ ConditionalPasskeyButton: passkey-start error:', error);
-          return;
-        }
-        
-        const despiaCommand = `oauth://?url=${encodeURIComponent(data.url)}`;
-        debug.log('📱 ConditionalPasskeyButton: Opening In-App Tab:', despiaCommand);
-        despia(despiaCommand);
-        
-      } catch (err) {
-        debug.error('❌ ConditionalPasskeyButton: Error triggering passkey auth:', err);
-      }
+      debug.log('🔐 ConditionalPasskeyButton: Despia detected - opening system browser');
+      triggerDespiaPasskeyAuth(email);
       return;
     }
 
