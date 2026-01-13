@@ -38,6 +38,39 @@ function base64UrlToArrayBuffer(base64url: string): ArrayBuffer {
   return bytes.buffer;
 }
 
+// Convert standard base64 (or base64url) to ArrayBuffer
+// Handles both formats: SPKI keys use standard base64, WebAuthn data uses base64url
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  // Check if it's base64url (contains - or _) or standard base64 (contains + or /)
+  const isBase64Url = base64.includes('-') || base64.includes('_');
+  
+  let base64Standard = base64;
+  if (isBase64Url) {
+    // Convert base64url to standard base64
+    base64Standard = base64.replace(/-/g, '+').replace(/_/g, '/');
+  }
+  
+  // Add padding if needed
+  while (base64Standard.length % 4) {
+    base64Standard += '=';
+  }
+  
+  const binary = atob(base64Standard);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+// Normalize base64/base64url for comparison (removes padding, converts to base64url)
+function normalizeBase64ForComparison(str: string): string {
+  return str
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 // Convert ArrayBuffer to base64url
 function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -59,12 +92,28 @@ async function verifyWebAuthnSignature(
 ): Promise<{ verified: boolean; error?: string }> {
   try {
     console.log('🔐 Starting signature verification...');
+    console.log('📊 Input formats:', {
+      publicKeyLength: publicKeyBase64?.length,
+      publicKeyStart: publicKeyBase64?.substring(0, 20),
+      signatureLength: signatureBase64?.length,
+      challengeLength: storedChallenge?.length
+    });
     
-    // Decode the components
+    // Decode the components - signature, authenticatorData, clientDataJSON are base64url from browser
     const signature = base64UrlToArrayBuffer(signatureBase64);
     const authenticatorData = base64UrlToArrayBuffer(authenticatorDataBase64);
     const clientDataJSON = base64UrlToArrayBuffer(clientDataJSONBase64);
-    const publicKeyBytes = base64UrlToArrayBuffer(publicKeyBase64);
+    
+    // Public key from database is stored in standard base64 (SPKI format)
+    // Use base64ToArrayBuffer which handles both formats
+    const publicKeyBytes = base64ToArrayBuffer(publicKeyBase64);
+    
+    console.log('✅ All components decoded successfully:', {
+      signatureBytes: signature.byteLength,
+      authenticatorDataBytes: authenticatorData.byteLength,
+      clientDataJSONBytes: clientDataJSON.byteLength,
+      publicKeyBytes: publicKeyBytes.byteLength
+    });
     
     // Parse clientDataJSON to verify the challenge
     const clientDataText = new TextDecoder().decode(clientDataJSON);
@@ -78,8 +127,17 @@ async function verifyWebAuthnSignature(
       return { verified: false, error: 'Invalid client data format' };
     }
     
-    // Verify the challenge matches
-    if (clientData.challenge !== storedChallenge) {
+    // Verify the challenge matches - normalize both to handle base64/base64url differences
+    const normalizedClientChallenge = normalizeBase64ForComparison(clientData.challenge || '');
+    const normalizedStoredChallenge = normalizeBase64ForComparison(storedChallenge || '');
+    
+    console.log('🔍 Challenge comparison:', {
+      clientChallenge: normalizedClientChallenge.substring(0, 30) + '...',
+      storedChallenge: normalizedStoredChallenge.substring(0, 30) + '...',
+      match: normalizedClientChallenge === normalizedStoredChallenge
+    });
+    
+    if (normalizedClientChallenge !== normalizedStoredChallenge) {
       console.error('❌ Challenge mismatch:', { 
         received: clientData.challenge?.substring(0, 20) + '...', 
         expected: storedChallenge?.substring(0, 20) + '...' 
