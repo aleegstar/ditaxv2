@@ -56,10 +56,10 @@ serve(async (req) => {
       );
     }
 
-    // CRITICAL: Use React route with deeplink_scheme in path
-    // Format: /native-callback/{scheme}#access_token=xxx
-    // This matches Despia documentation requirements
-    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}`;
+    // CRITICAL: Use React route with deeplink_scheme in path + trailing slash
+    // The trailing slash ensures Supabase correctly appends the hash fragment
+    // Format: /native-callback/{scheme}/#access_token=xxx
+    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
     // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
