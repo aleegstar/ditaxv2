@@ -144,15 +144,11 @@ const NativeCallback = () => {
     // Success - build deeplink with tokens
     setStatus('success');
 
+    // Build deeplink - only essential params
     const params = new URLSearchParams();
-    params.set('success', 'true');
     params.set('access_token', accessToken);
     if (refreshToken) {
       params.set('refresh_token', refreshToken);
-    }
-    if (expiresIn) {
-      const expiresAt = Math.floor(Date.now() / 1000) + parseInt(expiresIn, 10);
-      params.set('expires_at', expiresAt.toString());
     }
 
     const deeplinkUrl = `${deeplinkScheme}://oauth/auth#${params.toString()}`;

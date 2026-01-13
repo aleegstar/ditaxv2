@@ -108,13 +108,10 @@
             return;
           }
           
-          // Build deeplink
+          // Build deeplink - only essential params
           var params = new URLSearchParams();
-          params.set('success', 'true');
           params.set('access_token', accessToken);
           if (refreshToken) params.set('refresh_token', refreshToken);
-          if (expiresIn) params.set('expires_at', (Math.floor(Date.now() / 1000) + parseInt(expiresIn, 10)).toString());
-          if (tokenType) params.set('token_type', tokenType);
           
           var deeplinkUrl = scheme + '://oauth/auth#' + params.toString();
           statusEl.textContent = 'Zurück zur App...';
