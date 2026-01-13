@@ -66,6 +66,8 @@ const UserTaxReturns = () => {
       return;
     }
   }, [userId, isValid, authLoading, navigate]);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  
   useEffect(() => {
     if (!userId || authLoading) return;
     const checkOnboarding = async () => {
@@ -73,8 +75,10 @@ const UserTaxReturns = () => {
         data: profile
       } = await supabase.from('profiles').select('onboarding_tour_completed, first_name').eq('id', userId).single();
       if (profile && !profile.onboarding_tour_completed && !profile.first_name) {
-        navigate('/welcome');
+        navigate('/welcome', { replace: true });
+        return;
       }
+      setOnboardingChecked(true);
     };
     checkOnboarding();
   }, [userId, authLoading, navigate]);
@@ -196,7 +200,7 @@ const UserTaxReturns = () => {
   const getDocumentCount = (year: string): number => {
     return uploadedDocuments[year]?.length || 0;
   };
-  if (authLoading || loading || profileLoading || !isReady) {
+  if (authLoading || loading || profileLoading || !isReady || !onboardingChecked) {
     return <UserTaxReturnsSkeleton />;
   }
   if (!loading && taxReturns.length === 0 && userProfile?.onboarding_tour_completed !== true) {
