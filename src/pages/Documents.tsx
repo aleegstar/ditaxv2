@@ -254,21 +254,21 @@ const DocumentsContent: React.FC<{
               </label>
 
               <div className="relative">
-                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full bg-white/60 backdrop-blur-md rounded-[2rem] p-5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-[#1D64FF]/20">
+                <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex hover:shadow-[0_8px_30px_-4px_rgba(29,100,255,0.3)] transition-all duration-300 group ring-offset-2 focus:ring-2 outline-none hover:-translate-y-0.5 focus:ring-white/30 bg-gradient-to-br from-[#1D64FF] to-[#0040C0] w-full border-white/20 border rounded-[2rem] p-5 shadow-[0_4px_20px_-4px_rgba(29,100,255,0.2)] items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl text-white shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 bg-[#1D64FF] shadow-[#1D64FF]/25">
+                    <div className="w-14 h-14 rounded-2xl text-white shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 bg-white/20 ring-1 ring-white/30 backdrop-blur-sm">
                       <Calendar className="w-6 h-6" strokeWidth={1.5} />
                     </div>
                     <div className="text-left">
-                      <div className="text-base font-semibold text-slate-900 transition-colors group-hover:text-[#1D64FF]">
+                      <div className="text-base font-semibold text-white transition-colors">
                         Steuererklärung {selectedYear}
                       </div>
-                      <div className="text-sm text-slate-500 mt-0.5 font-medium">
+                      <div className="text-sm text-blue-100 mt-0.5 font-medium">
                         Aktuelles Jahr
                       </div>
                     </div>
                   </div>
-                  <ChevronDown className={cn("w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors", isYearDropdownOpen && "rotate-180")} />
+                  <ChevronDown className={cn("w-5 h-5 text-blue-200 group-hover:text-white transition-colors", isYearDropdownOpen && "rotate-180")} />
                 </button>
 
                 {isYearDropdownOpen && <>
