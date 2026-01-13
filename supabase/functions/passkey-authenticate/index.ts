@@ -71,6 +71,17 @@ function normalizeBase64ForComparison(str: string): string {
     .replace(/=/g, '');
 }
 
+// Convert PostgreSQL bytea hex format (\x...) to ArrayBuffer
+function hexToArrayBuffer(hexString: string): ArrayBuffer {
+  // PostgreSQL bytea format starts with \x
+  const hex = hexString.startsWith('\\x') ? hexString.slice(2) : hexString;
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes.buffer;
+}
+
 // Convert ArrayBuffer to base64url
 function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -104,9 +115,22 @@ async function verifyWebAuthnSignature(
     const authenticatorData = base64UrlToArrayBuffer(authenticatorDataBase64);
     const clientDataJSON = base64UrlToArrayBuffer(clientDataJSONBase64);
     
-    // Public key from database is stored in standard base64 (SPKI format)
-    // Use base64ToArrayBuffer which handles both formats
-    const publicKeyBytes = base64ToArrayBuffer(publicKeyBase64);
+    // Public key from database - handle PostgreSQL bytea hex format
+    // The database returns bytea as \x followed by hex bytes
+    // The hex bytes represent ASCII characters of the original base64 string
+    let publicKeyBytes: ArrayBuffer;
+    
+    if (publicKeyBase64.startsWith('\\x')) {
+      console.log('📦 Public key is in PostgreSQL bytea hex format');
+      // Convert hex to bytes, then interpret as ASCII string (original base64)
+      const hexBuffer = hexToArrayBuffer(publicKeyBase64);
+      const asciiString = new TextDecoder().decode(hexBuffer);
+      console.log('📋 Decoded base64 string from hex:', asciiString.substring(0, 30) + '...');
+      publicKeyBytes = base64ToArrayBuffer(asciiString);
+    } else {
+      console.log('📦 Public key is in standard base64 format');
+      publicKeyBytes = base64ToArrayBuffer(publicKeyBase64);
+    }
     
     console.log('✅ All components decoded successfully:', {
       signatureBytes: signature.byteLength,
