@@ -58,7 +58,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       {/* Modal Container */}
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] border border-slate-100/80 overflow-hidden relative">
         {/* Close Button */}
