@@ -284,6 +284,37 @@ const App = () => {
   useEffect(() => {
     let mounted = true;
 
+    // Handle OAuth success signal from Despia deeplink (success=true)
+    const handleOAuthSuccessSignal = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        console.log('🔐 App.tsx: OAuth success signal detected from deeplink');
+        
+        // Short delay to ensure session storage is synced from Chrome Custom Tab
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Refresh session - it was already set in NativeCallback
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ App.tsx: Session refresh error:', error);
+        } else if (session) {
+          console.log('✅ App.tsx: Session found after OAuth success');
+          if (mounted) {
+            setIsAuthenticated(true);
+            setIsLoading(false);
+          }
+        } else {
+          console.warn('⚠️ App.tsx: No session found after OAuth success signal');
+        }
+        
+        // Clean URL (remove success parameter)
+        window.history.replaceState({}, '', window.location.pathname);
+        return true; // Signal was handled
+      }
+      return false;
+    };
+
     // Prüfe ob Tokens in der URL sind (Deep Link von AuthSuccess)
     const handleUrlTokens = async () => {
       const url = new URL(window.location.href);
@@ -312,8 +343,15 @@ const App = () => {
       }
     };
 
-    // Zuerst URL-Tokens verarbeiten
-    handleUrlTokens();
+    // First check for OAuth success signal, then handle URL tokens
+    const initAuth = async () => {
+      const wasOAuthSuccess = await handleOAuthSuccessSignal();
+      if (!wasOAuthSuccess) {
+        await handleUrlTokens();
+      }
+    };
+    
+    initAuth();
 
     const checkAuth = async () => {
       try {
