@@ -99,6 +99,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   } = useDocumentsTour();
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(true);
   const [legalOpen, setLegalOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigationItems = [{
@@ -115,6 +116,10 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     route: '/chat'
   }];
   const helpItems = [{
+    label: 'Wissensdatenbank',
+    icon: HelpCircle,
+    route: '/help'
+  }, {
     label: 'Anleitung starten',
     icon: CustomSettingsIcon,
     action: () => {
@@ -129,11 +134,8 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
       navigate('/documents');
       setTimeout(() => startDocumentsTour(), 500);
     }
-  }, {
-    label: 'Hilfe',
-    icon: HelpCircle,
-    route: '/help'
-  }, {
+  }];
+  const feedbackItems = [{
     label: 'Feedback',
     icon: MessageSquare,
     route: '/feedback'
@@ -233,6 +235,14 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             <SectionHeader title="Hilfe" isOpen={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
             {helpOpen && <div className="pb-2">
                 {helpItems.map(item => <MenuItem key={item.label} item={item} />)}
+              </div>}
+          </div>
+
+          {/* Feedback & Roadmap Section */}
+          <div className="pt-2">
+            <SectionHeader title="Feedback & Roadmap" isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
+            {feedbackOpen && <div className="pb-2">
+                {feedbackItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
           </div>
 
