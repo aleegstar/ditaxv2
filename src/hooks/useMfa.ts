@@ -40,12 +40,15 @@ export const useMfa = () => {
     }
   };
 
-  const startEnrollment = async (friendlyName = 'Authenticator App') => {
+  const startEnrollment = async (friendlyName?: string) => {
     setIsLoading(true);
     try {
+      // Generate unique name to avoid conflicts
+      const uniqueName = friendlyName || `Authenticator ${new Date().toLocaleDateString('de-CH')} ${Date.now().toString().slice(-4)}`;
+      
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName
+        friendlyName: uniqueName
       });
 
       if (error) throw error;
