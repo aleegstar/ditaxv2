@@ -140,7 +140,7 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg bg-white border border-slate-200 p-0 overflow-hidden">
+      <DialogContent className="max-w-lg bg-white border border-slate-200 p-0 overflow-hidden shadow-2xl [&>div:first-child]:bg-black/60">
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-12 px-6">
             <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
