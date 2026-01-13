@@ -14,10 +14,12 @@ import { useI18n } from "@/contexts/I18nContext";
 import { AuthErrorHandler } from "./auth-error-handler";
 import { useAuthRetry } from "@/hooks/use-auth-retry";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Fingerprint, Loader2 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment, isDespiaEnvironment } from "@/utils/platform";
+import { useEnhancedWebAuthn } from "@/hooks/use-enhanced-webauthn";
+import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
 
 interface SignInPageProps {
   className?: string;
@@ -40,6 +42,8 @@ export const SignInPage = ({
   const [isLoading, setIsLoading] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [authError, setAuthError] = useState<string>("");
+  const [hasPasskeys, setHasPasskeys] = useState(false);
+  const [isCheckingPasskeys, setIsCheckingPasskeys] = useState(false);
   const from = location.state?.from || '/';
   const {
     sendOTPWithRetry,
@@ -48,6 +52,13 @@ export const SignInPage = ({
     isRetrying,
     reset: resetRetry
   } = useAuthRetry();
+  
+  const { 
+    checkPasskeysForEmail, 
+    authenticateWithPasskey, 
+    isSupported: isWebAuthnSupported,
+    isLoading: isPasskeyLoading 
+  } = useEnhancedWebAuthn();
 
   // Ref-basierter Schutz gegen Doppelklicks (synchron!)
   const isOAuthInProgress = useRef(false);
@@ -58,9 +69,17 @@ export const SignInPage = ({
     console.log('🚀 Starting email submission for:', email);
     setIsLoading(true);
     setAuthError("");
+    setIsCheckingPasskeys(true);
     
     try {
-      // Send OTP directly without passkey check
+      // Check if user has passkeys registered
+      console.log('🔑 Checking passkeys for:', email);
+      const passkeyCheck = await checkPasskeysForEmail(email);
+      setHasPasskeys(passkeyCheck.has_passkeys);
+      console.log('🔑 Passkey check result:', passkeyCheck);
+      setIsCheckingPasskeys(false);
+      
+      // Send OTP
       console.log('📧 Sending OTP...');
       await sendOTPWithRetry(email);
       console.log('✅ OTP sent successfully');
@@ -70,6 +89,38 @@ export const SignInPage = ({
     } catch (error: any) {
       console.error('❌ Email submission failed:', error);
       setAuthError(error.message || "Fehler beim Verarbeiten der E-Mail");
+      setIsCheckingPasskeys(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasskeyAuth = async () => {
+    if (!email) return;
+    
+    // Check if running in Despia - open system browser for passkey auth
+    if (isDespiaNative()) {
+      console.log('🔐 Despia detected - opening system browser for passkey');
+      triggerDespiaPasskeyAuth(email);
+      return;
+    }
+    
+    setIsLoading(true);
+    setAuthError("");
+    
+    try {
+      console.log('🔐 Starting passkey authentication for:', email);
+      const result = await authenticateWithPasskey(email);
+      
+      if (result.success) {
+        console.log('✅ Passkey authentication successful');
+        await loadUserProfile();
+        toast.success(t.auth.loginSuccess);
+        navigate(from);
+      }
+    } catch (error: any) {
+      console.error('❌ Passkey authentication failed:', error);
+      setAuthError(error.message || "Fehler bei der Fingerprint-Anmeldung");
     } finally {
       setIsLoading(false);
     }
@@ -337,6 +388,34 @@ export const SignInPage = ({
                       </div>
                     </div>
                     
+                    {/* Passkey Button - Only show if user has passkeys */}
+                    {hasPasskeys && isWebAuthnSupported && (
+                      <div className="w-full space-y-3">
+                        <button
+                          type="button"
+                          onClick={handlePasskeyAuth}
+                          disabled={isLoading || isPasskeyLoading}
+                          className="w-full bg-white hover:bg-gray-50 text-black border border-[#E2E8F0] font-medium px-6 py-4 min-h-[56px] text-base rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                        >
+                          {isPasskeyLoading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <Fingerprint className="h-5 w-5" />
+                          )}
+                          {isPasskeyLoading ? 'Authentifizierung...' : 'Mit Fingerprint anmelden'}
+                        </button>
+                        
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-[#E2E8F0]" />
+                          </div>
+                          <div className="relative flex justify-center text-sm">
+                            <span className="bg-white px-4 text-[#718096]">oder Code eingeben</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="w-full flex justify-center">
                       <InputOTP maxLength={6} value={code} onChange={handleCodeChange} disabled={isLoading}>
                         <InputOTPGroup>

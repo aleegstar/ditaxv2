@@ -142,30 +142,15 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
 
   if (!hasPasskeys) {
     return (
-      <div className="space-y-2">
-        <Button
-          type="button"
-          variant="outline"
-          disabled
-          className={`${className} opacity-50`}
-        >
-          <AlertCircle className="mr-2 h-4 w-4" />
-          Kein Fingerprint eingerichtet
-        </Button>
-        
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Debug: {debugInfo}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleRefreshPasskeys}
-            className="h-6 px-2"
-          >
-            <RefreshCw className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        disabled
+        className={`${className} opacity-50`}
+      >
+        <AlertCircle className="mr-2 h-4 w-4" />
+        Kein Fingerprint eingerichtet
+      </Button>
     );
   }
 
@@ -185,9 +170,7 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
         )}
         {isLoading 
           ? 'Authentifizierung...' 
-          : isInDespia 
-            ? 'Mit Fingerprint anmelden' 
-            : 'Mit Fingerprint anmelden'
+          : 'Mit Fingerprint anmelden'
         }
         {isInDespia && !isLoading && (
           <ExternalLink className="ml-2 h-3 w-3 opacity-50" />
@@ -199,19 +182,6 @@ export const ConditionalPasskeyButton: React.FC<ConditionalPasskeyButtonProps> =
           Öffnet den System-Browser für sichere Authentifizierung
         </p>
       )}
-      
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Debug: {debugInfo}</span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleRefreshPasskeys}
-          className="h-6 px-2"
-        >
-          <RefreshCw className="h-3 w-3" />
-        </Button>
-      </div>
     </div>
   );
 };
