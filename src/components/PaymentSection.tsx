@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck, ArrowLeft } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck } from "lucide-react";
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
@@ -208,14 +209,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   return (
     <div className="min-h-screen bg-white flex flex-col text-slate-800">
       {/* Header */}
-      <header className="flex p-6 items-center justify-between border-b border-slate-200">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all"
-        >
-          <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
-        </button>
-      </header>
+      <SubpageHeader
+        title="Zahlung"
+        onBack={() => navigate(-1)}
+      />
 
       <div className="flex-1 flex items-center justify-center py-8 px-4 sm:px-6">
         <div className="w-full max-w-lg mx-auto space-y-6">
