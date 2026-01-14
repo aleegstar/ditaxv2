@@ -264,9 +264,9 @@ export const TaxYearDashboard: React.FC = () => {
                 <h2 className="font-semibold text-slate-900">
                   Persönliche Angaben
                 </h2>
-                <p className={`text-sm ${allAngabenComplete ? 'text-green-600' : 'text-slate-500'}`}>
-                  {allAngabenComplete ? 'Erledigt' : 'Angaben erfassen'}
-                </p>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${allAngabenComplete ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+                  {allAngabenComplete ? 'Abgeschlossen' : 'Offen'}
+                </span>
               </div>
               {!allAngabenComplete && (
                 <div className="w-32 hidden md:block">
@@ -342,9 +342,9 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Belege & Unterlagen
               </h3>
-              <p className="text-sm text-slate-500">
-                {isDocumentsComplete ? 'Erledigt' : 'Dokumente hochladen'}
-              </p>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDocumentsComplete ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+                {isDocumentsComplete ? 'Abgeschlossen' : 'Offen'}
+              </span>
             </div>
             {allAngabenComplete && <ChevronRight className="w-5 h-5 text-slate-300" />}
           </div>
@@ -375,9 +375,9 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Prüfung & Versand
               </h3>
-              <p className="text-sm text-slate-500">
-                {isCompleted('submit') ? 'Erledigt' : 'Abschließen'}
-              </p>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isCompleted('submit') ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+                {isCompleted('submit') ? 'Abgeschlossen' : 'Offen'}
+              </span>
             </div>
             {canSubmit && <ChevronRight className="w-5 h-5 text-slate-300" />}
           </div>
