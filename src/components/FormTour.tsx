@@ -39,7 +39,7 @@ const formTourSteps: TourStep[] = [
     title: 'Schritt 2: Unterlagen',
     description: 'Nachdem du alle Angaben gemacht hast, lade deine steuerrelevanten Unterlagen hoch. Diese Funktion wird freigeschaltet, sobald Schritt 1 abgeschlossen ist.',
     targetElement: '[data-tour="form-step-2"]',
-    position: 'bottom'
+    position: 'top'
   },
   {
     id: 'step-3-einreichen',
@@ -275,7 +275,7 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
                 y="0"
                 width="100%"
                 height="100%"
-                fill="rgba(255, 255, 255, 0.92)"
+                fill="rgba(0, 0, 0, 0.75)"
                 mask="url(#form-spotlight-mask)"
               />
             </svg>
@@ -296,9 +296,9 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
           </>
         )}
 
-        {/* For welcome step, show solid light background */}
+        {/* For welcome step, show dark overlay */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-white/92" />
+          <div className="absolute inset-0 bg-black/75" />
         )}
 
         {/* Progress indicator */}
