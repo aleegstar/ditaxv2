@@ -525,7 +525,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                   />
                 </mask>
               </defs>
-              <rect width="100%" height="100%" fill="rgba(255,255,255,0.92)" mask="url(#tour-spotlight-mask)" />
+              <rect width="100%" height="100%" fill="rgba(0,0,0,0.75)" mask="url(#tour-spotlight-mask)" />
             </svg>
             
             {/* Outline and glow to emphasize spotlight target */}
@@ -545,9 +545,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           </>
         )}
 
-        {/* For welcome step, show light overlay */}
+        {/* For welcome step, show dark overlay */}
         {!currentStepData.targetElement && (
-          <div className="absolute inset-0 bg-white/90" />
+          <div className="absolute inset-0 bg-black/75" />
         )}
 
 
