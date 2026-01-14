@@ -562,11 +562,11 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full max-w-[430px] md:max-w-2xl mx-auto pt-3 px-6 md:px-8 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.08)] rounded-t-3xl bg-slate-50 border-t border-slate-200">
+            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.08)] rounded-t-3xl bg-slate-50 border-t border-slate-200">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
               
-              <div className="relative z-10 flex flex-col gap-2.5 w-full">
+              <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
                 <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-700 border-t border-white/80 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 shadow-[0_4px_14px_0_rgba(100,116,139,0.15)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
                   <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
