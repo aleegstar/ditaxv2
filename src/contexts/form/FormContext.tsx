@@ -1087,14 +1087,23 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   // Check document progress when checklist items change - optimized to prevent loops
   const checklistLengthRef = useRef(0);
   const formDataLoadedRef = useRef(false);
+  const uploadedCountRef = useRef(0);
+  
+  // Calculate the number of uploaded items for dependency tracking
+  const uploadedItemsCount = checklistItems.filter(item => item.uploaded).length;
   
   useEffect(() => {
     if (formDataLoaded && checklistItems.length > 0) {
-      // Only trigger if checklist actually changed or form data just loaded
-      if (checklistItems.length !== checklistLengthRef.current || formDataLoaded !== formDataLoadedRef.current) {
+      // Trigger if checklist length changed, form data just loaded, or uploaded count changed
+      const shouldUpdate = checklistItems.length !== checklistLengthRef.current || 
+                          formDataLoaded !== formDataLoadedRef.current ||
+                          uploadedItemsCount !== uploadedCountRef.current;
+      
+      if (shouldUpdate) {
         checklistLengthRef.current = checklistItems.length;
         formDataLoadedRef.current = formDataLoaded;
-        console.log(`📋 Triggering document progress update: ${checklistItems.length} checklist items`);
+        uploadedCountRef.current = uploadedItemsCount;
+        console.log(`📋 Triggering document progress update: ${checklistItems.length} checklist items, ${uploadedItemsCount} uploaded`);
         updateDocumentProgress();
       }
     } else if (formDataLoaded && checklistItems.length === 0) {
@@ -1102,7 +1111,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       console.log('📋 Form data loaded but no checklist items, checking document progress');
       updateDocumentProgress();
     }
-  }, [formDataLoaded, checklistItems.length, updateDocumentProgress]);
+  }, [formDataLoaded, checklistItems.length, uploadedItemsCount, updateDocumentProgress]);
 
   // Set current step based on form progress
   useEffect(() => {
