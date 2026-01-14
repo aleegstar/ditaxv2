@@ -190,7 +190,11 @@ export const TaxYearDashboard: React.FC = () => {
         y: 0
       }} transition={{
         duration: 0.5
-      }} className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border overflow-hidden relative border-gray-200">
+      }} className={`bg-white rounded-3xl border overflow-hidden relative ${
+        !allAngabenComplete 
+          ? 'shadow-[0_8px_30px_rgb(59,130,246,0.25)] border-blue-200' 
+          : 'shadow-xl shadow-slate-200/50 border-gray-200'
+      }`}>
           {/* Step Header - matching design of steps 2 and 3 */}
           <div className="p-6 flex items-center gap-4 border-b border-slate-100">
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 ${allAngabenComplete ? 'bg-green-50 border-green-100 text-green-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
@@ -256,7 +260,13 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''}`}>
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all ${
+          allAngabenComplete && !isDocumentsComplete 
+            ? 'shadow-[0_8px_30px_rgb(59,130,246,0.25)] border-blue-200 cursor-pointer hover:shadow-[0_12px_40px_rgb(59,130,246,0.3)]' 
+            : allAngabenComplete 
+              ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300' 
+              : 'border-slate-200'
+        }`}>
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isDocumentsComplete ? 'bg-green-50 border-green-100 text-green-600' : allAngabenComplete ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" /> : '2'}
             </div>
@@ -281,7 +291,13 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${canSubmit ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''} ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all ${
+          canSubmit && !isCompleted('submit')
+            ? 'shadow-[0_8px_30px_rgb(59,130,246,0.25)] border-blue-200 cursor-pointer hover:shadow-[0_12px_40px_rgb(59,130,246,0.3)]'
+            : canSubmit
+              ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300'
+              : 'border-slate-200'
+        } ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isCompleted('submit') ? 'bg-green-50 border-green-100 text-green-600' : canSubmit ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" /> : '3'}
             </div>
