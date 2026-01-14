@@ -34,14 +34,14 @@ const mobileTourSteps: TourStep[] = [
     title: 'Neues Steuerjahr',
     description: 'Hier kannst du eine neue Steuererklärung starten.',
     targetElement: '[data-tour="add-year-card"]',
-    position: 'bottom'
+    position: 'top'
   },
   {
     id: 'chat',
     title: 'Chat',
     description: 'Hier kannst du mit uns chatten und Fragen stellen.',
     targetElement: '[data-tour="chat-header-icon"]',
-    position: 'bottom'
+    position: 'top'
   },
   {
     id: 'documents',
@@ -72,14 +72,14 @@ const desktopTourSteps: TourStep[] = [
     title: 'Neues Steuerjahr',
     description: 'Hier kannst du eine neue Steuererklärung starten.',
     targetElement: '[data-tour="add-year-card"]',
-    position: 'bottom'
+    position: 'top'
   },
   {
     id: 'chat',
     title: 'Chat',
     description: 'Hier kannst du mit uns chatten und Fragen stellen.',
     targetElement: '[data-tour="chat-header-icon"]',
-    position: 'bottom'
+    position: 'top'
   },
   {
     id: 'documents',
