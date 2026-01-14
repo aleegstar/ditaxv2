@@ -63,6 +63,53 @@ export const TaxYearDashboard: React.FC = () => {
     }
   }, [isDataLoading, formDataLoaded]);
 
+  // Calculate allAngabenComplete early for useEffect
+  const angabenSectionsEarly: DashboardSection[] = [{
+    id: 'contact',
+    title: 'Kontaktangaben',
+    icon: User,
+    param: 'kontakt'
+  }, {
+    id: 'deductions',
+    title: 'Abzüge',
+    icon: Shield,
+    param: 'abzuege'
+  }, {
+    id: 'income',
+    title: 'Einkommen',
+    icon: Wallet,
+    param: 'einkommen'
+  }, {
+    id: 'assets',
+    title: 'Vermögen',
+    icon: Landmark,
+    param: 'vermoegen'
+  }];
+
+  const isCompletedEarly = (sectionId: string): boolean => {
+    switch (sectionId) {
+      case 'contact':
+        return formProgress.contactInfo || false;
+      case 'income':
+        return formProgress.income || false;
+      case 'deductions':
+        return formProgress.deductions || false;
+      case 'assets':
+        return formProgress.assets || false;
+      default:
+        return false;
+    }
+  };
+
+  const allAngabenCompleteEarly = angabenSectionsEarly.every(s => isCompletedEarly(s.id));
+
+  // Auto-collapse when all angaben are complete (must be before early return)
+  useEffect(() => {
+    if (allAngabenCompleteEarly) {
+      setIsAngabenExpanded(false);
+    }
+  }, [allAngabenCompleteEarly]);
+
   // Show skeleton while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
     return <FormDashboardSkeleton />;
@@ -141,13 +188,6 @@ export const TaxYearDashboard: React.FC = () => {
   const isDocumentsComplete = isCompleted('documents');
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
-
-  // Auto-collapse when all angaben are complete
-  useEffect(() => {
-    if (allAngabenComplete) {
-      setIsAngabenExpanded(false);
-    }
-  }, [allAngabenComplete]);
   return <div className="text-slate-900 antialiased min-h-screen bg-white">
       {/* Unified Header - Mobile & Desktop */}
       <header className="sticky top-0 z-30 bg-white">
