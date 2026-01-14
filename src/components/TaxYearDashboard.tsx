@@ -228,9 +228,9 @@ export const TaxYearDashboard: React.FC = () => {
               <h2 className="font-semibold text-slate-900">
                 Persönliche Angaben
               </h2>
-              <p className="text-sm text-green-600">
-                Erledigt
-              </p>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                Abgeschlossen
+              </span>
             </div>
             <ChevronDown className="w-5 h-5 text-slate-300" />
           </div>
