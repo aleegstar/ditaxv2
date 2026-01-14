@@ -491,8 +491,8 @@ const DocumentsContent: React.FC<{
               {/* Glow Background inside button */}
               <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
 
-              {/* Main Icon Circle with glow animation */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(59,130,246,0.6)] -mt-8 border-4 border-[#030305] animate-[pulse_3s_ease-in-out_infinite]">
+              {/* Main Icon Circle */}
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shadow-lg -mt-8 border-4 border-[#030305]">
                 <ScanLine className="w-6 h-6" />
               </div>
 
