@@ -480,23 +480,19 @@ const DocumentsContent: React.FC<{
 
           <button 
             onClick={() => fileInputRef.current?.click()} 
-            className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.15)] rounded-t-3xl bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.99] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            className="flex flex-col items-center overflow-hidden w-full pt-5 px-6 pb-6 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.12)] rounded-t-[2rem] bg-white active:bg-slate-50 active:scale-[0.995] transition-all duration-200 cursor-pointer"
             data-tour="document-upload-card"
           >
-            {/* Pill Handle Divider */}
-            <div className="w-10 h-1 rounded-full bg-white/30 mb-4" />
+            {/* Icon in blue circle */}
+            <div className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center mb-3 shadow-lg shadow-blue-500/25">
+              <Plus className="w-7 h-7 text-white" strokeWidth={2} />
+            </div>
             
-            <div className="flex items-center justify-center gap-2 text-lg font-medium text-white">
-              <Plus className="w-5 h-5" strokeWidth={2.5} />
-              <span>Dokument hinzufügen</span>
-            </div>
-
-            <div className="mt-4 flex items-center justify-center gap-1.5 opacity-70">
-              <ShieldCheck className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
-              <span className="text-[11px] text-white font-medium">
-                End-to-End verschlüsselt
-              </span>
-            </div>
+            {/* Title */}
+            <span className="text-lg font-semibold text-slate-900">Dokument hinzufügen</span>
+            
+            {/* Subtitle */}
+            <span className="text-sm text-blue-500 font-medium mt-0.5">Scan oder Upload</span>
           </button>
         </div>
 
