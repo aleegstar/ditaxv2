@@ -260,7 +260,7 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
                 y="0"
                 width="100%"
                 height="100%"
-                fill="rgba(255, 255, 255, 0.92)"
+                fill="rgba(0, 0, 0, 0.75)"
                 mask="url(#spotlight-mask-docs)"
               />
             </svg>
@@ -281,9 +281,9 @@ export const DocumentsTour: React.FC<DocumentsTourProps> = ({ onComplete, onSkip
           </>
         )}
 
-        {/* For steps without target, show solid light overlay - no blur for native app */}
+        {/* For steps without target, show dark overlay */}
         {(!currentStepData.targetElement || spotlightPosition.width === 0) && (
-          <div className="absolute inset-0 bg-white/92" />
+          <div className="absolute inset-0 bg-black/75" />
         )}
 
         {/* Progress indicator */}
