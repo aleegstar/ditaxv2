@@ -417,7 +417,7 @@ const DocumentsContent: React.FC<{
               return <button key={doc.id} onClick={() => {
                 setSelectedDocument(doc);
                 setShowActionSheet(true);
-              }} className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300">
+              }} className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-200 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-slate-300 transition-all duration-300">
                       {/* Icon Container */}
                       <div className={cn("w-12 h-12 rounded-full border flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-300", color.bg, color.border, color.text, color.hoverBg)}>
                         {isImage ? <Image className="w-5 h-5 stroke-[1.5]" /> : isPdf ? <FileText className="w-5 h-5 stroke-[1.5]" /> : <File className="w-5 h-5 stroke-[1.5]" />}
