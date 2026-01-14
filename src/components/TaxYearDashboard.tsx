@@ -264,7 +264,7 @@ export const TaxYearDashboard: React.FC = () => {
                 <h2 className="font-semibold text-slate-900">
                   Persönliche Angaben
                 </h2>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${allAngabenComplete ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${allAngabenComplete ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                   {allAngabenComplete ? 'Abgeschlossen' : 'Offen'}
                 </span>
               </div>
@@ -342,7 +342,7 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Belege & Unterlagen
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDocumentsComplete ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isDocumentsComplete ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                 {isDocumentsComplete ? 'Abgeschlossen' : 'Offen'}
               </span>
             </div>
@@ -375,7 +375,7 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Prüfung & Versand
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isCompleted('submit') ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isCompleted('submit') ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                 {isCompleted('submit') ? 'Abgeschlossen' : 'Offen'}
               </span>
             </div>
