@@ -410,43 +410,57 @@ const DocumentsContent: React.FC<{
               </div>
 
               {/* Document Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {filteredDocuments.map(doc => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {filteredDocuments.map((doc, index) => {
                   const isImage = doc.file_type?.startsWith('image/');
                   const isPdf = doc.file_type === 'application/pdf';
                   const uploadDate = new Date(doc.upload_date);
                   const timeAgo = formatDistanceToNow(uploadDate, { locale: de, addSuffix: false });
                   
+                  // Rotate colors for variety
+                  const colorVariants = [
+                    { bg: 'bg-blue-50', border: 'border-blue-100/50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-100' },
+                    { bg: 'bg-indigo-50', border: 'border-indigo-100/50', text: 'text-indigo-600', hoverBg: 'group-hover:bg-indigo-100' },
+                    { bg: 'bg-emerald-50', border: 'border-emerald-100/50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-100' },
+                    { bg: 'bg-violet-50', border: 'border-violet-100/50', text: 'text-violet-600', hoverBg: 'group-hover:bg-violet-100' },
+                  ];
+                  const color = colorVariants[index % colorVariants.length];
+                  
                   return (
-                    <div 
+                    <button 
                       key={doc.id} 
                       onClick={() => {
                         setSelectedDocument(doc);
                         setShowActionSheet(true);
                       }}
-                      className="group bg-slate-50 hover:bg-slate-100 rounded-2xl p-4 cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
+                      className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300"
                     >
                       {/* Icon Container */}
-                      <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center mb-4 shadow-sm group-hover:shadow transition-shadow">
+                      <div className={cn(
+                        "w-12 h-12 rounded-full border flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-300",
+                        color.bg, color.border, color.text, color.hoverBg
+                      )}>
                         {isImage ? (
-                          <Image className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                          <Image className="w-5 h-5 stroke-[1.5]" />
                         ) : isPdf ? (
-                          <FileText className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                          <FileText className="w-5 h-5 stroke-[1.5]" />
                         ) : (
-                          <File className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                          <File className="w-5 h-5 stroke-[1.5]" />
                         )}
                       </div>
                       
-                      {/* Document Name */}
-                      <h3 className="font-medium text-slate-900 text-sm leading-tight mb-1.5 line-clamp-2 min-h-[2.5rem]">
-                        {doc.file_name.replace(/\.[^/.]+$/, '')}
-                      </h3>
-                      
-                      {/* Updated Time */}
-                      <p className="text-xs text-orange-500 font-medium">
-                        Aktualisiert vor {timeAgo}
-                      </p>
-                    </div>
+                      {/* Document Info */}
+                      <div className="w-full">
+                        <div className="flex items-center justify-between w-full mb-1">
+                          <h3 className="font-bold text-slate-900 truncate pr-2">
+                            {doc.file_name.replace(/\.[^/.]+$/, '')}
+                          </h3>
+                        </div>
+                        <p className="text-xs font-medium text-slate-400 flex items-center gap-2">
+                          <span>Aktualisiert vor {timeAgo}</span>
+                        </p>
+                      </div>
+                    </button>
                   );
                 })}
               </div>
