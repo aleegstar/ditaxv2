@@ -4,8 +4,6 @@ import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
-import { TourStartButton } from '@/components/ui/tour-start-button';
-import { useFormTour } from '@/contexts/FormTourContext';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 import { BorderBeam } from '@/components/ui/border-beam';
 interface DashboardSection {
@@ -26,10 +24,6 @@ export const TaxYearDashboard: React.FC = () => {
   const {
     profile
   } = useProfile();
-  const {
-    forceTour,
-    tourCompleted
-  } = useFormTour();
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
@@ -205,11 +199,6 @@ export const TaxYearDashboard: React.FC = () => {
           </button>
         </div>
       </header>
-
-      {/* Tour Start Button - zwischen Header und Cards */}
-      {tourCompleted && <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-4">
-          <TourStartButton onStartTour={forceTour} variant="default" />
-        </div>}
 
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 pb-24 pt-2">
