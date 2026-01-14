@@ -182,10 +182,10 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto space-y-6 pb-24">
         {/* Active Step Card - Persönliche Angaben */}
-        <section data-tour="form-step-1" className={`bg-white rounded-3xl border overflow-hidden relative ${
+        <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${
         !allAngabenComplete 
-          ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300' 
-          : 'shadow-xl shadow-slate-200/50 border-gray-200'
+          ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300' 
+          : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
       }`}>
           {/* BorderBeam for active step */}
           {!allAngabenComplete && (
@@ -230,7 +230,7 @@ export const TaxYearDashboard: React.FC = () => {
               {angabenSections.map(section => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-white border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${completed ? 'border-slate-200/60' : 'border-slate-200/60 hover:border-blue-300 hover:ring-1 hover:ring-blue-300'}`}>
+              return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-gradient-to-b from-white to-slate-50/50 ring-1 rounded-2xl shadow-[0_2px_8px_rgba(100,116,139,0.08)] hover:shadow-[0_4px_12px_rgba(100,116,139,0.15)] transition-all duration-200 hover:-translate-y-0.5 ${completed ? 'ring-slate-200/60' : 'ring-slate-200/60 hover:ring-blue-300'}`}>
                     <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center border transition-colors ${completed ? 'bg-green-50 text-green-600 border-green-100' : 'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600'}`}>
                       {completed ? <Check className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
                     </div>
@@ -254,12 +254,12 @@ export const TaxYearDashboard: React.FC = () => {
         {/* Upcoming Steps */}
         <section className={`flex flex-col gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
-          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
+          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
           allAngabenComplete && !isDocumentsComplete 
-            ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]' 
+            ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1' 
             : allAngabenComplete 
-              ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300' 
-              : 'border-slate-200'
+              ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5' 
+              : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
         }`}>
             {/* BorderBeam for active step */}
             {allAngabenComplete && !isDocumentsComplete && (
@@ -287,12 +287,12 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Step 3: Prüfung & Versand */}
-          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
+          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
           canSubmit && !isCompleted('submit')
-            ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]'
+            ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1'
             : canSubmit
-              ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300'
-              : 'border-slate-200'
+              ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5'
+              : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
         } ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
             {/* BorderBeam for active step */}
             {canSubmit && !isCompleted('submit') && (
