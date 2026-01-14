@@ -228,8 +228,7 @@ export const TaxYearDashboard: React.FC = () => {
               <h2 className="font-semibold text-slate-900">
                 Persönliche Angaben
               </h2>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-green-200 bg-green-50 text-green-700">
-                <Check className="w-3 h-3" />
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-green-200 bg-green-50 text-green-700">
                 Abgeschlossen
               </span>
             </div>
@@ -265,8 +264,7 @@ export const TaxYearDashboard: React.FC = () => {
                 <h2 className="font-semibold text-slate-900">
                   Persönliche Angaben
                 </h2>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${allAngabenComplete ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
-                  {allAngabenComplete ? <Check className="w-3 h-3" /> : <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${allAngabenComplete ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
                   {allAngabenComplete ? 'Abgeschlossen' : 'Offen'}
                 </span>
               </div>
@@ -344,8 +342,7 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Belege & Unterlagen
               </h3>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${isDocumentsComplete ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
-                {isDocumentsComplete ? <Check className="w-3 h-3" /> : <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${isDocumentsComplete ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
                 {isDocumentsComplete ? 'Abgeschlossen' : 'Offen'}
               </span>
             </div>
@@ -378,8 +375,7 @@ export const TaxYearDashboard: React.FC = () => {
               <h3 className="font-semibold text-slate-900">
                 Prüfung & Versand
               </h3>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${isCompleted('submit') ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
-                {isCompleted('submit') ? <Check className="w-3 h-3" /> : <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${isCompleted('submit') ? 'border-green-200 bg-green-50 text-green-700' : 'border-orange-200 bg-orange-50 text-orange-700'}`}>
                 {isCompleted('submit') ? 'Abgeschlossen' : 'Offen'}
               </span>
             </div>
