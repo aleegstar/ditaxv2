@@ -485,12 +485,9 @@ const DocumentsContent: React.FC<{
           <div className="relative w-full flex justify-center items-end pointer-events-auto">
             <button 
               onClick={() => fileInputRef.current?.click()} 
-              className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
+              className="group relative w-full h-24 bg-gradient-to-t from-primary/90 to-primary/70 border-t border-primary-foreground/10 flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
               data-tour="document-upload-card"
             >
-              {/* Glow Background inside button */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
-
               {/* Main Icon Circle */}
               <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-primary text-primary-foreground flex items-center justify-center -mt-8 border-4 border-primary">
                 <ScanLine className="w-6 h-6" />
@@ -498,10 +495,10 @@ const DocumentsContent: React.FC<{
 
               {/* Text Content */}
               <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <span className="text-white font-medium text-lg tracking-tight">
+                <span className="text-primary-foreground font-medium text-lg tracking-tight">
                   Dokument hinzufügen
                 </span>
-                <span className="text-blue-400/80 text-xs font-medium tracking-wide">
+                <span className="text-primary-foreground/70 text-xs font-medium tracking-wide">
                   Scan oder Upload
                 </span>
               </div>
