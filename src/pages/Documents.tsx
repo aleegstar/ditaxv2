@@ -480,11 +480,11 @@ const DocumentsContent: React.FC<{
 
           <button 
             onClick={() => fileInputRef.current?.click()} 
-            className="flex flex-col items-center overflow-hidden w-full pt-5 px-6 pb-6 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.12)] rounded-t-[2rem] bg-white active:bg-slate-50 active:scale-[0.995] transition-all duration-200 cursor-pointer"
+            className="flex flex-col items-center w-full pt-10 px-6 pb-6 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.12)] rounded-t-[2.5rem] bg-white active:bg-slate-50 active:scale-[0.995] transition-all duration-200 cursor-pointer"
             data-tour="document-upload-card"
           >
-            {/* Icon in blue circle */}
-            <div className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center mb-3 shadow-lg shadow-blue-500/25">
+            {/* Icon in blue circle - positioned to overflow top */}
+            <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
               <Plus className="w-7 h-7 text-white" strokeWidth={2} />
             </div>
             
