@@ -11,7 +11,7 @@ export interface PriceBreakdown {
 }
 
 // TEST MODE: Set to true for 1.00 CHF pricing, false for production pricing
-const TEST_MODE = true;
+const TEST_MODE = false;
 
 export const calculatePrice = (formData: FormData, expressService: boolean = false): PriceBreakdown => {
   // TEST MODE: Use 100 cents (1.00 CHF) as base price instead of 150 CHF
