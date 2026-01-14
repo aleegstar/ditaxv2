@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { User, Wallet, Shield, Landmark, ChevronRight, Check, FileText, BookOpen, UploadCloud, Send, LucideIcon, ArrowLeft } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -183,15 +182,7 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto space-y-6 pb-24">
         {/* Active Step Card - Persönliche Angaben */}
-        <motion.section data-tour="form-step-1" initial={{
-        opacity: 0,
-        y: 20
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} transition={{
-        duration: 0.5
-      }} className={`bg-white rounded-3xl border overflow-hidden relative ${
+        <section data-tour="form-step-1" className={`bg-white rounded-3xl border overflow-hidden relative ${
         !allAngabenComplete 
           ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300' 
           : 'shadow-xl shadow-slate-200/50 border-gray-200'
@@ -258,21 +249,12 @@ export const TaxYearDashboard: React.FC = () => {
             })}
             </div>
           </div>
-        </motion.section>
+        </section>
 
         {/* Upcoming Steps */}
         <section className={`flex flex-col gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
-          <motion.div data-tour="form-step-2" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
+          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
           allAngabenComplete && !isDocumentsComplete 
             ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]' 
             : allAngabenComplete 
@@ -302,19 +284,10 @@ export const TaxYearDashboard: React.FC = () => {
               </p>
             </div>
             {allAngabenComplete && <ChevronRight className="w-5 h-5 text-slate-300" />}
-          </motion.div>
+          </div>
 
           {/* Step 3: Prüfung & Versand */}
-          <motion.div data-tour="form-step-3" initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.5,
-          delay: 0.2
-        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
+          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
           canSubmit && !isCompleted('submit')
             ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]'
             : canSubmit
@@ -344,7 +317,7 @@ export const TaxYearDashboard: React.FC = () => {
               </p>
             </div>
             {canSubmit && <ChevronRight className="w-5 h-5 text-slate-300" />}
-          </motion.div>
+          </div>
         </section>
       </main>
     </div>;
