@@ -333,38 +333,40 @@ const DocumentsContent: React.FC<{
           {/* Documents Section */}
           {documents.length > 0 ? (
             <>
-              {/* Section Header */}
-              <div className="flex items-end justify-between mb-4 px-1">
-                <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-                  Dateien
+              {/* Section Header - "Meine Dateien" with count badge */}
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+                  Meine Dateien
                 </h2>
-                <span className="text-sm font-medium text-slate-500 tabular-nums">
-                  {documents.length} {documents.length === 1 ? 'Objekt' : 'Objekte'}
-                </span>
+                <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center">
+                  <span className="text-sm font-medium text-slate-600 tabular-nums">
+                    {documents.length}
+                  </span>
+                </div>
               </div>
 
               {/* Search and Sort Toolbar */}
               <div className="flex gap-3 mb-6">
                 <div className="relative flex-1 group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Search className="w-4 h-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" strokeWidth={1.5} />
                   </div>
                   <input 
                     type="text" 
-                    placeholder="Dateien suchen..." 
+                    placeholder="Search briefs..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-100 outline-none transition-all shadow-sm"
+                    className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-100 outline-none transition-all"
                   />
                 </div>
                 <div className="relative">
                   <button 
                     onClick={() => setShowSortDropdown(!showSortDropdown)}
                     className={cn(
-                      "flex-shrink-0 w-11 h-11 border rounded-xl flex items-center justify-center transition-all active:scale-95",
+                      "flex-shrink-0 w-12 h-12 border rounded-xl flex items-center justify-center transition-all active:scale-95",
                       showSortDropdown 
-                        ? "border-blue-300 bg-blue-50 text-blue-600 shadow-sm" 
-                        : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
+                        ? "border-blue-300 bg-blue-50 text-blue-600" 
+                        : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50"
                     )}
                   >
                     <ArrowUpDown className="w-5 h-5" strokeWidth={1.5} />
