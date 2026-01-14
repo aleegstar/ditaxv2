@@ -19,7 +19,6 @@ import { FormSectionKey } from '@/types';
 import { motion } from 'framer-motion';
 import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
 import { FormTour } from '@/components/FormTour';
-import { TourStartButton } from '@/components/ui/tour-start-button';
 
 // Section mapping for import wizard
 const sectionKeyMap: Record<string, FormSectionKey> = {
