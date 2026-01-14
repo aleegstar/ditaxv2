@@ -26,10 +26,7 @@ export const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
 
   // Get current time for greeting
   const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Guten Morgen';
-    if (hour < 18) return 'Guten Tag';
-    return 'Guten Abend';
+    return 'Grüezi';
   };
   return <div className={`flex justify-center ${className || ''}`}>
       {/* Single Pill with Profile, Greeting and Actions */}
