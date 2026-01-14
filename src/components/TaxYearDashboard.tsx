@@ -201,9 +201,9 @@ export const TaxYearDashboard: React.FC = () => {
             <BorderBeam 
               size={150}
               duration={10}
-              borderWidth={2}
-              colorFrom="#F97316"
-              colorTo="#FBBF24"
+              borderWidth={1}
+              colorFrom="#3B82F6"
+              colorTo="#60A5FA"
               delay={0}
             />
           )}
@@ -284,9 +284,9 @@ export const TaxYearDashboard: React.FC = () => {
               <BorderBeam 
                 size={150}
                 duration={10}
-                borderWidth={2}
-                colorFrom="#F97316"
-                colorTo="#FBBF24"
+                borderWidth={1}
+                colorFrom="#3B82F6"
+                colorTo="#60A5FA"
                 delay={0}
               />
             )}
@@ -326,9 +326,9 @@ export const TaxYearDashboard: React.FC = () => {
               <BorderBeam 
                 size={150}
                 duration={10}
-                borderWidth={2}
-                colorFrom="#F97316"
-                colorTo="#FBBF24"
+                borderWidth={1}
+                colorFrom="#3B82F6"
+                colorTo="#60A5FA"
                 delay={0}
               />
             )}
