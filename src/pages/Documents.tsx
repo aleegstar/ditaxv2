@@ -423,34 +423,40 @@ const DocumentsContent: React.FC<{
           )}
         </main>
 
-        {/* Fixed Bottom Action Bar */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-6 sm:pb-6 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-          <div className="max-w-3xl mx-auto flex flex-col gap-3">
-            {/* Hidden File Input */}
-            <input 
-              ref={fileInputRef} 
-              type="file" 
-              accept="image/*,application/pdf" 
-              multiple 
-              className="hidden" 
-              onChange={e => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setSelectedFiles(Array.from(e.target.files));
-                  setShowUploader(true);
-                }
-                e.target.value = '';
-              }} 
-            />
+        {/* Fixed Bottom Action Bar - Same style as Auth page */}
+        <div className="fixed bottom-0 left-0 right-0 z-40">
+          <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.08)] rounded-t-3xl bg-slate-50 border-t border-slate-200">
+            {/* Pill Handle Divider */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
+            
+            <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
+              {/* Hidden File Input */}
+              <input 
+                ref={fileInputRef} 
+                type="file" 
+                accept="image/*,application/pdf" 
+                multiple 
+                className="hidden" 
+                onChange={e => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setSelectedFiles(Array.from(e.target.files));
+                    setShowUploader(true);
+                  }
+                  e.target.value = '';
+                }} 
+              />
 
-            <button 
-              onClick={() => fileInputRef.current?.click()} 
-              className="w-full py-4 px-6 rounded-xl text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-              data-tour="document-upload-card"
-            >
-              <Plus className="w-5 h-5" strokeWidth={2.5} />
-              <span>Dokument hinzufügen</span>
-            </button>
-            <div className="flex items-center justify-center gap-1.5 opacity-60">
+              <button 
+                onClick={() => fileInputRef.current?.click()} 
+                className="w-full py-4 px-6 rounded-xl text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                data-tour="document-upload-card"
+              >
+                <Plus className="w-5 h-5" strokeWidth={2.5} />
+                <span>Dokument hinzufügen</span>
+              </button>
+            </div>
+
+            <div className="mt-4 flex items-center justify-center gap-1.5 opacity-60">
               <ShieldCheck className="w-3.5 h-3.5 text-slate-500" strokeWidth={1.5} />
               <span className="text-[11px] text-slate-500 font-medium">
                 End-to-End verschlüsselt
