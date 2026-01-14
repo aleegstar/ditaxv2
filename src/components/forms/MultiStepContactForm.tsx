@@ -620,14 +620,9 @@ const MultiStepContactForm = ({
             <button
               type="submit"
               disabled={!validateCurrentStep()}
-              className="w-full relative overflow-hidden rounded-xl bg-[#1D64FF] p-[1px] shadow-[0_0_20px_-5px_rgba(29,100,255,0.3)] active:scale-[0.99] transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-semibold text-lg tracking-tight disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative py-4 flex items-center justify-center gap-2 bg-[#1D64FF] rounded-xl w-full">
-                <span className="text-white font-semibold text-lg tracking-tight">
-                  {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
-                </span>
-              </div>
+              {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
             </button>
 
             {(currentStep > 1 || embedded) && (
