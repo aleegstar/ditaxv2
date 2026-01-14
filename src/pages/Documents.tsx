@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File, ScanLine } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -467,10 +467,10 @@ const DocumentsContent: React.FC<{
             </div>)}
         </main>
 
-        {/* Fixed Bottom Action Bar - Semi-circle design */}
+        {/* Fixed Bottom Action Bar - Semi-circle dark design */}
         <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
           {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
           
           {/* Hidden File Input */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
@@ -485,23 +485,23 @@ const DocumentsContent: React.FC<{
           <div className="relative w-full flex justify-center items-end pointer-events-auto">
             <button 
               onClick={() => fileInputRef.current?.click()} 
-              className="group relative w-full h-24 bg-gradient-to-t from-slate-100 to-white border-t border-slate-200/50 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15),0_-5px_15px_-5px_rgba(59,130,246,0.1)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
+              className="group relative w-full h-24 bg-gradient-to-t from-[#060609] to-[#13131a] border-t border-white/10 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9),0_-5px_15px_-5px_rgba(59,130,246,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
               data-tour="document-upload-card"
             >
-              {/* Glow Background on hover */}
-              <div className="group-hover:opacity-100 transition-opacity bg-gradient-to-t from-blue-50 via-blue-50/50 to-transparent opacity-0 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
+              {/* Glow Background inside button */}
+              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
 
-              {/* Main Icon Circle - positioned to overflow */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)] animate-pulse -mt-8 border-4 border-white">
-                <Plus className="w-6 h-6" strokeWidth={2.5} />
+              {/* Main Icon Circle with glow animation */}
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(59,130,246,0.6)] -mt-8 border-4 border-[#030305] animate-[pulse_3s_ease-in-out_infinite]">
+                <ScanLine className="w-6 h-6" />
               </div>
 
               {/* Text Content */}
               <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <span className="text-slate-900 font-medium text-lg tracking-tight">
+                <span className="text-white font-medium text-lg tracking-tight">
                   Dokument hinzufügen
                 </span>
-                <span className="text-blue-500 text-xs font-medium tracking-wide">
+                <span className="text-blue-400/80 text-xs font-medium tracking-wide">
                   Scan oder Upload
                 </span>
               </div>
