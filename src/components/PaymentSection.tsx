@@ -146,14 +146,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }
         taxReturnId = taxReturn.id;
       }
-      const totalInCents = Math.round(priceBreakdown.totalPrice * 100);
+      const totalInCents = priceBreakdown.totalPrice; // totalPrice is already in cents
       const requestPayload = {
         taxYear: year,
         amount: totalInCents,
-        items: [{
-          label: 'Grundpreis',
-          amount: totalInCents
-        }],
+        items: priceBreakdown.items, // Use actual breakdown items instead of single item
         expressService,
         taxReturnId: taxReturnId,
         origin: window.location.origin
