@@ -481,7 +481,7 @@ const DocumentsContent: React.FC<{
               e.target.value = '';
             }} />
 
-              <button onClick={() => fileInputRef.current?.click()} className="w-full py-4 px-6 rounded-xl text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" data-tour="document-upload-card">
+              <button onClick={() => fileInputRef.current?.click()} className="w-full py-4 px-6 rounded-full text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" data-tour="document-upload-card">
                 <Plus className="w-5 h-5" strokeWidth={2.5} />
                 <span>Dokument hinzufügen</span>
               </button>
