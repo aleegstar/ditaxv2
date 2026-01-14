@@ -405,7 +405,7 @@ const UserTaxReturns = () => {
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+        <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
           {/* Scanner Button */}
           <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2 pr-5 py-2 rounded-full hover:bg-gray-100 transition-colors group">
             <div className="w-10 h-10 rounded-full text-white flex items-center justify-center shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] group-hover:scale-105 transition-transform bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400">
