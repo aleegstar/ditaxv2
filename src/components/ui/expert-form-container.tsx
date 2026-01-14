@@ -37,22 +37,27 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
   return <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden shadow-none">
-        {/* Header */}
-        <div className="flex shrink-0 z-20 border-slate-200 bg-white w-full border-b pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
-          {/* Back Button */}
-          {onBack && <button onClick={onBack} className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>}
-          {!onBack && <div className="w-10 h-10" />}
+        {/* Header - unified design */}
+        <header className="sticky top-0 z-30 bg-white shrink-0">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
+            {/* Back Button */}
+            {onBack ? (
+              <button onClick={onBack} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+              </button>
+            ) : (
+              <div className="w-10 h-10" />
+            )}
 
-          {/* Title */}
-          <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-            {title}
-          </h1>
+            {/* Centered Title */}
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+              {title}
+            </h1>
 
-          {/* Right placeholder */}
-          <div className="w-10 h-10" />
-        </div>
+            {/* Right placeholder */}
+            <div className="w-10 h-10" />
+          </div>
+        </header>
 
         {/* Main Content / List */}
         <Container {...containerProps} className={cn("z-10 flex-1 flex flex-col px-4 pb-32 relative overflow-y-auto pt-6 no-scrollbar space-y-3", className)}>

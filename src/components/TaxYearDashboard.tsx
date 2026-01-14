@@ -140,47 +140,31 @@ export const TaxYearDashboard: React.FC = () => {
   const isDocumentsComplete = isCompleted('documents');
   const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
   const canSubmit = allAngabenComplete && isDocumentsComplete;
-  return <div className="text-slate-900 antialiased min-h-screen p-6 md:p-12 bg-white">
-      {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between mb-6 pt-4">
-        <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
-          Steuererklärung {taxYear}
-        </h1>
-        <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0">
-          <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
-        </div>
-      </div>
-
-      {/* Desktop Header Navigation */}
-      <header className="hidden md:flex max-w-4xl mx-auto items-center justify-between mb-8 pt-8 relative z-10">
-        <div className="flex items-center gap-3">
+  return <div className="text-slate-900 antialiased min-h-screen bg-white">
+      {/* Unified Header - Mobile & Desktop */}
+      <header className="sticky top-0 z-30 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
           <button onClick={() => navigate('/')} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
           </button>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 leading-tight">
-              Steuererklärung {taxYear}
-            </h1>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden">
-            <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="User" className="h-full w-full object-cover" />
-          </div>
+          <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+            Steuererklärung {taxYear}
+          </h1>
+
+          <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all">
+            <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="Profil" className="w-full h-full object-cover" />
+          </button>
         </div>
       </header>
 
       {/* Tour Start Button - zwischen Header und Cards */}
-      {tourCompleted && <div className="max-w-4xl mx-auto mb-4">
+      {tourCompleted && <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-4">
           <TourStartButton onStartTour={forceTour} variant="default" />
         </div>}
 
       {/* Main Content / Timeline */}
-      <main className="max-w-4xl mx-auto space-y-6 pb-24">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 pb-24 pt-2">
         {/* Active Step Card - Persönliche Angaben */}
         <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${
         !allAngabenComplete 
