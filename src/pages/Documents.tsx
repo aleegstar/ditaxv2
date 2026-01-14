@@ -40,6 +40,8 @@ const DocumentsContent: React.FC<{
   const [contentReady, setContentReady] = useState(false);
   const [showContent, setShowContent] = useState(!isTransitionEntry);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'type'>('date_desc');
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const {
     toast
   } = useToast();
@@ -190,10 +192,34 @@ const DocumentsContent: React.FC<{
     locale: de
   });
 
-  // Filter documents based on search query
-  const filteredDocuments = documents.filter(doc => 
-    doc.file_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter and sort documents
+  const filteredDocuments = documents
+    .filter(doc => doc.file_name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'date_desc':
+          return new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime();
+        case 'date_asc':
+          return new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime();
+        case 'name_asc':
+          return a.file_name.localeCompare(b.file_name, 'de');
+        case 'name_desc':
+          return b.file_name.localeCompare(a.file_name, 'de');
+        case 'type':
+          return (a.file_type || '').localeCompare(b.file_type || '', 'de');
+        default:
+          return 0;
+      }
+    });
+
+  // Sort options
+  const sortOptions = [
+    { value: 'date_desc', label: 'Datum (Neueste zuerst)' },
+    { value: 'date_asc', label: 'Datum (Älteste zuerst)' },
+    { value: 'name_asc', label: 'Name (A-Z)' },
+    { value: 'name_desc', label: 'Name (Z-A)' },
+    { value: 'type', label: 'Dateityp' },
+  ] as const;
 
   // Format file size
   const formatFileSize = (bytes: number | null | undefined) => {
@@ -330,9 +356,54 @@ const DocumentsContent: React.FC<{
                     className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-100 outline-none transition-all shadow-sm"
                   />
                 </div>
-                <button className="flex-shrink-0 w-11 h-11 border border-slate-200 bg-white rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm transition-all active:scale-95">
-                  <ArrowUpDown className="w-5 h-5" strokeWidth={1.5} />
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                    className={cn(
+                      "flex-shrink-0 w-11 h-11 border rounded-xl flex items-center justify-center transition-all active:scale-95",
+                      showSortDropdown 
+                        ? "border-blue-300 bg-blue-50 text-blue-600 shadow-sm" 
+                        : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
+                    )}
+                  >
+                    <ArrowUpDown className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+
+                  {showSortDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
+                      <div className="absolute top-full mt-2 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden min-w-[220px]">
+                        <div className="py-1">
+                          <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            Sortieren nach
+                          </div>
+                          {sortOptions.map(option => (
+                            <button
+                              key={option.value}
+                              onClick={() => {
+                                setSortBy(option.value);
+                                setShowSortDropdown(false);
+                              }}
+                              className={cn(
+                                "w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-3",
+                                sortBy === option.value 
+                                  ? "bg-blue-50 text-blue-600 font-medium" 
+                                  : "text-slate-700 hover:bg-slate-50"
+                              )}
+                            >
+                              {sortBy === option.value && (
+                                <CheckCircle2 className="w-4 h-4 text-blue-500" strokeWidth={2} />
+                              )}
+                              <span className={sortBy !== option.value ? "ml-7" : ""}>
+                                {option.label}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Document List */}
