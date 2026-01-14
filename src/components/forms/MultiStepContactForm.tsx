@@ -7,7 +7,8 @@ import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import { ArrowLeft, User, MapPin, FileText, Users } from 'lucide-react';
+import { User, MapPin, FileText, Users } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChildrenRepeater } from './ChildrenRepeater';
 
@@ -257,16 +258,11 @@ const MultiStepContactForm = ({
       <div className="relative z-10 px-6 py-8 w-full max-w-[500px] md:max-w-2xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
-          <div className="relative flex items-center justify-between mb-8">
-            <button
-              onClick={() => window.history.back()}
-              className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-lg font-medium text-slate-800 absolute left-1/2 transform -translate-x-1/2">Kontaktangaben</h1>
-            <div className="w-10 h-10" /> {/* Spacer for centering */}
-          </div>
+          <SubpageHeader
+            title="Kontaktangaben"
+            onBack={() => window.history.back()}
+            className="!sticky !top-0 !z-30 -mx-6 -mt-8 mb-8"
+          />
         )}
 
         {/* 4-Segment Progress Bar */}

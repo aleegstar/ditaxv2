@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
 import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -30,7 +31,6 @@ import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
-import { SubpageHeader } from '@/components/ui/subpage-header';
 
 const DocumentChecklist: React.FC = () => {
   const {
@@ -421,29 +421,16 @@ const DocumentChecklist: React.FC = () => {
   }
   
   return (
-    <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center sm:py-12 sm:px-6 pt-8 px-4 pb-8">
+    <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center">
       {/* Header */}
-      <header className="w-full max-w-2xl mb-8 flex items-center justify-between relative px-1">
-        <button 
-          onClick={handleBack}
-          className="group flex items-center justify-center w-10 h-10 -ml-2 rounded-full bg-slate-50 border border-slate-200 text-slate-500 transition-all hover:bg-white hover:border-slate-300 hover:text-slate-900 hover:shadow-sm"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 transition-transform group-hover:-translate-x-0.5">
-            <path d="m12 19-7-7 7-7"></path>
-            <path d="M19 12H5"></path>
-          </svg>
-        </button>
-        
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <h1 className="text-sm font-semibold tracking-tight text-gray-900">
-            Unterlagen
-          </h1>
-        </div>
-        <div className="w-9" />
-      </header>
+      <SubpageHeader
+        title="Unterlagen"
+        onBack={handleBack}
+        className="w-full max-w-2xl"
+      />
 
       {/* Main Content */}
-      <main className="w-full max-w-2xl space-y-8">
+      <main className="w-full max-w-2xl space-y-8 sm:py-12 sm:px-6 pt-8 px-4 pb-8">
         {/* Progress Section */}
         {checklistItems.length > 0 && (
           <div className="px-1">
