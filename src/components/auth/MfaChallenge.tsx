@@ -60,20 +60,24 @@ export const MfaChallenge: React.FC<MfaChallengeProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 !m-0">
-      <Card className="w-full max-w-md mx-auto bg-background border-border">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <Shield className="w-8 h-8 text-primary" />
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
+        {/* Header with Icon */}
+        <div className="text-center space-y-4 mb-8">
+          <div className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+            <Shield className="w-8 h-8 text-blue-500" />
           </div>
-          <div>
-            <CardTitle>Zwei-Faktor-Authentifizierung</CardTitle>
-            <CardDescription>
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-foreground">
+              Zwei-Faktor-Authentifizierung
+            </h2>
+            <p className="text-sm text-muted-foreground">
               Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein
-            </CardDescription>
+            </p>
           </div>
-        </CardHeader>
+        </div>
         
-        <CardContent className="space-y-4">
+        {/* Content */}
+        <div className="space-y-6">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -81,53 +85,53 @@ export const MfaChallenge: React.FC<MfaChallengeProps> = ({
             </Alert>
           )}
 
-          <div className="space-y-4">
-            <p className="text-sm font-medium text-foreground text-center">Verifizierungscode</p>
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground">Verifizierungscode</label>
             <div className="flex justify-center">
               <InputOTP
                 maxLength={6}
                 value={code}
                 onChange={(value) => setCode(value)}
                 disabled={!challengeId}
+                onKeyDown={handleKeyPress}
               >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
+                <InputOTPGroup className="gap-2">
+                  <InputOTPSlot index={0} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={1} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={2} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={3} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={4} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={5} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
                 </InputOTPGroup>
               </InputOTP>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Button 
               onClick={handleVerify}
-              className="w-full"
+              className="w-full h-12 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium"
               disabled={code.length !== 6 || isLoading || !challengeId}
             >
               {isLoading ? 'Wird verifiziert...' : 'Bestätigen'}
             </Button>
             
-            <Button 
+            <button 
               onClick={onCancel}
-              variant="outline"
-              className="w-full"
+              className="w-full text-center py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
               disabled={isLoading}
             >
               Abbrechen
-            </Button>
+            </button>
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="text-center pt-2">
+            <p className="text-sm text-blue-500 hover:text-blue-600 cursor-pointer transition-colors">
               Probleme beim Anmelden? Kontaktieren Sie den Support.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
