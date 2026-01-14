@@ -232,10 +232,7 @@ const UserTaxReturns = () => {
     return 'Benutzer';
   };
   const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Guten Morgen,';
-    if (hour < 18) return 'Guten Tag,';
-    return 'Guten Abend,';
+    return 'Grüezi,';
   };
   return <div className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-28 text-gray-900 bg-white">
       {/* Main Container */}
