@@ -467,8 +467,11 @@ const DocumentsContent: React.FC<{
             </div>)}
         </main>
 
-        {/* Fixed Bottom Action Bar - Entire area is the button */}
-        <div className="fixed bottom-0 left-0 right-0 z-40">
+        {/* Fixed Bottom Action Bar - Semi-circle design */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
+          {/* Gradient Fade Background */}
+          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
+          
           {/* Hidden File Input */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
             if (e.target.files && e.target.files.length > 0) {
@@ -478,22 +481,32 @@ const DocumentsContent: React.FC<{
             e.target.value = '';
           }} />
 
-          <button 
-            onClick={() => fileInputRef.current?.click()} 
-            className="flex flex-col items-center w-full pt-10 px-6 pb-6 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.12)] rounded-t-[2.5rem] bg-white active:bg-slate-50 active:scale-[0.995] transition-all duration-200 cursor-pointer"
-            data-tour="document-upload-card"
-          >
-            {/* Icon in blue circle - positioned to overflow top */}
-            <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Plus className="w-7 h-7 text-white" strokeWidth={2} />
-            </div>
-            
-            {/* Title */}
-            <span className="text-lg font-semibold text-slate-900">Dokument hinzufügen</span>
-            
-            {/* Subtitle */}
-            <span className="text-sm text-blue-500 font-medium mt-0.5">Scan oder Upload</span>
-          </button>
+          {/* Semi-Circle Button Container */}
+          <div className="relative w-full flex justify-center items-end pointer-events-auto">
+            <button 
+              onClick={() => fileInputRef.current?.click()} 
+              className="group relative w-full h-24 bg-gradient-to-t from-slate-100 to-white border-t border-slate-200/50 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15),0_-5px_15px_-5px_rgba(59,130,246,0.1)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
+              data-tour="document-upload-card"
+            >
+              {/* Glow Background on hover */}
+              <div className="group-hover:opacity-100 transition-opacity bg-gradient-to-t from-blue-50 via-blue-50/50 to-transparent opacity-0 h-full rounded-t-[50%] absolute right-0 bottom-0 left-0" />
+
+              {/* Main Icon Circle - positioned to overflow */}
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)] animate-pulse -mt-8 border-4 border-white">
+                <Plus className="w-6 h-6" strokeWidth={2.5} />
+              </div>
+
+              {/* Text Content */}
+              <div className="relative z-10 flex flex-col items-center gap-0.5">
+                <span className="text-slate-900 font-medium text-lg tracking-tight">
+                  Dokument hinzufügen
+                </span>
+                <span className="text-blue-500 text-xs font-medium tracking-wide">
+                  Scan oder Upload
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
