@@ -467,11 +467,8 @@ const DocumentsContent: React.FC<{
             </div>)}
         </main>
 
-        {/* Fixed Bottom Action Bar - Semi-circle dark design */}
+        {/* Fixed Bottom Action Bar - Semi-circle design */}
         <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
-          {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#020203] via-[#020203]/90 to-transparent pointer-events-none" />
-          
           {/* Hidden File Input */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
             if (e.target.files && e.target.files.length > 0) {
