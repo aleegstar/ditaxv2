@@ -230,7 +230,7 @@ export const TaxYearDashboard: React.FC = () => {
               {angabenSections.map(section => {
               const Icon = section.icon;
               const completed = isCompleted(section.id);
-              return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-white border rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 ${completed ? 'border-slate-200/60' : 'border-slate-200/60 hover:border-blue-300 hover:ring-1 hover:ring-blue-300'}`}>
+              return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-gradient-to-b from-slate-50 to-slate-100 border-t border-white/80 rounded-xl shadow-[0_4px_14px_0_rgba(100,116,139,0.15)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ${completed ? '' : ''}`}>
                     <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center border transition-colors ${completed ? 'bg-green-50 text-green-600 border-green-100' : 'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600'}`}>
                       {completed ? <Check className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
                     </div>
@@ -263,7 +263,7 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''}`}>
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-slate-50 to-slate-100 p-6 rounded-xl border-t border-white/80 flex items-center gap-4 shadow-[0_4px_14px_0_rgba(100,116,139,0.15)] ${allAngabenComplete ? 'cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200' : ''}`}>
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isDocumentsComplete ? 'bg-green-50 border-green-100 text-green-600' : allAngabenComplete ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" /> : '2'}
             </div>
@@ -288,7 +288,7 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-4 ${canSubmit ? 'cursor-pointer hover:shadow-md hover:border-blue-300 transition-all' : ''} ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-slate-50 to-slate-100 p-6 rounded-xl border-t border-white/80 flex items-center gap-4 shadow-[0_4px_14px_0_rgba(100,116,139,0.15)] ${canSubmit ? 'cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.2)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200' : ''} ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isCompleted('submit') ? 'bg-green-50 border-green-100 text-green-600' : canSubmit ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" /> : '3'}
             </div>
