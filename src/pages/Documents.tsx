@@ -271,24 +271,31 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
       <div className={cn("min-h-screen bg-white text-slate-900 flex flex-col", isTransitionEntry && "animate-fade-in")}>
-        {/* Sticky Header */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100">
+        {/* Sticky Header - like /form page */}
+        <header className="sticky top-0 z-30 bg-white border-b border-slate-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <button 
               onClick={() => navigate(-1)} 
-              className="group p-2 -ml-2 rounded-full hover:bg-slate-50 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
             >
-              <div className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
-                <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
-              </div>
+              <ArrowLeft className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
             </button>
 
-            <h1 className="text-base font-semibold tracking-tight text-slate-900">
-              Dokumente
+            <h1 className="text-base font-medium text-slate-800 absolute left-1/2 transform -translate-x-1/2">
+              Dokumente {selectedYear}
             </h1>
 
-            {/* Empty placeholder for symmetry (no bell icon) */}
-            <div className="w-10 h-10" />
+            {/* Profile Avatar */}
+            <button 
+              onClick={() => navigate('/profile')}
+              className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden hover:ring-2 hover:ring-blue-100 transition-all"
+            >
+              <img 
+                src="/lovable-uploads/default-avatar.png" 
+                alt="Profil" 
+                className="w-full h-full object-cover"
+              />
+            </button>
           </div>
         </header>
 
