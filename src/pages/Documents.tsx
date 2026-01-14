@@ -280,18 +280,18 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
       <div className={cn("min-h-screen bg-white text-slate-900 flex flex-col", isTransitionEntry && "animate-fade-in")}>
-        {/* Sticky Header - like /form page */}
-        <header className="sticky top-0 z-30 bg-white border-b border-slate-100 pt-4">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
-              <ArrowLeft className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
+        {/* Header - unified design */}
+        <header className="sticky top-0 z-30 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
+            <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
             </button>
 
-            <h1 className="text-base font-medium text-slate-800 absolute left-1/2 transform -translate-x-1/2">
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
               Dokumente {selectedYear}
             </h1>
 
-            {/* Profile Avatar - using dynamic profile image */}
+            {/* Profile Avatar */}
             <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all">
               <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="Profil" className="w-full h-full object-cover" />
             </button>
