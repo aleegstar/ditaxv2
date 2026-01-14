@@ -485,7 +485,7 @@ const DocumentsContent: React.FC<{
           <div className="flex w-full max-w-[420px] pointer-events-auto pb-0 relative items-end justify-center">
             <button 
               onClick={() => fileInputRef.current?.click()} 
-              className="group relative w-full h-24 bg-gradient-to-b from-slate-50 to-slate-100 border-t border-white/80 shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.15)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 hover:shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.25)] active:scale-95"
+              className="group relative w-full h-24 bg-white border-t border-slate-100 shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.1)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 hover:shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.2)] active:scale-95"
               data-tour="document-upload-card"
             >
               {/* Main Icon Circle */}
