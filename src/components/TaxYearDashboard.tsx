@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { TourStartButton } from '@/components/ui/tour-start-button';
 import { useFormTour } from '@/contexts/FormTourContext';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
+import { BorderBeam } from '@/components/ui/border-beam';
 interface DashboardSection {
   id: string;
   title: string;
@@ -195,6 +196,17 @@ export const TaxYearDashboard: React.FC = () => {
           ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300' 
           : 'shadow-xl shadow-slate-200/50 border-gray-200'
       }`}>
+          {/* BorderBeam for active step */}
+          {!allAngabenComplete && (
+            <BorderBeam 
+              size={150}
+              duration={10}
+              borderWidth={2}
+              colorFrom="#F97316"
+              colorTo="#FBBF24"
+              delay={0}
+            />
+          )}
           {/* Step Header - matching design of steps 2 and 3 */}
           <div className="p-6 flex items-center gap-4 border-b border-slate-100">
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 ${allAngabenComplete ? 'bg-green-50 border-green-100 text-green-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
@@ -260,13 +272,24 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.1
-        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all ${
+        }} onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
           allAngabenComplete && !isDocumentsComplete 
             ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]' 
             : allAngabenComplete 
               ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300' 
               : 'border-slate-200'
         }`}>
+            {/* BorderBeam for active step */}
+            {allAngabenComplete && !isDocumentsComplete && (
+              <BorderBeam 
+                size={150}
+                duration={10}
+                borderWidth={2}
+                colorFrom="#F97316"
+                colorTo="#FBBF24"
+                delay={0}
+              />
+            )}
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isDocumentsComplete ? 'bg-green-50 border-green-100 text-green-600' : allAngabenComplete ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" /> : '2'}
             </div>
@@ -291,13 +314,24 @@ export const TaxYearDashboard: React.FC = () => {
         }} transition={{
           duration: 0.5,
           delay: 0.2
-        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all ${
+        }} onClick={() => canSubmit && handleSubmitClick()} className={`bg-white p-6 rounded-3xl border flex items-center gap-4 transition-all relative overflow-hidden ${
           canSubmit && !isCompleted('submit')
             ? 'shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-slate-300 cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]'
             : canSubmit
               ? 'border-slate-200 cursor-pointer hover:shadow-md hover:border-blue-300'
               : 'border-slate-200'
         } ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+            {/* BorderBeam for active step */}
+            {canSubmit && !isCompleted('submit') && (
+              <BorderBeam 
+                size={150}
+                duration={10}
+                borderWidth={2}
+                colorFrom="#F97316"
+                colorTo="#FBBF24"
+                delay={0}
+              />
+            )}
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isCompleted('submit') ? 'bg-green-50 border-green-100 text-green-600' : canSubmit ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" /> : '3'}
             </div>
