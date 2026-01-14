@@ -137,10 +137,6 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
         .eq('id', document.id);
       
       if (error) throw error;
-      toast({
-        title: "Gelöscht",
-        description: "Dokument wurde entfernt"
-      });
       onUpdate();
       onClose();
     } catch (error) {
