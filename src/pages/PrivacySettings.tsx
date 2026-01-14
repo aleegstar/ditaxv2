@@ -4,6 +4,7 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Download, Trash2, Shield, AlertTriangle } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from 'react-router-dom';
 import { Json } from '@/integrations/supabase/types';
 import {
@@ -249,25 +250,10 @@ const PrivacySettings = () => {
   return (
     <div className="antialiased min-h-screen flex flex-col text-gray-900 bg-white">
       {/* Header / Navigation */}
-      <header className="sticky z-10 supports-[backdrop-filter]:bg-white/60 bg-white/70 border-gray-200/50 border-b top-0 backdrop-blur-xl">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button 
-            onClick={() => navigate(-1)}
-            className="group p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <path d="m12 19-7-7 7-7" />
-              <path d="M19 12H5" />
-            </svg>
-          </button>
-
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-medium text-gray-900">
-            Datenschutz-Einstellungen
-          </h1>
-
-          <div className="w-8" />
-        </div>
-      </header>
+      <SubpageHeader
+        title="Datenschutz-Einstellungen"
+        onBack={() => navigate(-1)}
+      />
 
       {/* Main Content */}
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-8">
