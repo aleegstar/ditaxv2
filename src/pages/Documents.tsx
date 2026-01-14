@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, Plus, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFormContext, FormProvider } from '@/contexts';
@@ -406,53 +407,46 @@ const DocumentsContent: React.FC<{
                 </div>
               </div>
 
-              {/* Document List */}
-              <div className="flex flex-col gap-px bg-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-                {filteredDocuments.map(doc => (
-                  <div 
-                    key={doc.id} 
-                    onClick={() => {
-                      setSelectedDocument(doc);
-                      setShowActionSheet(true);
-                    }}
-                    className="group relative bg-white p-4 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-4"
-                  >
-                    <div className={cn(
-                      "flex-shrink-0 w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500"
-                    )}>
-                      {doc.file_type?.startsWith('image/') 
-                        ? <Image className="w-6 h-6" strokeWidth={1.5} /> 
-                        : <FileText className="w-6 h-6" strokeWidth={1.5} />
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0 pr-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-semibold text-slate-900 truncate">
-                          {doc.file_name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-500">
-                        <span>{format(new Date(doc.upload_date), 'd. MMM yyyy', { locale: de })}</span>
-                        {doc.file_size && (
-                          <>
-                            <span className="w-1 h-1 rounded-full bg-slate-300" />
-                            <span>{formatFileSize(doc.file_size)}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <button 
-                      onClick={e => {
-                        e.stopPropagation();
+              {/* Document Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredDocuments.map(doc => {
+                  const isImage = doc.file_type?.startsWith('image/');
+                  const isPdf = doc.file_type === 'application/pdf';
+                  const uploadDate = new Date(doc.upload_date);
+                  const timeAgo = formatDistanceToNow(uploadDate, { locale: de, addSuffix: false });
+                  
+                  return (
+                    <div 
+                      key={doc.id} 
+                      onClick={() => {
                         setSelectedDocument(doc);
                         setShowActionSheet(true);
-                      }} 
-                      className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                      }}
+                      className="group bg-slate-50 hover:bg-slate-100 rounded-2xl p-4 cursor-pointer transition-all hover:shadow-md active:scale-[0.98]"
                     >
-                      <MoreVertical className="w-5 h-5" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                ))}
+                      {/* Icon Container */}
+                      <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center mb-4 shadow-sm group-hover:shadow transition-shadow">
+                        {isImage ? (
+                          <Image className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                        ) : isPdf ? (
+                          <FileText className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                        ) : (
+                          <File className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                        )}
+                      </div>
+                      
+                      {/* Document Name */}
+                      <h3 className="font-medium text-slate-900 text-sm leading-tight mb-1.5 line-clamp-2 min-h-[2.5rem]">
+                        {doc.file_name.replace(/\.[^/.]+$/, '')}
+                      </h3>
+                      
+                      {/* Updated Time */}
+                      <p className="text-xs text-orange-500 font-medium">
+                        Aktualisiert vor {timeAgo}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </>
           ) : (
