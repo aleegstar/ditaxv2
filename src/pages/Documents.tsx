@@ -299,7 +299,7 @@ const DocumentsContent: React.FC<{
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-32">
+        <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-48">
           {/* Year Selector */}
           <div className="mb-8" data-tour="documents-year-selector">
             <div className="relative">
