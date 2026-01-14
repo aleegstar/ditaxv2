@@ -266,7 +266,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           setError(`PDF konnte nicht verarbeitet werden: ${err.message}`);
         }
       } else if (newPdfFile && !pdfLibLoaded) {
-        setError('PDF-Bibliothek wird noch geladen...');
+        // PDF library still loading - file is added anyway, just no preview
+        console.log('PDF library still loading, skipping preview generation');
       }
 
       setFiles(prev => [...prev, ...newFiles]);
