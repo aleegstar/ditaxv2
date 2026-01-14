@@ -492,7 +492,7 @@ const DocumentsContent: React.FC<{
               <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-blue-600/20 via-blue-500/5 to-transparent opacity-60 group-hover:opacity-100 transition-opacity rounded-t-[50%]" />
 
               {/* Main Icon Circle */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg -mt-8 border-4 border-[#030305]">
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-primary text-primary-foreground flex items-center justify-center -mt-8 border-4 border-primary">
                 <ScanLine className="w-6 h-6" />
               </div>
 
