@@ -467,8 +467,11 @@ const DocumentsContent: React.FC<{
             </div>)}
         </main>
 
-        {/* Fixed Bottom Action Bar - Semi-circle design */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
+        {/* Modern Bottom Floating Action Island */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none flex justify-center">
+          {/* Gradient Fade Background */}
+          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none" />
+
           {/* Hidden File Input */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
             if (e.target.files && e.target.files.length > 0) {
@@ -478,24 +481,24 @@ const DocumentsContent: React.FC<{
             e.target.value = '';
           }} />
 
-          {/* Semi-Circle Button Container */}
-          <div className="relative w-full flex justify-center items-end pointer-events-auto">
+          {/* The Semi-Circle Button Container */}
+          <div className="flex w-full max-w-[420px] pointer-events-auto pb-0 relative items-end justify-center">
             <button 
               onClick={() => fileInputRef.current?.click()} 
-              className="group relative w-full h-24 bg-gradient-to-t from-primary/90 to-primary/70 border-t border-primary-foreground/10 flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
+              className="group relative w-full h-24 bg-background border-t border-border shadow-[0_-10px_30px_-10px_rgba(0,0,0,0.05)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 active:scale-95"
               data-tour="document-upload-card"
             >
               {/* Main Icon Circle */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-primary text-primary-foreground flex items-center justify-center -mt-8 border-4 border-primary">
+              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground flex items-center justify-center shadow-md -mt-8 border-4 border-background">
                 <ScanLine className="w-6 h-6" />
               </div>
 
               {/* Text Content */}
               <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <span className="text-primary-foreground font-medium text-lg tracking-tight">
-                  Dokument hinzufügen
+                <span className="text-foreground font-medium text-lg tracking-tight">
+                  Dokumente anzeigen
                 </span>
-                <span className="text-primary-foreground/70 text-xs font-medium tracking-wide">
+                <span className="text-primary text-xs font-medium tracking-wide">
                   Scan oder Upload
                 </span>
               </div>
