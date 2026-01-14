@@ -194,33 +194,40 @@ const DocumentsContent: React.FC<{
   });
 
   // Filter and sort documents
-  const filteredDocuments = documents
-    .filter(doc => doc.file_name.toLowerCase().includes(searchQuery.toLowerCase()))
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'date_desc':
-          return new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime();
-        case 'date_asc':
-          return new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime();
-        case 'name_asc':
-          return a.file_name.localeCompare(b.file_name, 'de');
-        case 'name_desc':
-          return b.file_name.localeCompare(a.file_name, 'de');
-        case 'type':
-          return (a.file_type || '').localeCompare(b.file_type || '', 'de');
-        default:
-          return 0;
-      }
-    });
+  const filteredDocuments = documents.filter(doc => doc.file_name.toLowerCase().includes(searchQuery.toLowerCase())).sort((a, b) => {
+    switch (sortBy) {
+      case 'date_desc':
+        return new Date(b.upload_date).getTime() - new Date(a.upload_date).getTime();
+      case 'date_asc':
+        return new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime();
+      case 'name_asc':
+        return a.file_name.localeCompare(b.file_name, 'de');
+      case 'name_desc':
+        return b.file_name.localeCompare(a.file_name, 'de');
+      case 'type':
+        return (a.file_type || '').localeCompare(b.file_type || '', 'de');
+      default:
+        return 0;
+    }
+  });
 
   // Sort options
-  const sortOptions = [
-    { value: 'date_desc', label: 'Datum (Neueste zuerst)' },
-    { value: 'date_asc', label: 'Datum (Älteste zuerst)' },
-    { value: 'name_asc', label: 'Name (A-Z)' },
-    { value: 'name_desc', label: 'Name (Z-A)' },
-    { value: 'type', label: 'Dateityp' },
-  ] as const;
+  const sortOptions = [{
+    value: 'date_desc',
+    label: 'Datum (Neueste zuerst)'
+  }, {
+    value: 'date_asc',
+    label: 'Datum (Älteste zuerst)'
+  }, {
+    value: 'name_asc',
+    label: 'Name (A-Z)'
+  }, {
+    value: 'name_desc',
+    label: 'Name (Z-A)'
+  }, {
+    value: 'type',
+    label: 'Dateityp'
+  }] as const;
 
   // Format file size
   const formatFileSize = (bytes: number | null | undefined) => {
@@ -274,10 +281,7 @@ const DocumentsContent: React.FC<{
         {/* Sticky Header - like /form page */}
         <header className="sticky top-0 z-30 bg-white border-b border-slate-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-            >
+            <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
               <ArrowLeft className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
             </button>
 
@@ -286,15 +290,8 @@ const DocumentsContent: React.FC<{
             </h1>
 
             {/* Profile Avatar */}
-            <button 
-              onClick={() => navigate('/profile')}
-              className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden hover:ring-2 hover:ring-blue-100 transition-all"
-            >
-              <img 
-                src="/lovable-uploads/default-avatar.png" 
-                alt="Profil" 
-                className="w-full h-full object-cover"
-              />
+            <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden hover:ring-2 hover:ring-blue-100 transition-all">
+              <img src="/lovable-uploads/default-avatar.png" alt="Profil" className="w-full h-full object-cover" />
             </button>
           </div>
         </header>
@@ -304,10 +301,7 @@ const DocumentsContent: React.FC<{
           {/* Year Selector */}
           <div className="mb-8" data-tour="documents-year-selector">
             <div className="relative">
-              <button 
-                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/60 hover:bg-slate-100 hover:border-slate-300 transition-all group text-left shadow-sm"
-              >
+              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="w-full flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/60 hover:bg-slate-100 hover:border-slate-300 transition-all group text-left shadow-sm">
                 <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 group-hover:scale-105 transition-all duration-300 shadow-sm">
                   <CalendarDays className="w-6 h-6" strokeWidth={1.5} />
                 </div>
@@ -338,8 +332,7 @@ const DocumentsContent: React.FC<{
           </div>
 
           {/* Documents Section */}
-          {documents.length > 0 ? (
-            <>
+          {documents.length > 0 ? <>
               {/* Section Header - "Meine Dateien" with count badge */}
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -358,102 +351,76 @@ const DocumentsContent: React.FC<{
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Search className="w-4 h-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" strokeWidth={1.5} />
                   </div>
-                  <input 
-                    type="text" 
-                    placeholder="Search briefs..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-100 outline-none transition-all"
-                  />
+                  <input type="text" placeholder="Search briefs..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-4 focus:ring-slate-100 outline-none transition-all" />
                 </div>
                 <div className="relative">
-                  <button 
-                    onClick={() => setShowSortDropdown(!showSortDropdown)}
-                    className={cn(
-                      "flex-shrink-0 w-12 h-12 border rounded-xl flex items-center justify-center transition-all active:scale-95",
-                      showSortDropdown 
-                        ? "border-blue-300 bg-blue-50 text-blue-600" 
-                        : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50"
-                    )}
-                  >
+                  <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("flex-shrink-0 w-12 h-12 border rounded-xl flex items-center justify-center transition-all active:scale-95", showSortDropdown ? "border-blue-300 bg-blue-50 text-blue-600" : "border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50")}>
                     <ArrowUpDown className="w-5 h-5" strokeWidth={1.5} />
                   </button>
 
-                  {showSortDropdown && (
-                    <>
+                  {showSortDropdown && <>
                       <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
                       <div className="absolute top-full mt-2 right-0 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden min-w-[220px]">
                         <div className="py-1">
                           <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                             Sortieren nach
                           </div>
-                          {sortOptions.map(option => (
-                            <button
-                              key={option.value}
-                              onClick={() => {
-                                setSortBy(option.value);
-                                setShowSortDropdown(false);
-                              }}
-                              className={cn(
-                                "w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-3",
-                                sortBy === option.value 
-                                  ? "bg-blue-50 text-blue-600 font-medium" 
-                                  : "text-slate-700 hover:bg-slate-50"
-                              )}
-                            >
-                              {sortBy === option.value && (
-                                <CheckCircle2 className="w-4 h-4 text-blue-500" strokeWidth={2} />
-                              )}
+                          {sortOptions.map(option => <button key={option.value} onClick={() => {
+                      setSortBy(option.value);
+                      setShowSortDropdown(false);
+                    }} className={cn("w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-3", sortBy === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-slate-700 hover:bg-slate-50")}>
+                              {sortBy === option.value && <CheckCircle2 className="w-4 h-4 text-blue-500" strokeWidth={2} />}
                               <span className={sortBy !== option.value ? "ml-7" : ""}>
                                 {option.label}
                               </span>
-                            </button>
-                          ))}
+                            </button>)}
                         </div>
                       </div>
-                    </>
-                  )}
+                    </>}
                 </div>
               </div>
 
               {/* Document Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredDocuments.map((doc, index) => {
-                  const isImage = doc.file_type?.startsWith('image/');
-                  const isPdf = doc.file_type === 'application/pdf';
-                  const uploadDate = new Date(doc.upload_date);
-                  const timeAgo = formatDistanceToNow(uploadDate, { locale: de, addSuffix: false });
-                  
-                  // Rotate colors for variety
-                  const colorVariants = [
-                    { bg: 'bg-blue-50', border: 'border-blue-100/50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-100' },
-                    { bg: 'bg-indigo-50', border: 'border-indigo-100/50', text: 'text-indigo-600', hoverBg: 'group-hover:bg-indigo-100' },
-                    { bg: 'bg-emerald-50', border: 'border-emerald-100/50', text: 'text-emerald-600', hoverBg: 'group-hover:bg-emerald-100' },
-                    { bg: 'bg-violet-50', border: 'border-violet-100/50', text: 'text-violet-600', hoverBg: 'group-hover:bg-violet-100' },
-                  ];
-                  const color = colorVariants[index % colorVariants.length];
-                  
-                  return (
-                    <button 
-                      key={doc.id} 
-                      onClick={() => {
-                        setSelectedDocument(doc);
-                        setShowActionSheet(true);
-                      }}
-                      className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300"
-                    >
+              const isImage = doc.file_type?.startsWith('image/');
+              const isPdf = doc.file_type === 'application/pdf';
+              const uploadDate = new Date(doc.upload_date);
+              const timeAgo = formatDistanceToNow(uploadDate, {
+                locale: de,
+                addSuffix: false
+              });
+
+              // Rotate colors for variety
+              const colorVariants = [{
+                bg: 'bg-blue-50',
+                border: 'border-blue-100/50',
+                text: 'text-blue-600',
+                hoverBg: 'group-hover:bg-blue-100'
+              }, {
+                bg: 'bg-indigo-50',
+                border: 'border-indigo-100/50',
+                text: 'text-indigo-600',
+                hoverBg: 'group-hover:bg-indigo-100'
+              }, {
+                bg: 'bg-emerald-50',
+                border: 'border-emerald-100/50',
+                text: 'text-emerald-600',
+                hoverBg: 'group-hover:bg-emerald-100'
+              }, {
+                bg: 'bg-violet-50',
+                border: 'border-violet-100/50',
+                text: 'text-violet-600',
+                hoverBg: 'group-hover:bg-violet-100'
+              }];
+              const color = colorVariants[index % colorVariants.length];
+              return <button key={doc.id} onClick={() => {
+                setSelectedDocument(doc);
+                setShowActionSheet(true);
+              }} className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300">
                       {/* Icon Container */}
-                      <div className={cn(
-                        "w-12 h-12 rounded-full border flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-300",
-                        color.bg, color.border, color.text, color.hoverBg
-                      )}>
-                        {isImage ? (
-                          <Image className="w-5 h-5 stroke-[1.5]" />
-                        ) : isPdf ? (
-                          <FileText className="w-5 h-5 stroke-[1.5]" />
-                        ) : (
-                          <File className="w-5 h-5 stroke-[1.5]" />
-                        )}
+                      <div className={cn("w-12 h-12 rounded-full border flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-300", color.bg, color.border, color.text, color.hoverBg)}>
+                        {isImage ? <Image className="w-5 h-5 stroke-[1.5]" /> : isPdf ? <FileText className="w-5 h-5 stroke-[1.5]" /> : <File className="w-5 h-5 stroke-[1.5]" />}
                       </div>
                       
                       {/* Document Info */}
@@ -467,14 +434,11 @@ const DocumentsContent: React.FC<{
                           <span>Aktualisiert vor {timeAgo}</span>
                         </p>
                       </div>
-                    </button>
-                  );
-                })}
+                    </button>;
+            })}
               </div>
-            </>
-          ) : (
-            /* Empty State */
-            <div className="flex-1 flex flex-col items-center justify-center py-20">
+            </> : (/* Empty State */
+        <div className="flex-1 flex flex-col items-center justify-center py-20">
               <div className="text-center space-y-6 relative">
                 {/* Icon placeholder */}
                 <div className="relative mx-auto w-24 h-24 mb-4">
@@ -496,19 +460,9 @@ const DocumentsContent: React.FC<{
                 </div>
 
                 {/* Stats / Counter */}
-                <div className="flex items-center justify-center gap-4 pt-4">
-                  <div className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center min-w-[80px]">
-                    <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Gesamt</span>
-                    <span className="text-sm text-slate-700 font-medium font-mono">{documents.length}</span>
-                  </div>
-                  <div className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center min-w-[80px]">
-                    <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Monat</span>
-                    <span className="text-sm text-slate-700 font-medium">{currentMonth}</span>
-                  </div>
-                </div>
+                
               </div>
-            </div>
-          )}
+            </div>)}
         </main>
 
         {/* Fixed Bottom Action Bar - Same style as Auth page */}
@@ -519,26 +473,15 @@ const DocumentsContent: React.FC<{
             
             <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
               {/* Hidden File Input */}
-              <input 
-                ref={fileInputRef} 
-                type="file" 
-                accept="image/*,application/pdf" 
-                multiple 
-                className="hidden" 
-                onChange={e => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setSelectedFiles(Array.from(e.target.files));
-                    setShowUploader(true);
-                  }
-                  e.target.value = '';
-                }} 
-              />
+              <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
+              if (e.target.files && e.target.files.length > 0) {
+                setSelectedFiles(Array.from(e.target.files));
+                setShowUploader(true);
+              }
+              e.target.value = '';
+            }} />
 
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
-                className="w-full py-4 px-6 rounded-xl text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-                data-tour="document-upload-card"
-              >
+              <button onClick={() => fileInputRef.current?.click()} className="w-full py-4 px-6 rounded-xl text-lg font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" data-tour="document-upload-card">
                 <Plus className="w-5 h-5" strokeWidth={2.5} />
                 <span>Dokument hinzufügen</span>
               </button>
@@ -556,9 +499,9 @@ const DocumentsContent: React.FC<{
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
         <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
-          setShowActionSheet(false);
-          setSelectedDocument(null);
-        }} onUpdate={loadDocuments} availableYears={allYears} />
+        setShowActionSheet(false);
+        setSelectedDocument(null);
+      }} onUpdate={loadDocuments} availableYears={allYears} />
       </div>
     </>;
 };
