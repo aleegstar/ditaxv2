@@ -496,7 +496,7 @@ const DocumentsContent: React.FC<{
               {/* Text Content */}
               <div className="relative z-10 flex flex-col items-center gap-0.5">
                 <span className="text-slate-700 font-medium text-lg tracking-tight">
-                  Dokumente anzeigen
+                  Dokumente hinzufügen
                 </span>
                 <span className="text-primary text-xs font-medium tracking-wide">
                   Scan oder Upload
