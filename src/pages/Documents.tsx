@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File, ScanLine } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File, ScanLine, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +10,7 @@ import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
 import CameraCapture from '@/components/documents/CameraCapture';
 import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
+import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -44,6 +45,8 @@ const DocumentsContent: React.FC<{
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'type'>('date_desc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showUploadSheet, setShowUploadSheet] = useState(false);
+  const cameraInputRef = React.useRef<HTMLInputElement>(null);
   const {
     toast
   } = useToast();
@@ -485,12 +488,9 @@ const DocumentsContent: React.FC<{
             </div>)}
         </main>
 
-        {/* Modern Bottom Floating Action Island */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none flex justify-center">
-          {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none" />
-
-          {/* Hidden File Input */}
+        {/* Bottom Floating Pill Button */}
+        <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          {/* Hidden File Inputs */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
             if (e.target.files && e.target.files.length > 0) {
               setSelectedFiles(Array.from(e.target.files));
@@ -498,31 +498,41 @@ const DocumentsContent: React.FC<{
             }
             e.target.value = '';
           }} />
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+            if (e.target.files && e.target.files.length > 0) {
+              setSelectedFiles(Array.from(e.target.files));
+              setShowUploader(true);
+            }
+            e.target.value = '';
+          }} />
 
-          {/* The Semi-Circle Button Container */}
-          <div className="flex w-full max-w-[420px] pointer-events-auto pb-0 relative items-end justify-center">
-            <button 
-              onClick={() => fileInputRef.current?.click()} 
-              className="group relative w-full h-24 bg-white border-t border-slate-100 shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.1)] flex flex-col items-center justify-start pt-4 transition-all duration-300 overflow-visible rounded-t-[50%] hover:h-28 hover:shadow-[0_-10px_30px_-10px_rgba(100,116,139,0.2)] active:scale-95"
-              data-tour="document-upload-card"
-            >
-              {/* Main Icon Circle */}
-              <div className="relative z-10 w-14 h-14 mb-1 rounded-full bg-gradient-to-b from-primary to-primary/85 text-white flex items-center justify-center shadow-[0_4px_14px_0_rgba(59,130,246,0.4)] -mt-8 border-4 border-white">
-                <ScanLine className="w-6 h-6" />
-              </div>
-
-              {/* Text Content */}
-              <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <span className="text-slate-700 font-medium text-lg tracking-tight">
-                  Dokumente hinzufügen
-                </span>
-                <span className="text-primary text-xs font-medium tracking-wide">
-                  Scan oder Upload
-                </span>
-              </div>
-            </button>
-          </div>
+          {/* Pill Button */}
+          <button 
+            onClick={() => setShowUploadSheet(true)} 
+            className="pointer-events-auto flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_40px_-4px_rgba(59,130,246,0.6)] hover:scale-105 active:scale-95 transition-all duration-300"
+            data-tour="document-upload-card"
+          >
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+              <Plus className="w-5 h-5" strokeWidth={2} />
+            </div>
+            <span className="font-semibold text-base tracking-tight">Dokument hinzufügen</span>
+          </button>
         </div>
+
+        {/* Upload Action Sheet */}
+        <UploadActionSheet 
+          open={showUploadSheet}
+          onClose={() => setShowUploadSheet(false)}
+          onScan={() => {
+            setShowCamera(true);
+          }}
+          onPhoto={() => {
+            cameraInputRef.current?.click();
+          }}
+          onFile={() => {
+            fileInputRef.current?.click();
+          }}
+        />
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
