@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, ScanLine, Inbox, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
+import uploadIcon from '@/assets/upload-icon.svg';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate } from 'react-router-dom';
@@ -406,7 +407,7 @@ const UserTaxReturns = () => {
           {/* Scanner Button */}
           <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <ScanLine className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
+              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
               <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
