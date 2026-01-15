@@ -86,11 +86,26 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
     );
   }
 
+  // Get file extension for fallback
+  const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
+
   // Show error/fallback state
   if (error || !imageUrl) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-zinc-100">
-        <FileText className="w-16 h-16 text-zinc-400" strokeWidth={1} />
+      <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
+        {/* Decorative gradient orb */}
+        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
+        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
+        
+        {/* File type badge */}
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+            <FileText className="w-7 h-7 text-white" strokeWidth={1.5} />
+          </div>
+          <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/60 text-xs font-semibold text-slate-700 shadow-sm">
+            {fileExt}
+          </span>
+        </div>
       </div>
     );
   }
@@ -461,8 +476,20 @@ const DocumentsContent: React.FC<{
                     {isImage ? (
                       <DocumentThumbnail doc={doc} />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200">
-                        <FileText className="w-16 h-16 text-zinc-400" strokeWidth={1} />
+                      <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
+                        {/* Decorative gradient orb */}
+                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
+                        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
+                        
+                        {/* File type badge */}
+                        <div className="relative z-10 flex flex-col items-center gap-3">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+                            <FileText className="w-7 h-7 text-white" strokeWidth={1.5} />
+                          </div>
+                          <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/60 text-xs font-semibold text-slate-700 shadow-sm">
+                            {fileExt}
+                          </span>
+                        </div>
                       </div>
                     )}
                     
