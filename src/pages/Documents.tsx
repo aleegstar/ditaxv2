@@ -413,25 +413,21 @@ const DocumentsContent: React.FC<{
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 bg-white min-h-screen">
           
-          {/* Header Section with Dropdown */}
-          <div className="mb-10">
-            <h1 className="text-3xl md:text-4xl font-semibold text-zinc-900 tracking-tight">Meine Dateien</h1>
-            <p className="text-lg text-zinc-500 mt-2">Verwalten und sammle hier deine Unterlagen.</p>
-            
-            {/* Year Dropdown */}
-            <div className="mt-6 relative" data-tour="documents-year-selector">
+          {/* Year Dropdown - Centered */}
+          <div className="mb-8 flex justify-center" data-tour="documents-year-selector">
+            <div className="relative">
               <button 
                 onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                className="group flex items-center gap-2 rounded-lg border border-zinc-200 bg-white py-2 pl-3 pr-2 text-sm font-medium shadow-sm transition-all hover:border-zinc-300 hover:shadow-md active:scale-95"
+                className="group flex items-center gap-3 rounded-full border border-zinc-200 bg-white py-3 pl-5 pr-4 text-base font-medium shadow-sm transition-all hover:border-zinc-300 hover:shadow-md active:scale-95"
               >
-                <Calendar className="h-4 w-4 text-zinc-500 group-hover:text-zinc-800" strokeWidth={2} />
+                <Calendar className="h-5 w-5 text-zinc-500 group-hover:text-zinc-800" strokeWidth={2} />
                 <span className="text-zinc-700 group-hover:text-zinc-900">{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 text-zinc-400 group-hover:text-zinc-600 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
+                <ChevronDown className={cn("h-5 w-5 text-zinc-400 group-hover:text-zinc-600 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
               </button>
 
               {isYearDropdownOpen && <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-0 z-[60] bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden min-w-[140px]">
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden min-w-[160px]">
                   <div className="max-h-64 overflow-y-auto py-1">
                     {availableYears.map(year => (
                       <button 
