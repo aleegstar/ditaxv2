@@ -143,10 +143,10 @@ const DocumentsContent: React.FC<{
     }
   }, [loading]);
 
-  // Generate year options (2024-2034)
-  const allYears = Array.from({
-    length: 11
-  }, (_, i) => (2024 + i).toString());
+  // Generate year options (2024-2034) - memoized to prevent infinite loops
+  const allYears = React.useMemo(() => 
+    Array.from({ length: 11 }, (_, i) => (2024 + i).toString()), 
+  []);
   const mountedRef = React.useRef(true);
   useEffect(() => {
     mountedRef.current = true;
@@ -182,7 +182,7 @@ const DocumentsContent: React.FC<{
     if (available.length > 0 && completedYears.includes(selectedYear)) {
       onYearChange(available[0]);
     }
-  }, [completedYears, selectedYear, onYearChange, allYears]);
+  }, [completedYears, selectedYear, onYearChange]);
   const loadCompletedTaxYears = async () => {
     try {
       const {
