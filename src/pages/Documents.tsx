@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, ArrowDownToLine, Plus, Calendar } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, ArrowDownToLine, Plus, Calendar, ScanLine } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -522,18 +522,25 @@ const DocumentsContent: React.FC<{
           e.target.value = '';
         }} />
 
-        {/* Mobile Floating Upload Bar */}
-        <div className="fixed bottom-6 left-1/2 z-50 w-full -translate-x-1/2 px-4 md:hidden">
-          <div 
+        {/* Mobile Floating Upload Button - Same style as UserTaxReturns */}
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 md:hidden">
+          <button 
             onClick={() => setShowUploadSheet(true)}
-            className="mx-auto flex max-w-sm items-center justify-between rounded-full border border-zinc-200/50 bg-white/90 p-2 pl-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl ring-1 ring-black/5 cursor-pointer"
             data-tour="document-upload-card"
+            className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <span className="text-base font-medium text-zinc-500">Unterlagen hinzufügen...</span>
-            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-md transition-transform active:scale-90">
-              <Plus className="h-5 w-5" strokeWidth={2} />
-            </button>
-          </div>
+            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
+              <ScanLine className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
+            </div>
+            <div className="text-left">
+              <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
+                Upload
+              </span>
+              <span className="block text-[10px] text-white/80 font-medium">
+                Dokumente
+              </span>
+            </div>
+          </button>
         </div>
 
         {/* Upload Action Sheet */}
