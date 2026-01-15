@@ -19,29 +19,48 @@ import { useProfile } from '@/hooks/useProfile';
 // Component to render document thumbnail with actual image
 const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   
   useEffect(() => {
     const loadImage = async () => {
+      setLoading(true);
+      setError(false);
       try {
-        const { data } = await supabase.storage
+        const { data, error: urlError } = await supabase.storage
           .from('tax-documents')
           .createSignedUrl(doc.file_path, 3600);
-        if (data?.signedUrl) {
+        
+        if (urlError) {
+          console.error('Error getting signed URL:', urlError);
+          setError(true);
+        } else if (data?.signedUrl) {
           setImageUrl(data.signedUrl);
         }
-      } catch (error) {
-        console.error('Error loading image:', error);
+      } catch (err) {
+        console.error('Error loading image:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
     };
     
-    if (doc.file_type?.startsWith('image/')) {
-      loadImage();
-    }
-  }, [doc]);
+    loadImage();
+  }, [doc.file_path]);
 
-  if (!imageUrl) {
+  // Show loading state
+  if (loading) {
     return (
       <div className="w-full h-full bg-zinc-100 animate-pulse" />
+    );
+  }
+
+  // Show error/fallback state
+  if (error || !imageUrl) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-zinc-100">
+        <FileText className="w-16 h-16 text-zinc-400" strokeWidth={1} />
+      </div>
     );
   }
 
@@ -50,6 +69,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
       src={imageUrl} 
       alt={doc.file_name}
       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      onError={() => setError(true)}
     />
   );
 };
