@@ -403,27 +403,17 @@ const DocumentsContent: React.FC<{
                       }} 
                       className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
                     >
-                      {/* Blue Header Area with Year */}
+                      {/* Blue Header Area with Document Name */}
                       <div className="relative w-full bg-gradient-to-br from-blue-500 to-blue-600 px-5 py-6 flex flex-col items-center justify-center min-h-[120px]">
                         {/* Menu Dots */}
                         <div className="absolute top-3 right-3">
                           <MoreVertical className="w-5 h-5 text-white/60" strokeWidth={1.5} />
                         </div>
                         
-                        {/* Year Display */}
-                        <span className="text-3xl font-bold text-white tracking-tight">
-                          {docYear}
+                        {/* Document Name Display */}
+                        <span className="text-xl font-bold text-white tracking-tight text-center px-4 line-clamp-2">
+                          {doc.file_name.replace(/\.[^/.]+$/, '')}
                         </span>
-                        
-                        {/* AKTIV Badge */}
-                        <div className="absolute bottom-3 left-4">
-                          <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-wide">
-                              Aktiv
-                            </span>
-                          </div>
-                        </div>
                       </div>
                       
                       {/* Document Info */}
