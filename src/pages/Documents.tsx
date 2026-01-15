@@ -368,7 +368,7 @@ const DocumentsContent: React.FC<{
       
       <div className={cn("min-h-screen bg-zinc-50 text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
-        <nav className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-xl">
+        <nav className="w-full bg-white/80 backdrop-blur-xl">
           <div className="flex h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-between">
             {/* Left: Back Button */}
             <button 
