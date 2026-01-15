@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,13 +17,27 @@ import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import uploadIcon from '@/assets/upload-icon.svg';
-// Component to render document thumbnail with actual image
-const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+
+// Global image cache to prevent re-fetching
+const imageCache = new Map<string, string>();
+
+// Memoized component to render document thumbnail with actual image
+const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(() => {
+    // Check cache first
+    return imageCache.get(doc.id) || null;
+  });
+  const [loading, setLoading] = useState(!imageCache.has(doc.id));
   const [error, setError] = useState(false);
   
   useEffect(() => {
+    // Skip if already cached
+    if (imageCache.has(doc.id)) {
+      setImageUrl(imageCache.get(doc.id)!);
+      setLoading(false);
+      return;
+    }
+    
     let isMounted = true;
     let objectUrl: string | null = null;
     
@@ -46,6 +60,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
           if (!isMounted) return;
           
           objectUrl = URL.createObjectURL(blob);
+          imageCache.set(doc.id, objectUrl);
           setImageUrl(objectUrl);
         } else {
           // Non-encrypted: get signed URL from documents bucket
@@ -57,6 +72,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
             console.error('Error getting signed URL:', urlError);
             setError(true);
           } else if (data?.signedUrl && isMounted) {
+            imageCache.set(doc.id, data.signedUrl);
             setImageUrl(data.signedUrl);
           }
         }
@@ -70,12 +86,9 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
     
     loadImage();
     
-    // Cleanup: revoke object URL on unmount
     return () => {
       isMounted = false;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
+      // Don't revoke cached URLs - they may be reused
     };
   }, [doc.id, doc.file_path, doc.metadata]);
 
@@ -115,8 +128,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
       onError={() => setError(true)}
     />
   );
-};
-
+});
 // Separate content component that uses FormContext
 const DocumentsContent: React.FC<{
   selectedYear: string;
@@ -191,42 +203,11 @@ const DocumentsContent: React.FC<{
     Array.from({ length: 11 }, (_, i) => (2024 + i).toString()), 
   []);
   const mountedRef = React.useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    loadCompletedTaxYears();
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-  useEffect(() => {
-    if (mountedRef.current) {
-      loadDocuments();
-    }
-  }, [selectedYear]);
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && mountedRef.current) {
-        loadDocuments();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [selectedYear]);
-  useEffect(() => {
-    if (selectedYear === taxYear && formDataLoaded && mountedRef.current) {
-      generateChecklist();
-    }
-  }, [selectedYear, taxYear, formDataLoaded, generateChecklist]);
-  useEffect(() => {
-    const available = allYears.filter(year => !completedYears.includes(year));
-    setAvailableYears(available);
-    if (available.length > 0 && completedYears.includes(selectedYear)) {
-      onYearChange(available[0]);
-    }
-  }, [completedYears, selectedYear, onYearChange]);
-  const loadCompletedTaxYears = async () => {
+  
+  // Ref to track if documents are currently being loaded to prevent duplicate requests
+  const loadingRef = React.useRef(false);
+  
+  const loadCompletedTaxYears = useCallback(async () => {
     try {
       const {
         data: {
@@ -244,9 +225,16 @@ const DocumentsContent: React.FC<{
     } catch (error) {
       console.error('Error loading completed tax years:', error);
     }
-  };
-  const loadDocuments = async () => {
-    setLoading(true);
+  }, []);
+  
+  const loadDocuments = useCallback(async (showLoadingSpinner = true) => {
+    // Prevent concurrent loading requests
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    
+    if (showLoadingSpinner) {
+      setLoading(true);
+    }
     try {
       const {
         data: {
@@ -271,12 +259,61 @@ const DocumentsContent: React.FC<{
       });
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  };
+  }, [selectedYear, toast]);
+  
+  // Initial load effect
+  useEffect(() => {
+    mountedRef.current = true;
+    loadCompletedTaxYears();
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [loadCompletedTaxYears]);
+  
+  // Load documents when year changes
+  useEffect(() => {
+    if (mountedRef.current) {
+      loadDocuments();
+    }
+  }, [selectedYear, loadDocuments]);
+  
+  // Reload on visibility change (returning to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && mountedRef.current) {
+        // Soft reload when returning to page - no spinner
+        loadDocuments(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loadDocuments]);
+  
+  // Generate checklist when form data is loaded
+  useEffect(() => {
+    if (selectedYear === taxYear && formDataLoaded && mountedRef.current) {
+      generateChecklist();
+    }
+  }, [selectedYear, taxYear, formDataLoaded, generateChecklist]);
+  
+  // Filter available years
+  useEffect(() => {
+    const available = allYears.filter(year => !completedYears.includes(year));
+    setAvailableYears(available);
+    if (available.length > 0 && completedYears.includes(selectedYear)) {
+      onYearChange(available[0]);
+    }
+  }, [completedYears, selectedYear, onYearChange, allYears]);
+
   const handleCameraCapture = async (blob: Blob) => {
     setShowCamera(false);
     // Document is already uploaded by CameraCapture component
-    loadDocuments();
+    // Use soft reload (no spinner) to avoid flicker
+    loadDocuments(false);
   };
 
   // Direct upload function - uploads files immediately without confirmation step
@@ -363,7 +400,8 @@ const DocumentsContent: React.FC<{
         title: "Upload erfolgreich",
         description: `${successCount} ${successCount === 1 ? 'Datei' : 'Dateien'} hochgeladen`
       });
-      loadDocuments();
+      // Use soft reload (no spinner) to avoid flicker since user just uploaded
+      loadDocuments(false);
     }
 
     if (errorCount > 0 && successCount === 0) {
