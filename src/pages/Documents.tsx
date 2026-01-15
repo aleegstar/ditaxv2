@@ -418,6 +418,31 @@ const DocumentsContent: React.FC<{
                         </div>
                       </div>
                       
+                      {/* Document Info */}
+                      <div className="p-4 flex flex-col gap-2">
+                        <p className="text-xs text-slate-500 leading-snug">
+                          Hochgeladen vor {timeAgo}
+                        </p>
+                        
+                        {/* Bottom Row with Stats */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                          <div className="flex items-center gap-3 text-slate-400">
+                            {/* File Type Icon */}
+                            <div className="flex items-center gap-1">
+                              {isImage ? <Image className="w-3.5 h-3.5" strokeWidth={1.5} /> : isPdf ? <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> : <File className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                              <span className="text-[11px] font-medium">
+                                {isImage ? 'Bild' : isPdf ? 'PDF' : 'Datei'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Action Link */}
+                          <div className="flex items-center gap-1 text-slate-700 font-medium text-xs group-hover:text-blue-600 transition-colors">
+                            <span>Öffnen</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                          </div>
+                        </div>
+                      </div>
                     </button>
                   );
                 })}
