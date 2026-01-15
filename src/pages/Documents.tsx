@@ -97,12 +97,9 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
         <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
         
-        {/* File type display */}
-        <div className="relative z-10 flex flex-col items-center gap-3">
-          {/* Blue square */}
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25" />
-          {/* File extension pill */}
-          <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/60 text-xs font-semibold text-slate-700 shadow-sm">
+        {/* Blue square with pill inside */}
+        <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+          <span className="px-2.5 py-1 rounded-full bg-white/90 text-[10px] font-bold text-blue-600 shadow-sm">
             {fileExt}
           </span>
         </div>
@@ -481,12 +478,9 @@ const DocumentsContent: React.FC<{
                         <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
                         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
                         
-                        {/* File type display */}
-                        <div className="relative z-10 flex flex-col items-center gap-3">
-                          {/* Blue square */}
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25" />
-                          {/* File extension pill */}
-                          <span className="px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/60 text-xs font-semibold text-slate-700 shadow-sm">
+                        {/* Blue square with pill inside */}
+                        <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+                          <span className="px-2.5 py-1 rounded-full bg-white/90 text-[10px] font-bold text-blue-600 shadow-sm">
                             {fileExt}
                           </span>
                         </div>
