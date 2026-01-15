@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, CalendarDays, FileText, Image, ShieldCheck, Search, ArrowUpDown, File, ScanLine, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, CalendarDays, FileText, Image, MoreVertical, ShieldCheck, Search, ArrowUpDown, File, ScanLine, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -63,9 +63,7 @@ const DocumentsContent: React.FC<{
     completeTour,
     skipTour
   } = useDocumentsTour();
-  const {
-    profile
-  } = useProfile();
+  const { profile } = useProfile();
 
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
@@ -369,9 +367,9 @@ const DocumentsContent: React.FC<{
                             Sortieren nach
                           </div>
                           {sortOptions.map(option => <button key={option.value} onClick={() => {
-                        setSortBy(option.value);
-                        setShowSortDropdown(false);
-                      }} className={cn("w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-3", sortBy === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-slate-700 hover:bg-slate-50")}>
+                            setSortBy(option.value);
+                            setShowSortDropdown(false);
+                          }} className={cn("w-full text-left px-4 py-3 text-sm transition-colors flex items-center gap-3", sortBy === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-slate-700 hover:bg-slate-50")}>
                             {sortBy === option.value && <CheckCircle2 className="w-4 h-4 text-blue-500" strokeWidth={2} />}
                             <span className={sortBy !== option.value ? "ml-7" : ""}>
                               {option.label}
@@ -387,55 +385,67 @@ const DocumentsContent: React.FC<{
               {/* Document Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredDocuments.map((doc, index) => {
-              const isImage = doc.file_type?.startsWith('image/');
-              const isPdf = doc.file_type === 'application/pdf';
-              const uploadDate = new Date(doc.upload_date);
-              const timeAgo = formatDistanceToNow(uploadDate, {
-                locale: de,
-                addSuffix: false
-              });
-              const docYear = doc.tax_year || selectedYear;
-              return <button key={doc.id} onClick={() => {
-                setSelectedDocument(doc);
-                setShowActionSheet(true);
-              }} className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden">
-                      {/* Blue Header Area with Year */}
-                      <div className="relative w-full bg-gradient-to-br from-blue-500 to-blue-600 px-5 py-6 flex flex-col items-center justify-center min-h-[120px]">
+                  const isImage = doc.file_type?.startsWith('image/');
+                  const isPdf = doc.file_type === 'application/pdf';
+                  const uploadDate = new Date(doc.upload_date);
+                  const timeAgo = formatDistanceToNow(uploadDate, {
+                    locale: de,
+                    addSuffix: false
+                  });
+                  const docYear = doc.tax_year || selectedYear;
+
+                  return (
+                    <button 
+                      key={doc.id} 
+                      onClick={() => {
+                        setSelectedDocument(doc);
+                        setShowActionSheet(true);
+                      }} 
+                      className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* White Header Area with Blue Inner Rectangle */}
+                      <div className="relative w-full bg-white rounded-t-[1.5rem] p-3 min-h-[130px] border-b border-slate-100">
                         {/* Menu Dots */}
+                        <div className="absolute top-3 right-3 z-10">
+                          <MoreVertical className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
+                        </div>
                         
-                        
-                        {/* Year Display */}
-                        <span className="text-3xl font-bold text-white tracking-tight">
-                          {docYear}
-                        </span>
-                        
-                        {/* AKTIV Badge */}
-                        <div className="absolute bottom-3 left-4">
-                          <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-wide">
-                              Aktiv
-                            </span>
-                          </div>
+                        {/* Inner Light Gray Rectangle */}
+                        <div className="w-full h-full bg-slate-100 rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
+                          <span className="text-lg font-bold text-slate-900 tracking-tight text-center truncate max-w-full">
+                            {doc.file_name.replace(/\.[^/.]+$/, '')}
+                          </span>
                         </div>
                       </div>
                       
                       {/* Document Info */}
-                      <div className="p-5 flex flex-col gap-3">
-                        <div>
-                          <h3 className="font-semibold text-slate-900 text-base leading-tight mb-1 truncate">
-                            {doc.file_name.replace(/\.[^/.]+$/, '')}
-                          </h3>
-                          <p className="text-sm text-blue-500 leading-snug">
-                            Hochgeladen vor {timeAgo}
-                          </p>
-                        </div>
+                      <div className="p-4 flex flex-col gap-2">
+                        <p className="text-xs text-slate-500 leading-snug">
+                          Hochgeladen vor {timeAgo}
+                        </p>
                         
                         {/* Bottom Row with Stats */}
-                        
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                          <div className="flex items-center gap-3 text-slate-400">
+                            {/* File Type Icon */}
+                            <div className="flex items-center gap-1">
+                              {isImage ? <Image className="w-3.5 h-3.5" strokeWidth={1.5} /> : isPdf ? <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> : <File className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                              <span className="text-[11px] font-medium">
+                                {isImage ? 'Bild' : isPdf ? 'PDF' : 'Datei'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Action Link */}
+                          <div className="flex items-center gap-1 text-slate-700 font-medium text-xs group-hover:text-blue-600 transition-colors">
+                            <span>Öffnen</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                          </div>
+                        </div>
                       </div>
-                    </button>;
-            })}
+                    </button>
+                  );
+                })}
               </div>
             </> : (/* Empty State */
         <div className="flex-1 flex flex-col items-center justify-center py-20">
@@ -469,22 +479,26 @@ const DocumentsContent: React.FC<{
         <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
           {/* Hidden File Inputs */}
           <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
-          if (e.target.files && e.target.files.length > 0) {
-            setSelectedFiles(Array.from(e.target.files));
-            setShowUploader(true);
-          }
-          e.target.value = '';
-        }} />
+            if (e.target.files && e.target.files.length > 0) {
+              setSelectedFiles(Array.from(e.target.files));
+              setShowUploader(true);
+            }
+            e.target.value = '';
+          }} />
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
-          if (e.target.files && e.target.files.length > 0) {
-            setSelectedFiles(Array.from(e.target.files));
-            setShowUploader(true);
-          }
-          e.target.value = '';
-        }} />
+            if (e.target.files && e.target.files.length > 0) {
+              setSelectedFiles(Array.from(e.target.files));
+              setShowUploader(true);
+            }
+            e.target.value = '';
+          }} />
 
           {/* Pill Button */}
-          <button onClick={() => setShowUploadSheet(true)} className="pointer-events-auto flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_40px_-4px_rgba(59,130,246,0.6)] hover:scale-105 active:scale-95 transition-all duration-300" data-tour="document-upload-card">
+          <button 
+            onClick={() => setShowUploadSheet(true)} 
+            className="pointer-events-auto flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-[0_8px_30px_-4px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_40px_-4px_rgba(59,130,246,0.6)] hover:scale-105 active:scale-95 transition-all duration-300"
+            data-tour="document-upload-card"
+          >
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
               <Plus className="w-5 h-5" strokeWidth={2} />
             </div>
@@ -493,13 +507,19 @@ const DocumentsContent: React.FC<{
         </div>
 
         {/* Upload Action Sheet */}
-        <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onScan={() => {
-        setShowCamera(true);
-      }} onPhoto={() => {
-        cameraInputRef.current?.click();
-      }} onFile={() => {
-        fileInputRef.current?.click();
-      }} />
+        <UploadActionSheet 
+          open={showUploadSheet}
+          onClose={() => setShowUploadSheet(false)}
+          onScan={() => {
+            setShowCamera(true);
+          }}
+          onPhoto={() => {
+            cameraInputRef.current?.click();
+          }}
+          onFile={() => {
+            fileInputRef.current?.click();
+          }}
+        />
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
