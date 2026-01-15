@@ -275,10 +275,122 @@ const DocumentsContent: React.FC<{
   };
   const handleCameraCapture = async (blob: Blob) => {
     setShowCamera(false);
-    toast({
-      title: "Foto aufgenommen",
-      description: "Öffne den Upload-Dialog um das Foto hochzuladen."
-    });
+    // Document is already uploaded by CameraCapture component
+    loadDocuments();
+  };
+
+  // Direct upload function - uploads files immediately without confirmation step
+  const uploadFilesDirectly = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Fehler",
+        description: "Bitte melde dich an",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const file of fileArray) {
+      try {
+        // Validate file
+        if (file.size > 10 * 1024 * 1024) {
+          toast({
+            title: "Fehler",
+            description: `${file.name} ist zu gross (max. 10 MB)`,
+            variant: "destructive"
+          });
+          errorCount++;
+          continue;
+        }
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+          toast({
+            title: "Fehler",
+            description: `${file.name} hat ein ungültiges Format`,
+            variant: "destructive"
+          });
+          errorCount++;
+          continue;
+        }
+
+        const fileName = `${Date.now()}-${file.name}`;
+        const filePath = `documents/${user.id}/${fileName}`;
+
+        // Upload to storage
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Save to database
+        const { error: dbError } = await supabase
+          .from('uploaded_documents')
+          .insert({
+            user_id: user.id,
+            file_name: file.name,
+            file_type: file.type,
+            file_path: filePath,
+            tax_year: selectedYear,
+            status: 'active',
+            is_assigned_to_checklist: false,
+            document_category: 'upload'
+          });
+
+        if (dbError) {
+          // Clean up uploaded file
+          await supabase.storage.from('documents').remove([filePath]);
+          throw dbError;
+        }
+
+        successCount++;
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        errorCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      toast({
+        title: "Upload erfolgreich",
+        description: `${successCount} ${successCount === 1 ? 'Datei' : 'Dateien'} hochgeladen`
+      });
+      loadDocuments();
+    }
+
+    if (errorCount > 0 && successCount === 0) {
+      toast({
+        title: "Fehler",
+        description: "Dateien konnten nicht hochgeladen werden",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle file input change for direct upload
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      uploadFilesDirectly(e.target.files);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
+  // Handle camera input change for direct upload
+  const handleCameraInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      uploadFilesDirectly(e.target.files);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
   };
   const handleYearSelect = (year: string) => {
     onYearChange(year);
@@ -524,21 +636,23 @@ const DocumentsContent: React.FC<{
           )}
         </main>
 
-        {/* Hidden File Inputs */}
-        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
-          if (e.target.files && e.target.files.length > 0) {
-            setSelectedFiles(Array.from(e.target.files));
-            setShowUploader(true);
-          }
-          e.target.value = '';
-        }} />
-        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
-          if (e.target.files && e.target.files.length > 0) {
-            setSelectedFiles(Array.from(e.target.files));
-            setShowUploader(true);
-          }
-          e.target.value = '';
-        }} />
+        {/* Hidden File Inputs - Direct upload without confirmation */}
+        <input 
+          ref={fileInputRef} 
+          type="file" 
+          accept="image/*,application/pdf" 
+          multiple 
+          className="hidden" 
+          onChange={handleFileInputChange} 
+        />
+        <input 
+          ref={cameraInputRef} 
+          type="file" 
+          accept="image/*" 
+          capture="environment" 
+          className="hidden" 
+          onChange={handleCameraInputChange} 
+        />
 
         {/* Mobile Floating Upload Button - Same style as UserTaxReturns */}
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 md:hidden">
