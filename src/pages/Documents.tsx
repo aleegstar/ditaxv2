@@ -403,31 +403,26 @@ const DocumentsContent: React.FC<{
                       }} 
                       className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
                     >
-                      {/* Blue Header Area with Year */}
+                      {/* Blue Header Area with Document Name */}
                       <div className="relative w-full bg-blue-500 rounded-t-[1.5rem] p-3 min-h-[130px]">
                         {/* Menu Dots */}
                         <div className="absolute top-3 right-3 z-10">
                           <MoreVertical className="w-4 h-4 text-white/50" strokeWidth={1.5} />
                         </div>
                         
-                        {/* Inner Rectangle Effect */}
-                        <div className="w-full h-full bg-blue-600/50 rounded-[1rem] flex items-center justify-center min-h-[106px]">
-                          <span className="text-2xl font-bold text-white tracking-tight">
-                            {docYear}
+                        {/* Inner White Rectangle */}
+                        <div className="w-full h-full bg-white rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
+                          <span className="text-lg font-bold text-blue-500 tracking-tight text-center truncate max-w-full">
+                            {doc.file_name.replace(/\.[^/.]+$/, '')}
                           </span>
                         </div>
                       </div>
                       
                       {/* Document Info */}
                       <div className="p-4 flex flex-col gap-2">
-                        <div>
-                          <h3 className="font-semibold text-slate-900 text-sm leading-tight mb-0.5 truncate">
-                            {doc.file_name.replace(/\.[^/.]+$/, '')}
-                          </h3>
-                          <p className="text-xs text-slate-500 leading-snug">
-                            Hochgeladen vor {timeAgo}
-                          </p>
-                        </div>
+                        <p className="text-xs text-slate-500 leading-snug">
+                          Hochgeladen vor {timeAgo}
+                        </p>
                         
                         {/* Bottom Row with Stats */}
                         <div className="flex items-center justify-between pt-2 border-t border-slate-100">
