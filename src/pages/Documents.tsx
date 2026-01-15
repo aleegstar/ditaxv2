@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Menu, ChevronDown, FolderOpen, CheckCircle2, FileText, Download, Plus, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, ArrowDownToLine, Plus, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +41,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
 
   if (!imageUrl) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 animate-pulse" />
+      <div className="w-full h-full bg-zinc-100 animate-pulse" />
     );
   }
 
@@ -49,7 +49,7 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
     <img 
       src={imageUrl} 
       alt={doc.file_name}
-      className="w-full h-full object-cover"
+      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
   );
 };
@@ -316,39 +316,67 @@ const DocumentsContent: React.FC<{
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen bg-white text-slate-900 flex flex-col", isTransitionEntry && "animate-fade-in")}>
-        {/* Minimal Header */}
-        <header className="sticky top-0 z-30 bg-white">
-          <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
-            {/* Menu Button */}
-            <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors">
-              <Menu className="w-5 h-5" strokeWidth={1.5} />
+      <div className={cn("min-h-screen bg-zinc-50 text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+        {/* Top Navigation */}
+        <nav className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-xl">
+          <div className="flex h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-between">
+            {/* Left: Back Button */}
+            <button 
+              onClick={() => navigate(-1)} 
+              className="group flex items-center justify-center rounded-full border border-zinc-200 bg-white p-2.5 transition-all hover:border-zinc-300 hover:bg-zinc-50 hover:shadow-sm"
+            >
+              <ArrowLeft className="h-5 w-5 text-zinc-600 group-hover:text-zinc-900" strokeWidth={1.5} />
             </button>
 
-            {/* Year Selector - Center */}
-            <div className="relative" data-tour="documents-year-selector">
+            {/* Center: Title */}
+            <div className="text-lg font-semibold text-zinc-900 tracking-tight">
+              Dokumente {selectedYear}
+            </div>
+
+            {/* Right: Profile */}
+            <button 
+              onClick={() => navigate('/profile')} 
+              className="h-9 w-9 overflow-hidden rounded-full border border-zinc-200 ring-2 ring-transparent transition-all hover:ring-zinc-200 cursor-pointer"
+            >
+              <img 
+                src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
+                alt="User" 
+                className="h-full w-full object-cover" 
+              />
+            </button>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 bg-white min-h-screen">
+          
+          {/* Header Section with Dropdown */}
+          <div className="mb-10">
+            <h1 className="text-3xl md:text-4xl font-semibold text-zinc-900 tracking-tight">Meine Dateien</h1>
+            <p className="text-lg text-zinc-500 mt-2">Verwalten und sammle hier deine Unterlagen.</p>
+            
+            {/* Year Dropdown */}
+            <div className="mt-6 relative" data-tour="documents-year-selector">
               <button 
-                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
-                className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                className="group flex items-center gap-2 rounded-lg border border-zinc-200 bg-white py-2 pl-3 pr-2 text-sm font-medium shadow-sm transition-all hover:border-zinc-300 hover:shadow-md active:scale-95"
               >
-                <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-slate-400" />
-                </div>
-                <span className="text-sm font-medium text-slate-900">{selectedYear}</span>
-                <ChevronDown className={cn("w-4 h-4 text-slate-500 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                <Calendar className="h-4 w-4 text-zinc-500 group-hover:text-zinc-800" strokeWidth={2} />
+                <span className="text-zinc-700 group-hover:text-zinc-900">{selectedYear}</span>
+                <ChevronDown className={cn("h-4 w-4 text-zinc-400 group-hover:text-zinc-600 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
               </button>
 
               {isYearDropdownOpen && <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden min-w-[140px]">
+                <div className="absolute top-full mt-2 left-0 z-[60] bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden min-w-[140px]">
                   <div className="max-h-64 overflow-y-auto py-1">
                     {availableYears.map(year => (
                       <button 
                         key={year} 
                         onClick={() => handleYearSelect(year)} 
                         className={cn(
-                          "w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors",
-                          year === selectedYear && "bg-blue-50 text-blue-600 font-medium"
+                          "w-full text-left px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors",
+                          year === selectedYear && "bg-zinc-100 text-zinc-900 font-medium"
                         )}
                       >
                         {year}
@@ -358,68 +386,68 @@ const DocumentsContent: React.FC<{
                 </div>
               </>}
             </div>
-
-            {/* Profile Avatar */}
-            <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-orange-100 hover:ring-orange-200 transition-all">
-              <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="Profil" className="w-full h-full object-cover" />
-            </button>
           </div>
-        </header>
-
-        {/* Main Content Area */}
-        <main className="flex-1 w-full max-w-lg mx-auto px-4 pb-32">
 
           {/* Documents Section */}
           {documents.length > 0 ? (
-            <>
-              {/* Document Grid - 2 columns gallery style */}
-              <div className="grid grid-cols-2 gap-3">
-                {filteredDocuments.map((doc) => {
-                  const isImage = doc.file_type?.startsWith('image/');
+            /* Document Grid */
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
+              {filteredDocuments.map((doc) => {
+                const isImage = doc.file_type?.startsWith('image/');
+                const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
+                const fileSize = formatFileSize((doc.metadata as any)?.size);
 
-                  return (
-                    <button 
-                      key={doc.id} 
-                      onClick={() => {
-                        setSelectedDocument(doc);
-                        setShowActionSheet(true);
-                      }} 
-                      className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 group"
-                    >
-                      {/* Document Thumbnail */}
-                      {isImage ? (
-                        <DocumentThumbnail doc={doc} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                          <FileText className="w-12 h-12 text-slate-400" strokeWidth={1} />
-                        </div>
-                      )}
-                      
-                      {/* Download Icon */}
-                      <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm opacity-80 group-hover:opacity-100 transition-opacity">
-                        <Download className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
+                return (
+                  <button 
+                    key={doc.id} 
+                    onClick={() => {
+                      setSelectedDocument(doc);
+                      setShowActionSheet(true);
+                    }} 
+                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 text-left"
+                  >
+                    {/* Document Thumbnail */}
+                    {isImage ? (
+                      <DocumentThumbnail doc={doc} />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200">
+                        <FileText className="w-16 h-16 text-zinc-400" strokeWidth={1} />
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
+                    )}
+                    
+                    {/* Hover Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    
+                    {/* Download Button */}
+                    <div className="absolute right-3 top-3 translate-y-2 rounded-full bg-white/90 p-2 text-zinc-900 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-white group-hover:translate-y-0 group-hover:opacity-100">
+                      <ArrowDownToLine className="h-4 w-4" strokeWidth={2} />
+                    </div>
+                    
+                    {/* File Info (on hover) */}
+                    <div className="absolute bottom-4 left-4 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <p className="text-sm font-medium text-white truncate max-w-[120px]">{doc.file_name}</p>
+                      <p className="text-xs text-zinc-300">{fileExt}{fileSize ? ` • ${fileSize}` : ''}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           ) : (
             /* Empty State */
-            <div className="flex-1 flex flex-col items-center justify-center py-20">
+            <div className="flex flex-col items-center justify-center py-20">
               <div className="text-center space-y-6 relative">
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <div className="absolute inset-0 bg-blue-500 rounded-full blur-[40px] opacity-10" />
-                  <div className="relative w-full h-full rounded-[32px] bg-white border border-slate-200 shadow-lg flex items-center justify-center">
+                  <div className="relative w-full h-full rounded-[32px] bg-white border border-zinc-200 shadow-lg flex items-center justify-center">
                     <FolderOpen strokeWidth={1.5} className="w-10 h-10 text-blue-500" />
                   </div>
-                  <div className="absolute -top-2 -right-2 bg-white border border-slate-200 p-1.5 rounded-full shadow-lg">
+                  <div className="absolute -top-2 -right-2 bg-white border border-zinc-200 p-1.5 rounded-full shadow-lg">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={1.5} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Belege sammeln</h2>
-                  <p className="text-sm text-slate-500 max-w-[280px] mx-auto leading-relaxed">
+                  <h2 className="text-xl font-semibold text-zinc-900 tracking-tight">Belege sammeln</h2>
+                  <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
                     Füge deine Rechnungen und Quittungen direkt hinzu.
                   </p>
                 </div>
@@ -428,35 +456,32 @@ const DocumentsContent: React.FC<{
           )}
         </main>
 
-        {/* Bottom Input Bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 px-4 py-4 pb-8">
-          <div className="max-w-lg mx-auto">
-            {/* Hidden File Inputs */}
-            <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
-              if (e.target.files && e.target.files.length > 0) {
-                setSelectedFiles(Array.from(e.target.files));
-                setShowUploader(true);
-              }
-              e.target.value = '';
-            }} />
-            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
-              if (e.target.files && e.target.files.length > 0) {
-                setSelectedFiles(Array.from(e.target.files));
-                setShowUploader(true);
-              }
-              e.target.value = '';
-            }} />
+        {/* Hidden File Inputs */}
+        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={e => {
+          if (e.target.files && e.target.files.length > 0) {
+            setSelectedFiles(Array.from(e.target.files));
+            setShowUploader(true);
+          }
+          e.target.value = '';
+        }} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => {
+          if (e.target.files && e.target.files.length > 0) {
+            setSelectedFiles(Array.from(e.target.files));
+            setShowUploader(true);
+          }
+          e.target.value = '';
+        }} />
 
-            {/* Input-like button */}
-            <button 
-              onClick={() => setShowUploadSheet(true)} 
-              className="w-full flex items-center gap-3 text-left"
-              data-tour="document-upload-card"
-            >
-              <span className="flex-1 text-slate-400 text-base">Unterlagen hinzufügen</span>
-              <div className="w-8 h-8 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:border-slate-300 hover:text-slate-500 transition-colors">
-                <Plus className="w-4 h-4" strokeWidth={2} />
-              </div>
+        {/* Mobile Floating Upload Bar */}
+        <div className="fixed bottom-6 left-1/2 z-50 w-full -translate-x-1/2 px-4 md:hidden">
+          <div 
+            onClick={() => setShowUploadSheet(true)}
+            className="mx-auto flex max-w-sm items-center justify-between rounded-full border border-zinc-200/50 bg-white/90 p-2 pl-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl ring-1 ring-black/5 cursor-pointer"
+            data-tour="document-upload-card"
+          >
+            <span className="text-base font-medium text-zinc-500">Unterlagen hinzufügen...</span>
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-md transition-transform active:scale-90">
+              <Plus className="h-5 w-5" strokeWidth={2} />
             </button>
           </div>
         </div>
