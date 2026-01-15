@@ -410,9 +410,9 @@ const DocumentsContent: React.FC<{
                           <MoreVertical className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
                         </div>
                         
-                        {/* Inner Blue Rectangle */}
-                        <div className="w-full h-full bg-blue-500 rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
-                          <span className="text-lg font-bold text-white tracking-tight text-center truncate max-w-full">
+                        {/* Inner Light Gray Rectangle */}
+                        <div className="w-full h-full bg-slate-100 rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
+                          <span className="text-lg font-bold text-slate-900 tracking-tight text-center truncate max-w-full">
                             {doc.file_name.replace(/\.[^/.]+$/, '')}
                           </span>
                         </div>
