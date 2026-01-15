@@ -79,7 +79,6 @@ export const TaxYearDashboard: React.FC = () => {
     icon: Landmark,
     param: 'vermoegen'
   }];
-
   const isCompletedEarly = (sectionId: string): boolean => {
     switch (sectionId) {
       case 'contact':
@@ -94,7 +93,6 @@ export const TaxYearDashboard: React.FC = () => {
         return false;
     }
   };
-
   const allAngabenCompleteEarly = angabenSectionsEarly.every(s => isCompletedEarly(s.id));
 
   // Auto-collapse when all angaben are complete (must be before early return)
@@ -203,13 +201,8 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 pb-24 pt-2">
         {/* Step 1: Persönliche Angaben - Collapsible when complete */}
-        {allAngabenComplete && !isAngabenExpanded ? (
-          /* Collapsed Pill View */
-          <div 
-            data-tour="form-step-1" 
-            onClick={() => setIsAngabenExpanded(true)}
-            className="bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 ring-slate-200/60 flex items-center gap-4 transition-all duration-300 cursor-pointer shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5"
-          >
+        {allAngabenComplete && !isAngabenExpanded ? (/* Collapsed Pill View */
+      <div data-tour="form-step-1" onClick={() => setIsAngabenExpanded(true)} className="bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[1.5rem] ring-1 ring-slate-200/60 flex items-center gap-4 transition-all duration-300 cursor-pointer shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5">
             <div className="h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 bg-green-50 border-green-100 text-green-600">
               <Check className="w-5 h-5" />
             </div>
@@ -222,30 +215,12 @@ export const TaxYearDashboard: React.FC = () => {
               </span>
             </div>
             <ChevronDown className="w-5 h-5 text-slate-300" />
-          </div>
-        ) : (
-          /* Expanded Card View */
-          <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${
-          !allAngabenComplete 
-            ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300' 
-            : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
-        }`}>
+          </div>) : (/* Expanded Card View */
+      <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${!allAngabenComplete ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300' : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'}`}>
             {/* BorderBeam for active step */}
-            {!allAngabenComplete && (
-              <BorderBeam 
-                size={150}
-                duration={10}
-                borderWidth={1}
-                colorFrom="#3B82F6"
-                colorTo="#60A5FA"
-                delay={0}
-              />
-            )}
+            {!allAngabenComplete && <BorderBeam size={150} duration={10} borderWidth={1} colorFrom="#3B82F6" colorTo="#60A5FA" delay={0} />}
             {/* Step Header - clickable to collapse when complete */}
-            <div 
-              onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-              className={`p-6 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-50/50' : ''}`}
-            >
+            <div onClick={() => allAngabenComplete && setIsAngabenExpanded(false)} className={`p-6 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-50/50' : ''}`}>
               <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 ${allAngabenComplete ? 'bg-green-50 border-green-100 text-green-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
                 {allAngabenComplete ? <Check className="w-5 h-5" /> : '1'}
               </div>
@@ -257,31 +232,27 @@ export const TaxYearDashboard: React.FC = () => {
                   {allAngabenComplete ? 'Abgeschlossen' : 'Offen'}
                 </span>
               </div>
-              {!allAngabenComplete && (
-                <div className="w-32 hidden md:block">
+              {!allAngabenComplete && <div className="w-32 hidden md:block">
                   <div className="flex justify-between text-xs font-semibold text-slate-900 mb-1">
                     <span>Fortschritt</span>
                     <span>{angabenProgress.percentage}%</span>
                   </div>
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{
-                    width: `${angabenProgress.percentage}%`
-                  }} />
+                width: `${angabenProgress.percentage}%`
+              }} />
                   </div>
-                </div>
-              )}
-              {allAngabenComplete && (
-                <ChevronDown className="w-5 h-5 text-slate-300 rotate-180" />
-              )}
+                </div>}
+              {allAngabenComplete && <ChevronDown className="w-5 h-5 text-slate-300 rotate-180" />}
             </div>
 
             {/* Action Grid */}
             <div className="p-6 pt-0 bg-white">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {angabenSections.map(section => {
-                const Icon = section.icon;
-                const completed = isCompleted(section.id);
-                return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-gradient-to-b from-white to-slate-50/50 ring-1 rounded-full shadow-[0_2px_8px_rgba(100,116,139,0.08)] hover:shadow-[0_4px_12px_rgba(100,116,139,0.15)] transition-all duration-200 hover:-translate-y-0.5 ${completed ? 'ring-slate-200/60' : 'ring-slate-200/60 hover:ring-blue-300'}`}>
+              const Icon = section.icon;
+              const completed = isCompleted(section.id);
+              return <button key={section.id} onClick={() => handleSectionClick(section)} data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} className={`group flex items-center gap-4 p-4 text-left bg-gradient-to-b from-white to-slate-50/50 ring-1 rounded-full shadow-[0_2px_8px_rgba(100,116,139,0.08)] hover:shadow-[0_4px_12px_rgba(100,116,139,0.15)] transition-all duration-200 hover:-translate-y-0.5 ${completed ? 'ring-slate-200/60' : 'ring-slate-200/60 hover:ring-blue-300'}`}>
                       <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center border transition-colors ${completed ? 'bg-green-50 text-green-600 border-green-100' : 'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600'}`}>
                         {completed ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                       </div>
@@ -297,33 +268,17 @@ export const TaxYearDashboard: React.FC = () => {
                         <ChevronRight className="w-5 h-5" />
                       </div>
                     </button>;
-              })}
+            })}
               </div>
             </div>
-          </section>
-        )}
+          </section>)}
 
         {/* Upcoming Steps */}
         <section className={`flex flex-col gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
-          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
-          allAngabenComplete && !isDocumentsComplete 
-            ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1' 
-            : allAngabenComplete 
-              ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5' 
-              : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
-        }`}>
+          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${allAngabenComplete && !isDocumentsComplete ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1' : allAngabenComplete ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5' : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'}`}>
             {/* BorderBeam for active step */}
-            {allAngabenComplete && !isDocumentsComplete && (
-              <BorderBeam 
-                size={150}
-                duration={10}
-                borderWidth={1}
-                colorFrom="#3B82F6"
-                colorTo="#60A5FA"
-                delay={0}
-              />
-            )}
+            {allAngabenComplete && !isDocumentsComplete && <BorderBeam size={150} duration={10} borderWidth={1} colorFrom="#3B82F6" colorTo="#60A5FA" delay={0} />}
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isDocumentsComplete ? 'bg-green-50 border-green-100 text-green-600' : allAngabenComplete ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" /> : '2'}
             </div>
@@ -339,24 +294,9 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Step 3: Prüfung & Versand */}
-          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
-          canSubmit && !isCompleted('submit')
-            ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1'
-            : canSubmit
-              ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5'
-              : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
-        } ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
+          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${canSubmit && !isCompleted('submit') ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1' : canSubmit ? 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60 cursor-pointer hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5' : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'} ${!allAngabenComplete ? '' : !isDocumentsComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
             {/* BorderBeam for active step */}
-            {canSubmit && !isCompleted('submit') && (
-              <BorderBeam 
-                size={150}
-                duration={10}
-                borderWidth={1}
-                colorFrom="#3B82F6"
-                colorTo="#60A5FA"
-                delay={0}
-              />
-            )}
+            {canSubmit && !isCompleted('submit') && <BorderBeam size={150} duration={10} borderWidth={1} colorFrom="#3B82F6" colorTo="#60A5FA" delay={0} />}
             <div className={`h-10 w-10 rounded-full border flex items-center justify-center font-bold ${isCompleted('submit') ? 'bg-green-50 border-green-100 text-green-600' : canSubmit ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" /> : '3'}
             </div>
