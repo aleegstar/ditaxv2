@@ -208,7 +208,7 @@ export const TaxYearDashboard: React.FC = () => {
           <div 
             data-tour="form-step-1" 
             onClick={() => setIsAngabenExpanded(true)}
-            className="bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 ring-slate-200/60 flex items-center gap-4 transition-all duration-300 cursor-pointer shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5"
+            className="bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[1.5rem] ring-1 ring-slate-200/60 flex items-center gap-4 transition-all duration-300 cursor-pointer shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(100,116,139,0.18)] hover:-translate-y-0.5"
           >
             <div className="h-10 w-10 rounded-full border flex items-center justify-center font-bold shrink-0 bg-green-50 border-green-100 text-green-600">
               <Check className="w-5 h-5" />
@@ -225,7 +225,7 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
         ) : (
           /* Expanded Card View */
-          <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${
+          <section data-tour="form-step-1" className={`bg-gradient-to-b from-white to-slate-50/80 rounded-[1.5rem] ring-1 overflow-hidden relative transition-all duration-300 ${
           !allAngabenComplete 
             ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300' 
             : 'shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-slate-200/60'
@@ -306,7 +306,7 @@ export const TaxYearDashboard: React.FC = () => {
         {/* Upcoming Steps */}
         <section className={`flex flex-col gap-4 ${!allAngabenComplete ? 'opacity-50 grayscale select-none cursor-not-allowed' : ''}`}>
           {/* Step 2: Belege & Unterlagen */}
-          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
+          <div data-tour="form-step-2" onClick={() => allAngabenComplete && handleDocumentsClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[1.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
           allAngabenComplete && !isDocumentsComplete 
             ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1' 
             : allAngabenComplete 
@@ -339,7 +339,7 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
 
           {/* Step 3: Prüfung & Versand */}
-          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[2.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
+          <div data-tour="form-step-3" onClick={() => canSubmit && handleSubmitClick()} className={`bg-gradient-to-b from-white to-slate-50/80 p-6 rounded-[1.5rem] ring-1 flex items-center gap-4 transition-all duration-300 relative overflow-hidden ${
           canSubmit && !isCompleted('submit')
             ? 'shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] ring-slate-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(100,116,139,0.22),0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-1'
             : canSubmit
