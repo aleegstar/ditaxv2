@@ -403,44 +403,46 @@ const DocumentsContent: React.FC<{
                       }} 
                       className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
                     >
-                      {/* Blue Header Area with Document Name */}
-                      <div className="relative w-full bg-gradient-to-br from-blue-500 to-blue-600 px-5 py-6 flex flex-col items-center justify-center min-h-[120px]">
+                      {/* Blue Header Area with Year */}
+                      <div className="relative w-full bg-blue-500 rounded-t-[1.5rem] p-3 min-h-[130px]">
                         {/* Menu Dots */}
-                        <div className="absolute top-3 right-3">
-                          <MoreVertical className="w-5 h-5 text-white/60" strokeWidth={1.5} />
+                        <div className="absolute top-3 right-3 z-10">
+                          <MoreVertical className="w-4 h-4 text-white/50" strokeWidth={1.5} />
                         </div>
                         
-                        {/* Document Name Display */}
-                        <span className="text-xl font-bold text-white tracking-tight text-center px-4 line-clamp-2">
-                          {doc.file_name.replace(/\.[^/.]+$/, '')}
-                        </span>
+                        {/* Inner Rectangle Effect */}
+                        <div className="w-full h-full bg-blue-600/50 rounded-[1rem] flex items-center justify-center min-h-[106px]">
+                          <span className="text-2xl font-bold text-white tracking-tight">
+                            {docYear}
+                          </span>
+                        </div>
                       </div>
                       
                       {/* Document Info */}
-                      <div className="p-5 flex flex-col gap-3">
+                      <div className="p-4 flex flex-col gap-2">
                         <div>
-                          <h3 className="font-semibold text-slate-900 text-base leading-tight mb-1 truncate">
+                          <h3 className="font-semibold text-slate-900 text-sm leading-tight mb-0.5 truncate">
                             {doc.file_name.replace(/\.[^/.]+$/, '')}
                           </h3>
-                          <p className="text-sm text-blue-500 leading-snug">
+                          <p className="text-xs text-slate-500 leading-snug">
                             Hochgeladen vor {timeAgo}
                           </p>
                         </div>
                         
                         {/* Bottom Row with Stats */}
                         <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                          <div className="flex items-center gap-4 text-slate-400">
+                          <div className="flex items-center gap-3 text-slate-400">
                             {/* File Type Icon */}
-                            <div className="flex items-center gap-1.5">
-                              {isImage ? <Image className="w-4 h-4" strokeWidth={1.5} /> : isPdf ? <FileText className="w-4 h-4" strokeWidth={1.5} /> : <File className="w-4 h-4" strokeWidth={1.5} />}
-                              <span className="text-xs font-medium">
+                            <div className="flex items-center gap-1">
+                              {isImage ? <Image className="w-3.5 h-3.5" strokeWidth={1.5} /> : isPdf ? <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> : <File className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                              <span className="text-[11px] font-medium">
                                 {isImage ? 'Bild' : isPdf ? 'PDF' : 'Datei'}
                               </span>
                             </div>
                           </div>
                           
                           {/* Action Link */}
-                          <div className="flex items-center gap-1 text-slate-700 font-medium text-sm group-hover:text-blue-600 transition-colors">
+                          <div className="flex items-center gap-1 text-slate-700 font-medium text-xs group-hover:text-blue-600 transition-colors">
                             <span>Öffnen</span>
                             <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                           </div>
