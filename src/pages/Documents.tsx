@@ -403,16 +403,16 @@ const DocumentsContent: React.FC<{
                       }} 
                       className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
                     >
-                      {/* Blue Header Area with Document Name */}
-                      <div className="relative w-full bg-blue-500 rounded-t-[1.5rem] p-3 min-h-[130px]">
+                      {/* White Header Area with Blue Inner Rectangle */}
+                      <div className="relative w-full bg-white rounded-t-[1.5rem] p-3 min-h-[130px] border-b border-slate-100">
                         {/* Menu Dots */}
                         <div className="absolute top-3 right-3 z-10">
-                          <MoreVertical className="w-4 h-4 text-white/50" strokeWidth={1.5} />
+                          <MoreVertical className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
                         </div>
                         
-                        {/* Inner White Rectangle */}
-                        <div className="w-full h-full bg-white rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
-                          <span className="text-lg font-bold text-blue-500 tracking-tight text-center truncate max-w-full">
+                        {/* Inner Blue Rectangle */}
+                        <div className="w-full h-full bg-blue-500 rounded-[1rem] flex items-center justify-center min-h-[106px] px-4">
+                          <span className="text-lg font-bold text-white tracking-tight text-center truncate max-w-full">
                             {doc.file_name.replace(/\.[^/.]+$/, '')}
                           </span>
                         </div>
