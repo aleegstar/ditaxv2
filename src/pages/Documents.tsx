@@ -15,7 +15,7 @@ import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
-
+import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 // Component to render document thumbnail with actual image
 const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -23,30 +23,60 @@ const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
   const [error, setError] = useState(false);
   
   useEffect(() => {
+    let isMounted = true;
+    let objectUrl: string | null = null;
+    
     const loadImage = async () => {
       setLoading(true);
       setError(false);
+      
       try {
-        const { data, error: urlError } = await supabase.storage
-          .from('tax-documents')
-          .createSignedUrl(doc.file_path, 3600);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || !isMounted) return;
         
-        if (urlError) {
-          console.error('Error getting signed URL:', urlError);
-          setError(true);
-        } else if (data?.signedUrl) {
-          setImageUrl(data.signedUrl);
+        const metadata = doc.metadata as any;
+        
+        // Check if document is encrypted
+        if (metadata?.encrypted) {
+          // Use encrypted document service to decrypt
+          const encryptedService = EncryptedDocumentService.getInstance();
+          const { blob } = await encryptedService.downloadOwnDecryptedDocument(doc.id, user.id);
+          
+          if (!isMounted) return;
+          
+          objectUrl = URL.createObjectURL(blob);
+          setImageUrl(objectUrl);
+        } else {
+          // Non-encrypted: get signed URL from documents bucket
+          const { data, error: urlError } = await supabase.storage
+            .from('documents')
+            .createSignedUrl(doc.file_path, 3600);
+          
+          if (urlError) {
+            console.error('Error getting signed URL:', urlError);
+            setError(true);
+          } else if (data?.signedUrl && isMounted) {
+            setImageUrl(data.signedUrl);
+          }
         }
       } catch (err) {
         console.error('Error loading image:', err);
-        setError(true);
+        if (isMounted) setError(true);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     
     loadImage();
-  }, [doc.file_path]);
+    
+    // Cleanup: revoke object URL on unmount
+    return () => {
+      isMounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [doc.id, doc.file_path, doc.metadata]);
 
   // Show loading state
   if (loading) {
