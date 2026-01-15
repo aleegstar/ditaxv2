@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import uploadIcon from '@/assets/upload-icon.svg';
 // Component to render document thumbnail with actual image
 const DocumentThumbnail: React.FC<{ doc: any }> = ({ doc }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -530,7 +531,7 @@ const DocumentsContent: React.FC<{
             className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <ScanLine className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
+              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
               <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
