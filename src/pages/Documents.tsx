@@ -382,59 +382,80 @@ const DocumentsContent: React.FC<{
               {/* Document Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredDocuments.map((doc, index) => {
-              const isImage = doc.file_type?.startsWith('image/');
-              const isPdf = doc.file_type === 'application/pdf';
-              const uploadDate = new Date(doc.upload_date);
-              const timeAgo = formatDistanceToNow(uploadDate, {
-                locale: de,
-                addSuffix: false
-              });
+                  const isImage = doc.file_type?.startsWith('image/');
+                  const isPdf = doc.file_type === 'application/pdf';
+                  const uploadDate = new Date(doc.upload_date);
+                  const timeAgo = formatDistanceToNow(uploadDate, {
+                    locale: de,
+                    addSuffix: false
+                  });
+                  const docYear = doc.tax_year || selectedYear;
 
-              // Rotate colors for variety
-              const colorVariants = [{
-                bg: 'bg-blue-50',
-                border: 'border-blue-100/50',
-                text: 'text-blue-600',
-                hoverBg: 'group-hover:bg-blue-100'
-              }, {
-                bg: 'bg-indigo-50',
-                border: 'border-indigo-100/50',
-                text: 'text-indigo-600',
-                hoverBg: 'group-hover:bg-indigo-100'
-              }, {
-                bg: 'bg-emerald-50',
-                border: 'border-emerald-100/50',
-                text: 'text-emerald-600',
-                hoverBg: 'group-hover:bg-emerald-100'
-              }, {
-                bg: 'bg-violet-50',
-                border: 'border-violet-100/50',
-                text: 'text-violet-600',
-                hoverBg: 'group-hover:bg-violet-100'
-              }];
-              const color = colorVariants[index % colorVariants.length];
-              return <button key={doc.id} onClick={() => {
-                setSelectedDocument(doc);
-                setShowActionSheet(true);
-              }} className="group flex flex-col items-start text-left bg-white p-6 rounded-[2rem] border border-slate-200 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-slate-300 transition-all duration-300">
-                      {/* Icon Container */}
-                      <div className={cn("w-12 h-12 rounded-full border flex items-center justify-center mb-10 group-hover:scale-110 transition-all duration-300", color.bg, color.border, color.text, color.hoverBg)}>
-                        {isImage ? <Image className="w-5 h-5 stroke-[1.5]" /> : isPdf ? <FileText className="w-5 h-5 stroke-[1.5]" /> : <File className="w-5 h-5 stroke-[1.5]" />}
+                  return (
+                    <button 
+                      key={doc.id} 
+                      onClick={() => {
+                        setSelectedDocument(doc);
+                        setShowActionSheet(true);
+                      }} 
+                      className="group flex flex-col text-left bg-white rounded-[1.5rem] border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* Blue Header Area with Year */}
+                      <div className="relative w-full bg-gradient-to-br from-blue-500 to-blue-600 px-5 py-6 flex flex-col items-center justify-center min-h-[120px]">
+                        {/* Menu Dots */}
+                        <div className="absolute top-3 right-3">
+                          <MoreVertical className="w-5 h-5 text-white/60" strokeWidth={1.5} />
+                        </div>
+                        
+                        {/* Year Display */}
+                        <span className="text-3xl font-bold text-white tracking-tight">
+                          {docYear}
+                        </span>
+                        
+                        {/* AKTIV Badge */}
+                        <div className="absolute bottom-3 left-4">
+                          <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-wide">
+                              Aktiv
+                            </span>
+                          </div>
+                        </div>
                       </div>
                       
                       {/* Document Info */}
-                      <div className="w-full">
-                        <div className="flex items-center justify-between w-full mb-1">
-                          <h3 className="font-bold text-slate-900 truncate pr-2">
+                      <div className="p-5 flex flex-col gap-3">
+                        <div>
+                          <h3 className="font-semibold text-slate-900 text-base leading-tight mb-1 truncate">
                             {doc.file_name.replace(/\.[^/.]+$/, '')}
                           </h3>
+                          <p className="text-sm text-blue-500 leading-snug">
+                            Hochgeladen vor {timeAgo}
+                          </p>
                         </div>
-                        <p className="text-xs font-medium text-slate-400 flex items-center gap-2">
-                          <span>Aktualisiert vor {timeAgo}</span>
-                        </p>
+                        
+                        {/* Bottom Row with Stats */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                          <div className="flex items-center gap-4 text-slate-400">
+                            {/* File Type Icon */}
+                            <div className="flex items-center gap-1.5">
+                              {isImage ? <Image className="w-4 h-4" strokeWidth={1.5} /> : isPdf ? <FileText className="w-4 h-4" strokeWidth={1.5} /> : <File className="w-4 h-4" strokeWidth={1.5} />}
+                              <span className="text-xs font-medium">
+                                {isImage ? 'Bild' : isPdf ? 'PDF' : 'Datei'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Action Link */}
+                          <div className="flex items-center gap-1 text-slate-700 font-medium text-sm group-hover:text-blue-600 transition-colors">
+                            <span>Öffnen</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                          </div>
+                        </div>
                       </div>
-                    </button>;
-            })}
+                    </button>
+                  );
+                })}
               </div>
             </> : (/* Empty State */
         <div className="flex-1 flex flex-col items-center justify-center py-20">
