@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, ArrowDownToLine, Plus, Calendar, ScanLine } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -490,9 +490,9 @@ const DocumentsContent: React.FC<{
                     {/* Hover Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     
-                    {/* Download Button */}
+                    {/* More Options Button */}
                     <div className="absolute right-3 top-3 translate-y-2 rounded-full bg-white/90 p-2 text-zinc-900 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-white group-hover:translate-y-0 group-hover:opacity-100">
-                      <ArrowDownToLine className="h-4 w-4" strokeWidth={2} />
+                      <MoreVertical className="h-4 w-4" strokeWidth={2} />
                     </div>
                     
                     {/* File Info (on hover) */}
