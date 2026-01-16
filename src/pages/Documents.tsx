@@ -519,14 +519,13 @@ const DocumentsContent: React.FC<{
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 bg-white min-h-screen">
 
           {/* Title Row with Year Dropdown */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-center gap-8 mb-6">
             <h1 className="text-xl font-semibold text-zinc-900">Steuerjahr</h1>
             
             <div className="relative" data-tour="documents-year-selector">
-              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
-                
+              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-1.5 text-xl font-semibold text-zinc-900 hover:text-zinc-700 transition-colors">
                 <span>{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                <ChevronDown className={cn("h-5 w-5 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
               </button>
 
               {isYearDropdownOpen && <>
