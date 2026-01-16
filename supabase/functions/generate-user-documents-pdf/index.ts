@@ -534,14 +534,19 @@ serve(async (req) => {
         const isEncrypted = doc.metadata?.encrypted && doc.metadata?.iv && doc.metadata?.encryptedMetadata;
         console.log(`🔐 Encryption status: ${isEncrypted ? 'Encrypted' : 'Unencrypted'}`);
         
-        // Try encrypted bucket first if document is encrypted
+        // Download from 'documents' bucket (where EncryptedDocumentService uploads)
         if (isEncrypted) {
           try {
             const { data: fileData, error: downloadError } = await supabase.storage
-              .from('tax-documents')
+              .from('documents')  // Correct bucket - matches EncryptedDocumentService
               .download(doc.file_path);
 
-            if (!downloadError && fileData) {
+            if (downloadError) {
+              console.log(`⚠️ Storage download error: ${downloadError.message}`);
+              throw downloadError;
+            }
+
+            if (fileData) {
               const encryptedBuffer = await fileData.arrayBuffer();
               console.log(`📥 Downloaded encrypted file: ${encryptedBuffer.byteLength} bytes`);
               
@@ -572,8 +577,9 @@ serve(async (req) => {
           }
         }
         
-        // Fallback to unencrypted bucket
-        if (!fileBuffer) {
+        // Fallback for unencrypted files only (old documents without encryption)
+        if (!fileBuffer && !isEncrypted) {
+          console.log(`📂 Downloading unencrypted file from documents bucket`);
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('documents')
             .download(doc.file_path);
@@ -589,6 +595,11 @@ serve(async (req) => {
           if (sizeMB > MAX_FILE_SIZE_MB) {
             throw new Error(`File too large: ${sizeMB.toFixed(2)}MB (max: ${MAX_FILE_SIZE_MB}MB)`);
           }
+        }
+
+        // If no fileBuffer at this point, we couldn't download/decrypt
+        if (!fileBuffer) {
+          throw new Error('Failed to download or decrypt file');
         }
 
         // Check total size limit
