@@ -32,7 +32,7 @@ export const AuthErrorHandler: React.FC<AuthErrorHandlerProps> = ({
     if (isNetworkError) {
       return {
         title: 'Netzwerkfehler',
-        description: 'Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.',
+        description: 'Überprüfe deine Internetverbindung und versuche es erneut.',
         icon: <Wifi className="w-5 h-5" />
       };
     }

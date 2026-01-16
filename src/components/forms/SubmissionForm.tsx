@@ -46,7 +46,7 @@ export const SubmissionForm: React.FC = () => {
       updateFormProgress('submit' as any, true);
       toast({
         title: "Steuererklärung eingereicht",
-        description: "Ihre Steuererklärung wurde erfolgreich eingereicht."
+        description: "Deine Steuererklärung wurde erfolgreich eingereicht."
       });
       setSearchParams({});
     } catch (error) {
@@ -104,7 +104,7 @@ export const SubmissionForm: React.FC = () => {
           <div className="space-y-6">
             {/* Status Overview */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-              <h3 className="text-white font-semibold mb-4">Status Ihrer Angaben</h3>
+              <h3 className="text-white font-semibold mb-4">Status deiner Angaben</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <div className={`w-4 h-4 rounded-full ${formData?.contactInfo ? 'bg-green-500' : 'bg-gray-400'}`}></div>

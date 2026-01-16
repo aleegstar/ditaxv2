@@ -129,7 +129,7 @@ export const ConsentStep: React.FC<ConsentStepProps> = ({
 
       toast({
         title: "Einstellungen gespeichert",
-        description: "Ihre Zustimmung wurde erfolgreich gespeichert."
+        description: "Deine Zustimmung wurde erfolgreich gespeichert."
       });
 
       onConsentComplete();
@@ -138,7 +138,7 @@ export const ConsentStep: React.FC<ConsentStepProps> = ({
       console.error('Consent submission error:', error);
       toast({
         title: "Fehler",
-        description: "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+        description: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
         variant: "destructive"
       });
     } finally {
@@ -159,7 +159,7 @@ export const ConsentStep: React.FC<ConsentStepProps> = ({
             Willkommen bei DiTax!
           </CardTitle>
           <p className="text-gray-600 mt-2">
-            Bitte bestätigen Sie Ihre Einstellungen, um fortzufahren.
+            Bitte bestätige deine Einstellungen, um fortzufahren.
           </p>
         </CardHeader>
 
@@ -202,7 +202,7 @@ export const ConsentStep: React.FC<ConsentStepProps> = ({
                   Ich möchte E-Mails über Neuigkeiten, Updates und Angebote erhalten.
                   <br />
                   <span className="text-sm text-gray-500">
-                    Sie können diese Einstellung jederzeit in Ihrem Profil ändern.
+                    Du kannst diese Einstellung jederzeit in deinem Profil ändern.
                   </span>
                 </span>
               }
