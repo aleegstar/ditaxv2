@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,6 +19,7 @@ import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
+import { SignatureDialog } from '@/components/signature/SignatureDialog';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -105,6 +106,29 @@ const UserTaxReturns = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [signatureDialogOpen, setSignatureDialogOpen] = useState(false);
+
+  // Find the first unsigned completed tax return
+  const unsignedTaxReturn = useMemo(() => {
+    const completedYearsWithData = Object.entries(completedTaxReturns || {});
+    for (const [year, data] of completedYearsWithData) {
+      if (data && data.signature_status !== 'signed') {
+        return data;
+      }
+    }
+    return null;
+  }, [completedTaxReturns]);
+
+  // Auto-open signature dialog when there's an unsigned tax return
+  useEffect(() => {
+    if (unsignedTaxReturn && isReady && userProfile && !signatureDialogOpen) {
+      // Small delay to ensure page is fully rendered
+      const timer = setTimeout(() => {
+        setSignatureDialogOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [unsignedTaxReturn, isReady, userProfile]);
 
   const handleDeleteTaxYear = async (year: string) => {
     if (!userId) return;
@@ -500,6 +524,30 @@ const UserTaxReturns = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Signature Dialog - auto-opens when signature is pending */}
+      {userProfile && unsignedTaxReturn && (
+        <SignatureDialog
+          open={signatureDialogOpen}
+          onOpenChange={setSignatureDialogOpen}
+          completedTaxReturn={{
+            id: unsignedTaxReturn.id,
+            tax_year: unsignedTaxReturn.tax_year,
+            file_name: unsignedTaxReturn.file_name,
+            file_path: unsignedTaxReturn.file_path
+          }}
+          userProfile={{
+            first_name: userProfile.first_name || '',
+            last_name: userProfile.last_name || '',
+            email: userProfile.email || '',
+            date_of_birth: userProfile.date_of_birth || undefined
+          }}
+          onSignatureComplete={() => {
+            refetch();
+            setSignatureDialogOpen(false);
+          }}
+        />
+      )}
     </div>;
 };
 export default UserTaxReturns;
