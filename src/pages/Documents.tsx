@@ -514,7 +514,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <SubpageHeader onBack={() => navigate(-1)} showAvatar={true} titleElement={<div className="relative" data-tour="documents-year-selector">
-              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]">
+              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]">
                 <Calendar className="h-4 w-4 text-white" strokeWidth={2} />
                 <span className="text-white">{selectedYear}</span>
                 <ChevronDown className={cn("h-4 w-4 text-white/80 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
