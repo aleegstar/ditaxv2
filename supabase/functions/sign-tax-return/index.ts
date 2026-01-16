@@ -62,6 +62,7 @@ async function addSignaturePage(
     signatureHash: string;
     ipAddress: string;
     authorizationText: string;
+    userAgent?: string;
   }
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(pdfBuffer);
@@ -74,38 +75,44 @@ async function addSignaturePage(
   const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   
   const pageWidth = signaturePage.getWidth();
+  const pageHeight = signaturePage.getHeight();
   const margin = 50;
-  let yPosition = 780;
+  let yPosition = pageHeight - 60;
   
   // Colors
   const darkGray = rgb(0.2, 0.2, 0.2);
-  const mediumGray = rgb(0.4, 0.4, 0.4);
-  const lightGray = rgb(0.6, 0.6, 0.6);
-  const accentColor = rgb(0.133, 0.545, 0.133); // Green for checkmark
+  const mediumGray = rgb(0.45, 0.45, 0.45);
+  const lightGray = rgb(0.65, 0.65, 0.65);
+  const greenColor = rgb(0.133, 0.545, 0.133);
+  const blueColor = rgb(0.2, 0.4, 0.8);
+  const lightBlueBg = rgb(0.93, 0.96, 1);
+  const lightGreenBg = rgb(0.93, 0.98, 0.93);
+  const borderColor = rgb(0.85, 0.85, 0.85);
   
-  // === HEADER ===
-  signaturePage.drawText('ELEKTRONISCHE SIGNATUR', {
+  // === DITAX HEADER ===
+  signaturePage.drawText('DITAX', {
     x: margin,
     y: yPosition,
     font: helveticaBold,
-    size: 22,
+    size: 28,
     color: darkGray,
   });
   
-  yPosition -= 8;
+  yPosition -= 30;
   
-  // Draw header underline
-  signaturePage.drawLine({
-    start: { x: margin, y: yPosition },
-    end: { x: pageWidth - margin, y: yPosition },
-    thickness: 2,
-    color: darkGray,
+  // Subtitle
+  signaturePage.drawText('Elektronische Signatur', {
+    x: margin,
+    y: yPosition,
+    font: helvetica,
+    size: 12,
+    color: mediumGray,
   });
   
-  yPosition -= 35;
+  yPosition -= 40;
   
-  // === DOCUMENT TITLE ===
-  signaturePage.drawText(`Steuererklärung ${signatureData.taxYear}`, {
+  // === DOCUMENT INFO ===
+  signaturePage.drawText(`Steuererklaerung ${signatureData.taxYear}`, {
     x: margin,
     y: yPosition,
     font: helveticaBold,
@@ -113,44 +120,73 @@ async function addSignaturePage(
     color: darkGray,
   });
   
-  yPosition -= 30;
+  yPosition -= 35;
   
-  // === STATUS BOX ===
-  const boxWidth = pageWidth - (2 * margin);
-  const boxHeight = 40;
+  // === VISIBLE SIGNATURE BOX ===
+  const signatureBoxHeight = 120;
+  const signatureBoxY = yPosition - signatureBoxHeight;
   
-  // Draw status box background
+  // Draw signature box with light blue background
   signaturePage.drawRectangle({
     x: margin,
-    y: yPosition - boxHeight + 10,
-    width: boxWidth,
-    height: boxHeight,
-    color: rgb(0.95, 0.98, 0.95), // Light green background
-    borderColor: accentColor,
-    borderWidth: 1,
+    y: signatureBoxY,
+    width: pageWidth - (2 * margin),
+    height: signatureBoxHeight,
+    color: lightBlueBg,
+    borderColor: blueColor,
+    borderWidth: 1.5,
   });
   
-  // Checkmark symbol
-  signaturePage.drawText('✓', {
+  // Signature label
+  signaturePage.drawText('Unterschrift', {
     x: margin + 15,
-    y: yPosition - 15,
-    font: helveticaBold,
-    size: 20,
-    color: accentColor,
+    y: yPosition - 20,
+    font: helvetica,
+    size: 10,
+    color: mediumGray,
   });
   
-  signaturePage.drawText('Dokument wurde elektronisch signiert', {
-    x: margin + 45,
-    y: yPosition - 12,
+  // Draw the actual signature (name in handwriting-style large font)
+  signaturePage.drawText(signatureData.signerName, {
+    x: margin + 20,
+    y: yPosition - 55,
     font: helveticaBold,
-    size: 12,
-    color: accentColor,
+    size: 32,
+    color: blueColor,
   });
   
-  yPosition -= 60;
+  // Signature underline
+  signaturePage.drawLine({
+    start: { x: margin + 15, y: yPosition - 70 },
+    end: { x: pageWidth - margin - 15, y: yPosition - 70 },
+    thickness: 1,
+    color: blueColor,
+  });
   
-  // === SIGNER INFORMATION SECTION ===
-  signaturePage.drawText('Unterzeichner', {
+  // Signed date below signature
+  signaturePage.drawText(`Signiert am ${formatDate(signatureData.signedAt)}`, {
+    x: margin + 15,
+    y: yPosition - 90,
+    font: helvetica,
+    size: 10,
+    color: mediumGray,
+  });
+  
+  // Email on right side
+  const emailText = signatureData.signerEmail;
+  const emailWidth = helvetica.widthOfTextAtSize(emailText, 10);
+  signaturePage.drawText(emailText, {
+    x: pageWidth - margin - 15 - emailWidth,
+    y: yPosition - 90,
+    font: helvetica,
+    size: 10,
+    color: mediumGray,
+  });
+  
+  yPosition = signatureBoxY - 30;
+  
+  // === ACTIVITY LOG (Breezedoc-style) ===
+  signaturePage.drawText('Aktivitaetsprotokoll', {
     x: margin,
     y: yPosition,
     font: helveticaBold,
@@ -158,24 +194,145 @@ async function addSignaturePage(
     color: darkGray,
   });
   
-  yPosition -= 5;
-  signaturePage.drawLine({
-    start: { x: margin, y: yPosition },
-    end: { x: margin + 100, y: yPosition },
-    thickness: 1,
+  yPosition -= 25;
+  
+  // Activity table header
+  const col1X = margin;
+  const col2X = margin + 140;
+  const col3X = margin + 280;
+  
+  signaturePage.drawText('Datum', {
+    x: col1X,
+    y: yPosition,
+    font: helveticaBold,
+    size: 9,
     color: mediumGray,
   });
   
-  yPosition -= 22;
+  signaturePage.drawText('Ereignis / Empfaenger', {
+    x: col2X,
+    y: yPosition,
+    font: helveticaBold,
+    size: 9,
+    color: mediumGray,
+  });
   
-  // Signer details
+  signaturePage.drawText('Metadaten', {
+    x: col3X,
+    y: yPosition,
+    font: helveticaBold,
+    size: 9,
+    color: mediumGray,
+  });
+  
+  yPosition -= 8;
+  
+  // Header underline
+  signaturePage.drawLine({
+    start: { x: margin, y: yPosition },
+    end: { x: pageWidth - margin, y: yPosition },
+    thickness: 0.5,
+    color: borderColor,
+  });
+  
+  yPosition -= 20;
+  
+  // Activity row 1: Created/Sent
+  signaturePage.drawText(formatDate(signatureData.signedAt), {
+    x: col1X,
+    y: yPosition,
+    font: helvetica,
+    size: 9,
+    color: darkGray,
+  });
+  
+  // Badge: Signiert (green)
+  const badgeWidth = 55;
+  const badgeHeight = 16;
+  signaturePage.drawRectangle({
+    x: col2X,
+    y: yPosition - 4,
+    width: badgeWidth,
+    height: badgeHeight,
+    color: lightGreenBg,
+    borderColor: greenColor,
+    borderWidth: 0.5,
+  });
+  
+  signaturePage.drawText('Signiert', {
+    x: col2X + 8,
+    y: yPosition + 1,
+    font: helveticaBold,
+    size: 9,
+    color: greenColor,
+  });
+  
+  yPosition -= 18;
+  
+  signaturePage.drawText(signatureData.signerEmail, {
+    x: col2X,
+    y: yPosition,
+    font: helvetica,
+    size: 9,
+    color: darkGray,
+  });
+  
+  // Metadata column
+  const ipText = signatureData.ipAddress.length > 15 
+    ? signatureData.ipAddress.substring(0, 12) + '.xxx' 
+    : signatureData.ipAddress;
+  signaturePage.drawText(ipText, {
+    x: col3X,
+    y: yPosition + 18,
+    font: helvetica,
+    size: 8,
+    color: mediumGray,
+  });
+  
+  // User agent (truncated)
+  const userAgentText = signatureData.userAgent || 'Browser';
+  const truncatedUA = userAgentText.length > 45 
+    ? userAgentText.substring(0, 42) + '...' 
+    : userAgentText;
+  signaturePage.drawText(truncatedUA, {
+    x: col3X,
+    y: yPosition,
+    font: helvetica,
+    size: 7,
+    color: lightGray,
+  });
+  
+  yPosition -= 15;
+  
+  // Row separator
+  signaturePage.drawLine({
+    start: { x: margin, y: yPosition },
+    end: { x: pageWidth - margin, y: yPosition },
+    thickness: 0.5,
+    color: borderColor,
+  });
+  
+  yPosition -= 30;
+  
+  // === SIGNER DETAILS SECTION ===
+  signaturePage.drawText('Unterzeichner-Details', {
+    x: margin,
+    y: yPosition,
+    font: helveticaBold,
+    size: 12,
+    color: darkGray,
+  });
+  
+  yPosition -= 20;
+  
   const labelX = margin;
-  const valueX = margin + 120;
+  const valueX = margin + 100;
   
   const signerDetails = [
     { label: 'Name:', value: signatureData.signerName },
     { label: 'E-Mail:', value: signatureData.signerEmail },
     { label: 'Geburtsdatum:', value: formatDateOnly(signatureData.signerDateOfBirth) },
+    { label: 'IP-Adresse:', value: signatureData.ipAddress },
   ];
   
   for (const detail of signerDetails) {
@@ -183,150 +340,89 @@ async function addSignaturePage(
       x: labelX,
       y: yPosition,
       font: helvetica,
-      size: 11,
+      size: 10,
       color: mediumGray,
     });
     signaturePage.drawText(detail.value, {
       x: valueX,
       y: yPosition,
       font: helveticaBold,
-      size: 11,
+      size: 10,
       color: darkGray,
     });
-    yPosition -= 18;
+    yPosition -= 16;
   }
   
-  yPosition -= 15;
+  yPosition -= 20;
   
-  // === SIGNATURE DETAILS SECTION ===
-  signaturePage.drawText('Signatur-Details', {
-    x: margin,
-    y: yPosition,
-    font: helveticaBold,
-    size: 14,
-    color: darkGray,
-  });
-  
-  yPosition -= 5;
-  signaturePage.drawLine({
-    start: { x: margin, y: yPosition },
-    end: { x: margin + 120, y: yPosition },
-    thickness: 1,
-    color: mediumGray,
-  });
-  
-  yPosition -= 22;
-  
-  const signatureDetails = [
-    { label: 'Datum & Zeit:', value: formatDate(signatureData.signedAt) },
-    { label: 'Steuerjahr:', value: signatureData.taxYear },
-    { label: 'IP-Adresse:', value: signatureData.ipAddress },
-  ];
-  
-  for (const detail of signatureDetails) {
-    signaturePage.drawText(detail.label, {
-      x: labelX,
-      y: yPosition,
-      font: helvetica,
-      size: 11,
-      color: mediumGray,
-    });
-    signaturePage.drawText(detail.value, {
-      x: valueX,
-      y: yPosition,
-      font: helveticaBold,
-      size: 11,
-      color: darkGray,
-    });
-    yPosition -= 18;
-  }
-  
-  yPosition -= 15;
-  
-  // === VERIFICATION HASHES SECTION ===
+  // === VERIFICATION HASHES ===
   signaturePage.drawText('Verifizierungs-Hashes', {
     x: margin,
     y: yPosition,
     font: helveticaBold,
-    size: 14,
+    size: 12,
     color: darkGray,
   });
   
-  yPosition -= 5;
-  signaturePage.drawLine({
-    start: { x: margin, y: yPosition },
-    end: { x: margin + 150, y: yPosition },
-    thickness: 1,
-    color: mediumGray,
-  });
-  
-  yPosition -= 22;
+  yPosition -= 18;
   
   signaturePage.drawText('Dokument-Hash (SHA-256):', {
     x: labelX,
     y: yPosition,
     font: helvetica,
-    size: 10,
+    size: 9,
     color: mediumGray,
   });
   
-  yPosition -= 16;
+  yPosition -= 12;
   
   signaturePage.drawText(signatureData.documentHash, {
     x: labelX,
     y: yPosition,
     font: helvetica,
-    size: 8,
+    size: 7,
     color: lightGray,
   });
   
-  yPosition -= 20;
+  yPosition -= 18;
   
   signaturePage.drawText('Signatur-Hash (SHA-256):', {
     x: labelX,
     y: yPosition,
     font: helvetica,
-    size: 10,
+    size: 9,
     color: mediumGray,
   });
   
-  yPosition -= 16;
+  yPosition -= 12;
   
   signaturePage.drawText(signatureData.signatureHash, {
     x: labelX,
     y: yPosition,
     font: helvetica,
-    size: 8,
+    size: 7,
     color: lightGray,
   });
   
-  yPosition -= 30;
+  yPosition -= 25;
   
-  // === AUTHORIZATION TEXT SECTION ===
+  // === AUTHORIZATION TEXT ===
   signaturePage.drawText('Vollmacht & Autorisierung', {
     x: margin,
     y: yPosition,
     font: helveticaBold,
-    size: 14,
+    size: 12,
     color: darkGray,
   });
   
-  yPosition -= 5;
-  signaturePage.drawLine({
-    start: { x: margin, y: yPosition },
-    end: { x: margin + 170, y: yPosition },
-    thickness: 1,
-    color: mediumGray,
-  });
-  
-  yPosition -= 18;
+  yPosition -= 15;
   
   // Word wrap the authorization text
   const maxLineWidth = pageWidth - (2 * margin);
   const authLines = wrapText(signatureData.authorizationText, helvetica, 9, maxLineWidth);
   
   for (const line of authLines) {
-    if (yPosition < 100) break; // Don't go too close to the bottom
+    if (yPosition < 80) break;
     signaturePage.drawText(line, {
       x: margin,
       y: yPosition,
@@ -334,64 +430,37 @@ async function addSignaturePage(
       size: 9,
       color: mediumGray,
     });
-    yPosition -= 14;
+    yPosition -= 12;
   }
   
-  yPosition -= 20;
-  
-  // === LEGAL DISCLAIMER ===
-  const disclaimerY = 80;
+  // === FOOTER ===
+  const footerY = 40;
   
   signaturePage.drawLine({
-    start: { x: margin, y: disclaimerY + 15 },
-    end: { x: pageWidth - margin, y: disclaimerY + 15 },
+    start: { x: margin, y: footerY + 15 },
+    end: { x: pageWidth - margin, y: footerY + 15 },
     thickness: 0.5,
+    color: borderColor,
+  });
+  
+  const disclaimer = 'Diese elektronische Signatur ist rechtlich bindend gemaess Art. 14 Abs. 2bis OR.';
+  signaturePage.drawText(disclaimer, {
+    x: margin,
+    y: footerY,
+    font: helvetica,
+    size: 8,
     color: lightGray,
   });
   
-  const disclaimer = 'Diese elektronische Signatur ist rechtlich bindend gemäss Art. 14 Abs. 2bis OR (Schweizerisches Obligationenrecht). Die Integrität dieses Dokuments kann anhand der oben aufgeführten Hash-Werte verifiziert werden.';
-  const disclaimerLines = wrapText(disclaimer, helvetica, 8, maxLineWidth);
-  
-  let disclaimerY2 = disclaimerY;
-  for (const line of disclaimerLines) {
-    signaturePage.drawText(line, {
-      x: margin,
-      y: disclaimerY2,
-      font: helvetica,
-      size: 8,
-      color: lightGray,
-    });
-    disclaimerY2 -= 12;
-  }
-  
-  // === DITAX SEAL ===
-  const sealX = pageWidth - margin - 80;
-  const sealY = 60;
-  
-  // Draw seal circle
-  signaturePage.drawEllipse({
-    x: sealX + 40,
-    y: sealY + 20,
-    xScale: 35,
-    yScale: 35,
-    borderColor: darkGray,
-    borderWidth: 2,
-  });
-  
-  signaturePage.drawText('DITAX', {
-    x: sealX + 20,
-    y: sealY + 25,
+  // DITAX seal on right
+  const sealText = 'DITAX SIGNIERT';
+  const sealWidth = helveticaBold.widthOfTextAtSize(sealText, 10);
+  signaturePage.drawText(sealText, {
+    x: pageWidth - margin - sealWidth,
+    y: footerY,
     font: helveticaBold,
-    size: 14,
-    color: darkGray,
-  });
-  
-  signaturePage.drawText('SIGNIERT', {
-    x: sealX + 14,
-    y: sealY + 10,
-    font: helvetica,
-    size: 9,
-    color: mediumGray,
+    size: 10,
+    color: greenColor,
   });
   
   return await pdfDoc.save();
@@ -415,7 +484,6 @@ function wrapText(text: string, font: any, fontSize: number, maxWidth: number): 
         lines.push(currentLine);
         currentLine = word;
       } else {
-        // Word is too long, just add it
         lines.push(word);
         currentLine = '';
       }
@@ -592,7 +660,8 @@ Deno.serve(async (req) => {
         documentHash,
         signatureHash,
         ipAddress: clientIp,
-        authorizationText
+        authorizationText,
+        userAgent
       });
       
       // Create signed PDF path (add _signed suffix before extension)
