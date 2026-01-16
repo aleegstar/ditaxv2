@@ -211,7 +211,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex-1 flex items-center justify-center py-8 px-4 sm:px-6">
+      <div className="flex-1 py-8 px-4 sm:px-6">
         <div className="w-full max-w-lg mx-auto space-y-6">
           {/* Content Card */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
