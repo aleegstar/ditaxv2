@@ -147,23 +147,23 @@ export const CreateTicketDialog = ({ isOpen, onClose, completedTaxReturnId, taxY
         ) : (
           <>
             {/* Header with gradient background */}
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-6 py-5">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-5 pt-4 pb-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
                   <MessageSquarePlus className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <DialogTitle className="text-white font-semibold">
+                  <DialogTitle className="text-white font-semibold text-base">
                     Problem melden — {taxYear}
                   </DialogTitle>
-                  <p className="text-sm text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     Support-Ticket erstellen
                   </p>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 -mt-10 relative z-10 bg-white rounded-t-3xl">
               {/* Title Input */}
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-slate-800 font-medium text-sm">
