@@ -201,50 +201,48 @@ export const TaxYearDashboard: React.FC = () => {
       </header>
 
       {/* Main Content / Timeline */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 pb-24 pt-2">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 pt-4">
         {/* Step 1: Persönliche Angaben - Collapsible when complete */}
         {allAngabenComplete && !isAngabenExpanded ? (
           /* Collapsed Pill View - Calm, completed state */
           <div 
             data-tour="form-step-1" 
             onClick={() => setIsAngabenExpanded(true)}
-            className="bg-slate-50/80 p-5 rounded-2xl ring-1 ring-slate-200/50 flex items-center gap-4 transition-all duration-200 cursor-pointer hover:bg-slate-100/80"
+            className="bg-slate-50 p-4 rounded-xl ring-1 ring-slate-200/60 flex items-center gap-3 transition-colors duration-150 cursor-pointer hover:bg-slate-100"
           >
-            <div className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 bg-green-100/80 text-green-600">
+            <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-green-500 text-white">
               <Check className="w-4 h-4" strokeWidth={2.5} />
             </div>
-            <div className="flex-1">
-              <h2 className="font-medium text-slate-600 text-sm">
-                Persönliche Angaben
-              </h2>
-            </div>
+            <span className="font-medium text-slate-600 text-sm flex-1">
+              Persönliche Angaben
+            </span>
             <ChevronDown className="w-4 h-4 text-slate-400" />
           </div>
         ) : (
           /* Expanded Card View */
-          <section data-tour="form-step-1" className={`rounded-2xl overflow-hidden relative transition-all duration-300 ${
-          !allAngabenComplete 
-            ? 'bg-white ring-2 ring-blue-500/20 shadow-[0_8px_30px_rgba(59,130,246,0.12)]' 
-            : 'bg-slate-50/80 ring-1 ring-slate-200/50'
-        }`}>
-            {/* Step Header - clickable to collapse when complete */}
+          <section data-tour="form-step-1" className={`rounded-2xl overflow-hidden transition-all duration-200 ${
+            !allAngabenComplete 
+              ? 'bg-white ring-1 ring-slate-200 shadow-lg shadow-slate-200/50' 
+              : 'bg-slate-50 ring-1 ring-slate-200/60'
+          }`}>
+            {/* Step Header */}
             <div 
               onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-              className={`p-5 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-100/50' : ''}`}
+              className={`px-5 py-4 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-100' : 'border-b border-slate-100'}`}
             >
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 transition-all ${
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
                 allAngabenComplete 
-                  ? 'bg-green-100/80 text-green-600' 
-                  : 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-blue-600 text-white'
               }`}>
                 {allAngabenComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '1'}
               </div>
               <div className="flex-1">
-                <h2 className={`font-semibold ${allAngabenComplete ? 'text-slate-600 text-sm' : 'text-slate-900'}`}>
+                <h2 className={`font-semibold ${allAngabenComplete ? 'text-slate-600' : 'text-slate-900'}`}>
                   Persönliche Angaben
                 </h2>
                 {!allAngabenComplete && (
-                  <p className="text-sm text-slate-500 mt-0.5">{angabenProgress.completed} von {angabenProgress.total} abgeschlossen</p>
+                  <p className="text-sm text-slate-500">{angabenProgress.completed} von {angabenProgress.total} erledigt</p>
                 )}
               </div>
               {allAngabenComplete && (
@@ -253,107 +251,129 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
 
             {/* Action Grid */}
-            <div className={`px-5 pb-5 ${allAngabenComplete ? 'bg-slate-50/80' : 'bg-white'}`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className={`p-4 ${allAngabenComplete ? '' : 'bg-slate-50/50'}`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {angabenSections.map(section => {
-                const Icon = section.icon;
-                const completed = isCompleted(section.id);
-                return <button 
-                  key={section.id} 
-                  onClick={() => handleSectionClick(section)} 
-                  data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} 
-                  className={`group flex items-center gap-3.5 p-3.5 text-left rounded-xl transition-all duration-200 ${
-                    completed 
-                      ? 'bg-slate-100/60 hover:bg-slate-100' 
-                      : 'bg-slate-50 ring-1 ring-slate-200/60 hover:ring-blue-300 hover:bg-white hover:shadow-sm'
-                  }`}
-                >
-                  <div className={`h-9 w-9 shrink-0 rounded-full flex items-center justify-center transition-all ${
-                    completed 
-                      ? 'bg-green-100/80 text-green-600' 
-                      : 'bg-white text-slate-500 ring-1 ring-slate-200 group-hover:ring-blue-500 group-hover:text-blue-600'
-                  }`}>
-                    {completed ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className={`block text-sm font-medium ${completed ? 'text-slate-500' : 'text-slate-800'}`}>
-                      {section.title}
-                    </span>
-                  </div>
-                  <ChevronRight className={`w-4 h-4 transition-colors ${completed ? 'text-slate-300' : 'text-slate-400 group-hover:text-blue-500'}`} />
-                </button>;
-              })}
+                  const Icon = section.icon;
+                  const completed = isCompleted(section.id);
+                  return (
+                    <button 
+                      key={section.id} 
+                      onClick={() => handleSectionClick(section)} 
+                      data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} 
+                      className={`group flex items-center gap-3 p-3 text-left rounded-lg transition-all duration-150 ${
+                        completed 
+                          ? 'bg-white/60 hover:bg-white' 
+                          : 'bg-white ring-1 ring-slate-200 hover:ring-blue-400 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className={`h-8 w-8 shrink-0 rounded-full flex items-center justify-center transition-colors ${
+                        completed 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'
+                      }`}>
+                        {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
+                      </div>
+                      <span className={`flex-1 text-sm font-medium ${completed ? 'text-slate-500' : 'text-slate-700'}`}>
+                        {section.title}
+                      </span>
+                      <ChevronRight className={`w-4 h-4 ${completed ? 'text-slate-300' : 'text-slate-400 group-hover:text-blue-500'}`} />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </section>
         )}
 
-        {/* Upcoming Steps */}
-        <section className="flex flex-col gap-3">
+        {/* Following Steps */}
+        <div className="mt-4 space-y-2">
           {/* Step 2: Belege & Unterlagen */}
           <div 
             data-tour="form-step-2" 
             onClick={() => allAngabenComplete && handleDocumentsClick()} 
-            className={`p-5 rounded-2xl flex items-center gap-4 transition-all duration-200 overflow-hidden ${
+            className={`p-4 rounded-xl flex items-center gap-3 transition-all duration-150 ${
               isDocumentsComplete
-                ? 'bg-slate-50/80 ring-1 ring-slate-200/50 cursor-pointer hover:bg-slate-100/80'
+                ? 'bg-slate-50 ring-1 ring-slate-200/60 cursor-pointer hover:bg-slate-100'
                 : allAngabenComplete && !isDocumentsComplete 
-                  ? 'bg-white ring-2 ring-blue-500/20 shadow-[0_8px_30px_rgba(59,130,246,0.12)] cursor-pointer hover:shadow-[0_12px_40px_rgba(59,130,246,0.16)]' 
-                  : 'bg-slate-50/50 ring-1 ring-slate-200/40 opacity-50'
+                  ? 'bg-white ring-1 ring-slate-200 shadow-lg shadow-slate-200/50 cursor-pointer hover:shadow-xl hover:shadow-slate-200/60' 
+                  : 'bg-slate-50/60 ring-1 ring-slate-100'
             }`}
           >
-            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 transition-all ${
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
               isDocumentsComplete 
-                ? 'bg-green-100/80 text-green-600' 
+                ? 'bg-green-500 text-white' 
                 : allAngabenComplete 
-                  ? 'bg-blue-600 text-white shadow-sm' 
-                  : 'bg-slate-200/80 text-slate-400'
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-200 text-slate-400'
             }`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '2'}
             </div>
             <div className="flex-1">
-              <h3 className={`font-semibold ${isDocumentsComplete ? 'text-slate-600 text-sm' : allAngabenComplete ? 'text-slate-900' : 'text-slate-500'}`}>
+              <h3 className={`font-semibold ${
+                isDocumentsComplete 
+                  ? 'text-slate-600' 
+                  : allAngabenComplete 
+                    ? 'text-slate-900' 
+                    : 'text-slate-400'
+              }`}>
                 Belege & Unterlagen
               </h3>
               {allAngabenComplete && !isDocumentsComplete && (
-                <p className="text-sm text-slate-500 mt-0.5">Dokumente hochladen</p>
+                <p className="text-sm text-slate-500">Dokumente hochladen</p>
+              )}
+              {!allAngabenComplete && (
+                <p className="text-xs text-slate-400">Zuerst Schritt 1 abschliessen</p>
               )}
             </div>
-            {allAngabenComplete && <ChevronRight className={`w-4 h-4 ${isDocumentsComplete ? 'text-slate-400' : 'text-slate-400'}`} />}
+            {allAngabenComplete && (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
           </div>
 
           {/* Step 3: Prüfung & Versand */}
           <div 
             data-tour="form-step-3" 
             onClick={() => canSubmit && handleSubmitClick()} 
-            className={`p-5 rounded-2xl flex items-center gap-4 transition-all duration-200 overflow-hidden ${
+            className={`p-4 rounded-xl flex items-center gap-3 transition-all duration-150 ${
               isCompleted('submit')
-                ? 'bg-slate-50/80 ring-1 ring-slate-200/50 cursor-pointer hover:bg-slate-100/80'
+                ? 'bg-slate-50 ring-1 ring-slate-200/60 cursor-pointer hover:bg-slate-100'
                 : canSubmit && !isCompleted('submit')
-                  ? 'bg-white ring-2 ring-blue-500/20 shadow-[0_8px_30px_rgba(59,130,246,0.12)] cursor-pointer hover:shadow-[0_12px_40px_rgba(59,130,246,0.16)]'
-                  : 'bg-slate-50/50 ring-1 ring-slate-200/40 opacity-50'
+                  ? 'bg-white ring-1 ring-slate-200 shadow-lg shadow-slate-200/50 cursor-pointer hover:shadow-xl hover:shadow-slate-200/60'
+                  : 'bg-slate-50/60 ring-1 ring-slate-100'
             }`}
           >
-            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 transition-all ${
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
               isCompleted('submit') 
-                ? 'bg-green-100/80 text-green-600' 
+                ? 'bg-green-500 text-white' 
                 : canSubmit 
-                  ? 'bg-blue-600 text-white shadow-sm' 
-                  : 'bg-slate-200/80 text-slate-400'
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-slate-200 text-slate-400'
             }`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '3'}
             </div>
             <div className="flex-1">
-              <h3 className={`font-semibold ${isCompleted('submit') ? 'text-slate-600 text-sm' : canSubmit ? 'text-slate-900' : 'text-slate-500'}`}>
+              <h3 className={`font-semibold ${
+                isCompleted('submit') 
+                  ? 'text-slate-600' 
+                  : canSubmit 
+                    ? 'text-slate-900' 
+                    : 'text-slate-400'
+              }`}>
                 Prüfung & Versand
               </h3>
               {canSubmit && !isCompleted('submit') && (
-                <p className="text-sm text-slate-500 mt-0.5">Abschliessen & bezahlen</p>
+                <p className="text-sm text-slate-500">Abschliessen & bezahlen</p>
+              )}
+              {!canSubmit && (
+                <p className="text-xs text-slate-400">Zuerst Schritt 1 & 2 abschliessen</p>
               )}
             </div>
-            {canSubmit && <ChevronRight className={`w-4 h-4 ${isCompleted('submit') ? 'text-slate-400' : 'text-slate-400'}`} />}
+            {canSubmit && (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
           </div>
-        </section>
+        </div>
       </main>
     </div>;
 };
