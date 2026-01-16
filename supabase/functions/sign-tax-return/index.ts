@@ -682,6 +682,19 @@ Deno.serve(async (req) => {
         // Continue without failing - the signature is already saved
       } else {
         console.log('Signed PDF uploaded successfully:', signedPdfPath);
+        
+        // Delete original unsigned PDF to minimize data storage
+        const originalPath = taxReturn.file_path;
+        const { error: deleteError } = await supabaseAdmin.storage
+          .from('completed-tax-returns')
+          .remove([originalPath]);
+
+        if (deleteError) {
+          console.error('Failed to delete original PDF:', deleteError);
+          // Continue - not critical, signed PDF is already available
+        } else {
+          console.log('Original unsigned PDF deleted:', originalPath);
+        }
       }
     } catch (pdfError) {
       console.error('Error adding signature page to PDF:', pdfError);
