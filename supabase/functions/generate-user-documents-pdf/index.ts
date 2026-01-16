@@ -420,6 +420,7 @@ serve(async (req) => {
       .from('uploaded_documents')
       .select('*')
       .eq('user_id', user_id)
+      .eq('tax_year', tax_year)
       .in('status', ['active', 'assigned'])
       .order('upload_date', { ascending: true });
 
