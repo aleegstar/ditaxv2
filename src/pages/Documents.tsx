@@ -556,10 +556,10 @@ const DocumentsContent: React.FC<{
 
           {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
-            <div className="flex items-center h-12 rounded-xl border border-zinc-200 bg-white overflow-hidden">
+            <div className="flex items-center h-9 rounded-lg border border-input bg-white overflow-hidden shadow-sm shadow-black/5 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/20 transition-shadow">
               {/* Search Icon */}
-              <div className="pl-4 pr-2 flex items-center justify-center">
-                <Search className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+              <div className="pl-3 pr-2 flex items-center justify-center">
+                <Search className="h-4 w-4 text-muted-foreground/70" strokeWidth={1.5} />
               </div>
               
               {/* Search Input */}
@@ -568,27 +568,27 @@ const DocumentsContent: React.FC<{
                 placeholder="Suche..." 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
-                className="flex-1 h-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none" 
+                className="flex-1 h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none" 
               />
               
               {/* Filter Button */}
               <button 
                 onClick={() => setShowSortDropdown(!showSortDropdown)} 
                 className={cn(
-                  "h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors",
-                  showSortDropdown && "bg-zinc-50"
+                  "h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors",
+                  showSortDropdown && "bg-muted/50"
                 )}
               >
-                <SlidersHorizontal className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
+                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               </button>
               
               {/* Clear Button */}
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')} 
-                  className="h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors"
+                  className="h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors"
                 >
-                  <X className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
+                  <X className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
                 </button>
               )}
             </div>
