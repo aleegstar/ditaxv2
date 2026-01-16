@@ -1,6 +1,6 @@
 import { Toaster as SonnerToaster } from "sonner";
-import { CheckCircle, X, AlertCircle, Info, AlertTriangle } from "lucide-react";
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+import { Check, AlertCircle, Info, AlertTriangle } from "lucide-react";
+import { Toast, ToastProvider, ToastViewport } from "@/components/ui/toast";
 
 export function Toaster() {
   return (
@@ -10,23 +10,33 @@ export function Toaster() {
         toastOptions={{
           unstyled: true,
           classNames: {
-            toast: "flex items-center gap-3 w-full max-w-md px-4 py-3.5 rounded-xl bg-zinc-800/95 backdrop-blur-sm shadow-lg border border-zinc-700/50",
-            title: "text-sm font-medium text-white",
-            description: "text-sm text-zinc-300",
-            actionButton: "bg-white text-zinc-900 px-3 py-1.5 rounded-lg text-sm font-medium",
-            cancelButton: "text-zinc-400 hover:text-white text-sm",
-            closeButton: "text-zinc-400 hover:text-white",
-            success: "",
-            error: "",
-            info: "",
-            warning: "",
+            toast: "group flex items-center gap-3 w-full max-w-md pl-4 pr-12 py-3.5 rounded-2xl bg-zinc-800/95 backdrop-blur-sm shadow-xl font-['Plus_Jakarta_Sans',sans-serif] relative",
+            title: "text-sm font-medium text-white leading-tight",
+            description: "text-sm text-zinc-400 leading-tight mt-0.5",
+            closeButton: "!absolute !right-3 !top-1/2 !-translate-y-1/2 !left-auto !bg-transparent !border-none !text-zinc-500 hover:!text-white !opacity-100 !w-6 !h-6 !p-0 flex items-center justify-center",
           },
         }}
         icons={{
-          success: <CheckCircle className="h-5 w-5 text-green-400 shrink-0" />,
-          error: <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />,
-          info: <Info className="h-5 w-5 text-blue-400 shrink-0" />,
-          warning: <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0" />,
+          success: (
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500 shrink-0">
+              <Check className="h-3 w-3 text-white" strokeWidth={3} />
+            </div>
+          ),
+          error: (
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500 shrink-0">
+              <AlertCircle className="h-3 w-3 text-white" strokeWidth={3} />
+            </div>
+          ),
+          info: (
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 shrink-0">
+              <Info className="h-3 w-3 text-white" strokeWidth={3} />
+            </div>
+          ),
+          warning: (
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500 shrink-0">
+              <AlertTriangle className="h-3 w-3 text-white" strokeWidth={3} />
+            </div>
+          ),
         }}
         closeButton
       />
