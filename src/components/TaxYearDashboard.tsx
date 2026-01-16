@@ -263,21 +263,21 @@ export const TaxYearDashboard: React.FC = () => {
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} 
                       className={`group flex items-center gap-3 p-3 text-left rounded-lg transition-all duration-150 ${
                         completed 
-                          ? 'bg-white/60 hover:bg-white' 
-                          : 'bg-white ring-1 ring-slate-200 hover:ring-blue-400 hover:shadow-sm'
+                          ? 'bg-white/60 hover:bg-white cursor-pointer' 
+                          : 'bg-white ring-1 ring-slate-200 cursor-pointer hover:ring-blue-400 hover:shadow-md hover:shadow-blue-500/5 active:scale-[0.98]'
                       }`}
                     >
-                      <div className={`h-8 w-8 shrink-0 rounded-full flex items-center justify-center transition-colors ${
+                      <div className={`h-8 w-8 shrink-0 rounded-full flex items-center justify-center transition-all duration-150 ${
                         completed 
                           ? 'bg-green-500 text-white' 
-                          : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105'
                       }`}>
                         {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
                       </div>
-                      <span className={`flex-1 text-sm font-medium ${completed ? 'text-slate-500' : 'text-slate-700'}`}>
+                      <span className={`flex-1 text-sm font-medium transition-colors ${completed ? 'text-slate-500' : 'text-slate-700 group-hover:text-slate-900'}`}>
                         {section.title}
                       </span>
-                      <ChevronRight className={`w-4 h-4 ${completed ? 'text-slate-300' : 'text-slate-400 group-hover:text-blue-500'}`} />
+                      <ChevronRight className={`w-4 h-4 transition-all duration-150 ${completed ? 'text-slate-300' : 'text-slate-400 group-hover:text-blue-500 group-hover:translate-x-0.5'}`} />
                     </button>
                   );
                 })}
