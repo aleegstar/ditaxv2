@@ -527,18 +527,18 @@ const DocumentChecklist: React.FC = () => {
                                   </div>}
                                 
                                 {/* Action Buttons */}
-                                {!item.uploaded && <div className="flex items-center gap-4">
-                                    {/* Primary Upload Button */}
-                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium py-2 px-5 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
+                                {!item.uploaded && <div className="flex items-center gap-3">
+                                    {/* Primary: Upload new document */}
+                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       Hochladen
                                     </button>
                                     
-                                    {/* Secondary: Use existing document - styled like social login buttons */}
+                                    {/* Secondary: Assign existing document - ghost/outline style */}
                                     {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
                           open: true,
                           item
-                        })} className="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-600 border-t border-white/80 rounded-lg py-2 px-4 flex items-center justify-center gap-2 shadow-[0_2px_8px_0_rgba(100,116,139,0.12)] hover:shadow-[0_4px_12px_rgba(100,116,139,0.18)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 text-sm font-medium">
+                        })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-transparent text-slate-600 font-medium text-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
                                         <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                                         Zuweisen
                                       </button>}
