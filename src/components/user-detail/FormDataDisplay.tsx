@@ -540,7 +540,7 @@ const FormDataDisplay: React.FC<FormDataDisplayProps> = ({
   };
 
   // Bank statement documents
-  const bankStatementDocs = documents.filter(doc => doc.checklistItemId.includes('bank-statement') || doc.checklistItemId.includes('interest-statement') || doc.checklistItemId.includes('bank-account-statement') || doc.checklistItemId === 'bank-account-statement');
+  const bankStatementDocs = documents.filter(doc => doc.checklistItemId && (doc.checklistItemId.includes('bank-statement') || doc.checklistItemId.includes('interest-statement') || doc.checklistItemId.includes('bank-account-statement') || doc.checklistItemId === 'bank-account-statement'));
 
   // Check if we have any data to display
   const hasAnyData = formData.contactInfo || formData.income || formData.deductions || formData.assets || bankStatementDocs.length > 0;
