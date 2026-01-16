@@ -577,18 +577,24 @@ const DocumentsContent: React.FC<{
 
               {isYearDropdownOpen && <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden min-w-[160px]">
-                  <div className="max-h-64 overflow-y-auto py-1">
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[180px]">
+                  <div className="max-h-64 overflow-y-auto py-2">
                     {availableYears.map(year => (
                       <button 
                         key={year} 
                         onClick={() => handleYearSelect(year)} 
                         className={cn(
-                          "w-full text-left px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors",
-                          year === selectedYear && "bg-zinc-100 text-zinc-900 font-medium"
+                          "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors",
+                          year === selectedYear && "bg-slate-50"
                         )}
                       >
-                        {year}
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                          <Calendar className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
+                        </div>
+                        <span className={cn(
+                          "text-sm font-medium text-slate-700",
+                          year === selectedYear && "text-slate-900"
+                        )}>{year}</span>
                       </button>
                     ))}
                   </div>
