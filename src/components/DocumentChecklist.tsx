@@ -534,12 +534,12 @@ const DocumentChecklist: React.FC = () => {
                                       Hochladen
                                     </button>
                                     
-                                    {/* Secondary: Use existing document */}
+                                    {/* Secondary: Use existing document - styled like social login buttons */}
                                     {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
                           open: true,
                           item
-                        })} className="text-xs text-slate-500 hover:text-slate-700 transition-colors">
-                                        Bereits hochgeladen? <span className="underline underline-offset-2">Zuweisen</span>
+                        })} className="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-600 border-t border-white/80 rounded-lg py-2 px-4 flex items-center justify-center gap-2 shadow-[0_2px_8px_0_rgba(100,116,139,0.12)] hover:shadow-[0_4px_12px_rgba(100,116,139,0.18)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 text-sm font-medium">
+                                        Zuweisen
                                       </button>}
                                   </div>}
                               </div>;
