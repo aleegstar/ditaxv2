@@ -118,7 +118,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       {/* Header with back button */}
       <SubpageHeader 
         title={sectionName}
@@ -146,7 +146,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Import button */}
           <Button
-            className="w-full mb-4 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mb-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{
               boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
             }}
@@ -159,7 +159,10 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Enter new data button */}
           <Button
-            className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            style={{
+              boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
+            }}
             onClick={handleSkipImport}
             disabled={isImporting}
           >
