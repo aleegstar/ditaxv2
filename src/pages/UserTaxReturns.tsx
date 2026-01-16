@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ interface TaxReturn {
   payment_date: string | null;
   workflow_step: string;
   user_id: string;
+  express_service?: boolean;
 }
 const UserTaxReturns = () => {
   const navigate = useNavigate();
@@ -250,6 +251,17 @@ const UserTaxReturns = () => {
   };
   const inProgressYears = availableYears.filter(year => !isCompleted(year));
   const completedYears = availableYears.filter(year => isCompleted(year));
+  
+  // Split in-progress years into unpaid and paid (processing)
+  const unpaidYears = inProgressYears.filter(year => {
+    const taxReturn = getExistingReturn(year);
+    return taxReturn?.payment_status !== 'paid';
+  });
+  
+  const paidInProgressYears = inProgressYears.filter(year => {
+    const taxReturn = getExistingReturn(year);
+    return taxReturn?.payment_status === 'paid';
+  });
   const getUserDisplayName = () => {
     if (userProfile?.first_name) {
       return userProfile.first_name;
@@ -290,8 +302,8 @@ const UserTaxReturns = () => {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-          {/* In-Progress Tax Returns (Active Style) */}
-          {inProgressYears.map(year => {
+          {/* Unpaid In-Progress Tax Returns (Active Style - leads to form) */}
+          {unpaidYears.map(year => {
           const progress = calculateProgress(year) ?? 0;
           const documentCount = getDocumentCount(year);
           return <article key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
@@ -356,6 +368,67 @@ const UserTaxReturns = () => {
 
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
                       Weiter
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+              </article>;
+        })}
+
+          {/* Paid In-Progress Tax Returns (Processing Style - leads to tracking) */}
+          {paidInProgressYears.map(year => {
+          const taxReturn = getExistingReturn(year);
+          const isExpress = taxReturn?.express_service;
+          
+          return <article key={year} onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
+                {/* Top Image/Visual Area - Amber/Orange Gradient */}
+                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                  <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
+                    {year}
+                  </span>
+                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                      In Bearbeitung
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-xl font-medium tracking-tight text-gray-900 font-jakarta">
+                      Steuererklärung
+                    </h2>
+                  </div>
+
+                  <p className="text-gray-500 text-sm leading-relaxed font-jakarta line-clamp-2">
+                    Deine Steuererklärung wird aktuell erstellt.
+                  </p>
+
+                  {/* Bottom Action Row */}
+                  <div className="flex items-center justify-between mt-auto pt-3">
+                    <div className="flex items-center gap-2">
+                      {isExpress ? (
+                        <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
+                          <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                          <span>Express</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
+                          <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                          <span>Standard</span>
+                        </div>
+                      )}
+                      {!isExpress && (
+                        <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
+                          Upgrade möglich
+                        </span>
+                      )}
+                    </div>
+
+                    <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
+                      Tracking
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
