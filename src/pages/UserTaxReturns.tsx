@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -344,6 +344,9 @@ const UserTaxReturns = () => {
           {completedYears.map(year => {
           const existingReturn = getExistingReturn(year);
           const completedReturn = completedTaxReturns?.[year];
+          const isSigned = completedReturn?.signature_status === 'signed';
+          const needsSignature = completedReturn && !isSigned;
+          
           return <article key={year} onClick={() => {
             if (completedReturn?.id) {
               navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
@@ -353,42 +356,73 @@ const UserTaxReturns = () => {
                   <span className="text-8xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
                     {year}
                   </span>
-                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
-                    <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
-                      Fertig
-                    </span>
+                  <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${
+                    needsSignature 
+                      ? 'bg-amber-50/90 ring-1 ring-amber-200' 
+                      : 'bg-white/90'
+                  }`}>
+                    {needsSignature ? (
+                      <>
+                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                          Signatur ausstehend
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
+                          Fertig
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 <div className="px-2 pt-6 pb-0 flex flex-col">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-2xl font-medium tracking-tight text-gray-400 font-jakarta">
+                    <h2 className={`text-2xl font-medium tracking-tight font-jakarta ${needsSignature ? 'text-gray-700' : 'text-gray-400'}`}>
                       Steuererklärung
                     </h2>
-                    <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
-                      <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                    </div>
+                    {isSigned && (
+                      <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
+                        <Check className="w-3.5 h-3.5" strokeWidth={2} />
+                      </div>
+                    )}
                   </div>
 
-                  <p className="text-gray-400 text-[15px] leading-relaxed font-jakarta">
-                    Bescheid vom {existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric'
-                }) : '–'} liegt vor. Rückzahlung erhalten.
+                  <p className={`text-[15px] leading-relaxed font-jakarta ${needsSignature ? 'text-amber-600' : 'text-gray-400'}`}>
+                    {needsSignature 
+                      ? 'Bitte unterschreibe deine Steuererklärung elektronisch.'
+                      : `Bescheid vom ${existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        }) : '–'} liegt vor. Rückzahlung erhalten.`
+                    }
                   </p>
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-5">
-                      <div className="flex items-center gap-2 text-gray-400 font-medium text-sm font-jakarta">
-                        <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
-                        <span>100%</span>
-                      </div>
+                      {needsSignature ? (
+                        <div className="flex items-center gap-2 text-amber-600 font-medium text-sm font-jakarta">
+                          <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                          <span>Aktion erforderlich</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-gray-400 font-medium text-sm font-jakarta">
+                          <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
+                          <span>100%</span>
+                        </div>
+                      )}
                     </div>
 
-                    <button className="bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900 rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold transition-all flex items-center gap-2 font-jakarta">
-                      Details
+                    <button className={`rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold transition-all flex items-center gap-2 font-jakarta ${
+                      needsSignature 
+                        ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' 
+                        : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'
+                    }`}>
+                      {needsSignature ? 'Jetzt unterschreiben' : 'Details'}
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
