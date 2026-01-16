@@ -59,21 +59,20 @@ const DocumentsPdfDownloader: React.FC<DocumentsPdfDownloaderProps> = ({
         throw new Error(`Server error: ${functionError.message}`);
       }
 
-      if (!pdfData) {
+      if (!pdfData || !pdfData.pdf) {
         throw new Error('Keine Daten vom Server erhalten');
       }
 
-      // Convert to ArrayBuffer if needed
-      let pdfArrayBuffer: ArrayBuffer;
-      if (pdfData instanceof ArrayBuffer) {
-        pdfArrayBuffer = pdfData;
-      } else if (typeof pdfData === 'object' && pdfData.buffer) {
-        pdfArrayBuffer = pdfData.buffer;
-      } else {
-        throw new Error('Unexpected response format from server');
+      // Decode Base64 to binary
+      const binaryString = atob(pdfData.pdf);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      const pdfArrayBuffer = bytes.buffer;
 
       console.log(`PDF size: ${pdfArrayBuffer.byteLength} bytes`);
+      console.log(`Stats: ${pdfData.successCount} success, ${pdfData.errorCount} errors, ${pdfData.skippedCount} skipped`);
 
       if (pdfArrayBuffer.byteLength === 0) {
         throw new Error('PDF ist leer');
@@ -84,15 +83,20 @@ const DocumentsPdfDownloader: React.FC<DocumentsPdfDownloaderProps> = ({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Unterlagen_${userName.replace(/\s+/g, '_')}_${taxYear}.pdf`;
+      link.download = pdfData.fileName || `Unterlagen_${userName.replace(/\s+/g, '_')}_${taxYear}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      // Show success with stats
+      const statsInfo = pdfData.errorCount > 0 
+        ? ` (${pdfData.successCount} erfolgreich, ${pdfData.errorCount} Fehler)`
+        : '';
       
       toast({
         title: "PDF erfolgreich erstellt",
-        description: `Alle Dokumente für ${taxYear} wurden als PDF heruntergeladen.`
+        description: `Alle Dokumente für ${taxYear} wurden als PDF heruntergeladen.${statsInfo}`
       });
 
     } catch (error: any) {

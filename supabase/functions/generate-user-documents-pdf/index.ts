@@ -665,14 +665,36 @@ serve(async (req) => {
     // Save the PDF
     const pdfBytes = await pdfDoc.save();
 
-    return new Response(pdfBytes as unknown as BodyInit, {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="Steuerunterlagen_${profile.last_name}_${tax_year}.pdf"`,
-      },
-    });
+    // Convert to Base64 for JSON transport (supabase.functions.invoke expects JSON)
+    const uint8Array = new Uint8Array(pdfBytes);
+    let binaryString = '';
+    const chunkSize = 32768; // Process in chunks to avoid call stack issues
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, i + chunkSize);
+      binaryString += String.fromCharCode(...chunk);
+    }
+    const base64Pdf = btoa(binaryString);
+
+    const fileName = `Steuerunterlagen_${profile.last_name || 'Benutzer'}_${tax_year}.pdf`;
+    console.log(`✅ PDF generated successfully: ${fileName} (${(pdfBytes.byteLength / 1024).toFixed(0)}KB)`);
+
+    return new Response(
+      JSON.stringify({ 
+        pdf: base64Pdf,
+        fileName,
+        successCount,
+        errorCount,
+        skippedCount,
+        totalSize: pdfBytes.byteLength
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
   } catch (error) {
     console.error('❌ Fatal error:', error);
