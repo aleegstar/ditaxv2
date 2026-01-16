@@ -51,9 +51,9 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
   };
 
   const steps = [
-    { title: 'Vorbereitung', description: 'Installieren Sie eine Authenticator-App' },
-    { title: 'Einrichtung', description: 'Scannen Sie den QR-Code' },
-    { title: 'Verifizierung', description: 'Geben Sie den Code ein' },
+    { title: 'Vorbereitung', description: 'Installiere eine Authenticator-App' },
+    { title: 'Einrichtung', description: 'Scanne den QR-Code' },
+    { title: 'Verifizierung', description: 'Gib den Code ein' },
     { title: 'Abschluss', description: 'MFA ist aktiviert' }
   ];
 
@@ -111,7 +111,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
                 Authenticator-App installieren
               </h2>
               <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
-                Installieren Sie eine der folgenden Apps auf Ihrem Smartphone.
+                Installiere eine der folgenden Apps auf deinem Smartphone.
               </p>
 
               {/* App Options */}
@@ -153,7 +153,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
                 QR-Code scannen
               </h2>
               <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
-                Scannen Sie diesen QR-Code mit Ihrer Authenticator-App.
+                Scanne diesen QR-Code mit deiner Authenticator-App.
               </p>
 
               {/* QR Code */}
@@ -168,7 +168,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
               {/* Secret Input */}
               <div className="w-full bg-slate-50 rounded-2xl p-4 text-left border border-slate-100 shadow-sm mb-8">
                 <Label className="text-sm font-semibold text-slate-900 mb-2 block">
-                  Oder geben Sie dieses Secret manuell ein:
+                  Oder gib dieses Secret manuell ein:
                 </Label>
                 <div className="flex gap-2">
                   <Input 
@@ -213,7 +213,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
                 Code eingeben
               </h2>
               <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-6 leading-relaxed">
-                Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.
+                Gib den 6-stelligen Code aus deiner Authenticator-App ein.
               </p>
 
               {/* Code Input */}
@@ -255,7 +255,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
                 Erfolgreich eingerichtet!
               </h2>
               <p className="text-slate-500 text-sm max-w-[280px] mx-auto mb-8 leading-relaxed">
-                Ihre Zwei-Faktor-Authentifizierung ist jetzt aktiv und Ihr Konto geschützt.
+                Deine Zwei-Faktor-Authentifizierung ist jetzt aktiv und dein Konto geschützt.
               </p>
 
               {/* Info Box */}
@@ -267,7 +267,7 @@ export const MfaEnrollmentFlow: React.FC<MfaEnrollmentFlowProps> = ({
                   <span className="font-semibold text-slate-900 block mb-0.5">
                     Wichtig
                   </span>
-                  Verwenden Sie beim nächsten Login den Code aus Ihrer Authenticator-App.
+                  Verwende beim nächsten Login den Code aus deiner Authenticator-App.
                 </div>
               </div>
 

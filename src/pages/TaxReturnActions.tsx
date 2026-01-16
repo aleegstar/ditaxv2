@@ -401,7 +401,7 @@ export default function TaxReturnActions() {
                     Unterschrift erforderlich
                   </h2>
                   <p className="text-white/80 text-sm">
-                    Bitte unterschreiben Sie Ihre Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.
+                    Bitte unterschreibe deine Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.
                   </p>
                 </div>
                 <div className="mt-auto">
@@ -430,7 +430,7 @@ export default function TaxReturnActions() {
                   <p className="text-sm text-emerald-700">
                     {signatureData?.signed_at 
                       ? `Am ${new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                      : 'Ihre Steuererklärung wurde signiert und kann eingereicht werden.'
+                      : 'Deine Steuererklärung wurde signiert und kann eingereicht werden.'
                     }
                   </p>
                 </div>

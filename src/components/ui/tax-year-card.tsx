@@ -202,7 +202,7 @@ export function TaxYearCard({
               <AlertDialogDescription className="space-y-2">
                 <p>
                   {language === 'de' 
-                    ? `Sind Sie sicher, dass Sie die Steuererklärung für das Jahr ${taxYear} komplett löschen möchten?`
+                    ? `Bist du sicher, dass du die Steuererklärung für das Jahr ${taxYear} komplett löschen möchtest?`
                     : `Are you sure you want to completely delete the tax return for the year ${taxYear}?`
                   }
                 </p>

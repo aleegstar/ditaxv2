@@ -74,7 +74,7 @@ E-Mail: ${userProfile.email}`;
       toast({
         variant: "destructive",
         title: "Signatur ungültig",
-        description: "Bitte bestätigen Sie die Vollmacht und geben Sie Ihren vollständigen Namen ein."
+        description: "Bitte bestätige die Vollmacht und gib deinen vollständigen Namen ein."
       });
       return;
     }
@@ -101,7 +101,7 @@ E-Mail: ${userProfile.email}`;
       
       toast({
         title: "Erfolgreich signiert",
-        description: "Ihre Steuererklärung wurde elektronisch unterschrieben."
+        description: "Deine Steuererklärung wurde elektronisch unterschrieben."
       });
 
       setTimeout(() => {
@@ -150,7 +150,7 @@ E-Mail: ${userProfile.email}`;
               Erfolgreich signiert!
             </h2>
             <p className="text-slate-500 text-center text-sm">
-              Ihre Steuererklärung wurde elektronisch unterschrieben und kann nun eingereicht werden.
+              Deine Steuererklärung wurde elektronisch unterschrieben und kann nun eingereicht werden.
             </p>
           </div>
         ) : (
@@ -222,11 +222,11 @@ E-Mail: ${userProfile.email}`;
                   id="signature"
                   value={signatureName}
                   onChange={(e) => setSignatureName(e.target.value)}
-                  placeholder={`Geben Sie "${fullName}" ein`}
+                  placeholder={`Gib "${fullName}" ein`}
                   className="bg-white border-slate-200 h-12 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20"
                 />
                 <p className="text-xs text-slate-500">
-                  Geben Sie Ihren vollständigen Namen zur Bestätigung ein
+                  Gib deinen vollständigen Namen zur Bestätigung ein
                 </p>
               </div>
 
@@ -250,7 +250,7 @@ E-Mail: ${userProfile.email}`;
               </Button>
 
               <p className="text-xs text-center text-slate-400">
-                Mit Ihrer Unterschrift bestätigen Sie die Richtigkeit aller Angaben
+                Mit deiner Unterschrift bestätigst du die Richtigkeit aller Angaben
               </p>
             </div>
           </>

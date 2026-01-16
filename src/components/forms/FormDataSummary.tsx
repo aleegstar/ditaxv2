@@ -33,7 +33,7 @@ export const FormDataSummary: React.FC = () => {
       
       toast({
         title: "Angaben bestätigt",
-        description: "Ihre Daten wurden erfolgreich bestätigt. Sie können nun mit den Unterlagen fortfahren."
+        description: "Deine Daten wurden erfolgreich bestätigt. Du kannst nun mit den Unterlagen fortfahren."
       });
 
       // Navigate back to dashboard
