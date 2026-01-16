@@ -138,8 +138,10 @@ export default function TaxReturnActions() {
     if (!completedTaxReturn) return;
 
     try {
-      const folderPath = completedTaxReturn.file_path.split('/').slice(0, -1).join('/') || '';
-      const searchFileName = completedTaxReturn.file_path.split('/').pop() || '';
+      // Use signed_pdf_path if available, otherwise fall back to file_path
+      const filePath = completedTaxReturn.signed_pdf_path || completedTaxReturn.file_path;
+      const folderPath = filePath.split('/').slice(0, -1).join('/') || '';
+      const searchFileName = filePath.split('/').pop() || '';
 
       const { data: fileList, error: listError } = await supabase.storage
         .from('completed-tax-returns')
@@ -158,7 +160,7 @@ export default function TaxReturnActions() {
 
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
-        .download(completedTaxReturn.file_path);
+        .download(filePath);
 
       if (error) throw error;
 
@@ -189,8 +191,10 @@ export default function TaxReturnActions() {
     if (!completedTaxReturn) return;
 
     try {
-      const folderPath = completedTaxReturn.file_path.split('/').slice(0, -1).join('/') || '';
-      const searchFileName = completedTaxReturn.file_path.split('/').pop() || '';
+      // Use signed_pdf_path if available, otherwise fall back to file_path
+      const filePath = completedTaxReturn.signed_pdf_path || completedTaxReturn.file_path;
+      const folderPath = filePath.split('/').slice(0, -1).join('/') || '';
+      const searchFileName = filePath.split('/').pop() || '';
 
       const { data: fileList, error: listError } = await supabase.storage
         .from('completed-tax-returns')
@@ -209,7 +213,7 @@ export default function TaxReturnActions() {
 
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
-        .createSignedUrl(completedTaxReturn.file_path, 3600);
+        .createSignedUrl(filePath, 3600);
 
       if (error) throw error;
 
