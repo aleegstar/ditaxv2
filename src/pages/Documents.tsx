@@ -531,55 +531,75 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
-        {/* Top Navigation */}
-        <SubpageHeader 
-          title="Dokumente"
-          onBack={() => navigate(-1)}
-          showAvatar={true}
-        />
+        {/* Unified Header Block */}
+        <header className="sticky top-0 z-30 bg-white border-b border-zinc-100">
+          {/* Navigation Row */}
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
+            {/* Back Button */}
+            <button 
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+
+            {/* Centered Title + Year Selector Group */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-0.5">
+              <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
+                Dokumente
+              </h1>
+              {/* Year Selector - Contextual Filter */}
+              <div className="relative" data-tour="documents-year-selector">
+                <button 
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50 transition-all"
+                >
+                  <span>{selectedYear}</span>
+                  <ChevronDown className={cn("h-3 w-3 text-zinc-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                </button>
+
+                {isYearDropdownOpen && <>
+                  <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
+                  <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
+                    <div className="max-h-64 overflow-y-auto py-1">
+                      {availableYears.map(year => (
+                        <button 
+                          key={year} 
+                          onClick={() => handleYearSelect(year)} 
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-zinc-50 transition-colors",
+                            year === selectedYear && "bg-zinc-50"
+                          )}
+                        >
+                          <Calendar className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
+                          <span className={cn(
+                            "text-sm font-medium text-zinc-600",
+                            year === selectedYear && "text-zinc-900"
+                          )}>{year}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>}
+              </div>
+            </div>
+
+            {/* Avatar */}
+            <button 
+              onClick={() => navigate('/profile')} 
+              className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all"
+            >
+              <img 
+                src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
+                alt="Profil" 
+                className="w-full h-full object-cover" 
+              />
+            </button>
+          </div>
+        </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
-          
-          {/* Year Dropdown - Centered, Secondary Appearance */}
-          <div className="mb-4 flex justify-center" data-tour="documents-year-selector">
-            <div className="relative">
-              <button 
-                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl bg-zinc-100 hover:bg-zinc-150 px-3.5 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-all hover:shadow active:scale-[0.98]"
-              >
-                <Calendar className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-                <span>{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 text-zinc-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
-              </button>
-
-              {isYearDropdownOpen && <>
-                <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
-                  <div className="max-h-64 overflow-y-auto py-1.5">
-                    {availableYears.map(year => (
-                      <button 
-                        key={year} 
-                        onClick={() => handleYearSelect(year)} 
-                        className={cn(
-                          "w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left hover:bg-zinc-50 transition-colors",
-                          year === selectedYear && "bg-zinc-50"
-                        )}
-                      >
-                        <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
-                          <Calendar className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
-                        </div>
-                        <span className={cn(
-                          "text-sm font-medium text-zinc-600",
-                          year === selectedYear && "text-zinc-900"
-                        )}>{year}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>}
-            </div>
-          </div>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-32 bg-white min-h-screen">
 
           {/* Search Bar with Count and Sort - Grouped Secondary Actions */}
           <div className="mb-6 flex items-center gap-2">
