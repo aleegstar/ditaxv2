@@ -561,10 +561,10 @@ const DocumentsContent: React.FC<{
         </nav>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 bg-white min-h-screen">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
           
           {/* Year Dropdown - Centered */}
-          <div className="mb-8 flex justify-center" data-tour="documents-year-selector">
+          <div className="mb-6 flex justify-center" data-tour="documents-year-selector">
             <div className="relative">
               <button 
                 onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
