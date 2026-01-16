@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useI18n } from '@/contexts/I18nContext';
 import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader, ModernUploadDialogTitle } from "@/components/ui/modern-upload-dialog";
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
+import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 
 interface UserProfile {
   first_name: string;
@@ -28,6 +29,7 @@ export default function TaxReturnActions() {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = React.useState(false);
   const [signatureDialogOpen, setSignatureDialogOpen] = React.useState(false);
+  const [ticketDialogOpen, setTicketDialogOpen] = React.useState(false);
 
   const [completedTaxReturn, setCompletedTaxReturn] = React.useState<any>(null);
   const [definitiveTaxBill, setDefinitiveTaxBill] = React.useState<any>(null);
@@ -125,7 +127,11 @@ export default function TaxReturnActions() {
   };
 
   const handleCreateTicket = () => {
-    navigate(`/create-ticket/${completedTaxReturn?.id}/${taxYear}`);
+    setTicketDialogOpen(true);
+  };
+
+  const handleTicketCreated = () => {
+    loadData();
   };
 
   const handleDownload = async () => {
@@ -401,7 +407,7 @@ export default function TaxReturnActions() {
                     Unterschrift erforderlich
                   </h2>
                   <p className="text-white/80 text-sm">
-                    Bitte unterschreiben Sie Ihre Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.
+                    Bitte unterschreibe deine Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.
                   </p>
                 </div>
                 <div className="mt-auto">
@@ -430,7 +436,7 @@ export default function TaxReturnActions() {
                   <p className="text-sm text-emerald-700">
                     {signatureData?.signed_at 
                       ? `Am ${new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                      : 'Ihre Steuererklärung wurde signiert und kann eingereicht werden.'
+                      : 'Deine Steuererklärung wurde signiert und kann eingereicht werden.'
                     }
                   </p>
                 </div>
@@ -438,7 +444,8 @@ export default function TaxReturnActions() {
             </div>
           )}
 
-          {/* Abgeschlossene Steuererklärung */}
+          {/* Abgeschlossene Steuererklärung - nur anzeigen wenn signiert */}
+          {isSigned && (
           <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
@@ -472,8 +479,10 @@ export default function TaxReturnActions() {
               </div>
             </div>
           </div>
+          )}
 
-          {/* Definitive Steuerrechnung */}
+          {/* Definitive Steuerrechnung - nur anzeigen wenn signiert */}
+          {isSigned && (
           <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
@@ -532,6 +541,7 @@ export default function TaxReturnActions() {
               )}
             </div>
           </div>
+          )}
 
           {/* Problem melden */}
           <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
@@ -666,6 +676,16 @@ export default function TaxReturnActions() {
           completedTaxReturn={completedTaxReturn}
           userProfile={userProfile}
           onSignatureComplete={handleSignatureComplete}
+        />
+      )}
+
+      {/* Ticket Dialog */}
+      {completedTaxReturn && (
+        <CreateTicketDialog
+          isOpen={ticketDialogOpen}
+          onClose={() => setTicketDialogOpen(false)}
+          completedTaxReturnId={completedTaxReturn.id}
+          taxYear={taxYear}
         />
       )}
     </>

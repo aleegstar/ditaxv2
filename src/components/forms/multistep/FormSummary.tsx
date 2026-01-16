@@ -45,7 +45,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
               {title} - Zusammenfassung
             </CardTitle>
             <p className="text-slate-500">
-              Überprüfen Sie Ihre Angaben bevor Sie fortfahren
+              Überprüfe deine Angaben bevor du fortfährst
             </p>
           </CardHeader>
         </Card>
@@ -70,7 +70,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
         {yesAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg text-emerald-600">
-                Ihre relevanten Angaben (Ja-Antworten)
+                Deine relevanten Angaben (Ja-Antworten)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
