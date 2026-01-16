@@ -554,68 +554,25 @@ const DocumentsContent: React.FC<{
             </div>
           </div>
 
-          {/* Combined Search and Filter Bar */}
-          <div className="mb-6 relative">
-            <div className="flex items-center h-12 rounded-xl border border-zinc-200 bg-white overflow-hidden">
-              {/* Search Icon */}
-              <div className="pl-4 pr-2 flex items-center justify-center">
-                <Search className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
-              </div>
-              
-              {/* Search Input */}
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
               <input 
                 type="text" 
                 placeholder="Suche..." 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
-                className="flex-1 h-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none" 
+                className="w-full h-12 px-4 rounded-2xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-300 transition-colors" 
               />
-              
-              {/* Filter Button */}
-              <button 
-                onClick={() => setShowSortDropdown(!showSortDropdown)} 
-                className={cn(
-                  "h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors",
-                  showSortDropdown && "bg-zinc-50"
-                )}
-              >
-                <SlidersHorizontal className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
-              </button>
-              
-              {/* Clear Button */}
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')} 
-                  className="h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-100 rounded-full transition-colors"
                 >
-                  <X className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
+                  <X className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                 </button>
               )}
             </div>
-            
-            {/* Sort Dropdown */}
-            {showSortDropdown && <>
-              <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-              <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
-                <div className="py-1">
-                  {sortOptions.map(option => (
-                    <button 
-                      key={option.value} 
-                      onClick={() => {
-                        setSortBy(option.value);
-                        setShowSortDropdown(false);
-                      }} 
-                      className={cn(
-                        "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", 
-                        sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>}
           </div>
 
           {/* Documents Section */}
