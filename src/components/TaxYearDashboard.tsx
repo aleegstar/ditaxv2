@@ -204,19 +204,21 @@ export const TaxYearDashboard: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 pt-4">
         {/* Step 1: Persönliche Angaben - Collapsible when complete */}
         {allAngabenComplete && !isAngabenExpanded ? (
-          /* Collapsed Pill View - Calm, completed state */
+          /* Collapsed Pill View - Calm, completed state with consistent height */
           <div 
             data-tour="form-step-1" 
             onClick={() => setIsAngabenExpanded(true)}
-            className="bg-slate-50 p-4 rounded-xl ring-1 ring-slate-200/60 flex items-center gap-3 transition-colors duration-150 cursor-pointer hover:bg-slate-100"
+            className="bg-slate-50 p-5 rounded-2xl ring-1 ring-slate-200/60 flex items-center gap-4 transition-colors duration-150 cursor-pointer hover:bg-slate-100"
           >
-            <div className="h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-green-500 text-white">
-              <Check className="w-4 h-4" strokeWidth={2.5} />
+            <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0 bg-green-500 text-white">
+              <Check className="w-5 h-5" strokeWidth={2.5} />
             </div>
-            <span className="font-medium text-slate-600 text-sm flex-1">
-              Persönliche Angaben
-            </span>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
+              <span className="font-semibold text-slate-600">
+                Persönliche Angaben
+              </span>
+            </div>
+            <ChevronDown className="w-5 h-5 text-slate-400" />
           </div>
         ) : (
           /* Expanded Card View */
@@ -287,12 +289,12 @@ export const TaxYearDashboard: React.FC = () => {
         )}
 
         {/* Following Steps */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-6 space-y-4">
           {/* Step 2: Belege & Unterlagen */}
           <div 
             data-tour="form-step-2" 
             onClick={() => allAngabenComplete && handleDocumentsClick()} 
-            className={`p-4 rounded-xl flex items-center gap-3 transition-all duration-150 ${
+            className={`p-5 rounded-2xl flex items-center gap-4 transition-all duration-150 ${
               isDocumentsComplete
                 ? 'bg-slate-50 ring-1 ring-slate-200/60 cursor-pointer hover:bg-slate-100'
                 : allAngabenComplete && !isDocumentsComplete 
@@ -309,7 +311,7 @@ export const TaxYearDashboard: React.FC = () => {
             }`}>
               {isDocumentsComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '2'}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
               <h3 className={`font-semibold ${
                 isDocumentsComplete 
                   ? 'text-slate-600' 
@@ -320,14 +322,14 @@ export const TaxYearDashboard: React.FC = () => {
                 Belege & Unterlagen
               </h3>
               {allAngabenComplete && !isDocumentsComplete && (
-                <p className="text-sm text-slate-500">Dokumente hochladen</p>
+                <p className="text-sm text-slate-500 mt-0.5">Dokumente hochladen</p>
               )}
               {!allAngabenComplete && (
-                <p className="text-xs text-slate-400">Zuerst Schritt 1 abschliessen</p>
+                <p className="text-sm text-slate-400 mt-0.5">Zuerst Schritt 1 abschliessen</p>
               )}
             </div>
             {allAngabenComplete && (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-400" />
             )}
           </div>
 
@@ -335,7 +337,7 @@ export const TaxYearDashboard: React.FC = () => {
           <div 
             data-tour="form-step-3" 
             onClick={() => canSubmit && handleSubmitClick()} 
-            className={`p-4 rounded-xl flex items-center gap-3 transition-all duration-150 ${
+            className={`p-5 rounded-2xl flex items-center gap-4 transition-all duration-150 ${
               isCompleted('submit')
                 ? 'bg-slate-50 ring-1 ring-slate-200/60 cursor-pointer hover:bg-slate-100'
                 : canSubmit && !isCompleted('submit')
@@ -352,7 +354,7 @@ export const TaxYearDashboard: React.FC = () => {
             }`}>
               {isCompleted('submit') ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '3'}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
               <h3 className={`font-semibold ${
                 isCompleted('submit') 
                   ? 'text-slate-600' 
@@ -363,14 +365,14 @@ export const TaxYearDashboard: React.FC = () => {
                 Prüfung & Versand
               </h3>
               {canSubmit && !isCompleted('submit') && (
-                <p className="text-sm text-slate-500">Abschliessen & bezahlen</p>
+                <p className="text-sm text-slate-500 mt-0.5">Abschliessen & bezahlen</p>
               )}
               {!canSubmit && (
-                <p className="text-xs text-slate-400">Zuerst Schritt 1 & 2 abschliessen</p>
+                <p className="text-sm text-slate-400 mt-0.5">Zuerst Schritt 1 & 2 abschliessen</p>
               )}
             </div>
             {canSubmit && (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-5 h-5 text-slate-400" />
             )}
           </div>
         </div>
