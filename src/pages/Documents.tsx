@@ -554,28 +554,68 @@ const DocumentsContent: React.FC<{
             </div>
           </div>
 
-          {/* Search Input - matching contact form style */}
+          {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
-            <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l-xl" />
+            <div className="flex items-center h-12 rounded-xl border border-zinc-200 bg-white overflow-hidden">
+              {/* Search Icon */}
+              <div className="pl-4 pr-2 flex items-center justify-center">
+                <Search className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+              </div>
+              
+              {/* Search Input */}
               <input 
                 type="text" 
                 placeholder="Suche..." 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
-                className="w-full h-14 pl-5 pr-12 bg-zinc-50 rounded-xl text-base text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                className="flex-1 h-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none" 
               />
-              {searchQuery ? (
+              
+              {/* Filter Button */}
+              <button 
+                onClick={() => setShowSortDropdown(!showSortDropdown)} 
+                className={cn(
+                  "h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors",
+                  showSortDropdown && "bg-zinc-50"
+                )}
+              >
+                <SlidersHorizontal className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
+              </button>
+              
+              {/* Clear Button */}
+              {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')} 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 rounded-full transition-colors"
+                  className="h-full px-3 flex items-center justify-center border-l border-zinc-200 hover:bg-zinc-50 transition-colors"
                 >
-                  <X className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                  <X className="h-5 w-5 text-zinc-500" strokeWidth={1.5} />
                 </button>
-              ) : (
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" strokeWidth={1.5} />
               )}
             </div>
+            
+            {/* Sort Dropdown */}
+            {showSortDropdown && <>
+              <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
+              <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
+                <div className="py-1">
+                  {sortOptions.map(option => (
+                    <button 
+                      key={option.value} 
+                      onClick={() => {
+                        setSortBy(option.value);
+                        setShowSortDropdown(false);
+                      }} 
+                      className={cn(
+                        "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", 
+                        sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>}
           </div>
 
           {/* Documents Section */}
