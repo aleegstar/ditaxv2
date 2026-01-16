@@ -530,8 +530,12 @@ serve(async (req) => {
         // Step 2: Download and decrypt file
         let fileBuffer: ArrayBuffer | null = null;
         
-        // Try encrypted bucket first
-        if (doc.encrypted_metadata && doc.metadata_iv && doc.file_iv) {
+        // Check if document is encrypted using correct metadata path
+        const isEncrypted = doc.metadata?.encrypted && doc.metadata?.iv && doc.metadata?.encryptedMetadata;
+        console.log(`🔐 Encryption status: ${isEncrypted ? 'Encrypted' : 'Unencrypted'}`);
+        
+        // Try encrypted bucket first if document is encrypted
+        if (isEncrypted) {
           try {
             const { data: fileData, error: downloadError } = await supabase.storage
               .from('tax-documents')
@@ -539,6 +543,7 @@ serve(async (req) => {
 
             if (!downloadError && fileData) {
               const encryptedBuffer = await fileData.arrayBuffer();
+              console.log(`📥 Downloaded encrypted file: ${encryptedBuffer.byteLength} bytes`);
               
               // Check size before decryption
               const sizeMB = encryptedBuffer.byteLength / (1024 * 1024);
@@ -546,16 +551,24 @@ serve(async (req) => {
                 throw new Error(`File too large: ${sizeMB.toFixed(2)}MB (max: ${MAX_FILE_SIZE_MB}MB)`);
               }
               
-              fileBuffer = await decryptFile(encryptedBuffer, userEncryptionKey, doc.file_iv);
+              // Use correct metadata path for IV
+              fileBuffer = await decryptFile(encryptedBuffer, userEncryptionKey, doc.metadata.iv);
+              console.log(`🔓 Decrypted file: ${fileBuffer.byteLength} bytes`);
               
-              // Get type from decrypted metadata
-              const decryptedMetadata = await decryptMetadata(doc.encrypted_metadata, userEncryptionKey, doc.metadata_iv);
+              // Get type from decrypted metadata using correct paths
+              const decryptedMetadata = await decryptMetadata(
+                doc.metadata.encryptedMetadata, 
+                userEncryptionKey, 
+                doc.metadata.metadataIv
+              );
               if (decryptedMetadata) {
                 finalType = decryptedMetadata.original_type;
+                console.log(`📋 Decrypted metadata - type: ${finalType}`);
               }
             }
           } catch (encryptedError) {
-            console.log(`⚠️ Encrypted download failed: ${encryptedError instanceof Error ? encryptedError.message : 'Unknown error'}`);
+            console.log(`⚠️ Encrypted download/decrypt failed: ${encryptedError instanceof Error ? encryptedError.message : 'Unknown error'}`);
+            fileBuffer = null; // Reset to trigger fallback
           }
         }
         
