@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -16,7 +16,7 @@ import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { Progress } from '@/components/ui/progress';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -568,42 +568,52 @@ const DocumentChecklist: React.FC = () => {
     }} />}
 
       {/* Completion Dialog */}
-      <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <AlertDialogContent className="max-w-md p-0 overflow-hidden border-0 rounded-3xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-6 py-5">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
-                <FileCheck className="w-5 h-5 text-white" strokeWidth={1.5} />
+      <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md bg-white border-0 p-6 overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
+          {/* Close Button */}
+          <button
+            onClick={() => setShowCompletionDialog(false)}
+            className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors z-10"
+          >
+            <X className="h-4 w-4 text-slate-500" />
+          </button>
+
+          <div className="pt-8">
+            {/* Centered Header */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+                <FileCheck className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
               </div>
-              <div>
-                <AlertDialogTitle className="text-white font-semibold">
-                  Alle Unterlagen vollständig!
-                </AlertDialogTitle>
-                <p className="text-sm text-slate-400 mt-0.5">
-                  Steuererklärung {taxYear}
-                </p>
-              </div>
+              <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
+                Alle Unterlagen vollständig!
+              </DialogTitle>
+              <p className="text-sm text-slate-500 mt-1 text-center">
+                Steuererklärung {taxYear}
+              </p>
+            </div>
+
+            <p className="text-slate-600 text-sm leading-relaxed text-center mb-6">
+              Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
+            </p>
+
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setShowCompletionDialog(false)}
+                className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]"
+              >
+                Später
+              </Button>
+              <Button
+                onClick={() => navigate('/payment')}
+                className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98]"
+              >
+                Ja, jetzt erstellen
+              </Button>
             </div>
           </div>
-
-          <div className="p-6">
-            <AlertDialogHeader className="mb-4">
-              <AlertDialogDescription className="text-slate-600 text-sm leading-relaxed">
-                Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-              <AlertDialogCancel className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-11">
-                Später
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={() => navigate('/payment')} className="w-full sm:w-auto bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl h-11 shadow-lg shadow-blue-500/25">
-                Ja, jetzt erstellen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default DocumentChecklist;
