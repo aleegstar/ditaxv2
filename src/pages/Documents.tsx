@@ -523,11 +523,8 @@ const DocumentsContent: React.FC<{
             <h1 className="text-xl font-semibold text-zinc-900">Steuerjahr</h1>
             
             <div className="relative" data-tour="documents-year-selector">
-              <button 
-                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
-                className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors"
-              >
-                <SlidersHorizontal className="h-4 w-4" strokeWidth={1.5} />
+              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors">
+                
                 <span>{selectedYear}</span>
                 <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
               </button>
@@ -536,18 +533,9 @@ const DocumentsContent: React.FC<{
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
                 <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
                   <div className="max-h-64 overflow-y-auto py-1">
-                    {availableYears.map(year => (
-                      <button 
-                        key={year} 
-                        onClick={() => handleYearSelect(year)} 
-                        className={cn(
-                          "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
-                          year === selectedYear ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
-                        )}
-                      >
+                    {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", year === selectedYear ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700")}>
                         {year}
-                      </button>
-                    ))}
+                      </button>)}
                   </div>
                 </div>
               </>}
@@ -563,34 +551,17 @@ const DocumentsContent: React.FC<{
               </div>
               
               {/* Search Input */}
-              <input 
-                type="text" 
-                placeholder="Suche..." 
-                value={searchQuery} 
-                onChange={e => setSearchQuery(e.target.value)} 
-                className="flex-1 h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none" 
-              />
+              <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none" />
               
               {/* Filter Button */}
-              <button 
-                onClick={() => setShowSortDropdown(!showSortDropdown)} 
-                className={cn(
-                  "h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors",
-                  showSortDropdown && "bg-muted/50"
-                )}
-              >
+              <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors", showSortDropdown && "bg-muted/50")}>
                 <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               </button>
               
               {/* Clear Button */}
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')} 
-                  className="h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors"
-                >
+              {searchQuery && <button onClick={() => setSearchQuery('')} className="h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors">
                   <X className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                </button>
-              )}
+                </button>}
             </div>
             
             {/* Sort Dropdown */}
@@ -598,58 +569,42 @@ const DocumentsContent: React.FC<{
               <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
               <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
                 <div className="py-1">
-                  {sortOptions.map(option => (
-                    <button 
-                      key={option.value} 
-                      onClick={() => {
-                        setSortBy(option.value);
-                        setShowSortDropdown(false);
-                      }} 
-                      className={cn(
-                        "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", 
-                        sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
-                      )}
-                    >
+                  {sortOptions.map(option => <button key={option.value} onClick={() => {
+                  setSortBy(option.value);
+                  setShowSortDropdown(false);
+                }} className={cn("w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700")}>
                       {option.label}
-                    </button>
-                  ))}
+                    </button>)}
                 </div>
               </div>
             </>}
           </div>
 
           {/* Documents Section */}
-          {documents.length > 0 ? (
-            /* Document Grid Container */
-            <div className="bg-zinc-50/70 rounded-2xl p-4 sm:p-6">
+          {documents.length > 0 ? (/* Document Grid Container */
+        <div className="bg-zinc-50/70 rounded-2xl p-4 sm:p-6">
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {filteredDocuments.map(doc => {
-                  const isImage = doc.file_type?.startsWith('image/');
-                  const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
-                  const uploadDate = new Date(doc.upload_date).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                  
-                  return (
-                    <button 
-                      key={doc.id} 
-                      onClick={() => {
-                        setSelectedDocument(doc);
-                        setShowActionSheet(true);
-                      }} 
-                      className="group bg-white rounded-2xl p-3 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
-                    >
+              const isImage = doc.file_type?.startsWith('image/');
+              const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
+              const uploadDate = new Date(doc.upload_date).toLocaleDateString('de-CH', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              });
+              return <button key={doc.id} onClick={() => {
+                setSelectedDocument(doc);
+                setShowActionSheet(true);
+              }} className="group bg-white rounded-2xl p-3 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
                       {/* Thumbnail Area */}
                       <div className="aspect-square rounded-xl overflow-hidden bg-zinc-100 mb-3">
-                        {isImage ? (
-                          <DocumentThumbnail doc={doc} />
-                        ) : (
-                          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
+                        {isImage ? <DocumentThumbnail doc={doc} /> : <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
                             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20 flex items-center justify-center">
                               <span className="px-2 py-0.5 rounded-full bg-white/90 text-[9px] font-bold text-blue-600">
                                 {fileExt}
                               </span>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                       </div>
                       
                       {/* File Info */}
@@ -657,14 +612,11 @@ const DocumentsContent: React.FC<{
                         <p className="text-sm font-medium text-zinc-900 truncate leading-tight">{doc.file_name}</p>
                         <p className="text-xs text-zinc-400">{uploadDate}</p>
                       </div>
-                    </button>
-                  );
-                })}
+                    </button>;
+            })}
               </div>
-            </div>
-          ) : (
-            /* Empty State */
-            <div className="bg-zinc-50/70 rounded-2xl p-8">
+            </div>) : (/* Empty State */
+        <div className="bg-zinc-50/70 rounded-2xl p-8">
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="text-center space-y-6 relative">
                   <div className="relative mx-auto w-24 h-24 mb-4">
@@ -684,8 +636,7 @@ const DocumentsContent: React.FC<{
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            </div>)}
         </main>
 
         {/* Hidden File Inputs - Direct upload without confirmation */}
