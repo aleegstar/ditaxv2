@@ -630,23 +630,23 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && (
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-4">
                                     {/* Primary Upload Button */}
                                     <button 
                                       onClick={() => handleUploadDocument(item.id)}
                                       className="flex items-center justify-center gap-2 bg-slate-900 text-white font-medium py-2 px-5 rounded-lg transition-all hover:bg-slate-800 active:scale-[0.98] text-sm"
                                     >
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                      Hochladen
+                                      Neu hochladen
                                     </button>
                                     
-                                    {/* Secondary Select Link - only if unassigned docs exist */}
+                                    {/* Secondary: Use existing document */}
                                     {hasUnassignedDocs && (
                                       <button 
                                         onClick={() => setAssignmentModal({ open: true, item })}
-                                        className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
                                       >
-                                        Aus Bibliothek wählen
+                                        Bereits hochgeladen? <span className="underline underline-offset-2">Zuweisen</span>
                                       </button>
                                     )}
                                   </div>
