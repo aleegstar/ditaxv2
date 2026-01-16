@@ -56,12 +56,14 @@ class EncryptedDocumentService {
   
   /**
    * Upload encrypted document (uses local user key)
+   * @param checklistItemTitle - Optional title for prefixing the filename
    */
   async uploadEncryptedDocument(
     file: File,
     checklistItemId: string | null,
     userId: string,
-    taxYear: string
+    taxYear: string,
+    checklistItemTitle?: string
   ): Promise<void> {
     try {
       console.log('🔐 Starting encrypted document upload for user:', userId);
@@ -108,6 +110,11 @@ class EncryptedDocumentService {
       
       console.log('📁 File uploaded to storage');
       
+      // Create display filename with checklist item prefix if provided
+      const displayFileName = checklistItemTitle 
+        ? `${checklistItemTitle} - ${file.name}`
+        : file.name;
+      
       // Store document metadata in database
       const { error: dbError } = await supabase
         .from('uploaded_documents')
@@ -115,10 +122,12 @@ class EncryptedDocumentService {
           id: fileId,
           user_id: userId,
           checklist_item_id: checklistItemId,
-          file_name: file.name,
+          file_name: displayFileName,
           file_type: file.type,
           file_path: filePath,
           tax_year: taxYear,
+          is_assigned_to_checklist: !!checklistItemId,
+          assigned_date: checklistItemId ? new Date().toISOString() : null,
           metadata: {
             encrypted: true,
             iv: iv,

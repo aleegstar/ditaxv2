@@ -146,7 +146,8 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           fileWithPreview.file,
           checklistItem.id,
           userId,
-          taxYear
+          taxYear,
+          checklistItem.title
         );
 
         // Mark as uploaded with encryption

@@ -340,7 +340,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         fileWithPreview.file, 
         checklistItem?.id || null, 
         userId, 
-        taxYear
+        taxYear,
+        checklistItem?.title
       );
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 100, uploaded: true, uploading: false } : f));
       return true;
