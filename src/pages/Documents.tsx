@@ -533,7 +533,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <SubpageHeader 
-          title="Dokumente"
+          title={`Dokumente ${selectedYear}`}
           onBack={() => navigate(-1)}
           showAvatar={true}
         />
@@ -541,37 +541,37 @@ const DocumentsContent: React.FC<{
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
           
-          {/* Year Dropdown - Centered, Secondary Appearance */}
+          {/* Year Dropdown - Centered */}
           <div className="mb-4 flex justify-center" data-tour="documents-year-selector">
             <div className="relative">
               <button 
                 onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl bg-zinc-100 hover:bg-zinc-150 px-3.5 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-all hover:shadow active:scale-[0.98]"
+                className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                <Calendar className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-                <span>{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 text-zinc-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                <Calendar className="h-4 w-4 text-white" strokeWidth={2} />
+                <span className="text-white">{selectedYear}</span>
+                <ChevronDown className={cn("h-4 w-4 text-white/80 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
               </button>
 
               {isYearDropdownOpen && <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
-                  <div className="max-h-64 overflow-y-auto py-1.5">
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[180px]">
+                  <div className="max-h-64 overflow-y-auto py-2">
                     {availableYears.map(year => (
                       <button 
                         key={year} 
                         onClick={() => handleYearSelect(year)} 
                         className={cn(
-                          "w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left hover:bg-zinc-50 transition-colors",
-                          year === selectedYear && "bg-zinc-50"
+                          "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors",
+                          year === selectedYear && "bg-slate-50"
                         )}
                       >
-                        <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
-                          <Calendar className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                          <Calendar className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
                         </div>
                         <span className={cn(
-                          "text-sm font-medium text-zinc-600",
-                          year === selectedYear && "text-zinc-900"
+                          "text-sm font-medium text-slate-700",
+                          year === selectedYear && "text-slate-900"
                         )}>{year}</span>
                       </button>
                     ))}
@@ -581,81 +581,63 @@ const DocumentsContent: React.FC<{
             </div>
           </div>
 
-          {/* Search Bar with Count and Sort - Grouped Secondary Actions */}
+          {/* Search Bar with Count and Sort */}
           <div className="mb-6 flex items-center gap-2">
-            {/* Search Input - Dominant */}
+            {/* Search Input */}
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" strokeWidth={1.5} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" strokeWidth={1.5} />
               <input
                 type="text"
-                placeholder="Dokumente durchsuchen..."
+                placeholder="Suche..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-4 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+                className="w-full h-10 pl-9 pr-4 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
             
-            {/* Secondary Actions Group */}
-            <div className="flex items-center gap-1.5">
-              {/* Document Count Badge */}
-              <div className="flex items-center justify-center h-11 min-w-[44px] px-3 rounded-xl border border-zinc-200 bg-zinc-50/80">
-                <span className="text-sm font-medium text-zinc-500">{filteredDocuments.length}</span>
-              </div>
+            {/* Document Count Badge */}
+            <div className="flex items-center justify-center h-10 min-w-[40px] px-3 rounded-xl border border-zinc-200 bg-white">
+              <span className="text-sm font-medium text-zinc-600">{filteredDocuments.length}</span>
+            </div>
+            
+            {/* Sort Button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+                className="flex items-center justify-center h-10 w-10 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
+              >
+                <ArrowUpDown className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+              </button>
               
-              {/* Sort Button */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center justify-center h-11 w-11 rounded-xl border border-zinc-200 bg-zinc-50/80 hover:bg-zinc-100 transition-colors"
-                >
-                  <ArrowUpDown className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-                </button>
-                
-                {showSortDropdown && <>
-                  <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-                  <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[200px]">
-                    <div className="py-1.5">
-                      {sortOptions.map(option => (
-                        <button
-                          key={option.value}
-                          onClick={() => {
-                            setSortBy(option.value);
-                            setShowSortDropdown(false);
-                          }}
-                          className={cn(
-                            "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
-                            sortBy === option.value ? "text-blue-600 font-medium bg-blue-50/60" : "text-zinc-600"
-                          )}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
+              {showSortDropdown && <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
+                <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
+                  <div className="py-1">
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setShowSortDropdown(false);
+                        }}
+                        className={cn(
+                          "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
+                          sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
                   </div>
-                </>}
-              </div>
+                </div>
+              </>}
             </div>
           </div>
 
           {/* Documents Section */}
-          {loading ? (
-            /* Skeleton Loading State */
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="aspect-[4/5] rounded-xl bg-zinc-100 animate-pulse overflow-hidden">
-                  <div className="h-full w-full flex flex-col">
-                    <div className="flex-1 bg-zinc-200/60" />
-                    <div className="p-3 space-y-2">
-                      <div className="h-3 bg-zinc-200 rounded-full w-3/4" />
-                      <div className="h-2.5 bg-zinc-200/70 rounded-full w-1/2" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : documents.length > 0 ? (
-            /* Document Grid - Cards as Neutral Containers */
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5">
+          {documents.length > 0 ? (
+            /* Document Grid */
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
               {filteredDocuments.map((doc) => {
                 const isImage = doc.file_type?.startsWith('image/');
                 const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
@@ -668,68 +650,62 @@ const DocumentsContent: React.FC<{
                       setSelectedDocument(doc);
                       setShowActionSheet(true);
                     }} 
-                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-shadow text-left"
+                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 text-left"
                   >
                     {/* Document Thumbnail */}
-                    <div className="h-full w-full">
-                      {isImage ? (
-                        <DocumentThumbnail doc={doc} />
-                      ) : (
-                        <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-50 via-zinc-100/80 to-zinc-100 relative overflow-hidden">
-                          {/* Decorative gradient orb */}
-                          <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/15 to-violet-400/15 rounded-full blur-2xl" />
-                          <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/10 to-pink-400/10 rounded-full blur-2xl" />
-                          
-                          {/* Blue square with pill inside */}
-                          <div className="relative z-10 w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-500/20 flex items-center justify-center">
-                            <span className="px-2 py-0.5 rounded-full bg-white/90 text-[9px] font-bold text-blue-600 shadow-sm">
-                              {fileExt}
-                            </span>
-                          </div>
+                    {isImage ? (
+                      <DocumentThumbnail doc={doc} />
+                    ) : (
+                      <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
+                        {/* Decorative gradient orb */}
+                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
+                        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
+                        
+                        {/* Blue square with pill inside */}
+                        <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+                          <span className="px-2.5 py-1 rounded-full bg-white/90 text-[10px] font-bold text-blue-600 shadow-sm">
+                            {fileExt}
+                          </span>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                     
                     {/* Hover Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     
                     {/* More Options Button */}
-                    <div className="absolute right-2.5 top-2.5 translate-y-1 rounded-full bg-white/90 p-1.5 text-zinc-700 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-white group-hover:translate-y-0 group-hover:opacity-100">
+                    <div className="absolute right-3 top-3 translate-y-2 rounded-full bg-white/90 p-2 text-zinc-900 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-white group-hover:translate-y-0 group-hover:opacity-100">
                       <MoreVertical className="h-4 w-4" strokeWidth={2} />
                     </div>
                     
                     {/* File Info (on hover) */}
-                    <div className="absolute bottom-3 left-3 right-3 translate-y-1 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <p className="text-sm font-medium text-white truncate">{doc.file_name}</p>
-                      <p className="text-xs text-zinc-300 mt-0.5">{fileExt}{fileSize ? ` • ${fileSize}` : ''}</p>
+                    <div className="absolute bottom-4 left-4 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <p className="text-sm font-medium text-white truncate max-w-[120px]">{doc.file_name}</p>
+                      <p className="text-xs text-zinc-300">{fileExt}{fileSize ? ` • ${fileSize}` : ''}</p>
                     </div>
                   </button>
                 );
               })}
             </div>
           ) : (
-            /* Empty State - Improved Clarity */
-            <div className="flex flex-col items-center justify-center py-16 lg:py-24">
-              <div className="text-center space-y-5 max-w-sm mx-auto">
-                <div className="relative mx-auto w-20 h-20">
-                  <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-xl" />
-                  <div className="relative w-full h-full rounded-2xl bg-white border border-zinc-200 shadow-sm flex items-center justify-center">
-                    <FolderOpen strokeWidth={1.5} className="w-9 h-9 text-zinc-400" />
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="text-center space-y-6 relative">
+                <div className="relative mx-auto w-24 h-24 mb-4">
+                  <div className="absolute inset-0 bg-blue-500 rounded-full blur-[40px] opacity-10" />
+                  <div className="relative w-full h-full rounded-[32px] bg-white border border-zinc-200 shadow-lg flex items-center justify-center">
+                    <FolderOpen strokeWidth={1.5} className="w-10 h-10 text-blue-500" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-white border border-zinc-200 p-1.5 rounded-full shadow-lg">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={1.5} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-zinc-800 tracking-tight">Noch keine Dokumente</h2>
-                  <p className="text-sm text-zinc-500 leading-relaxed">
-                    Lade deine Belege, Rechnungen und Quittungen für {selectedYear} hoch, um sie sicher zu speichern.
+                  <h2 className="text-xl font-semibold text-zinc-900 tracking-tight">Belege sammeln</h2>
+                  <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
+                    Füge deine Rechnungen und Quittungen direkt hinzu.
                   </p>
                 </div>
-                <button 
-                  onClick={() => setShowUploadSheet(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                >
-                  <Plus className="w-4 h-4" strokeWidth={2} />
-                  Dokument hochladen
-                </button>
               </div>
             </div>
           )}
@@ -753,19 +729,22 @@ const DocumentsContent: React.FC<{
           onChange={handleCameraInputChange} 
         />
 
-        {/* Floating Upload Button - Reduced Visual Dominance */}
+        {/* Floating Upload Button */}
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
           <button 
             onClick={() => setShowUploadSheet(true)}
             data-tour="document-upload-card"
-            className="flex items-center gap-2.5 pl-2 pr-4 py-1.5 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400/50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+            className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <img src={uploadIcon} alt="Upload" className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
+              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
-                Hochladen
+              <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
+                Upload
+              </span>
+              <span className="block text-[10px] text-white/80 font-medium">
+                Dokumente
               </span>
             </div>
           </button>
