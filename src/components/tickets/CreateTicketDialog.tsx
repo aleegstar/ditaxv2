@@ -147,7 +147,7 @@ export const CreateTicketDialog = ({ isOpen, onClose, completedTaxReturnId, taxY
         ) : (
           <>
             {/* Header with gradient background */}
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-5 py-4">
+            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
                   <MessageSquarePlus className="w-4 h-4 text-white" strokeWidth={1.5} />
