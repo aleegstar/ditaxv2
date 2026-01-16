@@ -557,14 +557,14 @@ const DocumentsContent: React.FC<{
 
           {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
-            <div className="flex items-center h-9 rounded-lg border border-input bg-white overflow-hidden shadow-sm shadow-black/5 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/20 transition-shadow">
+            <div className="flex items-center min-h-[56px] px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:border-[#1D64FF] focus-within:ring-[3px] focus-within:ring-[#1D64FF]/20 transition-shadow">
               {/* Search Icon */}
-              <div className="pl-3 pr-2 flex items-center justify-center">
-                <Search className="h-4 w-4 text-muted-foreground/70" strokeWidth={1.5} />
+              <div className="pr-3 flex items-center justify-center">
+                <Search className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
               </div>
               
               {/* Search Input */}
-              <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none" />
+              <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-base text-slate-800 placeholder:text-slate-400 focus:outline-none" />
               
               {/* Filter Button */}
               <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors", showSortDropdown && "bg-muted/50")}>
