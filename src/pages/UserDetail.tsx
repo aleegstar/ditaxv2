@@ -162,11 +162,13 @@ const UserDetail: React.FC = () => {
       console.log('✅ User profile fetched successfully:', userData);
       setUser(userData);
 
-      // Fetch user's documents - admins can see all documents regardless of status
+      // Fetch user's active documents (consistent with user view)
       const { data: documentsData, error: documentsError } = await supabase
         .from('uploaded_documents')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .order('upload_date', { ascending: false });
 
       if (documentsError) {
         console.error('Error fetching documents:', documentsError);
@@ -434,11 +436,11 @@ const UserDetail: React.FC = () => {
     console.log('🔍 transformDocuments called with:', docs);
     console.log('🔍 Selected year for documents:', selectedYear);
     
-    // Filter documents by tax year if available
+    // Filter documents by tax year - only show documents with matching tax_year
     const yearFilteredDocs = docs.filter(doc => {
       if (!doc.tax_year) {
-        console.log('📄 Document has no tax_year:', doc.file_name);
-        return true; // Show documents without tax_year
+        console.log('📄 Document has no tax_year, excluding:', doc.file_name);
+        return false; // Exclude documents without tax_year
       }
       return doc.tax_year === selectedYear;
     });
