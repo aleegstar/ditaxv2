@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -531,34 +532,11 @@ const DocumentsContent: React.FC<{
       
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
-        <nav className="w-full bg-white/80 backdrop-blur-xl">
-          <div className="flex h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-between">
-            {/* Left: Back Button */}
-            <button 
-              onClick={() => navigate(-1)} 
-              className="group flex items-center justify-center rounded-full border border-zinc-200 bg-white p-2.5 transition-all hover:border-zinc-300 hover:bg-zinc-50 hover:shadow-sm"
-            >
-              <ArrowLeft className="h-5 w-5 text-zinc-600 group-hover:text-zinc-900" strokeWidth={1.5} />
-            </button>
-
-            {/* Center: Title */}
-            <div className="text-lg font-semibold text-zinc-900 tracking-tight">
-              Dokumente {selectedYear}
-            </div>
-
-            {/* Right: Profile */}
-            <button 
-              onClick={() => navigate('/profile')} 
-              className="h-9 w-9 overflow-hidden rounded-full border border-zinc-200 ring-2 ring-transparent transition-all hover:ring-zinc-200 cursor-pointer"
-            >
-              <img 
-                src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
-                alt="User" 
-                className="h-full w-full object-cover" 
-              />
-            </button>
-          </div>
-        </nav>
+        <SubpageHeader 
+          title={`Dokumente ${selectedYear}`}
+          onBack={() => navigate(-1)}
+          showAvatar={true}
+        />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
