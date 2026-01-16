@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2 } from 'lucide-react';
+import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -23,6 +23,7 @@ interface DocumentActionSheetProps {
   onClose: () => void;
   onUpdate: () => void;
   availableYears: string[];
+  isLocked?: boolean;
 }
 
 const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
@@ -30,7 +31,8 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
   open,
   onClose,
   onUpdate,
-  availableYears
+  availableYears,
+  isLocked = false
 }) => {
   const [view, setView] = useState<'actions' | 'preview' | 'edit' | 'delete'>('actions');
   const [editName, setEditName] = useState('');
@@ -204,31 +206,46 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
               </div>
             </button>
 
-            <button
-              onClick={() => setView('edit')}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center transition-transform group-hover:scale-105">
-                <Pencil className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
-              </div>
-              <div className="text-left flex-1">
-                <div className="font-medium text-slate-900">Bearbeiten</div>
-                <div className="text-sm text-blue-500">Name oder Steuerjahr ändern</div>
-              </div>
-            </button>
+            {!isLocked && (
+              <>
+                <button
+                  onClick={() => setView('edit')}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center transition-transform group-hover:scale-105">
+                    <Pencil className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="font-medium text-slate-900">Bearbeiten</div>
+                    <div className="text-sm text-blue-500">Name oder Steuerjahr ändern</div>
+                  </div>
+                </button>
 
-            <button
-              onClick={() => setView('delete')}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-red-50 hover:border-red-100 transition-all group"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center transition-transform group-hover:scale-105">
-                <Trash2 className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+                <button
+                  onClick={() => setView('delete')}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-red-50 hover:border-red-100 transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center transition-transform group-hover:scale-105">
+                    <Trash2 className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="font-medium text-slate-900">Löschen</div>
+                    <div className="text-sm text-red-500">Dokument entfernen</div>
+                  </div>
+                </button>
+              </>
+            )}
+
+            {isLocked && (
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center gap-3 text-slate-500">
+                  <Lock className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
+                  <p className="text-sm">
+                    Dieses Dokument ist Teil einer eingereichten Steuererklärung und kann nicht mehr geändert werden.
+                  </p>
+                </div>
               </div>
-              <div className="text-left flex-1">
-                <div className="font-medium text-slate-900">Löschen</div>
-                <div className="text-sm text-red-500">Dokument entfernen</div>
-              </div>
-            </button>
+            )}
           </div>
         </>
       )}
