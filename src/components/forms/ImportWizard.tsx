@@ -161,7 +161,8 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Enter new data button */}
           <Button
-            className="w-full bg-white hover:bg-slate-50 text-slate-600 rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border border-slate-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            variant="outline"
+            className="w-full !bg-slate-50 hover:!bg-slate-100 !text-slate-600 rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium !border-slate-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
             onClick={handleSkipImport}
             disabled={isImporting}
           >
