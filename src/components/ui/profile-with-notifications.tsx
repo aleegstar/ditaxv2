@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Bell, MessageSquare, FileText, CheckCheck, X, Trash2, MoreVertical } from 'lucide-react';
-import { CustomNotificationIcon } from './custom-notification-icon';
-import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
@@ -14,15 +12,44 @@ interface ProfileWithNotificationsProps {
   className?: string;
 }
 
-const getNotificationIcon = (type: string) => {
-  switch (type) {
-    case 'chat_message':
-      return <Bell className="h-5 w-5" />;
-    case 'tax_return_completed':
-      return <FileText className="h-5 w-5" />;
-    default:
-      return <Bell className="h-5 w-5" />;
+const NotificationIcon = ({ type }: { type: string }) => {
+  if (type === 'chat_message') {
+    return (
+      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <MessageSquare className="h-5 w-5 text-blue-500" />
+      </div>
+    );
   }
+  
+  // Tax return / document icon - custom styled like reference
+  return (
+    <div className="w-10 h-10 rounded-xl bg-emerald-50/80 flex items-center justify-center flex-shrink-0">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-emerald-500">
+        <path 
+          d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          fill="none"
+        />
+        <path 
+          d="M14 2V8H20" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+        <path 
+          d="M9 15L11 17L15 13" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
 };
 
 const formatTimeAgo = (dateString: string) => {
@@ -162,7 +189,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
           </div>
 
           {/* Notifications List */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 bg-slate-50/50">
             {loading ? (
               <div className="p-8 text-center text-slate-400">
                 <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin mx-auto mb-3" />
@@ -170,64 +197,52 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
                   <Bell className="h-8 w-8 text-slate-300" strokeWidth={1.5} />
                 </div>
                 <p className="text-sm text-slate-400">Keine Benachrichtigungen</p>
               </div>
             ) : (
-              <div className="py-2">
+              <div className="py-3 px-3 space-y-2">
                 {notifications.map(notification => (
                   <div
                     key={notification.id}
                     className={cn(
-                      "flex items-start gap-4 px-6 py-4 cursor-pointer transition-all hover:bg-slate-50 group relative",
-                      !notification.read && "bg-emerald-50/50 hover:bg-emerald-50/70"
+                      "flex items-start gap-3 p-4 cursor-pointer transition-all group relative rounded-xl bg-white border",
+                      !notification.read 
+                        ? "border-emerald-100 shadow-sm" 
+                        : "border-slate-100 hover:border-slate-200 hover:shadow-sm"
                     )}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     {/* Icon */}
-                    <div
-                      className={cn(
-                        "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center",
-                        notification.type === 'chat_message'
-                          ? "bg-blue-50 text-blue-500"
-                          : "bg-emerald-50 text-emerald-500"
-                      )}
-                    >
-                      {getNotificationIcon(notification.type)}
-                    </div>
+                    <NotificationIcon type={notification.type} />
                     
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex items-start justify-between gap-2">
                         <p className={cn(
-                          "text-sm text-slate-900 leading-snug",
+                          "text-sm text-slate-800 leading-snug",
                           !notification.read && "font-semibold"
                         )}>
                           {notification.title}
                         </p>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-xs text-slate-400 whitespace-nowrap">
-                            {formatTimeAgo(notification.created_at)}
-                          </span>
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                          )}
-                        </div>
+                        <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
+                          {formatTimeAgo(notification.created_at)}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
                         {notification.message}
                       </p>
                     </div>
 
-                    {/* Delete button */}
+                    {/* Delete button - shows on hover */}
                     <button
                       onClick={(e) => handleDeleteNotification(e, notification.id)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute right-2 top-2 w-7 h-7 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
                       title="Löschen"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
