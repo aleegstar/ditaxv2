@@ -471,7 +471,7 @@ const DocumentChecklist: React.FC = () => {
                       {/* Header */}
                       <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between border-b border-slate-100 bg-white">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                          <div className="w-9 h-9 rounded-full text-white flex items-center justify-center bg-sidebar-primary">
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
