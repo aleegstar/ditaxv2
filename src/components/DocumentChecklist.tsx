@@ -578,12 +578,9 @@ const DocumentChecklist: React.FC = () => {
             <X className="h-4 w-4 text-slate-500" />
           </button>
 
-          <div className="pt-8">
-            {/* Centered Header */}
-            <div className="flex flex-col items-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-                <FileCheck className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
-              </div>
+          <div className="pt-4">
+            {/* Header without icon */}
+            <div className="flex flex-col items-center mb-4">
               <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
                 Alle Unterlagen vollständig!
               </DialogTitle>
@@ -596,17 +593,17 @@ const DocumentChecklist: React.FC = () => {
               Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
               <Button
                 variant="ghost"
                 onClick={() => setShowCompletionDialog(false)}
-                className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]"
+                className="w-full h-12 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
               >
                 Später
               </Button>
               <Button
                 onClick={() => navigate('/payment')}
-                className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98]"
+                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)]"
               >
                 Ja, jetzt erstellen
               </Button>
