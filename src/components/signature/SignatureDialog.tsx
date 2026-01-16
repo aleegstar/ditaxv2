@@ -48,12 +48,12 @@ export function SignatureDialog({
     minute: '2-digit'
   });
 
-  const authorizationText = `Ich, ${fullName}, ${userProfile.date_of_birth ? `geboren am ${new Date(userProfile.date_of_birth).toLocaleDateString('de-CH')}` : ''} bevollmächtige hiermit die ditax AG, meine Steuererklärung für das Steuerjahr ${completedTaxReturn.tax_year} beim zuständigen Steueramt einzureichen.
+  const authorizationText = `Ich, ${fullName}, ${userProfile.date_of_birth ? `geboren am ${new Date(userProfile.date_of_birth).toLocaleDateString('de-CH')}` : ''} bevollmächtige hiermit Ditax by Graber Sandro, meine Steuererklärung für das Steuerjahr ${completedTaxReturn.tax_year} beim zuständigen Steueramt einzureichen.
 
 Ich bestätige, dass:
 • Ich alle Angaben in der Steuererklärung wahrheitsgemäss gemacht habe
 • Ich die Steuererklärung vollständig geprüft und für korrekt befunden habe
-• Die ditax AG berechtigt ist, in meinem Namen mit dem Steueramt zu kommunizieren
+• Ditax by Graber Sandro berechtigt ist, in meinem Namen mit dem Steueramt zu kommunizieren
 • Ich verstehe, dass diese elektronische Signatur rechtlich bindend ist
 
 Diese elektronische Unterschrift gilt als rechtsverbindliche Willenserklärung gemäss Art. 14 Abs. 2bis OR.
@@ -213,7 +213,7 @@ E-Mail: ${userProfile.email}`;
                   className="mt-0.5 h-5 w-5 rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />
                 <label htmlFor="authorization" className="text-sm text-slate-600 cursor-pointer leading-relaxed">
-                  Ich habe die Vollmacht gelesen und stimme zu, dass die ditax AG berechtigt ist, meine Steuererklärung einzureichen.
+                  Ich habe die Vollmacht gelesen und stimme zu, dass Ditax by Graber Sandro berechtigt ist, meine Steuererklärung einzureichen.
                 </label>
               </div>
 

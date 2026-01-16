@@ -404,7 +404,7 @@ async function addSignaturePage(
     color: lightGray,
   });
   
-  yPosition -= 25;
+  yPosition -= 30;
   
   // === AUTHORIZATION TEXT ===
   signaturePage.drawText('Vollmacht & Autorisierung', {
@@ -415,7 +415,7 @@ async function addSignaturePage(
     color: darkGray,
   });
   
-  yPosition -= 15;
+  yPosition -= 20;
   
   // Word wrap the authorization text
   const maxLineWidth = pageWidth - (2 * margin);
@@ -430,7 +430,7 @@ async function addSignaturePage(
       size: 9,
       color: mediumGray,
     });
-    yPosition -= 12;
+    yPosition -= 14;
   }
   
   // === FOOTER ===
