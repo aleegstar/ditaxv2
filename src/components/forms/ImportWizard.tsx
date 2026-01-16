@@ -176,9 +176,6 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       <UnifiedAlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
         <UnifiedAlertDialogContent showCloseButton onClose={() => setShowChangesDialog(false)}>
           <UnifiedAlertDialogHeader>
-            <UnifiedAlertDialogIcon variant="question">
-              <HelpCircle className="w-8 h-8 text-blue-500" />
-            </UnifiedAlertDialogIcon>
             <UnifiedAlertDialogTitle>
               Gibt es Änderungen?
             </UnifiedAlertDialogTitle>

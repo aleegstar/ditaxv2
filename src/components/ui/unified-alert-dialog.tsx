@@ -151,12 +151,13 @@ UnifiedAlertDialogDescription.displayName = "UnifiedAlertDialogDescription";
 
 interface UnifiedAlertDialogActionProps
   extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> {
-  variant?: "default" | "destructive" | "secondary";
+  variant?: "default" | "destructive" | "secondary" | "primary";
 }
 
 const actionVariantStyles: Record<string, string> = {
-  default: "bg-slate-100 text-primary hover:bg-slate-200",
-  destructive: "bg-slate-100 text-red-500 hover:bg-slate-200",
+  default: "bg-primary text-white hover:bg-primary/90 shadow-[0_0_20px_rgba(29,100,255,0.3)]",
+  primary: "bg-primary text-white hover:bg-primary/90 shadow-[0_0_20px_rgba(29,100,255,0.3)]",
+  destructive: "bg-red-500 text-white hover:bg-red-600",
   secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50",
 };
 
@@ -168,8 +169,7 @@ const UnifiedAlertDialogAction = React.forwardRef<
     ref={ref}
     className={cn(
       "w-full py-4 rounded-full font-medium transition-colors",
-      "shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]",
-      "focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2",
+      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
       actionVariantStyles[variant],
       className
     )}
