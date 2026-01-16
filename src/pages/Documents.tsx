@@ -513,30 +513,46 @@ const DocumentsContent: React.FC<{
       
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
-        <SubpageHeader onBack={() => navigate(-1)} showAvatar={true} titleElement={<div className="relative" data-tour="documents-year-selector">
-              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]">
-                <Calendar className="h-4 w-4 text-white" strokeWidth={2} />
-                <span className="text-white">{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 text-white/80 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+        <SubpageHeader onBack={() => navigate(-1)} showAvatar={true} title="Dokumente" />
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 bg-white min-h-screen">
+
+          {/* Title Row with Year Dropdown */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-semibold text-zinc-900">Steuerjahr</h1>
+            
+            <div className="relative" data-tour="documents-year-selector">
+              <button 
+                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
+                className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors"
+              >
+                <SlidersHorizontal className="h-4 w-4" strokeWidth={1.5} />
+                <span>{selectedYear}</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
               </button>
 
               {isYearDropdownOpen && <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[180px]">
-                  <div className="max-h-64 overflow-y-auto py-2">
-                    {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors", year === selectedYear && "bg-slate-50")}>
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                          <Calendar className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
-                        </div>
-                        <span className={cn("text-sm font-medium text-slate-700", year === selectedYear && "text-slate-900")}>{year}</span>
-                      </button>)}
+                <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
+                  <div className="max-h-64 overflow-y-auto py-1">
+                    {availableYears.map(year => (
+                      <button 
+                        key={year} 
+                        onClick={() => handleYearSelect(year)} 
+                        className={cn(
+                          "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
+                          year === selectedYear ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
+                        )}
+                      >
+                        {year}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </>}
-            </div>} />
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
+            </div>
+          </div>
 
           {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
