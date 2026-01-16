@@ -174,9 +174,9 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   const renderPreview = () => {
     if (loading || autoDecrypting) {
       return (
-        <div className="flex items-center justify-center h-[500px] text-white/60">
+        <div className="flex items-center justify-center h-[500px] text-muted-foreground">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p>{autoDecrypting ? 'Dokument wird entschlüsselt...' : 'Dokument wird geladen...'}</p>
           </div>
         </div>
@@ -185,16 +185,16 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 
     if (error) {
       return (
-        <div className="flex items-center justify-center h-[500px] text-white/60">
+        <div className="flex items-center justify-center h-[500px] text-muted-foreground">
           <div className="text-center max-w-md">
-            <FileIcon className="h-16 w-16 mx-auto mb-4 text-white/40" />
-            <p className="text-lg mb-2">Fehler beim Laden</p>
-            <p className="text-sm text-white/50">{error}</p>
+            <FileIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+            <p className="text-lg mb-2 text-foreground">Fehler beim Laden</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
             <Button 
               onClick={loadDocumentPreview}
               variant="outline"
               size="sm"
-              className="mt-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className="mt-4"
             >
               Erneut versuchen
             </Button>
@@ -205,11 +205,11 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 
     if (!previewUrl || !document) {
       return (
-        <div className="flex items-center justify-center h-[500px] text-white/60">
+        <div className="flex items-center justify-center h-[500px] text-muted-foreground">
           <div className="text-center">
-            <FileIcon className="h-16 w-16 mx-auto mb-4 text-white/40" />
-            <p className="text-lg mb-2">Keine Vorschau verfügbar</p>
-            <p className="text-sm text-white/50">Das Dokument kann nicht angezeigt werden</p>
+            <FileIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+            <p className="text-lg mb-2 text-foreground">Keine Vorschau verfügbar</p>
+            <p className="text-sm text-muted-foreground">Das Dokument kann nicht angezeigt werden</p>
           </div>
         </div>
       );
@@ -238,7 +238,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
         <div className="w-full h-[500px] flex items-center justify-center p-4">
           <iframe
             src={iframeUrl}
-            className="w-full h-full rounded-lg shadow-lg border border-white/20"
+            className="w-full h-full rounded-lg shadow-lg border border-border bg-white"
             title={document.fileName}
             onError={() => setError('PDF konnte nicht geladen werden')}
             onLoad={() => console.log('PDF iframe loaded successfully')}
@@ -248,14 +248,14 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     }
 
     return (
-      <div className="flex items-center justify-center h-[500px] text-white/60">
+      <div className="flex items-center justify-center h-[500px] text-muted-foreground">
         <div className="text-center">
-          <FileIcon className="h-16 w-16 mx-auto mb-4 text-white/40" />
-          <p className="text-lg mb-2">Vorschau nicht verfügbar</p>
-          <p className="text-sm text-white/50 mb-4">
+          <FileIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+          <p className="text-lg mb-2 text-foreground">Vorschau nicht verfügbar</p>
+          <p className="text-sm text-muted-foreground mb-4">
             Dateityp: {document.fileType}
           </p>
-          <p className="text-xs text-white/40">
+          <p className="text-xs text-muted-foreground/70">
             Verwenden Sie den Download-Button, um die Datei zu öffnen
           </p>
         </div>
@@ -265,19 +265,19 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-hidden bg-card text-card-foreground">
         <DialogHeader className="pb-4">
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-4">
-              <DialogTitle className="text-white text-lg truncate">
+              <DialogTitle className="text-foreground text-lg truncate">
                 {document?.fileName || 'Dokument-Vorschau'}
               </DialogTitle>
               {document && (
-                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-white/70">
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
                   <span>Hochgeladen: {document.uploadDate.toLocaleDateString('de-DE')}</span>
                   <span>Typ: {document.fileType}</span>
                   <span>Verschlüsselt: {document.metadata?.encrypted ? 'Ja' : 'Nein'}</span>
-                  {autoDecrypting && <span className="text-blue-300">Wird entschlüsselt...</span>}
+                  {autoDecrypting && <span className="text-primary">Wird entschlüsselt...</span>}
                 </div>
               )}
             </div>
@@ -285,7 +285,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               onClick={handleDownload}
               variant="outline"
               size="sm"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex-shrink-0"
+              className="flex-shrink-0"
               disabled={loading || autoDecrypting}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -294,7 +294,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto bg-muted/30 rounded-lg">
           {renderPreview()}
         </div>
       </DialogContent>
