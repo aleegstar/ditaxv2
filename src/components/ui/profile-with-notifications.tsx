@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Bell, MessageSquare, FileText, CheckCheck, X, Trash2, MoreVertical } from 'lucide-react';
 import { CustomNotificationIcon } from './custom-notification-icon';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+
 interface ProfileWithNotificationsProps {
   avatarUrl?: string | null;
   firstName?: string | null;
@@ -16,11 +17,11 @@ interface ProfileWithNotificationsProps {
 const getNotificationIcon = (type: string) => {
   switch (type) {
     case 'chat_message':
-      return <MessageSquare className="h-4 w-4" />;
+      return <Bell className="h-5 w-5" />;
     case 'tax_return_completed':
-      return <FileText className="h-4 w-4" />;
+      return <FileText className="h-5 w-5" />;
     default:
-      return <Bell className="h-4 w-4" />;
+      return <Bell className="h-5 w-5" />;
   }
 };
 
@@ -108,43 +109,42 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
         </button>
       </SheetTrigger>
       
-      <SheetContent side="right" className="w-full sm:w-[400px] bg-white border-l border-gray-200">
+      <SheetContent side="right" className="w-full sm:w-[380px] bg-white border-l-0 p-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">Benachrichtigungen</h3>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+            <h3 className="text-lg font-semibold text-slate-900">Benachrichtigungen</h3>
             <div className="flex items-center gap-1">
               {(unreadCount > 0 || notifications.length > 0) && (
                 <div className="relative">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="p-1.5 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  <button 
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
                     onClick={() => setMenuOpen(!menuOpen)}
                   >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
                   {menuOpen && (
                     <>
                       <div 
                         className="fixed inset-0 z-[9998]" 
                         onClick={() => setMenuOpen(false)}
                       />
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-[9999] py-1">
+                      <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-lg z-[9999] py-2 overflow-hidden">
                         {unreadCount > 0 && (
                           <button 
                             onClick={() => { handleMarkAllAsRead(); setMenuOpen(false); }}
-                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            className="flex items-center w-full px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                           >
-                            <CheckCheck className="h-4 w-4 mr-2 text-[#1D64FF]" />
+                            <CheckCheck className="h-4 w-4 mr-3 text-emerald-500" />
                             <span>Alle als gelesen</span>
                           </button>
                         )}
                         {notifications.length > 0 && (
                           <button 
                             onClick={() => { handleDeleteAll(); setMenuOpen(false); }}
-                            className="flex items-center w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50"
+                            className="flex items-center w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            <Trash2 className="h-4 w-4 mr-3" />
                             <span>Alle löschen</span>
                           </button>
                         )}
@@ -154,26 +154,26 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
                 </div>
               )}
               <SheetClose asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                >
+                <button className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
                   <X className="h-5 w-5" />
-                </Button>
+                </button>
               </SheetClose>
             </div>
           </div>
 
+          {/* Notifications List */}
           <ScrollArea className="flex-1">
             {loading ? (
-              <div className="p-8 text-center text-gray-400">
-                Lade Benachrichtigungen...
+              <div className="p-8 text-center text-slate-400">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-sm">Lade Benachrichtigungen...</p>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-400">
-                <CustomNotificationIcon className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                <p className="text-sm">Keine Benachrichtigungen</p>
+              <div className="p-12 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
+                  <Bell className="h-8 w-8 text-slate-300" strokeWidth={1.5} />
+                </div>
+                <p className="text-sm text-slate-400">Keine Benachrichtigungen</p>
               </div>
             ) : (
               <div className="py-2">
@@ -181,44 +181,50 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
                   <div
                     key={notification.id}
                     className={cn(
-                      "flex items-start gap-3 p-4 cursor-pointer border-b border-gray-100 last:border-b-0 w-full text-left transition-colors hover:bg-gray-50 group relative",
-                      !notification.read && "bg-blue-50"
+                      "flex items-start gap-4 px-6 py-4 cursor-pointer transition-all hover:bg-slate-50 group relative",
+                      !notification.read && "bg-emerald-50/50 hover:bg-emerald-50/70"
                     )}
                     onClick={() => handleNotificationClick(notification)}
                   >
+                    {/* Icon */}
                     <div
                       className={cn(
-                        "flex-shrink-0 p-2 rounded-full mt-0.5",
+                        "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center",
                         notification.type === 'chat_message'
-                          ? "bg-[#1D64FF]/10 text-[#1D64FF]"
-                          : "bg-emerald-500/10 text-emerald-500"
+                          ? "bg-blue-50 text-blue-500"
+                          : "bg-emerald-50 text-emerald-500"
                       )}
                     >
                       {getNotificationIcon(notification.type)}
                     </div>
                     
+                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-medium text-gray-900 text-sm leading-tight">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className={cn(
+                          "text-sm text-slate-900 leading-snug",
+                          !notification.read && "font-semibold"
+                        )}>
                           {notification.title}
                         </p>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <span className="text-xs text-gray-400">
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-slate-400 whitespace-nowrap">
                             {formatTimeAgo(notification.created_at)}
                           </span>
                           {!notification.read && (
-                            <div className="w-2 h-2 bg-[#1D64FF] rounded-full"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full" />
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                         {notification.message}
                       </p>
                     </div>
 
+                    {/* Delete button */}
                     <button
                       onClick={(e) => handleDeleteNotification(e, notification.id)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
                       title="Löschen"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -229,16 +235,15 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
             )}
           </ScrollArea>
 
+          {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-3 border-t border-gray-100">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-center text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            <div className="p-4 border-t border-slate-100">
+              <button
                 onClick={() => navigate('/notifications')}
+                className="w-full py-3 text-sm text-slate-500 hover:text-slate-700 transition-colors font-medium"
               >
                 Alle Benachrichtigungen anzeigen
-              </Button>
+              </button>
             </div>
           )}
         </div>
