@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +18,7 @@ import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import uploadIcon from '@/assets/upload-icon.svg';
+import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 
 // Global image cache to prevent re-fetching
 const imageCache = new Map<string, string>();
@@ -168,6 +169,9 @@ const DocumentsContent: React.FC<{
   const {
     profile
   } = useProfile();
+
+  // Check if tax return is locked (paid/completed)
+  const { isLocked } = useTaxReturnStatus(selectedYear);
 
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
@@ -555,6 +559,16 @@ const DocumentsContent: React.FC<{
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 bg-white min-h-screen">
 
+          {/* Locked Banner */}
+          {isLocked && (
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
+              <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" strokeWidth={1.5} />
+              <p className="text-sm text-amber-800">
+                Diese Steuererklärung wurde eingereicht. Dokumente können nicht mehr geändert werden.
+              </p>
+            </div>
+          )}
+
           {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
             <div className="flex items-center min-h-[56px] px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:border-[#1D64FF] focus-within:ring-[3px] focus-within:ring-[#1D64FF]/20 transition-shadow">
@@ -656,20 +670,21 @@ const DocumentsContent: React.FC<{
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileInputChange} />
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleCameraInputChange} />
 
-        {/* Floating Upload Button */}
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-          <button onClick={() => setShowUploadSheet(true)} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
-                Hochladen
-              </span>
-              
-            </div>
-          </button>
-        </div>
+        {/* Floating Upload Button - only show if not locked */}
+        {!isLocked && (
+          <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+            <button onClick={() => setShowUploadSheet(true)} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
+                <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
+                  Hochladen
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Upload Action Sheet */}
         <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onScan={() => {
@@ -685,7 +700,7 @@ const DocumentsContent: React.FC<{
         <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
         setShowActionSheet(false);
         setSelectedDocument(null);
-      }} onUpdate={loadDocuments} availableYears={allYears} />
+      }} onUpdate={loadDocuments} availableYears={allYears} isLocked={isLocked} />
       </div>
     </>;
 };
