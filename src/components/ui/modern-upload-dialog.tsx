@@ -41,23 +41,20 @@ const ModernUploadDialogContent = React.forwardRef<
         className={cn(
           "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-[90vw] max-w-lg rounded-3xl border-0",
-          "p-8 text-foreground",
+          "p-8 text-foreground bg-white",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
           "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+          "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]",
           className
         )}
-        style={{
-          backgroundColor: 'rgb(244, 244, 244)',
-          boxShadow: 'rgba(0, 0, 0, 0.15) 0px 0px 22px -5px'
-        }}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-6 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-          <X className="h-5 w-5" style={{ color: 'rgb(26, 32, 44)' }} />
+        <DialogPrimitive.Close className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+          <X className="h-4 w-4 text-slate-500" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
