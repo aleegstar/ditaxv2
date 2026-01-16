@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FileText, Ticket, FolderOpen, MessageCircle, Users, BarChart3, DollarSign, LogOut, Settings, User as UserIcon, ChevronDown, UserMinus } from 'lucide-react';
+import { FileText, Ticket, FolderOpen, MessageCircle, Users, BarChart3, DollarSign, LogOut, Settings, User as UserIcon, ChevronDown, UserMinus, PenLine } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -142,6 +142,10 @@ export function AdminSidebar() {
     title: "Steuererklärungen",
     url: "/admin/tax-processing",
     icon: FileText
+  }, {
+    title: "Zur Übermittlung",
+    url: "/admin/signed-returns",
+    icon: PenLine
   }, {
     title: "Veranlagungen",
     url: "/admin/definitive-tax-bills",
