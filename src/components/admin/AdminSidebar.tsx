@@ -41,9 +41,9 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+        "group flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200",
         isActive
-          ? "bg-primary text-primary-foreground shadow-sm"
+          ? "bg-primary text-white shadow-md"
           : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
       )}
     >
