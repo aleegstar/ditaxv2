@@ -140,7 +140,7 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white border-0 p-0 overflow-hidden shadow-2xl rounded-3xl gap-0">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md max-h-[90vh] bg-white border-0 p-0 overflow-hidden shadow-2xl rounded-3xl gap-0">
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-16 px-8">
             <div className="w-20 h-20 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
