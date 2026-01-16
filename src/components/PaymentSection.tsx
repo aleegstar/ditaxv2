@@ -213,16 +213,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
       <div className="flex-1 flex items-center justify-center py-8 px-4 sm:px-6">
         <div className="w-full max-w-lg mx-auto space-y-6">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl text-slate-800 tracking-tight font-semibold font-jakarta">
-              Kostenübersicht
-            </h1>
-            <p className="text-sm text-slate-500 font-medium font-jakarta">
-              Transparente Preisgestaltung ohne versteckte Kosten
-            </p>
-          </div>
-
           {/* Content Card */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-6 space-y-6">
