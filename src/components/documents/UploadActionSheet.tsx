@@ -48,13 +48,14 @@ const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
             onClick={onClose}
           />
           
-          {/* Dropdown Menu - centered above button */}
+          {/* Dropdown Menu - positioned directly above center button */}
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[101]"
+            className="fixed bottom-[88px] left-1/2 z-[101]"
+            style={{ transform: 'translateX(-50%)' }}
           >
             <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[220px]">
               <div className="py-2">
