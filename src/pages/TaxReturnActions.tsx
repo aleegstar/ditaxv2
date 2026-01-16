@@ -444,7 +444,8 @@ export default function TaxReturnActions() {
             </div>
           )}
 
-          {/* Abgeschlossene Steuererklärung */}
+          {/* Abgeschlossene Steuererklärung - nur anzeigen wenn signiert */}
+          {isSigned && (
           <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
@@ -478,6 +479,7 @@ export default function TaxReturnActions() {
               </div>
             </div>
           </div>
+          )}
 
           {/* Definitive Steuerrechnung - nur anzeigen wenn signiert */}
           {isSigned && (
@@ -541,8 +543,7 @@ export default function TaxReturnActions() {
           </div>
           )}
 
-          {/* Problem melden - nur anzeigen wenn signiert */}
-          {isSigned && (
+          {/* Problem melden */}
           <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
@@ -623,7 +624,6 @@ export default function TaxReturnActions() {
               )}
             </div>
           </div>
-          )}
         </div>
       </div>
 
