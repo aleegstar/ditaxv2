@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, FileText, CheckCircle, PenTool, Shield } from 'lucide-react';
+import { Loader2, FileText, CheckCircle, PenTool, Shield, X } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -140,13 +140,21 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md max-h-[90vh] bg-white border-0 p-0 overflow-hidden shadow-2xl rounded-3xl gap-0">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md max-h-[90vh] bg-white border-0 p-6 overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
+        {/* Close Button */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors z-10"
+        >
+          <X className="h-4 w-4 text-slate-500" />
+        </button>
+
         {step === 'complete' ? (
-          <div className="flex flex-col items-center justify-center py-16 px-8">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
-              <CheckCircle className="w-10 h-10 text-white" strokeWidth={1.5} />
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+              <CheckCircle className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">
+            <h2 className="text-xl font-semibold text-slate-900 mb-2 text-center">
               Erfolgreich signiert!
             </h2>
             <p className="text-slate-500 text-center text-sm">
@@ -154,32 +162,28 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         ) : (
-          <>
-            {/* Header with gradient background */}
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-6 py-5">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
-                  <PenTool className="w-5 h-5 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <DialogTitle className="text-white font-semibold">
-                    Steuererklärung {completedTaxReturn.tax_year} unterschreiben
-                  </DialogTitle>
-                  <p className="text-sm text-slate-400 mt-0.5">
-                    Elektronische Signatur & Vollmacht
-                  </p>
-                </div>
+          <div className="pt-8">
+            {/* Centered Header */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+                <PenTool className="w-8 h-8 text-blue-500" strokeWidth={1.5} />
               </div>
+              <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
+                Steuererklärung {completedTaxReturn.tax_year} unterschreiben
+              </DialogTitle>
+              <p className="text-sm text-slate-500 mt-1 text-center">
+                Elektronische Signatur & Vollmacht
+              </p>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="space-y-4">
               {/* PDF Preview Button */}
               <button
                 onClick={handleViewPdf}
-                className="w-full p-4 rounded-2xl border border-slate-100 bg-gradient-to-b from-slate-50 to-slate-100/50 hover:from-slate-100 hover:to-slate-100 transition-all flex items-center gap-4 group"
+                className="w-full p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center gap-4 group"
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-red-400 to-red-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20">
-                  <FileText className="w-5 h-5 text-white" strokeWidth={1.5} />
+                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-red-500" strokeWidth={1.5} />
                 </div>
                 <div className="text-left flex-1">
                   <p className="font-medium text-slate-900 text-sm">{completedTaxReturn.file_name}</p>
@@ -188,12 +192,12 @@ E-Mail: ${userProfile.email}`;
               </button>
 
               {/* Authorization Text */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-blue-500" strokeWidth={1.5} />
                   <Label className="text-slate-800 font-medium text-sm">Vollmacht & Bestätigung</Label>
                 </div>
-                <ScrollArea className="h-40 rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                <ScrollArea className="h-32 rounded-xl border border-slate-200 bg-white p-3">
                   <p className="text-sm text-slate-600 whitespace-pre-line leading-relaxed">
                     {authorizationText}
                   </p>
@@ -201,7 +205,7 @@ E-Mail: ${userProfile.email}`;
               </div>
 
               {/* Authorization Checkbox */}
-              <div className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50/80 border border-slate-100">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <Checkbox
                   id="authorization"
                   checked={authorizationAccepted}
@@ -231,29 +235,35 @@ E-Mail: ${userProfile.email}`;
               </div>
 
               {/* Sign Button */}
-              <Button
-                onClick={handleSign}
-                disabled={loading || !authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
-                className="w-full h-12 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Wird signiert...
-                  </>
-                ) : (
-                  <>
-                    <PenTool className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                    Elektronisch unterschreiben
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => onOpenChange(false)}
+                  className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]"
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  onClick={handleSign}
+                  disabled={loading || !authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
+                  className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Wird signiert...
+                    </>
+                  ) : (
+                    'Unterschreiben'
+                  )}
+                </Button>
+              </div>
 
               <p className="text-xs text-center text-slate-400">
                 Mit deiner Unterschrift bestätigst du die Richtigkeit aller Angaben
               </p>
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>
