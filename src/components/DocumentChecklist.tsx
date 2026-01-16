@@ -529,7 +529,7 @@ const DocumentChecklist: React.FC = () => {
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-4">
                                     {/* Primary Upload Button */}
-                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-slate-900 text-white font-medium py-2 px-5 rounded-lg transition-all hover:bg-slate-800 active:scale-[0.98] text-sm">
+                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium py-2 px-5 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       Hochladen
                                     </button>
