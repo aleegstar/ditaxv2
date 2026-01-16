@@ -151,7 +151,7 @@ const WebAuthnAuth = () => {
           <div className="space-y-6">
             <div className="space-y-2">
               <h1 className="font-bold leading-[1.1] tracking-tight text-black text-2xl text-center">Fingerprint Anmeldung</h1>
-              <p className="text-black/70 font-light text-xl text-center">Gib deine E-Mail-Adresse ein</p>
+              <p className="text-black/70 font-light text-xl text-center">Geben Sie Ihre E-Mail-Adresse ein</p>
               {isFromDespia && (
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   Diese Seite wurde im System-Browser geöffnet für sichere Passkey-Authentifizierung
@@ -196,7 +196,7 @@ const WebAuthnAuth = () => {
           <div className="space-y-6">
             <div className="space-y-2">
               <h1 className="font-bold leading-[1.1] tracking-tight text-black text-2xl">Fingerprint wird geprüft</h1>
-              <p className="text-black/70 font-light text-xl">Berühre deinen Fingerprint-Sensor</p>
+              <p className="text-black/70 font-light text-xl">Berühren Sie Ihren Fingerprint-Sensor</p>
             </div>
             
             <div className="flex justify-center">
@@ -260,9 +260,9 @@ const WebAuthnAuth = () => {
                 <div className="text-sm text-black/60 bg-muted/50 rounded-xl p-4">
                   <p className="font-medium mb-2">Mögliche Lösungen:</p>
                   <ul className="list-disc list-inside space-y-1 text-left">
-                    <li>Registriere zuerst ein Fingerprint-Gerät im Web-Browser</li>
-                    <li>Verwende die E-Mail-Anmeldung</li>
-                    <li>Prüfe die eingegebene E-Mail-Adresse</li>
+                    <li>Registrieren Sie zuerst ein Fingerprint-Gerät im Web-Browser</li>
+                    <li>Verwenden Sie die E-Mail-Anmeldung</li>
+                    <li>Prüfen Sie die eingegebene E-Mail-Adresse</li>
                   </ul>
                 </div>
               ) : (

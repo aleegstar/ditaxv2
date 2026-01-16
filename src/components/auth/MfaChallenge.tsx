@@ -71,7 +71,7 @@ export const MfaChallenge: React.FC<MfaChallengeProps> = ({
               Zwei-Faktor-Authentifizierung
             </h2>
             <p className="text-sm text-muted-foreground">
-              Gib den 6-stelligen Code aus deiner Authenticator-App ein
+              Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein
             </p>
           </div>
         </div>

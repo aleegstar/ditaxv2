@@ -135,7 +135,7 @@ const CreateTicket = () => {
             Neues Ticket erstellen
           </h1>
           <p className="text-lg text-slate-500 font-normal">
-            Fülle die Details unten aus, um den Support zu kontaktieren.
+            Füllen Sie die Details unten aus, um den Support zu kontaktieren.
           </p>
         </div>
 

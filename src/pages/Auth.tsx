@@ -166,7 +166,7 @@ const Auth = () => {
         }
       });
       if (error) throw error;
-      toast.success("Code gesendet! Prüfe deine E-Mails.");
+      toast.success("Code gesendet! Prüfen Sie Ihre E-Mails.");
       setStep("code");
       setResendCountdown(25);
     } catch (error: any) {

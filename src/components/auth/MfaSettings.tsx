@@ -74,7 +74,7 @@ export const MfaSettings: React.FC = () => {
             <Shield className="w-5 h-5 text-gray-600" />
             Zwei-Faktor-Authentifizierung
           </h2>
-          <p className="text-sm text-gray-600">Füge eine zusätzliche Sicherheitsebene zu deinem Konto hinzu.</p>
+          <p className="text-sm text-gray-600">Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu.</p>
         </div>
 
         {/* Alert Box */}
@@ -85,7 +85,7 @@ export const MfaSettings: React.FC = () => {
             </div>
             <div className="py-0.5">
               <p className="text-sm text-gray-700 leading-relaxed">
-                MFA ist nicht aktiviert. Deine Kontosicherheit kann durch die Aktivierung der Zwei-Faktor-Authentifizierung verbessert werden.
+                MFA ist nicht aktiviert. Ihre Kontosicherheit kann durch die Aktivierung der Zwei-Faktor-Authentifizierung verbessert werden.
               </p>
             </div>
           </div>
@@ -96,7 +96,7 @@ export const MfaSettings: React.FC = () => {
             </div>
             <div className="py-0.5">
               <p className="text-sm text-gray-700 leading-relaxed">
-                MFA ist aktiv. Dein Konto ist zusätzlich durch Zwei-Faktor-Authentifizierung geschützt.
+                MFA ist aktiv. Ihr Konto ist zusätzlich durch Zwei-Faktor-Authentifizierung geschützt.
               </p>
             </div>
           </div>
@@ -162,7 +162,7 @@ export const MfaSettings: React.FC = () => {
                 <Shield className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <h3 className="text-sm font-medium text-gray-700">Keine Authentifikator-Apps konfiguriert</h3>
-              <p className="text-xs text-gray-500 mt-1">Füge eine App hinzu, um MFA zu aktivieren</p>
+              <p className="text-xs text-gray-500 mt-1">Fügen Sie eine App hinzu, um MFA zu aktivieren</p>
             </div>
           )}
         </div>
@@ -174,7 +174,7 @@ export const MfaSettings: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-gray-900">MFA-Gerät entfernen</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Gib zur Bestätigung den 6-stelligen Code aus deiner Authenticator-App ein, um "{factorToRemove?.name}" zu entfernen.
+              Geben Sie zur Bestätigung den 6-stelligen Code aus Ihrer Authenticator-App ein, um "{factorToRemove?.name}" zu entfernen.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -196,7 +196,7 @@ export const MfaSettings: React.FC = () => {
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs text-amber-800">
                 <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
-                Dies reduziert die Sicherheit deines Kontos.
+                Dies reduziert die Sicherheit Ihres Kontos.
               </p>
             </div>
           </div>

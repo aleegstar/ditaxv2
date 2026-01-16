@@ -61,7 +61,7 @@ function Component({ value, onChange }: PasswordInputProps) {
   };
 
   const getStrengthText = (score: number) => {
-    if (score === 0) return "Gib ein Passwort ein";
+    if (score === 0) return "Geben Sie ein Passwort ein";
     if (score <= 2) return "Schwaches Passwort";
     if (score === 3) return "Mittleres Passwort";
     return "Starkes Passwort";

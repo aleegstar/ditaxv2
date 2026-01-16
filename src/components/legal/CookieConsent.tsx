@@ -100,8 +100,8 @@ const CookieConsent = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold mb-2 text-gray-800">Cookie-Einstellungen</h3>
                     <p className="text-sm text-gray-700 mb-4">
-                      Wir verwenden Cookies, um deine Erfahrung zu verbessern und unsere Dienste zu optimieren. 
-                      Du kannst deine Präferenzen jederzeit anpassen.
+                      Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und unsere Dienste zu optimieren. 
+                      Sie können Ihre Präferenzen jederzeit anpassen.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Button

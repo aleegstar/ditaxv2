@@ -112,7 +112,7 @@ export function ChatCard({
           </div> : messages.length === 0 ? <div className="flex justify-center items-center h-64 text-white/70 text-center">
             <div>
               <p className="text-lg font-medium mb-2">Keine Nachrichten vorhanden</p>
-              <p className="text-sm">Starte die Unterhaltung!</p>
+              <p className="text-sm">Starten Sie die Unterhaltung!</p>
             </div>
           </div> : messages.map(message => {
         const isCurrentUser = message.sender_id === currentUserId;

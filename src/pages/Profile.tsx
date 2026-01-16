@@ -123,7 +123,7 @@ const Profile = () => {
                 <User className="w-5 h-5 text-gray-600" />
                 Profil-Informationen
               </h2>
-              <p className="text-sm text-gray-600">Deine persönlichen Daten und Kontoinformationen.</p>
+              <p className="text-sm text-gray-600">Ihre persönlichen Daten und Kontoinformationen.</p>
             </div>
 
             <div className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center gap-4 transition-colors group">

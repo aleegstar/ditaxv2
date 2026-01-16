@@ -40,9 +40,9 @@ export const MfaSetupPrompt: React.FC<MfaSetupPromptProps> = ({
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-xl">Mehr Sicherheit für dein Konto?</CardTitle>
+            <CardTitle className="text-xl">Mehr Sicherheit für Ihr Konto?</CardTitle>
             <CardDescription className="mt-2">
-              Aktiviere die Zwei-Faktor-Authentifizierung (2FA) für zusätzlichen Schutz
+              Aktivieren Sie die Zwei-Faktor-Authentifizierung (2FA) für zusätzlichen Schutz
             </CardDescription>
           </div>
         </CardHeader>

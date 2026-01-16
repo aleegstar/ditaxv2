@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
-import { SignatureDialog } from '@/components/signature/SignatureDialog';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -106,29 +105,6 @@ const UserTaxReturns = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [signatureDialogOpen, setSignatureDialogOpen] = useState(false);
-
-  // Find the first unsigned completed tax return
-  const unsignedTaxReturn = useMemo(() => {
-    const completedYearsWithData = Object.entries(completedTaxReturns || {});
-    for (const [year, data] of completedYearsWithData) {
-      if (data && data.signature_status !== 'signed') {
-        return data;
-      }
-    }
-    return null;
-  }, [completedTaxReturns]);
-
-  // Auto-open signature dialog when there's an unsigned tax return
-  useEffect(() => {
-    if (unsignedTaxReturn && isReady && userProfile && !signatureDialogOpen) {
-      // Small delay to ensure page is fully rendered
-      const timer = setTimeout(() => {
-        setSignatureDialogOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [unsignedTaxReturn, isReady, userProfile]);
 
   const handleDeleteTaxYear = async (year: string) => {
     if (!userId) return;
@@ -317,7 +293,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-blue-600 flex items-center justify-center">
+                <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-blue-600 flex items-center justify-center">
                   <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
                     {year}
                   </span>
@@ -330,31 +306,32 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
+                <div className="flex flex-col pt-6 pr-2 pb-0 pl-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-tight text-gray-900 font-jakarta">
+                    <h2 className="text-2xl font-medium tracking-tight text-gray-900 font-jakarta">
                       Steuererklärung
                     </h2>
+                    
                   </div>
 
-                  <p className="text-gray-500 text-sm leading-relaxed font-jakarta line-clamp-2">
+                  <p className="text-gray-500 text-[15px] leading-relaxed font-jakarta">
                     Erfassung läuft. Belege werden automatisch kategorisiert.
                   </p>
 
                   {/* Bottom Action Row */}
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-2 text-gray-600 font-medium text-sm font-jakarta">
                         <PieChart className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
                         <span>{progress}%</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
+                      <div className="flex items-center gap-2 text-gray-600 font-medium text-sm font-jakarta">
                         <Files className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
                         <span>{documentCount}</span>
                       </div>
                     </div>
 
-                    <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
+                    <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold transition-colors flex items-center gap-2 font-jakarta group/btn">
                       Weiter
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
@@ -367,85 +344,51 @@ const UserTaxReturns = () => {
           {completedYears.map(year => {
           const existingReturn = getExistingReturn(year);
           const completedReturn = completedTaxReturns?.[year];
-          const isSigned = completedReturn?.signature_status === 'signed';
-          const needsSignature = completedReturn && !isSigned;
-          
           return <article key={year} onClick={() => {
             if (completedReturn?.id) {
               navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
             }
           }} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
+                <div className="relative h-64 w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <span className="text-8xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${
-                    needsSignature 
-                      ? 'bg-amber-50/90 ring-1 ring-amber-200' 
-                      : 'bg-white/90'
-                  }`}>
-                    {needsSignature ? (
-                      <>
-                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
-                          Signatur ausstehend
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
-                          Fertig
-                        </span>
-                      </>
-                    )}
+                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
+                    <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
+                      Fertig
+                    </span>
                   </div>
                 </div>
 
-                <div className="px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
+                <div className="px-2 pt-6 pb-0 flex flex-col">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className={`text-xl font-medium tracking-tight font-jakarta ${needsSignature ? 'text-gray-700' : 'text-gray-400'}`}>
+                    <h2 className="text-2xl font-medium tracking-tight text-gray-400 font-jakarta">
                       Steuererklärung
                     </h2>
-                    {isSigned && (
-                      <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
-                        <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                      </div>
-                    )}
+                    <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
+                      <Check className="w-3.5 h-3.5" strokeWidth={2} />
+                    </div>
                   </div>
 
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-gray-400'}`}>
-                    {needsSignature 
-                      ? 'Bitte unterschreibe deine Steuererklärung.'
-                      : `Bescheid vom ${existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        }) : '–'} liegt vor.`
-                    }
+                  <p className="text-gray-400 text-[15px] leading-relaxed font-jakarta">
+                    Bescheid vom {existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }) : '–'} liegt vor. Rückzahlung erhalten.
                   </p>
 
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      {needsSignature ? (
-                        <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
-                          <span>Aktion nötig</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-gray-400 font-medium text-sm font-jakarta">
-                          <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
-                          <span>100%</span>
-                        </div>
-                      )}
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-2 text-gray-400 font-medium text-sm font-jakarta">
+                        <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
+                        <span>100%</span>
+                      </div>
                     </div>
 
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${
-                      needsSignature 
-                        ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' 
-                        : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'
-                    }`}>
-                      {needsSignature ? 'Unterschreiben' : 'Details'}
+                    <button className="bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900 rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold transition-all flex items-center gap-2 font-jakarta">
+                      Details
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
@@ -524,30 +467,6 @@ const UserTaxReturns = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Signature Dialog - auto-opens when signature is pending */}
-      {userProfile && unsignedTaxReturn && (
-        <SignatureDialog
-          open={signatureDialogOpen}
-          onOpenChange={setSignatureDialogOpen}
-          completedTaxReturn={{
-            id: unsignedTaxReturn.id,
-            tax_year: unsignedTaxReturn.tax_year,
-            file_name: unsignedTaxReturn.file_name,
-            file_path: unsignedTaxReturn.file_path
-          }}
-          userProfile={{
-            first_name: userProfile.first_name || '',
-            last_name: userProfile.last_name || '',
-            email: userProfile.email || '',
-            date_of_birth: userProfile.date_of_birth || undefined
-          }}
-          onSignatureComplete={() => {
-            refetch();
-            setSignatureDialogOpen(false);
-          }}
-        />
-      )}
     </div>;
 };
 export default UserTaxReturns;

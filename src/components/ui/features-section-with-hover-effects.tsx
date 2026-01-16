@@ -4,7 +4,7 @@ import { UserIcon, BriefcaseIcon, Coins, Receipt } from 'lucide-react';
 export function FeaturesSectionWithHoverEffects() {
   const features = [{
     title: "Kontaktangaben",
-    description: "Deine persönlichen Daten und Kontaktinformationen für die Steuererklärung.",
+    description: "Ihre persönlichen Daten und Kontaktinformationen für die Steuererklärung.",
     icon: <UserIcon className="h-14 w-14 rounded-full p-3 text-blue-500 bg-blue-50" />
   }, {
     title: "Einkommen",
@@ -12,11 +12,11 @@ export function FeaturesSectionWithHoverEffects() {
     icon: <BriefcaseIcon className="h-14 w-14 rounded-full p-3 text-tax-blue bg-blue-50" />
   }, {
     title: "Vermögen",
-    description: "Deine Vermögenswerte wie Immobilien, Aktien und Bankguthaben.",
+    description: "Ihre Vermögenswerte wie Immobilien, Aktien und Bankguthaben.",
     icon: <Coins className="h-14 w-14 rounded-full p-3 text-teal-500 bg-teal-50" />
   }, {
     title: "Abzüge",
-    description: "Steuerlich abzugsfähige Ausgaben, die deine Steuerlast reduzieren.",
+    description: "Steuerlich abzugsfähige Ausgaben, die Ihre Steuerlast reduzieren.",
     icon: <Receipt className="h-14 w-14 rounded-full p-3 text-indigo-500 bg-indigo-50" />
   }];
   
