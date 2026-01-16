@@ -69,9 +69,6 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
 
   return (
     <div className={cn("px-6 py-4 relative", className)}>
-      {/* Vertical Connecting Line */}
-      <div className="absolute left-[39px] top-6 bottom-12 w-[2px] bg-zinc-800/50" />
-
       <div className="space-y-8 relative z-10">
         {steps.map((step) => (
           <div key={step.id} className="flex gap-4 group">
