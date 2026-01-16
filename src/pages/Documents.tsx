@@ -23,14 +23,17 @@ import uploadIcon from '@/assets/upload-icon.svg';
 const imageCache = new Map<string, string>();
 
 // Memoized component to render document thumbnail with actual image
-const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
+const DocumentThumbnail = memo<{
+  doc: any;
+}>(({
+  doc
+}) => {
   const [imageUrl, setImageUrl] = useState<string | null>(() => {
     // Check cache first
     return imageCache.get(doc.id) || null;
   });
   const [loading, setLoading] = useState(!imageCache.has(doc.id));
   const [error, setError] = useState(false);
-  
   useEffect(() => {
     // Skip if already cached
     if (imageCache.has(doc.id)) {
@@ -38,37 +41,37 @@ const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
       setLoading(false);
       return;
     }
-    
     let isMounted = true;
     let objectUrl: string | null = null;
-    
     const loadImage = async () => {
       setLoading(true);
       setError(false);
-      
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: {
+            user
+          }
+        } = await supabase.auth.getUser();
         if (!user || !isMounted) return;
-        
         const metadata = doc.metadata as any;
-        
+
         // Check if document is encrypted
         if (metadata?.encrypted) {
           // Use encrypted document service to decrypt
           const encryptedService = EncryptedDocumentService.getInstance();
-          const { blob } = await encryptedService.downloadOwnDecryptedDocument(doc.id, user.id);
-          
+          const {
+            blob
+          } = await encryptedService.downloadOwnDecryptedDocument(doc.id, user.id);
           if (!isMounted) return;
-          
           objectUrl = URL.createObjectURL(blob);
           imageCache.set(doc.id, objectUrl);
           setImageUrl(objectUrl);
         } else {
           // Non-encrypted: get signed URL from documents bucket
-          const { data, error: urlError } = await supabase.storage
-            .from('documents')
-            .createSignedUrl(doc.file_path, 3600);
-          
+          const {
+            data,
+            error: urlError
+          } = await supabase.storage.from('documents').createSignedUrl(doc.file_path, 3600);
           if (urlError) {
             console.error('Error getting signed URL:', urlError);
             setError(true);
@@ -84,9 +87,7 @@ const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
         if (isMounted) setLoading(false);
       }
     };
-    
     loadImage();
-    
     return () => {
       isMounted = false;
       // Don't revoke cached URLs - they may be reused
@@ -95,9 +96,7 @@ const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
 
   // Show loading state
   if (loading) {
-    return (
-      <div className="w-full h-full bg-zinc-100 animate-pulse" />
-    );
+    return <div className="w-full h-full bg-zinc-100 animate-pulse" />;
   }
 
   // Get file extension for fallback
@@ -105,8 +104,7 @@ const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
 
   // Show error/fallback state
   if (error || !imageUrl) {
-    return (
-      <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
+    return <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
         {/* Decorative gradient orb */}
         <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
@@ -117,18 +115,9 @@ const DocumentThumbnail = memo<{ doc: any }>(({ doc }) => {
             {fileExt}
           </span>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <img 
-      src={imageUrl} 
-      alt={doc.file_name}
-      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-      onError={() => setError(true)}
-    />
-  );
+  return <img src={imageUrl} alt={doc.file_name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={() => setError(true)} />;
 });
 // Separate content component that uses FormContext
 const DocumentsContent: React.FC<{
@@ -176,7 +165,9 @@ const DocumentsContent: React.FC<{
     completeTour,
     skipTour
   } = useDocumentsTour();
-  const { profile } = useProfile();
+  const {
+    profile
+  } = useProfile();
 
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
@@ -200,14 +191,13 @@ const DocumentsContent: React.FC<{
   }, [loading]);
 
   // Generate year options (2024-2034) - memoized to prevent infinite loops
-  const allYears = React.useMemo(() => 
-    Array.from({ length: 11 }, (_, i) => (2024 + i).toString()), 
-  []);
+  const allYears = React.useMemo(() => Array.from({
+    length: 11
+  }, (_, i) => (2024 + i).toString()), []);
   const mountedRef = React.useRef(true);
-  
+
   // Ref to track if documents are currently being loaded to prevent duplicate requests
   const loadingRef = React.useRef(false);
-  
   const loadCompletedTaxYears = useCallback(async () => {
     try {
       const {
@@ -227,12 +217,10 @@ const DocumentsContent: React.FC<{
       console.error('Error loading completed tax years:', error);
     }
   }, []);
-  
   const loadDocuments = useCallback(async (showLoadingSpinner = true) => {
     // Prevent concurrent loading requests
     if (loadingRef.current) return;
     loadingRef.current = true;
-    
     if (showLoadingSpinner) {
       setLoading(true);
     }
@@ -263,7 +251,7 @@ const DocumentsContent: React.FC<{
       loadingRef.current = false;
     }
   }, [selectedYear, toast]);
-  
+
   // Initial load effect
   useEffect(() => {
     mountedRef.current = true;
@@ -272,14 +260,14 @@ const DocumentsContent: React.FC<{
       mountedRef.current = false;
     };
   }, [loadCompletedTaxYears]);
-  
+
   // Load documents when year changes
   useEffect(() => {
     if (mountedRef.current) {
       loadDocuments();
     }
   }, [selectedYear, loadDocuments]);
-  
+
   // Reload on visibility change (returning to tab)
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -293,14 +281,14 @@ const DocumentsContent: React.FC<{
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [loadDocuments]);
-  
+
   // Generate checklist when form data is loaded
   useEffect(() => {
     if (selectedYear === taxYear && formDataLoaded && mountedRef.current) {
       generateChecklist();
     }
   }, [selectedYear, taxYear, formDataLoaded, generateChecklist]);
-  
+
   // Filter available years
   useEffect(() => {
     const available = allYears.filter(year => !completedYears.includes(year));
@@ -309,7 +297,6 @@ const DocumentsContent: React.FC<{
       onYearChange(available[0]);
     }
   }, [completedYears, selectedYear, onYearChange, allYears]);
-
   const handleCameraCapture = async (blob: Blob) => {
     setShowCamera(false);
     // Document is already uploaded by CameraCapture component
@@ -321,8 +308,11 @@ const DocumentsContent: React.FC<{
   const uploadFilesDirectly = async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (!user) {
       toast({
         title: "Fehler",
@@ -331,10 +321,8 @@ const DocumentsContent: React.FC<{
       });
       return;
     }
-
     let successCount = 0;
     let errorCount = 0;
-
     for (const file of fileArray) {
       try {
         // Validate file
@@ -347,7 +335,6 @@ const DocumentsContent: React.FC<{
           errorCount++;
           continue;
         }
-
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp', 'application/pdf'];
         if (!allowedTypes.includes(file.type)) {
           toast({
@@ -358,44 +345,39 @@ const DocumentsContent: React.FC<{
           errorCount++;
           continue;
         }
-
         const fileName = `${Date.now()}-${file.name}`;
         const filePath = `documents/${user.id}/${fileName}`;
 
         // Upload to storage
-        const { error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(filePath, file);
-
+        const {
+          error: uploadError
+        } = await supabase.storage.from('documents').upload(filePath, file);
         if (uploadError) throw uploadError;
 
         // Save to database
-        const { error: dbError } = await supabase
-          .from('uploaded_documents')
-          .insert({
-            user_id: user.id,
-            file_name: file.name,
-            file_type: file.type,
-            file_path: filePath,
-            tax_year: selectedYear,
-            status: 'active',
-            is_assigned_to_checklist: false,
-            document_category: 'upload'
-          });
-
+        const {
+          error: dbError
+        } = await supabase.from('uploaded_documents').insert({
+          user_id: user.id,
+          file_name: file.name,
+          file_type: file.type,
+          file_path: filePath,
+          tax_year: selectedYear,
+          status: 'active',
+          is_assigned_to_checklist: false,
+          document_category: 'upload'
+        });
         if (dbError) {
           // Clean up uploaded file
           await supabase.storage.from('documents').remove([filePath]);
           throw dbError;
         }
-
         successCount++;
       } catch (error) {
         console.error('Error uploading file:', error);
         errorCount++;
       }
     }
-
     if (successCount > 0) {
       toast({
         title: "Upload erfolgreich",
@@ -404,7 +386,6 @@ const DocumentsContent: React.FC<{
       // Use soft reload (no spinner) to avoid flicker since user just uploaded
       loadDocuments(false);
     }
-
     if (errorCount > 0 && successCount === 0) {
       toast({
         title: "Fehler",
@@ -532,15 +513,8 @@ const DocumentsContent: React.FC<{
       
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
-        <SubpageHeader 
-          onBack={() => navigate(-1)}
-          showAvatar={true}
-          titleElement={
-            <div className="relative" data-tour="documents-year-selector">
-              <button 
-                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]"
-              >
+        <SubpageHeader onBack={() => navigate(-1)} showAvatar={true} titleElement={<div className="relative" data-tour="documents-year-selector">
+              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-2.5 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] transition-all hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98]">
                 <Calendar className="h-4 w-4 text-white" strokeWidth={2} />
                 <span className="text-white">{selectedYear}</span>
                 <ChevronDown className={cn("h-4 w-4 text-white/80 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
@@ -550,30 +524,16 @@ const DocumentsContent: React.FC<{
                 <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
                 <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[180px]">
                   <div className="max-h-64 overflow-y-auto py-2">
-                    {availableYears.map(year => (
-                      <button 
-                        key={year} 
-                        onClick={() => handleYearSelect(year)} 
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors",
-                          year === selectedYear && "bg-slate-50"
-                        )}
-                      >
+                    {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors", year === selectedYear && "bg-slate-50")}>
                         <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
                           <Calendar className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
                         </div>
-                        <span className={cn(
-                          "text-sm font-medium text-slate-700",
-                          year === selectedYear && "text-slate-900"
-                        )}>{year}</span>
-                      </button>
-                    ))}
+                        <span className={cn("text-sm font-medium text-slate-700", year === selectedYear && "text-slate-900")}>{year}</span>
+                      </button>)}
                   </div>
                 </div>
               </>}
-            </div>
-          }
-        />
+            </div>} />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
@@ -583,13 +543,7 @@ const DocumentsContent: React.FC<{
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" strokeWidth={1.5} />
-              <input
-                type="text"
-                placeholder="Suche..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-9 pr-4 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
+              <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full h-10 pl-9 pr-4 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
             </div>
             
             {/* Document Count Badge */}
@@ -599,10 +553,7 @@ const DocumentsContent: React.FC<{
             
             {/* Sort Button */}
             <div className="relative">
-              <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="flex items-center justify-center h-10 w-10 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
-              >
+              <button onClick={() => setShowSortDropdown(!showSortDropdown)} className="flex items-center justify-center h-10 w-10 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors">
                 <ArrowUpDown className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
               </button>
               
@@ -610,21 +561,12 @@ const DocumentsContent: React.FC<{
                 <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
                 <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
                   <div className="py-1">
-                    {sortOptions.map(option => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSortBy(option.value);
-                          setShowSortDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
-                          sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
-                        )}
-                      >
+                    {sortOptions.map(option => <button key={option.value} onClick={() => {
+                    setSortBy(option.value);
+                    setShowSortDropdown(false);
+                  }} className={cn("w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", sortBy === option.value ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700")}>
                         {option.label}
-                      </button>
-                    ))}
+                      </button>)}
                   </div>
                 </div>
               </>}
@@ -632,28 +574,18 @@ const DocumentsContent: React.FC<{
           </div>
 
           {/* Documents Section */}
-          {documents.length > 0 ? (
-            /* Document Grid */
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
-              {filteredDocuments.map((doc) => {
-                const isImage = doc.file_type?.startsWith('image/');
-                const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
-                const fileSize = formatFileSize((doc.metadata as any)?.size);
-
-                return (
-                  <button 
-                    key={doc.id} 
-                    onClick={() => {
-                      setSelectedDocument(doc);
-                      setShowActionSheet(true);
-                    }} 
-                    className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 text-left"
-                  >
+          {documents.length > 0 ? (/* Document Grid */
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-6">
+              {filteredDocuments.map(doc => {
+            const isImage = doc.file_type?.startsWith('image/');
+            const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
+            const fileSize = formatFileSize((doc.metadata as any)?.size);
+            return <button key={doc.id} onClick={() => {
+              setSelectedDocument(doc);
+              setShowActionSheet(true);
+            }} className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 text-left">
                     {/* Document Thumbnail */}
-                    {isImage ? (
-                      <DocumentThumbnail doc={doc} />
-                    ) : (
-                      <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
+                    {isImage ? <DocumentThumbnail doc={doc} /> : <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
                         {/* Decorative gradient orb */}
                         <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
                         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
@@ -664,8 +596,7 @@ const DocumentsContent: React.FC<{
                             {fileExt}
                           </span>
                         </div>
-                      </div>
-                    )}
+                      </div>}
                     
                     {/* Hover Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -680,13 +611,10 @@ const DocumentsContent: React.FC<{
                       <p className="text-sm font-medium text-white truncate max-w-[120px]">{doc.file_name}</p>
                       <p className="text-xs text-zinc-300">{fileExt}{fileSize ? ` • ${fileSize}` : ''}</p>
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            /* Empty State */
-            <div className="flex flex-col items-center justify-center py-20">
+                  </button>;
+          })}
+            </div>) : (/* Empty State */
+        <div className="flex flex-col items-center justify-center py-20">
               <div className="text-center space-y-6 relative">
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <div className="absolute inset-0 bg-blue-500 rounded-full blur-[40px] opacity-10" />
@@ -704,63 +632,36 @@ const DocumentsContent: React.FC<{
                   </p>
                 </div>
               </div>
-            </div>
-          )}
+            </div>)}
         </main>
 
         {/* Hidden File Inputs - Direct upload without confirmation */}
-        <input 
-          ref={fileInputRef} 
-          type="file" 
-          accept="image/*,application/pdf" 
-          multiple 
-          className="hidden" 
-          onChange={handleFileInputChange} 
-        />
-        <input 
-          ref={cameraInputRef} 
-          type="file" 
-          accept="image/*" 
-          capture="environment" 
-          className="hidden" 
-          onChange={handleCameraInputChange} 
-        />
+        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileInputChange} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleCameraInputChange} />
 
         {/* Floating Upload Button */}
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-          <button 
-            onClick={() => setShowUploadSheet(true)}
-            data-tour="document-upload-card"
-            className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
-          >
+          <button onClick={() => setShowUploadSheet(true)} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
               <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
-                Upload
+              <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
+                Hochladen
               </span>
-              <span className="block text-[10px] text-white/80 font-medium">
-                Dokumente
-              </span>
+              
             </div>
           </button>
         </div>
 
         {/* Upload Action Sheet */}
-        <UploadActionSheet 
-          open={showUploadSheet}
-          onClose={() => setShowUploadSheet(false)}
-          onScan={() => {
-            setShowCamera(true);
-          }}
-          onPhoto={() => {
-            cameraInputRef.current?.click();
-          }}
-          onFile={() => {
-            fileInputRef.current?.click();
-          }}
-        />
+        <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onScan={() => {
+        setShowCamera(true);
+      }} onPhoto={() => {
+        cameraInputRef.current?.click();
+      }} onFile={() => {
+        fileInputRef.current?.click();
+      }} />
 
         <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
 
