@@ -533,7 +533,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <SubpageHeader 
-          title={`Dokumente ${selectedYear}`}
+          title="Dokumente"
           onBack={() => navigate(-1)}
           showAvatar={true}
         />
