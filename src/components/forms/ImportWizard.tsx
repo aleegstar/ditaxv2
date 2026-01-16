@@ -161,10 +161,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Enter new data button */}
           <Button
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
-            style={{
-              boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
-            }}
+            className="w-full bg-white hover:bg-slate-50 text-slate-600 rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border border-slate-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
             onClick={handleSkipImport}
             disabled={isImporting}
           >
