@@ -153,6 +153,239 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
 
   if (!open || !document) return null;
 
+  // Shared content component for both desktop and mobile
+  const renderContent = () => (
+    <div className="px-5 pb-6 pt-4 md:pt-5">
+      {/* Actions View */}
+      {view === 'actions' && (
+        <>
+          {/* Header */}
+          <div className="pb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg",
+                document.file_type?.startsWith('image/')
+                  ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  : "bg-gradient-to-br from-blue-500 to-blue-600"
+              )}>
+                {document.file_type?.startsWith('image/')
+                  ? <Image className="w-6 h-6 text-white" strokeWidth={1.5} />
+                  : <FileText className="w-6 h-6 text-white" strokeWidth={1.5} />
+                }
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-slate-900 truncate max-w-[180px]">{document.file_name}</h3>
+                <p className="text-sm text-blue-500">
+                  {format(new Date(document.upload_date), 'd. MMM yyyy', { locale: de })} • Steuerjahr {document.tax_year}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-2">
+            <button
+              onClick={handlePreview}
+              disabled={loading}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center transition-transform group-hover:scale-105">
+                <Eye className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
+              </div>
+              <div className="text-left flex-1">
+                <div className="font-medium text-slate-900">Vorschau anzeigen</div>
+                <div className="text-sm text-blue-500">Dokument ansehen</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setView('edit')}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center transition-transform group-hover:scale-105">
+                <Pencil className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
+              </div>
+              <div className="text-left flex-1">
+                <div className="font-medium text-slate-900">Bearbeiten</div>
+                <div className="text-sm text-blue-500">Name oder Steuerjahr ändern</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setView('delete')}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-red-50 hover:border-red-100 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center transition-transform group-hover:scale-105">
+                <Trash2 className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+              </div>
+              <div className="text-left flex-1">
+                <div className="font-medium text-slate-900">Löschen</div>
+                <div className="text-sm text-red-500">Dokument entfernen</div>
+              </div>
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Preview View */}
+      {view === 'preview' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2">
+            <button
+              onClick={() => setView('actions')}
+              className="text-sm text-blue-600 font-medium"
+            >
+              ← Zurück
+            </button>
+            <h3 className="text-base font-medium text-slate-900">Vorschau</h3>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+              <X className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          </div>
+
+          {previewUrl && (
+            <div className="rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+              {document.file_type?.startsWith('image/') ? (
+                <img
+                  src={previewUrl}
+                  alt={document.file_name}
+                  className="w-full max-h-[60vh] object-contain"
+                />
+              ) : (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-[60vh]"
+                  title={document.file_name}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit View */}
+      {view === 'edit' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between py-2">
+            <button
+              onClick={() => setView('actions')}
+              className="text-sm text-blue-600 font-medium"
+            >
+              ← Zurück
+            </button>
+            <h3 className="text-base font-medium text-slate-900">Bearbeiten</h3>
+            <div className="w-12" />
+          </div>
+
+          <div className="space-y-4">
+            {/* Name Input */}
+            <div className="space-y-2">
+              <label className="text-sm text-slate-500 font-medium ml-1">Dokumentname</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all"
+                placeholder="Dokumentname eingeben"
+              />
+            </div>
+
+            {/* Year Selector */}
+            <div className="space-y-2">
+              <label className="text-sm text-slate-500 font-medium ml-1">Steuerjahr</label>
+              <div className="relative">
+                <button
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 flex items-center justify-between hover:border-slate-300 transition-colors"
+                >
+                  <span>{editYear}</span>
+                  <ChevronDown className={cn("w-5 h-5 text-slate-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                </button>
+                
+                {isYearDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsYearDropdownOpen(false)} />
+                    <div className="absolute top-full mt-2 left-0 right-0 z-20 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                      {availableYears.map(year => (
+                        <button
+                          key={year}
+                          onClick={() => {
+                            setEditYear(year);
+                            setIsYearDropdownOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between",
+                            year === editYear 
+                              ? "bg-blue-50 text-blue-700" 
+                              : "text-slate-700 hover:bg-slate-50"
+                          )}
+                        >
+                          {year}
+                          {year === editYear && <Check className="w-4 h-4 text-blue-600" strokeWidth={1.5} />}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <motion.button
+            onClick={handleSaveEdit}
+            disabled={loading || !editName.trim()}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full h-12 rounded-full bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_-4px_rgba(59,130,246,0.4)] hover:shadow-[0_4px_24px_-4px_rgba(59,130,246,0.5)] hover:bg-blue-500 transition-all"
+          >
+            {loading ? 'Wird gespeichert...' : 'Speichern'}
+          </motion.button>
+        </div>
+      )}
+
+      {/* Delete Confirmation View */}
+      {view === 'delete' && (
+        <div className="space-y-6 py-4">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 border border-red-200 flex items-center justify-center mx-auto">
+              <Trash2 className="w-8 h-8 text-red-600" strokeWidth={1.5} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium text-slate-900">Dokument löschen?</h3>
+              <p className="text-sm text-slate-500 max-w-[280px] mx-auto">
+                "{document.file_name}" wird unwiderruflich gelöscht.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setView('actions')}
+              className="flex-1 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-200 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <motion.button
+              onClick={handleDelete}
+              disabled={loading}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 h-12 rounded-full bg-red-600 text-white font-semibold text-sm disabled:opacity-50 hover:bg-red-500 transition-colors shadow-[0_4px_16px_-4px_rgba(239,68,68,0.4)]"
+            >
+              {loading ? 'Wird gelöscht...' : 'Löschen'}
+            </motion.button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <AnimatePresence>
       {open && (
@@ -166,250 +399,33 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
           />
 
-          {/* Sheet */}
+          {/* Desktop: Centered Dialog */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="hidden md:flex fixed inset-0 z-[101] items-center justify-center px-4"
+          >
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+              {renderContent()}
+            </div>
+          </motion.div>
+
+          {/* Mobile: Bottom Sheet */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-[101] px-4 pb-8"
+            className="md:hidden fixed bottom-0 left-0 right-0 z-[101] px-4 pb-8"
           >
             <div className="bg-white rounded-[2rem] shadow-2xl max-w-lg mx-auto overflow-hidden">
               {/* Handle */}
-              <div className="flex justify-center pt-3 pb-2">
+              <div className="flex justify-center pt-3 pb-1">
                 <div className="w-10 h-1 bg-slate-200 rounded-full" />
               </div>
-
-              {/* Content */}
-              <div className="px-5 pb-6">
-                {/* Actions View */}
-                {view === 'actions' && (
-                  <>
-                    {/* Header */}
-                    <div className="pb-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg",
-                          document.file_type?.startsWith('image/')
-                            ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                            : "bg-gradient-to-br from-blue-500 to-blue-600"
-                        )}>
-                          {document.file_type?.startsWith('image/')
-                            ? <Image className="w-6 h-6 text-white" strokeWidth={1.5} />
-                            : <FileText className="w-6 h-6 text-white" strokeWidth={1.5} />
-                          }
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-slate-900 truncate max-w-[180px]">{document.file_name}</h3>
-                          <p className="text-sm text-blue-500">
-                            {format(new Date(document.upload_date), 'd. MMM yyyy', { locale: de })} • Steuerjahr {document.tax_year}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={onClose}
-                        className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
-                      >
-                        <X className="w-5 h-5" strokeWidth={1.5} />
-                      </button>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      <button
-                        onClick={handlePreview}
-                        disabled={loading}
-                        className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
-                      >
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center transition-transform group-hover:scale-105">
-                          <Eye className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
-                        </div>
-                        <div className="text-left flex-1">
-                          <div className="font-medium text-slate-900">Vorschau anzeigen</div>
-                          <div className="text-sm text-blue-500">Dokument ansehen</div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setView('edit')}
-                        className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-all group"
-                      >
-                        <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center transition-transform group-hover:scale-105">
-                          <Pencil className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
-                        </div>
-                        <div className="text-left flex-1">
-                          <div className="font-medium text-slate-900">Bearbeiten</div>
-                          <div className="text-sm text-blue-500">Name oder Steuerjahr ändern</div>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setView('delete')}
-                        className="w-full flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white hover:bg-red-50 hover:border-red-100 transition-all group"
-                      >
-                        <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center transition-transform group-hover:scale-105">
-                          <Trash2 className="w-5 h-5 text-red-600" strokeWidth={1.5} />
-                        </div>
-                        <div className="text-left flex-1">
-                          <div className="font-medium text-slate-900">Löschen</div>
-                          <div className="text-sm text-red-500">Dokument entfernen</div>
-                        </div>
-                      </button>
-                    </div>
-                  </>
-                )}
-
-              {/* Preview View */}
-              {view === 'preview' && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-2">
-                    <button
-                      onClick={() => setView('actions')}
-                      className="text-sm text-blue-600 font-medium"
-                    >
-                      ← Zurück
-                    </button>
-                    <h3 className="text-base font-medium text-slate-900">Vorschau</h3>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-                      <X className="w-5 h-5" strokeWidth={1.5} />
-                    </button>
-                  </div>
-
-                  {previewUrl && (
-                    <div className="rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
-                      {document.file_type?.startsWith('image/') ? (
-                        <img
-                          src={previewUrl}
-                          alt={document.file_name}
-                          className="w-full max-h-[60vh] object-contain"
-                        />
-                      ) : (
-                        <iframe
-                          src={previewUrl}
-                          className="w-full h-[60vh]"
-                          title={document.file_name}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Edit View */}
-              {view === 'edit' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between py-2">
-                    <button
-                      onClick={() => setView('actions')}
-                      className="text-sm text-blue-600 font-medium"
-                    >
-                      ← Zurück
-                    </button>
-                    <h3 className="text-base font-medium text-slate-900">Bearbeiten</h3>
-                    <div className="w-12" />
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Name Input */}
-                    <div className="space-y-2">
-                      <label className="text-sm text-slate-500 font-medium ml-1">Dokumentname</label>
-                      <input
-                        type="text"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all"
-                        placeholder="Dokumentname eingeben"
-                      />
-                    </div>
-
-                    {/* Year Selector */}
-                    <div className="space-y-2">
-                      <label className="text-sm text-slate-500 font-medium ml-1">Steuerjahr</label>
-                      <div className="relative">
-                        <button
-                          onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 flex items-center justify-between hover:border-slate-300 transition-colors"
-                        >
-                          <span>{editYear}</span>
-                          <ChevronDown className={cn("w-5 h-5 text-slate-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
-                        </button>
-                        
-                        {isYearDropdownOpen && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setIsYearDropdownOpen(false)} />
-                            <div className="absolute top-full mt-2 left-0 right-0 z-20 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
-                              {availableYears.map(year => (
-                                <button
-                                  key={year}
-                                  onClick={() => {
-                                    setEditYear(year);
-                                    setIsYearDropdownOpen(false);
-                                  }}
-                                  className={cn(
-                                    "w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between",
-                                    year === editYear 
-                                      ? "bg-blue-50 text-blue-700" 
-                                      : "text-slate-700 hover:bg-slate-50"
-                                  )}
-                                >
-                                  {year}
-                                  {year === editYear && <Check className="w-4 h-4 text-blue-600" strokeWidth={1.5} />}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Save Button */}
-                  <motion.button
-                    onClick={handleSaveEdit}
-                    disabled={loading || !editName.trim()}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full h-12 rounded-full bg-blue-600 text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_-4px_rgba(59,130,246,0.4)] hover:shadow-[0_4px_24px_-4px_rgba(59,130,246,0.5)] hover:bg-blue-500 transition-all"
-                  >
-                    {loading ? 'Wird gespeichert...' : 'Speichern'}
-                  </motion.button>
-                </div>
-              )}
-
-              {/* Delete Confirmation View */}
-              {view === 'delete' && (
-                <div className="space-y-6 py-4">
-                  <div className="text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-red-100 border border-red-200 flex items-center justify-center mx-auto">
-                      <Trash2 className="w-8 h-8 text-red-600" strokeWidth={1.5} />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-medium text-slate-900">Dokument löschen?</h3>
-                      <p className="text-sm text-slate-500 max-w-[280px] mx-auto">
-                        "{document.file_name}" wird unwiderruflich gelöscht.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setView('actions')}
-                      className="flex-1 h-12 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-200 transition-colors"
-                    >
-                      Abbrechen
-                    </button>
-                    <motion.button
-                      onClick={handleDelete}
-                      disabled={loading}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 h-12 rounded-full bg-red-600 text-white font-semibold text-sm disabled:opacity-50 hover:bg-red-500 transition-colors shadow-[0_4px_16px_-4px_rgba(239,68,68,0.4)]"
-                    >
-                      {loading ? 'Wird gelöscht...' : 'Löschen'}
-                    </motion.button>
-                  </div>
-                </div>
-              )}
-              </div>
+              {renderContent()}
             </div>
           </motion.div>
         </>
