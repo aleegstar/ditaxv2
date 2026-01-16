@@ -569,26 +569,39 @@ const DocumentChecklist: React.FC = () => {
 
       {/* Completion Dialog */}
       <AlertDialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-              <FileCheck className="w-8 h-8 text-emerald-600" />
+        <AlertDialogContent className="max-w-md p-0 overflow-hidden border-0 rounded-3xl">
+          {/* Header with gradient background */}
+          <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-6 py-5">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+                <FileCheck className="w-5 h-5 text-white" strokeWidth={1.5} />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-white font-semibold">
+                  Alle Unterlagen vollständig!
+                </AlertDialogTitle>
+                <p className="text-sm text-slate-400 mt-0.5">
+                  Steuererklärung {taxYear}
+                </p>
+              </div>
             </div>
-            <AlertDialogTitle className="text-xl font-semibold text-slate-800">
-              Alle Unterlagen vollständig!
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600 mt-2">
-              Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-            <AlertDialogCancel className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50">
-              Später
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => navigate('/payment')} className="w-full sm:w-auto bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white">
-              Ja, jetzt erstellen
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          </div>
+
+          <div className="p-6">
+            <AlertDialogHeader className="mb-4">
+              <AlertDialogDescription className="text-slate-600 text-sm leading-relaxed">
+                Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl h-11">
+                Später
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => navigate('/payment')} className="w-full sm:w-auto bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl h-11 shadow-lg shadow-blue-500/25">
+                Ja, jetzt erstellen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>;
