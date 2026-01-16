@@ -3,7 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MoreVertical, Trash2, Play, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
+import {
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+} from "@/components/ui/unified-alert-dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import ditaxLogoIcon from "@/assets/ditax-logo.svg";
 interface BlueTaxYearCardProps {
@@ -154,28 +164,32 @@ export function BlueTaxYearCard({
         </div>
       </div>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Steuererklärung löschen?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <UnifiedAlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <UnifiedAlertDialogContent showCloseButton onClose={() => setShowDeleteDialog(false)}>
+          <UnifiedAlertDialogHeader>
+            <UnifiedAlertDialogIcon variant="delete">
+              <Trash2 className="w-8 h-8 text-red-500" />
+            </UnifiedAlertDialogIcon>
+            <UnifiedAlertDialogTitle>Steuererklärung löschen?</UnifiedAlertDialogTitle>
+            <UnifiedAlertDialogDescription>
               Möchtest du die Steuererklärung für {taxYear} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
-            <AlertDialogCancel className="w-full bg-white hover:bg-gray-50 border border-[rgb(230,230,230)] font-medium h-12 rounded-full" style={{
-            color: 'rgb(26, 32, 44)'
-          }}>
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-            onDelete?.(id);
-            setShowDeleteDialog(false);
-          }} className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium">
+            </UnifiedAlertDialogDescription>
+          </UnifiedAlertDialogHeader>
+          <UnifiedAlertDialogFooter>
+            <UnifiedAlertDialogAction 
+              onClick={() => {
+                onDelete?.(id);
+                setShowDeleteDialog(false);
+              }} 
+              variant="destructive"
+            >
               Löschen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </UnifiedAlertDialogAction>
+            <UnifiedAlertDialogCancel>
+              Abbrechen
+            </UnifiedAlertDialogCancel>
+          </UnifiedAlertDialogFooter>
+        </UnifiedAlertDialogContent>
+      </UnifiedAlertDialog>
     </>;
 }

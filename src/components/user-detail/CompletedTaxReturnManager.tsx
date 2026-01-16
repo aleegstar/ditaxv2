@@ -4,7 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+  UnifiedAlertDialogTrigger,
+} from "@/components/ui/unified-alert-dialog";
 import { Upload, FileText, Trash2, Download, Eye } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -347,8 +358,8 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                       >
                         <Download className="h-3 w-3" />
                       </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                      <UnifiedAlertDialog>
+                        <UnifiedAlertDialogTrigger asChild>
                           <Button
                             size="sm"
                             variant="outline"
@@ -356,23 +367,26 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Steuererklärung löschen</AlertDialogTitle>
-                            <AlertDialogDescription>
+                        </UnifiedAlertDialogTrigger>
+                        <UnifiedAlertDialogContent showCloseButton>
+                          <UnifiedAlertDialogHeader>
+                            <UnifiedAlertDialogIcon variant="delete">
+                              <Trash2 className="w-8 h-8 text-red-500" />
+                            </UnifiedAlertDialogIcon>
+                            <UnifiedAlertDialogTitle>Steuererklärung löschen</UnifiedAlertDialogTitle>
+                            <UnifiedAlertDialogDescription>
                               Möchten Sie die Steuererklärung für {taxReturn.tax_year} wirklich löschen? 
                               Diese Aktion kann nicht rückgängig gemacht werden.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(taxReturn)}>
+                            </UnifiedAlertDialogDescription>
+                          </UnifiedAlertDialogHeader>
+                          <UnifiedAlertDialogFooter>
+                            <UnifiedAlertDialogAction onClick={() => handleDelete(taxReturn)} variant="destructive">
                               Löschen
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                            </UnifiedAlertDialogAction>
+                            <UnifiedAlertDialogCancel>Abbrechen</UnifiedAlertDialogCancel>
+                          </UnifiedAlertDialogFooter>
+                        </UnifiedAlertDialogContent>
+                      </UnifiedAlertDialog>
                     </div>
                   </div>
                 </CardContent>

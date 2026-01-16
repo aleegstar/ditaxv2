@@ -5,17 +5,18 @@ import { useFormContext } from '@/contexts/FormContext';
 import { FormSectionKey } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+  UnifiedAlertDialogTrigger,
+} from "@/components/ui/unified-alert-dialog";
+import { Download } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 
 interface ImportFromPreviousYearProps {
@@ -93,8 +94,8 @@ const ImportFromPreviousYear: React.FC<ImportFromPreviousYearProps> = ({
   const previousYear = parseInt(taxYear) - 1;
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <UnifiedAlertDialog>
+      <UnifiedAlertDialogTrigger asChild>
         <Button 
           variant="outline" 
           size="sm" 
@@ -108,28 +109,31 @@ const ImportFromPreviousYear: React.FC<ImportFromPreviousYearProps> = ({
           )}
           {t.forms.importFromPreviousYear.replace('{year}', previousYear.toString())}
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t.forms.importConfirm.replace('{year}', previousYear.toString())}</AlertDialogTitle>
-          <AlertDialogDescription>
+      </UnifiedAlertDialogTrigger>
+      <UnifiedAlertDialogContent showCloseButton>
+        <UnifiedAlertDialogHeader>
+          <UnifiedAlertDialogIcon variant="info">
+            <Download className="w-8 h-8 text-blue-500" />
+          </UnifiedAlertDialogIcon>
+          <UnifiedAlertDialogTitle>
+            {t.forms.importConfirm.replace('{year}', previousYear.toString())}
+          </UnifiedAlertDialogTitle>
+          <UnifiedAlertDialogDescription>
             {t.forms.importConfirmDescription.replace('{section}', sectionName).replace('{year}', previousYear.toString())}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t.forms.cancel}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleImport} disabled={isImporting}>
+          </UnifiedAlertDialogDescription>
+        </UnifiedAlertDialogHeader>
+        <UnifiedAlertDialogFooter>
+          <UnifiedAlertDialogAction onClick={handleImport} disabled={isImporting}>
             {isImporting ? (
-                <>
-                  <span className="ml-2">{t.forms.importing}</span>
-                </>
+              <span>{t.forms.importing}</span>
             ) : (
               t.forms.import
             )}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </UnifiedAlertDialogAction>
+          <UnifiedAlertDialogCancel>{t.forms.cancel}</UnifiedAlertDialogCancel>
+        </UnifiedAlertDialogFooter>
+      </UnifiedAlertDialogContent>
+    </UnifiedAlertDialog>
   );
 };
 

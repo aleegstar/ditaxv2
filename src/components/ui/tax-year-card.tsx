@@ -1,9 +1,18 @@
-
 import React from "react";
-import { MoreHorizontal, Edit, Trash2, AlertTriangle, Eye } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+} from "@/components/ui/unified-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -191,60 +200,35 @@ export function TaxYearCard({
       </Card>
 
       {/* Only show delete dialog for drafts */}
-      {!isPaid && !isCompleted && <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent onClick={e => e.stopPropagation()}>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                <div className="flex items-center justify-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  <span>{taxYear} {t.common.delete}</span>
-                </div>
-              </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2">
-                <p>
-                  {language === 'de' 
-                    ? `Bist du sicher, dass du die Steuererklärung für das Jahr ${taxYear} komplett löschen möchtest?`
-                    : `Are you sure you want to completely delete the tax return for the year ${taxYear}?`
-                  }
-                </p>
-                <div className="border border-red-400/30 rounded-lg p-3 mt-3 bg-red-50">
-                  <p className="text-sm text-red-600 font-medium">
-                    {language === 'de' 
-                      ? 'Diese Aktion wird unwiderruflich löschen:'
-                      : 'This action will permanently delete:'
-                    }
-                  </p>
-                  <ul className="text-sm text-red-700 mt-1 space-y-1">
-                    <li>• {language === 'de' ? 'Alle eingegebenen Formulardaten' : 'All entered form data'}</li>
-                    <li>• {language === 'de' ? 'Alle hochgeladenen Dokumente' : 'All uploaded documents'}</li>
-                    <li>• {language === 'de' ? `Die komplette Steuererklärung für ${taxYear}` : `The complete tax return for ${taxYear}`}</li>
-                  </ul>
-                </div>
-                <p className="text-sm mt-3" style={{ color: 'rgb(26, 32, 44)', opacity: 0.7 }}>
-                  {language === 'de' 
-                    ? 'Diese Aktion kann nicht rückgängig gemacht werden.'
-                    : 'This action cannot be undone.'
-                  }
-                </p>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex flex-col gap-3 sm:flex-col mt-6">
-              <Button 
-                onClick={handleCancelDelete} 
-                className="w-full bg-white hover:bg-gray-50 border border-[rgb(230,230,230)] font-medium h-12 rounded-full"
-                style={{ color: 'rgb(26, 32, 44)' }}
-              >
-                {t.common.cancel}
-              </Button>
-              <Button 
+      {!isPaid && !isCompleted && <UnifiedAlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <UnifiedAlertDialogContent showCloseButton onClose={() => setShowDeleteDialog(false)} onClick={e => e.stopPropagation()}>
+            <UnifiedAlertDialogHeader>
+              <UnifiedAlertDialogIcon variant="delete">
+                <Trash2 className="w-8 h-8 text-red-500" />
+              </UnifiedAlertDialogIcon>
+              <UnifiedAlertDialogTitle>
+                {taxYear} {t.common.delete}
+              </UnifiedAlertDialogTitle>
+              <UnifiedAlertDialogDescription>
+                {language === 'de' 
+                  ? `Bist du sicher, dass du die Steuererklärung für das Jahr ${taxYear} komplett löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.`
+                  : `Are you sure you want to completely delete the tax return for the year ${taxYear}? This action cannot be undone.`
+                }
+              </UnifiedAlertDialogDescription>
+            </UnifiedAlertDialogHeader>
+            <UnifiedAlertDialogFooter>
+              <UnifiedAlertDialogAction 
                 onClick={handleConfirmDelete} 
-                className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium"
+                variant="destructive"
               >
                 {language === 'de' ? 'Alles löschen' : 'Delete everything'}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-         </AlertDialog>}
+              </UnifiedAlertDialogAction>
+              <UnifiedAlertDialogCancel onClick={handleCancelDelete}>
+                {t.common.cancel}
+              </UnifiedAlertDialogCancel>
+            </UnifiedAlertDialogFooter>
+          </UnifiedAlertDialogContent>
+         </UnifiedAlertDialog>}
 
       {/* Tax Return Action Dialog for completed returns */}
       {isCompleted && completedTaxReturn && userId && <TaxReturnActionDialog isOpen={showActionDialog} onClose={() => setShowActionDialog(false)} fileName={completedTaxReturn.file_name} filePath={completedTaxReturn.signed_pdf_path || completedTaxReturn.file_path} taxYear={taxYear} completedTaxReturnId={completedTaxReturn.id} userId={userId} definitiveTaxBill={definitiveTaxBill} onTaxBillUpload={() => window.location.reload()} />}
