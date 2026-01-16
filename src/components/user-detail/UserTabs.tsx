@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileIcon, Calendar, Info } from 'lucide-react';
+import { FileIcon, Calendar, Info, Briefcase, Wallet, Receipt, Upload } from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
 import FormDataDisplay from './FormDataDisplay';
@@ -16,6 +16,41 @@ import DocumentPreview from './DocumentPreview';
 import CompletedTaxReturnManager from './CompletedTaxReturnManager';
 import { UserDefinitiveTaxBill } from './UserDefinitiveTaxBill';
 
+// Category mapping for checklist items
+const CHECKLIST_CATEGORY_MAP: Record<string, 'income' | 'assets' | 'deductions' | 'general'> = {
+  // Income
+  'employment-income': 'income',
+  'rental-income': 'income',
+  'dividend-statement': 'income',
+  'freelance-income': 'income',
+  'pension-statement': 'income',
+  'gift-inheritance': 'income',
+  'pension-payout': 'income',
+  'other-income': 'income',
+  
+  // Assets
+  'bank-account-statement': 'assets',
+  'deposit-account': 'assets',
+  'crypto-portfolio': 'assets',
+  'mortgage-statement': 'assets',
+  'debt-statements': 'assets',
+  'other-assets': 'assets',
+  'property-purchase-contract': 'assets',
+  
+  // Deductions
+  'pillar3a-certificate': 'deductions',
+  'bvg-purchase': 'deductions',
+  'education-expenses': 'deductions',
+  'donation-receipts': 'deductions',
+  'maintenance-receipts': 'deductions',
+  'childcare-expenses': 'deductions',
+  'supported-persons': 'deductions',
+  'maintenance-payments': 'deductions',
+  'other-deductions': 'deductions',
+  
+  // General
+  'tax-cover-sheet': 'general',
+};
 interface UserTabsProps {
   user: User;
   taxReturns: TaxReturn[];
@@ -116,6 +151,54 @@ const UserTabs: React.FC<UserTabsProps> = ({
       return true;
     });
   }, [user.documents, selectedYear]);
+
+  // Group documents by category based on checklist item
+  const groupedDocuments = useMemo(() => {
+    const groups: {
+      income: typeof documentsForSelectedYear;
+      assets: typeof documentsForSelectedYear;
+      deductions: typeof documentsForSelectedYear;
+      general: typeof documentsForSelectedYear;
+      unassigned: typeof documentsForSelectedYear;
+    } = {
+      income: [],
+      assets: [],
+      deductions: [],
+      general: [],
+      unassigned: [],
+    };
+
+    documentsForSelectedYear.forEach(doc => {
+      const checklistId = (doc as any).checklist_item_id || (doc as any).checklistItemId;
+      
+      if (!checklistId) {
+        groups.unassigned.push(doc);
+        return;
+      }
+
+      // Direct match
+      if (CHECKLIST_CATEGORY_MAP[checklistId]) {
+        groups[CHECKLIST_CATEGORY_MAP[checklistId]].push(doc);
+        return;
+      }
+
+      // Handle dynamic IDs like 'property-purchase-contract-{uuid}'
+      const parts = checklistId.split('-');
+      // Try progressively shorter prefixes
+      for (let i = parts.length - 1; i >= 2; i--) {
+        const prefix = parts.slice(0, i).join('-');
+        if (CHECKLIST_CATEGORY_MAP[prefix]) {
+          groups[CHECKLIST_CATEGORY_MAP[prefix]].push(doc);
+          return;
+        }
+      }
+
+      // If no category found, put in general
+      groups.general.push(doc);
+    });
+
+    return groups;
+  }, [documentsForSelectedYear]);
 
   // Check if we have actual form data for the selected year
   const hasActualFormData = useMemo(() => {
@@ -310,14 +393,106 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {documentsForSelectedYear.map(doc => (
-                      <DocumentCard 
-                        key={doc.id} 
-                        document={doc} 
-                        onPreview={handleDocumentPreview} 
-                      />
-                    ))}
+                  <div className="space-y-8">
+                    {/* Einkommen */}
+                    {groupedDocuments.income.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-5 w-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Einkommen</h3>
+                          <Badge variant="outline">{groupedDocuments.income.length}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {groupedDocuments.income.map(doc => (
+                            <DocumentCard 
+                              key={doc.id} 
+                              document={doc} 
+                              onPreview={handleDocumentPreview} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vermögen */}
+                    {groupedDocuments.assets.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Wallet className="h-5 w-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Vermögen</h3>
+                          <Badge variant="outline">{groupedDocuments.assets.length}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {groupedDocuments.assets.map(doc => (
+                            <DocumentCard 
+                              key={doc.id} 
+                              document={doc} 
+                              onPreview={handleDocumentPreview} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Abzüge */}
+                    {groupedDocuments.deductions.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Receipt className="h-5 w-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Abzüge</h3>
+                          <Badge variant="outline">{groupedDocuments.deductions.length}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {groupedDocuments.deductions.map(doc => (
+                            <DocumentCard 
+                              key={doc.id} 
+                              document={doc} 
+                              onPreview={handleDocumentPreview} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Allgemein */}
+                    {groupedDocuments.general.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <FileIcon className="h-5 w-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Allgemein</h3>
+                          <Badge variant="outline">{groupedDocuments.general.length}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {groupedDocuments.general.map(doc => (
+                            <DocumentCard 
+                              key={doc.id} 
+                              document={doc} 
+                              onPreview={handleDocumentPreview} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Nicht zugewiesen */}
+                    {groupedDocuments.unassigned.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Upload className="h-5 w-5 text-muted-foreground" />
+                          <h3 className="text-lg font-semibold text-muted-foreground">Nicht zugewiesen</h3>
+                          <Badge variant="secondary">{groupedDocuments.unassigned.length}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {groupedDocuments.unassigned.map(doc => (
+                            <DocumentCard 
+                              key={doc.id} 
+                              document={doc} 
+                              onPreview={handleDocumentPreview} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
