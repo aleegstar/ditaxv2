@@ -137,17 +137,38 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      // Get selected documents to update their filenames
+      const { data: docs, error: fetchError } = await supabase
         .from('uploaded_documents')
-        .update({
-          checklist_item_id: checklistItemId,
-          is_assigned_to_checklist: true,
-          assigned_date: new Date().toISOString()
-        })
+        .select('id, file_name')
         .in('id', Array.from(selectedDocuments))
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+      if (!docs) throw new Error('Dokumente nicht gefunden');
+
+      // Update each document with new filename including checklist item title prefix
+      for (const doc of docs) {
+        // Remove any existing prefix (if document was previously assigned)
+        const originalName = doc.file_name.includes(' - ') 
+          ? doc.file_name.split(' - ').slice(1).join(' - ')
+          : doc.file_name;
+        
+        const newFileName = `${checklistItemTitle} - ${originalName}`;
+
+        const { error: updateError } = await supabase
+          .from('uploaded_documents')
+          .update({
+            checklist_item_id: checklistItemId,
+            is_assigned_to_checklist: true,
+            assigned_date: new Date().toISOString(),
+            file_name: newFileName
+          })
+          .eq('id', doc.id)
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Erfolg",

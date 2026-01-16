@@ -281,7 +281,7 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       const userId = sessionData.session.user.id;
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, uploading: true, progress: 20 } : f));
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 50 } : f));
-      await encryptedDocService.uploadEncryptedDocument(fileWithPreview.file, checklistItem.id, userId, taxYear);
+      await encryptedDocService.uploadEncryptedDocument(fileWithPreview.file, checklistItem.id, userId, taxYear, checklistItem.title);
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 100, uploaded: true, uploading: false } : f));
       return true;
     } catch (err: any) {
