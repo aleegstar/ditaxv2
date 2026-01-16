@@ -523,31 +523,31 @@ const DocumentChecklist: React.FC = () => {
                     }));
                   }}
                 >
-                  {/* Collapsed State */}
+                  {/* Collapsed State - Calm, receded */}
                   {!isOpen ? (
-                    <CollapsibleTrigger className="group relative w-full bg-slate-50/80 rounded-xl transition-all duration-150 hover:bg-slate-100">
-                      <div className="w-full p-4 flex items-center justify-between">
+                    <CollapsibleTrigger className="group relative w-full rounded-lg transition-colors duration-150 hover:bg-slate-50">
+                      <div className="w-full py-3 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                            "w-8 h-8 rounded-full flex items-center justify-center",
                             isComplete 
-                              ? "bg-green-500 text-white"
-                              : "bg-slate-200 text-slate-500"
+                              ? "bg-green-100 text-green-600"
+                              : "bg-slate-100 text-slate-400"
                           )}>
                             {isComplete ? (
-                              <Check className="w-4 h-4" strokeWidth={2.5} />
+                              <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                             ) : (
-                              <Icon className="w-4 h-4" />
+                              <Icon className="w-3.5 h-3.5" />
                             )}
                           </div>
                           <span className={cn(
-                            "text-sm font-medium",
-                            isComplete ? "text-slate-500" : "text-slate-600"
+                            "text-sm",
+                            isComplete ? "text-slate-400 font-normal" : "text-slate-500 font-medium"
                           )}>
                             {categoryMap[category]}
                           </span>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
+                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" strokeWidth={1.5} />
                       </div>
                     </CollapsibleTrigger>
                   ) : (
@@ -581,15 +581,15 @@ const DocumentChecklist: React.FC = () => {
                             return (
                               <div 
                                 key={item.id} 
-                                className="bg-white rounded-lg p-5 ring-1 ring-slate-200/80"
+                                className="bg-white rounded-lg p-4 ring-1 ring-slate-100"
                               >
                                 {/* Document Header */}
-                                <div className="flex items-start justify-between gap-3 mb-1">
-                                  <h3 className="text-sm font-semibold text-slate-800">
+                                <div className="flex items-start justify-between gap-3">
+                                  <h3 className="text-sm font-medium text-slate-800">
                                     {item.title}
                                   </h3>
                                   {!item.uploaded && item.required && (
-                                    <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-600 ring-1 ring-amber-200/60">
+                                    <span className="shrink-0 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
                                       Pflicht
                                     </span>
                                   )}
@@ -597,33 +597,31 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Description - only when not uploaded */}
                                 {!item.uploaded && item.description && (
-                                  <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                                  <p className="text-xs text-slate-400 leading-relaxed mt-1 mb-4">
                                     {item.description}
                                   </p>
                                 )}
                                 
                                 {/* Uploaded State */}
                                 {item.uploaded && itemFiles.length > 0 && (
-                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-                                    <div className="flex items-center gap-2 text-green-600">
-                                      <Check className="w-4 h-4" strokeWidth={2.5} />
+                                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                                    <div className="flex items-center gap-1.5 text-green-600">
+                                      <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                                       <span className="text-xs font-medium">
                                         {itemFiles.length} {itemFiles.length === 1 ? 'Datei' : 'Dateien'}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-4">
                                       <button 
                                         onClick={() => handleViewDocuments(item.id, 0)}
-                                        className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+                                        className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
                                       >
-                                        <Eye className="w-3.5 h-3.5" />
                                         Ansehen
                                       </button>
                                       <button 
                                         onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
-                                        className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600 transition-colors"
+                                        className="text-xs text-slate-400 hover:text-red-500 transition-colors"
                                       >
-                                        <Trash2 className="w-3.5 h-3.5" />
                                         Entfernen
                                       </button>
                                     </div>
@@ -632,24 +630,23 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && (
-                                  <div className="flex gap-2">
+                                  <div className="flex items-center gap-3">
                                     {/* Primary Upload Button */}
                                     <button 
                                       onClick={() => handleUploadDocument(item.id)}
-                                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition-all hover:bg-blue-700 active:scale-[0.98] text-sm"
+                                      className="flex items-center justify-center gap-2 bg-slate-900 text-white font-medium py-2 px-5 rounded-lg transition-all hover:bg-slate-800 active:scale-[0.98] text-sm"
                                     >
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       Hochladen
                                     </button>
                                     
-                                    {/* Secondary Select Button - only if unassigned docs exist */}
+                                    {/* Secondary Select Link - only if unassigned docs exist */}
                                     {hasUnassignedDocs && (
                                       <button 
                                         onClick={() => setAssignmentModal({ open: true, item })}
-                                        className="flex items-center justify-center gap-2 bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
+                                        className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
                                       >
-                                        <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
-                                        Zuweisen
+                                        Aus Bibliothek wählen
                                       </button>
                                     )}
                                   </div>
