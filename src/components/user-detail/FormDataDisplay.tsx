@@ -169,7 +169,7 @@ const FormDataDisplay: React.FC<FormDataDisplayProps> = ({
       hasOtherIncome: ['other-income']
     };
     const checklistIds = fieldToChecklistMap[fieldKey] || [];
-    const foundDocuments = documents.filter(doc => checklistIds.includes(doc.checklistItemId));
+    const foundDocuments = documents.filter(doc => doc.checklistItemId && checklistIds.includes(doc.checklistItemId));
     return foundDocuments;
   };
   const renderFieldWithDocuments = (key: string, value: any) => {
