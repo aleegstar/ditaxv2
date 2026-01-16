@@ -595,7 +595,7 @@ const DocumentsContent: React.FC<{
 
           {/* Documents Section */}
           {documents.length > 0 ? (/* Document Grid Container */
-        <div className="bg-zinc-50/70 rounded-2xl p-4 sm:p-6">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-6">
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {filteredDocuments.map(doc => {
               const isImage = doc.file_type?.startsWith('image/');
