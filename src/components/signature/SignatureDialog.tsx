@@ -140,83 +140,83 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md max-h-[85vh] bg-white border-0 p-6 overflow-y-auto shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
+      <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md bg-white border-0 p-4 sm:p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors z-10"
+          className="absolute right-3 top-3 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors z-10"
         >
           <X className="h-4 w-4 text-slate-500" />
         </button>
 
         {step === 'complete' ? (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-              <CheckCircle className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
+          <div className="flex flex-col items-center justify-center py-6">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+              <CheckCircle className="w-7 h-7 text-emerald-500" strokeWidth={1.5} />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2 text-center">
+            <h2 className="text-lg font-semibold text-slate-900 mb-1 text-center">
               Erfolgreich signiert!
             </h2>
             <p className="text-slate-500 text-center text-sm">
-              Deine Steuererklärung wurde elektronisch unterschrieben und kann nun eingereicht werden.
+              Deine Steuererklärung wurde elektronisch unterschrieben.
             </p>
           </div>
         ) : (
-          <div className="pt-4">
-            {/* Header without icon */}
-            <div className="flex flex-col items-center mb-4">
-              <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
+          <div className="pt-2">
+            {/* Header */}
+            <div className="flex flex-col items-center mb-3">
+              <DialogTitle className="text-lg font-semibold text-slate-900 text-center">
                 Steuererklärung {completedTaxReturn.tax_year} unterschreiben
               </DialogTitle>
-              <p className="text-sm text-slate-500 mt-1 text-center">
+              <p className="text-xs text-slate-500 mt-0.5 text-center">
                 Elektronische Signatur & Vollmacht
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* PDF Preview Button */}
               <button
                 onClick={handleViewPdf}
-                className="w-full p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center gap-4 group"
+                className="w-full p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center gap-3 group"
               >
-                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-red-500" strokeWidth={1.5} />
+                <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-red-500" strokeWidth={1.5} />
                 </div>
-                <div className="text-left flex-1">
-                  <p className="font-medium text-slate-900 text-sm">{completedTaxReturn.file_name}</p>
+                <div className="text-left flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 text-sm truncate">{completedTaxReturn.file_name}</p>
                   <p className="text-xs text-slate-500">Klicken zum Ansehen</p>
                 </div>
               </button>
 
               {/* Authorization Text */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-blue-500" strokeWidth={1.5} />
-                  <Label className="text-slate-800 font-medium text-sm">Vollmacht & Bestätigung</Label>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-blue-500" strokeWidth={1.5} />
+                  <Label className="text-slate-800 font-medium text-xs">Vollmacht & Bestätigung</Label>
                 </div>
-                <ScrollArea className="h-32 rounded-xl border border-slate-200 bg-white p-3">
-                  <p className="text-sm text-slate-600 whitespace-pre-line leading-relaxed">
+                <ScrollArea className="h-20 rounded-lg border border-slate-200 bg-white p-2">
+                  <p className="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
                     {authorizationText}
                   </p>
                 </ScrollArea>
               </div>
 
               {/* Authorization Checkbox */}
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
                 <Checkbox
                   id="authorization"
                   checked={authorizationAccepted}
                   onCheckedChange={(checked) => setAuthorizationAccepted(checked as boolean)}
-                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />
-                <label htmlFor="authorization" className="text-sm text-slate-600 cursor-pointer leading-relaxed">
+                <label htmlFor="authorization" className="text-xs text-slate-600 cursor-pointer leading-relaxed">
                   Ich habe die Vollmacht gelesen und stimme zu, dass Ditax by Graber Sandro berechtigt ist, meine Steuererklärung einzureichen.
                 </label>
               </div>
 
               {/* Signature Input */}
-              <div className="space-y-2">
-                <Label htmlFor="signature" className="text-slate-800 font-medium text-sm">
+              <div className="space-y-1.5">
+                <Label htmlFor="signature" className="text-slate-800 font-medium text-xs">
                   Elektronische Unterschrift
                 </Label>
                 <Input
@@ -224,26 +224,26 @@ E-Mail: ${userProfile.email}`;
                   value={signatureName}
                   onChange={(e) => setSignatureName(e.target.value)}
                   placeholder={`Gib "${fullName}" ein`}
-                  className="bg-white border-slate-200 h-12 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20"
+                  className="bg-white border-slate-200 h-10 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20"
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-[11px] text-slate-500">
                   Gib deinen vollständigen Namen zur Bestätigung ein
                 </p>
               </div>
 
-              {/* Sign Button */}
-              <div className="flex flex-col gap-3 pt-2">
+              {/* Buttons */}
+              <div className="flex flex-col gap-2 pt-1">
                 <Button
                   variant="ghost"
                   onClick={() => onOpenChange(false)}
-                  className="w-full h-12 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
+                  className="w-full h-11 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200 text-sm"
                 >
                   Abbrechen
                 </Button>
                 <Button
                   onClick={handleSign}
                   disabled={loading || !authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
-                  className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)] disabled:opacity-50 disabled:shadow-none"
+                  className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)] disabled:opacity-50 disabled:shadow-none text-sm"
                 >
                   {loading ? (
                     <>
@@ -256,7 +256,7 @@ E-Mail: ${userProfile.email}`;
                 </Button>
               </div>
 
-              <p className="text-xs text-center text-slate-400">
+              <p className="text-[11px] text-center text-slate-400">
                 Mit deiner Unterschrift bestätigst du die Richtigkeit aller Angaben
               </p>
             </div>
