@@ -15,12 +15,18 @@ export const toast = (
 ) => {
   // If first argument is a string, treat it as the title
   if (typeof titleOrOptions === "string") {
-    sonnerToast(titleOrOptions, options);
+    sonnerToast.success(titleOrOptions, options);
   } 
   // If it's an object with a title, extract and pass the rest as options
   else if (titleOrOptions && typeof titleOrOptions === "object") {
-    const { title, ...restOptions } = titleOrOptions;
-    sonnerToast(title || "", restOptions);
+    const { title, variant, ...restOptions } = titleOrOptions;
+    
+    // Use different toast types based on variant
+    if (variant === "destructive") {
+      sonnerToast.error(title || "", restOptions);
+    } else {
+      sonnerToast.success(title || "", restOptions);
+    }
   }
 };
 
