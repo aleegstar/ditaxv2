@@ -529,7 +529,7 @@ const DocumentsContent: React.FC<{
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen bg-zinc-50 text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+      <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <nav className="w-full bg-white/80 backdrop-blur-xl">
           <div className="flex h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-between">
@@ -692,8 +692,8 @@ const DocumentsContent: React.FC<{
           onChange={handleCameraInputChange} 
         />
 
-        {/* Mobile Floating Upload Button - Same style as UserTaxReturns */}
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 md:hidden">
+        {/* Floating Upload Button */}
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
           <button 
             onClick={() => setShowUploadSheet(true)}
             data-tour="document-upload-card"
