@@ -568,11 +568,11 @@ const DocumentsContent: React.FC<{
             <div className="relative">
               <button 
                 onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                className="flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium transition-all hover:bg-slate-50 active:scale-[0.98]"
+                className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium transition-all hover:bg-slate-50 active:scale-[0.98]"
               >
-                <Calendar className="h-4 w-4 text-emerald-600" strokeWidth={2} />
+                <Calendar className="h-4 w-4 text-blue-600" strokeWidth={2} />
                 <span className="text-slate-700">{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
+                <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
               </button>
 
               {isYearDropdownOpen && <>
