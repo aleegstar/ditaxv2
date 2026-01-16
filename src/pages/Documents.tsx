@@ -530,121 +530,104 @@ const DocumentsContent: React.FC<{
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen bg-zinc-50/30 text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
-        {/* Unified Header Block - Cohesive Context Area */}
-        <header className="sticky top-0 z-30 bg-white">
-          {/* Navigation Row */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between relative">
-            {/* Back Button */}
-            <button 
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-600 hover:bg-zinc-100 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
-            </button>
+      <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+        {/* Top Navigation */}
+        <SubpageHeader 
+          title="Dokumente"
+          onBack={() => navigate(-1)}
+          showAvatar={true}
+        />
 
-            {/* Centered Title + Year Selector Group */}
-            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-              <h1 className="text-[17px] font-semibold tracking-tight text-zinc-900">
-                Dokumente
-              </h1>
-              {/* Year Selector - Contextual Filter */}
-              <div className="relative -mt-0.5" data-tour="documents-year-selector">
-                <button 
-                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                  className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium text-zinc-400 hover:text-zinc-600 transition-all"
-                >
-                  <span>{selectedYear}</span>
-                  <ChevronDown className={cn("h-2.5 w-2.5 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
-                </button>
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 bg-white min-h-screen">
+          
+          {/* Year Dropdown - Centered, Secondary Appearance */}
+          <div className="mb-4 flex justify-center" data-tour="documents-year-selector">
+            <div className="relative">
+              <button 
+                onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                className="flex items-center gap-2 rounded-xl bg-zinc-100 hover:bg-zinc-150 px-3.5 py-2 text-sm font-medium text-zinc-700 shadow-sm transition-all hover:shadow active:scale-[0.98]"
+              >
+                <Calendar className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <span>{selectedYear}</span>
+                <ChevronDown className={cn("h-4 w-4 text-zinc-400 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+              </button>
 
-                {isYearDropdownOpen && <>
-                  <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                  <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[130px]">
-                    <div className="max-h-64 overflow-y-auto py-1">
-                      {availableYears.map(year => (
-                        <button 
-                          key={year} 
-                          onClick={() => handleYearSelect(year)} 
-                          className={cn(
-                            "w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-zinc-50 transition-colors",
-                            year === selectedYear && "bg-zinc-50"
-                          )}
-                        >
-                          <Calendar className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.5} />
-                          <span className={cn(
-                            "text-sm font-medium text-zinc-600",
-                            year === selectedYear && "text-zinc-900"
-                          )}>{year}</span>
-                        </button>
-                      ))}
-                    </div>
+              {isYearDropdownOpen && <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
+                  <div className="max-h-64 overflow-y-auto py-1.5">
+                    {availableYears.map(year => (
+                      <button 
+                        key={year} 
+                        onClick={() => handleYearSelect(year)} 
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left hover:bg-zinc-50 transition-colors",
+                          year === selectedYear && "bg-zinc-50"
+                        )}
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center">
+                          <Calendar className="w-3.5 h-3.5 text-zinc-500" strokeWidth={1.5} />
+                        </div>
+                        <span className={cn(
+                          "text-sm font-medium text-zinc-600",
+                          year === selectedYear && "text-zinc-900"
+                        )}>{year}</span>
+                      </button>
+                    ))}
                   </div>
-                </>}
-              </div>
+                </div>
+              </>}
             </div>
-
-            {/* Avatar */}
-            <button 
-              onClick={() => navigate('/profile')} 
-              className="w-10 h-10 rounded-full bg-zinc-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all"
-            >
-              <img 
-                src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
-                alt="Profil" 
-                className="w-full h-full object-cover" 
-              />
-            </button>
           </div>
 
-          {/* Search Bar Area - Part of Header Block */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-            <div className="flex items-center gap-2">
-              {/* Search Input - Dominant */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" strokeWidth={1.5} />
-                <input
-                  type="text"
-                  placeholder="Dokumente durchsuchen..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 pl-10 pr-4 rounded-xl border border-zinc-200 bg-zinc-50/80 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all"
-                />
+          {/* Search Bar with Count and Sort - Grouped Secondary Actions */}
+          <div className="mb-6 flex items-center gap-2">
+            {/* Search Input - Dominant */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" strokeWidth={1.5} />
+              <input
+                type="text"
+                placeholder="Dokumente durchsuchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-10 pr-4 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+              />
+            </div>
+            
+            {/* Secondary Actions Group */}
+            <div className="flex items-center gap-1.5">
+              {/* Document Count Badge */}
+              <div className="flex items-center justify-center h-11 min-w-[44px] px-3 rounded-xl border border-zinc-200 bg-zinc-50/80">
+                <span className="text-sm font-medium text-zinc-500">{filteredDocuments.length}</span>
               </div>
               
-              {/* Secondary Actions Group */}
-              <div className="flex items-center gap-1">
-                {/* Document Count Badge */}
-                <div className="flex items-center justify-center h-10 min-w-[40px] px-2.5 rounded-xl border border-zinc-200 bg-zinc-50/80">
-                  <span className="text-xs font-medium text-zinc-500">{filteredDocuments.length}</span>
-                </div>
+              {/* Sort Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="flex items-center justify-center h-11 w-11 rounded-xl border border-zinc-200 bg-zinc-50/80 hover:bg-zinc-100 transition-colors"
+                >
+                  <ArrowUpDown className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                </button>
                 
-                {/* Sort Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowSortDropdown(!showSortDropdown)}
-                    className="flex items-center justify-center h-10 w-10 rounded-xl border border-zinc-200 bg-zinc-50/80 hover:bg-zinc-100 transition-colors"
-                  >
-                    <ArrowUpDown className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-                  </button>
-                  
-                  {showSortDropdown && <>
-                    <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-                    <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[200px]">
-                      <div className="py-1.5">
-                        {sortOptions.map(option => (
-                          <button
-                            key={option.value}
-                            onClick={() => {
-                              setSortBy(option.value);
-                              setShowSortDropdown(false);
-                            }}
-                            className={cn(
-                              "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
-                              sortBy === option.value ? "text-blue-600 font-medium bg-blue-50/60" : "text-zinc-600"
-                            )}
-                          >
-                            {option.label}
+                {showSortDropdown && <>
+                  <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
+                  <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[200px]">
+                    <div className="py-1.5">
+                      {sortOptions.map(option => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            setSortBy(option.value);
+                            setShowSortDropdown(false);
+                          }}
+                          className={cn(
+                            "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
+                            sortBy === option.value ? "text-blue-600 font-medium bg-blue-50/60" : "text-zinc-600"
+                          )}
+                        >
+                          {option.label}
                         </button>
                       ))}
                     </div>
@@ -653,11 +636,6 @@ const DocumentsContent: React.FC<{
               </div>
             </div>
           </div>
-        </div>
-        </header>
-
-        {/* Main Content - Document Grid */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-32 min-h-screen">
 
           {/* Documents Section */}
           {loading ? (
