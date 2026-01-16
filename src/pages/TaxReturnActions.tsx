@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useI18n } from '@/contexts/I18nContext';
 import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader, ModernUploadDialogTitle } from "@/components/ui/modern-upload-dialog";
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
+import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 
 interface UserProfile {
   first_name: string;
@@ -28,6 +29,7 @@ export default function TaxReturnActions() {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = React.useState(false);
   const [signatureDialogOpen, setSignatureDialogOpen] = React.useState(false);
+  const [ticketDialogOpen, setTicketDialogOpen] = React.useState(false);
 
   const [completedTaxReturn, setCompletedTaxReturn] = React.useState<any>(null);
   const [definitiveTaxBill, setDefinitiveTaxBill] = React.useState<any>(null);
@@ -125,7 +127,11 @@ export default function TaxReturnActions() {
   };
 
   const handleCreateTicket = () => {
-    navigate(`/create-ticket/${completedTaxReturn?.id}/${taxYear}`);
+    setTicketDialogOpen(true);
+  };
+
+  const handleTicketCreated = () => {
+    loadData();
   };
 
   const handleDownload = async () => {
@@ -668,6 +674,16 @@ export default function TaxReturnActions() {
           completedTaxReturn={completedTaxReturn}
           userProfile={userProfile}
           onSignatureComplete={handleSignatureComplete}
+        />
+      )}
+
+      {/* Ticket Dialog */}
+      {completedTaxReturn && (
+        <CreateTicketDialog
+          isOpen={ticketDialogOpen}
+          onClose={() => setTicketDialogOpen(false)}
+          completedTaxReturnId={completedTaxReturn.id}
+          taxYear={taxYear}
         />
       )}
     </>
