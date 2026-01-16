@@ -162,12 +162,9 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         ) : (
-          <div className="pt-8">
-            {/* Centered Header */}
-            <div className="flex flex-col items-center mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
-                <PenTool className="w-8 h-8 text-blue-500" strokeWidth={1.5} />
-              </div>
+          <div className="pt-4">
+            {/* Header without icon */}
+            <div className="flex flex-col items-center mb-4">
               <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
                 Steuererklärung {completedTaxReturn.tax_year} unterschreiben
               </DialogTitle>
@@ -235,18 +232,18 @@ E-Mail: ${userProfile.email}`;
               </div>
 
               {/* Sign Button */}
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2">
                 <Button
                   variant="ghost"
                   onClick={() => onOpenChange(false)}
-                  className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]"
+                  className="w-full h-12 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
                 >
                   Abbrechen
                 </Button>
                 <Button
                   onClick={handleSign}
                   disabled={loading || !authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
-                  className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none"
+                  className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)] disabled:opacity-50 disabled:shadow-none"
                 >
                   {loading ? (
                     <>
