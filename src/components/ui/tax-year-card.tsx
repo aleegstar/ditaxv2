@@ -27,6 +27,7 @@ interface TaxYearCardProps {
     id: string;
     file_name: string;
     file_path: string;
+    signed_pdf_path?: string | null;
     upload_date: string;
   };
   isCompleted?: boolean;
@@ -246,6 +247,6 @@ export function TaxYearCard({
          </AlertDialog>}
 
       {/* Tax Return Action Dialog for completed returns */}
-      {isCompleted && completedTaxReturn && userId && <TaxReturnActionDialog isOpen={showActionDialog} onClose={() => setShowActionDialog(false)} fileName={completedTaxReturn.file_name} filePath={completedTaxReturn.file_path} taxYear={taxYear} completedTaxReturnId={completedTaxReturn.id} userId={userId} definitiveTaxBill={definitiveTaxBill} onTaxBillUpload={() => window.location.reload()} />}
+      {isCompleted && completedTaxReturn && userId && <TaxReturnActionDialog isOpen={showActionDialog} onClose={() => setShowActionDialog(false)} fileName={completedTaxReturn.file_name} filePath={completedTaxReturn.signed_pdf_path || completedTaxReturn.file_path} taxYear={taxYear} completedTaxReturnId={completedTaxReturn.id} userId={userId} definitiveTaxBill={definitiveTaxBill} onTaxBillUpload={() => window.location.reload()} />}
     </>;
 }
