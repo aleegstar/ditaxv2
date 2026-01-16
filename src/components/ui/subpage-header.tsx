@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 
 interface SubpageHeaderProps {
-  title: string;
+  title?: string;
+  titleElement?: React.ReactNode;
   onBack?: () => void;
   className?: string;
   showModeToggle?: boolean;
@@ -17,6 +18,7 @@ interface SubpageHeaderProps {
 
 export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   title,
+  titleElement,
   onBack,
   className,
   showModeToggle = false,
@@ -47,10 +49,16 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
 
-        {/* Centered Title */}
-        <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
-          {title}
-        </h1>
+        {/* Centered Title or Custom Element */}
+        {titleElement ? (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            {titleElement}
+          </div>
+        ) : title ? (
+          <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+            {title}
+          </h1>
+        ) : null}
 
         {/* Right side: Mode Toggle, Avatar, or Placeholder */}
         <div className="flex items-center gap-2">
