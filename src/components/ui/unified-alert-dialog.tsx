@@ -1,14 +1,15 @@
+"use client";
+
 import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 
-const AlertDialog = AlertDialogPrimitive.Root;
-const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
-const AlertDialogPortal = AlertDialogPrimitive.Portal;
+const UnifiedAlertDialog = AlertDialogPrimitive.Root;
+const UnifiedAlertDialogTrigger = AlertDialogPrimitive.Trigger;
+const UnifiedAlertDialogPortal = AlertDialogPrimitive.Portal;
 
-const AlertDialogOverlay = React.forwardRef<
+const UnifiedAlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
@@ -21,20 +22,21 @@ const AlertDialogOverlay = React.forwardRef<
     ref={ref}
   />
 ));
-AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
+UnifiedAlertDialogOverlay.displayName = "UnifiedAlertDialogOverlay";
 
-interface AlertDialogContentProps
+interface UnifiedAlertDialogContentProps
   extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content> {
   showCloseButton?: boolean;
+  onClose?: () => void;
 }
 
-const AlertDialogContent = React.forwardRef<
+const UnifiedAlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
-  AlertDialogContentProps
->(({ className, children, showCloseButton = false, ...props }, ref) => {
+  UnifiedAlertDialogContentProps
+>(({ className, children, showCloseButton = true, onClose, ...props }, ref) => {
   return (
-    <AlertDialogPortal>
-      <AlertDialogOverlay />
+    <UnifiedAlertDialogPortal>
+      <UnifiedAlertDialogOverlay />
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
@@ -52,19 +54,56 @@ const AlertDialogContent = React.forwardRef<
         {...props}
       >
         {showCloseButton && (
-          <AlertDialogPrimitive.Cancel className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+          <AlertDialogPrimitive.Cancel
+            className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+            onClick={onClose}
+          >
             <X className="w-4 h-4 text-slate-500" />
             <span className="sr-only">Close</span>
           </AlertDialogPrimitive.Cancel>
         )}
         {children}
       </AlertDialogPrimitive.Content>
-    </AlertDialogPortal>
+    </UnifiedAlertDialogPortal>
   );
 });
-AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
+UnifiedAlertDialogContent.displayName = "UnifiedAlertDialogContent";
 
-const AlertDialogHeader = ({
+type IconVariant = "delete" | "warning" | "info" | "success" | "question";
+
+interface UnifiedAlertDialogIconProps {
+  variant?: IconVariant;
+  children: React.ReactNode;
+  className?: string;
+}
+
+const iconVariantStyles: Record<IconVariant, string> = {
+  delete: "bg-red-50",
+  warning: "bg-orange-50",
+  info: "bg-blue-50",
+  success: "bg-green-50",
+  question: "bg-blue-50",
+};
+
+const UnifiedAlertDialogIcon: React.FC<UnifiedAlertDialogIconProps> = ({
+  variant = "info",
+  children,
+  className,
+}) => {
+  return (
+    <div
+      className={cn(
+        "w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm",
+        iconVariantStyles[variant],
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+const UnifiedAlertDialogHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -73,9 +112,9 @@ const AlertDialogHeader = ({
     {...props}
   />
 );
-AlertDialogHeader.displayName = "AlertDialogHeader";
+UnifiedAlertDialogHeader.displayName = "UnifiedAlertDialogHeader";
 
-const AlertDialogFooter = ({
+const UnifiedAlertDialogFooter = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -84,9 +123,9 @@ const AlertDialogFooter = ({
     {...props}
   />
 );
-AlertDialogFooter.displayName = "AlertDialogFooter";
+UnifiedAlertDialogFooter.displayName = "UnifiedAlertDialogFooter";
 
-const AlertDialogTitle = React.forwardRef<
+const UnifiedAlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
@@ -96,9 +135,9 @@ const AlertDialogTitle = React.forwardRef<
     {...props}
   />
 ));
-AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
+UnifiedAlertDialogTitle.displayName = "UnifiedAlertDialogTitle";
 
-const AlertDialogDescription = React.forwardRef<
+const UnifiedAlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
@@ -108,27 +147,38 @@ const AlertDialogDescription = React.forwardRef<
     {...props}
   />
 ));
-AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
+UnifiedAlertDialogDescription.displayName = "UnifiedAlertDialogDescription";
 
-const AlertDialogAction = React.forwardRef<
+interface UnifiedAlertDialogActionProps
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> {
+  variant?: "default" | "destructive" | "secondary";
+}
+
+const actionVariantStyles: Record<string, string> = {
+  default: "bg-slate-100 text-primary hover:bg-slate-200",
+  destructive: "bg-slate-100 text-red-500 hover:bg-slate-200",
+  secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50",
+};
+
+const UnifiedAlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
-  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
->(({ className, ...props }, ref) => (
+  UnifiedAlertDialogActionProps
+>(({ className, variant = "default", ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
       "w-full py-4 rounded-full font-medium transition-colors",
-      "bg-slate-100 text-primary hover:bg-slate-200",
       "shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]",
       "focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2",
+      actionVariantStyles[variant],
       className
     )}
     {...props}
   />
 ));
-AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
+UnifiedAlertDialogAction.displayName = "UnifiedAlertDialogAction";
 
-const AlertDialogCancel = React.forwardRef<
+const UnifiedAlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
 >(({ className, ...props }, ref) => (
@@ -144,18 +194,19 @@ const AlertDialogCancel = React.forwardRef<
     {...props}
   />
 ));
-AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
+UnifiedAlertDialogCancel.displayName = "UnifiedAlertDialogCancel";
 
 export {
-  AlertDialog,
-  AlertDialogPortal,
-  AlertDialogOverlay,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
+  UnifiedAlertDialog,
+  UnifiedAlertDialogPortal,
+  UnifiedAlertDialogOverlay,
+  UnifiedAlertDialogTrigger,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogTitle,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
 };

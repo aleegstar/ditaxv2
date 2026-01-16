@@ -1,15 +1,15 @@
-
 import React from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+} from '@/components/ui/unified-alert-dialog';
+import { Clock } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 
 interface IdleWarningDialogProps {
@@ -29,27 +29,28 @@ export function IdleWarningDialog({ isOpen, timeLeft, onExtendSession }: IdleWar
   };
 
   return (
-    <AlertDialog open={isOpen}>
-      <AlertDialogContent className="max-w-md bg-background border">"
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-center">
+    <UnifiedAlertDialog open={isOpen}>
+      <UnifiedAlertDialogContent showCloseButton={false}>
+        <UnifiedAlertDialogHeader>
+          <UnifiedAlertDialogIcon variant="warning">
+            <Clock className="w-8 h-8 text-orange-500" />
+          </UnifiedAlertDialogIcon>
+          <UnifiedAlertDialogTitle>
             {t.idle.title}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-center">
-            {t.idle.message} <span className="font-semibold text-orange-400">{formatTime(timeLeft)}</span>.
+          </UnifiedAlertDialogTitle>
+          <UnifiedAlertDialogDescription>
+            {t.idle.message} <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span>.
             <br />
             <br />
             {t.idle.extendSession}?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="flex justify-center gap-3">
-          <AlertDialogAction asChild>
-            <Button onClick={onExtendSession} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {t.idle.extendSession}
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </UnifiedAlertDialogDescription>
+        </UnifiedAlertDialogHeader>
+        <UnifiedAlertDialogFooter>
+          <UnifiedAlertDialogAction onClick={onExtendSession}>
+            {t.idle.extendSession}
+          </UnifiedAlertDialogAction>
+        </UnifiedAlertDialogFooter>
+      </UnifiedAlertDialogContent>
+    </UnifiedAlertDialog>
   );
 }

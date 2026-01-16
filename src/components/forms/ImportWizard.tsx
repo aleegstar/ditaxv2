@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Edit } from 'lucide-react';
+import { Download, Edit, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogCancel,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+} from '@/components/ui/unified-alert-dialog';
 import { useFormContext } from '@/contexts';
 import { FormSectionKey } from '@/types';
 import { toast } from 'sonner';
@@ -173,37 +175,35 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       </div>
       
       {/* Changes dialog */}
-      <AlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <AlertDialogContent className="bg-white border border-slate-200" style={{ boxShadow: '0 10px 40px -10px rgba(0,0,0,0.2)' }}>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-800">
+      <UnifiedAlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
+        <UnifiedAlertDialogContent showCloseButton onClose={() => setShowChangesDialog(false)}>
+          <UnifiedAlertDialogHeader>
+            <UnifiedAlertDialogIcon variant="question">
+              <HelpCircle className="w-8 h-8 text-blue-500" />
+            </UnifiedAlertDialogIcon>
+            <UnifiedAlertDialogTitle>
               Gibt es Änderungen?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500">
+            </UnifiedAlertDialogTitle>
+            <UnifiedAlertDialogDescription>
               Haben sich deine Daten seit dem letzten Jahr geändert?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-3 sm:flex-col mt-4">
-            <Button
+            </UnifiedAlertDialogDescription>
+          </UnifiedAlertDialogHeader>
+          <UnifiedAlertDialogFooter>
+            <UnifiedAlertDialogAction
               onClick={handleNoChanges}
               disabled={isImporting}
-              className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50"
-              style={{
-                boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
-              }}
             >
               Nein, keine Änderungen
-            </Button>
-            <Button
+            </UnifiedAlertDialogAction>
+            <UnifiedAlertDialogCancel
               onClick={handleWithChanges}
               disabled={isImporting}
-              className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium h-12 lg:h-14 text-sm lg:text-base rounded-full transition-colors duration-200 disabled:opacity-50"
             >
               Ja, ich möchte Änderungen vornehmen
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </UnifiedAlertDialogCancel>
+          </UnifiedAlertDialogFooter>
+        </UnifiedAlertDialogContent>
+      </UnifiedAlertDialog>
     </div>
   );
 };

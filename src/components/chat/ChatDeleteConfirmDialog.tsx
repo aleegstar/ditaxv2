@@ -1,15 +1,14 @@
-
 import React from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  UnifiedAlertDialog,
+  UnifiedAlertDialogAction,
+  UnifiedAlertDialogContent,
+  UnifiedAlertDialogDescription,
+  UnifiedAlertDialogFooter,
+  UnifiedAlertDialogHeader,
+  UnifiedAlertDialogIcon,
+  UnifiedAlertDialogTitle,
+} from '@/components/ui/unified-alert-dialog';
 import { Trash2 } from 'lucide-react';
 
 interface ChatDeleteConfirmDialogProps {
@@ -26,49 +25,36 @@ export const ChatDeleteConfirmDialog: React.FC<ChatDeleteConfirmDialogProps> = (
   isDeleting
 }) => {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-red-500" />
+    <UnifiedAlertDialog open={isOpen} onOpenChange={onClose}>
+      <UnifiedAlertDialogContent showCloseButton onClose={onClose}>
+        <UnifiedAlertDialogHeader>
+          <UnifiedAlertDialogIcon variant="delete">
+            <Trash2 className="w-8 h-8 text-red-500" />
+          </UnifiedAlertDialogIcon>
+          <UnifiedAlertDialogTitle>
             Chat löschen
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Möchten Sie wirklich den gesamten Chat-Verlauf löschen? Diese Aktion kann nicht 
-            rückgängig gemacht werden.
-            <br /><br />
-            <strong style={{ color: 'rgb(26, 32, 44)', opacity: 1 }}>Folgende Daten werden unwiderruflich gelöscht:</strong>
-            <ul className="list-disc list-inside mt-2 text-sm">
-              <li>Alle Chat-Nachrichten</li>
-              <li>Alle hochgeladenen Anhänge</li>
-              <li>Der gesamte Konversationsverlauf</li>
-            </ul>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel 
-            disabled={isDeleting}
-            className="bg-white hover:bg-gray-50 border border-[rgb(230,230,230)] font-medium h-12 rounded-full"
-            style={{ color: 'rgb(26, 32, 44)' }}
-          >
-            Abbrechen
-          </AlertDialogCancel>
-          <AlertDialogAction
+          </UnifiedAlertDialogTitle>
+          <UnifiedAlertDialogDescription>
+            Diese Konversation wird unwiderruflich gelöscht und kann nicht wiederhergestellt werden.
+          </UnifiedAlertDialogDescription>
+        </UnifiedAlertDialogHeader>
+        <UnifiedAlertDialogFooter>
+          <UnifiedAlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-500 hover:bg-red-600 text-white border-0 h-12 rounded-full"
+            variant="destructive"
           >
             {isDeleting ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="flex items-center justify-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
                 Wird gelöscht...
               </div>
             ) : (
-              'Endgültig löschen'
+              'Löschen'
             )}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </UnifiedAlertDialogAction>
+        </UnifiedAlertDialogFooter>
+      </UnifiedAlertDialogContent>
+    </UnifiedAlertDialog>
   );
 };
