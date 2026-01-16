@@ -513,33 +513,47 @@ const DocumentsContent: React.FC<{
       
       <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
-        <SubpageHeader onBack={() => navigate(-1)} showAvatar={true} title="Dokumente" />
+        <SubpageHeader 
+          onBack={() => navigate(-1)} 
+          showAvatar={true} 
+          titleElement={
+            <div className="flex items-center gap-2" data-tour="documents-year-selector">
+              <span className="text-lg font-semibold text-foreground">Steuerjahr</span>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
+                  className="flex items-center gap-1 text-base text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>{selectedYear}</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
+                </button>
+
+                {isYearDropdownOpen && <>
+                  <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
+                    <div className="max-h-64 overflow-y-auto py-1">
+                      {availableYears.map(year => (
+                        <button 
+                          key={year} 
+                          onClick={() => handleYearSelect(year)} 
+                          className={cn(
+                            "w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors",
+                            year === selectedYear ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700"
+                          )}
+                        >
+                          {year}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>}
+              </div>
+            </div>
+          } 
+        />
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-32 bg-white min-h-screen">
-
-          {/* Title Row with Year Dropdown */}
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <h1 className="text-xl font-semibold text-zinc-900">Steuerjahr</h1>
-            
-            <div className="relative" data-tour="documents-year-selector">
-              <button onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} className="flex items-center gap-1.5 text-base text-muted-foreground hover:text-foreground transition-colors">
-                <span>{selectedYear}</span>
-                <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
-              </button>
-
-              {isYearDropdownOpen && <>
-                <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[160px]">
-                  <div className="max-h-64 overflow-y-auto py-1">
-                    {availableYears.map(year => <button key={year} onClick={() => handleYearSelect(year)} className={cn("w-full px-4 py-2.5 text-left text-sm hover:bg-zinc-50 transition-colors", year === selectedYear ? "text-blue-600 font-medium bg-blue-50" : "text-zinc-700")}>
-                        {year}
-                      </button>)}
-                  </div>
-                </div>
-              </>}
-            </div>
-          </div>
 
           {/* Combined Search and Filter Bar */}
           <div className="mb-6 relative">
