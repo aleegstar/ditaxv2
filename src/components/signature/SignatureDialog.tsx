@@ -156,10 +156,10 @@ E-Mail: ${userProfile.email}`;
         ) : (
           <>
             {/* Header with gradient background */}
-            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-6 py-5">
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
-                  <PenTool className="w-5 h-5 text-white" strokeWidth={1.5} />
+            <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 px-5 py-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+                  <PenTool className="w-4 h-4 text-white" strokeWidth={1.5} />
                 </div>
                 <div>
                   <DialogTitle className="text-white font-semibold">
