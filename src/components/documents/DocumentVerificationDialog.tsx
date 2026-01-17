@@ -33,23 +33,39 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
 
   // Special handling for image files (no OCR possible for GDPR compliance)
   const isImageFile = verification.isImageFile;
+  
+  // Check if this is a generic manual confirmation (no keyword config or error)
+  const isGenericConfirmation = !isImageFile && 
+    verification.foundKeywords.length === 0 && 
+    verification.missingKeywords.length === 0 &&
+    verification.confidence === 0;
+
+  // Determine dialog style
+  const getDialogStyle = () => {
+    if (isImageFile) return { bg: 'bg-blue-100', icon: Image, iconColor: 'text-blue-600' };
+    if (isGenericConfirmation) return { bg: 'bg-blue-100', icon: FileQuestion, iconColor: 'text-blue-600' };
+    return { bg: 'bg-amber-100', icon: FileQuestion, iconColor: 'text-amber-600' };
+  };
+  
+  const dialogStyle = getDialogStyle();
+
+  // Determine title
+  const getTitle = () => {
+    if (isImageFile) return 'Bilddatei erkannt';
+    if (isGenericConfirmation) return 'Manuelle Bestätigung erforderlich';
+    return 'Dokument-Überprüfung';
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              isImageFile ? 'bg-blue-100' : 'bg-amber-100'
-            }`}>
-              {isImageFile ? (
-                <Image className="w-6 h-6 text-blue-600" />
-              ) : (
-                <FileQuestion className="w-6 h-6 text-amber-600" />
-              )}
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${dialogStyle.bg}`}>
+              <dialogStyle.icon className={`w-6 h-6 ${dialogStyle.iconColor}`} />
             </div>
             <AlertDialogTitle className="text-lg">
-              {isImageFile ? 'Bilddatei erkannt' : 'Dokument-Überprüfung'}
+              {getTitle()}
             </AlertDialogTitle>
           </div>
           
@@ -80,6 +96,37 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
 
                   <div className="text-sm">
                     <p className="text-slate-500 mb-1">Erwarteter Dokumenttyp:</p>
+                    <p className="font-medium text-slate-900">{verification.displayName}</p>
+                  </div>
+
+                  {/* Question */}
+                  <p className="text-slate-700 font-medium pt-2">
+                    Bitte bestätige, dass es sich um das korrekte Dokument handelt.
+                  </p>
+                </>
+              ) : isGenericConfirmation ? (
+                <>
+                  {/* Generic confirmation notice */}
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">
+                        Manuelle Bestätigung erforderlich
+                      </p>
+                      <p className="text-blue-700">
+                        {verification.reason}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* File Info */}
+                  <div className="text-sm">
+                    <p className="text-slate-500 mb-1">Datei:</p>
+                    <p className="font-medium text-slate-900 truncate">{fileName}</p>
+                  </div>
+
+                  <div className="text-sm">
+                    <p className="text-slate-500 mb-1">Zuordnung zu:</p>
                     <p className="font-medium text-slate-900">{verification.displayName}</p>
                   </div>
 
@@ -197,7 +244,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
                 : 'bg-blue-500 hover:bg-blue-600'
             }`}
           >
-            {isImageFile ? 'Bestätigen & hochladen' : 'Trotzdem hochladen'}
+            {isImageFile || isGenericConfirmation ? 'Bestätigen & zuordnen' : 'Trotzdem zuordnen'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

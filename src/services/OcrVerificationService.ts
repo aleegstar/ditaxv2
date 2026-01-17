@@ -124,19 +124,19 @@ class OcrVerificationService {
   ): Promise<OcrVerificationResult> {
     const keywordConfig = getDocumentKeywords(checklistItemId);
     
-    // No keyword config for this document type - skip verification
+    // No keyword config for this document type - require manual confirmation
     if (!keywordConfig) {
-      console.log(`[OCR] No keyword config for ${checklistItemId}, skipping verification`);
+      console.log(`[OCR] No keyword config for ${checklistItemId}, requiring manual confirmation`);
       return {
         isMatch: true,
-        confidence: 100,
+        confidence: 0,
         foundKeywords: [],
         missingKeywords: [],
-        reason: 'Keine automatische Prüfung für diesen Dokumenttyp verfügbar',
+        reason: 'Für diesen Dokumenttyp ist keine automatische Prüfung verfügbar. Bitte stelle sicher, dass es sich um das korrekte Dokument handelt.',
         extractedTextPreview: '',
         documentType: checklistItemId,
-        displayName: 'Unbekannter Dokumenttyp',
-        requiresManualConfirmation: false
+        displayName: 'Dokument',
+        requiresManualConfirmation: true
       };
     }
 

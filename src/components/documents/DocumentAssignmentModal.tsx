@@ -150,45 +150,90 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
     // Perform OCR verification if not already verified
     if (firstDoc && !isVerifying) {
       setIsVerifying(true);
+      
+      console.log('[Assignment] Starting OCR verification:', {
+        documentId: firstDoc.id,
+        fileName: firstDoc.file_name,
+        checklistItemId,
+        fileType: firstDoc.file_type
+      });
+      
       try {
         // Fetch the document file for OCR verification
-        const { data: urlData } = await supabase.storage
+        const { data: urlData, error: urlError } = await supabase.storage
           .from('documents')
           .createSignedUrl(firstDoc.file_path, 60);
 
-        if (urlData?.signedUrl) {
-          // Fetch the file as a blob
-          const response = await fetch(urlData.signedUrl);
-          const blob = await response.blob();
-          const file = new File([blob], firstDoc.file_name, { type: firstDoc.file_type });
-
-          const verificationResult = await ocrService.verifyDocument(file, checklistItemId);
-
-          console.log('[Assignment] OCR verification result:', {
-            fileName: file.name,
-            isMatch: verificationResult.isMatch,
-            requiresManualConfirmation: verificationResult.requiresManualConfirmation,
-            isImageFile: verificationResult.isImageFile,
-            confidence: verificationResult.confidence
+        // If we can't get the signed URL, show manual confirmation dialog
+        if (urlError || !urlData?.signedUrl) {
+          console.warn('[Assignment] Could not get signed URL:', urlError);
+          setPendingVerification({
+            result: {
+              isMatch: true,
+              confidence: 0,
+              foundKeywords: [],
+              missingKeywords: [],
+              reason: 'Das Dokument konnte nicht automatisch geprüft werden. Bitte bestätige manuell, dass es sich um das korrekte Dokument handelt.',
+              extractedTextPreview: '',
+              documentType: checklistItemId,
+              displayName: checklistItemTitle,
+              requiresManualConfirmation: true
+            },
+            doc: firstDoc
           });
+          setVerificationDialog(true);
+          setIsVerifying(false);
+          return;
+        }
 
-          // Show dialog if manual confirmation is required
-          if (verificationResult.requiresManualConfirmation) {
-            setPendingVerification({
-              result: verificationResult,
-              doc: firstDoc
-            });
-            setVerificationDialog(true);
-            setIsVerifying(false);
-            return;
-          }
+        // Fetch the file as a blob
+        const response = await fetch(urlData.signedUrl);
+        const blob = await response.blob();
+        const file = new File([blob], firstDoc.file_name, { type: firstDoc.file_type });
+
+        const verificationResult = await ocrService.verifyDocument(file, checklistItemId);
+
+        console.log('[Assignment] OCR verification result:', {
+          fileName: file.name,
+          isMatch: verificationResult.isMatch,
+          requiresManualConfirmation: verificationResult.requiresManualConfirmation,
+          isImageFile: verificationResult.isImageFile,
+          confidence: verificationResult.confidence,
+          reason: verificationResult.reason
+        });
+
+        // Show dialog if manual confirmation is required
+        if (verificationResult.requiresManualConfirmation) {
+          setPendingVerification({
+            result: verificationResult,
+            doc: firstDoc
+          });
+          setVerificationDialog(true);
+          setIsVerifying(false);
+          return;
         }
       } catch (err) {
-        console.error('OCR verification error:', err);
-        // Continue with assignment on error
-      } finally {
+        console.error('[Assignment] OCR verification error:', err);
+        // Show dialog on error instead of silently continuing
+        setPendingVerification({
+          result: {
+            isMatch: true,
+            confidence: 0,
+            foundKeywords: [],
+            missingKeywords: [],
+            reason: 'Bei der automatischen Prüfung ist ein Fehler aufgetreten. Bitte bestätige manuell, dass es sich um das korrekte Dokument handelt.',
+            extractedTextPreview: '',
+            documentType: checklistItemId,
+            displayName: checklistItemTitle,
+            requiresManualConfirmation: true
+          },
+          doc: firstDoc
+        });
+        setVerificationDialog(true);
         setIsVerifying(false);
+        return;
       }
+      setIsVerifying(false);
     }
 
     // Proceed with assignment
