@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { User, Clock, CheckCircle, Bot } from 'lucide-react';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import UserChatBubble from './UserChatBubble';
+import { QuickReplySelector } from './QuickReplySelector';
+import { useQuickReplies, QuickReply } from '@/hooks/useQuickReplies';
+
 interface ChatMessage {
   id: string;
   content?: string;
@@ -46,10 +49,17 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
   const [handledBy, setHandledBy] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [quickReplyQuery, setQuickReplyQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   const {
     toast
   } = useToast();
+  
+  // Quick replies hook - only for admins
+  const { quickReplies, searchQuickReplies } = useQuickReplies();
   useEffect(() => {
     loadMessages();
     loadUserProfile();
@@ -193,8 +203,51 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
       setLoading(false);
     }
   };
+
+  // Handle @-trigger detection for quick replies
+  const handleInputChange = useCallback((value: string) => {
+    setInputValue(value);
+    
+    // Only show quick replies for admins
+    if (!isAdmin) {
+      setShowQuickReplies(false);
+      return;
+    }
+
+    // Check for @ trigger
+    const atMatch = value.match(/@(\w*)$/);
+    if (atMatch) {
+      setQuickReplyQuery(atMatch[1]);
+      setShowQuickReplies(true);
+    } else {
+      setShowQuickReplies(false);
+      setQuickReplyQuery('');
+    }
+  }, [isAdmin]);
+
+  // Handle quick reply selection
+  const handleQuickReplySelect = useCallback((reply: QuickReply) => {
+    // Replace @trigger with the content
+    const newValue = inputValue.replace(/@\w*$/, reply.content);
+    setInputValue(newValue);
+    setShowQuickReplies(false);
+    setQuickReplyQuery('');
+  }, [inputValue]);
+
+  // Close quick replies dropdown
+  const handleCloseQuickReplies = useCallback(() => {
+    setShowQuickReplies(false);
+    setQuickReplyQuery('');
+  }, []);
+
   const handleSendMessage = async (inputMessage?: string, files?: File[]) => {
     if (!inputMessage?.trim() && (!files || files.length === 0)) return;
+    
+    // Close quick replies when sending
+    setShowQuickReplies(false);
+    setQuickReplyQuery('');
+    setInputValue('');
+    
     try {
       setUploading(true);
       const currentUserId = isAdmin ? adminId : userId;
@@ -426,8 +479,23 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
         </div>
 
         {/* Input area */}
-        <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
-          <PromptInputBox onSend={handleSendMessage} placeholder="Nachricht eingeben..." isLoading={uploading} />
+        <div ref={inputContainerRef} className="flex-shrink-0 p-4 border-t border-gray-200 bg-white relative">
+          {/* Quick Reply Selector */}
+          {isAdmin && showQuickReplies && quickReplies.length > 0 && (
+            <QuickReplySelector
+              replies={quickReplies}
+              searchQuery={quickReplyQuery}
+              onSelect={handleQuickReplySelect}
+              onClose={handleCloseQuickReplies}
+            />
+          )}
+          <PromptInputBox 
+            onSend={handleSendMessage} 
+            placeholder={isAdmin ? "Nachricht eingeben... (@trigger für Schnellantworten)" : "Nachricht eingeben..."} 
+            isLoading={uploading}
+            value={inputValue}
+            onValueChange={handleInputChange}
+          />
         </div>
       </div>
     </div>;

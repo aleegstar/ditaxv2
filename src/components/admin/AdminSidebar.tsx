@@ -21,6 +21,7 @@ import {
   FolderCog,
   MessageSquare,
   CreditCard,
+  Zap,
   Trash2
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
@@ -173,6 +174,7 @@ export function AdminSidebar() {
   const supportNavItems = [
     { title: "Support Tickets", url: "/admin/tickets", icon: Headphones },
     { title: "Chat", url: "/admin/chat", icon: MessageSquare },
+    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Zap },
   ];
 
   const managementNavItems = [

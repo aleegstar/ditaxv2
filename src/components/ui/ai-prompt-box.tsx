@@ -381,16 +381,36 @@ interface PromptInputBoxProps {
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxProps>((props, ref) => {
-  const { onSend = () => {}, isLoading = false, placeholder = "Type your message here...", className } = props;
-  const [input, setInput] = React.useState("");
+  const { 
+    onSend = () => {}, 
+    isLoading = false, 
+    placeholder = "Type your message here...", 
+    className,
+    value: controlledValue,
+    onValueChange
+  } = props;
+  const [internalInput, setInternalInput] = React.useState("");
   const [files, setFiles] = React.useState<File[]>([]);
   const [filePreviews, setFilePreviews] = React.useState<{ [key: string]: string }>({});
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
   const [showSearch, setShowSearch] = React.useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement>(null);
   const promptBoxRef = React.useRef<HTMLDivElement>(null);
+
+  // Support controlled and uncontrolled mode
+  const isControlled = controlledValue !== undefined;
+  const input = isControlled ? controlledValue : internalInput;
+  const setInput = React.useCallback((value: string) => {
+    if (isControlled && onValueChange) {
+      onValueChange(value);
+    } else {
+      setInternalInput(value);
+    }
+  }, [isControlled, onValueChange]);
 
   const handleToggleChange = (value: string) => {
     if (value === "search") {
@@ -468,6 +488,10 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
       const formattedInput = messagePrefix ? `${messagePrefix}${input}]` : input;
       onSend(formattedInput, files);
       setInput("");
+      // Also reset internal state for controlled mode
+      if (!isControlled) {
+        setInternalInput("");
+      }
       setFiles([]);
       setFilePreviews({});
     }
