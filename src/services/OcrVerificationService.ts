@@ -90,6 +90,19 @@ class OcrVerificationService {
   }
 
   /**
+   * Convert a File to a Data URL for more reliable Tesseract processing
+   * This is especially important for mobile browsers
+   */
+  private fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
    * Calculate confidence based on found keywords
    */
   private calculateConfidence(
@@ -206,21 +219,34 @@ class OcrVerificationService {
       
       // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
       if (file.type.startsWith('image/')) {
-        console.log(`[OCR] Starting Tesseract OCR for image: ${file.name}`);
-        console.log(`[OCR] File type: ${file.type}, size: ${file.size} bytes`);
-        console.log(`[OCR] Document type: ${checklistItemId}, Keywords config:`, keywordConfig.keywords.slice(0, 10));
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        console.log('[OCR] === Starting image OCR ===');
+        console.log(`[OCR] File: ${file.name}`);
+        console.log(`[OCR] Type: ${file.type}`);
+        console.log(`[OCR] Size: ${(file.size / 1024).toFixed(1)} KB`);
+        console.log(`[OCR] Document type: ${checklistItemId}`);
+        console.log(`[OCR] Is Mobile: ${isMobile}`);
+        console.log(`[OCR] User Agent: ${navigator.userAgent}`);
+        console.log(`[OCR] Keywords to match (first 10):`, keywordConfig.keywords.slice(0, 10));
         
         try {
+          // Convert file to Data URL for more reliable processing on mobile
+          console.log('[OCR] Converting file to Data URL...');
+          const imageDataUrl = await this.fileToDataURL(file);
+          console.log(`[OCR] Data URL created, length: ${imageDataUrl.length} chars`);
+          
           console.log('[OCR] Initializing Tesseract worker...');
           
-          // Tesseract.js runs completely in the browser - no data leaves the device
-          // Wrapper with 30 second timeout
-          const tesseractPromise = Tesseract.recognize(file, 'deu', {
+          // Use 'eng' language model - it's smaller and more stable on mobile
+          // German umlauts are already normalized in keyword matching
+          const tesseractPromise = Tesseract.recognize(imageDataUrl, 'eng', {
             logger: (m) => {
-              console.log(`[Tesseract] Status: ${m.status}, Progress: ${Math.round((m.progress || 0) * 100)}%`);
+              console.log(`[Tesseract] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
             }
           });
           
+          // 30 second timeout
           const timeoutPromise = new Promise<never>((_, reject) => {
             setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>30s)')), 30000);
           });
@@ -228,13 +254,15 @@ class OcrVerificationService {
           const tesseractResult = await Promise.race([tesseractPromise, timeoutPromise]);
           
           const extractedText = tesseractResult.data.text || '';
-          console.log(`[OCR] Tesseract completed. Extracted ${extractedText.length} characters`);
-          console.log(`[OCR] Tesseract confidence: ${tesseractResult.data.confidence}`);
+          console.log('[OCR] === Tesseract Result ===');
+          console.log(`[OCR] Characters extracted: ${extractedText.length}`);
+          console.log(`[OCR] Confidence: ${tesseractResult.data.confidence}%`);
           
           if (extractedText.length === 0) {
-            console.warn('[OCR] WARNING: No text extracted from image - possibly no readable text in image');
+            console.warn('[OCR] ⚠️ WARNING: No text extracted from image');
+            console.warn('[OCR] Possible reasons: Image has no text, poor quality, or Tesseract failed silently');
           } else {
-            console.log(`[OCR] Extracted text preview (first 500 chars):`, extractedText.substring(0, 500));
+            console.log(`[OCR] Extracted text preview (first 500 chars):\n${extractedText.substring(0, 500)}`);
           }
           
           const normalizedText = this.normalizeText(extractedText);
