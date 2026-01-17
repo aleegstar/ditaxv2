@@ -207,21 +207,25 @@ class OcrVerificationService {
       // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
       if (file.type.startsWith('image/')) {
         console.log(`[OCR] Running local Tesseract OCR on image: ${file.name}`);
+        console.log(`[OCR] Document type: ${checklistItemId}, Keywords config:`, keywordConfig.keywords.slice(0, 10));
         
         try {
           // Tesseract.js runs completely in the browser - no data leaves the device
-          const tesseractResult = await Tesseract.recognize(file, 'deu', {
+          // Use both German and English for better recognition of mixed documents
+          const tesseractResult = await Tesseract.recognize(file, 'deu+eng', {
             logger: (m) => {
               if (m.status === 'recognizing text') {
-                console.log(`[Tesseract] Progress: ${Math.round(m.progress * 100)}%`);
+                console.log(`[Tesseract] Progress: ${Math.round((m.progress || 0) * 100)}%`);
               }
             }
           });
           
           const extractedText = tesseractResult.data.text;
-          console.log(`[OCR] Tesseract extracted ${extractedText.length} characters from image (local processing)`);
+          console.log(`[OCR] Tesseract extracted ${extractedText.length} characters from image`);
+          console.log(`[OCR] Extracted text preview (first 500 chars):`, extractedText.substring(0, 500));
           
           const normalizedText = this.normalizeText(extractedText);
+          console.log(`[OCR] Normalized text preview (first 300 chars):`, normalizedText.substring(0, 300));
           
           // Match keywords against extracted text
           const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
@@ -229,13 +233,21 @@ class OcrVerificationService {
             kw => !foundKeywords.includes(kw)
           );
           
+          console.log(`[OCR] Found keywords:`, foundKeywords);
+          console.log(`[OCR] Missing keywords (first 10):`, missingKeywords.slice(0, 10));
+          
           const confidence = this.calculateConfidence(
             foundKeywords,
             keywordConfig.keywords,
             keywordConfig
           );
           
-          const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
+          // For images: Be more tolerant due to OCR inaccuracies
+          // Reduce minMatchCount by 1 (minimum 1)
+          const effectiveMinMatchCount = Math.max(1, keywordConfig.minMatchCount - 1);
+          const isMatch = foundKeywords.length >= effectiveMinMatchCount;
+          
+          console.log(`[OCR] Image verification: minMatch=${effectiveMinMatchCount} (original: ${keywordConfig.minMatchCount}), found=${foundKeywords.length}, isMatch=${isMatch}`);
           
           // Create a preview of extracted text (first 200 chars)
           const textPreview = extractedText.substring(0, 200).trim() + 

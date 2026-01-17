@@ -66,6 +66,29 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
             <p className="text-slate-500 mb-1">Erwarteter Dokumenttyp:</p>
             <p className="font-medium text-slate-900">{verification.displayName}</p>
           </div>
+          
+          {/* OCR Debug Info */}
+          {verification.extractedTextPreview !== undefined && (
+            <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 text-left">
+              <p className="mb-1">
+                <span className="font-medium">Erkannter Text:</span> {verification.extractedTextPreview.length} Zeichen
+              </p>
+              {verification.foundKeywords.length > 0 ? (
+                <p className="mb-1">
+                  <span className="font-medium">Gefundene Begriffe:</span> {verification.foundKeywords.join(', ')}
+                </p>
+              ) : (
+                <p className="mb-1 text-amber-600">
+                  <span className="font-medium">Keine Begriffe erkannt</span>
+                </p>
+              )}
+              {verification.extractedTextPreview && (
+                <p className="mt-2 text-xs text-slate-400 break-words">
+                  <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Buttons */}
