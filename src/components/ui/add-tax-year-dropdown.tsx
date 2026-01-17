@@ -31,7 +31,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
   if (variant === 'card') {
     if (availableYears.length === 0) {
       return (
-        <div className="group relative flex flex-col p-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 items-center justify-center text-center min-h-[420px] opacity-50">
+        <div className="group relative flex flex-col p-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 items-center justify-center text-center h-full min-h-[420px] opacity-50">
           <div className="w-20 h-20 rounded-2xl bg-gray-50 text-gray-300 flex items-center justify-center mb-6">
             <Check className="w-8 h-8" strokeWidth={1.5} />
           </div>
@@ -50,7 +50,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
         <DrawerTrigger asChild>
           <button 
             data-tour="add-year-card"
-            className={`group relative flex flex-col p-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 items-center justify-center text-center min-h-[420px] ${
+            className={`group relative flex flex-col p-3 rounded-[2.5rem] border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 items-center justify-center text-center h-full min-h-[420px] ${
               isCreating ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
