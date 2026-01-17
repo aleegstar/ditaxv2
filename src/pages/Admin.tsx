@@ -22,6 +22,7 @@ import DeletionFeedback from './admin/DeletionFeedback';
 import SignedTaxReturns from './admin/SignedTaxReturns';
 import { UpdatePaymentStatusForm } from '@/components/admin/UpdatePaymentStatusForm';
 import { UserCard } from '@/components/ui/user-card';
+import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
 
 interface AdminUser {
   id: string;
@@ -288,6 +289,7 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="deletion-feedback" element={<DeletionFeedback />} />
+          <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           </Routes>
         </div>
       </main>
