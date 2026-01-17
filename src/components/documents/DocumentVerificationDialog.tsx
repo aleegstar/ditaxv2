@@ -27,6 +27,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
       <DialogContent 
         className="max-w-sm p-6 rounded-3xl border-0 shadow-xl"
         hideCloseButton
+        variant="light"
       >
         {/* Header with title and close button */}
         <div className="flex items-start justify-between mb-4">

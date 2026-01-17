@@ -31,7 +31,7 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   hideCloseButton?: boolean;
-  variant?: 'default' | 'admin';
+  variant?: 'default' | 'admin' | 'light';
 }
 
 const DialogContent = React.forwardRef<
@@ -39,10 +39,21 @@ const DialogContent = React.forwardRef<
   DialogContentProps
 >(({ className, children, hideCloseButton = false, variant = 'default', ...props }, ref) => {
   const isAdmin = variant === 'admin' || window.location.pathname.startsWith('/admin');
+  const isLight = variant === 'light';
+  
+  const getVariantStyles = () => {
+    if (isLight) {
+      return "bg-white border-slate-200 text-slate-900";
+    }
+    if (isAdmin) {
+      return "bg-card border-border text-card-foreground";
+    }
+    return "bg-slate-900/95 border-white/10 backdrop-blur-xl text-white";
+  };
   
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={isLight ? "bg-black/40" : undefined} />
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
@@ -54,9 +65,7 @@ const DialogContent = React.forwardRef<
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
           "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-          isAdmin 
-            ? "bg-card border-border text-card-foreground" 
-            : "bg-slate-900/95 border-white/10 backdrop-blur-xl text-white",
+          getVariantStyles(),
           className
         )}
         {...props}
@@ -65,7 +74,7 @@ const DialogContent = React.forwardRef<
         {!hideCloseButton && (
           <DialogPrimitive.Close className={cn(
             "absolute right-4 top-4 rounded-full p-1.5 opacity-70 ring-offset-background transition-all hover:opacity-100 hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
-            isAdmin ? "text-foreground" : "text-white"
+            isLight ? "text-slate-500" : isAdmin ? "text-foreground" : "text-white"
           )}>
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
