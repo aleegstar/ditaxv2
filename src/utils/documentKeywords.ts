@@ -40,7 +40,12 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
       // Mehrsprachige Begriffe (CH)
       'certificat de salaire', 'salaire', 'salario', 'rente', 'rendita',
       // Weitere häufige Begriffe
-      'arbeitnehmer', 'anstellung', 'lohn', 'einkommen', 'beschäftigung'
+      'arbeitnehmer', 'anstellung', 'lohn', 'einkommen', 'beschäftigung',
+      // Generische Begriffe für Screenshot-OCR (häufig erkannt)
+      'chf', 'franken', 'total', 'betrag', 'jahr', 'monat', 'name', 'adresse',
+      'sozialversicherung', 'svnr', 'nr', 'datum', 'unterschrift', 'stempel',
+      '2023', '2024', '2025', '2026', 'januar', 'februar', 'dezember',
+      'abzug', 'abzüge', 'brutto', 'netto', 'auszahlung', 'konto'
     ],
     minMatchCount: 2,
     confidence: 'high',
