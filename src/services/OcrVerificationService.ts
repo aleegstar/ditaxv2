@@ -1,5 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
-import { getDocumentKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
+import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -10,8 +9,18 @@ export interface OcrVerificationResult {
   extractedTextPreview: string;
   documentType: string;
   displayName: string;
+  isImageFile?: boolean;
 }
 
+/**
+ * DSGVO-konformer lokaler Dokumenten-Verifizierungsservice
+ * 
+ * WICHTIG: Alle Verarbeitung erfolgt lokal im Browser des Benutzers.
+ * Es werden KEINE Daten an externe Server übermittelt.
+ * 
+ * - PDFs: Text wird mit pdf.js lokal extrahiert
+ * - Bilder: Können ohne externe OCR nicht geprüft werden (Hinweis an Benutzer)
+ */
 class OcrVerificationService {
   private static instance: OcrVerificationService;
 
@@ -23,56 +32,89 @@ class OcrVerificationService {
   }
 
   /**
-   * Convert a file to base64 string
+   * Extract text from PDF using pdf.js (fully local, no external calls)
+   * This runs entirely in the browser - no data leaves the device
    */
-  private async fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result);
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /**
-   * Convert PDF first page to image using canvas
-   */
-  private async pdfToImage(file: File): Promise<string> {
+  private async extractTextFromPdf(file: File): Promise<string> {
     // Check if PDF.js is loaded
     if (!window.pdfjsLib) {
-      console.warn('[OCR] PDF.js not loaded, skipping PDF OCR');
-      throw new Error('PDF library not loaded');
+      console.warn('[OCR] PDF.js not loaded, cannot extract text');
+      throw new Error('PDF-Bibliothek nicht geladen');
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const page = await pdf.getPage(1);
-    
-    // Use a higher scale for better OCR accuracy
-    const viewport = page.getViewport({ scale: 2.0 });
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    
-    if (!context) {
-      throw new Error('Could not get canvas context');
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
+      let fullText = '';
+      const maxPages = Math.min(pdf.numPages, 10); // Limit to first 10 pages for performance
+      
+      for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        // Extract text items and join them
+        const pageText = textContent.items
+          .map((item: any) => item.str || '')
+          .join(' ');
+        
+        fullText += pageText + '\n';
+      }
+      
+      console.log(`[OCR] Extracted ${fullText.length} characters from ${maxPages} pages (local processing)`);
+      return fullText;
+    } catch (error) {
+      console.error('[OCR] PDF text extraction failed:', error);
+      throw new Error('PDF-Textextraktion fehlgeschlagen');
     }
-
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-
-    await page.render({
-      canvasContext: context,
-      viewport: viewport
-    }).promise;
-
-    return canvas.toDataURL('image/png');
   }
 
   /**
-   * Verify a document against expected keywords using OCR
+   * Normalize text for better keyword matching
+   * Handles German umlauts and common variations
+   */
+  private normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      // Normalize German umlauts
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      // Remove extra whitespace
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /**
+   * Calculate confidence based on found keywords
+   */
+  private calculateConfidence(
+    foundKeywords: string[],
+    totalKeywords: string[],
+    config: DocumentKeywordConfig
+  ): number {
+    if (totalKeywords.length === 0) return 100;
+    
+    const foundCount = foundKeywords.length;
+    const minRequired = config.minMatchCount;
+    
+    // If we found enough keywords, high confidence
+    if (foundCount >= minRequired) {
+      // Scale from 70% to 100% based on how many extra keywords we found
+      const extraMatches = foundCount - minRequired;
+      const maxExtra = totalKeywords.length - minRequired;
+      const bonusConfidence = maxExtra > 0 ? (extraMatches / maxExtra) * 30 : 30;
+      return Math.round(70 + bonusConfidence);
+    }
+    
+    // Below minimum, scale from 0% to 69%
+    return Math.round((foundCount / minRequired) * 69);
+  }
+
+  /**
+   * Verify a document against expected keywords
+   * ALL PROCESSING IS LOCAL - NO DATA IS SENT TO EXTERNAL SERVERS
    */
   async verifyDocument(
     file: File,
@@ -80,6 +122,7 @@ class OcrVerificationService {
   ): Promise<OcrVerificationResult> {
     const keywordConfig = getDocumentKeywords(checklistItemId);
     
+    // No keyword config for this document type - skip verification
     if (!keywordConfig) {
       console.log(`[OCR] No keyword config for ${checklistItemId}, skipping verification`);
       return {
@@ -95,76 +138,94 @@ class OcrVerificationService {
     }
 
     try {
-      let imageBase64: string;
-
-      // Convert file to image base64
+      // Handle PDFs - extract text locally with pdf.js
       if (file.type === 'application/pdf') {
-        imageBase64 = await this.pdfToImage(file);
-      } else if (file.type.startsWith('image/')) {
-        imageBase64 = await this.fileToBase64(file);
-      } else {
-        console.log(`[OCR] Unsupported file type: ${file.type}`);
+        console.log(`[OCR] Verifying PDF locally: ${file.name} for ${checklistItemId}`);
+        
+        const extractedText = await this.extractTextFromPdf(file);
+        const normalizedText = this.normalizeText(extractedText);
+        
+        // Match keywords against extracted text
+        const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
+        const missingKeywords = keywordConfig.keywords.filter(
+          kw => !foundKeywords.includes(kw)
+        );
+        
+        const confidence = this.calculateConfidence(
+          foundKeywords,
+          keywordConfig.keywords,
+          keywordConfig
+        );
+        
+        const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
+        
+        // Create a preview of extracted text (first 200 chars)
+        const textPreview = extractedText.substring(0, 200).trim() + 
+          (extractedText.length > 200 ? '...' : '');
+        
+        let reason = '';
+        if (!isMatch) {
+          if (foundKeywords.length === 0) {
+            reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
+          } else {
+            reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
+          }
+        }
+        
         return {
-          isMatch: true,
-          confidence: 100,
-          foundKeywords: [],
-          missingKeywords: [],
-          reason: 'Dateityp wird nicht unterstützt',
-          extractedTextPreview: '',
+          isMatch,
+          confidence,
+          foundKeywords,
+          missingKeywords,
+          reason,
+          extractedTextPreview: textPreview,
           documentType: checklistItemId,
-          displayName: keywordConfig.displayName
+          displayName: keywordConfig.displayName,
+          isImageFile: false
         };
       }
-
-      console.log(`[OCR] Verifying document: ${file.name} for ${checklistItemId}`);
-
-      // Call the OCR edge function
-      const { data, error } = await supabase.functions.invoke('ocr-verify', {
-        body: {
-          imageBase64,
-          documentType: checklistItemId,
-          expectedKeywords: keywordConfig.keywords,
-          displayName: keywordConfig.displayName
-        }
-      });
-
-      if (error) {
-        console.error('[OCR] Edge function error:', error);
-        // On error, allow the document through
+      
+      // Handle images - cannot do OCR locally without external service
+      // This is the DSGVO-compliant approach: inform user that automatic verification is not possible
+      if (file.type.startsWith('image/')) {
+        console.log(`[OCR] Image file detected: ${file.name} - automatic verification not possible (DSGVO-konform)`);
+        
         return {
-          isMatch: true,
+          isMatch: true, // Accept the file, but inform the user
           confidence: 0,
           foundKeywords: [],
-          missingKeywords: keywordConfig.keywords,
-          reason: 'Automatische Prüfung fehlgeschlagen',
+          missingKeywords: [],
+          reason: 'Bilddateien können aus Datenschutzgründen nicht automatisch geprüft werden. Bitte stelle sicher, dass es sich um das korrekte Dokument handelt.',
           extractedTextPreview: '',
           documentType: checklistItemId,
-          displayName: keywordConfig.displayName
+          displayName: keywordConfig.displayName,
+          isImageFile: true
         };
       }
-
-      // Determine if this should trigger a warning
-      const shouldWarn = !data.isMatch || data.confidence < 50;
       
+      // Other file types - accept without verification
+      console.log(`[OCR] Unsupported file type: ${file.type} - skipping verification`);
       return {
-        isMatch: !shouldWarn,
-        confidence: data.confidence,
-        foundKeywords: data.foundKeywords || [],
-        missingKeywords: data.missingKeywords || [],
-        reason: data.reason || '',
-        extractedTextPreview: data.extractedTextPreview || '',
+        isMatch: true,
+        confidence: 100,
+        foundKeywords: [],
+        missingKeywords: [],
+        reason: 'Dieser Dateityp kann nicht automatisch geprüft werden.',
+        extractedTextPreview: '',
         documentType: checklistItemId,
         displayName: keywordConfig.displayName
       };
-
+      
     } catch (error) {
-      console.error('[OCR] Verification error:', error);
+      console.error('[OCR] Local verification error:', error);
+      
+      // On error, allow the document through but inform user
       return {
         isMatch: true,
         confidence: 0,
         foundKeywords: [],
         missingKeywords: keywordConfig.keywords,
-        reason: error instanceof Error ? error.message : 'Prüfung fehlgeschlagen',
+        reason: error instanceof Error ? error.message : 'Automatische Prüfung fehlgeschlagen',
         extractedTextPreview: '',
         documentType: checklistItemId,
         displayName: keywordConfig.displayName
