@@ -67,28 +67,30 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
             <p className="font-medium text-slate-900">{verification.displayName}</p>
           </div>
           
-          {/* OCR Debug Info */}
-          {verification.extractedTextPreview !== undefined && (
-            <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 text-left">
+          {/* OCR Debug Info - immer anzeigen */}
+          <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 text-left">
+            <p className="mb-1">
+              <span className="font-medium">Erkannter Text:</span> {verification.extractedTextPreview?.length || 0} Zeichen
+            </p>
+            {verification.foundKeywords.length > 0 ? (
               <p className="mb-1">
-                <span className="font-medium">Erkannter Text:</span> {verification.extractedTextPreview.length} Zeichen
+                <span className="font-medium">Gefundene Begriffe:</span> {verification.foundKeywords.join(', ')}
               </p>
-              {verification.foundKeywords.length > 0 ? (
-                <p className="mb-1">
-                  <span className="font-medium">Gefundene Begriffe:</span> {verification.foundKeywords.join(', ')}
-                </p>
-              ) : (
-                <p className="mb-1 text-amber-600">
-                  <span className="font-medium">Keine Begriffe erkannt</span>
-                </p>
-              )}
-              {verification.extractedTextPreview && (
-                <p className="mt-2 text-xs text-slate-400 break-words">
-                  <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
-                </p>
-              )}
-            </div>
-          )}
+            ) : (
+              <p className="mb-1 text-amber-600">
+                <span className="font-medium">Keine Begriffe erkannt</span>
+              </p>
+            )}
+            {verification.extractedTextPreview ? (
+              <p className="mt-2 text-xs text-slate-400 break-words">
+                <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-red-500">
+                <span className="font-medium">Hinweis:</span> Keine Textinhalte erkannt. Das Bild enthält möglicherweise keinen lesbaren Text.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Buttons */}
