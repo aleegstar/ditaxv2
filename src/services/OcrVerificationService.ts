@@ -10,6 +10,8 @@ export interface OcrVerificationResult {
   documentType: string;
   displayName: string;
   isImageFile?: boolean;
+  /** Indicates if user should manually confirm - shown for images, low confidence, or mismatches */
+  requiresManualConfirmation: boolean;
 }
 
 /**
@@ -133,7 +135,8 @@ class OcrVerificationService {
         reason: 'Keine automatische Prüfung für diesen Dokumenttyp verfügbar',
         extractedTextPreview: '',
         documentType: checklistItemId,
-        displayName: 'Unbekannter Dokumenttyp'
+        displayName: 'Unbekannter Dokumenttyp',
+        requiresManualConfirmation: false
       };
     }
 
@@ -172,7 +175,10 @@ class OcrVerificationService {
           }
         }
         
-        return {
+        // Require confirmation if mismatch or low confidence
+        const requiresManualConfirmation = !isMatch || confidence < 50;
+        
+        const result = {
           isMatch,
           confidence,
           foundKeywords,
@@ -181,8 +187,20 @@ class OcrVerificationService {
           extractedTextPreview: textPreview,
           documentType: checklistItemId,
           displayName: keywordConfig.displayName,
-          isImageFile: false
+          isImageFile: false,
+          requiresManualConfirmation
         };
+        
+        console.log('[OCR] PDF verification result:', {
+          fileName: file.name,
+          documentType: checklistItemId,
+          isMatch: result.isMatch,
+          requiresManualConfirmation: result.requiresManualConfirmation,
+          confidence: result.confidence,
+          foundKeywords: result.foundKeywords.length
+        });
+        
+        return result;
       }
       
       // Handle images - cannot do OCR locally without external service
@@ -190,8 +208,8 @@ class OcrVerificationService {
       if (file.type.startsWith('image/')) {
         console.log(`[OCR] Image file detected: ${file.name} - automatic verification not possible (DSGVO-konform)`);
         
-        return {
-          isMatch: true, // Accept the file, but inform the user
+        const result = {
+          isMatch: true, // Accept the file, but require confirmation
           confidence: 0,
           foundKeywords: [],
           missingKeywords: [],
@@ -199,8 +217,18 @@ class OcrVerificationService {
           extractedTextPreview: '',
           documentType: checklistItemId,
           displayName: keywordConfig.displayName,
-          isImageFile: true
+          isImageFile: true,
+          requiresManualConfirmation: true // Always require confirmation for images
         };
+        
+        console.log('[OCR] Image verification result:', {
+          fileName: file.name,
+          documentType: checklistItemId,
+          requiresManualConfirmation: true,
+          reason: 'Image file - manual confirmation required'
+        });
+        
+        return result;
       }
       
       // Other file types - accept without verification
@@ -213,13 +241,14 @@ class OcrVerificationService {
         reason: 'Dieser Dateityp kann nicht automatisch geprüft werden.',
         extractedTextPreview: '',
         documentType: checklistItemId,
-        displayName: keywordConfig.displayName
+        displayName: keywordConfig.displayName,
+        requiresManualConfirmation: false
       };
       
     } catch (error) {
       console.error('[OCR] Local verification error:', error);
       
-      // On error, allow the document through but inform user
+      // On error, allow the document through but require confirmation
       return {
         isMatch: true,
         confidence: 0,
@@ -228,7 +257,8 @@ class OcrVerificationService {
         reason: error instanceof Error ? error.message : 'Automatische Prüfung fehlgeschlagen',
         extractedTextPreview: '',
         documentType: checklistItemId,
-        displayName: keywordConfig.displayName
+        displayName: keywordConfig.displayName,
+        requiresManualConfirmation: true // Require confirmation on error
       };
     }
   }
