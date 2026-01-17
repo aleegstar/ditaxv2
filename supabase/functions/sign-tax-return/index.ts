@@ -417,12 +417,13 @@ async function addSignaturePage(
   
   yPosition -= 20;
   
-  // Word wrap the authorization text
+  // Word wrap the authorization text with proper line height
   const maxLineWidth = pageWidth - (2 * margin);
   const authLines = wrapText(signatureData.authorizationText, helvetica, 9, maxLineWidth);
+  const lineHeight = 13; // Consistent line height to prevent overlap
   
   for (const line of authLines) {
-    if (yPosition < 80) break;
+    if (yPosition < 80) break; // Stop before footer
     signaturePage.drawText(line, {
       x: margin,
       y: yPosition,
@@ -430,7 +431,7 @@ async function addSignaturePage(
       size: 9,
       color: mediumGray,
     });
-    yPosition -= 14;
+    yPosition -= lineHeight;
   }
   
   // === FOOTER ===
@@ -468,35 +469,46 @@ async function addSignaturePage(
 
 // Helper function to wrap text
 function wrapText(text: string, font: any, fontSize: number, maxWidth: number): string[] {
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
+  // First, split by actual newlines to preserve paragraph breaks
+  const paragraphs = text.split('\n');
+  const allLines: string[] = [];
   
-  // Approximate character width (for Helvetica)
-  const avgCharWidth = fontSize * 0.5;
+  // Conservative character width for Helvetica (slightly wider to avoid overlap)
+  const avgCharWidth = fontSize * 0.55;
   const maxCharsPerLine = Math.floor(maxWidth / avgCharWidth);
   
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
+  for (const paragraph of paragraphs) {
+    if (paragraph.trim() === '') {
+      allLines.push(''); // Preserve empty lines
+      continue;
+    }
     
-    if (testLine.length > maxCharsPerLine) {
-      if (currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
+    const words = paragraph.split(' ').filter(w => w.length > 0);
+    let currentLine = '';
+    
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      
+      if (testLine.length > maxCharsPerLine) {
+        if (currentLine) {
+          allLines.push(currentLine);
+          currentLine = word;
+        } else {
+          // Word is too long, split it
+          allLines.push(word.substring(0, maxCharsPerLine));
+          currentLine = word.substring(maxCharsPerLine);
+        }
       } else {
-        lines.push(word);
-        currentLine = '';
+        currentLine = testLine;
       }
-    } else {
-      currentLine = testLine;
+    }
+    
+    if (currentLine) {
+      allLines.push(currentLine);
     }
   }
   
-  if (currentLine) {
-    lines.push(currentLine);
-  }
-  
-  return lines;
+  return allLines;
 }
 
 Deno.serve(async (req) => {
