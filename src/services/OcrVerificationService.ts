@@ -1,4 +1,5 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
+import Tesseract from 'tesseract.js';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -21,7 +22,7 @@ export interface OcrVerificationResult {
  * Es werden KEINE Daten an externe Server übermittelt.
  * 
  * - PDFs: Text wird mit pdf.js lokal extrahiert
- * - Bilder: Können ohne externe OCR nicht geprüft werden (Hinweis an Benutzer)
+ * - Bilder: Text wird mit Tesseract.js lokal im Browser erkannt (OCR)
  */
 class OcrVerificationService {
   private static instance: OcrVerificationService;
@@ -203,32 +204,95 @@ class OcrVerificationService {
         return result;
       }
       
-      // Handle images - cannot do OCR locally without external service
-      // This is the DSGVO-compliant approach: inform user that automatic verification is not possible
+      // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
       if (file.type.startsWith('image/')) {
-        console.log(`[OCR] Image file detected: ${file.name} - automatic verification not possible (DSGVO-konform)`);
+        console.log(`[OCR] Running local Tesseract OCR on image: ${file.name}`);
         
-        const result = {
-          isMatch: true, // Accept the file, but require confirmation
-          confidence: 0,
-          foundKeywords: [],
-          missingKeywords: [],
-          reason: 'Bilddateien können aus Datenschutzgründen nicht automatisch geprüft werden. Bitte stelle sicher, dass es sich um das korrekte Dokument handelt.',
-          extractedTextPreview: '',
-          documentType: checklistItemId,
-          displayName: keywordConfig.displayName,
-          isImageFile: true,
-          requiresManualConfirmation: true // Always require confirmation for images
-        };
-        
-        console.log('[OCR] Image verification result:', {
-          fileName: file.name,
-          documentType: checklistItemId,
-          requiresManualConfirmation: true,
-          reason: 'Image file - manual confirmation required'
-        });
-        
-        return result;
+        try {
+          // Tesseract.js runs completely in the browser - no data leaves the device
+          const tesseractResult = await Tesseract.recognize(file, 'deu', {
+            logger: (m) => {
+              if (m.status === 'recognizing text') {
+                console.log(`[Tesseract] Progress: ${Math.round(m.progress * 100)}%`);
+              }
+            }
+          });
+          
+          const extractedText = tesseractResult.data.text;
+          console.log(`[OCR] Tesseract extracted ${extractedText.length} characters from image (local processing)`);
+          
+          const normalizedText = this.normalizeText(extractedText);
+          
+          // Match keywords against extracted text
+          const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
+          const missingKeywords = keywordConfig.keywords.filter(
+            kw => !foundKeywords.includes(kw)
+          );
+          
+          const confidence = this.calculateConfidence(
+            foundKeywords,
+            keywordConfig.keywords,
+            keywordConfig
+          );
+          
+          const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
+          
+          // Create a preview of extracted text (first 200 chars)
+          const textPreview = extractedText.substring(0, 200).trim() + 
+            (extractedText.length > 200 ? '...' : '');
+          
+          let reason = '';
+          if (!isMatch) {
+            if (foundKeywords.length === 0) {
+              reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
+            } else {
+              reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
+            }
+          }
+          
+          const requiresManualConfirmation = !isMatch || confidence < 50;
+          
+          const result = {
+            isMatch,
+            confidence,
+            foundKeywords,
+            missingKeywords,
+            reason,
+            extractedTextPreview: textPreview,
+            documentType: checklistItemId,
+            displayName: keywordConfig.displayName,
+            isImageFile: true,
+            requiresManualConfirmation
+          };
+          
+          console.log('[OCR] Image verification result:', {
+            fileName: file.name,
+            documentType: checklistItemId,
+            isMatch: result.isMatch,
+            requiresManualConfirmation: result.requiresManualConfirmation,
+            confidence: result.confidence,
+            foundKeywords: result.foundKeywords.length
+          });
+          
+          return result;
+          
+        } catch (tesseractError) {
+          console.error('[OCR] Tesseract OCR failed:', tesseractError);
+          
+          // Fallback: accept file but require manual confirmation
+          return {
+            isMatch: true,
+            confidence: 0,
+            foundKeywords: [],
+            missingKeywords: [],
+            reason: 'Texterkennung fehlgeschlagen. Bitte stelle sicher, dass es sich um das korrekte Dokument handelt.',
+            extractedTextPreview: '',
+            documentType: checklistItemId,
+            displayName: keywordConfig.displayName,
+            isImageFile: true,
+            requiresManualConfirmation: true
+          };
+        }
       }
       
       // Other file types - accept without verification
