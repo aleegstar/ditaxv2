@@ -384,8 +384,16 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           checklistItem.id
         );
 
-        // If document doesn't match, show confirmation dialog
-        if (!verificationResult.isMatch) {
+        console.log('[Upload] OCR verification result:', {
+          fileName: firstFile.file.name,
+          isMatch: verificationResult.isMatch,
+          requiresManualConfirmation: verificationResult.requiresManualConfirmation,
+          isImageFile: verificationResult.isImageFile,
+          confidence: verificationResult.confidence
+        });
+
+        // Show dialog if manual confirmation is required (mismatch, image, low confidence)
+        if (verificationResult.requiresManualConfirmation) {
           setPendingVerification({
             result: verificationResult,
             file: firstFile

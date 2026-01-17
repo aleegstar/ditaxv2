@@ -164,7 +164,16 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
 
           const verificationResult = await ocrService.verifyDocument(file, checklistItemId);
 
-          if (!verificationResult.isMatch) {
+          console.log('[Assignment] OCR verification result:', {
+            fileName: file.name,
+            isMatch: verificationResult.isMatch,
+            requiresManualConfirmation: verificationResult.requiresManualConfirmation,
+            isImageFile: verificationResult.isImageFile,
+            confidence: verificationResult.confidence
+          });
+
+          // Show dialog if manual confirmation is required
+          if (verificationResult.requiresManualConfirmation) {
             setPendingVerification({
               result: verificationResult,
               doc: firstDoc
