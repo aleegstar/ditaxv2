@@ -206,23 +206,36 @@ class OcrVerificationService {
       
       // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
       if (file.type.startsWith('image/')) {
-        console.log(`[OCR] Running local Tesseract OCR on image: ${file.name}`);
+        console.log(`[OCR] Starting Tesseract OCR for image: ${file.name}`);
+        console.log(`[OCR] File type: ${file.type}, size: ${file.size} bytes`);
         console.log(`[OCR] Document type: ${checklistItemId}, Keywords config:`, keywordConfig.keywords.slice(0, 10));
         
         try {
+          console.log('[OCR] Initializing Tesseract worker...');
+          
           // Tesseract.js runs completely in the browser - no data leaves the device
-          // Use both German and English for better recognition of mixed documents
-          const tesseractResult = await Tesseract.recognize(file, 'deu+eng', {
+          // Wrapper with 30 second timeout
+          const tesseractPromise = Tesseract.recognize(file, 'deu', {
             logger: (m) => {
-              if (m.status === 'recognizing text') {
-                console.log(`[Tesseract] Progress: ${Math.round((m.progress || 0) * 100)}%`);
-              }
+              console.log(`[Tesseract] Status: ${m.status}, Progress: ${Math.round((m.progress || 0) * 100)}%`);
             }
           });
           
-          const extractedText = tesseractResult.data.text;
-          console.log(`[OCR] Tesseract extracted ${extractedText.length} characters from image`);
-          console.log(`[OCR] Extracted text preview (first 500 chars):`, extractedText.substring(0, 500));
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>30s)')), 30000);
+          });
+          
+          const tesseractResult = await Promise.race([tesseractPromise, timeoutPromise]);
+          
+          const extractedText = tesseractResult.data.text || '';
+          console.log(`[OCR] Tesseract completed. Extracted ${extractedText.length} characters`);
+          console.log(`[OCR] Tesseract confidence: ${tesseractResult.data.confidence}`);
+          
+          if (extractedText.length === 0) {
+            console.warn('[OCR] WARNING: No text extracted from image - possibly no readable text in image');
+          } else {
+            console.log(`[OCR] Extracted text preview (first 500 chars):`, extractedText.substring(0, 500));
+          }
           
           const normalizedText = this.normalizeText(extractedText);
           console.log(`[OCR] Normalized text preview (first 300 chars):`, normalizedText.substring(0, 300));
@@ -289,7 +302,8 @@ class OcrVerificationService {
           return result;
           
         } catch (tesseractError) {
-          console.error('[OCR] Tesseract OCR failed:', tesseractError);
+          console.error('[OCR] Tesseract OCR failed with error:', tesseractError);
+          console.error('[OCR] Error message:', tesseractError instanceof Error ? tesseractError.message : String(tesseractError));
           
           // Fallback: accept file but require manual confirmation
           return {
