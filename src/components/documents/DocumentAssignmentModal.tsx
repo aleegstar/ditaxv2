@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft } from 'lucide-react';
+import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import DocumentViewer from '@/components/DocumentViewer';
 import { DocumentMetadata } from '@/services/DocumentService';
+import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
+import DocumentVerificationDialog from './DocumentVerificationDialog';
 
 interface DocumentAssignmentModalProps {
   open: boolean;
@@ -34,6 +36,13 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerDocuments, setViewerDocuments] = useState<DocumentMetadata[]>([]);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationDialog, setVerificationDialog] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState<{
+    result: OcrVerificationResult;
+    doc: any;
+  } | null>(null);
+  const ocrService = OcrVerificationService.getInstance();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -133,6 +142,51 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const handleAssignDocuments = async () => {
     if (selectedDocuments.size === 0) return;
 
+    // Get the first selected document for OCR verification
+    const selectedArray = Array.from(selectedDocuments);
+    const firstDocId = selectedArray[0];
+    const firstDoc = documents.find(d => d.id === firstDocId);
+
+    // Perform OCR verification if not already verified
+    if (firstDoc && !isVerifying) {
+      setIsVerifying(true);
+      try {
+        // Fetch the document file for OCR verification
+        const { data: urlData } = await supabase.storage
+          .from('documents')
+          .createSignedUrl(firstDoc.file_path, 60);
+
+        if (urlData?.signedUrl) {
+          // Fetch the file as a blob
+          const response = await fetch(urlData.signedUrl);
+          const blob = await response.blob();
+          const file = new File([blob], firstDoc.file_name, { type: firstDoc.file_type });
+
+          const verificationResult = await ocrService.verifyDocument(file, checklistItemId);
+
+          if (!verificationResult.isMatch) {
+            setPendingVerification({
+              result: verificationResult,
+              doc: firstDoc
+            });
+            setVerificationDialog(true);
+            setIsVerifying(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('OCR verification error:', err);
+        // Continue with assignment on error
+      } finally {
+        setIsVerifying(false);
+      }
+    }
+
+    // Proceed with assignment
+    await performAssignment();
+  };
+
+  const performAssignment = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -185,6 +239,23 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         variant: "destructive"
       });
     }
+  };
+
+  const handleVerificationConfirm = () => {
+    setVerificationDialog(false);
+    performAssignment();
+    setPendingVerification(null);
+  };
+
+  const handleVerificationSelectDifferent = () => {
+    setVerificationDialog(false);
+    // Deselect the problematic document
+    if (pendingVerification) {
+      const newSelection = new Set(selectedDocuments);
+      newSelection.delete(pendingVerification.doc.id);
+      setSelectedDocuments(newSelection);
+    }
+    setPendingVerification(null);
   };
 
   return (
@@ -357,10 +428,17 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
               </button>
               <button
                 onClick={handleAssignDocuments}
-                disabled={selectedDocuments.size === 0}
-                className="px-4 py-2.5 rounded-lg bg-blue-500 text-xs font-semibold text-white hover:bg-blue-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={selectedDocuments.size === 0 || isVerifying}
+                className="px-4 py-2.5 rounded-lg bg-blue-500 text-xs font-semibold text-white hover:bg-blue-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Dokumente zuordnen
+                {isVerifying ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Prüfen...
+                  </>
+                ) : (
+                  'Dokumente zuordnen'
+                )}
               </button>
             </div>
           </div>
@@ -372,6 +450,16 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         initialDocumentIndex={viewerInitialIndex}
         isOpen={viewerOpen}
         onClose={handleCloseViewer}
+      />
+
+      {/* OCR Verification Dialog */}
+      <DocumentVerificationDialog
+        open={verificationDialog}
+        onClose={() => setVerificationDialog(false)}
+        onConfirm={handleVerificationConfirm}
+        onSelectDifferent={handleVerificationSelectDifferent}
+        verification={pendingVerification?.result || null}
+        fileName={pendingVerification?.doc?.file_name || ''}
       />
     </Dialog>
   );

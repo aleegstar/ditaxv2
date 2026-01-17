@@ -9,6 +9,8 @@ import { useFormContext } from '@/contexts';
 
 import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
+import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
+import DocumentVerificationDialog from './documents/DocumentVerificationDialog';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -70,6 +72,15 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const { toast } = useToast();
   const uploadRequestId = useRef(uuidv4()).current;
   const encryptedDocService = EncryptedDocumentService.getInstance();
+  const ocrService = OcrVerificationService.getInstance();
+  
+  // OCR Verification state
+  const [verificationDialog, setVerificationDialog] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState<{
+    result: OcrVerificationResult;
+    file: FileWithPreview;
+  } | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
   const MAX_FILES = 10;
 
   useEffect(() => {
@@ -362,6 +373,40 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       setError('Keine Dateien zum Hochladen vorhanden.');
       return;
     }
+
+    // OCR Verification: Check first file if we have a checklist item
+    if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
+      setIsVerifying(true);
+      try {
+        const firstFile = filesToUpload[0];
+        const verificationResult = await ocrService.verifyDocument(
+          firstFile.file,
+          checklistItem.id
+        );
+
+        // If document doesn't match, show confirmation dialog
+        if (!verificationResult.isMatch) {
+          setPendingVerification({
+            result: verificationResult,
+            file: firstFile
+          });
+          setVerificationDialog(true);
+          setIsVerifying(false);
+          return;
+        }
+      } catch (err) {
+        console.error('OCR verification error:', err);
+        // Continue with upload on error
+      } finally {
+        setIsVerifying(false);
+      }
+    }
+
+    // Proceed with upload
+    await performUpload(filesToUpload);
+  };
+
+  const performUpload = async (filesToUpload: FileWithPreview[]) => {
     setUploading(true);
     setError(null);
     let successCount = 0;
@@ -384,6 +429,22 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     } else {
       setError('Keine Dateien konnten erfolgreich hochgeladen werden.');
     }
+  };
+
+  const handleVerificationConfirm = () => {
+    setVerificationDialog(false);
+    const filesToUpload = files.filter(f => !f.uploaded && !f.error);
+    performUpload(filesToUpload);
+    setPendingVerification(null);
+  };
+
+  const handleVerificationSelectDifferent = () => {
+    setVerificationDialog(false);
+    // Remove the problematic file
+    if (pendingVerification) {
+      handleRemoveFile(pendingVerification.file.id);
+    }
+    setPendingVerification(null);
   };
 
   const hasValidFiles = files.some(f => !f.error);
@@ -503,7 +564,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           <div className="max-w-2xl mx-auto">
             <button 
               onClick={handleUploadAll}
-              disabled={uploading || uploadableFiles.length === 0}
+              disabled={uploading || isVerifying || uploadableFiles.length === 0}
               className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {/* Button */}
@@ -513,6 +574,11 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Wird hochgeladen...
                   </span>
+                ) : isVerifying ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Dokument wird geprüft...
+                  </span>
                 ) : (
                   <span>Hochladen</span>
                 )}
@@ -521,6 +587,16 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           </div>
         </div>
       )}
+
+      {/* OCR Verification Dialog */}
+      <DocumentVerificationDialog
+        open={verificationDialog}
+        onClose={() => setVerificationDialog(false)}
+        onConfirm={handleVerificationConfirm}
+        onSelectDifferent={handleVerificationSelectDifferent}
+        verification={pendingVerification?.result || null}
+        fileName={pendingVerification?.file.file.name || ''}
+      />
     </div>
   );
 };
