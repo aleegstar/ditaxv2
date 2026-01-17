@@ -27,8 +27,22 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   
   // === EINKOMMEN ===
   'employment-income': {
-    keywords: ['lohnausweis', 'arbeitgeber', 'bruttolohn', 'nettolohn', 'ahv', 'sozialabzüge', 'quellensteuer', 'lohnabrechnung', 'arbeitsvertrag', 'gehalt', 'monatslohn', 'jahreslohn', 'bvg', 'pensionskasse'],
-    minMatchCount: 3,
+    keywords: [
+      // Deutsche Begriffe
+      'lohnausweis', 'arbeitgeber', 'bruttolohn', 'nettolohn', 'ahv', 'sozialabzüge', 
+      'quellensteuer', 'lohnabrechnung', 'arbeitsvertrag', 'gehalt', 'monatslohn', 
+      'jahreslohn', 'bvg', 'pensionskasse',
+      // Formular 11 spezifische Begriffe
+      'gehaltsnebenleistungen', 'kapitalauszahlung', 'berufliche vorsorge',
+      'nettolohn/rente', 'beiträge', 'rentenbescheinigung', 'unentgeltliche beförderung',
+      'spesenerstattung', 'privatanteil', 'weitere gehaltsnebenleistungen',
+      'formular 11', 'form. 11', 'form 11', 'lohnbescheinigung',
+      // Mehrsprachige Begriffe (CH)
+      'certificat de salaire', 'salaire', 'salario', 'rente', 'rendita',
+      // Weitere häufige Begriffe
+      'arbeitnehmer', 'anstellung', 'lohn', 'einkommen', 'beschäftigung'
+    ],
+    minMatchCount: 2,
     confidence: 'high',
     displayName: 'Lohnausweis'
   },
