@@ -470,7 +470,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
                 {isVerifying ? (
                   <>
                     <Loader2 className="w-3 h-3 animate-spin" />
-                    Prüfen...
+                    Dokument wird analysiert...
                   </>
                 ) : (
                   'Dokumente zuordnen'
