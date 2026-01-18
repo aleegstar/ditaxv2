@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { X, AlertCircle, Check, Loader2, Info } from 'lucide-react';
+import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
@@ -9,10 +9,9 @@ import { useFormContext } from '@/contexts';
 
 import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
-import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
-import OcrPreloadService from '@/services/OcrPreloadService';
-import DocumentVerificationDialog from './documents/DocumentVerificationDialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import DocumentValidator from '@/services/DocumentValidator';
+import DocumentCheckScreen from './documents/DocumentCheckScreen';
+import { ValidationResult } from '@/types/documentProfile';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -74,63 +73,14 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const { toast } = useToast();
   const uploadRequestId = useRef(uuidv4()).current;
   const encryptedDocService = EncryptedDocumentService.getInstance();
-  const ocrService = OcrVerificationService.getInstance();
   
-  // Detect mobile device for UI hints
-  const isMobile = useMemo(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), []);
-  
-  // OCR Verification state
-  const [verificationDialog, setVerificationDialog] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState<{
-    result: OcrVerificationResult;
-    file: FileWithPreview;
-  } | null>(null);
+  // New document validation (replaces OCR)
+  const documentValidator = DocumentValidator.getInstance();
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [showCheckScreen, setShowCheckScreen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [ocrReady, setOcrReady] = useState(OcrPreloadService.getStatus());
-  const [ocrTimedOut, setOcrTimedOut] = useState(false);
+  
   const MAX_FILES = 10;
-
-  // Check OCR readiness with fast timeout on mobile
-  useEffect(() => {
-    if (ocrReady || ocrTimedOut) return;
-    
-    const maxWaitTime = isMobile ? 5000 : 15000; // 5s mobile, 15s desktop
-    const startTime = Date.now();
-    
-    const checkOcrStatus = () => {
-      const ready = OcrPreloadService.getStatus();
-      const elapsed = Date.now() - startTime;
-      const progress = OcrPreloadService.getLoadingProgress();
-      
-      if (ready) {
-        setOcrReady(true);
-        return;
-      }
-      
-      // Check for failures or timeout
-      if (progress === 'error' || progress === 'timeout' || elapsed >= maxWaitTime) {
-        console.log(`[Upload] OCR not ready after ${elapsed}ms (${progress}), using manual confirmation fallback`);
-        setOcrTimedOut(true);
-        return;
-      }
-    };
-    
-    // Check every 500ms for faster feedback
-    const interval = setInterval(checkOcrStatus, 500);
-    
-    // Also set a hard timeout
-    const timeout = setTimeout(() => {
-      if (!OcrPreloadService.getStatus()) {
-        console.log(`[Upload] OCR hard timeout after ${maxWaitTime}ms, using manual confirmation fallback`);
-        setOcrTimedOut(true);
-      }
-    }, maxWaitTime);
-    
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [ocrReady, ocrTimedOut, isMobile]);
 
   useEffect(() => {
     if (window.pdfjsLib) {
@@ -364,6 +314,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     setImagePreviews([]);
     setCurrentFile(null);
     setError(null);
+    setValidationResult(null);
+    setShowCheckScreen(false);
   };
 
   const handleRemoveFile = (fileId: string) => {
@@ -423,87 +375,47 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       return;
     }
 
-    // OCR Verification: Check first file if we have a checklist item
+    // New multi-signal document validation (replaces OCR)
     if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
       setIsVerifying(true);
       
       const firstFile = filesToUpload[0];
       
       try {
-        // If OCR timed out (especially on mobile), show immediate manual confirmation
-        if (ocrTimedOut || (!ocrReady && isMobile)) {
-          console.log('[Upload] OCR not available, showing manual confirmation dialog');
-          
-          setPendingVerification({
-            result: {
-              isMatch: true,
-              confidence: 0,
-              foundKeywords: [],
-              missingKeywords: [],
-              reason: isMobile 
-                ? 'Auf diesem Gerät ist die automatische Prüfung nicht verfügbar. Bitte bestätige, dass es sich um das richtige Dokument handelt.'
-                : 'Die automatische Dokumentenprüfung konnte nicht geladen werden.',
-              extractedTextPreview: '',
-              documentType: checklistItem.id,
-              displayName: checklistItem.title || 'Dokument',
-              isImageFile: firstFile.file.type.startsWith('image/'),
-              requiresManualConfirmation: true,
-              confirmationMode: 'warning'
-            },
-            file: firstFile
-          });
-          setVerificationDialog(true);
-          setIsVerifying(false);
-          return;
-        }
+        console.log('[Upload] Starting document validation for:', firstFile.file.name);
         
-        // Normal OCR verification path
-        const verificationResult = await ocrService.verifyDocument(
+        const result = await documentValidator.validate(
           firstFile.file,
           checklistItem.id
         );
-
-        console.log('[Upload] OCR verification result:', {
+        
+        console.log('[Upload] Validation result:', {
           fileName: firstFile.file.name,
-          isMatch: verificationResult.isMatch,
-          requiresManualConfirmation: verificationResult.requiresManualConfirmation,
-          isImageFile: verificationResult.isImageFile,
-          confidence: verificationResult.confidence
+          bestMatch: result.best.docTypeId,
+          confidence: result.best.confidence,
+          needsConfirmation: result.needsUserConfirmation
         });
-
-        // Show dialog if manual confirmation is required (mismatch, image, low confidence)
-        if (verificationResult.requiresManualConfirmation) {
-          setPendingVerification({
-            result: verificationResult,
-            file: firstFile
-          });
-          setVerificationDialog(true);
+        
+        setValidationResult(result);
+        
+        // If user confirmation needed (confidence < 80), show check screen
+        if (result.needsUserConfirmation) {
+          setShowCheckScreen(true);
           setIsVerifying(false);
           return;
         }
-      } catch (err) {
-        console.error('OCR verification error:', err);
         
-        // On error, show manual confirmation dialog instead of silently continuing
-        setPendingVerification({
-          result: {
-            isMatch: true,
-            confidence: 0,
-            foundKeywords: [],
-            missingKeywords: [],
-            reason: 'Die automatische Dokumentenprüfung ist fehlgeschlagen. Bitte bestätige, dass es sich um das richtige Dokument handelt.',
-            extractedTextPreview: '',
-            documentType: checklistItem.id,
-            displayName: checklistItem.title || 'Dokument',
-            isImageFile: firstFile.file.type.startsWith('image/'),
-            requiresManualConfirmation: true,
-            confirmationMode: 'warning'
-          },
-          file: firstFile
+        // High confidence - proceed automatically
+        console.log('[Upload] High confidence, proceeding with upload');
+        
+      } catch (err) {
+        console.error('Document validation error:', err);
+        // On error, still allow upload but maybe show a warning
+        toast({
+          title: "Hinweis",
+          description: "Dokumentenprüfung übersprungen. Bitte stelle sicher, dass du das richtige Dokument hochlädst.",
+          variant: "default"
         });
-        setVerificationDialog(true);
-        setIsVerifying(false);
-        return;
       } finally {
         setIsVerifying(false);
       }
@@ -538,20 +450,24 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     }
   };
 
-  const handleVerificationConfirm = () => {
-    setVerificationDialog(false);
+  // New handlers for DocumentCheckScreen
+  const handleCheckConfirm = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
     const filesToUpload = files.filter(f => !f.uploaded && !f.error);
     performUpload(filesToUpload);
-    setPendingVerification(null);
   };
 
-  const handleVerificationSelectDifferent = () => {
-    setVerificationDialog(false);
-    // Remove the problematic file
-    if (pendingVerification) {
-      handleRemoveFile(pendingVerification.file.id);
-    }
-    setPendingVerification(null);
+  const handleCheckReupload = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
+    handleClear();
+  };
+
+  const handleCheckChangeType = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
+    onBack();
   };
 
   const hasValidFiles = files.some(f => !f.error);
@@ -578,28 +494,6 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           hideBackButton={hideBackButton}
           hideHeader={hideHeader}
         />
-
-        {/* OCR Loading Indicator - only show briefly, then hide (fast fallback on mobile) */}
-        {!ocrReady && !ocrTimedOut && checklistItem && (
-          <Alert className="mt-4 border-amber-200 bg-amber-50">
-            <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
-            <AlertDescription className="text-amber-700 ml-2">
-              {isMobile 
-                ? 'Dokumentenprüfung wird vorbereitet...' 
-                : 'Dokumentenprüfung wird vorbereitet...'}
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {/* Mobile fallback info - shown when OCR timed out on mobile */}
-        {ocrTimedOut && isMobile && checklistItem && (
-          <Alert className="mt-4 border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-700 ml-2">
-              Manuelle Dokumentbestätigung aktiv.
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* File List Section */}
         {files.length > 0 && (
@@ -718,15 +612,21 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         </div>
       )}
 
-      {/* OCR Verification Dialog */}
-      <DocumentVerificationDialog
-        open={verificationDialog}
-        onClose={() => setVerificationDialog(false)}
-        onConfirm={handleVerificationConfirm}
-        onSelectDifferent={handleVerificationSelectDifferent}
-        verification={pendingVerification?.result || null}
-        fileName={pendingVerification?.file.file.name || ''}
-      />
+      {/* New Document Check Screen Modal */}
+      {showCheckScreen && validationResult && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+            <DocumentCheckScreen
+              result={validationResult}
+              fileName={files[0]?.file.name || ''}
+              onConfirm={handleCheckConfirm}
+              onReupload={handleCheckReupload}
+              onChangeType={handleCheckChangeType}
+              isConfirming={uploading}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
