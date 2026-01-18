@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, RefreshCw, FileQuestion } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, RefreshCw, FileQuestion, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ValidationResult } from '@/types/documentProfile';
@@ -20,6 +20,7 @@ interface DocumentCheckScreenProps {
   onConfirm: () => void;
   onReupload: () => void;
   onChangeType: () => void;
+  onClose?: () => void;
   isConfirming?: boolean;
   embedded?: boolean;
 }
@@ -30,6 +31,7 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   onConfirm,
   onReupload,
   onChangeType,
+  onClose,
   isConfirming = false,
   embedded = false
 }) => {
@@ -73,8 +75,26 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
 
   const warningReason = getWarningReason();
 
+  // Show "trotzdem einreichen" when confidence is low
+  const showSubmitAnyway = confidence < 80;
+
   return (
     <div className="space-y-4">
+      {/* Header with close button */}
+      {onClose && (
+        <div className="flex items-center justify-between -mt-2 -mx-2">
+          <span className="text-lg font-semibold text-foreground pl-2">Dokumentenprüfung</span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8 rounded-full"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
       {/* Compact Result Display */}
       <div className={`p-4 rounded-xl ${status.bgColor} border border-border`}>
         <div className="flex items-center gap-3">
@@ -112,39 +132,52 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         {fileName}
       </p>
 
-      {/* Action Buttons - Always inline, no sticky footer */}
-      <div className="space-y-2 pt-2">
+      {/* Action Buttons - Primary: Neue Datei */}
+      <div className="space-y-3 pt-2">
+        {/* Primary Action: Upload new file */}
         <Button 
-          onClick={onConfirm} 
-          disabled={isConfirming} 
+          onClick={onReupload} 
           className="w-full"
           size="lg"
         >
-          {isConfirming ? 'Wird verarbeitet...' : (
-            confidence >= 80 ? 'Dokument hochladen' : 'Ja, das ist richtig'
-          )}
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Andere Datei hochladen
         </Button>
         
-        <div className="flex gap-2">
+        {/* Secondary: Change type */}
+        <Button 
+          variant="outline" 
+          onClick={onChangeType} 
+          className="w-full"
+          size="default"
+        >
+          <FileQuestion className="w-4 h-4 mr-2" />
+          Dokumenttyp ändern
+        </Button>
+
+        {/* Tertiary: Submit anyway (only when low confidence) */}
+        {showSubmitAnyway && (
+          <button
+            onClick={onConfirm}
+            disabled={isConfirming}
+            className="w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 py-2 transition-colors disabled:opacity-50"
+          >
+            {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
+          </button>
+        )}
+
+        {/* High confidence: Show normal confirm */}
+        {!showSubmitAnyway && (
           <Button 
-            variant="outline" 
-            onClick={onReupload} 
-            className="flex-1"
+            onClick={onConfirm} 
+            disabled={isConfirming} 
+            variant="outline"
+            className="w-full"
             size="default"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Andere Datei
+            {isConfirming ? 'Wird verarbeitet...' : 'Dokument hochladen'}
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={onChangeType} 
-            className="flex-1"
-            size="default"
-          >
-            <FileQuestion className="w-4 h-4 mr-2" />
-            Typ ändern
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );

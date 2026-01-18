@@ -497,13 +497,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
 
       {/* Document Check Screen Modal - Using ModernUploadDialog for consistent styling */}
       <ModernUploadDialog open={showCheckScreen} onOpenChange={(open) => !open && handleCheckReupload()}>
-        <ModernUploadDialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-          <ModernUploadDialogHeader>
-            <ModernUploadDialogTitle>Dokumentenprüfung</ModernUploadDialogTitle>
-            <ModernUploadDialogDescription>
-              Bitte bestätigen Sie den Dokumenttyp
-            </ModernUploadDialogDescription>
-          </ModernUploadDialogHeader>
+        <ModernUploadDialogContent className="sm:max-w-md">
           {validationResult && (
             <DocumentCheckScreen
               result={validationResult}
@@ -511,6 +505,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
               onConfirm={handleCheckConfirm}
               onReupload={handleCheckReupload}
               onChangeType={handleCheckChangeType}
+              onClose={handleCheckReupload}
               isConfirming={false}
               embedded={true}
             />
