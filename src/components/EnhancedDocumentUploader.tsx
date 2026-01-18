@@ -622,6 +622,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
               onConfirm={handleCheckConfirm}
               onReupload={handleCheckReupload}
               onChangeType={handleCheckChangeType}
+              onClose={handleCheckReupload}
               isConfirming={uploading}
             />
           </div>
