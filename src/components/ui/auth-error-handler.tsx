@@ -24,7 +24,7 @@ export const AuthErrorHandler: React.FC<AuthErrorHandlerProps> = ({
     if (isTimeoutError) {
       return {
         title: 'Verbindungsproblem',
-        description: 'Der Authentifizierungsservice ist momentan überlastet. Bitte versuchen Sie es in wenigen Sekunden erneut.',
+        description: 'Der Authentifizierungsservice ist momentan überlastet. Bitte versuche es in wenigen Sekunden erneut.',
         icon: <WifiOff className="w-5 h-5" />
       };
     }

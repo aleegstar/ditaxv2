@@ -60,7 +60,7 @@ export const PasskeyManager: React.FC = () => {
           Fingerprint & Passkey nicht verfügbar
         </h2>
         <p className="text-sm text-gray-600">
-          Ihr Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
+          Dein Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
         </p>
       </section>
     );

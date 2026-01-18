@@ -11,21 +11,21 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'tax-cover-sheet': {
     id: 'tax-cover-sheet',
     title: 'Deckblatt der Steuererklärung',
-    description: 'Das Deckblatt Ihrer Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde',
+    description: 'Das Deckblatt deiner Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde',
     category: 'general',
     required: true
   },
   'employment-income': {
     id: 'employment-income',
     title: 'Lohnausweis',
-    description: 'Ihr jährlicher Lohnausweis von Ihrem Arbeitgeber',
+    description: 'Dein jährlicher Lohnausweis von deinem Arbeitgeber',
     category: 'income',
     required: true
   },
   'rental-income': {
     id: 'rental-income',
     title: 'Mieteinnahmen-Belege',
-    description: 'Belege und Aufstellungen über Ihre Mieteinnahmen',
+    description: 'Belege und Aufstellungen über deine Mieteinnahmen',
     category: 'income',
     required: true
   },
@@ -39,7 +39,7 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'freelance-income': {
     id: 'freelance-income',
     title: 'Selbständigeneinkommen',
-    description: 'Belege und Aufstellungen Ihres selbständigen Einkommens',
+    description: 'Belege und Aufstellungen deines selbständigen Einkommens',
     category: 'income',
     required: true
   },
@@ -81,7 +81,7 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'deposit-account': {
     id: 'deposit-account',
     title: 'Depotauszug',
-    description: 'Auszug Ihres Depotkontos per Jahresende',
+    description: 'Auszug deines Depotkontos per Jahresende',
     category: 'assets',
     required: true
   },
@@ -116,7 +116,7 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'pillar3a-certificate': {
     id: 'pillar3a-certificate',
     title: 'Säule 3a Bescheinigung',
-    description: 'Bestätigung über Ihre Säule 3a Beiträge',
+    description: 'Bestätigung über deine Säule 3a Beiträge',
     category: 'deductions',
     required: true
   },

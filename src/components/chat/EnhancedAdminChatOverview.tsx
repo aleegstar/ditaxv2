@@ -329,7 +329,7 @@ export const EnhancedAdminChatOverview: React.FC = () => {
   if (!isValid) {
     return (
       <div className="flex items-center justify-center h-full text-gray-500">
-        <p>Bitte melden Sie sich an.</p>
+        <p>Bitte melde dich an.</p>
       </div>
     );
   }
@@ -338,7 +338,7 @@ export const EnhancedAdminChatOverview: React.FC = () => {
     <div className="container mx-auto px-4 py-8 space-y-6 min-h-screen">
       <AdminWelcomeHeader
         title="Chat-Übersicht"
-        subtitle="Verwalten Sie Kundenbetreuung und Bot-Eskalationen"
+        subtitle="Verwalte Kundenbetreuung und Bot-Eskalationen"
         badge={{
           text: `${users.length} aktive Chats`,
           variant: 'secondary'
@@ -468,8 +468,8 @@ export const EnhancedAdminChatOverview: React.FC = () => {
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="text-center">
               <User className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">Wählen Sie einen Chat aus</p>
-              <p className="text-sm">Klicken Sie auf einen Benutzer, um den Chat zu öffnen.</p>
+              <p className="text-lg font-medium">Wähle einen Chat aus</p>
+              <p className="text-sm">Klicke auf einen Benutzer, um den Chat zu öffnen.</p>
               <p className="text-xs mt-2 opacity-50">
                 {users.length} Chats verfügbar
               </p>

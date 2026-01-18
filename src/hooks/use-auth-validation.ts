@@ -59,7 +59,7 @@ export function useAuthValidation() {
         if (!skipNavigation) {
           toast({
             title: "Session-Fehler",
-            description: "Ihre Sitzung ist ungültig. Bitte melden Sie sich erneut an.",
+            description: "Deine Sitzung ist ungültig. Bitte melde dich erneut an.",
             variant: "destructive"
           });
           

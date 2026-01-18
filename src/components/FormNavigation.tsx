@@ -104,7 +104,7 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
         debug.error(`FormNavigation: Error saving ${formSection}:`, error);
         toast({
           title: "Speicherfehler",
-          description: "Beim Speichern ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+          description: "Beim Speichern ist ein Fehler aufgetreten. Bitte versuche es erneut.",
           variant: "destructive"
         });
         return; // Don't proceed if save failed

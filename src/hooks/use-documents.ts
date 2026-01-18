@@ -54,7 +54,7 @@ export function useDocuments() {
         if (errorMessage.includes('Authentifizierung') || errorMessage.includes('authentifiziert')) {
           toast({
             title: "Anmeldung erforderlich",
-            description: "Bitte melden Sie sich an, um auf Ihre Dokumente zuzugreifen",
+            description: "Bitte melde dich an, um auf deine Dokumente zuzugreifen",
             variant: "destructive",
           });
           
