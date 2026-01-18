@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, RefreshCw, FileQuestion, X } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, RefreshCw, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ValidationResult } from '@/types/documentProfile';
@@ -19,10 +19,8 @@ interface DocumentCheckScreenProps {
   fileName: string;
   onConfirm: () => void;
   onReupload: () => void;
-  onChangeType: () => void;
   onClose?: () => void;
   isConfirming?: boolean;
-  embedded?: boolean;
 }
 
 export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
@@ -30,10 +28,8 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   fileName,
   onConfirm,
   onReupload,
-  onChangeType,
   onClose,
-  isConfirming = false,
-  embedded = false
+  isConfirming = false
 }) => {
   const profile = getDocumentProfile(result.best.docTypeId);
   const confidence = result.best.confidence;
@@ -74,9 +70,6 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   };
 
   const warningReason = getWarningReason();
-
-  // Show "trotzdem einreichen" when confidence is low
-  const showSubmitAnyway = confidence < 80;
 
   return (
     <div className="space-y-4">
@@ -132,7 +125,7 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         {fileName}
       </p>
 
-      {/* Action Buttons - Primary: Neue Datei */}
+      {/* Action Buttons */}
       <div className="space-y-3 pt-2">
         {/* Primary Action: Upload new file */}
         <Button 
@@ -144,40 +137,16 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
           Andere Datei hochladen
         </Button>
         
-        {/* Secondary: Change type */}
+        {/* Secondary: Submit anyway */}
         <Button 
-          variant="outline" 
-          onClick={onChangeType} 
+          variant="outline"
+          onClick={onConfirm}
+          disabled={isConfirming}
           className="w-full"
           size="default"
         >
-          <FileQuestion className="w-4 h-4 mr-2" />
-          Dokumenttyp ändern
+          {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
         </Button>
-
-        {/* Tertiary: Submit anyway (only when low confidence) */}
-        {showSubmitAnyway && (
-          <button
-            onClick={onConfirm}
-            disabled={isConfirming}
-            className="w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 py-2 transition-colors disabled:opacity-50"
-          >
-            {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
-          </button>
-        )}
-
-        {/* High confidence: Show normal confirm */}
-        {!showSubmitAnyway && (
-          <Button 
-            onClick={onConfirm} 
-            disabled={isConfirming} 
-            variant="outline"
-            className="w-full"
-            size="default"
-          >
-            {isConfirming ? 'Wird verarbeitet...' : 'Dokument hochladen'}
-          </Button>
-        )}
       </div>
     </div>
   );
