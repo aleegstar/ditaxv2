@@ -1,6 +1,6 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
 import { createWorker, Worker } from 'tesseract.js';
-import { convertImageToPdf } from '@/utils/imageToPdf';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -283,6 +283,53 @@ class OcrVerificationService {
   }
 
   /**
+   * Extract text from image using AI Vision OCR via Edge Function
+   * Used on mobile devices where Tesseract.js has worker limitations
+   */
+  private async extractTextWithAI(file: File): Promise<string> {
+    this.addDebugLog('Using AI Vision OCR via Edge Function...');
+    
+    // Convert file to base64
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = btoa(
+      new Uint8Array(arrayBuffer)
+        .reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+    
+    this.addDebugLog(`Image size: ${(arrayBuffer.byteLength / 1024).toFixed(1)} KB`);
+    
+    // Get current session for auth
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    
+    if (!accessToken) {
+      throw new Error('Nicht authentifiziert');
+    }
+    
+    // Call Edge Function
+    this.addDebugLog('Calling OCR Edge Function...');
+    const { data, error } = await supabase.functions.invoke('ocr-extract', {
+      body: {
+        imageBase64: base64,
+        mimeType: file.type
+      }
+    });
+    
+    if (error) {
+      this.addDebugLog(`Edge Function error: ${error.message}`);
+      throw new Error(`OCR-Fehler: ${error.message}`);
+    }
+    
+    if (!data?.success) {
+      this.addDebugLog(`OCR failed: ${data?.error || 'Unknown error'}`);
+      throw new Error(data?.error || 'OCR fehlgeschlagen');
+    }
+    
+    this.addDebugLog(`AI extracted ${data.charCount} characters`);
+    return data.extractedText || '';
+  }
+
+  /**
    * Calculate confidence based on found keywords
    */
   private calculateConfidence(
@@ -397,8 +444,7 @@ class OcrVerificationService {
         return result;
       }
       
-      // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
-      // On mobile: Convert image to PDF first for better OCR via pdf.js
+      // Handle images - use AI Vision OCR on mobile, Tesseract.js on desktop
       if (file.type.startsWith('image/')) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
@@ -410,20 +456,14 @@ class OcrVerificationService {
         this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
         this.addDebugLog(`Document: ${keywordConfig.displayName}`);
         
-        // On mobile: Convert image to PDF and use pdf.js extraction
+        // On mobile: Use AI Vision OCR via Edge Function
         // This bypasses Tesseract.js worker issues on mobile WebViews
         if (isMobile) {
-          this.addDebugLog('Mobile detected - using Image→PDF conversion');
+          this.addDebugLog('Mobile detected - using AI Vision OCR');
           
           try {
-            // Convert image to PDF
-            this.addDebugLog('Converting image to PDF...');
-            const pdfFile = await convertImageToPdf(file);
-            this.addDebugLog(`Converted: ${pdfFile.name} (${(pdfFile.size / 1024).toFixed(1)} KB)`);
-            
-            // Extract text using pdf.js (which works on mobile!)
-            this.addDebugLog('Extracting text from PDF...');
-            const extractedText = await this.extractTextFromPdf(pdfFile);
+            // Extract text using AI Vision
+            const extractedText = await this.extractTextWithAI(file);
             this.addDebugLog(`Extracted ${extractedText.length} characters`);
             
             const normalizedText = this.normalizeText(extractedText);
@@ -477,8 +517,8 @@ class OcrVerificationService {
               debugLog: this.getDebugLog()
             };
             
-          } catch (conversionError) {
-            this.addDebugLog(`Conversion failed: ${conversionError instanceof Error ? conversionError.message : String(conversionError)}`);
+          } catch (aiOcrError) {
+            this.addDebugLog(`AI OCR failed: ${aiOcrError instanceof Error ? aiOcrError.message : String(aiOcrError)}`);
             
             // Fallback: Accept with manual confirmation
             return {
