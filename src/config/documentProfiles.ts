@@ -467,7 +467,20 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 3 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'iban', 'saldobescheinigung', 'zinsbescheinigung'],
+    keywordHints: [
+      // Basis-Keywords
+      'kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'iban', 'saldobescheinigung', 'zinsbescheinigung',
+      // Zins-Varianten
+      'zins', 'zinsabschluss', 'habenzins', 'bruttozins', 'nettozins', 'zinsertrag',
+      // Konto-Varianten
+      'kontostand', 'kontosaldo', 'privatkonto', 'sparkonto', 'girokonto',
+      // Schweizer Banken
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank',
+      // Buchungsbegriffe
+      'gutschrift', 'lastschrift', 'valuta', 'buchung',
+      // Jahresabschluss
+      'jahresabschluss', 'stichtag', '31.12', 'per ende jahr'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true

@@ -153,7 +153,20 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   
   // === VERMÖGEN & KAPITALERTRÄGE ===
   'bank-account-statement': {
-    keywords: ['kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'iban', 'saldobescheinigung', 'zinsbescheinigung'],
+    keywords: [
+      // Basis-Keywords
+      'kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'iban', 'saldobescheinigung', 'zinsbescheinigung',
+      // Zins-Varianten
+      'zins', 'zinsabschluss', 'habenzins', 'bruttozins', 'nettozins', 'zinsertrag',
+      // Konto-Varianten
+      'kontostand', 'kontosaldo', 'privatkonto', 'sparkonto', 'girokonto',
+      // Schweizer Banken
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank',
+      // Buchungsbegriffe
+      'gutschrift', 'lastschrift', 'valuta', 'buchung',
+      // Jahresabschluss
+      'jahresabschluss', 'stichtag', '31.12', 'per ende jahr'
+    ],
     minMatchCount: 3,
     confidence: 'high',
     displayName: 'Zins- und Saldobescheinigung'
