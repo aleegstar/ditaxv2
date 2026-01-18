@@ -15,6 +15,12 @@ export interface OcrVerificationResult {
   requiresManualConfirmation: boolean;
   /** Debug log for troubleshooting OCR issues (especially on mobile) */
   debugLog?: string[];
+  /** 
+   * Confirmation mode for the dialog:
+   * - 'neutral': Simple confirmation request (e.g., mobile DSGVO compliance) - blue info style
+   * - 'warning': OCR detected a potential mismatch - yellow warning style
+   */
+  confirmationMode?: 'neutral' | 'warning';
 }
 
 /**
@@ -420,12 +426,13 @@ class OcrVerificationService {
             confidence: 0,
             foundKeywords: [],
             missingKeywords: [],
-            reason: 'Auf mobilen Geräten bitten wir dich, das Dokument manuell zu bestätigen.',
+            reason: '',
             extractedTextPreview: '',
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: true,
             requiresManualConfirmation: true,
+            confirmationMode: 'neutral',
             debugLog: this.getDebugLog()
           };
         }
