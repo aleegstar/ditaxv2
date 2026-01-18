@@ -268,11 +268,12 @@ const DocumentUploadPageContent: React.FC = () => {
       <SubpageHeader title={selectedItem.title} onBack={handleBack} />
       
       <div className="flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
-        <div className="mb-8 text-center">
-          
-          <p className="text-base text-slate-500">
-            {selectedItem.description}
-          </p>
+        <div className="w-full max-w-4xl mb-6">
+          <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-center">
+            <p className="text-sm text-slate-600">
+              {selectedItem.description}
+            </p>
+          </div>
         </div>
 
         {/* Upload card */}
