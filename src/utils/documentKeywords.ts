@@ -67,7 +67,16 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   },
   
   'pension-income': {
-    keywords: ['rente', 'pension', 'altersrente', 'ahv-rente', 'iv-rente', 'pensionskasse', 'bvg', 'vorsorge', 'altersleistung', 'ruhegehalt'],
+    keywords: [
+      // Basis-Keywords
+      'rente', 'pension', 'altersrente', 'ahv-rente', 'iv-rente', 'pensionskasse', 'bvg', 'vorsorge', 'altersleistung', 'ruhegehalt',
+      // Schweizer Institutionen
+      'ausgleichskasse', 'sva', 'sozialversicherungsanstalt', 'compenswiss', 'publica',
+      // Rentenarten
+      'witwenrente', 'waisenrente', 'kinderrente', 'ergänzungsleistung', 'hilflosenentschädigung',
+      // Begriffe auf Bescheinigungen
+      'jahresrente', 'monatsrente', 'rentenbescheid', 'rentenausweis', 'rentner'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Rentenbescheinigung'
@@ -124,14 +133,32 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   
   // === VORSORGE ===
   'pillar3a-certificate': {
-    keywords: ['säule 3a', '3a', 'vorsorge', 'steuerbegünstigt', 'einzahlung', 'freizügigkeit', 'vorsorgekonto', 'gebundene vorsorge', 'steuererklärung', 'steuerbescheinigung'],
+    keywords: [
+      // Basis-Keywords
+      'säule 3a', '3a', 'vorsorge', 'steuerbegünstigt', 'einzahlung', 'freizügigkeit', 'vorsorgekonto', 'gebundene vorsorge', 'steuererklärung', 'steuerbescheinigung',
+      // Schweizer Anbieter
+      'swisscanto', 'viac', 'frankly', 'finpension', 'liberty', 'axa', 'mobiliar', 'zurich', 'swiss life', 'baloise',
+      // Produktbezeichnungen
+      'vorsorgesparen', 'vorsorgepolice', 'sparversicherung', 'wertschriftenlösung', 'fondslösung',
+      // Steuer-Begriffe
+      'steuerbescheinigung', 'steuerabzug', 'maximaleinzahlung', 'abzugsfähig'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Säule 3a Bescheinigung'
   },
   
   'pillar2-statement': {
-    keywords: ['pensionskasse', 'bvg', '2. säule', 'vorsorgeausweis', 'altersguthaben', 'freizügigkeit', 'deckungskapital', 'risikoleistung'],
+    keywords: [
+      // Basis-Keywords
+      'pensionskasse', 'bvg', '2. säule', 'vorsorgeausweis', 'altersguthaben', 'freizügigkeit', 'deckungskapital', 'risikoleistung',
+      // Schweizer PKs und Sammelstiftungen
+      'publica', 'pkbs', 'bpk', 'asga', 'vita', 'axa', 'swiss life', 'bâloise', 'pax', 'helvetia', 'migros', 'coop',
+      // Vorsorge-Begriffe
+      'umwandlungssatz', 'koordinationsabzug', 'versicherter lohn', 'sparguthaben', 'invalidenrente', 'altersleistung',
+      // Dokumentbegriffe
+      'jahresausweis', 'versicherungsausweis', 'projektion', 'vorbezug', 'wohneigentum'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Pensionskassenausweis'
@@ -173,28 +200,62 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   },
   
   'bank-statements': {
-    keywords: ['kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'depot', 'wertschriften'],
+    keywords: [
+      // Basis-Keywords
+      'kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'depot', 'wertschriften',
+      // Schweizer Banken
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank', 'migros bank', 'cler',
+      // Konto-Begriffe
+      'jahresabschluss', 'kontostand', 'bewegungen', 'transaktionen', 'umsatz'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Bankauszug'
   },
   
   'deposit-account': {
-    keywords: ['depot', 'wertschriften', 'aktie', 'obligation', 'fonds', 'portfolio', 'depotauszug', 'vermögenswerte'],
+    keywords: [
+      // Basis-Keywords
+      'depot', 'wertschriften', 'aktie', 'obligation', 'fonds', 'portfolio', 'depotauszug', 'vermögenswerte',
+      // Wertpapier-Begriffe
+      'isin', 'valor', 'kurswert', 'stückzahl', 'anteile', 'nennwert', 'marchzins',
+      // Fonds und ETFs
+      'etf', 'anlagefonds', 'indexfonds', 'swisscanto', 'ubs fund', 'credit suisse fund',
+      // Börse
+      'six', 'börse', 'nasdaq', 'nyse', 'kurs', 'performance'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Depotauszug'
   },
   
   'securities-statement': {
-    keywords: ['wertschriften', 'depot', 'aktien', 'obligationen', 'fonds', 'dividende', 'kursgewinn', 'vermögensaufstellung', 'portfolio'],
+    keywords: [
+      // Basis-Keywords
+      'wertschriften', 'depot', 'aktien', 'obligationen', 'fonds', 'dividende', 'kursgewinn', 'vermögensaufstellung', 'portfolio',
+      // Wertpapier-Begriffe
+      'isin', 'valor', 'steuerwert', 'kurswert', 'verrechnungssteuer', 'bruttodividende',
+      // Schweizer Börse
+      'six swiss exchange', 'smi', 'swiss market index',
+      // Dokumentbegriffe
+      'steuerverzeichnis', 'jahresabschluss', 'ertragsübersicht'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Wertschriftenverzeichnis'
   },
   
   'crypto-portfolio': {
-    keywords: ['bitcoin', 'ethereum', 'kryptowährung', 'crypto', 'wallet', 'blockchain', 'token'],
+    keywords: [
+      // Basis-Keywords
+      'bitcoin', 'ethereum', 'kryptowährung', 'crypto', 'wallet', 'blockchain', 'token',
+      // Weitere Kryptos
+      'btc', 'eth', 'bnb', 'xrp', 'cardano', 'solana', 'polkadot', 'avalanche', 'usdt', 'usdc',
+      // Exchanges
+      'binance', 'kraken', 'coinbase', 'bitpanda', 'swissborg', 'bitcoin suisse',
+      // Begriffe
+      'staking', 'defi', 'nft', 'ledger', 'metamask', 'kurs', 'portfolio'
+    ],
     minMatchCount: 1,
     confidence: 'high',
     displayName: 'Kryptowährungsnachweis'
@@ -223,14 +284,32 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   },
   
   'mortgage-statement': {
-    keywords: ['hypothek', 'zinssatz', 'liegenschaft', 'grundpfand', 'hypothekarzins', 'amortisation', 'schuldzins'],
+    keywords: [
+      // Basis-Keywords
+      'hypothek', 'zinssatz', 'liegenschaft', 'grundpfand', 'hypothekarzins', 'amortisation', 'schuldzins',
+      // Hypothekarprodukte
+      'festhypothek', 'saron', 'libor', 'variable hypothek', 'rahmenkredit',
+      // Schweizer Banken
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank',
+      // Begriffe
+      'tragbarkeit', 'schuldbrief', 'grundbuch', 'restschuld', 'zinsabrechnung', 'darlehen'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Hypotheken-Dokumente'
   },
   
   'mortgage-interest': {
-    keywords: ['hypothek', 'hypothekarzinsen', 'schuldzinsen', 'darlehen', 'finanzierung', 'liegenschaft', 'zinsausweis'],
+    keywords: [
+      // Basis-Keywords
+      'hypothek', 'hypothekarzinsen', 'schuldzinsen', 'darlehen', 'finanzierung', 'liegenschaft', 'zinsausweis',
+      // Zins-Begriffe
+      'jahreszins', 'zinsbelastung', 'zinsabrechnung', 'zinsaufwand',
+      // Hypothekarprodukte
+      'festhypothek', 'saron', 'variable', 'rahmenkredit',
+      // Schweizer Banken
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Hypothekarzins-Bescheinigung'
@@ -252,7 +331,16 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   
   // === ABZÜGE ===
   'health-insurance': {
-    keywords: ['krankenkasse', 'krankenversicherung', 'prämie', 'grundversicherung', 'zusatzversicherung', 'kvg', 'franchise'],
+    keywords: [
+      // Basis-Keywords
+      'krankenkasse', 'krankenversicherung', 'prämie', 'grundversicherung', 'zusatzversicherung', 'kvg', 'franchise',
+      // Schweizer Krankenkassen
+      'css', 'helsana', 'swica', 'concordia', 'sanitas', 'visana', 'atupri', 'groupe mutuel', 'assura', 'kpt', 'oks', 'sympany',
+      // Versicherungsbegriffe
+      'jahresprämie', 'monatsprämie', 'prämienbestätigung', 'prämienbescheinigung', 'steuerbescheinigung',
+      // Produkte
+      'unfallversicherung', 'spitalversicherung', 'zahnversicherung', 'selbstbehalt'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Krankenkassen-Prämiennachweis'
@@ -273,14 +361,32 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   },
   
   'commuting-expenses': {
-    keywords: ['arbeitsweg', 'pendler', 'ga', 'halbtax', 'fahrkosten', 'öv', 'abonnement', 'berufsauslagen'],
+    keywords: [
+      // Basis-Keywords
+      'arbeitsweg', 'pendler', 'ga', 'halbtax', 'fahrkosten', 'öv', 'abonnement', 'berufsauslagen',
+      // Schweizer ÖV
+      'sbb', 'zvv', 'bls', 'rhb', 'sob', 'tpf', 'tpg', 'vbl', 'bernmobil', 'basler verkehrsbetriebe', 'vbz',
+      // Abos
+      'streckenabo', 'verbundabo', 'monatsabo', 'jahresabo', 'mobility', 'publibike',
+      // Begriffe
+      'fahrausweis', 'billett', 'swisspass', 'bahncard', 'tageskarte'
+    ],
     minMatchCount: 2,
     confidence: 'medium',
     displayName: 'Fahrkosten-Belege'
   },
   
   'childcare-expenses': {
-    keywords: ['kinderbetreuung', 'kita', 'krippe', 'hort', 'tagesmutter', 'betreuungskosten', 'drittbetreuung'],
+    keywords: [
+      // Basis-Keywords
+      'kinderbetreuung', 'kita', 'krippe', 'hort', 'tagesmutter', 'betreuungskosten', 'drittbetreuung',
+      // Betreuungsformen
+      'kindertagesstätte', 'tagesschule', 'mittagstisch', 'spielgruppe', 'tagesfamilie', 'nanny',
+      // Begriffe
+      'betreuungsgutschein', 'subvention', 'elternbeitrag', 'betreuungstage', 'jahresabrechnung',
+      // Weitere
+      'vorschule', 'nachmittagsbetreuung', 'ferienbetreuung'
+    ],
     minMatchCount: 2,
     confidence: 'high',
     displayName: 'Kinderbetreuungskosten-Belege'

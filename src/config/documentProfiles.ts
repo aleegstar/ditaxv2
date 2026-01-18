@@ -141,7 +141,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 2 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['rente', 'pension', 'altersrente', 'ahv-rente', 'iv-rente', 'pensionskasse', 'bvg', 'vorsorge', 'altersleistung', 'ruhegehalt'],
+    keywordHints: [
+      'rente', 'pension', 'altersrente', 'ahv-rente', 'iv-rente', 'pensionskasse', 'bvg', 'vorsorge', 'altersleistung', 'ruhegehalt',
+      'ausgleichskasse', 'sva', 'sozialversicherungsanstalt', 'compenswiss', 'publica',
+      'witwenrente', 'waisenrente', 'kinderrente', 'ergänzungsleistung', 'hilflosenentschädigung',
+      'jahresrente', 'monatsrente', 'rentenbescheid', 'rentenausweis', 'rentner'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
@@ -355,7 +360,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 2 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['säule 3a', '3a', 'vorsorge', 'steuerbegünstigt', 'einzahlung', 'freizügigkeit', 'vorsorgekonto', 'gebundene vorsorge', 'steuerbescheinigung'],
+    keywordHints: [
+      'säule 3a', '3a', 'vorsorge', 'steuerbegünstigt', 'einzahlung', 'freizügigkeit', 'vorsorgekonto', 'gebundene vorsorge', 'steuerbescheinigung',
+      'swisscanto', 'viac', 'frankly', 'finpension', 'liberty', 'axa', 'mobiliar', 'zurich', 'swiss life', 'baloise',
+      'vorsorgesparen', 'vorsorgepolice', 'sparversicherung', 'wertschriftenlösung', 'fondslösung',
+      'steuerabzug', 'maximaleinzahlung', 'abzugsfähig'
+    ],
     negativeKeywords: ['pensionskasse', 'bvg', '2. säule'],
     layoutHints: {
       expectsHeaderBlock: true,
@@ -384,7 +394,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 4 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 5 },
-    keywordHints: ['pensionskasse', 'bvg', '2. säule', 'vorsorgeausweis', 'altersguthaben', 'freizügigkeit', 'deckungskapital', 'risikoleistung'],
+    keywordHints: [
+      'pensionskasse', 'bvg', '2. säule', 'vorsorgeausweis', 'altersguthaben', 'freizügigkeit', 'deckungskapital', 'risikoleistung',
+      'publica', 'pkbs', 'bpk', 'asga', 'vita', 'axa', 'swiss life', 'bâloise', 'pax', 'helvetia', 'migros', 'coop',
+      'umwandlungssatz', 'koordinationsabzug', 'versicherter lohn', 'sparguthaben', 'invalidenrente', 'altersleistung',
+      'jahresausweis', 'versicherungsausweis', 'projektion', 'vorbezug', 'wohneigentum'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true,
@@ -508,7 +523,11 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 10 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 8 },
-    keywordHints: ['kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'depot', 'wertschriften'],
+    keywordHints: [
+      'kontoauszug', 'bank', 'saldo', 'guthaben', 'zinsen', 'konto', 'sparen', 'vermögen', 'depot', 'wertschriften',
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank', 'migros bank', 'cler',
+      'jahresabschluss', 'kontostand', 'bewegungen', 'transaktionen', 'umsatz'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
@@ -534,7 +553,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 20 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.1, max: 10 },
-    keywordHints: ['depot', 'wertschriften', 'aktie', 'obligation', 'fonds', 'portfolio', 'depotauszug', 'vermögenswerte'],
+    keywordHints: [
+      'depot', 'wertschriften', 'aktie', 'obligation', 'fonds', 'portfolio', 'depotauszug', 'vermögenswerte',
+      'isin', 'valor', 'kurswert', 'stückzahl', 'anteile', 'nennwert', 'marchzins',
+      'etf', 'anlagefonds', 'indexfonds', 'swisscanto', 'ubs fund', 'credit suisse fund',
+      'six', 'börse', 'nasdaq', 'nyse', 'kurs', 'performance'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true,
@@ -562,7 +586,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 20 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.1, max: 10 },
-    keywordHints: ['wertschriften', 'depot', 'aktien', 'obligationen', 'fonds', 'dividende', 'kursgewinn', 'vermögensaufstellung', 'portfolio'],
+    keywordHints: [
+      'wertschriften', 'depot', 'aktien', 'obligationen', 'fonds', 'dividende', 'kursgewinn', 'vermögensaufstellung', 'portfolio',
+      'isin', 'valor', 'steuerwert', 'kurswert', 'verrechnungssteuer', 'bruttodividende',
+      'six swiss exchange', 'smi', 'swiss market index',
+      'steuerverzeichnis', 'jahresabschluss', 'ertragsübersicht'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true,
@@ -590,7 +619,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 5 },
     typicalOrientation: 'any',
     typicalFileSizeMB: { min: 0.05, max: 5 },
-    keywordHints: ['bitcoin', 'ethereum', 'kryptowährung', 'crypto', 'wallet', 'blockchain', 'token'],
+    keywordHints: [
+      'bitcoin', 'ethereum', 'kryptowährung', 'crypto', 'wallet', 'blockchain', 'token',
+      'btc', 'eth', 'bnb', 'xrp', 'cardano', 'solana', 'polkadot', 'avalanche', 'usdt', 'usdc',
+      'binance', 'kraken', 'coinbase', 'bitpanda', 'swissborg', 'bitcoin suisse',
+      'staking', 'defi', 'nft', 'ledger', 'metamask', 'kurs', 'portfolio'
+    ],
     layoutHints: {
       expectsTable: true
     },
@@ -698,7 +732,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 5 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 5 },
-    keywordHints: ['hypothek', 'zinssatz', 'liegenschaft', 'grundpfand', 'hypothekarzins', 'amortisation', 'schuldzins'],
+    keywordHints: [
+      'hypothek', 'zinssatz', 'liegenschaft', 'grundpfand', 'hypothekarzins', 'amortisation', 'schuldzins',
+      'festhypothek', 'saron', 'libor', 'variable hypothek', 'rahmenkredit',
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank',
+      'tragbarkeit', 'schuldbrief', 'grundbuch', 'restschuld', 'zinsabrechnung', 'darlehen'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
@@ -725,7 +764,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 2 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['hypothek', 'hypothekarzinsen', 'schuldzinsen', 'darlehen', 'finanzierung', 'liegenschaft', 'zinsausweis'],
+    keywordHints: [
+      'hypothek', 'hypothekarzinsen', 'schuldzinsen', 'darlehen', 'finanzierung', 'liegenschaft', 'zinsausweis',
+      'jahreszins', 'zinsbelastung', 'zinsabrechnung', 'zinsaufwand',
+      'festhypothek', 'saron', 'variable', 'rahmenkredit',
+      'postfinance', 'raiffeisen', 'ubs', 'credit suisse', 'zkb', 'kantonalbank'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
@@ -805,7 +849,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 2 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['krankenkasse', 'krankenversicherung', 'prämie', 'grundversicherung', 'zusatzversicherung', 'kvg', 'franchise'],
+    keywordHints: [
+      'krankenkasse', 'krankenversicherung', 'prämie', 'grundversicherung', 'zusatzversicherung', 'kvg', 'franchise',
+      'css', 'helsana', 'swica', 'concordia', 'sanitas', 'visana', 'atupri', 'groupe mutuel', 'assura', 'kpt', 'oks', 'sympany',
+      'jahresprämie', 'monatsprämie', 'prämienbestätigung', 'prämienbescheinigung', 'steuerbescheinigung',
+      'unfallversicherung', 'spitalversicherung', 'zahnversicherung', 'selbstbehalt'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
@@ -888,7 +937,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 3 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 3 },
-    keywordHints: ['arbeitsweg', 'pendler', 'ga', 'halbtax', 'fahrkosten', 'öv', 'abonnement', 'berufsauslagen'],
+    keywordHints: [
+      'arbeitsweg', 'pendler', 'ga', 'halbtax', 'fahrkosten', 'öv', 'abonnement', 'berufsauslagen',
+      'sbb', 'zvv', 'bls', 'rhb', 'sob', 'tpf', 'tpg', 'vbl', 'bernmobil', 'basler verkehrsbetriebe', 'vbz',
+      'streckenabo', 'verbundabo', 'monatsabo', 'jahresabo', 'mobility', 'publibike',
+      'fahrausweis', 'billett', 'swisspass', 'bahncard', 'tageskarte'
+    ],
     layoutHints: {
       expectsHeaderBlock: true,
       expectsTable: true
@@ -916,7 +970,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalPages: { min: 1, max: 5 },
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 5 },
-    keywordHints: ['kinderbetreuung', 'kita', 'krippe', 'hort', 'tagesmutter', 'betreuungskosten', 'drittbetreuung'],
+    keywordHints: [
+      'kinderbetreuung', 'kita', 'krippe', 'hort', 'tagesmutter', 'betreuungskosten', 'drittbetreuung',
+      'kindertagesstätte', 'tagesschule', 'mittagstisch', 'spielgruppe', 'tagesfamilie', 'nanny',
+      'betreuungsgutschein', 'subvention', 'elternbeitrag', 'betreuungstage', 'jahresabrechnung',
+      'vorschule', 'nachmittagsbetreuung', 'ferienbetreuung'
+    ],
     layoutHints: {
       expectsTable: true,
       expectsHeaderBlock: true
