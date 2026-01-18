@@ -9,7 +9,8 @@ import DocumentViewer from '@/components/DocumentViewer';
 import { DocumentMetadata } from '@/services/DocumentService';
 import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './DocumentCheckScreen';
-import { ValidationResult } from '@/types/documentProfile';
+import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+import { Progress } from '@/components/ui/progress';
 import {
   ModernUploadDialog,
   ModernUploadDialogContent,
@@ -50,6 +51,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const [showCheckScreen, setShowCheckScreen] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [pendingDoc, setPendingDoc] = useState<any>(null);
+  const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
   
   const documentValidator = DocumentValidator.getInstance();
   const { toast } = useToast();
@@ -159,6 +161,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
     // Perform document validation if not already verified
     if (firstDoc && !isVerifying) {
       setIsVerifying(true);
+      setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
       
       console.log('[Assignment] Starting document validation:', {
         documentId: firstDoc.id,
@@ -177,16 +180,22 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         if (urlError || !urlData?.signedUrl) {
           console.warn('[Assignment] Could not get signed URL, proceeding with assignment');
           setIsVerifying(false);
+          setValidationProgress(null);
           await performAssignment();
           return;
         }
 
         // Fetch the file as a blob
+        setValidationProgress({ step: 'preparing', percent: 20, message: 'Dokument wird geladen...' });
         const response = await fetch(urlData.signedUrl);
         const blob = await response.blob();
         const file = new File([blob], firstDoc.file_name, { type: firstDoc.file_type });
 
-        const result = await documentValidator.validate(file, checklistItemId);
+        const result = await documentValidator.validate(
+          file, 
+          checklistItemId,
+          (progress) => setValidationProgress(progress)
+        );
 
         console.log('[Assignment] Validation result:', {
           fileName: file.name,
@@ -194,6 +203,8 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
           confidence: result.best.confidence,
           needsConfirmation: result.needsUserConfirmation
         });
+
+        setValidationProgress(null);
 
         // Show check screen if manual confirmation is required
         if (result.needsUserConfirmation) {
@@ -205,6 +216,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         }
       } catch (err) {
         console.error('[Assignment] Validation error:', err);
+        setValidationProgress(null);
         // On error, proceed with assignment anyway
         toast({
           title: "Hinweis",
@@ -495,6 +507,41 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         isOpen={viewerOpen}
         onClose={handleCloseViewer}
       />
+
+      {/* Validation Progress Modal */}
+      {isVerifying && validationProgress && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
+            <div className="flex flex-col items-center gap-5">
+              {/* Animated Icon */}
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              </div>
+              
+              {/* Status Text */}
+              <div className="text-center space-y-1">
+                <h3 className="font-semibold text-slate-800 text-lg">
+                  Dokument wird geprüft
+                </h3>
+                <p className="text-sm text-slate-500">
+                  {validationProgress.message}
+                </p>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full space-y-2">
+                <Progress 
+                  value={validationProgress.percent} 
+                  className="w-full h-2"
+                />
+                <p className="text-xs text-slate-400 text-center">
+                  {validationProgress.percent}% abgeschlossen
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Document Check Screen Modal - Using ModernUploadDialog for consistent styling */}
       <ModernUploadDialog open={showCheckScreen} onOpenChange={(open) => !open && handleCheckReupload()}>
