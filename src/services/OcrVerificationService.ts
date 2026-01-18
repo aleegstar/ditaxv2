@@ -29,8 +29,10 @@ export interface OcrVerificationResult {
 class OcrVerificationService {
   private static instance: OcrVerificationService;
   private tesseractWorker: Worker | null = null;
-  private workerInitPromise: Promise<Worker> | null = null;
+  private workerInitPromise: Promise<Worker | null> | null = null;
   private ocrDebugLog: string[] = [];
+  /** Tracks if worker creation failed on mobile - prevents repeated attempts */
+  private workerFailedOnMobile: boolean = false;
 
   public static getInstance(): OcrVerificationService {
     if (!OcrVerificationService.instance) {
@@ -66,8 +68,17 @@ class OcrVerificationService {
   /**
    * Get or create the Tesseract worker (singleton pattern)
    * Worker is created once and reused for all OCR operations
+   * Returns null if worker creation failed (especially on mobile)
    */
-  private async getWorker(): Promise<Worker> {
+  private async getWorker(): Promise<Worker | null> {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    // On mobile, if we already know worker creation fails, skip immediately
+    if (this.workerFailedOnMobile && isMobile) {
+      console.log('[OCR] Skipping worker creation - previously failed on mobile');
+      return null;
+    }
+    
     // Return existing worker if available
     if (this.tesseractWorker) {
       console.log('[OCR] Reusing existing Tesseract worker');
@@ -102,7 +113,14 @@ class OcrVerificationService {
       } catch (error) {
         console.error('[OCR] Failed to create Tesseract worker:', error);
         this.workerInitPromise = null;
-        throw error;
+        
+        // Remember failure on mobile to avoid repeated attempts
+        if (isMobile) {
+          this.workerFailedOnMobile = true;
+          console.log('[OCR] Marking worker as failed for mobile - will skip future attempts');
+        }
+        
+        return null;
       }
     })();
 
@@ -393,20 +411,37 @@ class OcrVerificationService {
         try {
           // Get or create the singleton worker first
           this.addDebugLog('Getting Tesseract worker...');
-          let worker: Worker;
           
-          try {
-            // Timeout for worker creation (30 seconds)
-            const workerPromise = this.getWorker();
-            const workerTimeoutPromise = new Promise<never>((_, reject) => {
-              setTimeout(() => reject(new Error('Worker-Timeout (30s)')), 30000);
-            });
-            worker = await Promise.race([workerPromise, workerTimeoutPromise]);
-            this.addDebugLog('Worker ready ✓');
-          } catch (workerError) {
-            this.addDebugLog(`Worker failed: ${workerError instanceof Error ? workerError.message : String(workerError)}`);
-            throw workerError;
+          // Timeout for worker creation (30 seconds)
+          const workerPromise = this.getWorker();
+          const workerTimeoutPromise = new Promise<Worker | null>((resolve) => {
+            setTimeout(() => resolve(null), 30000);
+          });
+          const worker = await Promise.race([workerPromise, workerTimeoutPromise]);
+          
+          // If worker is not available (mobile limitation), skip OCR gracefully
+          if (!worker) {
+            this.addDebugLog('Worker not available - mobile limitation');
+            this.addDebugLog('Skipping OCR, requiring manual confirmation');
+            
+            return {
+              isMatch: true, // Allow document
+              confidence: 0,
+              foundKeywords: [],
+              missingKeywords: [],
+              reason: isMobile 
+                ? '📱 Auf mobilen Geräten ist die automatische Bilderkennung nicht verfügbar. Für automatische Prüfung bitte ein PDF hochladen.'
+                : 'Die automatische Texterkennung konnte nicht initialisiert werden.',
+              extractedTextPreview: '',
+              documentType: checklistItemId,
+              displayName: keywordConfig.displayName,
+              isImageFile: true,
+              requiresManualConfirmation: true,
+              debugLog: this.getDebugLog()
+            };
           }
+          
+          this.addDebugLog('Worker ready ✓');
           
           // Multi-step fallback for image recognition
           let tesseractResult: Awaited<ReturnType<typeof worker.recognize>> | null = null;
