@@ -54,33 +54,78 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
     return 'Geringe Übereinstimmung';
   };
 
+  // Check if this is an image without OCR
+  const isImageWithoutOcr = result.signals.meta.mimeType?.startsWith('image/') && !result.signals.keywords?.available;
+
   return (
     <div className="space-y-4">
+      {/* Image Warning Banner - Prominent at top */}
+      {isImageWithoutOcr && (
+        <div className="bg-amber-50 dark:bg-amber-950/50 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800 dark:text-amber-200 mb-1">
+                Manuelle Prüfung erforderlich
+              </p>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                Bei Bildern ist keine automatische Dokumentenerkennung möglich. 
+                Bitte bestätigen Sie, dass dies ein <strong>{profile?.label || 'Dokument'}</strong> ist.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Result Card */}
       <Card className="border-2 border-border">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-medium">Dokumentenprüfung</CardTitle>
-            {getConfidenceIcon()}
+            {!isImageWithoutOcr && getConfidenceIcon()}
+            {isImageWithoutOcr && <Info className="w-6 h-6 text-amber-600 dark:text-amber-400" />}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* File Name */}
           <p className="text-sm text-muted-foreground truncate">{fileName}</p>
 
-          {/* Best Match */}
+          {/* Best Match - Different display for images */}
           <div className="p-4 bg-muted/50 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="font-medium">{profile?.label || 'Unbekannt'}</span>
-              <Badge variant={confidence >= 80 ? 'default' : confidence >= 50 ? 'secondary' : 'destructive'}>
-                {confidence}%
-              </Badge>
+              {isImageWithoutOcr ? (
+                <Badge variant="secondary">Manuell</Badge>
+              ) : (
+                <Badge variant={confidence >= 80 ? 'default' : confidence >= 50 ? 'secondary' : 'destructive'}>
+                  {confidence}%
+                </Badge>
+              )}
             </div>
-            <p className={`text-sm ${getConfidenceColor()}`}>{getConfidenceLabel()}</p>
+            <p className={`text-sm ${isImageWithoutOcr ? 'text-amber-600 dark:text-amber-400' : getConfidenceColor()}`}>
+              {isImageWithoutOcr ? 'Bitte manuell bestätigen' : getConfidenceLabel()}
+            </p>
           </div>
 
-          {/* Reasons */}
-          {result.best.reasons.length > 0 && (
+          {/* User Guidance - Prominent for images */}
+          {profile?.userGuidance && (isImageWithoutOcr || confidence < 80) && (
+            <div className={`pt-2 ${isImageWithoutOcr ? 'bg-blue-50/50 dark:bg-blue-950/30 -mx-4 px-4 py-3 border-y border-blue-200 dark:border-blue-800' : 'border-t'} space-y-2`}>
+              <p className="text-xs font-medium text-foreground">
+                {isImageWithoutOcr ? '✓ Bitte prüfen Sie vor dem Bestätigen:' : 'Bitte prüfen Sie:'}
+              </p>
+              <ul className="text-sm space-y-1.5">
+                {profile.userGuidance.whatToCheck.slice(0, isImageWithoutOcr ? 5 : 3).map((check, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-muted-foreground">
+                    <CheckCircle className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
+                    {check}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Reasons - Only show for non-images or if we have real reasons */}
+          {!isImageWithoutOcr && result.best.reasons.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground">Erkannte Merkmale:</p>
               <ul className="text-sm text-muted-foreground space-y-0.5">
@@ -94,8 +139,8 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
             </div>
           )}
 
-          {/* Alternatives (if confidence < 80) */}
-          {confidence < 80 && result.candidates.length > 1 && (
+          {/* Alternatives - Only show for non-images with low confidence */}
+          {!isImageWithoutOcr && confidence < 80 && result.candidates.length > 1 && (
             <div className="pt-2 border-t">
               <p className="text-xs font-medium text-muted-foreground mb-2">Andere Möglichkeiten:</p>
               <div className="space-y-1">
@@ -111,47 +156,14 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
               </div>
             </div>
           )}
-
-          {/* User Guidance */}
-          {profile?.userGuidance && confidence < 80 && (
-            <div className="pt-2 border-t space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">Bitte prüfen Sie:</p>
-              <ul className="text-sm space-y-1">
-                {profile.userGuidance.whatToCheck.slice(0, 3).map((check, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-muted-foreground">
-                    <CheckCircle className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
-                    {check}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Image without OCR Warning */}
-      {!result.signals.keywords?.available && result.signals.meta.mimeType?.startsWith('image/') && (
-        <div className="flex items-start gap-2 text-sm bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2.5 rounded-lg">
-          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-amber-800 dark:text-amber-200">
-              Bei Bildern ist eine automatische Prüfung nur eingeschränkt möglich. Bitte bestätigen Sie, dass dies das richtige Dokument ist.
-            </p>
-            {!Capacitor.isNativePlatform() && (
-              <p className="text-amber-600 dark:text-amber-400 text-xs mt-1 flex items-center gap-1">
-                <Smartphone className="w-3 h-3" />
-                In der App können Bilder automatisch erkannt werden.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Native OCR Success Badge */}
+      {/* Native OCR Success Badge - Only show when OCR actually worked */}
       {result.signals.keywords?.source === 'native-ocr' && result.signals.keywords?.available && (
         <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-3 py-2 rounded-lg">
           <CheckCircle className="w-3.5 h-3.5" />
-          <span>Text automatisch erkannt via Native OCR</span>
+          <span>Text automatisch erkannt</span>
         </div>
       )}
 
