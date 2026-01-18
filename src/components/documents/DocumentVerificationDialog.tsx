@@ -82,12 +82,19 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
               </p>
             )}
             {verification.extractedTextPreview ? (
-              <p className="mt-2 text-xs text-slate-400 break-words">
-                <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
-              </p>
+              <>
+                <p className="mt-2 text-xs text-slate-400 break-words">
+                  <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
+                </p>
+                {verification.isImageFile && (
+                  <p className="mt-1 text-xs text-blue-600">
+                    📱 Bild wurde für die Analyse in PDF konvertiert
+                  </p>
+                )}
+              </>
             ) : verification.isImageFile ? (
               <p className="mt-2 text-xs text-amber-600">
-                <span className="font-medium">📱 Hinweis:</span> Die automatische Bilderkennung ist auf mobilen Geräten eingeschränkt. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.
+                <span className="font-medium">📱 Hinweis:</span> Kein Text erkannt. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.
               </p>
             ) : (
               <p className="mt-2 text-xs text-red-500">
