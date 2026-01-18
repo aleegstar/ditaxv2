@@ -504,10 +504,8 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
               fileName={pendingDoc?.file_name || ''}
               onConfirm={handleCheckConfirm}
               onReupload={handleCheckReupload}
-              onChangeType={handleCheckChangeType}
               onClose={handleCheckReupload}
               isConfirming={false}
-              embedded={true}
             />
           )}
         </ModernUploadDialogContent>

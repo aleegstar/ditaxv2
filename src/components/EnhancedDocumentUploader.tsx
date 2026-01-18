@@ -621,7 +621,6 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
               fileName={files[0]?.file.name || ''}
               onConfirm={handleCheckConfirm}
               onReupload={handleCheckReupload}
-              onChangeType={handleCheckChangeType}
               onClose={handleCheckReupload}
               isConfirming={uploading}
             />
