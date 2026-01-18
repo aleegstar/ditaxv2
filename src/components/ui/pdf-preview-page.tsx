@@ -139,8 +139,7 @@ export const FileUpload = ({
         )} />
         
         <div className={cn(
-          "relative w-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 rounded-2xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden",
-          isDragOver && "shadow-[0_6px_20px_rgba(37,99,235,0.23)]",
+          "relative w-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 rounded-2xl hover:-translate-y-0.5 transition-all duration-200 overflow-hidden",
           hasAnyPreview ? "p-4 flex items-center gap-4" : "p-8 md:p-12 flex flex-col items-center justify-center text-center"
         )}>
           
