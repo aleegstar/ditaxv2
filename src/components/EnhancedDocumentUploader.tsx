@@ -346,7 +346,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     try {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData.session) {
-        throw new Error('Du musst angemeldet sein, um Dokumente hochzuladen.');
+        throw new Error('Bitte melde dich an, um Dokumente hochzuladen.');
       }
       const userId = sessionData.session.user.id;
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, uploading: true, progress: 20 } : f));
@@ -369,7 +369,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
 
   const handleUploadAll = async () => {
     if (!files.length) {
-      setError('Bitte wählen Sie mindestens eine Datei aus.');
+      setError('Bitte wähle mindestens eine Datei aus.');
       return;
     }
     const filesToUpload = files.filter(f => !f.uploaded && !f.error);
@@ -538,7 +538,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
                         </span>
                       ) : (
                         <span className="text-[11px] text-emerald-600 font-medium">
-                          Ready
+                          Bereit
                         </span>
                       )}
                     </div>
