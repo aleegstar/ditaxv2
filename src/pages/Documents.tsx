@@ -350,7 +350,7 @@ const DocumentsContent: React.FC<{
           continue;
         }
         const fileName = `${Date.now()}-${file.name}`;
-        const filePath = `documents/${user.id}/${fileName}`;
+        const filePath = `${user.id}/unassigned/${fileName}`;
 
         // Upload to storage
         const {
