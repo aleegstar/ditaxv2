@@ -13,6 +13,8 @@ export interface OcrVerificationResult {
   isImageFile?: boolean;
   /** Indicates if user should manually confirm - shown for images, low confidence, or mismatches */
   requiresManualConfirmation: boolean;
+  /** Debug log for troubleshooting OCR issues (especially on mobile) */
+  debugLog?: string[];
 }
 
 /**
@@ -28,12 +30,37 @@ class OcrVerificationService {
   private static instance: OcrVerificationService;
   private tesseractWorker: Worker | null = null;
   private workerInitPromise: Promise<Worker> | null = null;
+  private ocrDebugLog: string[] = [];
 
   public static getInstance(): OcrVerificationService {
     if (!OcrVerificationService.instance) {
       OcrVerificationService.instance = new OcrVerificationService();
     }
     return OcrVerificationService.instance;
+  }
+
+  /**
+   * Add a debug log entry (visible in UI for troubleshooting)
+   */
+  private addDebugLog(message: string): void {
+    const timestamp = new Date().toISOString().substring(11, 19);
+    const logEntry = `${timestamp}: ${message}`;
+    console.log(`[OCR] ${message}`);
+    this.ocrDebugLog.push(logEntry);
+  }
+
+  /**
+   * Clear debug log for new operation
+   */
+  private clearDebugLog(): void {
+    this.ocrDebugLog = [];
+  }
+
+  /**
+   * Get current debug log
+   */
+  private getDebugLog(): string[] {
+    return [...this.ocrDebugLog];
   }
 
   /**
@@ -355,59 +382,104 @@ class OcrVerificationService {
       if (file.type.startsWith('image/')) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        console.log('[OCR] === Starting image OCR ===');
-        console.log(`[OCR] File: ${file.name}`);
-        console.log(`[OCR] Type: ${file.type}`);
-        console.log(`[OCR] Size: ${(file.size / 1024).toFixed(1)} KB`);
-        console.log(`[OCR] Document type: ${checklistItemId}`);
-        console.log(`[OCR] Is Mobile: ${isMobile}`);
-        console.log(`[OCR] User Agent: ${navigator.userAgent}`);
-        console.log(`[OCR] Keywords to match (first 10):`, keywordConfig.keywords.slice(0, 10));
+        // Clear and start debug logging
+        this.clearDebugLog();
+        this.addDebugLog('=== Starting Image OCR ===');
+        this.addDebugLog(`File: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+        this.addDebugLog(`Type: ${file.type}`);
+        this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
+        this.addDebugLog(`Document: ${keywordConfig.displayName}`);
         
         try {
-          // Preprocess image using Canvas (grayscale + threshold) for better OCR
-          console.log('[OCR] Preprocessing image for better OCR results...');
-          let imageInput: Blob | string;
+          // Get or create the singleton worker first
+          this.addDebugLog('Getting Tesseract worker...');
+          let worker: Worker;
           
           try {
-            imageInput = await this.preprocessImage(file);
-            console.log('[OCR] Using preprocessed image (B/W threshold)');
-          } catch (preprocessError) {
-            console.warn('[OCR] Preprocessing failed, using original image:', preprocessError);
-            // Fallback to original Data URL if preprocessing fails
-            imageInput = await this.fileToDataURL(file);
-            console.log(`[OCR] Fallback: Data URL created, length: ${(imageInput as string).length} chars`);
+            // Timeout for worker creation (30 seconds)
+            const workerPromise = this.getWorker();
+            const workerTimeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Worker-Timeout (30s)')), 30000);
+            });
+            worker = await Promise.race([workerPromise, workerTimeoutPromise]);
+            this.addDebugLog('Worker ready ✓');
+          } catch (workerError) {
+            this.addDebugLog(`Worker failed: ${workerError instanceof Error ? workerError.message : String(workerError)}`);
+            throw workerError;
           }
           
-          // Get or create the singleton worker
-          console.log('[OCR] Getting Tesseract worker...');
-          const worker = await this.getWorker();
-          console.log('[OCR] Worker ready, starting recognition...');
+          // Multi-step fallback for image recognition
+          let tesseractResult: Awaited<ReturnType<typeof worker.recognize>> | null = null;
+          let extractedText = '';
           
-          // Use worker.recognize() with preprocessed image (Blob) or fallback (Data URL)
-          const recognizePromise = worker.recognize(imageInput);
+          // Step 1: Try preprocessed image (best quality)
+          this.addDebugLog('Step 1: Trying preprocessed image...');
+          try {
+            const processedBlob = await this.preprocessImage(file);
+            this.addDebugLog(`Preprocessed: ${(processedBlob.size / 1024).toFixed(1)} KB`);
+            
+            const recognizePromise = worker.recognize(processedBlob);
+            const timeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
+            });
+            
+            tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
+            extractedText = tesseractResult.data.text || '';
+            this.addDebugLog(`Step 1 result: ${extractedText.length} chars`);
+          } catch (step1Error) {
+            this.addDebugLog(`Step 1 failed: ${step1Error instanceof Error ? step1Error.message : String(step1Error)}`);
+          }
           
-          // 60 second timeout (increased for preprocessing + first-time worker init)
-          const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>60s)')), 60000);
-          });
+          // Step 2: If Step 1 failed or returned empty, try Data URL
+          if (extractedText.length === 0) {
+            this.addDebugLog('Step 2: Trying Data URL...');
+            try {
+              const dataUrl = await this.fileToDataURL(file);
+              this.addDebugLog(`Data URL: ${dataUrl.length} chars`);
+              
+              const recognizePromise = worker.recognize(dataUrl);
+              const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
+              });
+              
+              tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
+              extractedText = tesseractResult.data.text || '';
+              this.addDebugLog(`Step 2 result: ${extractedText.length} chars`);
+            } catch (step2Error) {
+              this.addDebugLog(`Step 2 failed: ${step2Error instanceof Error ? step2Error.message : String(step2Error)}`);
+            }
+          }
           
-          const tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
+          // Step 3: If both failed, try direct File object
+          if (extractedText.length === 0) {
+            this.addDebugLog('Step 3: Trying direct File...');
+            try {
+              const recognizePromise = worker.recognize(file);
+              const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
+              });
+              
+              tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
+              extractedText = tesseractResult.data.text || '';
+              this.addDebugLog(`Step 3 result: ${extractedText.length} chars`);
+            } catch (step3Error) {
+              this.addDebugLog(`Step 3 failed: ${step3Error instanceof Error ? step3Error.message : String(step3Error)}`);
+            }
+          }
           
-          const extractedText = tesseractResult.data.text || '';
-          console.log('[OCR] === Tesseract Result ===');
-          console.log(`[OCR] Characters extracted: ${extractedText.length}`);
-          console.log(`[OCR] Confidence: ${tesseractResult.data.confidence}%`);
+          // Log final result
+          this.addDebugLog(`=== Final: ${extractedText.length} chars ===`);
           
           if (extractedText.length === 0) {
-            console.warn('[OCR] ⚠️ WARNING: No text extracted from image');
-            console.warn('[OCR] Possible reasons: Image has no text, poor quality, or Tesseract failed silently');
+            this.addDebugLog('⚠️ No text extracted from image');
+            if (isMobile) {
+              this.addDebugLog('Mobile device detected - OCR may be limited');
+            }
           } else {
-            console.log(`[OCR] Extracted text preview (first 500 chars):\n${extractedText.substring(0, 500)}`);
+            this.addDebugLog(`Preview: ${extractedText.substring(0, 100).replace(/\n/g, ' ')}...`);
           }
           
           const normalizedText = this.normalizeText(extractedText);
-          console.log(`[OCR] Normalized text preview (first 300 chars):`, normalizedText.substring(0, 300));
           
           // Match keywords against extracted text
           const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
@@ -415,8 +487,7 @@ class OcrVerificationService {
             kw => !foundKeywords.includes(kw)
           );
           
-          console.log(`[OCR] Found keywords:`, foundKeywords);
-          console.log(`[OCR] Missing keywords (first 10):`, missingKeywords.slice(0, 10));
+          this.addDebugLog(`Keywords: ${foundKeywords.length} found, ${missingKeywords.length} missing`);
           
           const confidence = this.calculateConfidence(
             foundKeywords,
@@ -425,19 +496,23 @@ class OcrVerificationService {
           );
           
           // For images: Be more tolerant due to OCR inaccuracies
-          // Reduce minMatchCount by 1 (minimum 1)
           const effectiveMinMatchCount = Math.max(1, keywordConfig.minMatchCount - 1);
           const isMatch = foundKeywords.length >= effectiveMinMatchCount;
           
-          console.log(`[OCR] Image verification: minMatch=${effectiveMinMatchCount} (original: ${keywordConfig.minMatchCount}), found=${foundKeywords.length}, isMatch=${isMatch}`);
-          
-          // Create a preview of extracted text (first 200 chars)
+          // Create a preview of extracted text
           const textPreview = extractedText.substring(0, 200).trim() + 
             (extractedText.length > 200 ? '...' : '');
           
+          // Build reason with mobile-specific guidance
           let reason = '';
           if (!isMatch) {
-            if (foundKeywords.length === 0) {
+            if (extractedText.length === 0) {
+              if (isMobile) {
+                reason = `Die Texterkennung auf mobilen Geräten ist eingeschränkt. Für bessere Ergebnisse verwenden Sie bitte ein PDF-Dokument oder laden Sie das Bild vom Desktop hoch.`;
+              } else {
+                reason = `Keine Textinhalte im Bild erkannt. Das Bild enthält möglicherweise keinen lesbaren Text.`;
+              }
+            } else if (foundKeywords.length === 0) {
               reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
             } else {
               reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
@@ -446,7 +521,7 @@ class OcrVerificationService {
           
           const requiresManualConfirmation = !isMatch || confidence < 50;
           
-          const result = {
+          const result: OcrVerificationResult = {
             isMatch,
             confidence,
             foundKeywords,
@@ -456,23 +531,29 @@ class OcrVerificationService {
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: true,
-            requiresManualConfirmation
+            requiresManualConfirmation,
+            debugLog: this.getDebugLog()
           };
           
           console.log('[OCR] Image verification result:', {
             fileName: file.name,
-            documentType: checklistItemId,
             isMatch: result.isMatch,
-            requiresManualConfirmation: result.requiresManualConfirmation,
             confidence: result.confidence,
-            foundKeywords: result.foundKeywords.length
+            foundKeywords: result.foundKeywords.length,
+            debugLogLines: result.debugLog?.length
           });
           
           return result;
           
         } catch (tesseractError) {
-          console.error('[OCR] Tesseract OCR failed with error:', tesseractError);
-          console.error('[OCR] Error message:', tesseractError instanceof Error ? tesseractError.message : String(tesseractError));
+          this.addDebugLog(`FATAL: ${tesseractError instanceof Error ? tesseractError.message : String(tesseractError)}`);
+          console.error('[OCR] Tesseract OCR failed:', tesseractError);
+          
+          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          let fallbackReason = 'Texterkennung fehlgeschlagen.';
+          if (isMobile) {
+            fallbackReason = 'Die Texterkennung auf mobilen Geräten ist eingeschränkt. Für bessere Ergebnisse verwenden Sie bitte ein PDF-Dokument.';
+          }
           
           // Fallback: accept file but require manual confirmation
           return {
@@ -480,12 +561,13 @@ class OcrVerificationService {
             confidence: 0,
             foundKeywords: [],
             missingKeywords: [],
-            reason: 'Texterkennung fehlgeschlagen. Bitte stelle sicher, dass es sich um das korrekte Dokument handelt.',
+            reason: fallbackReason,
             extractedTextPreview: '',
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: true,
-            requiresManualConfirmation: true
+            requiresManualConfirmation: true,
+            debugLog: this.getDebugLog()
           };
         }
       }

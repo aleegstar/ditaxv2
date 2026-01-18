@@ -90,6 +90,18 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
                 <span className="font-medium">Hinweis:</span> Keine Textinhalte erkannt. Das Bild enthält möglicherweise keinen lesbaren Text.
               </p>
             )}
+            
+            {/* Debug Log - nur bei leerer Erkennung anzeigen */}
+            {verification.extractedTextPreview?.length === 0 && verification.debugLog && verification.debugLog.length > 0 && (
+              <details className="mt-3 border-t border-slate-200 pt-2">
+                <summary className="cursor-pointer text-slate-600 hover:text-slate-800 font-medium">
+                  Debug-Informationen anzeigen
+                </summary>
+                <pre className="mt-2 p-2 bg-slate-100 rounded text-[10px] overflow-auto max-h-32 whitespace-pre-wrap break-words">
+                  {verification.debugLog.join('\n')}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
 
