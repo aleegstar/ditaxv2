@@ -106,6 +106,14 @@ export interface LayoutSignals {
     formLike: boolean;
     /** Document has dense text regions */
     denseText: boolean;
+    /** Image has A4/Letter-like aspect ratio (1.2-1.7) */
+    documentAspectRatio?: boolean;
+    /** Image appears to be a screenshot (16:9, portrait phone) */
+    screenshotPattern?: boolean;
+    /** Image appears to be a logo (small, squarish) */
+    logoPattern?: boolean;
+    /** Image resolution is sufficient for a document */
+    sufficientResolution?: boolean;
   };
 }
 

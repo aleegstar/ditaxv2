@@ -57,10 +57,69 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   // Check if this is an image without OCR
   const isImageWithoutOcr = result.signals.meta.mimeType?.startsWith('image/') && !result.signals.keywords?.available;
 
+  // Check for detected patterns
+  const hasScreenshotPattern = result.signals.layout.detected.screenshotPattern === true;
+  const hasLogoPattern = result.signals.layout.detected.logoPattern === true;
+  const hasDocumentFormat = result.signals.layout.detected.documentAspectRatio === true;
+  const hasSufficientResolution = result.signals.layout.detected.sufficientResolution === true;
+
   return (
     <div className="space-y-4">
-      {/* Image Warning Banner - Prominent at top */}
-      {isImageWithoutOcr && (
+      {/* Screenshot Warning - RED - Most serious */}
+      {isImageWithoutOcr && hasScreenshotPattern && (
+        <div className="bg-red-50 dark:bg-red-950/50 border-2 border-red-400 dark:border-red-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-red-800 dark:text-red-200 mb-1">
+                Dies sieht wie ein Screenshot aus
+              </p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                Bitte laden Sie das <strong>Original-Dokument</strong> hoch (PDF oder Foto des Dokuments), 
+                nicht einen Screenshot davon.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logo Warning - RED */}
+      {isImageWithoutOcr && hasLogoPattern && !hasScreenshotPattern && (
+        <div className="bg-red-50 dark:bg-red-950/50 border-2 border-red-400 dark:border-red-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-red-800 dark:text-red-200 mb-1">
+                Dies sieht nicht wie ein Dokument aus
+              </p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                Bitte laden Sie Ihren <strong>{profile?.label || 'Dokument'}</strong> als Foto oder PDF hoch.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Format Detected - BLUE - Positive signal */}
+      {isImageWithoutOcr && hasDocumentFormat && !hasScreenshotPattern && !hasLogoPattern && (
+        <div className="bg-blue-50 dark:bg-blue-950/50 border border-blue-300 dark:border-blue-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <Info className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">
+                Dokumentformat erkannt
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Das Bildformat entspricht einem Dokument. 
+                Bitte bestätigen Sie, dass dies ein <strong>{profile?.label || 'Dokument'}</strong> ist.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Image Warning - Only if no pattern detected */}
+      {isImageWithoutOcr && !hasDocumentFormat && !hasScreenshotPattern && !hasLogoPattern && (
         <div className="bg-amber-50 dark:bg-amber-950/50 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />

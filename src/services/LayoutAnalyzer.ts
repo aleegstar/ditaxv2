@@ -95,6 +95,26 @@ class LayoutAnalyzer {
         const imageBitmap = await this.createImageBitmapFromFile(file);
         const result = await this.analyzeLayout(imageBitmap);
         imageBitmap.close();
+        
+        // Add image-specific pattern detection
+        const fileSizeKB = file.size / 1024;
+        const width = imageBitmap.width;
+        const height = imageBitmap.height;
+        
+        result.detected.documentAspectRatio = this.detectDocumentAspectRatio(width, height);
+        result.detected.screenshotPattern = this.detectScreenshotPattern(width, height);
+        result.detected.logoPattern = this.detectLogoPattern(width, height, fileSizeKB);
+        result.detected.sufficientResolution = this.detectSufficientResolution(width, height);
+        
+        console.log('[LayoutAnalyzer] Image patterns:', {
+          documentAspectRatio: result.detected.documentAspectRatio,
+          screenshotPattern: result.detected.screenshotPattern,
+          logoPattern: result.detected.logoPattern,
+          sufficientResolution: result.detected.sufficientResolution,
+          dimensions: `${width}x${height}`,
+          fileSizeKB: Math.round(fileSizeKB)
+        });
+        
         return result;
       }
     } catch (error) {
@@ -411,6 +431,51 @@ class LayoutAnalyzer {
   }
 
   /**
+   * Detect if image has A4/Letter-like aspect ratio (typical document)
+   */
+  private detectDocumentAspectRatio(width: number, height: number): boolean {
+    const ratio = Math.max(width, height) / Math.min(width, height);
+    // A4 = 1.414, Letter = 1.294, Legal = 1.647
+    // Range 1.2 - 1.7 = probably a document
+    return ratio >= 1.2 && ratio <= 1.7;
+  }
+
+  /**
+   * Detect typical screenshot aspect ratios (16:9, phone portrait, etc.)
+   */
+  private detectScreenshotPattern(width: number, height: number): boolean {
+    const ratio = width / height;
+    // Landscape screenshots: 16:9 = 1.78, 18:9 = 2.0, 21:9 = 2.33
+    const isLandscapeScreenshot = ratio >= 1.7 && ratio <= 2.4;
+    // Portrait phone screenshots: typically 0.45 - 0.6 (9:16 = 0.5625, 9:18 = 0.5, 9:19.5 = 0.46)
+    const isPortraitScreenshot = ratio >= 0.45 && ratio <= 0.6;
+    return isLandscapeScreenshot || isPortraitScreenshot;
+  }
+
+  /**
+   * Detect logo-like images (small, squarish, lightweight)
+   */
+  private detectLogoPattern(width: number, height: number, fileSizeKB: number): boolean {
+    const ratio = width / height;
+    const isSmall = Math.max(width, height) < 1000;
+    const isSquarish = ratio >= 0.7 && ratio <= 1.4;
+    const isLightweight = fileSizeKB < 300;
+    // Must meet at least 2 of 3 criteria, with size being important
+    return (isSmall && isSquarish) || (isSmall && isLightweight);
+  }
+
+  /**
+   * Detect if resolution is sufficient for a scanned document
+   */
+  private detectSufficientResolution(width: number, height: number): boolean {
+    // A scanned A4 at 150 DPI = ca. 1240 x 1754
+    // Minimum for readable document: 800 x 1100
+    const minDimension = Math.min(width, height);
+    const maxDimension = Math.max(width, height);
+    return minDimension >= 600 && maxDimension >= 800;
+  }
+
+  /**
    * Get default signals when analysis fails
    */
   private getDefaultSignals(): LayoutSignals {
@@ -421,7 +486,11 @@ class LayoutAnalyzer {
         headerPlusBody: false,
         columns: false,
         formLike: false,
-        denseText: false
+        denseText: false,
+        documentAspectRatio: undefined,
+        screenshotPattern: undefined,
+        logoPattern: undefined,
+        sufficientResolution: undefined
       }
     };
   }
