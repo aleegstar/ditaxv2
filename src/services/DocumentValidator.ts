@@ -447,25 +447,67 @@ class DocumentValidator {
       }
     }
 
-    // === IMAGE LIMITATION (cap at 50% if no keyword detection - honest limitation) ===
+    // === IMAGE PATTERN SCORING (replaces simple cap) ===
     const isImage = signals.meta.mimeType?.startsWith('image/');
     const hasKeywordDetection = signals.keywords?.available === true;
     
     if (isImage && !hasKeywordDetection) {
-      // Cap at 50% - we cannot reliably validate images without OCR
-      score = Math.min(score, 50);
-      // Remove any reasons that suggest high confidence
-      const filteredReasons = reasons.filter(r => 
-        !r.includes('erkannt') && !r.includes('gefunden')
-      );
-      reasons.length = 0;
-      reasons.push(...filteredReasons);
+      const layout = signals.layout.detected;
       
-      // Add honest limitation message
+      // Start with base score for images
+      let imageScore = isExpectedType ? 30 : 15;
+      const imageReasons: string[] = [];
+      
       if (isExpectedType) {
-        reasons.unshift('Ausgewählter Dokumenttyp');
+        imageReasons.push('Ausgewählter Dokumenttyp');
       }
-      reasons.push('Automatische Prüfung bei Bildern nicht möglich');
+      
+      // === DOCUMENT ASPECT RATIO (+15) ===
+      if (layout.documentAspectRatio) {
+        imageScore += 15;
+        imageReasons.push('Dokumentformat erkannt (A4-ähnlich)');
+      }
+      
+      // === SCREENSHOT PATTERN (-20) ===
+      if (layout.screenshotPattern) {
+        imageScore -= 20;
+        imageReasons.push('⚠️ Erscheint wie ein Screenshot');
+      }
+      
+      // === LOGO PATTERN (-25) ===
+      if (layout.logoPattern) {
+        imageScore -= 25;
+        imageReasons.push('⚠️ Erscheint nicht wie ein Dokument');
+      }
+      
+      // === RESOLUTION CHECK (+10 / -15) ===
+      if (layout.sufficientResolution) {
+        imageScore += 10;
+      } else if (layout.sufficientResolution === false) {
+        imageScore -= 15;
+        imageReasons.push('Auflösung zu niedrig für Dokument');
+      }
+      
+      // Add layout bonuses for images too
+      if (layout.tableLike) {
+        imageScore += 5;
+        imageReasons.push('Tabellenstruktur erkannt');
+      }
+      if (layout.headerPlusBody) {
+        imageScore += 5;
+      }
+      
+      // Cap at 65% for images without OCR (can still be good with right patterns)
+      score = Math.min(Math.max(0, imageScore), 65);
+      
+      // Replace reasons with image-specific ones
+      reasons.length = 0;
+      reasons.push(...imageReasons);
+      
+      // Add honest limitation if no pattern issues
+      if (!layout.screenshotPattern && !layout.logoPattern) {
+        reasons.push('Manuelle Bestätigung erforderlich');
+      }
     }
 
     // Ensure score is within bounds
