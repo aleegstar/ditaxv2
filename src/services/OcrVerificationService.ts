@@ -346,6 +346,31 @@ class OcrVerificationService {
         console.log(`[OCR] Verifying PDF locally: ${file.name} for ${checklistItemId}`);
         
         const extractedText = await this.extractTextFromPdf(file);
+        
+        // Check if this is a scanned/image PDF with no real text
+        // Scanned PDFs (from phone scanners) contain images, not text layers
+        const hasRealText = extractedText.trim().length > 30;
+        
+        if (!hasRealText) {
+          console.log(`[OCR] Image-PDF detected (scanned document) - no text layer found`);
+          
+          // For scanned PDFs, require manual confirmation with neutral dialog
+          // This is common for documents scanned with phone apps
+          return {
+            isMatch: true,
+            confidence: 0,
+            foundKeywords: [],
+            missingKeywords: [],
+            reason: '',
+            extractedTextPreview: '',
+            documentType: checklistItemId,
+            displayName: keywordConfig.displayName,
+            isImageFile: false,
+            requiresManualConfirmation: true,
+            confirmationMode: 'neutral'
+          };
+        }
+        
         const normalizedText = this.normalizeText(extractedText);
         
         // Match keywords against extracted text
@@ -378,6 +403,9 @@ class OcrVerificationService {
         // Require confirmation if mismatch or low confidence
         const requiresManualConfirmation = !isMatch || confidence < 50;
         
+        // Set confirmation mode based on whether OCR found issues
+        const confirmationMode: 'neutral' | 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
+        
         const result = {
           isMatch,
           confidence,
@@ -388,7 +416,8 @@ class OcrVerificationService {
           documentType: checklistItemId,
           displayName: keywordConfig.displayName,
           isImageFile: false,
-          requiresManualConfirmation
+          requiresManualConfirmation,
+          confirmationMode
         };
         
         console.log('[OCR] PDF verification result:', {
@@ -396,6 +425,7 @@ class OcrVerificationService {
           documentType: checklistItemId,
           isMatch: result.isMatch,
           requiresManualConfirmation: result.requiresManualConfirmation,
+          confirmationMode: result.confirmationMode,
           confidence: result.confidence,
           foundKeywords: result.foundKeywords.length
         });
