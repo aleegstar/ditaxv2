@@ -1,5 +1,6 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
 import { createWorker, Worker } from 'tesseract.js';
+import { convertImageToPdf } from '@/utils/imageToPdf';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -397,6 +398,7 @@ class OcrVerificationService {
       }
       
       // Handle images - use Tesseract.js for local OCR (runs entirely in browser)
+      // On mobile: Convert image to PDF first for better OCR via pdf.js
       if (file.type.startsWith('image/')) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
@@ -408,6 +410,94 @@ class OcrVerificationService {
         this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
         this.addDebugLog(`Document: ${keywordConfig.displayName}`);
         
+        // On mobile: Convert image to PDF and use pdf.js extraction
+        // This bypasses Tesseract.js worker issues on mobile WebViews
+        if (isMobile) {
+          this.addDebugLog('Mobile detected - using Image→PDF conversion');
+          
+          try {
+            // Convert image to PDF
+            this.addDebugLog('Converting image to PDF...');
+            const pdfFile = await convertImageToPdf(file);
+            this.addDebugLog(`Converted: ${pdfFile.name} (${(pdfFile.size / 1024).toFixed(1)} KB)`);
+            
+            // Extract text using pdf.js (which works on mobile!)
+            this.addDebugLog('Extracting text from PDF...');
+            const extractedText = await this.extractTextFromPdf(pdfFile);
+            this.addDebugLog(`Extracted ${extractedText.length} characters`);
+            
+            const normalizedText = this.normalizeText(extractedText);
+            
+            // Match keywords against extracted text
+            const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
+            const missingKeywords = keywordConfig.keywords.filter(
+              kw => !foundKeywords.includes(kw)
+            );
+            
+            this.addDebugLog(`Keywords: ${foundKeywords.length} found, ${missingKeywords.length} missing`);
+            
+            const confidence = this.calculateConfidence(
+              foundKeywords,
+              keywordConfig.keywords,
+              keywordConfig
+            );
+            
+            const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
+            
+            // Create a preview of extracted text
+            const textPreview = extractedText.substring(0, 200).trim() + 
+              (extractedText.length > 200 ? '...' : '');
+            
+            let reason = '';
+            if (!isMatch) {
+              if (extractedText.length === 0) {
+                reason = 'Kein Text im Bild erkannt. Bitte stelle sicher, dass das Dokument gut lesbar ist.';
+              } else if (foundKeywords.length === 0) {
+                reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
+              } else {
+                reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
+              }
+            }
+            
+            const requiresManualConfirmation = !isMatch || confidence < 50;
+            
+            this.addDebugLog(`=== Result: ${isMatch ? 'MATCH' : 'NO MATCH'} (${confidence}%) ===`);
+            
+            return {
+              isMatch,
+              confidence,
+              foundKeywords,
+              missingKeywords,
+              reason,
+              extractedTextPreview: textPreview,
+              documentType: checklistItemId,
+              displayName: keywordConfig.displayName,
+              isImageFile: true,
+              requiresManualConfirmation,
+              debugLog: this.getDebugLog()
+            };
+            
+          } catch (conversionError) {
+            this.addDebugLog(`Conversion failed: ${conversionError instanceof Error ? conversionError.message : String(conversionError)}`);
+            
+            // Fallback: Accept with manual confirmation
+            return {
+              isMatch: true,
+              confidence: 0,
+              foundKeywords: [],
+              missingKeywords: [],
+              reason: 'Die Bildverarbeitung ist fehlgeschlagen. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.',
+              extractedTextPreview: '',
+              documentType: checklistItemId,
+              displayName: keywordConfig.displayName,
+              isImageFile: true,
+              requiresManualConfirmation: true,
+              debugLog: this.getDebugLog()
+            };
+          }
+        }
+        
+        // Desktop: Continue with Tesseract.js OCR
         try {
           // Get or create the singleton worker first
           this.addDebugLog('Getting Tesseract worker...');
@@ -419,19 +509,16 @@ class OcrVerificationService {
           });
           const worker = await Promise.race([workerPromise, workerTimeoutPromise]);
           
-          // If worker is not available (mobile limitation), skip OCR gracefully
+          // If worker is not available, fallback to manual confirmation
           if (!worker) {
-            this.addDebugLog('Worker not available - mobile limitation');
-            this.addDebugLog('Skipping OCR, requiring manual confirmation');
+            this.addDebugLog('Worker not available');
             
             return {
-              isMatch: true, // Allow document
+              isMatch: true,
               confidence: 0,
               foundKeywords: [],
               missingKeywords: [],
-              reason: isMobile 
-                ? '📱 Auf mobilen Geräten ist die automatische Bilderkennung nicht verfügbar. Für automatische Prüfung bitte ein PDF hochladen.'
-                : 'Die automatische Texterkennung konnte nicht initialisiert werden.',
+              reason: 'Die automatische Texterkennung konnte nicht initialisiert werden.',
               extractedTextPreview: '',
               documentType: checklistItemId,
               displayName: keywordConfig.displayName,
