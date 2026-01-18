@@ -84,10 +84,13 @@ class OcrVerificationService {
 
   /**
    * Initialize the OCR engine (tesseract-wasm)
-   * Downloads ~2.1MB (with Brotli compression) instead of ~18MB for tesseract.js
    * 
-   * Mobile: 10s internal timeout
-   * Desktop: 30s internal timeout
+   * Uses locally hosted files for reliable mobile support:
+   * - WASM files from /ocr/ (copied by vite-plugin-static-copy)
+   * - Language model from Edge Function (cached proxy to GitHub)
+   * 
+   * Mobile: 15s timeout
+   * Desktop: 30s timeout
    */
   public async initOcr(): Promise<void> {
     if (this.isInitialized && this.ocrClient) {
@@ -101,22 +104,33 @@ class OcrVerificationService {
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const startTime = Date.now();
-    const timeout = isMobile ? 10000 : 30000; // 10s mobile, 30s desktop
+    const timeout = isMobile ? 15000 : 30000; // 15s mobile, 30s desktop
 
     this.initPromise = (async () => {
       try {
         console.log(`[OCR] Initializing tesseract-wasm (${isMobile ? 'mobile' : 'desktop'}, timeout: ${timeout}ms)...`);
         
-        // Create OCRClient instance
-        this.ocrClient = new OCRClient();
+        // Local paths for WASM files (copied by vite-plugin-static-copy)
+        const wasmPath = '/ocr/tesseract-core.wasm';
+        const workerPath = '/ocr/tesseract-worker.js';
         
-        // Load German language model from tessdata_fast (~2MB)
-        // Using CDN for reliable delivery with timeout
-        console.log('[OCR] Loading German language model (tessdata_fast ~2MB)...');
+        // Use Edge Function as proxy for language model (handles CORS + caching)
+        const modelPath = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr-model`;
         
-        const loadModelPromise = this.ocrClient.loadModel(
-          'https://cdn.jsdelivr.net/gh/tesseract-ocr/tessdata_fast@main/deu.traineddata'
-        );
+        console.log('[OCR] Loading WASM from local paths...');
+        console.log(`[OCR] Worker: ${workerPath}`);
+        console.log(`[OCR] WASM: ${wasmPath}`);
+        console.log(`[OCR] Model: ${modelPath}`);
+        
+        // Create OCRClient with explicit local paths
+        this.ocrClient = new OCRClient({
+          workerURL: workerPath,
+          wasmBinary: wasmPath
+        });
+        
+        console.log('[OCR] Loading German language model via Edge Function (~2MB)...');
+        
+        const loadModelPromise = this.ocrClient.loadModel(modelPath);
         
         const timeoutPromise = new Promise<never>((_, reject) => {
           setTimeout(() => reject(new Error(`OCR model load timeout after ${timeout}ms`)), timeout);
