@@ -488,18 +488,20 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         onClose={handleCloseViewer}
       />
 
-      {/* New Document Check Screen Modal */}
+      {/* New Document Check Screen Modal - Mobile optimized */}
       {showCheckScreen && validationResult && (
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-            <DocumentCheckScreen
-              result={validationResult}
-              fileName={pendingDoc?.file_name || ''}
-              onConfirm={handleCheckConfirm}
-              onReupload={handleCheckReupload}
-              onChangeType={handleCheckChangeType}
-              isConfirming={false}
-            />
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-end sm:items-center justify-center">
+          <div className="bg-background rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto shadow-xl animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-300">
+            <div className="p-6 pb-0">
+              <DocumentCheckScreen
+                result={validationResult}
+                fileName={pendingDoc?.file_name || ''}
+                onConfirm={handleCheckConfirm}
+                onReupload={handleCheckReupload}
+                onChangeType={handleCheckChangeType}
+                isConfirming={false}
+              />
+            </div>
           </div>
         </div>
       )}

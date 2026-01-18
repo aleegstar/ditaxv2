@@ -75,10 +75,10 @@ class CloudOcrService {
       const compressedFile = await this.compressImage(file);
       const base64 = await this.fileToBase64(compressedFile);
       
-      // Remove data URL prefix if present
-      const base64Data = base64.replace(/^data:image\/\w+;base64,/, '');
+      // Get MIME type from compressed file
+      const mimeType = compressedFile.type || file.type || 'image/jpeg';
 
-      console.log(`[CloudOCR] Sending ${(base64Data.length / 1024).toFixed(0)}KB to edge function`);
+      console.log(`[CloudOCR] Sending ${(base64.length / 1024).toFixed(0)}KB to edge function, mimeType: ${mimeType}`);
 
       // Call the edge function with timeout
       const controller = new AbortController();
@@ -94,7 +94,8 @@ class CloudOcrService {
               'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             },
             body: JSON.stringify({
-              imageBase64: base64Data,
+              imageBase64: base64,
+              mimeType: mimeType,
               keywords: uniqueKeywords
             }),
             signal: controller.signal
