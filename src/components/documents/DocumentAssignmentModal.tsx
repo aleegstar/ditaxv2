@@ -308,28 +308,29 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         hideCloseButton
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        {/* Header */}
-        <header className="flex z-30 pt-8 px-6 pb-6 relative items-center justify-between shrink-0">
+        {/* Header mit Zurück-Button und Titel auf einer Linie */}
+        <header className="flex z-30 pt-8 px-6 pb-6 items-center gap-4 shrink-0">
           <button 
             onClick={onClose}
-            className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all"
+            className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all shrink-0"
           >
             <ArrowLeft className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
           </button>
+          
+          {/* Titel und Dokumentanzahl */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+              <Folder className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-lg font-semibold text-slate-900 truncate">Hochgeladene Dokumente</h1>
+              <p className="text-xs text-slate-500">{documents.length} Dokumente</p>
+            </div>
+          </div>
         </header>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-6 pb-32 relative z-20">
-          {/* Page Title Section */}
-          <div className="flex items-start gap-4 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-              <Folder className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="pt-0.5">
-              <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">Hochgeladene Dokumente</h1>
-              <p className="text-sm text-slate-500 font-medium mt-1">{documents.length} Dokumente</p>
-            </div>
-          </div>
 
           {/* Context Text */}
           <div className="mb-6">
@@ -456,7 +457,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         </div>
 
         {/* Footer Bar */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 p-6 z-40">
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-6 z-40 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)]">
           <div className="flex justify-between items-center w-full">
             <span className="text-xs text-slate-500 font-medium">
               {selectedDocuments.size} Dokument(e) ausgewählt
