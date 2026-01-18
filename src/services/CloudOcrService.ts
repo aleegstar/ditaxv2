@@ -180,25 +180,23 @@ class CloudOcrService {
   }
 
   /**
-   * Compress image to max 1MB for upload
+   * Compress and convert image to JPEG for maximum compatibility
+   * Always converts to JPEG as Gemini Vision works best with JPEG
    */
   private async compressImage(file: File): Promise<File> {
     const options = {
       maxSizeMB: 0.8, // Target 800KB to stay under 1MB after base64
       maxWidthOrHeight: 1920,
       useWebWorker: true,
-      fileType: 'image/jpeg' as const,
+      fileType: 'image/jpeg' as const, // Always JPEG for best compatibility
+      initialQuality: 0.9,
     };
 
-    // Only compress if file is too large
-    if (file.size > 800 * 1024) {
-      console.log(`[CloudOCR] Compressing from ${(file.size / 1024).toFixed(0)}KB`);
-      const compressed = await imageCompression(file, options);
-      console.log(`[CloudOCR] Compressed to ${(compressed.size / 1024).toFixed(0)}KB`);
-      return compressed;
-    }
-
-    return file;
+    // Always convert to JPEG for maximum Gemini Vision compatibility
+    console.log(`[CloudOCR] Converting ${file.type} (${(file.size / 1024).toFixed(0)}KB) to JPEG`);
+    const converted = await imageCompression(file, options);
+    console.log(`[CloudOCR] Converted to JPEG: ${(converted.size / 1024).toFixed(0)}KB`);
+    return converted;
   }
 
   /**

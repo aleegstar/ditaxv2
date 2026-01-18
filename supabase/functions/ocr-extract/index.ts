@@ -50,6 +50,15 @@ serve(async (req) => {
       }
     }
 
+    // Validate base64 data - must be substantial enough to be a valid image
+    if (base64Data.length < 1000) {
+      console.error('[OCR-Extract] Image data too small:', base64Data.length);
+      return new Response(
+        JSON.stringify({ error: 'Image data too small or invalid' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Check image size (max 1MB base64 = ~750KB actual)
     if (base64Data.length > 1400000) {
       return new Response(

@@ -23,6 +23,7 @@ interface DocumentCheckScreenProps {
   onReupload: () => void;
   onChangeType: () => void;
   isConfirming?: boolean;
+  embedded?: boolean; // If true: inline buttons (for use in dialog), otherwise fixed footer
 }
 
 export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
@@ -31,7 +32,8 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   onConfirm,
   onReupload,
   onChangeType,
-  isConfirming = false
+  isConfirming = false,
+  embedded = false
 }) => {
   const profile = getDocumentProfile(result.best.docTypeId);
   const confidence = result.best.confidence;
@@ -244,12 +246,10 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         )}
       </div>
 
-      {/* Spacer for fixed footer */}
-      <div className="h-28" />
-
-      {/* Fixed Footer Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border safe-area-inset-bottom z-50">
-        <div className="max-w-md mx-auto space-y-2">
+      {/* Action Buttons - Conditional rendering based on embedded prop */}
+      {embedded ? (
+        // Inline buttons for embedded use in dialog
+        <div className="space-y-2 pt-4">
           {result.needsUserConfirmation ? (
             <>
               <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
@@ -277,7 +277,42 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
             </>
           )}
         </div>
-      </div>
+      ) : (
+        // Fixed footer for standalone use
+        <>
+          <div className="h-28" />
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border safe-area-inset-bottom z-50">
+            <div className="max-w-md mx-auto space-y-2">
+              {result.needsUserConfirmation ? (
+                <>
+                  <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
+                    {isConfirming ? 'Wird bestätigt...' : 'Ja, das ist das richtige Dokument'}
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={onReupload} className="flex-1">
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Andere Datei
+                    </Button>
+                    <Button variant="ghost" onClick={onChangeType} className="flex-1">
+                      <Info className="w-4 h-4 mr-2" />
+                      Typ ändern
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
+                    {isConfirming ? 'Wird hochgeladen...' : 'Dokument hochladen'}
+                  </Button>
+                  <Button variant="ghost" onClick={onReupload} className="w-full">
+                    Andere Datei wählen
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
