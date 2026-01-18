@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { AlertTriangle, Info, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { OcrVerificationResult } from '@/services/OcrVerificationService';
 
 interface DocumentVerificationDialogProps {
@@ -22,8 +22,9 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
 }) => {
   if (!verification) return null;
 
-  // Determine if this is a neutral confirmation (mobile DSGVO) or a warning (OCR mismatch)
-  const isNeutralMode = verification.confirmationMode === 'neutral';
+  // Show reason if available, otherwise generic message
+  const warningMessage = verification.reason || 
+    'Das hochgeladene Dokument konnte nicht automatisch geprüft werden.';
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -35,7 +36,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
         {/* Header with title and close button */}
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-semibold text-slate-900 pr-8">
-            {isNeutralMode ? 'Bitte bestätigen' : 'Dokument überprüfen'}
+            Dokument überprüfen
           </h2>
           <button
             onClick={onClose}
@@ -45,32 +46,18 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
           </button>
         </div>
 
-        {/* Notice - different styling based on mode */}
-        {isNeutralMode ? (
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-2xl mb-5">
-            <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">
-                Dokument bestätigen
-              </p>
-              <p className="text-blue-600">
-                Bitte bestätige, dass es sich um deinen <span className="font-medium">{verification.displayName}</span> handelt.
-              </p>
-            </div>
+        {/* Warning Notice */}
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl mb-5">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-900">
+            <p className="font-medium mb-1">
+              Bitte prüfen
+            </p>
+            <p className="text-amber-700">
+              {warningMessage}
+            </p>
           </div>
-        ) : (
-          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl mb-5">
-            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-            <div className="text-sm text-amber-900">
-              <p className="font-medium mb-1">
-                Bitte prüfen
-              </p>
-              <p className="text-amber-700">
-                Das hochgeladene Dokument scheint nicht zum erwarteten Typ zu passen.
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Document info */}
         <div className="bg-slate-50 rounded-xl p-4 mb-5">
@@ -96,7 +83,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
             onClick={onConfirm}
             className="flex-1 py-3.5 px-4 rounded-full bg-blue-500 text-white font-medium text-sm hover:bg-blue-600 transition-colors"
           >
-            {isNeutralMode ? 'Bestätigen' : 'Trotzdem nutzen'}
+            Trotzdem nutzen
           </button>
         </div>
       </DialogContent>

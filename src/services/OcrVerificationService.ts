@@ -17,10 +17,10 @@ export interface OcrVerificationResult {
   debugLog?: string[];
   /** 
    * Confirmation mode for the dialog:
-   * - 'neutral': Simple confirmation request (e.g., mobile DSGVO compliance) - blue info style
-   * - 'warning': OCR detected a potential mismatch - yellow warning style
+   * - 'warning': OCR detected a potential mismatch OR OCR failed - yellow warning style
+   * Only shown when requiresManualConfirmation is true
    */
-  confirmationMode?: 'neutral' | 'warning';
+  confirmationMode?: 'warning';
 }
 
 /**
@@ -37,8 +37,6 @@ class OcrVerificationService {
   private tesseractWorker: Worker | null = null;
   private workerInitPromise: Promise<Worker | null> | null = null;
   private ocrDebugLog: string[] = [];
-  /** Tracks if worker creation failed on mobile - prevents repeated attempts */
-  private workerFailedOnMobile: boolean = false;
 
   public static getInstance(): OcrVerificationService {
     if (!OcrVerificationService.instance) {
@@ -74,16 +72,10 @@ class OcrVerificationService {
   /**
    * Get or create the Tesseract worker (singleton pattern)
    * Worker is created once and reused for all OCR operations
-   * Returns null if worker creation failed (especially on mobile)
+   * Returns null if worker creation failed
    */
   private async getWorker(): Promise<Worker | null> {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
-    // On mobile, if we already know worker creation fails, skip immediately
-    if (this.workerFailedOnMobile && isMobile) {
-      console.log('[OCR] Skipping worker creation - previously failed on mobile');
-      return null;
-    }
     
     // Return existing worker if available
     if (this.tesseractWorker) {
@@ -97,14 +89,17 @@ class OcrVerificationService {
       return this.workerInitPromise;
     }
 
-    // Create new worker with German language support
+    // Create new worker with German language support only (smaller download ~15MB instead of ~35MB)
     this.workerInitPromise = (async () => {
-      console.log('[OCR] Creating new Tesseract worker (deu+eng)...');
+      console.log('[OCR] Creating new Tesseract worker (deu only - faster download)...');
       const startTime = Date.now();
       
+      // Longer timeout for mobile devices (120 seconds)
+      const workerTimeout = isMobile ? 120000 : 60000;
+      
       try {
-        // Use German + English for better recognition of German documents
-        const worker = await createWorker('deu+eng', 1, {
+        // Use German only for smaller download and faster loading on mobile
+        const workerPromise = createWorker('deu', 1, {
           logger: (m) => {
             console.log(`[Tesseract Worker] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
           },
@@ -113,22 +108,20 @@ class OcrVerificationService {
           }
         });
         
+        // Race against timeout
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error(`Worker creation timeout (${workerTimeout / 1000}s)`)), workerTimeout);
+        });
+        
+        const worker = await Promise.race([workerPromise, timeoutPromise]);
+        
         const duration = Date.now() - startTime;
         console.log(`[OCR] Tesseract worker created successfully in ${duration}ms`);
         this.tesseractWorker = worker;
-        // Reset mobile failure flag on success
-        this.workerFailedOnMobile = false;
         return worker;
       } catch (error) {
         console.error('[OCR] Failed to create Tesseract worker:', error);
         this.workerInitPromise = null;
-        
-        // Remember failure on mobile to avoid repeated attempts in same session
-        if (isMobile) {
-          this.workerFailedOnMobile = true;
-          console.log('[OCR] Marking worker as failed for mobile - will skip future attempts this session');
-        }
-        
         return null;
       }
     })();
@@ -464,19 +457,19 @@ class OcrVerificationService {
             console.warn('[OCR] Scanned PDF OCR failed, falling back to manual confirmation:', pdfOcrError);
           }
           
-          // Fallback: manual confirmation with neutral dialog
+          // Fallback: Warning dialog when OCR failed for scanned PDF
           return {
             isMatch: true,
             confidence: 0,
             foundKeywords: [],
             missingKeywords: [],
-            reason: '',
+            reason: 'Die automatische Dokumentenprüfung konnte nicht durchgeführt werden.',
             extractedTextPreview: '',
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: false,
             requiresManualConfirmation: true,
-            confirmationMode: 'neutral'
+            confirmationMode: 'warning'
           };
         }
         
@@ -568,22 +561,22 @@ class OcrVerificationService {
           });
           const worker = await Promise.race([workerPromise, workerTimeoutPromise]);
           
-          // If worker is not available, fallback to manual confirmation with neutral dialog
+          // If worker is not available, fallback to warning dialog
           if (!worker) {
-            this.addDebugLog('Worker not available - zeige freundlichen Bestätigungsdialog');
+            this.addDebugLog('Worker not available - zeige Warning-Dialog');
             
             return {
               isMatch: true,
               confidence: 0,
               foundKeywords: [],
               missingKeywords: [],
-              reason: '',
+              reason: 'Die automatische Dokumentenprüfung konnte nicht durchgeführt werden. Bitte bestätige, dass es sich um das richtige Dokument handelt.',
               extractedTextPreview: '',
               documentType: checklistItemId,
               displayName: keywordConfig.displayName,
               isImageFile: true,
               requiresManualConfirmation: true,
-              confirmationMode: 'neutral', // Blauer Dialog, keine Warnung
+              confirmationMode: 'warning',
               debugLog: this.getDebugLog()
             };
           }
@@ -731,20 +724,19 @@ class OcrVerificationService {
           this.addDebugLog(`FATAL: ${tesseractError instanceof Error ? tesseractError.message : String(tesseractError)}`);
           console.error('[OCR] Tesseract OCR failed:', tesseractError);
           
-          // Fallback: accept file with neutral confirmation dialog (no warning)
-          // This provides a friendly UX even when OCR fails
+          // Fallback: Warning dialog when OCR fails
           return {
             isMatch: true,
             confidence: 0,
             foundKeywords: [],
             missingKeywords: [],
-            reason: '',
+            reason: 'Die automatische Dokumentenprüfung konnte nicht durchgeführt werden. Bitte bestätige, dass es sich um das richtige Dokument handelt.',
             extractedTextPreview: '',
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: true,
             requiresManualConfirmation: true,
-            confirmationMode: 'neutral', // Blauer Dialog statt Warnung
+            confirmationMode: 'warning',
             debugLog: this.getDebugLog()
           };
         }
