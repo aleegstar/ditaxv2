@@ -32,7 +32,7 @@ export const generateChecklistItems = (
     checklistItems.push({
       id: "tax-cover-sheet",
       title: "Deckblatt der Steuererklärung",
-      description: "Das Deckblatt Ihrer Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde",
+      description: "Das Deckblatt deiner Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde",
       category: "general",
       uploaded: false,
       required: true
@@ -49,7 +49,7 @@ export const generateChecklistItems = (
       checklistItems.push({
         id: "employment-income",
         title: "Lohnausweis",
-        description: "Ihr jährlicher Lohnausweis von Ihrem Arbeitgeber",
+        description: "Dein jährlicher Lohnausweis von deinem Arbeitgeber",
         category: "income",
         uploaded: false,
         required: true
@@ -62,7 +62,7 @@ export const generateChecklistItems = (
       checklistItems.push({
         id: "rental-income",
         title: "Mieteinnahmen-Belege",
-        description: "Belege und Aufstellungen über Ihre Mieteinnahmen",
+        description: "Belege und Aufstellungen über deine Mieteinnahmen",
         category: "income",
         uploaded: false,
         required: true
@@ -88,7 +88,7 @@ export const generateChecklistItems = (
       checklistItems.push({
         id: "freelance-income",
         title: "Selbständigeneinkommen",
-        description: "Belege und Aufstellungen Ihres selbständigen Einkommens",
+        description: "Belege und Aufstellungen deines selbständigen Einkommens",
         category: "income",
         uploaded: false,
         required: true
@@ -192,7 +192,7 @@ export const generateChecklistItems = (
       checklistItems.push({
         id: "deposit-account",
         title: "Depotauszug",
-        description: "Auszug Ihres Depotkontos per Jahresende",
+        description: "Auszug deines Depotkontos per Jahresende",
         category: "assets",
         uploaded: false,
         required: true
@@ -257,7 +257,7 @@ export const generateChecklistItems = (
       checklistItems.push({
         id: "pillar3a-certificate",
         title: "Säule 3a Bescheinigung",
-        description: "Bestätigung über Ihre Säule 3a Beiträge",
+        description: "Bestätigung über deine Säule 3a Beiträge",
         category: "deductions",
         uploaded: false,
         required: true

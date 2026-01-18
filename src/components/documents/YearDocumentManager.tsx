@@ -348,7 +348,7 @@ const YearDocumentManager: React.FC<YearDocumentManagerProps> = ({
                 Keine Dokumente vorhanden
               </h3>
               <p className="text-gray-500">
-                Laden Sie Ihre ersten Dokumente hoch
+                Lade deine ersten Dokumente hoch
               </p>
             </div>
           ) : viewMode === 'grid' ? (

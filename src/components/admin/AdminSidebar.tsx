@@ -137,7 +137,7 @@ export function AdminSidebar() {
       await supabase.auth.signOut();
       toast({
         title: "Erfolgreich abgemeldet",
-        description: "Sie wurden erfolgreich abgemeldet."
+        description: "Du wurdest erfolgreich abgemeldet."
       });
       navigate('/auth');
     } catch (error) {

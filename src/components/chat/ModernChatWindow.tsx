@@ -235,7 +235,7 @@ const ModernChatWindow: React.FC<ModernChatWindowProps> = ({
         console.error('ModernChatWindow: Error fetching messages:', error);
         toast({
           title: "Fehler",
-          description: "Konnte Nachrichten nicht abrufen. Bitte versuchen Sie es erneut.",
+          description: "Konnte Nachrichten nicht abrufen. Bitte versuche es erneut.",
           variant: "destructive",
         });
       } finally {
@@ -421,7 +421,7 @@ const ModernChatWindow: React.FC<ModernChatWindowProps> = ({
       console.error('ModernChatWindow: Error sending message:', error);
       toast({
         title: "Fehler",
-        description: "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        description: "Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.",
         variant: "destructive",
       });
     }

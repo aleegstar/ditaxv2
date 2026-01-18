@@ -311,7 +311,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       // Graceful fallback - don't let the app crash
       toast({
         title: 'Fehler bei der Antwort',
-        description: 'Bitte versuchen Sie es erneut.',
+        description: 'Bitte versuche es erneut.',
         variant: 'destructive'
       });
     }
@@ -463,7 +463,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       // Graceful fallback
       toast({
         title: 'Navigation Error',
-        description: 'Bitte versuchen Sie es erneut.',
+        description: 'Bitte versuche es erneut.',
         variant: 'destructive'
       });
     }

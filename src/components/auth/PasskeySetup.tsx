@@ -32,7 +32,7 @@ export const PasskeySetup: React.FC<PasskeySetupProps> = ({
             Fingerprint & Passkey nicht verfügbar
           </CardTitle>
           <CardDescription>
-            Ihr Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
+            Dein Gerät oder Browser unterstützt keine Fingerprint-Anmeldung (WebAuthn/Passkeys).
           </CardDescription>
         </CardHeader>
       </Card>

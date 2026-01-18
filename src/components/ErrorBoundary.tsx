@@ -62,7 +62,7 @@ class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-center text-muted-foreground">
-                Es ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es erneut.
+                Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.
               </p>
               
               {process.env.NODE_ENV === 'development' && this.state.error && (
