@@ -21,7 +21,8 @@ import {
   ValidationResult, 
   ValidationCandidate,
   MetadataSignals,
-  KeywordSignals 
+  KeywordSignals,
+  ValidationProgressCallback
 } from '@/types/documentProfile';
 import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/documentProfiles';
 import LayoutAnalyzer from './LayoutAnalyzer';
@@ -71,31 +72,58 @@ class DocumentValidator {
    * Main validation method
    * @param file - The uploaded file
    * @param expectedDocTypeId - Optional expected document type from checklist
+   * @param onProgress - Optional callback for progress updates
    * @returns Validation result with candidates and signals
    */
-  async validate(file: File, expectedDocTypeId?: string): Promise<ValidationResult> {
+  async validate(
+    file: File, 
+    expectedDocTypeId?: string,
+    onProgress?: ValidationProgressCallback
+  ): Promise<ValidationResult> {
     console.log(`[DocumentValidator] Validating: ${file.name} (${file.type}), expected: ${expectedDocTypeId || 'any'}`);
+
+    // Step 1: Preparing
+    onProgress?.({ step: 'preparing', percent: 5, message: 'Dokument wird vorbereitet...' });
 
     // Ensure native OCR is initialized
     if (!this.nativeOcrInitialized) {
       await this.initializeNativeOcr();
     }
 
-    // Collect all signals
+    // Step 2: Metadata analysis
+    onProgress?.({ step: 'metadata', percent: 15, message: 'Datei-Informationen werden analysiert...' });
     const metaSignals = await this.analyzeMetadata(file);
+
+    // Step 3: Layout analysis
+    onProgress?.({ step: 'layout', percent: 25, message: 'Dokumentstruktur wird erkannt...' });
     const layoutSignals = await this.layoutAnalyzer.analyzeFile(file);
+
+    // Step 4: Keyword detection
     let keywordSignals = await this.detectKeywords(file);
 
     // For images: Try Cloud OCR first, then Native OCR as fallback
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
+      // Step 4a: Compress image for OCR
+      onProgress?.({ step: 'compressing', percent: 35, message: 'Bild wird optimiert...' });
+      
+      // Step 4b: Cloud OCR (longest step)
+      onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird erkannt (Cloud OCR)...' });
+      
       // Try Cloud OCR (DSGVO-konform) - pass expectedDocTypeId for keyword prioritization
       keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
       
+      // Update progress after OCR
+      onProgress?.({ step: 'ocr', percent: 80, message: 'OCR abgeschlossen...' });
+      
       // Fallback to Native OCR if Cloud OCR failed
       if (!keywordSignals?.available) {
+        onProgress?.({ step: 'ocr', percent: 75, message: 'Fallback: Native OCR...' });
         keywordSignals = await this.detectKeywordsWithNativeOcr(file);
       }
     }
+
+    // Step 5: Analyzing results
+    onProgress?.({ step: 'analyzing', percent: 85, message: 'Dokumenttyp wird bestimmt...' });
 
     const signals: ValidationSignals = {
       meta: metaSignals,
@@ -160,6 +188,9 @@ class DocumentValidator {
       confidenceBucket,
       statusMessage
     };
+
+    // Step 6: Complete
+    onProgress?.({ step: 'complete', percent: 100, message: 'Prüfung abgeschlossen!' });
 
     console.log(`[DocumentValidator] Result: ${best.docTypeId} (${best.confidence}%), needs confirmation: ${needsUserConfirmation}, OCR: ${keywordSignals?.available ? 'yes' : 'no'}`);
     return result;
