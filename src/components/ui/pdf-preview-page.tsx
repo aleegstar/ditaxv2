@@ -183,10 +183,10 @@ export const FileUpload = ({
               "text-white/80 font-medium tracking-wide",
               hasAnyPreview ? "text-[11px] mt-1" : "text-sm mt-2"
             )}>
-              {hasAnyPreview 
-                ? 'Max. 10 MB • PDF, JPG, PNG, GIF, WebP' 
-                : 'Klicken oder Dateien hierher ziehen • Max. 10 MB'
-              }
+            {hasAnyPreview 
+              ? 'Max. 10 MB • PDF, JPG, PNG, GIF, WebP' 
+              : 'Tippe hier oder ziehe Dateien hierher • Max. 10 MB'
+            }
             </span>
             {!hasAnyPreview && (
               <span className="text-xs text-white/60 mt-1">
