@@ -10,6 +10,7 @@ import { useFormContext } from '@/contexts';
 import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
 import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
+import OcrPreloadService from '@/services/OcrPreloadService';
 import DocumentVerificationDialog from './documents/DocumentVerificationDialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -85,7 +86,25 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     file: FileWithPreview;
   } | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [ocrReady, setOcrReady] = useState(OcrPreloadService.getStatus());
   const MAX_FILES = 10;
+
+  // Check OCR readiness periodically
+  useEffect(() => {
+    if (ocrReady) return;
+    
+    const checkOcrStatus = () => {
+      const ready = OcrPreloadService.getStatus();
+      if (ready) {
+        setOcrReady(true);
+      }
+    };
+    
+    // Check every second until ready
+    const interval = setInterval(checkOcrStatus, 1000);
+    
+    return () => clearInterval(interval);
+  }, [ocrReady]);
 
   useEffect(() => {
     if (window.pdfjsLib) {
@@ -483,6 +502,16 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           hideBackButton={hideBackButton}
           hideHeader={hideHeader}
         />
+
+        {/* OCR Loading Indicator */}
+        {!ocrReady && checklistItem && (
+          <Alert className="mt-4 border-amber-200 bg-amber-50">
+            <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
+            <AlertDescription className="text-amber-700 ml-2">
+              Dokumentenprüfung wird vorbereitet...
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* File List Section */}
         {files.length > 0 && (
