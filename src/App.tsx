@@ -66,7 +66,6 @@ import { MfaEnrollmentFlow } from "@/components/auth/MfaEnrollmentFlow";
 import { useMfaPrompt } from "@/hooks/useMfaPrompt";
 import { setStatusBarDark } from "@/utils/despiaStatusBar";
 import { isDespiaEnvironment } from "@/utils/platform";
-import OcrPreloadService from "@/services/OcrPreloadService";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -280,11 +279,6 @@ const App = () => {
       setStatusBarDark();
     }
     
-    // Preload OCR engine in background (tesseract-wasm ~2.1MB)
-    // This runs non-blocking so it's ready when user uploads documents
-    OcrPreloadService.preloadWorker().catch((err) => {
-      console.warn('[App] OCR preload failed (non-critical):', err);
-    });
   }, []);
 
   useEffect(() => {

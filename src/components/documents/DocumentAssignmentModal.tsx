@@ -7,8 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import DocumentViewer from '@/components/DocumentViewer';
 import { DocumentMetadata } from '@/services/DocumentService';
-import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
-import DocumentVerificationDialog from './DocumentVerificationDialog';
+import DocumentValidator from '@/services/DocumentValidator';
+import DocumentCheckScreen from './DocumentCheckScreen';
+import { ValidationResult } from '@/types/documentProfile';
 
 interface DocumentAssignmentModalProps {
   open: boolean;
@@ -37,12 +38,13 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const [viewerDocuments, setViewerDocuments] = useState<DocumentMetadata[]>([]);
   const [viewerInitialIndex, setViewerInitialIndex] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [verificationDialog, setVerificationDialog] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState<{
-    result: OcrVerificationResult;
-    doc: any;
-  } | null>(null);
-  const ocrService = OcrVerificationService.getInstance();
+  
+  // New document validation state (replaces OCR)
+  const [showCheckScreen, setShowCheckScreen] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [pendingDoc, setPendingDoc] = useState<any>(null);
+  
+  const documentValidator = DocumentValidator.getInstance();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -142,16 +144,16 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const handleAssignDocuments = async () => {
     if (selectedDocuments.size === 0) return;
 
-    // Get the first selected document for OCR verification
+    // Get the first selected document for validation
     const selectedArray = Array.from(selectedDocuments);
     const firstDocId = selectedArray[0];
     const firstDoc = documents.find(d => d.id === firstDocId);
 
-    // Perform OCR verification if not already verified
+    // Perform document validation if not already verified
     if (firstDoc && !isVerifying) {
       setIsVerifying(true);
       
-      console.log('[Assignment] Starting OCR verification:', {
+      console.log('[Assignment] Starting document validation:', {
         documentId: firstDoc.id,
         fileName: firstDoc.file_name,
         checklistItemId,
@@ -159,30 +161,16 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
       });
       
       try {
-        // Fetch the document file for OCR verification
+        // Fetch the document file for validation
         const { data: urlData, error: urlError } = await supabase.storage
           .from('documents')
           .createSignedUrl(firstDoc.file_path, 60);
 
-        // If we can't get the signed URL, show manual confirmation dialog
+        // If we can't get the signed URL, proceed with assignment (already uploaded)
         if (urlError || !urlData?.signedUrl) {
-          console.warn('[Assignment] Could not get signed URL:', urlError);
-          setPendingVerification({
-            result: {
-              isMatch: true,
-              confidence: 0,
-              foundKeywords: [],
-              missingKeywords: [],
-              reason: 'Das Dokument konnte nicht automatisch geprüft werden. Bitte bestätige manuell, dass es sich um das korrekte Dokument handelt.',
-              extractedTextPreview: '',
-              documentType: checklistItemId,
-              displayName: checklistItemTitle,
-              requiresManualConfirmation: true
-            },
-            doc: firstDoc
-          });
-          setVerificationDialog(true);
+          console.warn('[Assignment] Could not get signed URL, proceeding with assignment');
           setIsVerifying(false);
+          await performAssignment();
           return;
         }
 
@@ -191,47 +179,31 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         const blob = await response.blob();
         const file = new File([blob], firstDoc.file_name, { type: firstDoc.file_type });
 
-        const verificationResult = await ocrService.verifyDocument(file, checklistItemId);
+        const result = await documentValidator.validate(file, checklistItemId);
 
-        console.log('[Assignment] OCR verification result:', {
+        console.log('[Assignment] Validation result:', {
           fileName: file.name,
-          isMatch: verificationResult.isMatch,
-          requiresManualConfirmation: verificationResult.requiresManualConfirmation,
-          isImageFile: verificationResult.isImageFile,
-          confidence: verificationResult.confidence,
-          reason: verificationResult.reason
+          bestMatch: result.best.docTypeId,
+          confidence: result.best.confidence,
+          needsConfirmation: result.needsUserConfirmation
         });
 
-        // Show dialog if manual confirmation is required
-        if (verificationResult.requiresManualConfirmation) {
-          setPendingVerification({
-            result: verificationResult,
-            doc: firstDoc
-          });
-          setVerificationDialog(true);
+        // Show check screen if manual confirmation is required
+        if (result.needsUserConfirmation) {
+          setValidationResult(result);
+          setPendingDoc(firstDoc);
+          setShowCheckScreen(true);
           setIsVerifying(false);
           return;
         }
       } catch (err) {
-        console.error('[Assignment] OCR verification error:', err);
-        // Show dialog on error instead of silently continuing
-        setPendingVerification({
-          result: {
-            isMatch: true,
-            confidence: 0,
-            foundKeywords: [],
-            missingKeywords: [],
-            reason: 'Bei der automatischen Prüfung ist ein Fehler aufgetreten. Bitte bestätige manuell, dass es sich um das korrekte Dokument handelt.',
-            extractedTextPreview: '',
-            documentType: checklistItemId,
-            displayName: checklistItemTitle,
-            requiresManualConfirmation: true
-          },
-          doc: firstDoc
+        console.error('[Assignment] Validation error:', err);
+        // On error, proceed with assignment anyway
+        toast({
+          title: "Hinweis",
+          description: "Dokumentenprüfung übersprungen. Bitte stelle sicher, dass du das richtige Dokument zuordnest.",
+          variant: "default"
         });
-        setVerificationDialog(true);
-        setIsVerifying(false);
-        return;
       }
       setIsVerifying(false);
     }
@@ -295,21 +267,31 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
     }
   };
 
-  const handleVerificationConfirm = () => {
-    setVerificationDialog(false);
+  // Handlers for DocumentCheckScreen
+  const handleCheckConfirm = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
+    setPendingDoc(null);
     performAssignment();
-    setPendingVerification(null);
   };
 
-  const handleVerificationSelectDifferent = () => {
-    setVerificationDialog(false);
+  const handleCheckReupload = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
     // Deselect the problematic document
-    if (pendingVerification) {
+    if (pendingDoc) {
       const newSelection = new Set(selectedDocuments);
-      newSelection.delete(pendingVerification.doc.id);
+      newSelection.delete(pendingDoc.id);
       setSelectedDocuments(newSelection);
     }
-    setPendingVerification(null);
+    setPendingDoc(null);
+  };
+
+  const handleCheckChangeType = () => {
+    setShowCheckScreen(false);
+    setValidationResult(null);
+    setPendingDoc(null);
+    onClose();
   };
 
   return (
@@ -506,15 +488,21 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         onClose={handleCloseViewer}
       />
 
-      {/* OCR Verification Dialog */}
-      <DocumentVerificationDialog
-        open={verificationDialog}
-        onClose={() => setVerificationDialog(false)}
-        onConfirm={handleVerificationConfirm}
-        onSelectDifferent={handleVerificationSelectDifferent}
-        verification={pendingVerification?.result || null}
-        fileName={pendingVerification?.doc?.file_name || ''}
-      />
+      {/* New Document Check Screen Modal */}
+      {showCheckScreen && validationResult && (
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+            <DocumentCheckScreen
+              result={validationResult}
+              fileName={pendingDoc?.file_name || ''}
+              onConfirm={handleCheckConfirm}
+              onReupload={handleCheckReupload}
+              onChangeType={handleCheckChangeType}
+              isConfirming={false}
+            />
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 };
