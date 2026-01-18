@@ -21,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64, keywords } = await req.json();
+    const { imageBase64, keywords, mimeType: requestedMimeType } = await req.json();
 
     // Validate input
     if (!imageBase64 || typeof imageBase64 !== 'string') {
@@ -38,8 +38,20 @@ serve(async (req) => {
       );
     }
 
+    // Extract base64 data - handle both raw base64 and data URL format
+    let base64Data = imageBase64;
+    let detectedMimeType: string | null = null;
+    
+    if (imageBase64.startsWith('data:')) {
+      const match = imageBase64.match(/^data:(image\/[^;]+);base64,(.+)$/);
+      if (match) {
+        detectedMimeType = match[1];
+        base64Data = match[2];
+      }
+    }
+
     // Check image size (max 1MB base64 = ~750KB actual)
-    if (imageBase64.length > 1400000) {
+    if (base64Data.length > 1400000) {
       return new Response(
         JSON.stringify({ error: 'Image too large, max 1MB' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -71,17 +83,25 @@ Beispiel-Antwort: ["Lohnausweis", "Bruttolohn"]`;
     console.log('[OCR-Extract] Sending to Lovable AI Gateway...');
     const startTime = Date.now();
 
-    // Determine image type from base64 header
-    let mimeType = 'image/jpeg';
-    if (imageBase64.startsWith('/9j/')) {
-      mimeType = 'image/jpeg';
-    } else if (imageBase64.startsWith('iVBORw')) {
-      mimeType = 'image/png';
-    } else if (imageBase64.startsWith('R0lGOD')) {
-      mimeType = 'image/gif';
-    } else if (imageBase64.startsWith('UklGR')) {
-      mimeType = 'image/webp';
+    // Determine MIME type: client-provided > data URL > base64 detection > fallback
+    let mimeType = requestedMimeType || detectedMimeType;
+    
+    if (!mimeType) {
+      // Detect from base64 header bytes
+      if (base64Data.startsWith('/9j/')) {
+        mimeType = 'image/jpeg';
+      } else if (base64Data.startsWith('iVBORw')) {
+        mimeType = 'image/png';
+      } else if (base64Data.startsWith('R0lGOD')) {
+        mimeType = 'image/gif';
+      } else if (base64Data.startsWith('UklGR')) {
+        mimeType = 'image/webp';
+      } else {
+        mimeType = 'image/jpeg'; // Fallback
+      }
     }
+    
+    console.log(`[OCR-Extract] Using mimeType: ${mimeType}, base64 length: ${base64Data.length}`);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -99,7 +119,7 @@ Beispiel-Antwort: ["Lohnausweis", "Bruttolohn"]`;
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:${mimeType};base64,${imageBase64}`
+                  url: `data:${mimeType};base64,${base64Data}`
                 }
               },
               {

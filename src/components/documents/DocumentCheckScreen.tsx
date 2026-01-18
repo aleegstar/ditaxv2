@@ -244,34 +244,39 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col gap-2">
-        {result.needsUserConfirmation ? (
-          <>
-            <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
-              {isConfirming ? 'Wird bestätigt...' : 'Ja, das ist das richtige Dokument'}
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onReupload} className="flex-1">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Andere Datei
+      {/* Spacer for fixed footer */}
+      <div className="h-28" />
+
+      {/* Fixed Footer Action Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border safe-area-inset-bottom z-50">
+        <div className="max-w-md mx-auto space-y-2">
+          {result.needsUserConfirmation ? (
+            <>
+              <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
+                {isConfirming ? 'Wird bestätigt...' : 'Ja, das ist das richtige Dokument'}
               </Button>
-              <Button variant="ghost" onClick={onChangeType} className="flex-1">
-                <Info className="w-4 h-4 mr-2" />
-                Typ ändern
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onReupload} className="flex-1">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Andere Datei
+                </Button>
+                <Button variant="ghost" onClick={onChangeType} className="flex-1">
+                  <Info className="w-4 h-4 mr-2" />
+                  Typ ändern
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
+                {isConfirming ? 'Wird hochgeladen...' : 'Dokument hochladen'}
               </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
-              {isConfirming ? 'Wird hochgeladen...' : 'Dokument hochladen'}
-            </Button>
-            <Button variant="ghost" onClick={onReupload} className="w-full">
-              Andere Datei wählen
-            </Button>
-          </>
-        )}
+              <Button variant="ghost" onClick={onReupload} className="w-full">
+                Andere Datei wählen
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
