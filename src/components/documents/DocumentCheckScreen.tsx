@@ -8,12 +8,13 @@
  */
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, Info, Upload, RefreshCw, Shield } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Info, RefreshCw, Shield, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ValidationResult } from '@/types/documentProfile';
 import { getDocumentProfile } from '@/config/documentProfiles';
+import { Capacitor } from '@capacitor/core';
 
 interface DocumentCheckScreenProps {
   result: ValidationResult;
@@ -127,6 +128,32 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Image without OCR Warning */}
+      {!result.signals.keywords?.available && result.signals.meta.mimeType?.startsWith('image/') && (
+        <div className="flex items-start gap-2 text-sm bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2.5 rounded-lg">
+          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-amber-800 dark:text-amber-200">
+              Bei Bildern ist eine automatische Prüfung nur eingeschränkt möglich. Bitte bestätigen Sie, dass dies das richtige Dokument ist.
+            </p>
+            {!Capacitor.isNativePlatform() && (
+              <p className="text-amber-600 dark:text-amber-400 text-xs mt-1 flex items-center gap-1">
+                <Smartphone className="w-3 h-3" />
+                In der App können Bilder automatisch erkannt werden.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Native OCR Success Badge */}
+      {result.signals.keywords?.source === 'native-ocr' && result.signals.keywords?.available && (
+        <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-3 py-2 rounded-lg">
+          <CheckCircle className="w-3.5 h-3.5" />
+          <span>Text automatisch erkannt via Native OCR</span>
+        </div>
+      )}
 
       {/* Privacy Badge */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
