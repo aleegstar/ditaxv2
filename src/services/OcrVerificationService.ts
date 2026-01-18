@@ -552,14 +552,9 @@ class OcrVerificationService {
         // Mobile und Desktop: Tesseract.js OCR verwenden (100% lokal)
         try {
           // Get or create the singleton worker first
-          this.addDebugLog('Getting Tesseract worker...');
-          
-          // Timeout for worker creation (30 seconds)
-          const workerPromise = this.getWorker();
-          const workerTimeoutPromise = new Promise<Worker | null>((resolve) => {
-            setTimeout(() => resolve(null), 30000);
-          });
-          const worker = await Promise.race([workerPromise, workerTimeoutPromise]);
+          // Worker hat bereits 120s Timeout für Mobile in getWorker()
+          this.addDebugLog('Getting Tesseract worker (120s timeout für Mobile)...');
+          const worker = await this.getWorker();
           
           // If worker is not available, fallback to warning dialog
           if (!worker) {
