@@ -137,7 +137,8 @@ class DocumentValidator {
     const needsUserConfirmation = best.confidence < 80;
 
     // Generate status message
-    const statusMessage = this.getStatusMessage(best.confidence, best.docTypeId, signals.keywords);
+    const isImage = metaSignals.mimeType?.startsWith('image/') || false;
+    const statusMessage = this.getStatusMessage(best.confidence, best.docTypeId, signals.keywords, isImage);
 
     const result: ValidationResult = {
       candidates: topCandidates,
@@ -446,16 +447,25 @@ class DocumentValidator {
       }
     }
 
-    // === IMAGE LIMITATION (cap at 65% if no keyword detection) ===
+    // === IMAGE LIMITATION (cap at 50% if no keyword detection - honest limitation) ===
     const isImage = signals.meta.mimeType?.startsWith('image/');
     const hasKeywordDetection = signals.keywords?.available === true;
     
     if (isImage && !hasKeywordDetection) {
-      const wasHigher = score > 65;
-      score = Math.min(score, 65);
-      if (wasHigher || score > 50) {
-        reasons.push('Manuelle Bestätigung empfohlen (Bildformat)');
+      // Cap at 50% - we cannot reliably validate images without OCR
+      score = Math.min(score, 50);
+      // Remove any reasons that suggest high confidence
+      const filteredReasons = reasons.filter(r => 
+        !r.includes('erkannt') && !r.includes('gefunden')
+      );
+      reasons.length = 0;
+      reasons.push(...filteredReasons);
+      
+      // Add honest limitation message
+      if (isExpectedType) {
+        reasons.unshift('Ausgewählter Dokumenttyp');
       }
+      reasons.push('Automatische Prüfung bei Bildern nicht möglich');
     }
 
     // Ensure score is within bounds
@@ -481,9 +491,14 @@ class DocumentValidator {
   /**
    * Get human-readable status message
    */
-  private getStatusMessage(confidence: number, docTypeId: string, keywords?: KeywordSignals): string {
+  private getStatusMessage(confidence: number, docTypeId: string, keywords?: KeywordSignals, isImage?: boolean): string {
     const profile = getDocumentProfile(docTypeId);
     const label = profile?.label || 'Dokument';
+
+    // Special message for images without OCR
+    if (isImage && !keywords?.available) {
+      return `Manuelle Prüfung erforderlich: ${label}`;
+    }
 
     if (confidence >= 80) {
       if (keywords?.source === 'native-ocr') {
