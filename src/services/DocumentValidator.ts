@@ -1,15 +1,18 @@
 /**
  * Document Validator Service
  * 
- * Multi-signal document validation with optional Native OCR.
+ * Multi-signal document validation with Cloud OCR support.
  * Combines:
  * - Metadata analysis (file type, size, pages)
  * - Layout heuristics (visual structure detection)
  * - PDF text layer keyword detection
- * - Native OCR for images (iOS Vision / Android ML Kit)
+ * - Cloud OCR for images (DSGVO-konform via Lovable AI)
+ * - Native OCR fallback (iOS Vision / Android ML Kit)
  * 
- * PRIVACY FIRST: All processing is LOCAL. No data leaves the device.
- * Only validation results are stored (never raw text or images).
+ * PRIVACY: 
+ * - PDFs: Local processing only
+ * - Images: Cloud OCR extracts only keywords, no raw text stored
+ * - All results stored locally
  */
 
 import { 
@@ -23,6 +26,7 @@ import {
 import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/documentProfiles';
 import LayoutAnalyzer from './LayoutAnalyzer';
 import NativeOcrService from './NativeOcrService';
+import CloudOcrService from './CloudOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
 
 // Declare pdfjsLib type
@@ -36,11 +40,13 @@ class DocumentValidator {
   private static instance: DocumentValidator;
   private layoutAnalyzer: LayoutAnalyzer;
   private nativeOcr: NativeOcrService;
+  private cloudOcr: CloudOcrService;
   private nativeOcrInitialized: boolean = false;
 
   private constructor() {
     this.layoutAnalyzer = LayoutAnalyzer.getInstance();
     this.nativeOcr = NativeOcrService.getInstance();
+    this.cloudOcr = CloudOcrService.getInstance();
   }
 
   public static getInstance(): DocumentValidator {
@@ -80,9 +86,15 @@ class DocumentValidator {
     const layoutSignals = await this.layoutAnalyzer.analyzeFile(file);
     let keywordSignals = await this.detectKeywords(file);
 
-    // For images: Try native OCR if available
+    // For images: Try Cloud OCR first, then Native OCR as fallback
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
-      keywordSignals = await this.detectKeywordsWithNativeOcr(file);
+      // Try Cloud OCR (DSGVO-konform)
+      keywordSignals = await this.detectKeywordsWithCloudOcr(file);
+      
+      // Fallback to Native OCR if Cloud OCR failed
+      if (!keywordSignals?.available) {
+        keywordSignals = await this.detectKeywordsWithNativeOcr(file);
+      }
     }
 
     const signals: ValidationSignals = {
@@ -154,7 +166,41 @@ class DocumentValidator {
   }
 
   /**
-   * Detect keywords using Native OCR (for images)
+   * Detect keywords using Cloud OCR (DSGVO-konform)
+   * Uses Lovable AI Gateway with Gemini Vision
+   * PRIVACY: Only keyword matches returned, no raw text
+   */
+  private async detectKeywordsWithCloudOcr(file: File): Promise<KeywordSignals | undefined> {
+    if (!this.cloudOcr.isAvailable()) {
+      console.log('[DocumentValidator] Cloud OCR not available');
+      return { available: false, matchCountsByDocType: {}, source: 'none' };
+    }
+
+    try {
+      console.log('[DocumentValidator] Attempting Cloud OCR for image...');
+      const result = await this.cloudOcr.extractKeywords(file);
+
+      if (!result.available) {
+        console.log('[DocumentValidator] Cloud OCR: No keywords detected', result.error);
+        return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
+      }
+
+      console.log('[DocumentValidator] Cloud OCR: Keywords matched', result.matchCountsByDocType);
+
+      return {
+        available: true,
+        matchCountsByDocType: result.matchCountsByDocType,
+        matchedLabels: result.matchedKeywords.slice(0, 10),
+        source: 'cloud-ocr'
+      };
+    } catch (error) {
+      console.error('[DocumentValidator] Cloud OCR failed:', error);
+      return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
+    }
+  }
+
+  /**
+   * Detect keywords using Native OCR (fallback for images)
    * PRIVACY: Text is extracted, matched, then discarded
    */
   private async detectKeywordsWithNativeOcr(file: File): Promise<KeywordSignals | undefined> {
@@ -543,6 +589,9 @@ class DocumentValidator {
     }
 
     if (confidence >= 80) {
+      if (keywords?.source === 'cloud-ocr') {
+        return `Erkannt als: ${label} (via Cloud-Analyse)`;
+      }
       if (keywords?.source === 'native-ocr') {
         return `Erkannt als: ${label} (via Texterkennung)`;
       }
