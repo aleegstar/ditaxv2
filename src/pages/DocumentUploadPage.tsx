@@ -267,9 +267,9 @@ const DocumentUploadPageContent: React.FC = () => {
   return <div className="min-h-screen bg-white">
       <SubpageHeader title={selectedItem.title} onBack={handleBack} />
       
-      <div className="flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
-        <div className="w-full max-w-4xl mb-6">
-          <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-center">
+      <div className="flex flex-col items-center p-4 pb-24 md:pb-6">
+        <div className="w-full max-w-4xl mb-3">
+          <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-center">
             <p className="text-sm text-slate-600">
               {selectedItem.description}
             </p>
@@ -277,7 +277,7 @@ const DocumentUploadPageContent: React.FC = () => {
         </div>
 
         {/* Upload card */}
-        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-white border-slate-200 p-4 border-0">
+        <div className="w-full max-w-4xl rounded-[24px] overflow-hidden bg-white border-slate-200 p-0 border-0">
           <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>
