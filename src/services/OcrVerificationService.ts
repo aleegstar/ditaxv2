@@ -1,5 +1,5 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
-import Tesseract from 'tesseract.js';
+import { createWorker, Worker } from 'tesseract.js';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -26,12 +26,73 @@ export interface OcrVerificationResult {
  */
 class OcrVerificationService {
   private static instance: OcrVerificationService;
+  private tesseractWorker: Worker | null = null;
+  private workerInitPromise: Promise<Worker> | null = null;
 
   public static getInstance(): OcrVerificationService {
     if (!OcrVerificationService.instance) {
       OcrVerificationService.instance = new OcrVerificationService();
     }
     return OcrVerificationService.instance;
+  }
+
+  /**
+   * Get or create the Tesseract worker (singleton pattern)
+   * Worker is created once and reused for all OCR operations
+   */
+  private async getWorker(): Promise<Worker> {
+    // Return existing worker if available
+    if (this.tesseractWorker) {
+      console.log('[OCR] Reusing existing Tesseract worker');
+      return this.tesseractWorker;
+    }
+
+    // Return pending initialization if in progress
+    if (this.workerInitPromise) {
+      console.log('[OCR] Waiting for Tesseract worker initialization...');
+      return this.workerInitPromise;
+    }
+
+    // Create new worker
+    this.workerInitPromise = (async () => {
+      console.log('[OCR] Creating new Tesseract worker...');
+      const startTime = Date.now();
+      
+      try {
+        const worker = await createWorker('eng', 1, {
+          logger: (m) => {
+            console.log(`[Tesseract Worker] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
+          },
+          errorHandler: (err) => {
+            console.error('[Tesseract Worker] Error:', err);
+          }
+        });
+        
+        const duration = Date.now() - startTime;
+        console.log(`[OCR] Tesseract worker created successfully in ${duration}ms`);
+        this.tesseractWorker = worker;
+        return worker;
+      } catch (error) {
+        console.error('[OCR] Failed to create Tesseract worker:', error);
+        this.workerInitPromise = null;
+        throw error;
+      }
+    })();
+
+    return this.workerInitPromise;
+  }
+
+  /**
+   * Terminate the Tesseract worker (cleanup)
+   */
+  async terminateWorker(): Promise<void> {
+    if (this.tesseractWorker) {
+      console.log('[OCR] Terminating Tesseract worker...');
+      await this.tesseractWorker.terminate();
+      this.tesseractWorker = null;
+      this.workerInitPromise = null;
+      console.log('[OCR] Tesseract worker terminated');
+    }
   }
 
   /**
@@ -236,22 +297,20 @@ class OcrVerificationService {
           const imageDataUrl = await this.fileToDataURL(file);
           console.log(`[OCR] Data URL created, length: ${imageDataUrl.length} chars`);
           
-          console.log('[OCR] Initializing Tesseract worker...');
+          // Get or create the singleton worker
+          console.log('[OCR] Getting Tesseract worker...');
+          const worker = await this.getWorker();
+          console.log('[OCR] Worker ready, starting recognition...');
           
-          // Use 'eng' language model - it's smaller and more stable on mobile
-          // German umlauts are already normalized in keyword matching
-          const tesseractPromise = Tesseract.recognize(imageDataUrl, 'eng', {
-            logger: (m) => {
-              console.log(`[Tesseract] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
-            }
-          });
+          // Use worker.recognize() instead of deprecated Tesseract.recognize()
+          const recognizePromise = worker.recognize(imageDataUrl);
           
-          // 30 second timeout
+          // 45 second timeout (increased for first-time worker init)
           const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>30s)')), 30000);
+            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>45s)')), 45000);
           });
           
-          const tesseractResult = await Promise.race([tesseractPromise, timeoutPromise]);
+          const tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
           
           const extractedText = tesseractResult.data.text || '';
           console.log('[OCR] === Tesseract Result ===');
