@@ -47,21 +47,21 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
 
         {/* Notice - different styling based on mode */}
         {isNeutralMode ? (
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-2xl mb-5">
-            <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-2xl mb-5">
+            <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">
                 Dokument bestätigen
               </p>
-              <p className="text-blue-700">
+              <p className="text-blue-600">
                 Bitte bestätige, dass es sich um deinen <span className="font-medium">{verification.displayName}</span> handelt.
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl mb-5">
-            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="text-sm text-amber-800">
+          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl mb-5">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="text-sm text-amber-900">
               <p className="font-medium mb-1">
                 Bitte prüfen
               </p>
@@ -94,7 +94,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3.5 px-4 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium text-sm hover:-translate-y-0.5 transition-all"
+            className="flex-1 py-3.5 px-4 rounded-full bg-blue-500 text-white font-medium text-sm hover:bg-blue-600 transition-colors"
           >
             {isNeutralMode ? 'Bestätigen' : 'Trotzdem nutzen'}
           </button>
