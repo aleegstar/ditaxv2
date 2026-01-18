@@ -1,5 +1,5 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
-import { createWorker, Worker } from 'tesseract.js';
+import { OCRClient } from 'tesseract-wasm';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -30,13 +30,19 @@ export interface OcrVerificationResult {
  * Es werden KEINE Daten an externe Server übermittelt.
  * 
  * - PDFs: Text wird mit pdf.js lokal extrahiert
- * - Bilder: Text wird mit Tesseract.js lokal im Browser erkannt (OCR)
+ * - Bilder: Text wird mit tesseract-wasm lokal im Browser erkannt (OCR)
+ * 
+ * tesseract-wasm Vorteile:
+ * - Nur ~2.1MB Download (statt ~18MB bei tesseract.js)
+ * - SIMD-Unterstützung für bessere Performance
+ * - Optimiert für Browser/Mobile
  */
 class OcrVerificationService {
   private static instance: OcrVerificationService;
-  private tesseractWorker: Worker | null = null;
-  private workerInitPromise: Promise<Worker | null> | null = null;
+  private ocrClient: OCRClient | null = null;
+  private initPromise: Promise<void> | null = null;
   private ocrDebugLog: string[] = [];
+  private isInitialized = false;
 
   public static getInstance(): OcrVerificationService {
     if (!OcrVerificationService.instance) {
@@ -70,75 +76,69 @@ class OcrVerificationService {
   }
 
   /**
-   * Get or create the Tesseract worker (singleton pattern)
-   * Worker is created once and reused for all OCR operations
-   * Returns null if worker creation failed
+   * Check if OCR is initialized and ready
    */
-  private async getWorker(): Promise<Worker | null> {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
-    // Return existing worker if available
-    if (this.tesseractWorker) {
-      console.log('[OCR] Reusing existing Tesseract worker');
-      return this.tesseractWorker;
-    }
-
-    // Return pending initialization if in progress
-    if (this.workerInitPromise) {
-      console.log('[OCR] Waiting for Tesseract worker initialization...');
-      return this.workerInitPromise;
-    }
-
-    // Create new worker with German language support only (smaller download ~15MB instead of ~35MB)
-    this.workerInitPromise = (async () => {
-      console.log('[OCR] Creating new Tesseract worker (deu only - faster download)...');
-      const startTime = Date.now();
-      
-      // Longer timeout for mobile devices (120 seconds)
-      const workerTimeout = isMobile ? 120000 : 60000;
-      
-      try {
-        // Use German only for smaller download and faster loading on mobile
-        const workerPromise = createWorker('deu', 1, {
-          logger: (m) => {
-            console.log(`[Tesseract Worker] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
-          },
-          errorHandler: (err) => {
-            console.error('[Tesseract Worker] Error:', err);
-          }
-        });
-        
-        // Race against timeout
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error(`Worker creation timeout (${workerTimeout / 1000}s)`)), workerTimeout);
-        });
-        
-        const worker = await Promise.race([workerPromise, timeoutPromise]);
-        
-        const duration = Date.now() - startTime;
-        console.log(`[OCR] Tesseract worker created successfully in ${duration}ms`);
-        this.tesseractWorker = worker;
-        return worker;
-      } catch (error) {
-        console.error('[OCR] Failed to create Tesseract worker:', error);
-        this.workerInitPromise = null;
-        return null;
-      }
-    })();
-
-    return this.workerInitPromise;
+  public isReady(): boolean {
+    return this.isInitialized && this.ocrClient !== null;
   }
 
   /**
-   * Terminate the Tesseract worker (cleanup)
+   * Initialize the OCR engine (tesseract-wasm)
+   * Downloads ~2.1MB (with Brotli compression) instead of ~18MB for tesseract.js
+   */
+  public async initOcr(): Promise<void> {
+    if (this.isInitialized && this.ocrClient) {
+      console.log('[OCR] Already initialized');
+      return;
+    }
+
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const startTime = Date.now();
+
+    this.initPromise = (async () => {
+      try {
+        console.log(`[OCR] Initializing tesseract-wasm (${isMobile ? 'mobile' : 'desktop'})...`);
+        
+        // Create OCRClient instance
+        this.ocrClient = new OCRClient();
+        
+        // Load German language model from tessdata_fast (~2MB)
+        // Using CDN for reliable delivery
+        console.log('[OCR] Loading German language model (tessdata_fast ~2MB)...');
+        await this.ocrClient.loadModel(
+          'https://cdn.jsdelivr.net/gh/tesseract-ocr/tessdata_fast@main/deu.traineddata'
+        );
+        
+        const duration = Date.now() - startTime;
+        console.log(`[OCR] tesseract-wasm initialized in ${duration}ms`);
+        this.isInitialized = true;
+        
+      } catch (error) {
+        console.error('[OCR] Failed to initialize tesseract-wasm:', error);
+        this.ocrClient = null;
+        this.initPromise = null;
+        throw error;
+      }
+    })();
+
+    return this.initPromise;
+  }
+
+  /**
+   * Terminate the OCR client (cleanup)
    */
   async terminateWorker(): Promise<void> {
-    if (this.tesseractWorker) {
-      console.log('[OCR] Terminating Tesseract worker...');
-      await this.tesseractWorker.terminate();
-      this.tesseractWorker = null;
-      this.workerInitPromise = null;
-      console.log('[OCR] Tesseract worker terminated');
+    if (this.ocrClient) {
+      console.log('[OCR] Terminating OCR client...');
+      this.ocrClient.destroy();
+      this.ocrClient = null;
+      this.initPromise = null;
+      this.isInitialized = false;
+      console.log('[OCR] OCR client terminated');
     }
   }
 
@@ -244,24 +244,11 @@ class OcrVerificationService {
   }
 
   /**
-   * Convert a File to a Data URL for more reliable Tesseract processing
-   * This is especially important for mobile browsers
-   */
-  private fileToDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /**
    * Preprocess image using Canvas for better OCR results
    * Converts to grayscale and increases contrast (threshold)
    * This significantly improves OCR accuracy, especially on mobile devices
    */
-  private async preprocessImage(file: File): Promise<Blob> {
+  private async preprocessImage(file: File | Blob): Promise<ImageBitmap> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       const canvas = document.createElement('canvas');
@@ -272,7 +259,7 @@ class OcrVerificationService {
         return;
       }
       
-      img.onload = () => {
+      img.onload = async () => {
         console.log(`[OCR] Preprocessing image: ${img.width}x${img.height}`);
         
         // Set canvas size to image size
@@ -303,15 +290,14 @@ class OcrVerificationService {
         // Put processed data back
         ctx.putImageData(imageData, 0, 0);
         
-        // Convert to blob (PNG for lossless quality)
-        canvas.toBlob((blob) => {
-          if (blob) {
-            console.log(`[OCR] Preprocessed image: ${(blob.size / 1024).toFixed(1)} KB (B/W threshold applied)`);
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to create blob from canvas'));
-          }
-        }, 'image/png');
+        // Create ImageBitmap for tesseract-wasm
+        try {
+          const bitmap = await createImageBitmap(canvas);
+          console.log(`[OCR] Preprocessed ImageBitmap: ${bitmap.width}x${bitmap.height}`);
+          resolve(bitmap);
+        } catch (error) {
+          reject(new Error('Failed to create ImageBitmap from canvas'));
+        }
       };
       
       img.onerror = () => {
@@ -319,13 +305,26 @@ class OcrVerificationService {
         reject(new Error('Failed to load image for preprocessing'));
       };
       
-      // Load image from file
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file for preprocessing'));
-      reader.readAsDataURL(file);
+      // Load image from file/blob
+      if (file instanceof File) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          img.src = e.target?.result as string;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file for preprocessing'));
+        reader.readAsDataURL(file);
+      } else {
+        // Blob
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          img.onload = null; // Clear handler to use the main one
+          // Trigger the main handler
+          const event = new Event('load');
+          img.dispatchEvent(event);
+        };
+        img.src = url;
+      }
     });
   }
 
@@ -354,6 +353,19 @@ class OcrVerificationService {
     
     // Below minimum, scale from 0% to 69%
     return Math.round((foundCount / minRequired) * 69);
+  }
+
+  /**
+   * Extract text from image using tesseract-wasm
+   */
+  private async extractTextFromImage(imageBitmap: ImageBitmap): Promise<string> {
+    if (!this.ocrClient) {
+      throw new Error('OCR client not initialized');
+    }
+
+    await this.ocrClient.loadImage(imageBitmap);
+    const text = await this.ocrClient.getText();
+    return text;
   }
 
   /**
@@ -396,23 +408,19 @@ class OcrVerificationService {
         if (!hasRealText) {
           console.log(`[OCR] Image-PDF detected (scanned document) - attempting OCR on rendered page`);
           
-          // For scanned PDFs: Render first page as image and run Tesseract.js OCR
+          // For scanned PDFs: Render first page as image and run tesseract-wasm OCR
           try {
             const pdfImage = await this.renderPdfPageAsImage(file);
             if (pdfImage) {
-              console.log(`[OCR] PDF page rendered as image, running Tesseract OCR...`);
+              console.log(`[OCR] PDF page rendered as image, running tesseract-wasm OCR...`);
               
-              // Use existing image OCR logic with the rendered PDF page
-              const worker = await this.getWorker();
-              if (worker) {
-                const processedBlob = await this.preprocessImage(new File([pdfImage], 'pdf-page.png', { type: 'image/png' }));
-                const recognizePromise = worker.recognize(processedBlob);
-                const timeoutPromise = new Promise<never>((_, reject) => {
-                  setTimeout(() => reject(new Error('Recognition timeout (60s)')), 60000);
-                });
-                
-                const tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
-                const ocrText = tesseractResult.data.text || '';
+              // Ensure OCR is initialized
+              await this.initOcr();
+              
+              if (this.ocrClient) {
+                const imageBitmap = await this.preprocessImage(pdfImage);
+                const ocrText = await this.extractTextFromImage(imageBitmap);
+                imageBitmap.close();
                 
                 if (ocrText.trim().length > 30) {
                   console.log(`[OCR] Scanned PDF OCR successful: ${ocrText.length} chars`);
@@ -435,7 +443,7 @@ class OcrVerificationService {
                   }
                   
                   const requiresManualConfirmation = !isMatch || confidence < 50;
-                  const confirmationMode: 'neutral' | 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
+                  const confirmationMode: 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
                   
                   return {
                     isMatch,
@@ -506,7 +514,7 @@ class OcrVerificationService {
         const requiresManualConfirmation = !isMatch || confidence < 50;
         
         // Set confirmation mode based on whether OCR found issues
-        const confirmationMode: 'neutral' | 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
+        const confirmationMode: 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
         
         const result = {
           isMatch,
@@ -535,30 +543,28 @@ class OcrVerificationService {
         return result;
       }
       
-      // Handle images - use Tesseract.js OCR (100% lokal, DSGVO-konform)
-      // Tesseract.js läuft vollständig im Browser - keine Daten verlassen das Gerät
+      // Handle images - use tesseract-wasm OCR (100% lokal, DSGVO-konform)
+      // tesseract-wasm läuft vollständig im Browser - keine Daten verlassen das Gerät
       if (file.type.startsWith('image/')) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         // Clear and start debug logging
         this.clearDebugLog();
-        this.addDebugLog('=== Starting Image OCR (lokal/DSGVO-konform) ===');
+        this.addDebugLog('=== Starting Image OCR (tesseract-wasm, lokal/DSGVO-konform) ===');
         this.addDebugLog(`File: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
         this.addDebugLog(`Type: ${file.type}`);
         this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
         this.addDebugLog(`Document: ${keywordConfig.displayName}`);
         this.addDebugLog('Alle Daten werden lokal verarbeitet - keine externe Übertragung');
+        this.addDebugLog('tesseract-wasm: ~2.1MB Download (6x kleiner als tesseract.js)');
         
-        // Mobile und Desktop: Tesseract.js OCR verwenden (100% lokal)
         try {
-          // Get or create the singleton worker first
-          // Worker hat bereits 120s Timeout für Mobile in getWorker()
-          this.addDebugLog('Getting Tesseract worker (120s timeout für Mobile)...');
-          const worker = await this.getWorker();
+          // Initialize OCR if not already done
+          this.addDebugLog('Initializing tesseract-wasm...');
+          await this.initOcr();
           
-          // If worker is not available, fallback to warning dialog
-          if (!worker) {
-            this.addDebugLog('Worker not available - zeige Warning-Dialog');
+          if (!this.ocrClient) {
+            this.addDebugLog('OCR client not available - zeige Warning-Dialog');
             
             return {
               isMatch: true,
@@ -576,65 +582,28 @@ class OcrVerificationService {
             };
           }
           
-          this.addDebugLog('Worker ready ✓');
+          this.addDebugLog('tesseract-wasm ready ✓');
           
-          // Multi-step fallback for image recognition
-          let tesseractResult: Awaited<ReturnType<typeof worker.recognize>> | null = null;
           let extractedText = '';
           
-          // Step 1: Try preprocessed image (best quality)
-          this.addDebugLog('Step 1: Trying preprocessed image...');
+          // Preprocess image for better OCR results
+          this.addDebugLog('Preprocessing image (grayscale, threshold)...');
           try {
-            const processedBlob = await this.preprocessImage(file);
-            this.addDebugLog(`Preprocessed: ${(processedBlob.size / 1024).toFixed(1)} KB`);
+            const imageBitmap = await this.preprocessImage(file);
+            this.addDebugLog(`ImageBitmap: ${imageBitmap.width}x${imageBitmap.height}`);
             
-            const recognizePromise = worker.recognize(processedBlob);
-            const timeoutPromise = new Promise<never>((_, reject) => {
-              setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
-            });
+            // Run OCR
+            this.addDebugLog('Running OCR...');
+            const startTime = Date.now();
+            extractedText = await this.extractTextFromImage(imageBitmap);
+            const duration = Date.now() - startTime;
             
-            tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
-            extractedText = tesseractResult.data.text || '';
-            this.addDebugLog(`Step 1 result: ${extractedText.length} chars`);
-          } catch (step1Error) {
-            this.addDebugLog(`Step 1 failed: ${step1Error instanceof Error ? step1Error.message : String(step1Error)}`);
-          }
-          
-          // Step 2: If Step 1 failed or returned empty, try Data URL
-          if (extractedText.length === 0) {
-            this.addDebugLog('Step 2: Trying Data URL...');
-            try {
-              const dataUrl = await this.fileToDataURL(file);
-              this.addDebugLog(`Data URL: ${dataUrl.length} chars`);
-              
-              const recognizePromise = worker.recognize(dataUrl);
-              const timeoutPromise = new Promise<never>((_, reject) => {
-                setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
-              });
-              
-              tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
-              extractedText = tesseractResult.data.text || '';
-              this.addDebugLog(`Step 2 result: ${extractedText.length} chars`);
-            } catch (step2Error) {
-              this.addDebugLog(`Step 2 failed: ${step2Error instanceof Error ? step2Error.message : String(step2Error)}`);
-            }
-          }
-          
-          // Step 3: If both failed, try direct File object
-          if (extractedText.length === 0) {
-            this.addDebugLog('Step 3: Trying direct File...');
-            try {
-              const recognizePromise = worker.recognize(file);
-              const timeoutPromise = new Promise<never>((_, reject) => {
-                setTimeout(() => reject(new Error('Recognition timeout (45s)')), 45000);
-              });
-              
-              tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
-              extractedText = tesseractResult.data.text || '';
-              this.addDebugLog(`Step 3 result: ${extractedText.length} chars`);
-            } catch (step3Error) {
-              this.addDebugLog(`Step 3 failed: ${step3Error instanceof Error ? step3Error.message : String(step3Error)}`);
-            }
+            imageBitmap.close();
+            
+            this.addDebugLog(`OCR completed in ${duration}ms: ${extractedText.length} chars`);
+            
+          } catch (ocrError) {
+            this.addDebugLog(`OCR failed: ${ocrError instanceof Error ? ocrError.message : String(ocrError)}`);
           }
           
           // Log final result
@@ -717,7 +686,7 @@ class OcrVerificationService {
           
         } catch (tesseractError) {
           this.addDebugLog(`FATAL: ${tesseractError instanceof Error ? tesseractError.message : String(tesseractError)}`);
-          console.error('[OCR] Tesseract OCR failed:', tesseractError);
+          console.error('[OCR] tesseract-wasm OCR failed:', tesseractError);
           
           // Fallback: Warning dialog when OCR fails
           return {
