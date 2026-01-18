@@ -85,6 +85,9 @@ class OcrVerificationService {
   /**
    * Initialize the OCR engine (tesseract-wasm)
    * Downloads ~2.1MB (with Brotli compression) instead of ~18MB for tesseract.js
+   * 
+   * Mobile: 10s internal timeout
+   * Desktop: 30s internal timeout
    */
   public async initOcr(): Promise<void> {
     if (this.isInitialized && this.ocrClient) {
@@ -98,27 +101,45 @@ class OcrVerificationService {
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const startTime = Date.now();
+    const timeout = isMobile ? 10000 : 30000; // 10s mobile, 30s desktop
 
     this.initPromise = (async () => {
       try {
-        console.log(`[OCR] Initializing tesseract-wasm (${isMobile ? 'mobile' : 'desktop'})...`);
+        console.log(`[OCR] Initializing tesseract-wasm (${isMobile ? 'mobile' : 'desktop'}, timeout: ${timeout}ms)...`);
         
         // Create OCRClient instance
         this.ocrClient = new OCRClient();
         
         // Load German language model from tessdata_fast (~2MB)
-        // Using CDN for reliable delivery
+        // Using CDN for reliable delivery with timeout
         console.log('[OCR] Loading German language model (tessdata_fast ~2MB)...');
-        await this.ocrClient.loadModel(
+        
+        const loadModelPromise = this.ocrClient.loadModel(
           'https://cdn.jsdelivr.net/gh/tesseract-ocr/tessdata_fast@main/deu.traineddata'
         );
+        
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error(`OCR model load timeout after ${timeout}ms`)), timeout);
+        });
+        
+        await Promise.race([loadModelPromise, timeoutPromise]);
         
         const duration = Date.now() - startTime;
         console.log(`[OCR] tesseract-wasm initialized in ${duration}ms`);
         this.isInitialized = true;
         
       } catch (error) {
-        console.error('[OCR] Failed to initialize tesseract-wasm:', error);
+        const duration = Date.now() - startTime;
+        console.error(`[OCR] Failed to initialize tesseract-wasm after ${duration}ms:`, error);
+        
+        // Cleanup on failure
+        if (this.ocrClient) {
+          try {
+            this.ocrClient.destroy();
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }
         this.ocrClient = null;
         this.initPromise = null;
         throw error;

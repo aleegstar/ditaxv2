@@ -87,24 +87,50 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   } | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [ocrReady, setOcrReady] = useState(OcrPreloadService.getStatus());
+  const [ocrTimedOut, setOcrTimedOut] = useState(false);
   const MAX_FILES = 10;
 
-  // Check OCR readiness periodically
+  // Check OCR readiness with fast timeout on mobile
   useEffect(() => {
-    if (ocrReady) return;
+    if (ocrReady || ocrTimedOut) return;
+    
+    const maxWaitTime = isMobile ? 5000 : 15000; // 5s mobile, 15s desktop
+    const startTime = Date.now();
     
     const checkOcrStatus = () => {
       const ready = OcrPreloadService.getStatus();
+      const elapsed = Date.now() - startTime;
+      const progress = OcrPreloadService.getLoadingProgress();
+      
       if (ready) {
         setOcrReady(true);
+        return;
+      }
+      
+      // Check for failures or timeout
+      if (progress === 'error' || progress === 'timeout' || elapsed >= maxWaitTime) {
+        console.log(`[Upload] OCR not ready after ${elapsed}ms (${progress}), using manual confirmation fallback`);
+        setOcrTimedOut(true);
+        return;
       }
     };
     
-    // Check every second until ready
-    const interval = setInterval(checkOcrStatus, 1000);
+    // Check every 500ms for faster feedback
+    const interval = setInterval(checkOcrStatus, 500);
     
-    return () => clearInterval(interval);
-  }, [ocrReady]);
+    // Also set a hard timeout
+    const timeout = setTimeout(() => {
+      if (!OcrPreloadService.getStatus()) {
+        console.log(`[Upload] OCR hard timeout after ${maxWaitTime}ms, using manual confirmation fallback`);
+        setOcrTimedOut(true);
+      }
+    }, maxWaitTime);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [ocrReady, ocrTimedOut, isMobile]);
 
   useEffect(() => {
     if (window.pdfjsLib) {
@@ -400,8 +426,38 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     // OCR Verification: Check first file if we have a checklist item
     if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
       setIsVerifying(true);
+      
+      const firstFile = filesToUpload[0];
+      
       try {
-        const firstFile = filesToUpload[0];
+        // If OCR timed out (especially on mobile), show immediate manual confirmation
+        if (ocrTimedOut || (!ocrReady && isMobile)) {
+          console.log('[Upload] OCR not available, showing manual confirmation dialog');
+          
+          setPendingVerification({
+            result: {
+              isMatch: true,
+              confidence: 0,
+              foundKeywords: [],
+              missingKeywords: [],
+              reason: isMobile 
+                ? 'Auf diesem Gerät ist die automatische Prüfung nicht verfügbar. Bitte bestätige, dass es sich um das richtige Dokument handelt.'
+                : 'Die automatische Dokumentenprüfung konnte nicht geladen werden.',
+              extractedTextPreview: '',
+              documentType: checklistItem.id,
+              displayName: checklistItem.title || 'Dokument',
+              isImageFile: firstFile.file.type.startsWith('image/'),
+              requiresManualConfirmation: true,
+              confirmationMode: 'warning'
+            },
+            file: firstFile
+          });
+          setVerificationDialog(true);
+          setIsVerifying(false);
+          return;
+        }
+        
+        // Normal OCR verification path
         const verificationResult = await ocrService.verifyDocument(
           firstFile.file,
           checklistItem.id
@@ -427,7 +483,27 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         }
       } catch (err) {
         console.error('OCR verification error:', err);
-        // Continue with upload on error
+        
+        // On error, show manual confirmation dialog instead of silently continuing
+        setPendingVerification({
+          result: {
+            isMatch: true,
+            confidence: 0,
+            foundKeywords: [],
+            missingKeywords: [],
+            reason: 'Die automatische Dokumentenprüfung ist fehlgeschlagen. Bitte bestätige, dass es sich um das richtige Dokument handelt.',
+            extractedTextPreview: '',
+            documentType: checklistItem.id,
+            displayName: checklistItem.title || 'Dokument',
+            isImageFile: firstFile.file.type.startsWith('image/'),
+            requiresManualConfirmation: true,
+            confirmationMode: 'warning'
+          },
+          file: firstFile
+        });
+        setVerificationDialog(true);
+        setIsVerifying(false);
+        return;
       } finally {
         setIsVerifying(false);
       }
@@ -503,12 +579,24 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
           hideHeader={hideHeader}
         />
 
-        {/* OCR Loading Indicator */}
-        {!ocrReady && checklistItem && (
+        {/* OCR Loading Indicator - only show briefly, then hide (fast fallback on mobile) */}
+        {!ocrReady && !ocrTimedOut && checklistItem && (
           <Alert className="mt-4 border-amber-200 bg-amber-50">
             <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
             <AlertDescription className="text-amber-700 ml-2">
-              Dokumentenprüfung wird vorbereitet...
+              {isMobile 
+                ? 'Dokumentenprüfung wird vorbereitet...' 
+                : 'Dokumentenprüfung wird vorbereitet...'}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {/* Mobile fallback info - shown when OCR timed out on mobile */}
+        {ocrTimedOut && isMobile && checklistItem && (
+          <Alert className="mt-4 border-blue-200 bg-blue-50">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-700 ml-2">
+              Manuelle Dokumentbestätigung aktiv.
             </AlertDescription>
           </Alert>
         )}
