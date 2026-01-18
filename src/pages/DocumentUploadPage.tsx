@@ -265,7 +265,7 @@ const DocumentUploadPageContent: React.FC = () => {
       </div>;
   }
   return <div className="min-h-screen bg-white">
-      <SubpageHeader title="Dokument hochladen" onBack={handleBack} />
+      <SubpageHeader title={selectedItem.title} onBack={handleBack} />
       
       <div className="flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-8 text-center">
