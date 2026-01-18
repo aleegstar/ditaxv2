@@ -139,9 +139,8 @@ export const FileUpload = ({
         )} />
         
         <div className={cn(
-          "relative w-full bg-white border border-slate-200 hover:border-indigo-200 rounded-2xl transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md",
-          isDragOver && "border-indigo-300 shadow-md",
-          // Larger padding and centered layout when no previews
+          "relative w-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 rounded-2xl shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden",
+          isDragOver && "shadow-[0_6px_20px_rgba(37,99,235,0.23)]",
           hasAnyPreview ? "p-4 flex items-center gap-4" : "p-8 md:p-12 flex flex-col items-center justify-center text-center"
         )}>
           
@@ -161,7 +160,7 @@ export const FileUpload = ({
           
           {/* Icon Box - Larger when no previews */}
           <div className={cn(
-            "rounded-xl bg-blue-500 flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform duration-300",
+            "rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300",
             hasAnyPreview ? "w-12 h-12" : "w-16 h-16 md:w-20 md:h-20 mb-4"
           )}>
             <CloudUpload className={cn(
@@ -176,13 +175,13 @@ export const FileUpload = ({
             hasAnyPreview ? "items-start text-left" : "items-center text-center"
           )}>
             <span className={cn(
-              "font-semibold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors",
+              "font-semibold text-white tracking-tight",
               hasAnyPreview ? "text-[15px]" : "text-lg md:text-xl"
             )}>
               {!pdfLibLoaded ? 'Initialisierung...' : hasAnyPreview ? 'Weitere Dokumente hinzufügen' : 'Dokumente hochladen'}
             </span>
             <span className={cn(
-              "text-slate-500 font-medium tracking-wide",
+              "text-white/80 font-medium tracking-wide",
               hasAnyPreview ? "text-[11px] mt-1" : "text-sm mt-2"
             )}>
               {hasAnyPreview 
@@ -191,7 +190,7 @@ export const FileUpload = ({
               }
             </span>
             {!hasAnyPreview && (
-              <span className="text-xs text-slate-400 mt-1">
+              <span className="text-xs text-white/60 mt-1">
                 PDF, JPG, PNG, GIF, WebP
               </span>
             )}
