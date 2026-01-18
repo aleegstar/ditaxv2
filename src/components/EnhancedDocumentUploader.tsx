@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { X, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { X, AlertCircle, Check, Loader2, Info } from 'lucide-react';
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
@@ -11,6 +11,7 @@ import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
 import OcrVerificationService, { OcrVerificationResult } from '@/services/OcrVerificationService';
 import DocumentVerificationDialog from './documents/DocumentVerificationDialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -73,6 +74,9 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const uploadRequestId = useRef(uuidv4()).current;
   const encryptedDocService = EncryptedDocumentService.getInstance();
   const ocrService = OcrVerificationService.getInstance();
+  
+  // Detect mobile device for UI hints
+  const isMobile = useMemo(() => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), []);
   
   // OCR Verification state
   const [verificationDialog, setVerificationDialog] = useState(false);
@@ -461,6 +465,16 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   return (
     <div className="min-h-full text-slate-800 antialiased selection:bg-indigo-100">
       <div className="relative flex-1 flex flex-col pb-32">
+        {/* Mobile PDF Recommendation */}
+        {isMobile && (
+          <Alert className="mb-4 border-blue-200 bg-blue-50">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800 text-sm">
+              <strong>Tipp:</strong> Für die beste automatische Dokumenterkennung empfehlen wir auf mobilen Geräten das Hochladen von PDF-Dokumenten.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* File Upload Component */}
         <FileUpload 
           onFileUpload={handleFileUpload} 

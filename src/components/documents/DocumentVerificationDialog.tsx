@@ -85,9 +85,13 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
               <p className="mt-2 text-xs text-slate-400 break-words">
                 <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
               </p>
+            ) : verification.isImageFile ? (
+              <p className="mt-2 text-xs text-amber-600">
+                <span className="font-medium">📱 Hinweis:</span> Die automatische Bilderkennung ist auf mobilen Geräten eingeschränkt. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.
+              </p>
             ) : (
               <p className="mt-2 text-xs text-red-500">
-                <span className="font-medium">Hinweis:</span> Keine Textinhalte erkannt. Das Bild enthält möglicherweise keinen lesbaren Text.
+                <span className="font-medium">Hinweis:</span> Keine Textinhalte erkannt.
               </p>
             )}
             
