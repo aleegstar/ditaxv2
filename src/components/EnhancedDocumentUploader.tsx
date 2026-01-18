@@ -11,7 +11,8 @@ import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
 import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './documents/DocumentCheckScreen';
-import { ValidationResult } from '@/types/documentProfile';
+import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+import { Progress } from './ui/progress';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -79,6 +80,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [showCheckScreen, setShowCheckScreen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
   
   const MAX_FILES = 10;
 
@@ -378,6 +380,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
     // New multi-signal document validation (replaces OCR)
     if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
       setIsVerifying(true);
+      setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
       
       const firstFile = filesToUpload[0];
       
@@ -386,7 +389,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         
         const result = await documentValidator.validate(
           firstFile.file,
-          checklistItem.id
+          checklistItem.id,
+          (progress) => setValidationProgress(progress)
         );
         
         console.log('[Upload] Validation result:', {
@@ -397,6 +401,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         });
         
         setValidationResult(result);
+        setValidationProgress(null);
         
         // If user confirmation needed (confidence < 80), show check screen
         if (result.needsUserConfirmation) {
@@ -410,6 +415,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         
       } catch (err) {
         console.error('Document validation error:', err);
+        setValidationProgress(null);
         // On error, still allow upload but maybe show a warning
         toast({
           title: "Hinweis",
@@ -624,6 +630,41 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
               onClose={handleCheckReupload}
               isConfirming={uploading}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Validation Progress Modal */}
+      {isVerifying && validationProgress && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
+            <div className="flex flex-col items-center gap-5">
+              {/* Animated Icon */}
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              </div>
+              
+              {/* Status Text */}
+              <div className="text-center space-y-1">
+                <h3 className="font-semibold text-slate-800 text-lg">
+                  Dokument wird geprüft
+                </h3>
+                <p className="text-sm text-slate-500">
+                  {validationProgress.message}
+                </p>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full space-y-2">
+                <Progress 
+                  value={validationProgress.percent} 
+                  className="w-full h-2"
+                />
+                <p className="text-xs text-slate-400 text-center">
+                  {validationProgress.percent}% abgeschlossen
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

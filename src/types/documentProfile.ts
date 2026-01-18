@@ -169,3 +169,14 @@ export interface ValidationDecision {
   userConfirmed: boolean;
   uploadedAt: Date;
 }
+
+/**
+ * Progress callback for validation steps
+ */
+export interface ValidationProgress {
+  step: 'preparing' | 'metadata' | 'layout' | 'compressing' | 'ocr' | 'analyzing' | 'complete';
+  percent: number;
+  message: string;
+}
+
+export type ValidationProgressCallback = (progress: ValidationProgress) => void;
