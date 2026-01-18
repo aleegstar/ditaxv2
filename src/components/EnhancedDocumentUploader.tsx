@@ -465,15 +465,6 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   return (
     <div className="min-h-full text-slate-800 antialiased selection:bg-indigo-100">
       <div className="relative flex-1 flex flex-col pb-32">
-        {/* Mobile PDF Recommendation */}
-        {isMobile && (
-          <Alert className="mb-4 border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800 text-sm">
-              <strong>Tipp:</strong> Für die beste automatische Dokumenterkennung empfehlen wir auf mobilen Geräten das Hochladen von PDF-Dokumenten.
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* File Upload Component */}
         <FileUpload 
