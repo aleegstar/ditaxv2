@@ -42,7 +42,7 @@ const UnifiedAlertDialogContent = React.forwardRef<
         className={cn(
           "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
           "w-[90vw] max-w-md bg-white rounded-3xl",
-          "p-6 pt-8",
+          "p-6 pt-10",
           "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -55,10 +55,10 @@ const UnifiedAlertDialogContent = React.forwardRef<
       >
         {showCloseButton && (
           <AlertDialogPrimitive.Cancel
-            className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+            className="absolute right-5 top-5 w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 touch-manipulation"
             onClick={onClose}
           >
-            <X className="w-4 h-4 text-slate-500" />
+            <X className="w-5 h-5 text-slate-500" />
             <span className="sr-only">Close</span>
           </AlertDialogPrimitive.Cancel>
         )}
