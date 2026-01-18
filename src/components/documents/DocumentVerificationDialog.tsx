@@ -32,7 +32,7 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
         {/* Header with title and close button */}
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-semibold text-slate-900 pr-8">
-            Mögliches falsches Dokument
+            Dokument überprüfen
           </h2>
           <button
             onClick={onClose}
@@ -43,76 +43,27 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
         </div>
 
         {/* Warning notice */}
-        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl mb-4">
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl mb-5">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="text-sm text-amber-800">
             <p className="font-medium mb-1">
-              Dokumentenprüfung
+              Bitte prüfen
             </p>
             <p className="text-amber-700">
-              Die automatische Prüfung vermutet, dass dieses Dokument nicht dem erwarteten Dokumenttyp entspricht.
+              Das hochgeladene Dokument scheint nicht zum erwarteten Typ zu passen.
             </p>
           </div>
         </div>
 
         {/* Document info */}
-        <div className="space-y-3 mb-6">
-          <div className="text-sm text-center">
-            <p className="text-slate-500 mb-1">Datei:</p>
-            <p className="font-medium text-slate-900 truncate">{fileName}</p>
+        <div className="bg-slate-50 rounded-xl p-4 mb-5">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-200">
+            <span className="text-sm text-slate-500">Datei</span>
+            <span className="text-sm font-medium text-slate-900 truncate ml-4 max-w-[180px]">{fileName}</span>
           </div>
-
-          <div className="text-sm text-center">
-            <p className="text-slate-500 mb-1">Erwarteter Dokumenttyp:</p>
-            <p className="font-medium text-slate-900">{verification.displayName}</p>
-          </div>
-          
-          {/* OCR Debug Info - immer anzeigen */}
-          <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 text-left">
-            <p className="mb-1">
-              <span className="font-medium">Erkannter Text:</span> {verification.extractedTextPreview?.length || 0} Zeichen
-            </p>
-            {verification.foundKeywords.length > 0 ? (
-              <p className="mb-1">
-                <span className="font-medium">Gefundene Begriffe:</span> {verification.foundKeywords.join(', ')}
-              </p>
-            ) : (
-              <p className="mb-1 text-amber-600">
-                <span className="font-medium">Keine Begriffe erkannt</span>
-              </p>
-            )}
-            {verification.extractedTextPreview ? (
-              <>
-                <p className="mt-2 text-xs text-slate-400 break-words">
-                  <span className="font-medium">Vorschau:</span> {verification.extractedTextPreview.substring(0, 150)}...
-                </p>
-                {verification.isImageFile && (
-                  <p className="mt-1 text-xs text-blue-600">
-                    📱 Bild wurde für die Analyse in PDF konvertiert
-                  </p>
-                )}
-              </>
-            ) : verification.isImageFile ? (
-              <p className="mt-2 text-xs text-amber-600">
-                <span className="font-medium">📱 Hinweis:</span> Kein Text erkannt. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.
-              </p>
-            ) : (
-              <p className="mt-2 text-xs text-red-500">
-                <span className="font-medium">Hinweis:</span> Keine Textinhalte erkannt.
-              </p>
-            )}
-            
-            {/* Debug Log - nur bei leerer Erkennung anzeigen */}
-            {verification.extractedTextPreview?.length === 0 && verification.debugLog && verification.debugLog.length > 0 && (
-              <details className="mt-3 border-t border-slate-200 pt-2">
-                <summary className="cursor-pointer text-slate-600 hover:text-slate-800 font-medium">
-                  Debug-Informationen anzeigen
-                </summary>
-                <pre className="mt-2 p-2 bg-slate-100 rounded text-[10px] overflow-auto max-h-32 whitespace-pre-wrap break-words">
-                  {verification.debugLog.join('\n')}
-                </pre>
-              </details>
-            )}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-slate-500">Erwartet</span>
+            <span className="text-sm font-medium text-slate-900">{verification.displayName}</span>
           </div>
         </div>
 
@@ -122,13 +73,13 @@ const DocumentVerificationDialog: React.FC<DocumentVerificationDialogProps> = ({
             onClick={onSelectDifferent}
             className="flex-1 py-3.5 px-4 rounded-full border border-slate-200 bg-white text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
           >
-            Abbrechen
+            Andere Datei
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3.5 px-4 rounded-full bg-blue-400 text-white font-medium text-sm hover:bg-blue-500 transition-colors"
+            className="flex-1 py-3.5 px-4 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium text-sm hover:-translate-y-0.5 transition-all"
           >
-            Trotzdem zuordnen
+            Trotzdem nutzen
           </button>
         </div>
       </DialogContent>
