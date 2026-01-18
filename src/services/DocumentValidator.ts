@@ -1,11 +1,12 @@
 /**
  * Document Validator Service
  * 
- * Multi-signal document validation that works WITHOUT OCR.
+ * Multi-signal document validation with optional Native OCR.
  * Combines:
  * - Metadata analysis (file type, size, pages)
  * - Layout heuristics (visual structure detection)
- * - Optional keyword detection (PDF text layer only)
+ * - PDF text layer keyword detection
+ * - Native OCR for images (iOS Vision / Android ML Kit)
  * 
  * PRIVACY FIRST: All processing is LOCAL. No data leaves the device.
  * Only validation results are stored (never raw text or images).
@@ -21,6 +22,7 @@ import {
 } from '@/types/documentProfile';
 import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/documentProfiles';
 import LayoutAnalyzer from './LayoutAnalyzer';
+import NativeOcrService from './NativeOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
 
 // Declare pdfjsLib type
@@ -33,9 +35,12 @@ declare global {
 class DocumentValidator {
   private static instance: DocumentValidator;
   private layoutAnalyzer: LayoutAnalyzer;
+  private nativeOcr: NativeOcrService;
+  private nativeOcrInitialized: boolean = false;
 
   private constructor() {
     this.layoutAnalyzer = LayoutAnalyzer.getInstance();
+    this.nativeOcr = NativeOcrService.getInstance();
   }
 
   public static getInstance(): DocumentValidator {
@@ -43,6 +48,17 @@ class DocumentValidator {
       DocumentValidator.instance = new DocumentValidator();
     }
     return DocumentValidator.instance;
+  }
+
+  /**
+   * Initialize native OCR (call once on app start for best performance)
+   */
+  async initializeNativeOcr(): Promise<boolean> {
+    if (this.nativeOcrInitialized) {
+      return this.nativeOcr.isAvailable();
+    }
+    this.nativeOcrInitialized = true;
+    return await this.nativeOcr.initialize();
   }
 
   /**
@@ -54,10 +70,20 @@ class DocumentValidator {
   async validate(file: File, expectedDocTypeId?: string): Promise<ValidationResult> {
     console.log(`[DocumentValidator] Validating: ${file.name} (${file.type}), expected: ${expectedDocTypeId || 'any'}`);
 
+    // Ensure native OCR is initialized
+    if (!this.nativeOcrInitialized) {
+      await this.initializeNativeOcr();
+    }
+
     // Collect all signals
     const metaSignals = await this.analyzeMetadata(file);
     const layoutSignals = await this.layoutAnalyzer.analyzeFile(file);
-    const keywordSignals = await this.detectKeywords(file);
+    let keywordSignals = await this.detectKeywords(file);
+
+    // For images: Try native OCR if available
+    if (!keywordSignals?.available && file.type.startsWith('image/')) {
+      keywordSignals = await this.detectKeywordsWithNativeOcr(file);
+    }
 
     const signals: ValidationSignals = {
       meta: metaSignals,
@@ -70,7 +96,8 @@ class DocumentValidator {
     const candidates: ValidationCandidate[] = [];
 
     for (const profile of allProfiles) {
-      const { score, reasons } = this.calculateScore(profile, signals);
+      const isExpected = expectedDocTypeId === profile.id;
+      const { score, reasons } = this.calculateScore(profile, signals, isExpected);
       candidates.push({
         docTypeId: profile.id,
         confidence: score,
@@ -110,7 +137,7 @@ class DocumentValidator {
     const needsUserConfirmation = best.confidence < 80;
 
     // Generate status message
-    const statusMessage = this.getStatusMessage(best.confidence, best.docTypeId);
+    const statusMessage = this.getStatusMessage(best.confidence, best.docTypeId, signals.keywords);
 
     const result: ValidationResult = {
       candidates: topCandidates,
@@ -121,8 +148,56 @@ class DocumentValidator {
       statusMessage
     };
 
-    console.log(`[DocumentValidator] Result: ${best.docTypeId} (${best.confidence}%), needs confirmation: ${needsUserConfirmation}`);
+    console.log(`[DocumentValidator] Result: ${best.docTypeId} (${best.confidence}%), needs confirmation: ${needsUserConfirmation}, OCR: ${keywordSignals?.available ? 'yes' : 'no'}`);
     return result;
+  }
+
+  /**
+   * Detect keywords using Native OCR (for images)
+   * PRIVACY: Text is extracted, matched, then discarded
+   */
+  private async detectKeywordsWithNativeOcr(file: File): Promise<KeywordSignals | undefined> {
+    if (!this.nativeOcr.isAvailable()) {
+      console.log('[DocumentValidator] Native OCR not available');
+      return { available: false, matchCountsByDocType: {}, source: 'none' };
+    }
+
+    try {
+      console.log('[DocumentValidator] Attempting native OCR for image...');
+      const detectedTexts = await this.nativeOcr.detectTextFromFile(file);
+
+      if (!detectedTexts.length) {
+        console.log('[DocumentValidator] Native OCR: No text detected');
+        return { available: false, matchCountsByDocType: {}, source: 'native-ocr' };
+      }
+
+      // Match against all profiles
+      const matchCountsByDocType: Record<string, number> = {};
+      const allMatchedLabels: string[] = [];
+
+      for (const profile of getAllProfiles()) {
+        if (profile.keywordHints && profile.keywordHints.length > 0) {
+          const result = this.nativeOcr.matchKeywords(detectedTexts, profile.keywordHints);
+          matchCountsByDocType[profile.id] = result.matchCount;
+
+          if (result.matchedLabels.length > 0) {
+            allMatchedLabels.push(...result.matchedLabels.slice(0, 3));
+          }
+        }
+      }
+
+      console.log('[DocumentValidator] Native OCR: Keywords matched', matchCountsByDocType);
+
+      return {
+        available: true,
+        matchCountsByDocType,
+        matchedLabels: [...new Set(allMatchedLabels)].slice(0, 10),
+        source: 'native-ocr'
+      };
+    } catch (error) {
+      console.error('[DocumentValidator] Native OCR failed:', error);
+      return { available: false, matchCountsByDocType: {}, source: 'native-ocr' };
+    }
   }
 
   /**
@@ -256,97 +331,99 @@ class DocumentValidator {
 
   /**
    * Calculate confidence score for a profile based on signals
+   * Improved scoring with expected type bonus and image limitations
    */
   private calculateScore(
     profile: DocumentTypeProfile,
-    signals: ValidationSignals
+    signals: ValidationSignals,
+    isExpectedType: boolean = false
   ): { score: number; reasons: string[] } {
-    let score = 40; // Base score
+    let score = 20; // Lower base score - must be earned
     const reasons: string[] = [];
 
-    // === METADATA SCORING (max +/- 25 points) ===
+    // === EXPECTED TYPE BONUS (+20) ===
+    if (isExpectedType) {
+      score += 20;
+      reasons.push('Entspricht ausgewähltem Dokumenttyp');
+    }
+
+    // === METADATA SCORING (max +40 / -25 points) ===
     
-    // File type match
+    // File type match (+15 / -10)
     if (signals.meta.fileTypeOk && profile.acceptedFormats.includes(signals.meta.mimeType)) {
-      score += 10;
+      score += 15;
     } else if (!signals.meta.fileTypeOk) {
-      score -= 15;
+      score -= 10;
       reasons.push('Dateityp nicht unterstützt');
     }
 
-    // Page count match (for PDFs)
+    // Page count match for PDFs (+15 / -5)
     if (signals.meta.pages !== undefined && profile.typicalPages) {
       if (signals.meta.pages >= profile.typicalPages.min && signals.meta.pages <= profile.typicalPages.max) {
-        score += 10;
+        score += 15;
         reasons.push(`Seitenzahl passt (${signals.meta.pages})`);
       } else if (signals.meta.pages > profile.typicalPages.max * 2) {
-        score -= 10;
+        score -= 5;
         reasons.push(`Ungewöhnlich viele Seiten (${signals.meta.pages})`);
       }
     }
 
-    // File size sanity
+    // File size sanity (+10 / -5)
     if (profile.typicalFileSizeMB) {
       if (signals.meta.sizeMB >= profile.typicalFileSizeMB.min && signals.meta.sizeMB <= profile.typicalFileSizeMB.max) {
-        score += 5;
+        score += 10;
       } else if (signals.meta.sizeMB > profile.typicalFileSizeMB.max * 3) {
         score -= 5;
         reasons.push('Datei ungewöhnlich gross');
       }
     }
 
-    // Resolution check
+    // Resolution check (-10)
     if (signals.meta.resolutionOk === false) {
       score -= 10;
       reasons.push('Bildauflösung zu niedrig');
     }
 
-    // === LAYOUT SCORING (max +/- 25 points) ===
+    // === LAYOUT SCORING (max +15 points, reduced from +35) ===
     
     if (profile.layoutHints) {
       const layout = signals.layout.detected;
+      let layoutMatches = 0;
       
       // Table structure match
-      if (profile.layoutHints.expectsTable) {
-        if (layout.tableLike) {
-          score += 15;
-          reasons.push('Tabellenstruktur erkannt');
-        } else {
-          score -= 5;
-        }
+      if (profile.layoutHints.expectsTable && layout.tableLike) {
+        layoutMatches++;
+        reasons.push('Tabellenstruktur erkannt');
       }
 
       // Header block match
-      if (profile.layoutHints.expectsHeaderBlock) {
-        if (layout.headerPlusBody) {
-          score += 10;
-          reasons.push('Kopfzeile erkannt');
-        }
+      if (profile.layoutHints.expectsHeaderBlock && layout.headerPlusBody) {
+        layoutMatches++;
+        reasons.push('Kopfzeile erkannt');
       }
 
       // Form fields match
-      if (profile.layoutHints.expectsFormFields) {
-        if (layout.formLike) {
-          score += 10;
-          reasons.push('Formularfelder erkannt');
-        }
+      if (profile.layoutHints.expectsFormFields && layout.formLike) {
+        layoutMatches++;
+        reasons.push('Formularfelder erkannt');
       }
 
-      // Dense text match
-      if (profile.layoutHints.expectsDenseText) {
-        if (layout.denseText) {
-          score += 5;
-        }
+      // Dense text match (doesn't count toward layout matches)
+      if (profile.layoutHints.expectsDenseText && layout.denseText) {
+        score += 3;
       }
+
+      // Add layout score: +5 per match, max +15
+      score += Math.min(layoutMatches * 5, 15);
     }
 
-    // === KEYWORD SCORING (max +35 points) ===
+    // === KEYWORD SCORING (max +40 points) ===
     
     if (signals.keywords?.available && profile.keywordHints) {
       const matchCount = signals.keywords.matchCountsByDocType[profile.id] || 0;
       
       if (matchCount >= 5) {
-        score += 35;
+        score += 40;
         reasons.push(`Viele passende Begriffe gefunden (${matchCount})`);
       } else if (matchCount >= 3) {
         score += 25;
@@ -369,10 +446,22 @@ class DocumentValidator {
       }
     }
 
+    // === IMAGE LIMITATION (cap at 65% if no keyword detection) ===
+    const isImage = signals.meta.mimeType?.startsWith('image/');
+    const hasKeywordDetection = signals.keywords?.available === true;
+    
+    if (isImage && !hasKeywordDetection) {
+      const wasHigher = score > 65;
+      score = Math.min(score, 65);
+      if (wasHigher || score > 50) {
+        reasons.push('Manuelle Bestätigung empfohlen (Bildformat)');
+      }
+    }
+
     // Ensure score is within bounds
     score = Math.min(100, Math.max(0, score));
 
-    // Add profile label if score is decent
+    // Add default reason if no specific reasons
     if (score >= 40 && reasons.length === 0) {
       reasons.push('Basierend auf Dateieigenschaften');
     }
@@ -392,11 +481,14 @@ class DocumentValidator {
   /**
    * Get human-readable status message
    */
-  private getStatusMessage(confidence: number, docTypeId: string): string {
+  private getStatusMessage(confidence: number, docTypeId: string, keywords?: KeywordSignals): string {
     const profile = getDocumentProfile(docTypeId);
     const label = profile?.label || 'Dokument';
 
     if (confidence >= 80) {
+      if (keywords?.source === 'native-ocr') {
+        return `Erkannt als: ${label} (via Texterkennung)`;
+      }
       return `Erkannt als: ${label}`;
     } else if (confidence >= 50) {
       return `Möglicherweise: ${label} - bitte bestätigen`;
