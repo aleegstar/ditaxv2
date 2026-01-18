@@ -97,13 +97,14 @@ class OcrVerificationService {
       return this.workerInitPromise;
     }
 
-    // Create new worker
+    // Create new worker with German language support
     this.workerInitPromise = (async () => {
-      console.log('[OCR] Creating new Tesseract worker...');
+      console.log('[OCR] Creating new Tesseract worker (deu+eng)...');
       const startTime = Date.now();
       
       try {
-        const worker = await createWorker('eng', 1, {
+        // Use German + English for better recognition of German documents
+        const worker = await createWorker('deu+eng', 1, {
           logger: (m) => {
             console.log(`[Tesseract Worker] ${m.status}: ${Math.round((m.progress || 0) * 100)}%`);
           },
@@ -115,15 +116,17 @@ class OcrVerificationService {
         const duration = Date.now() - startTime;
         console.log(`[OCR] Tesseract worker created successfully in ${duration}ms`);
         this.tesseractWorker = worker;
+        // Reset mobile failure flag on success
+        this.workerFailedOnMobile = false;
         return worker;
       } catch (error) {
         console.error('[OCR] Failed to create Tesseract worker:', error);
         this.workerInitPromise = null;
         
-        // Remember failure on mobile to avoid repeated attempts
+        // Remember failure on mobile to avoid repeated attempts in same session
         if (isMobile) {
           this.workerFailedOnMobile = true;
-          console.log('[OCR] Marking worker as failed for mobile - will skip future attempts');
+          console.log('[OCR] Marking worker as failed for mobile - will skip future attempts this session');
         }
         
         return null;
@@ -143,6 +146,52 @@ class OcrVerificationService {
       this.tesseractWorker = null;
       this.workerInitPromise = null;
       console.log('[OCR] Tesseract worker terminated');
+    }
+  }
+
+  /**
+   * Render first page of PDF as an image for OCR processing
+   * Used for scanned PDFs that don't have a text layer
+   */
+  private async renderPdfPageAsImage(file: File): Promise<Blob | null> {
+    if (!window.pdfjsLib) {
+      console.warn('[OCR] PDF.js not loaded, cannot render PDF page');
+      return null;
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const page = await pdf.getPage(1);
+      
+      // Render at 2x scale for better OCR quality
+      const scale = 2.0;
+      const viewport = page.getViewport({ scale });
+      
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        console.error('[OCR] Could not get canvas context');
+        return null;
+      }
+      
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      
+      await page.render({
+        canvasContext: context,
+        viewport: viewport
+      }).promise;
+      
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          console.log(`[OCR] PDF page rendered: ${canvas.width}x${canvas.height}, ${blob ? (blob.size / 1024).toFixed(1) + ' KB' : 'failed'}`);
+          resolve(blob);
+        }, 'image/png');
+      });
+    } catch (error) {
+      console.error('[OCR] Failed to render PDF page:', error);
+      return null;
     }
   }
 
@@ -352,10 +401,70 @@ class OcrVerificationService {
         const hasRealText = extractedText.trim().length > 30;
         
         if (!hasRealText) {
-          console.log(`[OCR] Image-PDF detected (scanned document) - no text layer found`);
+          console.log(`[OCR] Image-PDF detected (scanned document) - attempting OCR on rendered page`);
           
-          // For scanned PDFs, require manual confirmation with neutral dialog
-          // This is common for documents scanned with phone apps
+          // For scanned PDFs: Render first page as image and run Tesseract.js OCR
+          try {
+            const pdfImage = await this.renderPdfPageAsImage(file);
+            if (pdfImage) {
+              console.log(`[OCR] PDF page rendered as image, running Tesseract OCR...`);
+              
+              // Use existing image OCR logic with the rendered PDF page
+              const worker = await this.getWorker();
+              if (worker) {
+                const processedBlob = await this.preprocessImage(new File([pdfImage], 'pdf-page.png', { type: 'image/png' }));
+                const recognizePromise = worker.recognize(processedBlob);
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                  setTimeout(() => reject(new Error('Recognition timeout (60s)')), 60000);
+                });
+                
+                const tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
+                const ocrText = tesseractResult.data.text || '';
+                
+                if (ocrText.trim().length > 30) {
+                  console.log(`[OCR] Scanned PDF OCR successful: ${ocrText.length} chars`);
+                  
+                  const normalizedText = this.normalizeText(ocrText);
+                  const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
+                  const missingKeywords = keywordConfig.keywords.filter(kw => !foundKeywords.includes(kw));
+                  const confidence = this.calculateConfidence(foundKeywords, keywordConfig.keywords, keywordConfig);
+                  const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
+                  
+                  const textPreview = ocrText.substring(0, 200).trim() + (ocrText.length > 200 ? '...' : '');
+                  
+                  let reason = '';
+                  if (!isMatch) {
+                    if (foundKeywords.length === 0) {
+                      reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
+                    } else {
+                      reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
+                    }
+                  }
+                  
+                  const requiresManualConfirmation = !isMatch || confidence < 50;
+                  const confirmationMode: 'neutral' | 'warning' | undefined = requiresManualConfirmation && !isMatch ? 'warning' : undefined;
+                  
+                  return {
+                    isMatch,
+                    confidence,
+                    foundKeywords,
+                    missingKeywords,
+                    reason,
+                    extractedTextPreview: textPreview,
+                    documentType: checklistItemId,
+                    displayName: keywordConfig.displayName,
+                    isImageFile: false,
+                    requiresManualConfirmation,
+                    confirmationMode
+                  };
+                }
+              }
+            }
+          } catch (pdfOcrError) {
+            console.warn('[OCR] Scanned PDF OCR failed, falling back to manual confirmation:', pdfOcrError);
+          }
+          
+          // Fallback: manual confirmation with neutral dialog
           return {
             isMatch: true,
             confidence: 0,
@@ -433,41 +542,21 @@ class OcrVerificationService {
         return result;
       }
       
-      // Handle images - use AI Vision OCR on mobile, Tesseract.js on desktop
+      // Handle images - use Tesseract.js OCR (100% lokal, DSGVO-konform)
+      // Tesseract.js läuft vollständig im Browser - keine Daten verlassen das Gerät
       if (file.type.startsWith('image/')) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         // Clear and start debug logging
         this.clearDebugLog();
-        this.addDebugLog('=== Starting Image OCR ===');
+        this.addDebugLog('=== Starting Image OCR (lokal/DSGVO-konform) ===');
         this.addDebugLog(`File: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
         this.addDebugLog(`Type: ${file.type}`);
         this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
         this.addDebugLog(`Document: ${keywordConfig.displayName}`);
+        this.addDebugLog('Alle Daten werden lokal verarbeitet - keine externe Übertragung');
         
-        // On mobile: Skip OCR entirely for DSGVO compliance
-        // No data is sent to external servers - user confirms manually
-        if (isMobile) {
-          this.addDebugLog('Mobile detected - DSGVO-konform: manuelle Bestätigung angefordert');
-          this.addDebugLog('Keine Daten werden an externe Server gesendet');
-          
-          return {
-            isMatch: true,
-            confidence: 0,
-            foundKeywords: [],
-            missingKeywords: [],
-            reason: '',
-            extractedTextPreview: '',
-            documentType: checklistItemId,
-            displayName: keywordConfig.displayName,
-            isImageFile: true,
-            requiresManualConfirmation: true,
-            confirmationMode: 'neutral',
-            debugLog: this.getDebugLog()
-          };
-        }
-        
-        // Desktop: Continue with Tesseract.js OCR
+        // Mobile und Desktop: Tesseract.js OCR verwenden (100% lokal)
         try {
           // Get or create the singleton worker first
           this.addDebugLog('Getting Tesseract worker...');
@@ -479,21 +568,22 @@ class OcrVerificationService {
           });
           const worker = await Promise.race([workerPromise, workerTimeoutPromise]);
           
-          // If worker is not available, fallback to manual confirmation
+          // If worker is not available, fallback to manual confirmation with neutral dialog
           if (!worker) {
-            this.addDebugLog('Worker not available');
+            this.addDebugLog('Worker not available - zeige freundlichen Bestätigungsdialog');
             
             return {
               isMatch: true,
               confidence: 0,
               foundKeywords: [],
               missingKeywords: [],
-              reason: 'Die automatische Texterkennung konnte nicht initialisiert werden.',
+              reason: '',
               extractedTextPreview: '',
               documentType: checklistItemId,
               displayName: keywordConfig.displayName,
               isImageFile: true,
               requiresManualConfirmation: true,
+              confirmationMode: 'neutral', // Blauer Dialog, keine Warnung
               debugLog: this.getDebugLog()
             };
           }
@@ -641,24 +731,20 @@ class OcrVerificationService {
           this.addDebugLog(`FATAL: ${tesseractError instanceof Error ? tesseractError.message : String(tesseractError)}`);
           console.error('[OCR] Tesseract OCR failed:', tesseractError);
           
-          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-          let fallbackReason = 'Texterkennung fehlgeschlagen.';
-          if (isMobile) {
-            fallbackReason = 'Die Texterkennung auf mobilen Geräten ist eingeschränkt. Für bessere Ergebnisse verwenden Sie bitte ein PDF-Dokument.';
-          }
-          
-          // Fallback: accept file but require manual confirmation
+          // Fallback: accept file with neutral confirmation dialog (no warning)
+          // This provides a friendly UX even when OCR fails
           return {
             isMatch: true,
             confidence: 0,
             foundKeywords: [],
             missingKeywords: [],
-            reason: fallbackReason,
+            reason: '',
             extractedTextPreview: '',
             documentType: checklistItemId,
             displayName: keywordConfig.displayName,
             isImageFile: true,
             requiresManualConfirmation: true,
+            confirmationMode: 'neutral', // Blauer Dialog statt Warnung
             debugLog: this.getDebugLog()
           };
         }
