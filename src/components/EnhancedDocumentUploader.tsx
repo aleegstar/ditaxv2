@@ -582,8 +582,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
 
       {/* Bottom Action Area */}
       {hasValidFiles && (
-        <div className="fixed bottom-0 left-0 w-full px-4 pb-6 pt-4 bg-gradient-to-t from-white via-white to-transparent z-30">
-          <div className="w-full">
+        <div className="fixed bottom-0 left-0 w-full px-6 pb-6 pt-4 bg-gradient-to-t from-white via-white to-transparent z-30">
+          <div className="w-full max-w-4xl mx-auto">
             <button 
               onClick={handleUploadAll}
               disabled={uploading || isVerifying || uploadableFiles.length === 0}
