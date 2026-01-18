@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2, Lock } from 'lucide-react';
+import { Eye, Pencil, Trash2, X, Calendar, FileText, Image, Check, ChevronDown, Loader2, Lock, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -253,16 +253,25 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
       {/* Preview View */}
       {view === 'preview' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-2">
+          <div className="relative flex items-center justify-center py-2">
+            {/* Back Button - absolute left */}
             <button
               onClick={() => setView('actions')}
-              className="text-sm text-blue-600 font-medium"
+              className="absolute left-0 flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-blue-600 font-medium rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors"
             >
-              ← Zurück
+              <ArrowLeft className="w-4 h-4" />
+              Zurück
             </button>
-            <h3 className="text-base font-medium text-slate-900">Vorschau</h3>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-              <X className="w-5 h-5" strokeWidth={1.5} />
+            
+            {/* Centered Title */}
+            <h3 className="text-base font-semibold text-slate-900">Vorschau</h3>
+            
+            {/* Close Button - absolute right */}
+            <button 
+              onClick={onClose} 
+              className="absolute right-0 w-9 h-9 -mr-1 flex items-center justify-center rounded-full hover:bg-slate-100 active:bg-slate-200 transition-colors"
+            >
+              <X className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
             </button>
           </div>
 
@@ -289,15 +298,21 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
       {/* Edit View */}
       {view === 'edit' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between py-2">
+          <div className="relative flex items-center justify-center py-2">
+            {/* Back Button - absolute left */}
             <button
               onClick={() => setView('actions')}
-              className="text-sm text-blue-600 font-medium"
+              className="absolute left-0 flex items-center gap-1.5 px-3 py-2 -ml-3 text-sm text-blue-600 font-medium rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors"
             >
-              ← Zurück
+              <ArrowLeft className="w-4 h-4" />
+              Zurück
             </button>
-            <h3 className="text-base font-medium text-slate-900">Bearbeiten</h3>
-            <div className="w-12" />
+            
+            {/* Centered Title */}
+            <h3 className="text-base font-semibold text-slate-900">Bearbeiten</h3>
+            
+            {/* Spacer for balance */}
+            <div className="absolute right-0 w-9" />
           </div>
 
           <div className="space-y-4">
