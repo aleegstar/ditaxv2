@@ -164,6 +164,79 @@ class OcrVerificationService {
   }
 
   /**
+   * Preprocess image using Canvas for better OCR results
+   * Converts to grayscale and increases contrast (threshold)
+   * This significantly improves OCR accuracy, especially on mobile devices
+   */
+  private async preprocessImage(file: File): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+      
+      img.onload = () => {
+        console.log(`[OCR] Preprocessing image: ${img.width}x${img.height}`);
+        
+        // Set canvas size to image size
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw original image
+        ctx.drawImage(img, 0, 0);
+        
+        // Get image data for processing
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Convert to grayscale and apply threshold for high contrast
+        for (let i = 0; i < data.length; i += 4) {
+          // Grayscale conversion using luminance formula
+          const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          
+          // Apply threshold (128) - creates black/white image ideal for OCR
+          const threshold = gray > 128 ? 255 : 0;
+          
+          data[i] = threshold;     // R
+          data[i + 1] = threshold; // G
+          data[i + 2] = threshold; // B
+          // Alpha channel unchanged (data[i + 3])
+        }
+        
+        // Put processed data back
+        ctx.putImageData(imageData, 0, 0);
+        
+        // Convert to blob (PNG for lossless quality)
+        canvas.toBlob((blob) => {
+          if (blob) {
+            console.log(`[OCR] Preprocessed image: ${(blob.size / 1024).toFixed(1)} KB (B/W threshold applied)`);
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to create blob from canvas'));
+          }
+        }, 'image/png');
+      };
+      
+      img.onerror = () => {
+        console.error('[OCR] Failed to load image for preprocessing');
+        reject(new Error('Failed to load image for preprocessing'));
+      };
+      
+      // Load image from file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file for preprocessing'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
    * Calculate confidence based on found keywords
    */
   private calculateConfidence(
@@ -292,22 +365,31 @@ class OcrVerificationService {
         console.log(`[OCR] Keywords to match (first 10):`, keywordConfig.keywords.slice(0, 10));
         
         try {
-          // Convert file to Data URL for more reliable processing on mobile
-          console.log('[OCR] Converting file to Data URL...');
-          const imageDataUrl = await this.fileToDataURL(file);
-          console.log(`[OCR] Data URL created, length: ${imageDataUrl.length} chars`);
+          // Preprocess image using Canvas (grayscale + threshold) for better OCR
+          console.log('[OCR] Preprocessing image for better OCR results...');
+          let imageInput: Blob | string;
+          
+          try {
+            imageInput = await this.preprocessImage(file);
+            console.log('[OCR] Using preprocessed image (B/W threshold)');
+          } catch (preprocessError) {
+            console.warn('[OCR] Preprocessing failed, using original image:', preprocessError);
+            // Fallback to original Data URL if preprocessing fails
+            imageInput = await this.fileToDataURL(file);
+            console.log(`[OCR] Fallback: Data URL created, length: ${(imageInput as string).length} chars`);
+          }
           
           // Get or create the singleton worker
           console.log('[OCR] Getting Tesseract worker...');
           const worker = await this.getWorker();
           console.log('[OCR] Worker ready, starting recognition...');
           
-          // Use worker.recognize() instead of deprecated Tesseract.recognize()
-          const recognizePromise = worker.recognize(imageDataUrl);
+          // Use worker.recognize() with preprocessed image (Blob) or fallback (Data URL)
+          const recognizePromise = worker.recognize(imageInput);
           
-          // 45 second timeout (increased for first-time worker init)
+          // 60 second timeout (increased for preprocessing + first-time worker init)
           const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>45s)')), 45000);
+            setTimeout(() => reject(new Error('OCR-Timeout: Texterkennung dauert zu lange (>60s)')), 60000);
           });
           
           const tesseractResult = await Promise.race([recognizePromise, timeoutPromise]);
