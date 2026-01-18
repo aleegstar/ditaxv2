@@ -88,8 +88,8 @@ class DocumentValidator {
 
     // For images: Try Cloud OCR first, then Native OCR as fallback
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
-      // Try Cloud OCR (DSGVO-konform)
-      keywordSignals = await this.detectKeywordsWithCloudOcr(file);
+      // Try Cloud OCR (DSGVO-konform) - pass expectedDocTypeId for keyword prioritization
+      keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
       
       // Fallback to Native OCR if Cloud OCR failed
       if (!keywordSignals?.available) {
@@ -169,16 +169,18 @@ class DocumentValidator {
    * Detect keywords using Cloud OCR (DSGVO-konform)
    * Uses Lovable AI Gateway with Gemini Vision
    * PRIVACY: Only keyword matches returned, no raw text
+   * @param file - The image file to process
+   * @param expectedDocTypeId - Optional expected document type to prioritize its keywords
    */
-  private async detectKeywordsWithCloudOcr(file: File): Promise<KeywordSignals | undefined> {
+  private async detectKeywordsWithCloudOcr(file: File, expectedDocTypeId?: string): Promise<KeywordSignals | undefined> {
     if (!this.cloudOcr.isAvailable()) {
       console.log('[DocumentValidator] Cloud OCR not available');
       return { available: false, matchCountsByDocType: {}, source: 'none' };
     }
 
     try {
-      console.log('[DocumentValidator] Attempting Cloud OCR for image...');
-      const result = await this.cloudOcr.extractKeywords(file);
+      console.log('[DocumentValidator] Attempting Cloud OCR for image...', expectedDocTypeId ? `expecting: ${expectedDocTypeId}` : '');
+      const result = await this.cloudOcr.extractKeywords(file, expectedDocTypeId);
 
       if (!result.available) {
         console.log('[DocumentValidator] Cloud OCR: No keywords detected', result.error);

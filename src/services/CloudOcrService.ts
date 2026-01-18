@@ -35,9 +35,10 @@ class CloudOcrService {
   /**
    * Extract keywords from an image using Cloud OCR
    * @param file - The image file to process
+   * @param expectedDocTypeId - Optional expected document type to prioritize its keywords
    * @returns OCR result with matched keywords
    */
-  async extractKeywords(file: File): Promise<CloudOcrResult> {
+  async extractKeywords(file: File, expectedDocTypeId?: string): Promise<CloudOcrResult> {
     if (this.isProcessing) {
       console.log('[CloudOCR] Already processing, skipping...');
       return { available: false, matchedKeywords: [], matchCountsByDocType: {} };
@@ -51,20 +52,33 @@ class CloudOcrService {
     this.isProcessing = true;
     
     try {
-      console.log('[CloudOCR] Starting extraction for:', file.name);
+      console.log('[CloudOCR] Starting extraction for:', file.name, 'expected type:', expectedDocTypeId || 'any');
 
       // Collect all keywords from all profiles
+      // PRIORITY: Expected type keywords first to ensure they're included
       const allProfiles = getAllProfiles();
       const allKeywords: string[] = [];
       
+      // Add expected type keywords FIRST (prioritized)
+      if (expectedDocTypeId) {
+        const expectedProfile = allProfiles.find(p => p.id === expectedDocTypeId);
+        if (expectedProfile?.keywordHints) {
+          allKeywords.push(...expectedProfile.keywordHints);
+          console.log(`[CloudOCR] Prioritizing ${expectedProfile.keywordHints.length} keywords for expected type: ${expectedDocTypeId}`);
+        }
+      }
+      
+      // Then add all other profile keywords
       for (const profile of allProfiles) {
-        if (profile.keywordHints) {
+        if (profile.keywordHints && profile.id !== expectedDocTypeId) {
           allKeywords.push(...profile.keywordHints);
         }
       }
 
-      // Deduplicate and limit keywords
-      const uniqueKeywords = [...new Set(allKeywords)].slice(0, 50);
+      // Deduplicate and limit to 200 keywords (increased from 50)
+      const uniqueKeywords = [...new Set(allKeywords)].slice(0, 200);
+      
+      console.log(`[CloudOCR] Sending ${uniqueKeywords.length} unique keywords to OCR`);
       
       if (uniqueKeywords.length === 0) {
         console.log('[CloudOCR] No keywords configured');
