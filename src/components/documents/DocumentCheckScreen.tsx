@@ -218,6 +218,14 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         </CardContent>
       </Card>
 
+      {/* Cloud OCR Success Badge */}
+      {result.signals.keywords?.source === 'cloud-ocr' && result.signals.keywords?.available && (
+        <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-3 py-2 rounded-lg">
+          <CheckCircle className="w-3.5 h-3.5" />
+          <span>Dokument erkannt via Cloud-Analyse (DSGVO-konform)</span>
+        </div>
+      )}
+
       {/* Native OCR Success Badge - Only show when OCR actually worked */}
       {result.signals.keywords?.source === 'native-ocr' && result.signals.keywords?.available && (
         <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-3 py-2 rounded-lg">
@@ -226,10 +234,14 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
         </div>
       )}
 
-      {/* Privacy Badge */}
+      {/* Privacy Badge - Different message for Cloud vs Local */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
         <Shield className="w-3.5 h-3.5 text-green-600" />
-        <span>Prüfung erfolgt lokal auf Ihrem Gerät. Keine Daten werden übertragen.</span>
+        {result.signals.keywords?.source === 'cloud-ocr' ? (
+          <span>Nur Schlagwörter werden analysiert – keine Speicherung von Dokumentinhalten.</span>
+        ) : (
+          <span>Prüfung erfolgt lokal auf Ihrem Gerät. Keine Daten werden übertragen.</span>
+        )}
       </div>
 
       {/* Action Buttons */}

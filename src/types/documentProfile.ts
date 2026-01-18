@@ -128,8 +128,8 @@ export interface KeywordSignals {
   matchCountsByDocType: Record<string, number>;
   /** Labels of matched keywords (for display, not raw text) */
   matchedLabels?: string[];
-  /** Source of keyword detection: 'pdf-text' | 'native-ocr' | 'none' */
-  source?: 'pdf-text' | 'native-ocr' | 'none';
+  /** Source of keyword detection */
+  source?: 'pdf-text' | 'native-ocr' | 'cloud-ocr' | 'none';
 }
 
 /**
