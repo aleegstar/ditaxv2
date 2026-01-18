@@ -378,27 +378,148 @@ class DocumentValidator {
 
   /**
    * Calculate confidence score for a profile based on signals
-   * Improved scoring with expected type bonus and image limitations
+   * 
+   * NEW SCORING LOGIC (2025-01):
+   * - For images with OCR: 80% OCR weight, 20% other signals
+   * - For images without OCR: Max 40% score (requires manual confirmation)
+   * - For PDFs: Traditional multi-signal scoring
    */
   private calculateScore(
     profile: DocumentTypeProfile,
     signals: ValidationSignals,
     isExpectedType: boolean = false
   ): { score: number; reasons: string[] } {
-    let score = 20; // Lower base score - must be earned
     const reasons: string[] = [];
+    const isImage = signals.meta.mimeType?.startsWith('image/');
+    const hasOcrResults = signals.keywords?.available === true;
+    const ocrMatchCount = signals.keywords?.matchCountsByDocType[profile.id] || 0;
 
-    // === EXPECTED TYPE BONUS (+20) ===
+    // =====================================================
+    // === FÜR BILDER MIT OCR: 80% OCR + 20% andere ===
+    // =====================================================
+    if (isImage && hasOcrResults) {
+      let ocrScore = 0;   // Max 80 Punkte
+      let otherScore = 0; // Max 20 Punkte
+
+      // === OCR SCORING (80 Punkte max) ===
+      if (ocrMatchCount >= 5) {
+        ocrScore = 80;
+        reasons.push(`Viele passende Begriffe gefunden (${ocrMatchCount})`);
+      } else if (ocrMatchCount >= 3) {
+        ocrScore = 50;
+        reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+      } else if (ocrMatchCount >= 1) {
+        ocrScore = 20;
+        reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
+      } else {
+        // 0 Matches = 0 OCR Punkte
+        ocrScore = 0;
+        reasons.push('Keine passenden Begriffe erkannt');
+      }
+
+      // === OTHER SCORING (20 Punkte max) ===
+      // Dateityp (max 10)
+      if (signals.meta.fileTypeOk) {
+        otherScore += 10;
+      }
+
+      // Layout (max 10)
+      const layout = signals.layout.detected;
+      if (layout.documentAspectRatio) {
+        otherScore += 5;
+      }
+      if (layout.tableLike || layout.headerPlusBody) {
+        otherScore += 5;
+      }
+
+      // === PATTERN-BASED PENALTIES ===
+      if (layout.screenshotPattern) {
+        otherScore -= 10;
+        reasons.push('⚠️ Erscheint wie ein Screenshot');
+      }
+      if (layout.logoPattern) {
+        otherScore -= 15;
+        reasons.push('⚠️ Erscheint nicht wie ein Dokument');
+      }
+
+      // === EXPECTED TYPE INDICATOR (kein Score-Bonus, nur Info) ===
+      if (isExpectedType && ocrMatchCount >= 1) {
+        reasons.unshift('Entspricht ausgewähltem Dokumenttyp');
+      }
+
+      // Finaler Score
+      const finalScore = Math.min(100, Math.max(0, ocrScore + otherScore));
+      
+      // Bei 0 OCR-Matches aber Expected Type: Warnung hinzufügen
+      if (ocrMatchCount === 0 && isExpectedType) {
+        reasons.push('Möglicherweise falsches Dokument');
+      }
+
+      return { score: finalScore, reasons };
+    }
+
+    // =====================================================
+    // === FÜR BILDER OHNE OCR: Max 40% ===
+    // =====================================================
+    if (isImage && !hasOcrResults) {
+      let score = 0;
+      const layout = signals.layout.detected;
+
+      // Layout-basierte Bewertung (max 30)
+      if (layout.documentAspectRatio) {
+        score += 15;
+        reasons.push('Dokumentformat erkannt (A4-ähnlich)');
+      }
+      if (layout.tableLike) {
+        score += 10;
+        reasons.push('Tabellenstruktur erkannt');
+      }
+      if (layout.headerPlusBody) {
+        score += 5;
+      }
+
+      // Expected type gibt kleine Bonuspunkte (max 10)
+      if (isExpectedType) {
+        score += 10;
+        reasons.push('Ausgewählter Dokumenttyp');
+      }
+
+      // Pattern-Penalties
+      if (layout.screenshotPattern) {
+        score -= 20;
+        reasons.push('⚠️ Erscheint wie ein Screenshot');
+      }
+      if (layout.logoPattern) {
+        score -= 25;
+        reasons.push('⚠️ Erscheint nicht wie ein Dokument');
+      }
+
+      // Cap bei 40% - immer manuelle Bestätigung erforderlich
+      score = Math.min(Math.max(0, score), 40);
+
+      // Klare Warnung hinzufügen
+      reasons.push('Texterkennung nicht verfügbar');
+      reasons.push('Manuelle Bestätigung erforderlich');
+
+      return { score, reasons };
+    }
+
+    // =====================================================
+    // === FÜR PDFs: Traditionelles Multi-Signal Scoring ===
+    // =====================================================
+    let score = 15; // Niedriger Base Score
+    
+    // === EXPECTED TYPE BONUS (+15) ===
     if (isExpectedType) {
-      score += 20;
+      score += 15;
       reasons.push('Entspricht ausgewähltem Dokumenttyp');
     }
 
-    // === METADATA SCORING (max +40 / -25 points) ===
+    // === METADATA SCORING (max +35) ===
     
-    // File type match (+15 / -10)
+    // File type match (+10)
     if (signals.meta.fileTypeOk && profile.acceptedFormats.includes(signals.meta.mimeType)) {
-      score += 15;
+      score += 10;
     } else if (!signals.meta.fileTypeOk) {
       score -= 10;
       reasons.push('Dateityp nicht unterstützt');
@@ -425,58 +546,39 @@ class DocumentValidator {
       }
     }
 
-    // Resolution check (-10)
-    if (signals.meta.resolutionOk === false) {
-      score -= 10;
-      reasons.push('Bildauflösung zu niedrig');
-    }
-
-    // === LAYOUT SCORING (max +15 points, reduced from +35) ===
-    
+    // === LAYOUT SCORING (max +15) ===
     if (profile.layoutHints) {
       const layout = signals.layout.detected;
       let layoutMatches = 0;
       
-      // Table structure match
       if (profile.layoutHints.expectsTable && layout.tableLike) {
         layoutMatches++;
         reasons.push('Tabellenstruktur erkannt');
       }
-
-      // Header block match
       if (profile.layoutHints.expectsHeaderBlock && layout.headerPlusBody) {
         layoutMatches++;
         reasons.push('Kopfzeile erkannt');
       }
-
-      // Form fields match
       if (profile.layoutHints.expectsFormFields && layout.formLike) {
         layoutMatches++;
         reasons.push('Formularfelder erkannt');
       }
 
-      // Dense text match (doesn't count toward layout matches)
-      if (profile.layoutHints.expectsDenseText && layout.denseText) {
-        score += 3;
-      }
-
-      // Add layout score: +5 per match, max +15
       score += Math.min(layoutMatches * 5, 15);
     }
 
-    // === KEYWORD SCORING (max +40 points) ===
-    
+    // === KEYWORD SCORING für PDFs (max +45) ===
     if (signals.keywords?.available && profile.keywordHints) {
       const matchCount = signals.keywords.matchCountsByDocType[profile.id] || 0;
       
       if (matchCount >= 5) {
-        score += 40;
+        score += 45;
         reasons.push(`Viele passende Begriffe gefunden (${matchCount})`);
       } else if (matchCount >= 3) {
-        score += 25;
+        score += 30;
         reasons.push(`Passende Begriffe gefunden (${matchCount})`);
       } else if (matchCount >= 1) {
-        score += 10;
+        score += 15;
         reasons.push(`Einige Begriffe gefunden (${matchCount})`);
       }
 
@@ -490,69 +592,6 @@ class DocumentValidator {
           score -= 20;
           reasons.push('Unpassende Begriffe gefunden');
         }
-      }
-    }
-
-    // === IMAGE PATTERN SCORING (replaces simple cap) ===
-    const isImage = signals.meta.mimeType?.startsWith('image/');
-    const hasKeywordDetection = signals.keywords?.available === true;
-    
-    if (isImage && !hasKeywordDetection) {
-      const layout = signals.layout.detected;
-      
-      // Start with base score for images
-      let imageScore = isExpectedType ? 30 : 15;
-      const imageReasons: string[] = [];
-      
-      if (isExpectedType) {
-        imageReasons.push('Ausgewählter Dokumenttyp');
-      }
-      
-      // === DOCUMENT ASPECT RATIO (+15) ===
-      if (layout.documentAspectRatio) {
-        imageScore += 15;
-        imageReasons.push('Dokumentformat erkannt (A4-ähnlich)');
-      }
-      
-      // === SCREENSHOT PATTERN (-20) ===
-      if (layout.screenshotPattern) {
-        imageScore -= 20;
-        imageReasons.push('⚠️ Erscheint wie ein Screenshot');
-      }
-      
-      // === LOGO PATTERN (-25) ===
-      if (layout.logoPattern) {
-        imageScore -= 25;
-        imageReasons.push('⚠️ Erscheint nicht wie ein Dokument');
-      }
-      
-      // === RESOLUTION CHECK (+10 / -15) ===
-      if (layout.sufficientResolution) {
-        imageScore += 10;
-      } else if (layout.sufficientResolution === false) {
-        imageScore -= 15;
-        imageReasons.push('Auflösung zu niedrig für Dokument');
-      }
-      
-      // Add layout bonuses for images too
-      if (layout.tableLike) {
-        imageScore += 5;
-        imageReasons.push('Tabellenstruktur erkannt');
-      }
-      if (layout.headerPlusBody) {
-        imageScore += 5;
-      }
-      
-      // Cap at 65% for images without OCR (can still be good with right patterns)
-      score = Math.min(Math.max(0, imageScore), 65);
-      
-      // Replace reasons with image-specific ones
-      reasons.length = 0;
-      reasons.push(...imageReasons);
-      
-      // Add honest limitation if no pattern issues
-      if (!layout.screenshotPattern && !layout.logoPattern) {
-        reasons.push('Manuelle Bestätigung erforderlich');
       }
     }
 
@@ -588,6 +627,14 @@ class DocumentValidator {
       return `Manuelle Prüfung erforderlich: ${label}`;
     }
 
+    // Check for 0 OCR matches on images with OCR
+    if (isImage && keywords?.available) {
+      const matchCount = keywords.matchCountsByDocType[docTypeId] || 0;
+      if (matchCount === 0) {
+        return `Keine Übereinstimmung gefunden - falsches Dokument?`;
+      }
+    }
+
     if (confidence >= 80) {
       if (keywords?.source === 'cloud-ocr') {
         return `Erkannt als: ${label} (via Cloud-Analyse)`;
@@ -598,8 +645,10 @@ class DocumentValidator {
       return `Erkannt als: ${label}`;
     } else if (confidence >= 50) {
       return `Möglicherweise: ${label} - bitte bestätigen`;
+    } else if (confidence >= 20) {
+      return `Geringe Übereinstimmung mit: ${label}`;
     } else {
-      return `Unsicher - bitte Dokumenttyp prüfen`;
+      return `Keine Übereinstimmung - bitte Dokumenttyp prüfen`;
     }
   }
 
