@@ -1,6 +1,5 @@
 import { getDocumentKeywords, matchKeywords, DocumentKeywordConfig } from '@/utils/documentKeywords';
 import { createWorker, Worker } from 'tesseract.js';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface OcrVerificationResult {
   isMatch: boolean;
@@ -282,52 +281,6 @@ class OcrVerificationService {
     });
   }
 
-  /**
-   * Extract text from image using AI Vision OCR via Edge Function
-   * Used on mobile devices where Tesseract.js has worker limitations
-   */
-  private async extractTextWithAI(file: File): Promise<string> {
-    this.addDebugLog('Using AI Vision OCR via Edge Function...');
-    
-    // Convert file to base64
-    const arrayBuffer = await file.arrayBuffer();
-    const base64 = btoa(
-      new Uint8Array(arrayBuffer)
-        .reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
-    
-    this.addDebugLog(`Image size: ${(arrayBuffer.byteLength / 1024).toFixed(1)} KB`);
-    
-    // Get current session for auth
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData?.session?.access_token;
-    
-    if (!accessToken) {
-      throw new Error('Nicht authentifiziert');
-    }
-    
-    // Call Edge Function
-    this.addDebugLog('Calling OCR Edge Function...');
-    const { data, error } = await supabase.functions.invoke('ocr-extract', {
-      body: {
-        imageBase64: base64,
-        mimeType: file.type
-      }
-    });
-    
-    if (error) {
-      this.addDebugLog(`Edge Function error: ${error.message}`);
-      throw new Error(`OCR-Fehler: ${error.message}`);
-    }
-    
-    if (!data?.success) {
-      this.addDebugLog(`OCR failed: ${data?.error || 'Unknown error'}`);
-      throw new Error(data?.error || 'OCR fehlgeschlagen');
-    }
-    
-    this.addDebugLog(`AI extracted ${data.charCount} characters`);
-    return data.extractedText || '';
-  }
 
   /**
    * Calculate confidence based on found keywords
@@ -456,85 +409,25 @@ class OcrVerificationService {
         this.addDebugLog(`Mobile: ${isMobile ? 'Yes' : 'No'}`);
         this.addDebugLog(`Document: ${keywordConfig.displayName}`);
         
-        // On mobile: Use AI Vision OCR via Edge Function
-        // This bypasses Tesseract.js worker issues on mobile WebViews
+        // On mobile: Skip OCR entirely for DSGVO compliance
+        // No data is sent to external servers - user confirms manually
         if (isMobile) {
-          this.addDebugLog('Mobile detected - using AI Vision OCR');
+          this.addDebugLog('Mobile detected - DSGVO-konform: manuelle Bestätigung angefordert');
+          this.addDebugLog('Keine Daten werden an externe Server gesendet');
           
-          try {
-            // Extract text using AI Vision
-            const extractedText = await this.extractTextWithAI(file);
-            this.addDebugLog(`Extracted ${extractedText.length} characters`);
-            
-            const normalizedText = this.normalizeText(extractedText);
-            
-            // Match keywords against extracted text
-            const foundKeywords = matchKeywords(normalizedText, keywordConfig.keywords);
-            const missingKeywords = keywordConfig.keywords.filter(
-              kw => !foundKeywords.includes(kw)
-            );
-            
-            this.addDebugLog(`Keywords: ${foundKeywords.length} found, ${missingKeywords.length} missing`);
-            
-            const confidence = this.calculateConfidence(
-              foundKeywords,
-              keywordConfig.keywords,
-              keywordConfig
-            );
-            
-            const isMatch = foundKeywords.length >= keywordConfig.minMatchCount;
-            
-            // Create a preview of extracted text
-            const textPreview = extractedText.substring(0, 200).trim() + 
-              (extractedText.length > 200 ? '...' : '');
-            
-            let reason = '';
-            if (!isMatch) {
-              if (extractedText.length === 0) {
-                reason = 'Kein Text im Bild erkannt. Bitte stelle sicher, dass das Dokument gut lesbar ist.';
-              } else if (foundKeywords.length === 0) {
-                reason = `Keine der erwarteten Begriffe für "${keywordConfig.displayName}" gefunden.`;
-              } else {
-                reason = `Nur ${foundKeywords.length} von ${keywordConfig.minMatchCount} benötigten Begriffen gefunden.`;
-              }
-            }
-            
-            const requiresManualConfirmation = !isMatch || confidence < 50;
-            
-            this.addDebugLog(`=== Result: ${isMatch ? 'MATCH' : 'NO MATCH'} (${confidence}%) ===`);
-            
-            return {
-              isMatch,
-              confidence,
-              foundKeywords,
-              missingKeywords,
-              reason,
-              extractedTextPreview: textPreview,
-              documentType: checklistItemId,
-              displayName: keywordConfig.displayName,
-              isImageFile: true,
-              requiresManualConfirmation,
-              debugLog: this.getDebugLog()
-            };
-            
-          } catch (aiOcrError) {
-            this.addDebugLog(`AI OCR failed: ${aiOcrError instanceof Error ? aiOcrError.message : String(aiOcrError)}`);
-            
-            // Fallback: Accept with manual confirmation
-            return {
-              isMatch: true,
-              confidence: 0,
-              foundKeywords: [],
-              missingKeywords: [],
-              reason: 'Die Bildverarbeitung ist fehlgeschlagen. Bitte überprüfe manuell, ob es sich um das richtige Dokument handelt.',
-              extractedTextPreview: '',
-              documentType: checklistItemId,
-              displayName: keywordConfig.displayName,
-              isImageFile: true,
-              requiresManualConfirmation: true,
-              debugLog: this.getDebugLog()
-            };
-          }
+          return {
+            isMatch: true,
+            confidence: 0,
+            foundKeywords: [],
+            missingKeywords: [],
+            reason: 'Auf mobilen Geräten bitten wir dich, das Dokument manuell zu bestätigen.',
+            extractedTextPreview: '',
+            documentType: checklistItemId,
+            displayName: keywordConfig.displayName,
+            isImageFile: true,
+            requiresManualConfirmation: true,
+            debugLog: this.getDebugLog()
+          };
         }
         
         // Desktop: Continue with Tesseract.js OCR
