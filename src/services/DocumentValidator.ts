@@ -28,6 +28,7 @@ import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/
 import LayoutAnalyzer from './LayoutAnalyzer';
 import NativeOcrService from './NativeOcrService';
 import TesseractOcrService from './TesseractOcrService';
+import CloudOcrService from './CloudOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
 import { isMobileAppContext } from '@/utils/platform';
 
@@ -43,12 +44,38 @@ class DocumentValidator {
   private layoutAnalyzer: LayoutAnalyzer;
   private nativeOcr: NativeOcrService;
   private tesseractOcr: TesseractOcrService;
+  private cloudOcr: CloudOcrService;
   private nativeOcrInitialized: boolean = false;
+  private cloudOcrConsent: boolean = false;
 
   private constructor() {
     this.layoutAnalyzer = LayoutAnalyzer.getInstance();
     this.nativeOcr = NativeOcrService.getInstance();
     this.tesseractOcr = TesseractOcrService.getInstance();
+    this.cloudOcr = CloudOcrService.getInstance();
+  }
+
+  /**
+   * Set Cloud OCR consent (for mobile fallback)
+   * User must explicitly opt-in to Cloud OCR due to DSGVO requirements
+   */
+  setCloudOcrConsent(consent: boolean): void {
+    this.cloudOcrConsent = consent;
+    console.log(`[DocumentValidator] Cloud OCR consent: ${consent}`);
+  }
+
+  /**
+   * Check if Cloud OCR consent has been given
+   */
+  hasCloudOcrConsent(): boolean {
+    return this.cloudOcrConsent;
+  }
+
+  /**
+   * Check if Cloud OCR is available and has consent
+   */
+  isCloudOcrReady(): boolean {
+    return this.cloudOcrConsent && this.cloudOcr.isAvailable();
   }
 
   public static getInstance(): DocumentValidator {
@@ -103,11 +130,12 @@ class DocumentValidator {
     let keywordSignals = await this.detectKeywords(file);
 
     // For images: Use LOCAL OCR (Native on mobile, Tesseract.js in browser)
-    // PRIVACY: All processing happens on-device, no data sent to cloud
+    // FALLBACK: Cloud OCR on mobile with explicit user consent
+    // PRIVACY: Local processing preferred, cloud only with opt-in
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
       // Check if Native OCR is available (= running on mobile with OCR support)
       if (this.nativeOcr.isAvailable()) {
-        // Mobile: Native OCR (ML Kit / Vision / Despia) - already 100% local
+        // Mobile: Native OCR (ML Kit / Vision / Despia) - 100% local
         onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird lokal erkannt...' });
         keywordSignals = await this.detectKeywordsWithNativeOcr(file);
       } else if (!isMobileAppContext()) {
@@ -121,9 +149,17 @@ class DocumentValidator {
           const mappedPercent = 40 + Math.round(percent * 0.4);
           onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Text wird lokal erkannt...' });
         });
+      } else if (this.isCloudOcrReady()) {
+        // Mobile context with Cloud OCR consent - use Cloud OCR
+        // PRIVACY: User has explicitly consented to cloud processing
+        onProgress?.({ step: 'ocr', percent: 35, message: 'Cloud-OCR wird verwendet...' });
+        onProgress?.({ step: 'ocr', percent: 40, message: 'Bild wird verschlüsselt übertragen' });
+        
+        keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
       } else {
-        // Mobile context but no OCR available - skip OCR, user must confirm manually
+        // Mobile context without OCR - skip OCR, user must confirm manually
         console.log('[DocumentValidator] Mobile context without OCR capability - skipping OCR');
+        console.log('[DocumentValidator] Hint: Enable Cloud OCR with setCloudOcrConsent(true)');
       }
       
       // Update progress after OCR
@@ -302,6 +338,62 @@ class DocumentValidator {
     } catch (error) {
       console.error('[DocumentValidator] Native OCR failed:', error);
       return { available: false, matchCountsByDocType: {}, source: 'native-ocr' };
+    }
+  }
+
+  /**
+   * Detect keywords using Cloud OCR (mobile fallback with user consent)
+   * PRIVACY: 
+   * - Images are compressed before upload (max 1MB)
+   * - Only keyword matches are returned, never raw text
+   * - Transient processing - no storage
+   * - Requires explicit user consent (DSGVO)
+   */
+  private async detectKeywordsWithCloudOcr(
+    file: File,
+    expectedDocTypeId?: string
+  ): Promise<KeywordSignals | undefined> {
+    if (!this.cloudOcr.isAvailable()) {
+      console.log('[DocumentValidator] Cloud OCR not available');
+      return { available: false, matchCountsByDocType: {}, source: 'none' };
+    }
+
+    if (!this.cloudOcrConsent) {
+      console.log('[DocumentValidator] Cloud OCR: No consent given');
+      return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
+    }
+
+    try {
+      console.log('[DocumentValidator] Attempting Cloud OCR for image (with consent)...');
+      const result = await this.cloudOcr.extractKeywords(file, expectedDocTypeId);
+
+      if (!result.available) {
+        // Handle specific errors
+        if (result.error === 'rate_limit') {
+          console.warn('[DocumentValidator] Cloud OCR: Rate limit reached');
+        } else if (result.error === 'credits_exhausted') {
+          console.warn('[DocumentValidator] Cloud OCR: Credits exhausted');
+        } else if (result.error === 'timeout') {
+          console.warn('[DocumentValidator] Cloud OCR: Request timed out');
+        }
+        return { 
+          available: false, 
+          matchCountsByDocType: result.matchCountsByDocType || {}, 
+          source: 'cloud-ocr' 
+        };
+      }
+
+      console.log('[DocumentValidator] Cloud OCR: Keywords matched', result.matchCountsByDocType);
+
+      return {
+        available: true,
+        matchCountsByDocType: result.matchCountsByDocType,
+        matchedLabels: result.matchedKeywords.slice(0, 10),
+        source: 'cloud-ocr'
+      };
+    } catch (error) {
+      console.error('[DocumentValidator] Cloud OCR failed:', error);
+      return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
     }
   }
 
