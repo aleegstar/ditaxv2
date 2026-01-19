@@ -673,7 +673,7 @@ const DocumentsContent: React.FC<{
         {/* Floating Upload Button - only show if not locked */}
         {!isLocked && (
           <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-            <button onClick={() => setShowUploadSheet(true)} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+            <button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
               <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
                 <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
               </div>
