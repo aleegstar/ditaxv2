@@ -136,7 +136,7 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-              {badge && <Badge variant={badge.variant || 'secondary'} className="px-3 py-1 text-sm font-medium text-primary-foreground">
+              {badge && <Badge variant={badge.variant || 'secondary'} className="px-3 py-1 text-sm font-medium text-white">
                   {badge.text}
                 </Badge>}
             </div>
