@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
 import {
   Table,
   TableBody,
@@ -22,8 +23,7 @@ import {
   FileWarning, 
   HelpCircle, 
   ExternalLink,
-  RefreshCw,
-  Filter
+  RefreshCw
 } from 'lucide-react';
 import {
   Select,
@@ -52,7 +52,6 @@ const MissingDocuments = () => {
   const [items, setItems] = useState<MissingTaxReturn[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>('all');
-  const navigate = useNavigate();
 
   const fetchMissingItems = async () => {
     setLoading(true);
@@ -166,107 +165,91 @@ const MissingDocuments = () => {
     return first + last || '?';
   };
 
-  const handleViewDetails = (userId: string, taxYear: string) => {
-    navigate(`/admin/user/${userId}?year=${taxYear}`);
+  const missingDocumentsStats = {
+    total: items.length,
+    missingDocs: missingDocumentsCount,
+    missingInfo: missingInfoCount,
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <AlertCircle className="h-6 w-6 text-orange-500" />
-            Fehlende Unterlagen & Angaben
-          </h1>
-          <p className="text-muted-foreground">
-            Übersicht aller Steuererklärungen mit fehlendem Status
-          </p>
-        </div>
-        <Button variant="outline" onClick={fetchMissingItems} disabled={loading}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+    <div className="container mx-auto px-4 py-8">
+      <AdminWelcomeHeader
+        title="Fehlende Unterlagen"
+        subtitle="Übersicht aller Steuererklärungen mit fehlendem Status"
+        badge={{
+          text: `${missingDocumentsStats.total} offen`,
+          variant: missingDocumentsStats.total > 0 ? 'default' : 'secondary'
+        }}
+        onRefresh={fetchMissingItems}
+      />
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 mb-6">
+        <Card className="bg-gray-50">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{missingDocumentsStats.total}</div>
+            <div className="text-sm text-muted-foreground">Gesamt offen</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-orange-50 border-orange-200">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-orange-700">{missingDocumentsCount}</div>
+            <div className="text-sm text-orange-600">Fehlende Unterlagen</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-red-50 border-red-200">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-red-700">{missingInfoCount}</div>
+            <div className="text-sm text-red-600">Fehlende Angaben</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filter */}
+      <div className="flex items-center gap-4 mb-4">
+        <Select value={filter} onValueChange={(v) => setFilter(v as FilterStatus)}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Status filtern" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle anzeigen</SelectItem>
+            <SelectItem value="missing_documents">Fehlende Unterlagen</SelectItem>
+            <SelectItem value="missing_information">Fehlende Angaben</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button variant="outline" size="sm" onClick={fetchMissingItems}>
+          <RefreshCw className="h-4 w-4 mr-2" />
           Aktualisieren
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gesamt</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Steuererklärungen mit Aktion erforderlich
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fehlende Unterlagen</CardTitle>
-            <FileWarning className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{missingDocumentsCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Dokumente müssen nachgereicht werden
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fehlende Angaben</CardTitle>
-            <HelpCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{missingInfoCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Informationen müssen ergänzt werden
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filter and Table */}
+      {/* Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Benutzer mit fehlenden Daten</CardTitle>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={filter} onValueChange={(v) => setFilter(v as FilterStatus)}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Filter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle ({items.length})</SelectItem>
-                  <SelectItem value="missing_documents">
-                    Fehlende Unterlagen ({missingDocumentsCount})
-                  </SelectItem>
-                  <SelectItem value="missing_information">
-                    Fehlende Angaben ({missingInfoCount})
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5" />
+            Steuererklärungen mit fehlenden Daten
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-3 w-[150px]" />
+                  </div>
+                  <Skeleton className="h-8 w-[100px]" />
+                </div>
               ))}
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="text-center py-12">
-              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold">Keine Einträge gefunden</h3>
-              <p className="text-muted-foreground">
-                Es gibt derzeit keine Steuererklärungen mit fehlendem Status.
-              </p>
+            <div className="text-center py-12 text-muted-foreground">
+              <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Keine Steuererklärungen mit fehlendem Status gefunden.</p>
             </div>
           ) : (
             <Table>
@@ -285,9 +268,11 @@ const MissingDocuments = () => {
                   <TableRow key={item.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={item.user_avatar_url || undefined} />
-                          <AvatarFallback className="text-xs">
+                        <Avatar className="h-9 w-9">
+                          {item.user_avatar_url ? (
+                            <AvatarImage src={item.user_avatar_url} />
+                          ) : null}
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm">
                             {getUserInitials(item.user_first_name, item.user_last_name)}
                           </AvatarFallback>
                         </Avatar>
@@ -297,7 +282,7 @@ const MissingDocuments = () => {
                               ? `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim()
                               : 'Unbekannt'}
                           </div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-sm text-muted-foreground">
                             {item.user_email || 'Keine E-Mail'}
                           </div>
                         </div>
@@ -316,17 +301,19 @@ const MissingDocuments = () => {
                       <Badge variant="outline">{item.tax_year}</Badge>
                     </TableCell>
                     <TableCell>{getStatusBadge(item.status)}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell>
                       {format(new Date(item.updated_at), 'dd.MM.yyyy HH:mm', { locale: de })}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
+                        variant="ghost"
                         size="sm"
-                        variant="outline"
-                        onClick={() => handleViewDetails(item.user_id, item.tax_year)}
+                        asChild
+                        title="Benutzer anzeigen"
                       >
-                        <ExternalLink className="h-4 w-4 mr-1" />
-                        Details
+                        <Link to={`/admin/user/${item.user_id}?year=${item.tax_year}`}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
                       </Button>
                     </TableCell>
                   </TableRow>
