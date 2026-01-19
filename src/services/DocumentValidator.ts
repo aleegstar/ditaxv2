@@ -1,17 +1,17 @@
 /**
  * Document Validator Service
  * 
- * Multi-signal document validation with Cloud OCR support.
+ * Multi-signal document validation with LOCAL OCR priority.
  * Combines:
  * - Metadata analysis (file type, size, pages)
  * - Layout heuristics (visual structure detection)
  * - PDF text layer keyword detection
- * - Cloud OCR for images (DSGVO-konform via Lovable AI)
- * - Native OCR fallback (iOS Vision / Android ML Kit)
+ * - Native OCR for mobile (iOS Vision / Android ML Kit)
+ * - Tesseract.js for browser (100% local, DSGVO-konform)
  * 
  * PRIVACY: 
  * - PDFs: Local processing only
- * - Images: Cloud OCR extracts only keywords, no raw text stored
+ * - Images: Local OCR (Tesseract.js or Native) - no data leaves device
  * - All results stored locally
  */
 
@@ -27,7 +27,7 @@ import {
 import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/documentProfiles';
 import LayoutAnalyzer from './LayoutAnalyzer';
 import NativeOcrService from './NativeOcrService';
-import CloudOcrService from './CloudOcrService';
+import TesseractOcrService from './TesseractOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
 
 // Declare pdfjsLib type
@@ -41,13 +41,13 @@ class DocumentValidator {
   private static instance: DocumentValidator;
   private layoutAnalyzer: LayoutAnalyzer;
   private nativeOcr: NativeOcrService;
-  private cloudOcr: CloudOcrService;
+  private tesseractOcr: TesseractOcrService;
   private nativeOcrInitialized: boolean = false;
 
   private constructor() {
     this.layoutAnalyzer = LayoutAnalyzer.getInstance();
     this.nativeOcr = NativeOcrService.getInstance();
-    this.cloudOcr = CloudOcrService.getInstance();
+    this.tesseractOcr = TesseractOcrService.getInstance();
   }
 
   public static getInstance(): DocumentValidator {
@@ -101,25 +101,28 @@ class DocumentValidator {
     // Step 4: Keyword detection
     let keywordSignals = await this.detectKeywords(file);
 
-    // For images: Try Cloud OCR first, then Native OCR as fallback
+    // For images: Use LOCAL OCR (Native on mobile, Tesseract.js in browser)
+    // PRIVACY: All processing happens on-device, no data sent to cloud
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
-      // Step 4a: Compress image for OCR
-      onProgress?.({ step: 'compressing', percent: 35, message: 'Bild wird optimiert...' });
-      
-      // Step 4b: Cloud OCR (longest step)
-      onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird erkannt (Cloud OCR)...' });
-      
-      // Try Cloud OCR (DSGVO-konform) - pass expectedDocTypeId for keyword prioritization
-      keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
+      // Check if Native OCR is available (= running on mobile)
+      if (this.nativeOcr.isAvailable()) {
+        // Mobile: Native OCR (ML Kit / Vision) - already 100% local
+        onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird lokal erkannt...' });
+        keywordSignals = await this.detectKeywordsWithNativeOcr(file);
+      } else {
+        // Browser: Tesseract.js - 100% local, DSGVO-konform
+        onProgress?.({ step: 'ocr', percent: 35, message: 'Text wird lokal erkannt...' });
+        onProgress?.({ step: 'ocr', percent: 40, message: 'Alle Daten bleiben auf Ihrem Gerät' });
+        
+        keywordSignals = await this.detectKeywordsWithTesseract(file, (percent) => {
+          // Map Tesseract progress (0-100) to our progress range (40-80)
+          const mappedPercent = 40 + Math.round(percent * 0.4);
+          onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Text wird lokal erkannt...' });
+        });
+      }
       
       // Update progress after OCR
       onProgress?.({ step: 'ocr', percent: 80, message: 'OCR abgeschlossen...' });
-      
-      // Fallback to Native OCR if Cloud OCR failed
-      if (!keywordSignals?.available) {
-        onProgress?.({ step: 'ocr', percent: 75, message: 'Fallback: Native OCR...' });
-        keywordSignals = await this.detectKeywordsWithNativeOcr(file);
-      }
     }
 
     // Step 5: Analyzing results
@@ -197,38 +200,55 @@ class DocumentValidator {
   }
 
   /**
-   * Detect keywords using Cloud OCR (DSGVO-konform)
-   * Uses Lovable AI Gateway with Gemini Vision
-   * PRIVACY: Only keyword matches returned, no raw text
+   * Detect keywords using Tesseract.js (browser-based OCR)
+   * PRIVACY: 100% local processing, no data sent to cloud
    * @param file - The image file to process
-   * @param expectedDocTypeId - Optional expected document type to prioritize its keywords
+   * @param onProgress - Optional progress callback
    */
-  private async detectKeywordsWithCloudOcr(file: File, expectedDocTypeId?: string): Promise<KeywordSignals | undefined> {
-    if (!this.cloudOcr.isAvailable()) {
-      console.log('[DocumentValidator] Cloud OCR not available');
+  private async detectKeywordsWithTesseract(
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<KeywordSignals | undefined> {
+    if (!this.tesseractOcr.isAvailable()) {
+      console.log('[DocumentValidator] Tesseract OCR not available');
       return { available: false, matchCountsByDocType: {}, source: 'none' };
     }
 
     try {
-      console.log('[DocumentValidator] Attempting Cloud OCR for image...', expectedDocTypeId ? `expecting: ${expectedDocTypeId}` : '');
-      const result = await this.cloudOcr.extractKeywords(file, expectedDocTypeId);
+      console.log('[DocumentValidator] Attempting Tesseract OCR for image (local)...');
+      const detectedTexts = await this.tesseractOcr.detectTextFromFile(file, onProgress);
 
-      if (!result.available) {
-        console.log('[DocumentValidator] Cloud OCR: No keywords detected', result.error);
-        return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
+      if (!detectedTexts.length) {
+        console.log('[DocumentValidator] Tesseract OCR: No text detected');
+        return { available: false, matchCountsByDocType: {}, source: 'tesseract-ocr' };
       }
 
-      console.log('[DocumentValidator] Cloud OCR: Keywords matched', result.matchCountsByDocType);
+      // Match against all profiles
+      const matchCountsByDocType: Record<string, number> = {};
+      const allMatchedLabels: string[] = [];
+
+      for (const profile of getAllProfiles()) {
+        if (profile.keywordHints && profile.keywordHints.length > 0) {
+          const result = this.tesseractOcr.matchKeywords(detectedTexts, profile.keywordHints);
+          matchCountsByDocType[profile.id] = result.matchCount;
+
+          if (result.matchedLabels.length > 0) {
+            allMatchedLabels.push(...result.matchedLabels.slice(0, 3));
+          }
+        }
+      }
+
+      console.log('[DocumentValidator] Tesseract OCR: Keywords matched', matchCountsByDocType);
 
       return {
         available: true,
-        matchCountsByDocType: result.matchCountsByDocType,
-        matchedLabels: result.matchedKeywords.slice(0, 10),
-        source: 'cloud-ocr'
+        matchCountsByDocType,
+        matchedLabels: [...new Set(allMatchedLabels)].slice(0, 10),
+        source: 'tesseract-ocr'
       };
     } catch (error) {
-      console.error('[DocumentValidator] Cloud OCR failed:', error);
-      return { available: false, matchCountsByDocType: {}, source: 'cloud-ocr' };
+      console.error('[DocumentValidator] Tesseract OCR failed:', error);
+      return { available: false, matchCountsByDocType: {}, source: 'tesseract-ocr' };
     }
   }
 
@@ -669,11 +689,8 @@ class DocumentValidator {
     }
 
     if (confidence >= 80) {
-      if (keywords?.source === 'cloud-ocr') {
-        return `Erkannt als: ${label} (via Cloud-Analyse)`;
-      }
-      if (keywords?.source === 'native-ocr') {
-        return `Erkannt als: ${label} (via Texterkennung)`;
+      if (keywords?.source === 'tesseract-ocr' || keywords?.source === 'native-ocr') {
+        return `Erkannt als: ${label} (via lokale Texterkennung)`;
       }
       return `Erkannt als: ${label}`;
     } else if (confidence >= 50) {
