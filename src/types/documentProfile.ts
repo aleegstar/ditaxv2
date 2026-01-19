@@ -118,7 +118,7 @@ export interface LayoutSignals {
 }
 
 /**
- * Optional keyword detection signals (PDF text layer or Native OCR)
+ * Optional keyword detection signals (PDF text layer or Local OCR)
  * PRIVACY: Only stores match counts and matched labels, never raw text
  */
 export interface KeywordSignals {
@@ -129,7 +129,7 @@ export interface KeywordSignals {
   /** Labels of matched keywords (for display, not raw text) */
   matchedLabels?: string[];
   /** Source of keyword detection */
-  source?: 'pdf-text' | 'native-ocr' | 'cloud-ocr' | 'none';
+  source?: 'pdf-text' | 'native-ocr' | 'tesseract-ocr' | 'none';
 }
 
 /**
