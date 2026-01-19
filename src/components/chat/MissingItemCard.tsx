@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -28,7 +27,6 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
   onResponseAdded,
   localResponse,
 }) => {
-  const [mode, setMode] = useState<'idle' | 'text' | 'file'>('idle');
   const [textContent, setTextContent] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; path: string; size: number } | null>(null);
@@ -36,6 +34,7 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
 
   const hasResponse = localResponse || request.responses?.length > 0;
   const existingResponse = localResponse || request.responses?.[0];
+  const isDocumentRequest = request.request_type === 'document';
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -74,7 +73,6 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
         file_size: file.size,
       });
 
-      setMode('idle');
       toast.success('Datei hochgeladen');
     } catch (error) {
       console.error('Upload error:', error);
@@ -91,8 +89,6 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
       response_type: 'text',
       text_content: textContent.trim(),
     });
-
-    setMode('idle');
   };
 
   const handleRemoveResponse = () => {
@@ -122,7 +118,7 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {request.request_type === 'document' ? (
+          {isDocumentRequest ? (
             <FileText className="h-5 w-5 text-orange-500 flex-shrink-0" />
           ) : (
             <MessageSquare className="h-5 w-5 text-blue-500 flex-shrink-0" />
@@ -168,77 +164,63 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
         </div>
       )}
 
-      {/* Action Buttons */}
-      {!hasResponse && mode === 'idle' && (
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-1"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Datei hochladen
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setMode('text')}
-            className="flex-1"
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Text eingeben
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileUpload}
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-          />
-        </div>
-      )}
+      {/* Action Area - Show based on request type */}
+      {!hasResponse && (
+        <>
+          {/* Document Request: File Upload Only */}
+          {isDocumentRequest && (
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full"
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Wird hochgeladen...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Datei hochladen
+                  </>
+                )}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleFileUpload}
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              />
+            </div>
+          )}
 
-      {/* Upload in progress */}
-      {isUploading && (
-        <div className="flex items-center justify-center gap-2 py-2">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <span className="text-sm text-slate-600">Wird hochgeladen...</span>
-        </div>
-      )}
-
-      {/* Text Input Mode */}
-      {mode === 'text' && (
-        <div className="space-y-2">
-          <Textarea
-            placeholder="Ihre Antwort eingeben..."
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-            rows={3}
-            autoFocus
-          />
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setMode('idle');
-                setTextContent('');
-              }}
-            >
-              <X className="h-4 w-4 mr-1" />
-              Abbrechen
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleTextSubmit}
-              disabled={!textContent.trim()}
-            >
-              <Check className="h-4 w-4 mr-1" />
-              Speichern
-            </Button>
-          </div>
-        </div>
+          {/* Information Request: Text Input Only */}
+          {!isDocumentRequest && (
+            <div className="space-y-2">
+              <Textarea
+                placeholder="Ihre Antwort eingeben..."
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                rows={3}
+              />
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  onClick={handleTextSubmit}
+                  disabled={!textContent.trim()}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Speichern
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

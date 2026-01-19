@@ -148,19 +148,6 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
         .update({ status: statusToSet, updated_at: new Date().toISOString() })
         .eq('id', items[0].tax_return_id);
 
-      // Create chat message to user
-      const titles = items.map(i => `• ${i.title}`).join('\n');
-      const messageContent = items[0].request_type === 'document'
-        ? `📋 **Fehlende Unterlagen benötigt**\n\nWir benötigen folgende Unterlagen von Ihnen:\n\n${titles}\n\nBitte reichen Sie diese im Chat ein.`
-        : `📝 **Fehlende Angaben benötigt**\n\nWir benötigen folgende Informationen von Ihnen:\n\n${titles}\n\nBitte beantworten Sie diese im Chat.`;
-
-      await supabase.from('chat_messages').insert({
-        sender_id: user.id,
-        recipient_id: items[0].user_id,
-        content: messageContent,
-        chat_type: 'direct',
-      });
-
       toast.success(`${items.length} Anfrage(n) erfolgreich erstellt`);
       return true;
     } catch (err) {
@@ -248,32 +235,12 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
   // Reject a request with reason (for admin)
   const rejectRequest = async (requestId: string, reason: string): Promise<boolean> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Nicht authentifiziert');
-
-      // Get the request to find user_id
-      const { data: request } = await supabase
-        .from('missing_item_requests')
-        .select('user_id, title')
-        .eq('id', requestId)
-        .single();
-
-      if (!request) throw new Error('Anfrage nicht gefunden');
-
       const { error } = await supabase
         .from('missing_item_requests')
         .update({ status: 'rejected', updated_at: new Date().toISOString() })
         .eq('id', requestId);
 
       if (error) throw error;
-
-      // Send chat message with rejection reason
-      await supabase.from('chat_messages').insert({
-        sender_id: user.id,
-        recipient_id: request.user_id,
-        content: `❌ **Eingereichte Unterlagen abgelehnt**\n\n"${request.title}" wurde abgelehnt.\n\n**Grund:** ${reason}\n\nBitte reichen Sie die korrigierten Unterlagen erneut ein.`,
-        chat_type: 'direct',
-      });
 
       toast.success('Anfrage abgelehnt');
       await fetchRequests();
