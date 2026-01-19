@@ -22,7 +22,8 @@ import {
   MessageSquare,
   CreditCard,
   Zap,
-  Trash2
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -167,6 +168,7 @@ export function AdminSidebar() {
 
   const taxNavItems = [
     { title: "Steuererklärungen", url: "/admin/tax-processing", icon: FileText },
+    { title: "Fehlende Unterlagen", url: "/admin/missing-documents", icon: AlertCircle },
     { title: "Zur Übermittlung", url: "/admin/signed-returns", icon: PenLine },
     { title: "Veranlagungen", url: "/admin/definitive-tax-bills", icon: FileCheck },
   ];

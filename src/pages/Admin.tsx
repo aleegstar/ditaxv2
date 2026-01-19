@@ -20,6 +20,7 @@ import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import DefinitiveTaxBills from './admin/DefinitiveTaxBills';
 import DeletionFeedback from './admin/DeletionFeedback';
 import SignedTaxReturns from './admin/SignedTaxReturns';
+import MissingDocuments from './admin/MissingDocuments';
 import { UpdatePaymentStatusForm } from '@/components/admin/UpdatePaymentStatusForm';
 import { UserCard } from '@/components/ui/user-card';
 import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
@@ -234,6 +235,7 @@ const Admin: React.FC = () => {
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="tax-processing" element={<TaxReturnCreation />} />
+          <Route path="missing-documents" element={<MissingDocuments />} />
           <Route path="signed-returns" element={<SignedTaxReturns />} />
           <Route path="definitive-tax-bills" element={<DefinitiveTaxBills />} />
           <Route path="tickets" element={<TicketManagement />} />
