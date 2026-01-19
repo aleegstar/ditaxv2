@@ -1,11 +1,10 @@
 import React from 'react';
-import { ScanLine, Camera, FileText, Image } from 'lucide-react';
+import { FileText, Image } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface UploadActionSheetProps {
   open: boolean;
   onClose: () => void;
-  onScan: () => void;
   onPhoto: () => void;
   onFile: () => void;
 }
@@ -13,7 +12,6 @@ interface UploadActionSheetProps {
 const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
   open,
   onClose,
-  onScan,
   onPhoto,
   onFile,
 }) => {
@@ -22,11 +20,6 @@ const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
       icon: Image,
       label: 'Fotos hochladen',
       onClick: onPhoto,
-    },
-    {
-      icon: ScanLine,
-      label: 'Dokument scannen',
-      onClick: onScan,
     },
     {
       icon: FileText,
