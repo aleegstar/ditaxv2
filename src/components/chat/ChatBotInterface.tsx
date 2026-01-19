@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { ChatEmptyState } from './ChatEmptyState';
 import { ChatDeleteConfirmDialog } from './ChatDeleteConfirmDialog';
+import { MissingItemsPanel } from './MissingItemsPanel';
 import { useNavigate } from 'react-router-dom';
 interface ChatMessage {
   id: string;
@@ -397,6 +398,9 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           {isLoadingHistory ? <div className="flex items-center justify-center h-64 text-slate-500">
               Chat wird geladen...
             </div> : messages.length === 0 ? <ChatEmptyState userId={userId} /> : <div className="max-w-2xl mx-auto space-y-4">
+              {/* Missing Items Panel - Show if user has pending requests */}
+              <MissingItemsPanel userId={userId} onSubmitted={loadChatHistory} />
+              
               {/* Time Divider */}
               <div className="flex justify-center mb-4">
                 <span className="text-[10px] font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
