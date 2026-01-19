@@ -748,6 +748,124 @@ export type Database = {
           },
         ]
       }
+      missing_item_requests: {
+        Row: {
+          admin_id: string
+          created_at: string
+          description: string | null
+          id: string
+          last_reminder_at: string | null
+          reminder_count: number
+          request_type: string
+          status: string
+          tax_return_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          reminder_count?: number
+          request_type: string
+          status?: string
+          tax_return_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          reminder_count?: number
+          request_type?: string
+          status?: string
+          tax_return_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missing_item_requests_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_requests_tax_return_id_fkey"
+            columns: ["tax_return_id"]
+            isOneToOne: false
+            referencedRelation: "tax_returns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missing_item_responses: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          request_id: string
+          response_type: string
+          text_content: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          request_id: string
+          response_type: string
+          text_content?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          request_id?: string
+          response_type?: string
+          text_content?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missing_item_responses_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "missing_item_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_responses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_events: {
         Row: {
           amount: number | null
