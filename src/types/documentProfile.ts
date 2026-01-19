@@ -129,7 +129,7 @@ export interface KeywordSignals {
   /** Labels of matched keywords (for display, not raw text) */
   matchedLabels?: string[];
   /** Source of keyword detection */
-  source?: 'pdf-text' | 'native-ocr' | 'tesseract-ocr' | 'none';
+  source?: 'pdf-text' | 'native-ocr' | 'tesseract-ocr' | 'cloud-ocr' | 'none';
 }
 
 /**
