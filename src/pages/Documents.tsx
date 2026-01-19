@@ -138,6 +138,8 @@ const DocumentsContent: React.FC<{
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [uploaderKey, setUploaderKey] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const galleryInputRef = React.useRef<HTMLInputElement>(null);
+  const scanInputRef = React.useRef<HTMLInputElement>(null);
   const [hasFilesInUploader, setHasFilesInUploader] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
@@ -149,7 +151,6 @@ const DocumentsContent: React.FC<{
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'type'>('date_desc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showUploadSheet, setShowUploadSheet] = useState(false);
-  const cameraInputRef = React.useRef<HTMLInputElement>(null);
   const {
     toast
   } = useToast();
@@ -395,15 +396,6 @@ const DocumentsContent: React.FC<{
 
   // Handle file input change for direct upload
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      uploadFilesDirectly(e.target.files);
-      // Reset input so the same file can be selected again
-      e.target.value = '';
-    }
-  };
-
-  // Handle camera input change for direct upload
-  const handleCameraInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       uploadFilesDirectly(e.target.files);
       // Reset input so the same file can be selected again
@@ -661,8 +653,12 @@ const DocumentsContent: React.FC<{
         </main>
 
         {/* Hidden File Inputs - Direct upload without confirmation */}
-        <input ref={fileInputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={handleFileInputChange} />
-        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleCameraInputChange} />
+        {/* Galerie/Fotos - ohne capture Attribut */}
+        <input ref={galleryInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileInputChange} />
+        {/* Dokument scannen - mit capture="environment" für Kamera */}
+        <input ref={scanInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileInputChange} />
+        {/* Dateien (PDF, Docs) - ohne capture, spezifische Dateitypen */}
+        <input ref={fileInputRef} type="file" accept="application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
         {/* Floating Upload Button - only show if not locked */}
         {!isLocked && (
@@ -681,11 +677,13 @@ const DocumentsContent: React.FC<{
         )}
 
         {/* Upload Action Sheet */}
-        <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onPhoto={() => {
-        cameraInputRef.current?.click();
-      }} onFile={() => {
-        fileInputRef.current?.click();
-      }} />
+        <UploadActionSheet 
+          open={showUploadSheet} 
+          onClose={() => setShowUploadSheet(false)} 
+          onPhoto={() => galleryInputRef.current?.click()}
+          onScan={() => scanInputRef.current?.click()} 
+          onFile={() => fileInputRef.current?.click()} 
+        />
 
         
 
