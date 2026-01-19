@@ -37,6 +37,7 @@ interface SignedTaxReturn {
   user_first_name: string | null;
   user_last_name: string | null;
   user_avatar_url: string | null;
+  adressnummer: string | null;
 }
 
 type FilterStatus = 'all' | 'ready' | 'submitted' | 'completed';
@@ -107,10 +108,28 @@ const SignedTaxReturns: React.FC = () => {
         console.error('Error fetching profiles:', profilesError);
       }
 
+      // Fetch adressnummer from form_data for each user
+      const { data: formDataRecords, error: formDataError } = await supabase
+        .from('form_data')
+        .select('user_id, data, tax_year')
+        .in('user_id', userIds)
+        .eq('form_type', 'tax_form');
+
+      if (formDataError) {
+        console.error('Error fetching form data:', formDataError);
+      }
+
       // Combine data
       const combined: SignedTaxReturn[] = signatures.map(sig => {
         const ctr = completedReturns?.find(c => c.id === sig.completed_tax_return_id);
         const profile = profiles?.find(p => p.id === sig.user_id);
+        
+        // Find adressnummer for this user and tax year
+        const formData = formDataRecords?.find(
+          fd => fd.user_id === sig.user_id && fd.tax_year === sig.tax_year
+        );
+        const data = formData?.data as Record<string, unknown> | undefined;
+        const adressnummer = (data?.adressnummer as string) || null;
 
         return {
           id: sig.id,
@@ -127,6 +146,7 @@ const SignedTaxReturns: React.FC = () => {
           user_first_name: profile?.first_name || null,
           user_last_name: profile?.last_name || null,
           user_avatar_url: profile?.avatar_url || null,
+          adressnummer,
         };
       });
 
@@ -212,7 +232,7 @@ const SignedTaxReturns: React.FC = () => {
 
     try {
       const { data, error } = await supabase.storage
-        .from('tax-documents')
+        .from('completed-tax-returns')
         .createSignedUrl(signedPdfPath, 3600);
 
       if (error) throw error;
@@ -370,6 +390,7 @@ const SignedTaxReturns: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Benutzer</TableHead>
+                  <TableHead>Adressnr.</TableHead>
                   <TableHead>Steuerjahr</TableHead>
                   <TableHead>Unterschrieben am</TableHead>
                   <TableHead>Status</TableHead>
@@ -398,6 +419,15 @@ const SignedTaxReturns: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {item.adressnummer ? (
+                        <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
+                          {item.adressnummer}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{item.tax_year}</Badge>
