@@ -20,6 +20,8 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
+import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
+import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -64,6 +66,10 @@ const UserTaxReturns = () => {
   const {
     unreadCount
   } = useUnreadMessages();
+  const {
+    pendingDocuments,
+    pendingInformation
+  } = usePendingMissingItemsCount(userId);
   useEffect(() => {
     if (authLoading) return;
     if (!isValid || !userId) {
@@ -297,6 +303,12 @@ const UserTaxReturns = () => {
             </h1>
           </div>
         </section>
+
+        {/* Missing Items Alert */}
+        <MissingItemsAlert 
+          pendingDocuments={pendingDocuments} 
+          pendingInformation={pendingInformation} 
+        />
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
