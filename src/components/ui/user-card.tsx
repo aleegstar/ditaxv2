@@ -8,6 +8,7 @@ interface UserCardProps {
   lastName: string | null;
   email: string | null;
   taxReturnsCount: number;
+  adressnummer?: string;
 }
 
 export function UserCard({
@@ -15,7 +16,8 @@ export function UserCard({
   firstName,
   lastName,
   email,
-  taxReturnsCount
+  taxReturnsCount,
+  adressnummer
 }: UserCardProps) {
   const navigate = useNavigate();
 
@@ -43,8 +45,13 @@ export function UserCard({
           </Badge>
         </div>
 
-        {/* Tax Returns Count - Top Right */}
-        <div className="absolute top-4 right-4 z-10">
+        {/* Tax Returns Count & Adressnummer - Top Right */}
+        <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-1">
+          {adressnummer && (
+            <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
+              Nr. {adressnummer}
+            </span>
+          )}
           <span className="text-sm text-gray-600 font-medium">
             {taxReturnsCount} Steuererklärungen
           </span>

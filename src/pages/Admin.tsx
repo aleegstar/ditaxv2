@@ -36,6 +36,7 @@ interface AdminUser {
   date_of_birth: string | null;
   privacy_preferences: any;
   updated_at: string | null;
+  adressnummer?: string;
   taxReturns?: Array<{
     user_id: string;
     tax_year: string;
@@ -157,11 +158,34 @@ const Admin: React.FC = () => {
         console.error('⚠️ Admin: Error fetching tax returns (non-critical):', taxReturnsError);
       }
 
+      // Fetch adressnummer from form_data (contactInfo)
+      const { data: formDataEntries, error: formDataError } = await supabase
+        .from('form_data')
+        .select('user_id, data')
+        .eq('form_type', 'contactInfo');
+
+      if (formDataError) {
+        console.error('⚠️ Admin: Error fetching form data (non-critical):', formDataError);
+      }
+
+      // Build adressnummer map
+      const adressnummerMap = new Map<string, string>();
+      formDataEntries?.forEach(entry => {
+        const data = entry.data as Record<string, any>;
+        const adressnummer = data?.adressnummer;
+        if (adressnummer && entry.user_id) {
+          adressnummerMap.set(entry.user_id, adressnummer);
+        }
+      });
+
+      console.log('📋 Admin: Adressnummer map built with', adressnummerMap.size, 'entries');
+
       // Combine data
       const usersWithTaxReturns = profiles?.map(user => {
         const userTaxReturns = taxReturnsData?.filter(tr => tr.user_id === user.id) || [];
         return {
           ...user,
+          adressnummer: adressnummerMap.get(user.id),
           taxReturns: userTaxReturns
         };
       }) || [];
@@ -260,6 +284,7 @@ const Admin: React.FC = () => {
                       lastName={user.last_name}
                       email={user.email}
                       taxReturnsCount={user.taxReturns?.length || 0}
+                      adressnummer={user.adressnummer}
                     />
                   ))}
                 </div>

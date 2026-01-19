@@ -512,9 +512,16 @@ const UserDetail: React.FC = () => {
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight">
-                    {user.first_name} {user.last_name}
-                  </h1>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-3xl font-bold tracking-tight">
+                      {user.first_name} {user.last_name}
+                    </h1>
+                    {transformedUser.formData?.contactInfo?.adressnummer && (
+                      <span className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                        Nr. {transformedUser.formData.contactInfo.adressnummer}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-muted-foreground text-lg">
                     {user.email || 'Keine E-Mail verfügbar'}
                   </p>
