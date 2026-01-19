@@ -10,6 +10,7 @@
  */
 
 import { Capacitor } from '@capacitor/core';
+import { isDespiaEnvironment } from '@/utils/platform';
 
 // Dynamic import to avoid errors when not on native
 let OcrModule: any = null;
@@ -18,6 +19,7 @@ class NativeOcrService {
   private static instance: NativeOcrService;
   private initialized: boolean = false;
   private available: boolean = false;
+  private useDespia: boolean = false;
 
   private constructor() {}
 
@@ -39,7 +41,25 @@ class NativeOcrService {
 
     this.initialized = true;
 
-    // Only available on native platforms
+    // Check for Despia environment first (WebView with native bridge)
+    if (isDespiaEnvironment()) {
+      console.log('[NativeOCR] Despia environment detected');
+      
+      // Check if Despia has OCR capability
+      if (typeof (window as any).despia?.ocr?.recognizeText === 'function') {
+        console.log('[NativeOCR] Using Despia OCR');
+        this.useDespia = true;
+        this.available = true;
+        return true;
+      }
+      
+      // Despia without OCR - still mark as mobile context
+      console.log('[NativeOCR] Despia without OCR capability - will skip OCR');
+      this.available = false;
+      return false;
+    }
+
+    // Only available on native platforms (Capacitor)
     if (!Capacitor.isNativePlatform()) {
       console.log('[NativeOCR] Not available - running in browser');
       this.available = false;
@@ -50,7 +70,7 @@ class NativeOcrService {
       // Dynamic import to avoid bundling issues
       OcrModule = await import('@capacitor-community/image-to-text');
       this.available = true;
-      console.log('[NativeOCR] Initialized successfully');
+      console.log('[NativeOCR] Initialized with Capacitor plugin');
       return true;
     } catch (error) {
       console.log('[NativeOCR] Plugin not available:', error);
@@ -79,36 +99,79 @@ class NativeOcrService {
    * @returns Array of detected text strings (not stored, only for matching)
    */
   async detectTextFromFile(file: File): Promise<string[]> {
-    if (!this.available || !OcrModule) {
+    if (!this.available) {
       console.log('[NativeOCR] Not available for text detection');
       return [];
     }
 
     try {
-      // Convert file to base64 data URL
-      const dataUrl = await this.fileToDataUrl(file);
-      
-      // Use the OCR plugin
-      const result = await OcrModule.Ocr.detectText({ 
-        filename: dataUrl 
-      });
-
-      if (!result || !result.textDetections) {
-        console.log('[NativeOCR] No text detected');
-        return [];
+      // Use Despia OCR if available
+      if (this.useDespia) {
+        return await this.detectTextWithDespia(file);
       }
 
-      // Extract text strings (without storing raw content)
-      const texts = result.textDetections
-        .map((detection: any) => detection.text)
-        .filter((text: string) => text && text.trim().length > 0);
+      // Use Capacitor OCR plugin
+      if (OcrModule) {
+        return await this.detectTextWithCapacitor(file);
+      }
 
-      console.log(`[NativeOCR] Detected ${texts.length} text blocks`);
-      return texts;
+      console.log('[NativeOCR] No OCR method available');
+      return [];
     } catch (error) {
       console.error('[NativeOCR] Detection failed:', error);
       return [];
     }
+  }
+
+  /**
+   * Detect text using Despia native OCR
+   */
+  private async detectTextWithDespia(file: File): Promise<string[]> {
+    try {
+      const dataUrl = await this.fileToDataUrl(file);
+      
+      console.log('[NativeOCR] Calling Despia OCR...');
+      const result = await (window as any).despia.ocr.recognizeText(dataUrl);
+      
+      if (!result || !result.text) {
+        console.log('[NativeOCR] Despia: No text detected');
+        return [];
+      }
+      
+      // Split result into lines
+      const texts = result.text
+        .split('\n')
+        .filter((text: string) => text && text.trim().length > 0);
+      
+      console.log(`[NativeOCR] Despia: Detected ${texts.length} text blocks`);
+      return texts;
+    } catch (error) {
+      console.error('[NativeOCR] Despia OCR failed:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Detect text using Capacitor OCR plugin
+   */
+  private async detectTextWithCapacitor(file: File): Promise<string[]> {
+    const dataUrl = await this.fileToDataUrl(file);
+    
+    const result = await OcrModule.Ocr.detectText({ 
+      filename: dataUrl 
+    });
+
+    if (!result || !result.textDetections) {
+      console.log('[NativeOCR] Capacitor: No text detected');
+      return [];
+    }
+
+    const texts = result.textDetections
+      .map((detection: any) => detection.text)
+      .filter((text: string) => text && text.trim().length > 0);
+
+    console.log(`[NativeOCR] Capacitor: Detected ${texts.length} text blocks`);
+    return texts;
   }
 
   /**
