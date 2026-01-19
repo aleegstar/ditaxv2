@@ -9,7 +9,7 @@ import { useFormContext, FormProvider } from '@/contexts';
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
 import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
-import CameraCapture from '@/components/documents/CameraCapture';
+
 import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { de } from 'date-fns/locale';
@@ -132,7 +132,7 @@ const DocumentsContent: React.FC<{
 }) => {
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCamera, setShowCamera] = useState(false);
+  
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const [completedYears, setCompletedYears] = useState<string[]>([]);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
@@ -301,12 +301,6 @@ const DocumentsContent: React.FC<{
       onYearChange(available[0]);
     }
   }, [completedYears, selectedYear, onYearChange, allYears]);
-  const handleCameraCapture = async (blob: Blob) => {
-    setShowCamera(false);
-    // Document is already uploaded by CameraCapture component
-    // Use soft reload (no spinner) to avoid flicker
-    loadDocuments(false);
-  };
 
   // Direct upload function - uploads files immediately without confirmation step
   const uploadFilesDirectly = async (files: FileList | File[]) => {
@@ -687,15 +681,13 @@ const DocumentsContent: React.FC<{
         )}
 
         {/* Upload Action Sheet */}
-        <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onScan={() => {
-        setShowCamera(true);
-      }} onPhoto={() => {
+        <UploadActionSheet open={showUploadSheet} onClose={() => setShowUploadSheet(false)} onPhoto={() => {
         cameraInputRef.current?.click();
       }} onFile={() => {
         fileInputRef.current?.click();
       }} />
 
-        <CameraCapture open={showCamera} onClose={() => setShowCamera(false)} onCapture={handleCameraCapture} taxYear={selectedYear} />
+        
 
         <DocumentActionSheet document={selectedDocument} open={showActionSheet} onClose={() => {
         setShowActionSheet(false);
