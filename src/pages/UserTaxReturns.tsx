@@ -61,7 +61,9 @@ const UserTaxReturns = () => {
   const {
     forceTour
   } = useOnboardingTour();
-  const { unreadCount } = useUnreadMessages();
+  const {
+    unreadCount
+  } = useUnreadMessages();
   useEffect(() => {
     if (authLoading) return;
     if (!isValid || !userId) {
@@ -71,7 +73,6 @@ const UserTaxReturns = () => {
   }, [userId, isValid, authLoading, navigate]);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [shouldRedirectToWelcome, setShouldRedirectToWelcome] = useState(false);
-  
   useEffect(() => {
     if (!userId || authLoading) return;
     const checkOnboarding = async () => {
@@ -85,11 +86,13 @@ const UserTaxReturns = () => {
     };
     checkOnboarding();
   }, [userId, authLoading]);
-  
+
   // Redirect to welcome after state is set (prevents flash)
   useEffect(() => {
     if (shouldRedirectToWelcome && onboardingChecked) {
-      navigate('/welcome', { replace: true });
+      navigate('/welcome', {
+        replace: true
+      });
     }
   }, [shouldRedirectToWelcome, onboardingChecked, navigate]);
   useEffect(() => {
@@ -130,7 +133,6 @@ const UserTaxReturns = () => {
       return () => clearTimeout(timer);
     }
   }, [unsignedTaxReturn, isReady, userProfile]);
-
   const handleDeleteTaxYear = async (year: string) => {
     if (!userId) return;
     setIsDeleting(true);
@@ -145,12 +147,12 @@ const UserTaxReturns = () => {
       await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year);
       await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year);
       await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year);
-      
+
       // Delete the tax return
-      const { error } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
-      
+      const {
+        error
+      } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
       if (error) throw error;
-      
       toast.success(`Steuererklärung ${year} wurde gelöscht`);
       await refetch();
     } catch (error) {
@@ -251,13 +253,12 @@ const UserTaxReturns = () => {
   };
   const inProgressYears = availableYears.filter(year => !isCompleted(year));
   const completedYears = availableYears.filter(year => isCompleted(year));
-  
+
   // Split in-progress years into unpaid and paid (processing)
   const unpaidYears = inProgressYears.filter(year => {
     const taxReturn = getExistingReturn(year);
     return taxReturn?.payment_status !== 'paid';
   });
-  
   const paidInProgressYears = inProgressYears.filter(year => {
     const taxReturn = getExistingReturn(year);
     return taxReturn?.payment_status === 'paid';
@@ -282,10 +283,7 @@ const UserTaxReturns = () => {
           </div>
 
           {/* Profile with Notifications */}
-          <ProfileWithNotifications
-            avatarUrl={userProfile?.avatar_url}
-            firstName={userProfile?.first_name}
-          />
+          <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
         </header>
 
         {/* Greeting Section */}
@@ -317,10 +315,10 @@ const UserTaxReturns = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={e => {
-                        e.stopPropagation();
-                        setYearToDelete(year);
-                        setDeleteDialogOpen(true);
-                      }} className="text-red-600 hover:text-red-700">
+                    e.stopPropagation();
+                    setYearToDelete(year);
+                    setDeleteDialogOpen(true);
+                  }} className="text-red-600 hover:text-red-700">
                         <Trash2 className="mr-2 h-4 w-4" />
                         Löschen
                       </DropdownMenuItem>
@@ -379,7 +377,6 @@ const UserTaxReturns = () => {
           {paidInProgressYears.map(year => {
           const taxReturn = getExistingReturn(year);
           const isExpress = taxReturn?.express_service;
-          
           return <article key={year} onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
                 {/* Top Image/Visual Area - Amber/Orange Gradient */}
                 <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
@@ -409,22 +406,16 @@ const UserTaxReturns = () => {
                   {/* Bottom Action Row */}
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-2">
-                      {isExpress ? (
-                        <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
+                      {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                           <span>Express</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
+                        </div> : <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
                           <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
                           <span>Standard</span>
-                        </div>
-                      )}
-                      {!isExpress && (
-                        <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
+                        </div>}
+                      {!isExpress && <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
                           Upgrade möglich
-                        </span>
-                      )}
+                        </span>}
                     </div>
 
                     <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
@@ -442,7 +433,6 @@ const UserTaxReturns = () => {
           const completedReturn = completedTaxReturns?.[year];
           const isSigned = completedReturn?.signature_status === 'signed';
           const needsSignature = completedReturn && !isSigned;
-          
           return <article key={year} onClick={() => {
             if (completedReturn?.id) {
               navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
@@ -452,26 +442,18 @@ const UserTaxReturns = () => {
                   <span className="text-7xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${
-                    needsSignature 
-                      ? 'bg-amber-50/90 ring-1 ring-amber-200' 
-                      : 'bg-white/90'
-                  }`}>
-                    {needsSignature ? (
-                      <>
+                  <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50/90 ring-1 ring-amber-200' : 'bg-white/90'}`}>
+                    {needsSignature ? <>
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
                         <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
                           Signatur ausstehend
                         </span>
-                      </>
-                    ) : (
-                      <>
+                      </> : <>
                         <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
                         <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
                           Fertig
                         </span>
-                      </>
-                    )}
+                      </>}
                   </div>
                 </div>
 
@@ -480,44 +462,31 @@ const UserTaxReturns = () => {
                     <h2 className={`text-xl font-medium tracking-tight font-jakarta ${needsSignature ? 'text-gray-700' : 'text-gray-400'}`}>
                       Steuererklärung
                     </h2>
-                    {isSigned && (
-                      <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
+                    {isSigned && <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
                         <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                      </div>
-                    )}
+                      </div>}
                   </div>
 
                   <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-gray-400'}`}>
-                    {needsSignature 
-                      ? 'Bitte unterschreibe deine Steuererklärung.'
-                      : `Bescheid vom ${existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        }) : '–'} liegt vor.`
-                    }
+                    {needsSignature ? 'Bitte unterschreibe deine Steuererklärung.' : `Bescheid vom ${existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }) : '–'} liegt vor.`}
                   </p>
 
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-4">
-                      {needsSignature ? (
-                        <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
+                      {needsSignature ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                           <span>Aktion nötig</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-gray-400 font-medium text-sm font-jakarta">
+                        </div> : <div className="flex items-center gap-1.5 text-gray-400 font-medium text-sm font-jakarta">
                           <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
                           <span>100%</span>
-                        </div>
-                      )}
+                        </div>}
                     </div>
 
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${
-                      needsSignature 
-                        ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' 
-                        : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'
-                    }`}>
+                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'}`}>
                       {needsSignature ? 'Unterschreiben' : 'Details'}
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
@@ -540,11 +509,11 @@ const UserTaxReturns = () => {
               <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="block text-xs font-semibold text-white font-jakarta uppercase tracking-wide">
-                Upload
+              <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
+                Dokumente
               </span>
               <span className="block text-[10px] text-white/80 font-medium">
-                Dokumente
+                hochladen
               </span>
             </div>
           </button>
@@ -554,9 +523,7 @@ const UserTaxReturns = () => {
           {/* Inbox */}
           <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="p-3 text-gray-500 rounded-full hover:text-gray-900 hover:bg-gray-100 transition-colors relative">
             <Inbox className="w-6 h-6" strokeWidth={1.5} />
-            {unreadCount > 0 && (
-              <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
-            )}
+            {unreadCount > 0 && <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>}
           </button>
 
           {/* Menu */}
@@ -581,17 +548,10 @@ const UserTaxReturns = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
-            <AlertDialogCancel 
-              disabled={isDeleting}
-              className="w-full bg-white hover:bg-gray-50 border border-gray-200 font-medium h-12 rounded-full text-gray-900"
-            >
+            <AlertDialogCancel disabled={isDeleting} className="w-full bg-white hover:bg-gray-50 border border-gray-200 font-medium h-12 rounded-full text-gray-900">
               Abbrechen
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} 
-              disabled={isDeleting}
-              className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium"
-            >
+            <AlertDialogAction onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium">
               {isDeleting ? 'Wird gelöscht...' : 'Löschen'}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -599,28 +559,20 @@ const UserTaxReturns = () => {
       </AlertDialog>
 
       {/* Signature Dialog - auto-opens when signature is pending */}
-      {userProfile && unsignedTaxReturn && (
-        <SignatureDialog
-          open={signatureDialogOpen}
-          onOpenChange={setSignatureDialogOpen}
-          completedTaxReturn={{
-            id: unsignedTaxReturn.id,
-            tax_year: unsignedTaxReturn.tax_year,
-            file_name: unsignedTaxReturn.file_name,
-            file_path: unsignedTaxReturn.file_path
-          }}
-          userProfile={{
-            first_name: userProfile.first_name || '',
-            last_name: userProfile.last_name || '',
-            email: userProfile.email || '',
-            date_of_birth: userProfile.date_of_birth || undefined
-          }}
-          onSignatureComplete={() => {
-            refetch();
-            setSignatureDialogOpen(false);
-          }}
-        />
-      )}
+      {userProfile && unsignedTaxReturn && <SignatureDialog open={signatureDialogOpen} onOpenChange={setSignatureDialogOpen} completedTaxReturn={{
+      id: unsignedTaxReturn.id,
+      tax_year: unsignedTaxReturn.tax_year,
+      file_name: unsignedTaxReturn.file_name,
+      file_path: unsignedTaxReturn.file_path
+    }} userProfile={{
+      first_name: userProfile.first_name || '',
+      last_name: userProfile.last_name || '',
+      email: userProfile.email || '',
+      date_of_birth: userProfile.date_of_birth || undefined
+    }} onSignatureComplete={() => {
+      refetch();
+      setSignatureDialogOpen(false);
+    }} />}
     </div>;
 };
 export default UserTaxReturns;
