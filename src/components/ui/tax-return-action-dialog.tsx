@@ -20,6 +20,7 @@ interface TaxReturnActionDialogProps {
   definitiveTaxBill?: any;
   userId: string;
   onTaxBillUpload?: () => void;
+  isSigned?: boolean;
 }
 
 export const TaxReturnActionDialog = ({
@@ -31,7 +32,8 @@ export const TaxReturnActionDialog = ({
   completedTaxReturnId,
   definitiveTaxBill,
   userId,
-  onTaxBillUpload
+  onTaxBillUpload,
+  isSigned = false
 }: TaxReturnActionDialogProps) => {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -403,17 +405,19 @@ export const TaxReturnActionDialog = ({
               )}
             </div>
 
-            {/* Separator */}
-            <div className="border-t border-white/10" />
-
-            {/* Problem melden */}
-            <Button 
-              onClick={handleCreateTicket} 
-              className="w-full h-11 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 border border-orange-500/30 rounded-full shadow-sm font-medium flex items-center justify-center gap-2"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              Problem melden
-            </Button>
+            {/* Problem melden - nur vor Unterschrift */}
+            {!isSigned && (
+              <>
+                <div className="border-t border-white/10" />
+                <Button 
+                  onClick={handleCreateTicket} 
+                  className="w-full h-11 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 border border-orange-500/30 rounded-full shadow-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  Problem melden
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
