@@ -29,6 +29,7 @@ import LayoutAnalyzer from './LayoutAnalyzer';
 import NativeOcrService from './NativeOcrService';
 import TesseractOcrService from './TesseractOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
+import { isMobileAppContext } from '@/utils/platform';
 
 // Declare pdfjsLib type
 declare global {
@@ -104,13 +105,14 @@ class DocumentValidator {
     // For images: Use LOCAL OCR (Native on mobile, Tesseract.js in browser)
     // PRIVACY: All processing happens on-device, no data sent to cloud
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
-      // Check if Native OCR is available (= running on mobile)
+      // Check if Native OCR is available (= running on mobile with OCR support)
       if (this.nativeOcr.isAvailable()) {
-        // Mobile: Native OCR (ML Kit / Vision) - already 100% local
+        // Mobile: Native OCR (ML Kit / Vision / Despia) - already 100% local
         onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird lokal erkannt...' });
         keywordSignals = await this.detectKeywordsWithNativeOcr(file);
-      } else {
-        // Browser: Tesseract.js - 100% local, DSGVO-konform
+      } else if (!isMobileAppContext()) {
+        // Browser (Desktop only): Tesseract.js - 100% local, DSGVO-konform
+        // Do NOT use Tesseract.js on mobile/WebView (WASM issues)
         onProgress?.({ step: 'ocr', percent: 35, message: 'Text wird lokal erkannt...' });
         onProgress?.({ step: 'ocr', percent: 40, message: 'Alle Daten bleiben auf Ihrem Gerät' });
         
@@ -119,6 +121,9 @@ class DocumentValidator {
           const mappedPercent = 40 + Math.round(percent * 0.4);
           onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Text wird lokal erkannt...' });
         });
+      } else {
+        // Mobile context but no OCR available - skip OCR, user must confirm manually
+        console.log('[DocumentValidator] Mobile context without OCR capability - skipping OCR');
       }
       
       // Update progress after OCR
