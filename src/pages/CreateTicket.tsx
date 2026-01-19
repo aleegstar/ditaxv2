@@ -12,7 +12,60 @@ const CreateTicket = () => {
   const [description, setDescription] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingSignature, setIsCheckingSignature] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if tax return is already signed - if so, redirect
+  React.useEffect(() => {
+    const checkSignatureStatus = async () => {
+      if (!completedTaxReturnId) {
+        setIsCheckingSignature(false);
+        return;
+      }
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/auth');
+          return;
+        }
+
+        // Check completed_tax_returns for signature_status
+        const { data: taxReturn } = await supabase
+          .from('completed_tax_returns')
+          .select('signature_status')
+          .eq('id', completedTaxReturnId)
+          .eq('user_id', user.id)
+          .single();
+
+        // Also check tax_return_signatures table
+        const { data: signature } = await supabase
+          .from('tax_return_signatures')
+          .select('status')
+          .eq('completed_tax_return_id', completedTaxReturnId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const isSigned = taxReturn?.signature_status === 'signed' || signature?.status === 'signed';
+
+        if (isSigned) {
+          toast({
+            variant: "destructive",
+            title: "Ticket nicht möglich",
+            description: "Tickets können nur erstellt werden, bevor die Steuererklärung unterschrieben wurde."
+          });
+          navigate(-1);
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking signature status:', error);
+      } finally {
+        setIsCheckingSignature(false);
+      }
+    };
+
+    checkSignatureStatus();
+  }, [completedTaxReturnId, navigate]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -113,6 +166,14 @@ const CreateTicket = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (isCheckingSignature) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1D64FF]" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white text-slate-700 min-h-screen relative overflow-x-hidden">
