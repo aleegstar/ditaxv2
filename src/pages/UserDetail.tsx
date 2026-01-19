@@ -15,6 +15,7 @@ import UserTabs from '@/components/user-detail/UserTabs';
 import FormDataPdfDownloader from '@/components/user-detail/FormDataPdfDownloader';
 import DocumentsPdfDownloader from '@/components/user-detail/DocumentsPdfDownloader';
 import { CoverLetterDownloader } from '@/components/user-detail/CoverLetterDownloader';
+import { TaxReturnStatusChanger } from '@/components/user-detail/TaxReturnStatusChanger';
 import { defaultFormData } from '@/contexts/form/defaults';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
@@ -547,6 +548,16 @@ const UserDetail: React.FC = () => {
                   userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
                 />
               </div>
+            </div>
+            
+            {/* Status Changer for Admin */}
+            <div className="mt-4 pt-4 border-t">
+              <TaxReturnStatusChanger
+                userId={user.id}
+                taxYear={selectedYear}
+                currentStatus={taxReturns.find(tr => tr.tax_year === selectedYear)?.status || null}
+                onStatusChanged={fetchUserData}
+              />
             </div>
           </div>
 
