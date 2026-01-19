@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Download, FileIcon, Calendar } from 'lucide-react';
+import { ArrowLeft, Download, FileIcon, Calendar, AlertCircle } from 'lucide-react';
 import { SecurityService } from '@/services/SecurityService';
+import { CreateMissingItemRequestDialog } from '@/components/admin/CreateMissingItemRequestDialog';
 
 import UserInfoCard from '@/components/user-detail/UserInfoCard';
 import FormDataDisplay from '@/components/user-detail/FormDataDisplay';
@@ -80,6 +81,7 @@ const UserDetail: React.FC = () => {
   const [taxReturns, setTaxReturns] = useState<any[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>(urlYear || new Date().getFullYear().toString());
   const [loading, setLoading] = useState(true);
+  const [missingItemDialogOpen, setMissingItemDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchUserData = async () => {
@@ -547,6 +549,14 @@ const UserDetail: React.FC = () => {
                   userId={user.id}
                   userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
                 />
+                <Button
+                  onClick={() => setMissingItemDialogOpen(true)}
+                  variant="outline"
+                  className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  Fehlende Unterlagen anfordern
+                </Button>
               </div>
             </div>
             
@@ -632,6 +642,20 @@ const UserDetail: React.FC = () => {
             onCompletedTaxReturnsRefresh={fetchUserData}
           />
         </div>
+
+        {/* Missing Item Request Dialog */}
+        <CreateMissingItemRequestDialog
+          open={missingItemDialogOpen}
+          onOpenChange={setMissingItemDialogOpen}
+          userId={user.id}
+          taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear)?.id}
+          onSuccess={() => {
+            toast({
+              title: "Anfrage erstellt",
+              description: "Die Anfrage für fehlende Unterlagen wurde erfolgreich erstellt."
+            });
+          }}
+        />
       </main>
     </div>
   );
