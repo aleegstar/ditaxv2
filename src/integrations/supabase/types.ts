@@ -1855,6 +1855,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_old_data: { Args: never; Returns: Json }
       cleanup_security_logs: { Args: never; Returns: number }
       delete_auth_user_admin: {
         Args: { target_user_id: string }
