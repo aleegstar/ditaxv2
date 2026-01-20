@@ -28,7 +28,7 @@ export const MissingItemsAlert: React.FC<MissingItemsAlertProps> = ({
 
   return (
     <button
-      onClick={() => navigate('/chat')}
+      onClick={() => navigate('/missing-items')}
       className="w-full mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-center gap-4 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group"
     >
       {/* Icon */}

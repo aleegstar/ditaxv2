@@ -36,6 +36,7 @@ import DocumentUploadPage from "./pages/DocumentUploadPage";
 import Documents from "./pages/Documents";
 import DocumentsUpload from "./pages/DocumentsUpload";
 import Tickets from "./pages/Tickets";
+import MissingItems from "./pages/MissingItems";
 import Welcome from "./pages/Welcome";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import CreateTicket from "./pages/CreateTicket";
@@ -203,6 +204,11 @@ const AuthenticatedApp = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/missing-items" element={
+                  <ProtectedRoute>
+                    <MissingItems />
+                  </ProtectedRoute>
+                } />
                 <Route path="/help" element={<Help />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/roadmap" element={<Roadmap />} />
