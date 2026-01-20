@@ -23,7 +23,8 @@ import {
   CreditCard,
   Zap,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  MessageSquareHeart
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -183,6 +184,7 @@ export function AdminSidebar() {
     { title: "Benutzer", url: "/admin/users", icon: Users },
     { title: "Vorlagen", url: "/admin/templates", icon: FolderCog },
     { title: "Zahlungen", url: "/admin/payment-status", icon: CreditCard },
+    { title: "User-Feedback", url: "/admin/user-feedback", icon: MessageSquareHeart },
     { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: Trash2 },
   ];
 
