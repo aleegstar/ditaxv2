@@ -11,7 +11,10 @@
  * - Native OCR is not available
  */
 
-import { createWorker, Worker, OEM } from 'tesseract.js';
+import { createWorker, Worker } from 'tesseract.js';
+
+// OEM constants from tesseract.js - using direct values for compatibility
+const OEM_LSTM_ONLY = 1;
 
 class TesseractOcrService {
   private static instance: TesseractOcrService;
@@ -61,17 +64,24 @@ class TesseractOcrService {
   private async doInitialize(): Promise<boolean> {
     try {
       console.log('[TesseractOCR] Initializing worker with German language...');
-      console.log('[TesseractOCR] Using OEM.LSTM_ONLY:', OEM.LSTM_ONLY);
+      console.log('[TesseractOCR] Environment check:', {
+        hasWindow: typeof window !== 'undefined',
+        hasDocument: typeof document !== 'undefined',
+        userAgent: navigator?.userAgent?.substring(0, 50) || 'unknown'
+      });
       
       // Create worker with German language
-      // Using Tesseract.js v7 API with explicit OEM constant
-      this.worker = await createWorker('deu', OEM.LSTM_ONLY, {
+      // Using Tesseract.js v7 API with numeric OEM value (1 = LSTM_ONLY)
+      console.log('[TesseractOCR] Creating worker with OEM:', OEM_LSTM_ONLY);
+      
+      this.worker = await createWorker('deu', OEM_LSTM_ONLY, {
         logger: (m) => {
           // Log all status updates for debugging
-          console.log(`[TesseractOCR] Status: ${m.status}`, m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '');
+          const progress = m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '';
+          console.log(`[TesseractOCR] Status: ${m.status} ${progress}`);
         },
         errorHandler: (err) => {
-          console.error('[TesseractOCR] Worker error:', err);
+          console.error('[TesseractOCR] Worker error handler:', err);
         }
       });
 
@@ -81,14 +91,22 @@ class TesseractOcrService {
       
       console.log('[TesseractOCR] Worker initialized successfully');
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       // Detailed error logging for diagnosis
-      console.error('[TesseractOCR] Failed to initialize:', {
+      const errorInfo = {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
         errorStack: error instanceof Error ? error.stack : undefined,
-        errorType: error instanceof Error ? error.constructor.name : typeof error
-      });
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        errorKeys: error && typeof error === 'object' ? Object.keys(error) : []
+      };
+      console.error('[TesseractOCR] Failed to initialize:', errorInfo);
+      
+      // Try to extract more info if it's an object
+      if (error && typeof error === 'object') {
+        console.error('[TesseractOCR] Error object details:', JSON.stringify(error, null, 2));
+      }
+      
       this.initialized = false;
       this.initializing = null;
       this.worker = null;
