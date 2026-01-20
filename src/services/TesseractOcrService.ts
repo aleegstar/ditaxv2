@@ -72,11 +72,12 @@ class TesseractOcrService {
       
       // Create worker with German language
       // Using Tesseract.js v7 API with numeric OEM value (1 = LSTM_ONLY)
+      // workerBlobURL: false fixes CSP issues in some environments
       console.log('[TesseractOCR] Creating worker with OEM:', OEM_LSTM_ONLY);
       
       this.worker = await createWorker('deu', OEM_LSTM_ONLY, {
+        workerBlobURL: false, // Prevents CSP blob URL issues
         logger: (m) => {
-          // Log all status updates for debugging
           const progress = m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '';
           console.log(`[TesseractOCR] Status: ${m.status} ${progress}`);
         },
