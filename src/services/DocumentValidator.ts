@@ -160,6 +160,12 @@ class DocumentValidator {
           const mappedPercent = 40 + Math.round(percent * 0.4);
           onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Text wird lokal erkannt...' });
         });
+        
+        // If Tesseract failed to initialize, show fallback message
+        if (!keywordSignals?.available) {
+          console.log('[DocumentValidator] Tesseract OCR fehlgeschlagen, Fallback');
+          onProgress?.({ step: 'ocr', percent: 80, message: 'Texterkennung nicht möglich - manuelle Prüfung' });
+        }
       } else if (this.isCloudOcrReady()) {
         // Mobile context with Cloud OCR consent - use Cloud OCR
         // PRIVACY: User has explicitly consented to cloud processing
