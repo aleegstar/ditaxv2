@@ -30,7 +30,7 @@ import NativeOcrService from './NativeOcrService';
 import TesseractOcrService from './TesseractOcrService';
 import CloudOcrService from './CloudOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
-import { isMobileAppContext } from '@/utils/platform';
+import { isMobileAppContext, isDesktopBrowser } from '@/utils/platform';
 
 // Declare pdfjsLib type
 declare global {
@@ -133,14 +133,25 @@ class DocumentValidator {
     // FALLBACK: Cloud OCR on mobile with explicit user consent
     // PRIVACY: Local processing preferred, cloud only with opt-in
     if (!keywordSignals?.available && file.type.startsWith('image/')) {
+      // Debug logging for platform detection
+      const platformInfo = {
+        nativeOcrAvailable: this.nativeOcr.isAvailable(),
+        isMobileApp: isMobileAppContext(),
+        isDesktop: isDesktopBrowser(),
+        userAgent: navigator.userAgent.substring(0, 100)
+      };
+      console.log('[DocumentValidator] Platform check:', platformInfo);
+      
       // Check if Native OCR is available (= running on mobile with OCR support)
       if (this.nativeOcr.isAvailable()) {
         // Mobile: Native OCR (ML Kit / Vision / Despia) - 100% local
+        console.log('[DocumentValidator] Using Native OCR');
         onProgress?.({ step: 'ocr', percent: 50, message: 'Text wird lokal erkannt...' });
         keywordSignals = await this.detectKeywordsWithNativeOcr(file);
-      } else if (!isMobileAppContext()) {
-        // Browser (Desktop only): Tesseract.js - 100% local, DSGVO-konform
-        // Do NOT use Tesseract.js on mobile/WebView (WASM issues)
+      } else if (isDesktopBrowser() || !isMobileAppContext()) {
+        // Browser (Desktop): Tesseract.js - 100% local, DSGVO-konform
+        // Use explicit isDesktopBrowser() check as primary condition
+        console.log('[DocumentValidator] Using Tesseract.js (desktop browser)');
         onProgress?.({ step: 'ocr', percent: 35, message: 'Text wird lokal erkannt...' });
         onProgress?.({ step: 'ocr', percent: 40, message: 'Alle Daten bleiben auf Ihrem Gerät' });
         
@@ -152,6 +163,7 @@ class DocumentValidator {
       } else if (this.isCloudOcrReady()) {
         // Mobile context with Cloud OCR consent - use Cloud OCR
         // PRIVACY: User has explicitly consented to cloud processing
+        console.log('[DocumentValidator] Using Cloud OCR (with consent)');
         onProgress?.({ step: 'ocr', percent: 35, message: 'Cloud-OCR wird verwendet...' });
         onProgress?.({ step: 'ocr', percent: 40, message: 'Bild wird verschlüsselt übertragen' });
         
