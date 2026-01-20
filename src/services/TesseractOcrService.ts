@@ -11,7 +11,7 @@
  * - Native OCR is not available
  */
 
-import { createWorker, Worker } from 'tesseract.js';
+import { createWorker, Worker, OEM } from 'tesseract.js';
 
 class TesseractOcrService {
   private static instance: TesseractOcrService;
@@ -61,15 +61,17 @@ class TesseractOcrService {
   private async doInitialize(): Promise<boolean> {
     try {
       console.log('[TesseractOCR] Initializing worker with German language...');
+      console.log('[TesseractOCR] Using OEM.LSTM_ONLY:', OEM.LSTM_ONLY);
       
       // Create worker with German language
-      // Using Tesseract.js v7 API
-      this.worker = await createWorker('deu', 1, {
+      // Using Tesseract.js v7 API with explicit OEM constant
+      this.worker = await createWorker('deu', OEM.LSTM_ONLY, {
         logger: (m) => {
-          if (m.status === 'recognizing text') {
-            // Progress updates during recognition
-            console.log(`[TesseractOCR] Recognition progress: ${Math.round(m.progress * 100)}%`);
-          }
+          // Log all status updates for debugging
+          console.log(`[TesseractOCR] Status: ${m.status}`, m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '');
+        },
+        errorHandler: (err) => {
+          console.error('[TesseractOCR] Worker error:', err);
         }
       });
 
@@ -80,7 +82,13 @@ class TesseractOcrService {
       console.log('[TesseractOCR] Worker initialized successfully');
       return true;
     } catch (error) {
-      console.error('[TesseractOCR] Failed to initialize:', error);
+      // Detailed error logging for diagnosis
+      console.error('[TesseractOCR] Failed to initialize:', {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        errorType: error instanceof Error ? error.constructor.name : typeof error
+      });
       this.initialized = false;
       this.initializing = null;
       this.worker = null;
