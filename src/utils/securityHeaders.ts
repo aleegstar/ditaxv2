@@ -26,13 +26,14 @@ export const STRICT_TLS_HEADERS = {
 export class SecurityHeaders {
   private static readonly DEFAULT_CSP = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
     "img-src 'self' data: https: blob: https://*.supabase.co",
     "media-src 'self' https://ditax.ch",
-    "connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co https://api.openai.com",
+    "connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co https://api.openai.com https://cdn.jsdelivr.net https://tessdata.projectnaptha.com",
     "frame-src 'self' https://ditax.productlift.dev",
+    "worker-src 'self' blob: https://cdn.jsdelivr.net",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
