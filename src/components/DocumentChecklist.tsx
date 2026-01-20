@@ -379,10 +379,10 @@ const DocumentChecklist: React.FC = () => {
   }
   return <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center">
       {/* Header */}
-      <SubpageHeader title="Unterlagen" onBack={handleBack} className="w-full max-w-2xl" />
+      <SubpageHeader title="Unterlagen" onBack={handleBack} className="w-full max-w-4xl" />
 
       {/* Main Content */}
-      <main className="w-full max-w-2xl space-y-8 sm:py-12 sm:px-6 pt-8 px-4 pb-8">
+      <main className="w-full max-w-4xl space-y-8 sm:py-12 sm:px-6 pt-8 px-4 pb-8">
         {/* Progress Section */}
         {checklistItems.length > 0 && (() => {
         const requiredItems = checklistItems.filter(item => item.required);
