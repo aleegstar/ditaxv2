@@ -76,11 +76,9 @@ class TesseractOcrService {
       console.log('[TesseractOCR] Creating worker with OEM:', OEM_LSTM_ONLY);
       
       this.worker = await createWorker('deu', OEM_LSTM_ONLY, {
-        workerBlobURL: false, // Prevents CSP blob URL issues
-        // Do NOT set workerPath, corePath, or langPath - let Tesseract.js use defaults
-        // This allows automatic selection of the correct WASM file:
-        // - tesseract-core-simd-lstm.wasm.js for SIMD browsers
-        // - tesseract-core-lstm.wasm.js for non-SIMD browsers
+        workerBlobURL: true, // Must be true - cross-origin workers are blocked by browsers
+        // Let Tesseract.js use default CDN paths and auto-select the correct WASM file
+        // based on browser capabilities (SIMD support, etc.)
         logger: (m) => {
           const progress = m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '';
           console.log(`[TesseractOCR] Status: ${m.status} ${progress}`);
