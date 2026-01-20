@@ -38,7 +38,35 @@ export const isAndroidEnvironment = (): boolean => {
   return isAndroidNative() || isWebViewAndroidFallback();
 };
 
+// Check if we're definitely in a desktop browser (not mobile at all)
+export const isDesktopBrowser = (): boolean => {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return false;
+  }
+  
+  const ua = navigator.userAgent.toLowerCase();
+  
+  // Check for mobile indicators
+  const hasMobileIndicator = 
+    ua.includes('android') ||
+    ua.includes('iphone') ||
+    ua.includes('ipad') ||
+    ua.includes('ipod') ||
+    ua.includes('mobile') ||
+    ua.includes('webview') ||
+    ua.includes('wv');
+  
+  // If no mobile indicators, it's a desktop browser
+  return !hasMobileIndicator;
+};
+
 // Check if we're in a mobile app context (Despia, Capacitor, or WebView)
+// IMPORTANT: Desktop browsers should always return false here
 export const isMobileAppContext = (): boolean => {
+  // Explicit desktop browser check first - never treat desktop as mobile
+  if (isDesktopBrowser()) {
+    return false;
+  }
+  
   return Capacitor.isNativePlatform() || isDespiaEnvironment() || isWebViewAndroidFallback();
 };
