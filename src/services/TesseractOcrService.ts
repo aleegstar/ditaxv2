@@ -63,7 +63,7 @@ class TesseractOcrService {
 
   private async doInitialize(): Promise<boolean> {
     try {
-      console.log('[TesseractOCR] Initializing worker with German language...');
+      console.log('[TesseractOCR] Initializing worker with explicit CDN paths...');
       console.log('[TesseractOCR] Environment check:', {
         hasWindow: typeof window !== 'undefined',
         hasDocument: typeof document !== 'undefined',
@@ -72,11 +72,15 @@ class TesseractOcrService {
       
       // Create worker with German language
       // Using Tesseract.js v7 API with numeric OEM value (1 = LSTM_ONLY)
-      // workerBlobURL: false fixes CSP issues in some environments
+      // Explicit CDN paths ensure resources are loaded correctly
       console.log('[TesseractOCR] Creating worker with OEM:', OEM_LSTM_ONLY);
       
       this.worker = await createWorker('deu', OEM_LSTM_ONLY, {
         workerBlobURL: false, // Prevents CSP blob URL issues
+        // Explicit CDN paths for transparency and debugging
+        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/worker.min.js',
+        corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@7.0.0/tesseract-core.wasm.js',
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0_best_int',
         logger: (m) => {
           const progress = m.progress !== undefined ? `${Math.round(m.progress * 100)}%` : '';
           console.log(`[TesseractOCR] Status: ${m.status} ${progress}`);
