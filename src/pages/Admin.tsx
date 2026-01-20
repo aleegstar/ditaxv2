@@ -21,6 +21,7 @@ import DefinitiveTaxBills from './admin/DefinitiveTaxBills';
 import DeletionFeedback from './admin/DeletionFeedback';
 import SignedTaxReturns from './admin/SignedTaxReturns';
 import MissingDocuments from './admin/MissingDocuments';
+import UserFeedback from './admin/UserFeedback';
 import { UpdatePaymentStatusForm } from '@/components/admin/UpdatePaymentStatusForm';
 import { UserCard } from '@/components/ui/user-card';
 import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
@@ -316,6 +317,7 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="deletion-feedback" element={<DeletionFeedback />} />
+          <Route path="user-feedback" element={<UserFeedback />} />
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           </Routes>
         </div>
