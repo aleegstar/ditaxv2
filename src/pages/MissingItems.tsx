@@ -103,7 +103,7 @@ const MissingItems: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
           <button
             onClick={() => navigate('/')}
             className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-100 transition-colors"
@@ -117,7 +117,7 @@ const MissingItems: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {pendingRequests.length === 0 ? (
           /* Empty State */
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
