@@ -43,23 +43,29 @@ export const useAutoOpenChat = () => {
     const openChat = searchParams.get('openChat');
     const hasAutoOpened = localStorage.getItem('chatAutoOpened');
     
-    // Auto-open chat if:
-    // 1. URL parameter is present OR
-    // 2. User has unread messages and hasn't auto-opened today OR
-    // 3. User has pending missing item requests and hasn't auto-opened today
-    const hasUnreadOrPending = unreadCount > 0 || pendingMissingItems > 0;
+    // Determine if we should auto-open something
+    const hasUnreadMessages = unreadCount > 0;
+    const hasPendingItems = pendingMissingItems > 0;
+    
+    // For pending missing items, redirect to missing-items page (not chat)
+    // For unread messages only, redirect to chat
     const shouldAutoOpen = openChat === 'true' || 
-      (hasUnreadOrPending && !hasAutoOpened && window.location.pathname === '/');
+      ((hasUnreadMessages || hasPendingItems) && !hasAutoOpened && window.location.pathname === '/');
 
     if (shouldAutoOpen) {
-      console.log('Auto-opening chat due to unread messages, pending missing items, or URL parameter', {
+      console.log('Auto-opening due to unread messages, pending missing items, or URL parameter', {
         unreadCount,
         pendingMissingItems,
         openChat
       });
       
-      // Navigate to chat
-      navigate('/chat');
+      // Navigate to appropriate page
+      // Prioritize missing items page if there are pending requests
+      if (hasPendingItems) {
+        navigate('/missing-items');
+      } else {
+        navigate('/chat');
+      }
       
       // Remove URL parameter if present
       if (openChat === 'true') {
@@ -69,7 +75,7 @@ export const useAutoOpenChat = () => {
       }
       
       // Set flag to prevent multiple auto-opens in the same session
-      if (hasUnreadOrPending) {
+      if (hasUnreadMessages || hasPendingItems) {
         const today = new Date().toDateString();
         localStorage.setItem('chatAutoOpened', today);
       }
