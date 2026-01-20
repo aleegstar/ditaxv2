@@ -46,25 +46,34 @@ const handler = async (req: Request): Promise<Response> => {
         const listsData = await listsResponse.json();
         console.log('Available SendFox lists:', JSON.stringify(listsData, null, 2));
         
-        // Find the "Ditax Registrierte Benutzer" list
+        // Find the "Ditax Registrierte Benutzer" list - exact match first
         let targetListId = null;
         if (listsData.data && Array.isArray(listsData.data)) {
-          const targetList = listsData.data.find((list: any) => 
-            list.name && (
-              list.name.toLowerCase().includes('ditax registrierte benutzer') ||
-              list.name.toLowerCase().includes('registrierte benutzer') ||
-              list.name.toLowerCase().includes('ditax') ||
-              list.name.toLowerCase().includes('mailfluss nach registrierung')
-            )
+          // Priority 1: Exact match for "Ditax Registrierte Benutzer"
+          let targetList = listsData.data.find((list: any) => 
+            list.name && list.name.toLowerCase() === 'ditax registrierte benutzer'
           );
-          targetListId = targetList ? targetList.id : listsData.data[0]?.id; // Fallback to first list
+          
+          // Priority 2: Contains "registrierte benutzer" (but not just "ditax")
+          if (!targetList) {
+            targetList = listsData.data.find((list: any) => 
+              list.name && list.name.toLowerCase().includes('registrierte benutzer')
+            );
+          }
+          
+          if (targetList) {
+            targetListId = targetList.id;
+            console.log(`Found target list: "${targetList.name}" (ID: ${targetListId})`);
+          } else {
+            console.warn('Target list "Ditax Registrierte Benutzer" not found. Available lists:', 
+              listsData.data.map((l: any) => `${l.name} (ID: ${l.id})`).join(', '));
+          }
         }
         
+        // Hardcoded fallback to correct list ID
         if (!targetListId) {
-          console.error('No suitable SendFox list found, using default list ID 1');
-          targetListId = 1;
-        } else {
-          console.log(`Using SendFox list ID: ${targetListId}`);
+          targetListId = 539077; // "Ditax Registrierte Benutzer" list ID
+          console.log(`Using hardcoded fallback list ID: ${targetListId}`);
         }
         
         // Add contact to the identified list
