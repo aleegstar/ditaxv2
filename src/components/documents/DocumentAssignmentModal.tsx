@@ -11,6 +11,7 @@ import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 import { Progress } from '@/components/ui/progress';
+import { isMobileAppContext } from '@/utils/platform';
 import {
   ModernUploadDialog,
   ModernUploadDialogContent,
@@ -153,7 +154,14 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   const handleAssignDocuments = async () => {
     if (selectedDocuments.size === 0) return;
 
-    // Get the first selected document for validation
+    // MOBILE: Skip document validation entirely (temporarily disabled)
+    if (isMobileAppContext()) {
+      console.log('[Assignment] Mobile detected - skipping document validation');
+      await performAssignment();
+      return;
+    }
+
+    // DESKTOP: Get the first selected document for validation
     const selectedArray = Array.from(selectedDocuments);
     const firstDocId = selectedArray[0];
     const firstDoc = documents.find(d => d.id === firstDocId);

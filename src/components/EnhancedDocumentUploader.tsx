@@ -12,6 +12,7 @@ import { validateFile } from '@/utils/fileValidation';
 import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './documents/DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+import { isMobileAppContext } from '@/utils/platform';
 import { Progress } from './ui/progress';
 
 // Component props interface
@@ -377,7 +378,14 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       return;
     }
 
-    // New multi-signal document validation (replaces OCR)
+    // MOBILE: Skip document validation entirely (temporarily disabled)
+    if (isMobileAppContext()) {
+      console.log('[Upload] Mobile detected - skipping document validation');
+      await performUpload(filesToUpload);
+      return;
+    }
+
+    // DESKTOP: New multi-signal document validation (replaces OCR)
     if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
       setIsVerifying(true);
       setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
