@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Save } from 'lucide-react';
@@ -51,29 +50,25 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes })
   };
 
   return (
-    <Card className="border-border/50 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-xl">Admin-Notizen</CardTitle>
-        <CardDescription>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-xl font-semibold text-slate-900">Admin-Notizen</h3>
+        <p className="text-muted-foreground text-sm">
           Nur für Administratoren sichtbar
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </p>
+      </div>
+      <div className="space-y-4">
         <Textarea 
           placeholder="Notizen zum Benutzer hinzufügen..." 
           value={adminNotes} 
           onChange={(e) => setAdminNotes(e.target.value)} 
-          className="min-h-[150px] resize-none" 
+          className="min-h-[150px] resize-none rounded-xl border-slate-200" 
         />
-      </CardContent>
-      <CardFooter>
         <Button 
           onClick={saveAdminNotes} 
           disabled={savingNotes} 
-          className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-          style={{
-            boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-          }}
+          className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 py-3 h-12 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
         >
           {savingNotes ? (
             <>
@@ -87,8 +82,8 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes })
             </>
           )}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 
