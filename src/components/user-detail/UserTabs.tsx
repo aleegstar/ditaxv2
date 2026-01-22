@@ -241,40 +241,40 @@ const UserTabs: React.FC<UserTabsProps> = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50">
+        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50 rounded-full">
           <TabsTrigger 
             value="info" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Formularangaben
           </TabsTrigger>
           <TabsTrigger 
             value="documents" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Dokumente
           </TabsTrigger>
           <TabsTrigger 
             value="tax-returns" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Steuererklärung
           </TabsTrigger>
           <TabsTrigger 
             value="definitive-bills" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Definitive Rechnungen
           </TabsTrigger>
           <TabsTrigger 
             value="messages" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Nachrichten
           </TabsTrigger>
           <TabsTrigger 
             value="admin-notes" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-lg"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
           >
             Admin-Notizen
           </TabsTrigger>
