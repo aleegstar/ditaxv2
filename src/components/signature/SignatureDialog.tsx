@@ -36,6 +36,7 @@ export function SignatureDialog({
 }: SignatureDialogProps) {
   const [loading, setLoading] = useState(false);
   const [authorizationAccepted, setAuthorizationAccepted] = useState(false);
+  const [responsibilityAccepted, setResponsibilityAccepted] = useState(false);
   const [signatureName, setSignatureName] = useState('');
   const [step, setStep] = useState<'review' | 'sign' | 'complete'>('review');
 
@@ -51,12 +52,12 @@ export function SignatureDialog({
   const authorizationText = `Ich, ${fullName}, ${userProfile.date_of_birth ? `geboren am ${new Date(userProfile.date_of_birth).toLocaleDateString('de-CH')}` : ''} bevollmächtige hiermit Ditax by Graber Sandro, meine Steuererklärung für das Steuerjahr ${completedTaxReturn.tax_year} beim zuständigen Steueramt einzureichen.
 
 Ich bestätige, dass:
-• Ich alle Angaben in der Steuererklärung wahrheitsgemäss gemacht habe
-• Ich die Steuererklärung vollständig geprüft und für korrekt befunden habe
-• Ditax by Graber Sandro berechtigt ist, in meinem Namen mit dem Steueramt zu kommunizieren
-• Ich verstehe, dass diese elektronische Signatur rechtlich bindend ist
-
-Diese elektronische Unterschrift gilt als rechtsverbindliche Willenserklärung gemäss Art. 14 Abs. 2bis OR.
+• Alle Angaben in dieser Steuererklärung von mir stammen und wahrheitsgemäss sind
+• Ich die vollständige Steuererklärung geprüft und für korrekt befunden habe
+• Ich für die Richtigkeit und Vollständigkeit aller Angaben allein verantwortlich bin
+• Ditax by Graber Sandro ausschliesslich als Übermittler meiner Steuererklärung handelt und keine inhaltliche Prüfung vornimmt
+• Ich verstehe, dass bei falschen Angaben strafrechtliche Konsequenzen gemäss Art. 175 ff. DBG drohen können
+• Diese elektronische Unterschrift rechtlich bindend ist gemäss Art. 14 Abs. 2bis OR
 
 Datum: ${currentDate}
 E-Mail: ${userProfile.email}`;
@@ -65,16 +66,17 @@ E-Mail: ${userProfile.email}`;
     if (open) {
       setStep('review');
       setAuthorizationAccepted(false);
+      setResponsibilityAccepted(false);
       setSignatureName('');
     }
   }, [open]);
 
   const handleSign = async () => {
-    if (!authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()) {
+    if (!authorizationAccepted || !responsibilityAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()) {
       toast({
         variant: "destructive",
         title: "Signatur ungültig",
-        description: "Bitte bestätige die Vollmacht und gib deinen vollständigen Namen ein."
+        description: "Bitte bestätige alle Bedingungen und gib deinen vollständigen Namen ein."
       });
       return;
     }
@@ -212,6 +214,19 @@ E-Mail: ${userProfile.email}`;
                 </label>
               </div>
 
+              {/* Responsibility Checkbox */}
+              <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+                <Checkbox
+                  id="responsibility"
+                  checked={responsibilityAccepted}
+                  onCheckedChange={(checked) => setResponsibilityAccepted(checked as boolean)}
+                  className="mt-0.5 h-4 w-4 rounded border-amber-300 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                />
+                <label htmlFor="responsibility" className="text-[11px] text-amber-800 cursor-pointer leading-snug">
+                  Ich bestätige, dass ich für die Richtigkeit aller Angaben allein verantwortlich bin und Ditax by Graber Sandro keine inhaltliche Prüfung meiner Angaben vornimmt.
+                </label>
+              </div>
+
               {/* Signature Input */}
               <div>
                 <Label htmlFor="signature" className="text-slate-800 font-medium text-[11px]">
@@ -240,7 +255,7 @@ E-Mail: ${userProfile.email}`;
                 </Button>
                 <Button
                   onClick={handleSign}
-                  disabled={loading || !authorizationAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
+                  disabled={loading || !authorizationAccepted || !responsibilityAccepted || signatureName.trim().toLowerCase() !== fullName.toLowerCase()}
                   className="flex-1 h-10 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_15px_rgba(29,100,255,0.25)] disabled:opacity-50 disabled:shadow-none text-xs"
                 >
                   {loading ? (
