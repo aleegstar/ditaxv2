@@ -226,12 +226,12 @@ export function UserDefinitiveTaxBill({ userId }: UserDefinitiveTaxBillProps) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-xl font-semibold">Definitive Steuerrechnungen</h3>
-          <p className="text-muted-foreground">
-            Ihre definitiven Steuerrechnungen vom Steueramt
-          </p>
-        </div>
+      <div>
+        <h3 className="text-xl font-semibold text-slate-900">Definitive Steuerrechnungen</h3>
+        <p className="text-muted-foreground text-sm">
+          Ihre definitiven Steuerrechnungen vom Steueramt
+        </p>
+      </div>
         {isOwnProfile && (
           <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
             <DialogTrigger asChild>
