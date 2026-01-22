@@ -549,14 +549,6 @@ const UserDetail: React.FC = () => {
                   userId={user.id}
                   userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
                 />
-                <Button
-                  onClick={() => setMissingItemDialogOpen(true)}
-                  variant="outline"
-                  className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
-                >
-                  <AlertCircle className="h-4 w-4" />
-                  Fehlende Unterlagen anfordern
-                </Button>
               </div>
             </div>
             
@@ -571,9 +563,20 @@ const UserDetail: React.FC = () => {
             </div>
           </div>
 
+          {/* Missing Items Request Button */}
+          <div className="mb-6">
+            <Button
+              onClick={() => setMissingItemDialogOpen(true)}
+              variant="outline"
+              className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+            >
+              <AlertCircle className="h-4 w-4" />
+              Fehlende Unterlagen anfordern
+            </Button>
+          </div>
 
           {/* Main Content */}
-          <UserTabs 
+          <UserTabs
             user={transformedUser}
             taxReturns={taxReturns}
             onTaxReturnClick={handleTaxReturnClick}
