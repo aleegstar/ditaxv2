@@ -567,8 +567,9 @@ const UserDetail: React.FC = () => {
           <div className="mb-6">
             <Button
               onClick={() => setMissingItemDialogOpen(true)}
-              variant="outline"
-              className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+              size="sm"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full px-[20px] py-[10px] font-medium border-0 transition-colors duration-200 gap-2"
+              style={{ boxShadow: 'rgba(249, 115, 22, 0.3) 0px 3px 10px 0px' }}
             >
               <AlertCircle className="h-4 w-4" />
               Fehlende Unterlagen anfordern
