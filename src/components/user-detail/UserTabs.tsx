@@ -241,40 +241,41 @@ const UserTabs: React.FC<UserTabsProps> = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50 rounded-full">
+        {/* Modern minimal tabs - inspired by clean UI */}
+        <TabsList className="mb-4 h-auto w-full flex flex-wrap gap-2 p-0 bg-transparent justify-start">
           <TabsTrigger 
             value="info" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Formularangaben
           </TabsTrigger>
           <TabsTrigger 
             value="documents" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Dokumente
           </TabsTrigger>
           <TabsTrigger 
             value="tax-returns" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Steuererklärung
           </TabsTrigger>
           <TabsTrigger 
             value="definitive-bills" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Definitive Rechnungen
           </TabsTrigger>
           <TabsTrigger 
             value="messages" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Nachrichten
           </TabsTrigger>
           <TabsTrigger 
             value="admin-notes" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
+            className="px-4 py-2 text-sm font-medium rounded-full border border-border/50 bg-white text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary data-[state=active]:shadow-sm hover:bg-muted/30"
           >
             Admin-Notizen
           </TabsTrigger>
