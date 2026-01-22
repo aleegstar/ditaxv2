@@ -571,61 +571,6 @@ const UserDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <FileIcon className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Dokumente</p>
-                    <p className="text-2xl font-bold">{documents.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <FileIcon className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Steuererklärungen</p>
-                    <p className="text-2xl font-bold">{completedTaxReturns.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                    <FileIcon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Formulare</p>
-                    <p className="text-2xl font-bold">{formData.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Steuerjahr</p>
-                    <p className="text-2xl font-bold">{selectedYear}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Main Content */}
           <UserTabs 
