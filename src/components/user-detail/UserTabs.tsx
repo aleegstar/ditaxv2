@@ -12,6 +12,7 @@ import SimpleChatWindow from '@/components/chat/SimpleChatWindow';
 import AdminNotesCard from './AdminNotesCard';
 import DocumentsPdfDownloader from './DocumentsPdfDownloader';
 import DocumentCard from './DocumentCard';
+import FormDataPdfDownloader from './FormDataPdfDownloader';
 import DocumentPreview from './DocumentPreview';
 import CompletedTaxReturnManager from './CompletedTaxReturnManager';
 import { UserDefinitiveTaxBill } from './UserDefinitiveTaxBill';
@@ -297,26 +298,20 @@ const UserTabs: React.FC<UserTabsProps> = ({
                         <SelectValue placeholder="Jahr" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableYears.map(year => {
-                          const yearHasData = allFormData.some(fd => String(fd.tax_year) === String(year));
-                          return (
-                            <SelectItem key={year} value={year}>
-                              <div className="flex items-center gap-2">
-                                {year}
-                                {yearHasData && <div className="w-2 h-2 rounded-full bg-green-500" />}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
+                        {availableYears.map(year => (
+                          <SelectItem key={year} value={year}>
+                            {year}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className={`w-2 h-2 rounded-full ${getYearDataStatus.hasFormData ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span className="text-slate-500">
-                      {getYearDataStatus.hasFormData ? 'Daten vorhanden' : 'Keine Daten'}
-                    </span>
-                  </div>
+                  <FormDataPdfDownloader 
+                    userId={userId} 
+                    taxYear={selectedYear} 
+                    userName={`${user.firstName} ${user.lastName}`} 
+                    userEmail={user.email}
+                  />
                 </div>
               </CardHeader>
               <CardContent>
