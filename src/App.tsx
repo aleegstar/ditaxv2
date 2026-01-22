@@ -65,6 +65,8 @@ import SpaRedirector from "@/components/SpaRedirector";
 import { MfaSetupPrompt } from "@/components/auth/MfaSetupPrompt";
 import { MfaEnrollmentFlow } from "@/components/auth/MfaEnrollmentFlow";
 import { useMfaPrompt } from "@/hooks/useMfaPrompt";
+import { useFeedbackPrompt } from "@/hooks/useFeedbackPrompt";
+import { FeedbackPrompt } from "@/components/feedback/FeedbackPrompt";
 import { setStatusBarDark } from "@/utils/despiaStatusBar";
 import { isDespiaEnvironment } from "@/utils/platform";
 
@@ -112,6 +114,7 @@ const AuthenticatedApp = () => {
   const [user, setUser] = useState<any>(null);
   const [showMfaSetup, setShowMfaSetup] = useState(false);
   const { shouldShow: shouldShowMfaPrompt, markMfaOffered } = useMfaPrompt(user?.id);
+  const { shouldShow: shouldShowFeedback, dismissPrompt: dismissFeedbackPrompt } = useFeedbackPrompt(user?.id);
 
   useEffect(() => {
     let mounted = true;
@@ -248,6 +251,14 @@ const AuthenticatedApp = () => {
                 <MfaEnrollmentFlow
                   onComplete={() => setShowMfaSetup(false)}
                   onCancel={() => setShowMfaSetup(false)}
+                />
+              )}
+
+              {/* Feedback Prompt - shows after 5th login */}
+              {shouldShowFeedback && !shouldShowMfaPrompt && (
+                <FeedbackPrompt
+                  isOpen={shouldShowFeedback}
+                  onDismiss={dismissFeedbackPrompt}
                 />
               )}
               
