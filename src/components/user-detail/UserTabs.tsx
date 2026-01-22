@@ -4,19 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  FileText, 
-  FolderOpen, 
-  FileCheck, 
-  Receipt, 
-  MessageSquare, 
-  StickyNote,
-  Calendar, 
-  FileIcon, 
-  Briefcase, 
-  Wallet, 
-  Upload 
-} from 'lucide-react';
+import { Calendar, FileIcon, Briefcase, Wallet, Receipt, Upload, FolderOpen } from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
 import FormDataTableView from './FormDataTableView';
@@ -253,54 +241,42 @@ const UserTabs: React.FC<UserTabsProps> = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        {/* Enhanced TabsList with icons and better active state */}
-        <TabsList className="mb-6 h-auto p-1 bg-muted/40 rounded-xl flex flex-wrap gap-1">
+        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50">
           <TabsTrigger 
             value="info" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <FileText className="h-4 w-4" />
-            <span>Formularangaben</span>
+            Formularangaben
           </TabsTrigger>
           <TabsTrigger 
             value="documents" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <FolderOpen className="h-4 w-4" />
-            <span>Dokumente</span>
-            {documentsForSelectedYear.length > 0 && (
-              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                {documentsForSelectedYear.length}
-              </Badge>
-            )}
+            Dokumente
           </TabsTrigger>
           <TabsTrigger 
             value="tax-returns" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <FileCheck className="h-4 w-4" />
-            <span>Steuererklärung</span>
+            Steuererklärung
           </TabsTrigger>
           <TabsTrigger 
             value="definitive-bills" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <Receipt className="h-4 w-4" />
-            <span>Def. Rechnungen</span>
+            Definitive Rechnungen
           </TabsTrigger>
           <TabsTrigger 
             value="messages" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <MessageSquare className="h-4 w-4" />
-            <span>Nachrichten</span>
+            Nachrichten
           </TabsTrigger>
           <TabsTrigger 
             value="admin-notes" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
           >
-            <StickyNote className="h-4 w-4" />
-            <span>Notizen</span>
+            Admin-Notizen
           </TabsTrigger>
         </TabsList>
         
