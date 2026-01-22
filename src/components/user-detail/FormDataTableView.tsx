@@ -110,6 +110,15 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
       const map: Record<string, string> = { 'ZH': 'Zürich', 'AG': 'Aargau', 'ZG': 'Zug', 'SZ': 'Schwyz' };
       return map[value] || value;
     }
+    if (key === 'deduction') {
+      const map: Record<string, string> = { 
+        'higher-income-father': 'Vater erzielt höheres Einkommen', 
+        'higher-income-mother': 'Mutter erzielt höheres Einkommen', 
+        'child-self-sufficient': 'Kind ist selbstständig erwerbstätig',
+        'child-different-household': 'Kind lebt in anderem Haushalt'
+      };
+      return map[value] || value;
+    }
     return String(value);
   };
 
@@ -291,14 +300,24 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                       <Baby className="h-4 w-4" />
                       Kinder ({contactInfo.children.length})
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {contactInfo.children.map((child, index) => (
-                        <div key={index} className="bg-muted/30 rounded-lg p-3">
-                          <p className="font-medium">{child.firstName} {child.lastName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {child.birthDate ? new Date(child.birthDate).toLocaleDateString('de-CH') : '-'}
-                            {child.religion ? ` • ${getValueLabel('religion', child.religion)}` : ''}
-                          </p>
+                        <div key={index} className="bg-muted/30 rounded-lg p-4">
+                          <p className="font-semibold text-base">{child.firstName} {child.lastName}</p>
+                          <div className="mt-2 space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Geburtsdatum:</span>
+                              <span>{child.birthDate ? new Date(child.birthDate).toLocaleDateString('de-CH') : '-'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Konfession:</span>
+                              <span>{getValueLabel('religion', child.religion)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Abzug:</span>
+                              <span className="text-right">{getValueLabel('deduction', child.deduction) || '-'}</span>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
