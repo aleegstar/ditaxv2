@@ -238,50 +238,54 @@ const UserTabs: React.FC<UserTabsProps> = ({
     setPreviewOpen(true);
   };
 
-  return (
+    return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50 rounded-full">
-          <TabsTrigger 
-            value="info" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Formularangaben
-          </TabsTrigger>
-          <TabsTrigger 
-            value="documents" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Dokumente
-          </TabsTrigger>
-          <TabsTrigger 
-            value="tax-returns" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Steuererklärung
-          </TabsTrigger>
-          <TabsTrigger 
-            value="definitive-bills" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Definitive Rechnungen
-          </TabsTrigger>
-          <TabsTrigger 
-            value="messages" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Nachrichten
-          </TabsTrigger>
-          <TabsTrigger 
-            value="admin-notes" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
-          >
-            Admin-Notizen
-          </TabsTrigger>
-        </TabsList>
-        
-        <div className="pb-4">
-          <TabsContent value="info" className="mt-0">
+        {/* Tab Navigation - Segment Style */}
+        <div className="relative">
+          <TabsList className="relative z-10 h-11 w-auto p-1 bg-muted/40 border border-border/50 rounded-t-xl rounded-b-none">
+            <TabsTrigger 
+              value="info" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-background data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Formularangaben
+            </TabsTrigger>
+            <TabsTrigger 
+              value="documents" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Dokumente
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tax-returns" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Steuererklärung
+            </TabsTrigger>
+            <TabsTrigger 
+              value="definitive-bills" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Definitive Rechnungen
+            </TabsTrigger>
+            <TabsTrigger 
+              value="messages" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Nachrichten
+            </TabsTrigger>
+            <TabsTrigger 
+              value="admin-notes" 
+              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+            >
+              Admin-Notizen
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Content Container - Connected to Tabs */}
+          <div className="relative -mt-px bg-background border border-border/50 border-t-0 rounded-b-xl rounded-tr-xl shadow-sm">
+            <div className="p-5">
+              <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
               <FormDataTableView 
                 formData={formDataForSelectedYear} 
@@ -306,9 +310,9 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
+              </TabsContent>
 
-          <TabsContent value="documents" className="mt-0">
+              <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             <Card className="border-border/30 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
@@ -432,9 +436,9 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+              </TabsContent>
 
-          <TabsContent value="tax-returns" className="space-y-6">
+              <TabsContent value="tax-returns" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
             {/* Year Selector */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -523,33 +527,35 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 <p className="text-slate-400 text-sm mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
               </div>
             )}
-          </TabsContent>
+              </TabsContent>
           
-          <TabsContent value="definitive-bills" className="space-y-6">
-            <UserDefinitiveTaxBill userId={userId} isAdmin={true} />
-          </TabsContent>
+              <TabsContent value="definitive-bills" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
+                <UserDefinitiveTaxBill userId={userId} isAdmin={true} />
+              </TabsContent>
           
-          <TabsContent value="messages" className="space-y-6">
-            <Card className="border-border/50">
-              <CardHeader>
-                <CardTitle className="text-xl">
-                  Nachrichten mit {user.firstName} {user.lastName}
-                </CardTitle>
-                <CardDescription>
-                  Direkter Chat mit dem Benutzer
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[600px] rounded-lg overflow-hidden">
-                  <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
+                <Card className="border-border/50">
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      Nachrichten mit {user.firstName} {user.lastName}
+                    </CardTitle>
+                    <CardDescription>
+                      Direkter Chat mit dem Benutzer
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="h-[600px] rounded-lg overflow-hidden">
+                      <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-          <TabsContent value="admin-notes" className="space-y-6">
-            <AdminNotesCard userId={userId} initialNotes={initialNotes} />
-          </TabsContent>
+              <TabsContent value="admin-notes" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
+                <AdminNotesCard userId={userId} initialNotes={initialNotes} />
+              </TabsContent>
+            </div>
+          </div>
         </div>
       </Tabs>
 
