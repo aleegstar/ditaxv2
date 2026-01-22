@@ -246,37 +246,37 @@ const UserTabs: React.FC<UserTabsProps> = ({
           <TabsList className="relative z-10 h-12 w-auto p-1 bg-muted/50 rounded-full mb-0">
           <TabsTrigger 
               value="info" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Formularangaben
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Dokumente
             </TabsTrigger>
             <TabsTrigger 
               value="tax-returns" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Steuererklärung
             </TabsTrigger>
             <TabsTrigger 
               value="definitive-bills" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Definitive Rechnungen
             </TabsTrigger>
             <TabsTrigger 
               value="messages" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Nachrichten
             </TabsTrigger>
             <TabsTrigger 
               value="admin-notes" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
             >
               Admin-Notizen
             </TabsTrigger>
