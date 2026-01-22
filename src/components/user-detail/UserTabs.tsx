@@ -282,42 +282,40 @@ const UserTabs: React.FC<UserTabsProps> = ({
         <div className="px-6 pb-6">
           <TabsContent value="info" className="space-y-6">
             <Card className="border-border/50">
-              <CardHeader>
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-xl">Ausgefüllte Formularangaben</CardTitle>
-                    <CardDescription>
-                      Nur relevante Angaben mit "Ja" werden angezeigt
-                    </CardDescription>
+              <CardHeader className="space-y-4">
+                <div>
+                  <CardTitle className="text-xl">Ausgefüllte Formularangaben</CardTitle>
+                  <CardDescription>
+                    Nur relevante Angaben mit "Ja" werden angezeigt
+                  </CardDescription>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
+                    <Calendar className="h-4 w-4 text-slate-500" />
+                    <Select value={selectedYear} onValueChange={handleYearChange}>
+                      <SelectTrigger className="w-24 h-8 border-0 bg-transparent p-0 focus:ring-0">
+                        <SelectValue placeholder="Jahr" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableYears.map(year => {
+                          const yearHasData = allFormData.some(fd => String(fd.tax_year) === String(year));
+                          return (
+                            <SelectItem key={year} value={year}>
+                              <div className="flex items-center gap-2">
+                                {year}
+                                {yearHasData && <div className="w-2 h-2 rounded-full bg-green-500" />}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <Select value={selectedYear} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue placeholder="Jahr wählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableYears.map(year => {
-                            const yearHasData = allFormData.some(fd => String(fd.tax_year) === String(year));
-                            return (
-                              <SelectItem key={year} value={year}>
-                                <div className="flex items-center gap-2">
-                                  {year}
-                                  {yearHasData && <div className="w-2 h-2 rounded-full bg-green-500" />}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getYearDataStatus.hasFormData ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span className="text-sm text-muted-foreground">
-                        {getYearDataStatus.hasFormData ? 'Daten vorhanden' : 'Keine Daten'}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className={`w-2 h-2 rounded-full ${getYearDataStatus.hasFormData ? 'bg-green-500' : 'bg-gray-300'}`} />
+                    <span className="text-slate-500">
+                      {getYearDataStatus.hasFormData ? 'Daten vorhanden' : 'Keine Daten'}
+                    </span>
                   </div>
                 </div>
               </CardHeader>
@@ -348,37 +346,35 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
           <TabsContent value="documents" className="space-y-6">
             <Card className="border-border/50">
-              <CardHeader>
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-xl">Hochgeladene Dokumente</CardTitle>
-                    <CardDescription>
-                      Alle vom Benutzer hochgeladenen Dokumente für {selectedYear}
-                    </CardDescription>
+              <CardHeader className="space-y-4">
+                <div>
+                  <CardTitle className="text-xl">Hochgeladene Dokumente</CardTitle>
+                  <CardDescription>
+                    Alle vom Benutzer hochgeladenen Dokumente für {selectedYear}
+                  </CardDescription>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
+                    <Calendar className="h-4 w-4 text-slate-500" />
+                    <Select value={selectedYear} onValueChange={handleYearChange}>
+                      <SelectTrigger className="w-24 h-8 border-0 bg-transparent p-0 focus:ring-0">
+                        <SelectValue placeholder="Jahr" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableYears.map(year => (
+                          <SelectItem key={year} value={year}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <Select value={selectedYear} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue placeholder="Jahr wählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <DocumentsPdfDownloader 
-                      userId={userId} 
-                      taxYear={selectedYear} 
-                      userName={`${user.firstName} ${user.lastName}`} 
-                      documentCount={documentsForSelectedYear.length} 
-                    />
-                  </div>
+                  <DocumentsPdfDownloader 
+                    userId={userId} 
+                    taxYear={selectedYear} 
+                    userName={`${user.firstName} ${user.lastName}`} 
+                    documentCount={documentsForSelectedYear.length} 
+                  />
                 </div>
               </CardHeader>
               <CardContent>
