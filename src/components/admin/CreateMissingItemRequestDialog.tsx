@@ -187,7 +187,8 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
           request_type: requestType,
           title: item.title.trim(),
           description: item.description.trim() || undefined,
-        }))
+        })),
+        taxYear
       );
 
       if (success) {

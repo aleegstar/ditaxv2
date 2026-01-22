@@ -120,7 +120,7 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
   }, [fetchRequests]);
 
   // Create multiple requests at once (for admin)
-  const createRequests = async (items: CreateMissingItemRequestInput[]): Promise<boolean> => {
+  const createRequests = async (items: CreateMissingItemRequestInput[], taxYear?: string): Promise<boolean> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Nicht authentifiziert');
@@ -147,6 +147,24 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
         .from('tax_returns')
         .update({ status: statusToSet, updated_at: new Date().toISOString() })
         .eq('id', items[0].tax_return_id);
+
+      // Send email notification to user
+      try {
+        await supabase.functions.invoke('missing-items-notification', {
+          body: {
+            userId: items[0].user_id,
+            items: items.map(item => ({
+              title: item.title,
+              description: item.description,
+              request_type: item.request_type,
+            })),
+            taxYear,
+          },
+        });
+      } catch (emailError) {
+        console.error('Error sending notification email:', emailError);
+        // Don't fail the whole operation if email fails
+      }
 
       toast.success(`${items.length} Anfrage(n) erfolgreich erstellt`);
       return true;
