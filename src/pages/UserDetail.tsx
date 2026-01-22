@@ -605,7 +605,7 @@ const UserDetail: React.FC = () => {
                 {/* Primary Action - Prominent */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
-                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-primary hover:bg-primary/90 text-white text-xs shadow-sm"
+                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs shadow-sm"
                 >
                   <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
