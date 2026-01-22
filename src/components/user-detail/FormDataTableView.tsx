@@ -96,6 +96,9 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
   // Label mappings
   const getValueLabel = (key: string, value: any): string => {
+    if (value === null || value === undefined || value === '') {
+      return 'Nicht angegeben';
+    }
     if (typeof value === 'boolean') return value ? 'Ja' : 'Nein';
     if (key === 'maritalStatus') {
       const map: Record<string, string> = { 'ledig': 'Ledig', 'verheiratet': 'Verheiratet', 'verwitwet': 'Verwitwet' };
@@ -119,6 +122,14 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
       return map[value] || value;
     }
     return String(value);
+  };
+
+  // Helper for displaying empty values
+  const displayValue = (value: any, fallback: string = 'Nicht angegeben'): React.ReactNode => {
+    if (value === null || value === undefined || value === '' || value === '-') {
+      return <span className="text-muted-foreground/60 italic text-sm">{fallback}</span>;
+    }
+    return value;
   };
 
   const findDocumentsForField = (fieldKey: string): UploadedDocument[] => {
@@ -190,27 +201,27 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground w-40">Name</TableCell>
-                        <TableCell className="font-semibold">
-                          {contactInfo.firstName} {contactInfo.lastName}
-                          <CopyButton text={`${contactInfo.firstName} ${contactInfo.lastName}`} fieldId="name" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3 w-36">Name</TableCell>
+                        <TableCell className="font-medium py-3">
+                          {displayValue(`${contactInfo.firstName || ''} ${contactInfo.lastName || ''}`.trim())}
+                          {contactInfo.firstName && <CopyButton text={`${contactInfo.firstName} ${contactInfo.lastName}`} fieldId="name" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">Geburtsdatum</TableCell>
-                        <TableCell>
-                          {contactInfo.birthDate ? new Date(contactInfo.birthDate).toLocaleDateString('de-CH') : '-'}
-                          <CopyButton text={contactInfo.birthDate ? new Date(contactInfo.birthDate).toLocaleDateString('de-CH') : ''} fieldId="birthDate" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">Geburtsdatum</TableCell>
+                        <TableCell className="font-medium py-3">
+                          {displayValue(contactInfo.birthDate ? new Date(contactInfo.birthDate).toLocaleDateString('de-CH') : null)}
+                          {contactInfo.birthDate && <CopyButton text={new Date(contactInfo.birthDate).toLocaleDateString('de-CH')} fieldId="birthDate" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">Zivilstand</TableCell>
-                        <TableCell>{getValueLabel('maritalStatus', contactInfo.maritalStatus)}</TableCell>
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">Zivilstand</TableCell>
+                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('maritalStatus', contactInfo.maritalStatus))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">Konfession</TableCell>
-                        <TableCell>{getValueLabel('religion', contactInfo.religion)}</TableCell>
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">Konfession</TableCell>
+                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('religion', contactInfo.religion))}</TableCell>
                       </TableRow>
                       {contactInfo.adressnummer && (
                         <TableRow className="group hover:bg-muted/50 bg-primary/5">
@@ -233,36 +244,36 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground w-40">Adresse</TableCell>
-                        <TableCell>
-                          {contactInfo.address || '-'}
-                          <CopyButton text={contactInfo.address || ''} fieldId="address" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3 w-36">Adresse</TableCell>
+                        <TableCell className="font-medium py-3">
+                          {displayValue(contactInfo.address)}
+                          {contactInfo.address && <CopyButton text={contactInfo.address} fieldId="address" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">PLZ / Ort</TableCell>
-                        <TableCell>
-                          {contactInfo.postalCode} {contactInfo.city}
-                          <CopyButton text={`${contactInfo.postalCode} ${contactInfo.city}`} fieldId="plzort" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">PLZ / Ort</TableCell>
+                        <TableCell className="font-medium py-3">
+                          {displayValue(`${contactInfo.postalCode || ''} ${contactInfo.city || ''}`.trim())}
+                          {(contactInfo.postalCode || contactInfo.city) && <CopyButton text={`${contactInfo.postalCode} ${contactInfo.city}`} fieldId="plzort" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">Kanton</TableCell>
-                        <TableCell>{getValueLabel('kanton', contactInfo.kanton)}</TableCell>
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">Kanton</TableCell>
+                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('kanton', contactInfo.kanton))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">Telefon</TableCell>
-                        <TableCell>
-                          {contactInfo.phone || '-'}
-                          <CopyButton text={contactInfo.phone || ''} fieldId="phone" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">Telefon</TableCell>
+                        <TableCell className="font-medium py-3">
+                          {displayValue(contactInfo.phone)}
+                          {contactInfo.phone && <CopyButton text={contactInfo.phone} fieldId="phone" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">E-Mail</TableCell>
-                        <TableCell className="break-all">
-                          {contactInfo.email || '-'}
-                          <CopyButton text={contactInfo.email || ''} fieldId="email" copiedFields={copiedFields} onCopy={handleCopy} />
+                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                        <TableCell className="text-sm text-muted-foreground py-3">E-Mail</TableCell>
+                        <TableCell className="font-medium py-3 break-all">
+                          {displayValue(contactInfo.email)}
+                          {contactInfo.email && <CopyButton text={contactInfo.email} fieldId="email" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
                     </TableBody>
