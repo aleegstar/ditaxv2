@@ -602,13 +602,12 @@ const UserDetail: React.FC = () => {
               
               {/* Right: Actions */}
               <div className="flex items-center gap-2">
-                {/* Primary Action - Orange */}
+                {/* Primary Action - Blue Pill */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
-                  size="sm"
-                  className="h-8 rounded-lg px-3 font-medium gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs"
+                  className="h-10 rounded-full px-5 font-medium gap-2 bg-primary hover:bg-primary/90 text-white text-sm"
                 >
-                  <AlertCircle className="h-3.5 w-3.5" />
+                  <AlertCircle className="h-4 w-4" />
                   Unterlagen anfordern
                 </Button>
                 
