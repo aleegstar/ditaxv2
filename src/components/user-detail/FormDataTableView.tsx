@@ -114,10 +114,20 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
     }
     if (key === 'deduction') {
       const map: Record<string, string> = { 
-        'higher-income-father': 'Vater erzielt höheres Einkommen', 
-        'higher-income-mother': 'Mutter erzielt höheres Einkommen', 
-        'child-self-sufficient': 'Kind ist selbstständig erwerbstätig',
-        'child-different-household': 'Kind lebt in anderem Haushalt'
+        // Standard keys
+        'higher-income-father': 'Vater (höheres Einkommen)', 
+        'higher-income-mother': 'Mutter (höheres Einkommen)', 
+        'child-self-sufficient': 'Kind selbstständig erwerbstätig',
+        'child-different-household': 'Kind in anderem Haushalt',
+        // Legacy/alternative keys that might exist in data
+        'fatherHigher': 'Vater (höheres Einkommen)',
+        'motherHigher': 'Mutter (höheres Einkommen)',
+        'father': 'Vater',
+        'mother': 'Mutter',
+        'both': 'Beide Elternteile',
+        'none': 'Kein Abzug',
+        'non fatherHigher': 'Vater (höheres Einkommen)',
+        'non motherHigher': 'Mutter (höheres Einkommen)'
       };
       return map[value] || value;
     }
