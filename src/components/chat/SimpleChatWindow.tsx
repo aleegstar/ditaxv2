@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/use-toast';
-import ChatBubble from './ChatBubble';
-import ModernChatInput from './ModernChatInput';
+import { User } from 'lucide-react';
+import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 
 interface Message {
   id: string;
@@ -52,77 +51,19 @@ const SimpleChatWindow = ({
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when new messages arrive
   const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Delete all messages for current conversation
-  const deleteAllMessages = async () => {
-    if (!userId) return;
-
-    try {
-      console.log('Starting complete message deletion for user:', userId, 'isAdmin:', isAdmin);
-      
-      let deleteQuery;
-      
-      if (isAdmin && selectedUserId) {
-        // Admin: delete messages between admin and selected user (including bot messages)
-        console.log('Deleting admin conversation with user:', selectedUserId);
-        deleteQuery = supabase
-          .from('chat_messages')
-          .delete()
-          .or(`and(sender_id.eq.${userId},recipient_id.eq.${selectedUserId}),and(sender_id.eq.${selectedUserId},recipient_id.eq.${userId}),and(sender_id.is.null,recipient_id.eq.${selectedUserId}),and(sender_id.eq.${selectedUserId},recipient_id.is.null)`);
-      } else {
-        // Regular user: delete all messages involving the user (including bot messages)
-        console.log('Deleting all messages for user:', userId);
-        deleteQuery = supabase
-          .from('chat_messages')
-          .delete()
-          .or(`sender_id.eq.${userId},recipient_id.eq.${userId},and(sender_id.is.null,recipient_id.eq.${userId})`);
-      }
-
-      const { error: deleteError } = await deleteQuery;
-
-      if (deleteError) {
-        console.error('Error deleting messages:', deleteError);
-        throw deleteError;
-      }
-
-      // Clear local state
-      setMessages([]);
-      
-      console.log('Messages deleted successfully');
-      
-      toast({
-        title: "Chat erfolgreich gelöscht",
-        description: "Alle Nachrichten wurden entfernt."
-      });
-
-    } catch (error: any) {
-      console.error('Error during message deletion:', error);
-      toast({
-        title: "Fehler beim Löschen",
-        description: error.message || "Die Nachrichten konnten nicht vollständig gelöscht werden.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Mark messages as read - now also for admins
+  // Mark messages as read
   const markMessagesAsRead = async (messagesToMark: Message[]) => {
     if (!messagesToMark.length) return;
 
     try {
-      console.log('Marking messages as read:', messagesToMark.map(m => m.id));
-      
       const { error } = await supabase
         .from('chat_messages')
         .update({ read: true })
@@ -133,41 +74,33 @@ const SimpleChatWindow = ({
         return;
       }
 
-      // Update local state
       setMessages(prev => prev.map(msg => 
         messagesToMark.find(m => m.id === msg.id) 
           ? { ...msg, read: true }
           : msg
       ));
 
-      // Notify parent component about read messages
       onMessagesRead?.();
-      
-      console.log('Successfully marked messages as read');
     } catch (error) {
       console.error('Error marking messages as read:', error);
     }
   };
 
-  // Load messages with corrected query logic
+  // Load messages
   useEffect(() => {
     if (!isValid || !userId) {
-      console.log('User not authenticated, skipping message load');
       setLoading(false);
       return;
     }
 
     const loadMessages = async () => {
       try {
-        console.log('Loading messages for user:', userId, 'isAdmin:', isAdmin);
         setLoading(true);
         setError(null);
         
         let allMessages: Message[] = [];
 
         if (isAdmin && selectedUserId) {
-          // Admins see messages between them and the selected user only (including bot messages)
-          console.log('Loading messages for admin with specific user:', selectedUserId);
           const { data, error } = await supabase
             .from('chat_messages')
             .select(`
@@ -182,35 +115,18 @@ const SimpleChatWindow = ({
             .or(`and(sender_id.eq.${userId},recipient_id.eq.${selectedUserId}),and(sender_id.eq.${selectedUserId},recipient_id.eq.${userId}),and(sender_id.is.null,recipient_id.eq.${selectedUserId})`)
             .order('created_at', { ascending: true });
           
-          if (error) {
-            console.error('Admin query error:', error);
-            throw error;
-          }
+          if (error) throw error;
           allMessages = data || [];
-          console.log('Admin loaded messages for user:', selectedUserId, 'count:', allMessages.length);
         } else {
-          // Regular users: load messages with admin only (including bot messages)
-          console.log('Loading messages for regular user - finding admin and loading conversation');
-          
-          // First, get admin user ID
-          const { data: adminData, error: adminError } = await supabase
+          const { data: adminData } = await supabase
             .from('user_roles')
             .select('user_id')
             .eq('role', 'admin')
             .limit(1)
             .single();
 
-          if (adminError) {
-            console.error('Error finding admin:', adminError);
-            throw adminError;
-          }
-
           const adminId = adminData?.user_id;
-          if (!adminId) {
-            console.log('No admin found, loading empty messages');
-            allMessages = [];
-          } else {
-            console.log('Loading conversation between user and admin:', adminId);
+          if (adminId) {
             const { data, error } = await supabase
               .from('chat_messages')
               .select(`
@@ -225,48 +141,33 @@ const SimpleChatWindow = ({
               .or(`and(sender_id.eq.${userId},recipient_id.eq.${adminId}),and(sender_id.eq.${adminId},recipient_id.eq.${userId}),and(sender_id.is.null,recipient_id.eq.${userId})`)
               .order('created_at', { ascending: true });
 
-            if (error) {
-              console.error('Error loading user-admin conversation:', error);
-              throw error;
-            }
-            
+            if (error) throw error;
             allMessages = data || [];
-            console.log('User-admin conversation loaded:', allMessages.length);
           }
         }
         
-        // Process messages and attachments
         const attachmentsMap: Record<string, Attachment> = {};
-        
         allMessages.forEach((msg: any) => {
           if (msg.chat_attachments && msg.chat_attachments.length > 0) {
             attachmentsMap[msg.attachment_id] = msg.chat_attachments[0];
           }
         });
         
-        console.log('Setting messages in state:', allMessages.length);
         setMessages(allMessages);
         setAttachments(attachmentsMap);
         
-        // Mark appropriate messages as read for both users and admins
         const unreadMessages = allMessages.filter((msg: Message) => {
           return !msg.read && msg.sender_id !== userId;
         });
         
         if (unreadMessages.length > 0) {
-          console.log('Marking unread messages as read:', unreadMessages.length);
           setTimeout(() => markMessagesAsRead(unreadMessages), 500);
         }
         
         setTimeout(scrollToBottom, 100);
       } catch (error) {
-        console.error('Unexpected error loading messages:', error);
-        setError('Unerwarteter Fehler beim Laden der Nachrichten');
-        toast({
-          title: "Fehler",
-          description: "Unerwarteter Fehler beim Laden der Nachrichten",
-          variant: "destructive",
-        });
+        console.error('Error loading messages:', error);
+        setError('Fehler beim Laden der Nachrichten');
       } finally {
         setLoading(false);
       }
@@ -279,22 +180,17 @@ const SimpleChatWindow = ({
   useEffect(() => {
     const loadProfiles = async () => {
       try {
-        console.log('Loading user profiles...');
         const { data, error } = await supabase
           .from('profiles')
           .select('id, first_name, last_name, avatar_url');
         
-        if (error) {
-          console.error('Error loading profiles:', error);
-          return;
-        }
+        if (error) return;
         
         const profilesMap = (data || []).reduce((acc, profile) => {
           acc[profile.id] = profile;
           return acc;
         }, {} as Record<string, Profile>);
         
-        console.log('Profiles loaded:', Object.keys(profilesMap).length);
         setProfiles(profilesMap);
       } catch (error) {
         console.error('Error loading profiles:', error);
@@ -306,14 +202,12 @@ const SimpleChatWindow = ({
     }
   }, [isValid]);
 
-  // Real-time subscription with corrected logic
+  // Real-time subscription
   useEffect(() => {
     if (!userId || !isValid) return;
 
-    console.log('Setting up realtime subscription for user:', userId);
-
     const channel = supabase
-      .channel('chat_messages')
+      .channel('chat_messages_simple')
       .on(
         'postgres_changes',
         {
@@ -323,35 +217,24 @@ const SimpleChatWindow = ({
         },
         async (payload) => {
           const newMsg = payload.new as Message;
-          console.log('New message received via realtime:', newMsg.id, 'from sender:', newMsg.sender_id, 'to recipient:', newMsg.recipient_id);
           
           let shouldShow = false;
           
           if (isAdmin && selectedUserId) {
-            // Admins only see messages for the selected user conversation (including bot messages to that user)
             shouldShow = (
               (newMsg.sender_id === userId && newMsg.recipient_id === selectedUserId) ||
               (newMsg.sender_id === selectedUserId && newMsg.recipient_id === userId) ||
-              (newMsg.sender_id === null && newMsg.recipient_id === selectedUserId) // Bot messages to selected user
+              (newMsg.sender_id === null && newMsg.recipient_id === selectedUserId)
             );
-            console.log('Admin - filtering for user:', selectedUserId, 'shouldShow:', shouldShow);
           } else {
-            // Regular users: only show messages in their conversation with admin or bot messages to them
             shouldShow = (
-              newMsg.sender_id === userId ||  // Messages they sent
-              newMsg.recipient_id === userId || // Messages sent directly to them
-              (newMsg.sender_id === null && newMsg.recipient_id === userId) // Bot messages to them
+              newMsg.sender_id === userId ||
+              newMsg.recipient_id === userId ||
+              (newMsg.sender_id === null && newMsg.recipient_id === userId)
             );
-            console.log('User shouldShow:', shouldShow, 'reasons:', {
-              sentByUser: newMsg.sender_id === userId,
-              sentToUser: newMsg.recipient_id === userId,
-              botToUser: newMsg.sender_id === null && newMsg.recipient_id === userId
-            });
           }
             
           if (shouldShow) {
-            console.log('Adding new message to chat');
-            // Load attachment if exists
             if (newMsg.attachment_id) {
               try {
                 const { data: attachmentData } = await supabase
@@ -372,24 +255,16 @@ const SimpleChatWindow = ({
             }
             
             setMessages(prev => {
-              // Check if message already exists to avoid duplicates
               const exists = prev.find(msg => msg.id === newMsg.id);
-              if (exists) {
-                console.log('Message already exists, skipping');
-                return prev;
-              }
-              console.log('Adding new message to state');
+              if (exists) return prev;
               return [...prev, newMsg];
             });
             
-            // Mark as read if not own message (for both users and admins)
             if (newMsg.sender_id !== userId && !newMsg.read) {
               setTimeout(() => markMessagesAsRead([newMsg]), 500);
             }
             
             setTimeout(scrollToBottom, 100);
-          } else {
-            console.log('Message not relevant for this user, skipping');
           }
         }
       )
@@ -402,8 +277,6 @@ const SimpleChatWindow = ({
         },
         (payload) => {
           const updatedMsg = payload.new as Message;
-          console.log('Message updated via realtime:', updatedMsg.id);
-          
           setMessages(prev => prev.map(msg => 
             msg.id === updatedMsg.id ? { ...msg, read: updatedMsg.read } : msg
           ));
@@ -418,15 +291,12 @@ const SimpleChatWindow = ({
         },
         (payload) => {
           const deletedMsg = payload.old as Message;
-          console.log('Message deleted via realtime:', deletedMsg.id);
-          
           setMessages(prev => prev.filter(msg => msg.id !== deletedMsg.id));
         }
       )
       .subscribe();
 
     return () => {
-      console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [userId, selectedUserId, isAdmin, isValid]);
@@ -439,54 +309,25 @@ const SimpleChatWindow = ({
     return 'Unbekannt';
   };
 
-  const getSenderAvatarUrl = (senderId: string) => {
-    const profile = profiles[senderId];
-    return profile?.avatar_url || undefined;
-  };
+  const handleSendMessage = async (content: string, files?: File[]) => {
+    if (!userId || !isValid || !content.trim()) return;
 
-  const handleSendMessage = async (content: string, file?: File) => {
-    if (!userId || !isValid) return;
-
+    setIsSending(true);
     try {
-      let messageData;
-      
-      if (isAdmin) {
-        // Admin sending message
-        messageData = {
-          content: content.trim(),
-          sender_id: userId,
-          recipient_id: selectedUserId,
-          chat_type: 'direct'
-        };
-      } else {
-        // Regular user sending message to admin - find admin first
-        const { data: adminData } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', 'admin')
-          .limit(1)
-          .single();
-
-        const adminId = adminData?.user_id;
-        
-        messageData = {
-          content: content.trim(),
-          sender_id: userId,
-          recipient_id: adminId || null,
-          chat_type: 'direct'
-        };
-      }
+      const messageData = {
+        content: content.trim(),
+        sender_id: userId,
+        recipient_id: selectedUserId,
+        chat_type: 'human'
+      };
 
       const { error } = await supabase
         .from('chat_messages')
         .insert([messageData]);
 
-      if (error) {
-        console.error('Error sending message:', error);
-        throw error;
-      }
-
-      handleMessageSent();
+      if (error) throw error;
+      
+      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -494,82 +335,184 @@ const SimpleChatWindow = ({
         description: "Nachricht konnte nicht gesendet werden",
         variant: "destructive",
       });
+    } finally {
+      setIsSending(false);
     }
   };
 
-  const handleMessageSent = () => {
-    setTimeout(scrollToBottom, 100);
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   if (!isValid) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-600">Bitte melden Sie sich an, um den Chat zu nutzen</p>
+      <div className="flex items-center justify-center h-full bg-white">
+        <p className="text-slate-500">Bitte melden Sie sich an, um den Chat zu nutzen</p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-600">Nachrichten werden geladen...</p>
+      <div className="flex items-center justify-center h-full bg-white">
+        <p className="text-slate-500">Nachrichten werden geladen...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-white">
         <div className="text-center">
           <p className="text-red-500 mb-2">Fehler beim Laden des Chats</p>
-          <p className="text-gray-500 text-sm">{error}</p>
+          <p className="text-slate-400 text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
+  // Get selected user's name for header
+  const selectedUserProfile = profiles[selectedUserId];
+  const selectedUserName = selectedUserProfile 
+    ? `${selectedUserProfile.first_name || ''} ${selectedUserProfile.last_name || ''}`.trim() || 'Benutzer'
+    : 'Benutzer';
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-background via-background/95 to-muted/20">
+    <div className="flex flex-col h-full bg-white relative overflow-hidden">
+      {/* Header */}
+      <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b border-slate-100 bg-white shrink-0">
+        <div className="flex items-center gap-3">
+          {/* User Avatar */}
+          <div 
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden"
+            style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+          >
+            <User className="w-5 h-5 text-white" />
+          </div>
+
+          <div className="flex flex-col">
+            <h1 className="font-semibold text-base tracking-tight text-slate-800 leading-tight">
+              {selectedUserName}
+            </h1>
+            <div className="flex items-center gap-1.5">
+              <div className="relative w-2 h-2 bg-emerald-500 rounded-full">
+                <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-40" />
+              </div>
+              <span className="text-xs font-medium text-emerald-600">Online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Messages Area */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea 
-          ref={scrollAreaRef} 
-          className="h-full"
-        >
-          <div className="space-y-4 p-6">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full min-h-[300px]">
-                <div className="text-center">
-                  <p className="text-muted-foreground text-lg">
-                    Noch keine Nachrichten. Schreiben Sie die erste Nachricht!
-                  </p>
+      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-64 text-slate-500">
+            <div className="text-center">
+              <p className="text-slate-500 text-lg">
+                Noch keine Nachrichten
+              </p>
+              <p className="text-slate-400 text-sm mt-1">
+                Schreiben Sie die erste Nachricht!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-2xl mx-auto space-y-4">
+            {/* Time Divider */}
+            <div className="flex justify-center mb-4">
+              <span className="text-[10px] font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
+                Heute
+              </span>
+            </div>
+
+            {messages.map(message => {
+              const isOwnMessage = message.sender_id === userId;
+              const isBot = message.sender_id === null && message.chat_type === 'bot';
+              const senderName = !isOwnMessage && !isBot ? getSenderName(message.sender_id) : undefined;
+              
+              return (
+                <div 
+                  key={message.id} 
+                  className={`flex ${!isOwnMessage ? 'items-start gap-3' : 'flex-col items-end'} ${!isOwnMessage ? 'max-w-[90%]' : 'ml-auto max-w-[85%]'}`}
+                >
+                  {/* Sender Avatar */}
+                  {!isOwnMessage && (
+                    <div 
+                      className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
+                      style={{ 
+                        background: isBot 
+                          ? 'linear-gradient(to bottom right, #1D64FF, #0B2566)' 
+                          : 'linear-gradient(to bottom right, #059669, #047857)' 
+                      }}
+                    >
+                      {isBot ? (
+                        <img src="/bot-avatar.png" alt="Bot" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-1">
+                    {senderName && (
+                      <p className="text-xs font-medium text-slate-500 ml-1">{senderName}</p>
+                    )}
+                    <div 
+                      className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
+                        !isOwnMessage 
+                          ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' 
+                          : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'
+                      }`}
+                    >
+                      <p className={`whitespace-pre-wrap ${!isOwnMessage ? 'text-[#1d283a]' : 'text-white'}`}>
+                        {message.content}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] text-slate-400 font-medium ${!isOwnMessage ? 'ml-1' : 'mr-1'}`}>
+                      {formatTime(message.created_at)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+
+            {isSending && (
+              <div className="flex items-start gap-3 max-w-[90%]">
+                <div 
+                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
+                  style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+                >
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="bg-white border border-slate-200 rounded-[24px] px-4 py-3.5 shadow-sm">
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <div className="flex space-x-1">
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                    </div>
+                  </div>
                 </div>
               </div>
-            ) : (
-              messages.map((message) => (
-                <ChatBubble
-                  key={message.id}
-                  message={message}
-                  attachment={message.attachment_id ? attachments[message.attachment_id] || null : null}
-                  senderName={getSenderName(message.sender_id)}
-                  senderAvatarUrl={getSenderAvatarUrl(message.sender_id)}
-                  isOwnMessage={message.sender_id === userId}
-                />
-              ))
             )}
+
+            <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        )}
       </div>
 
       {/* Chat Input */}
       {!hideInput && (
-        <div className="border-t border-border/50 bg-background/50 backdrop-blur-sm">
-          <ModernChatInput
-            onSendMessage={handleSendMessage}
-            placeholder="Nachricht eingeben..."
-            userId={userId || ''}
-          />
+        <div className="border-t border-slate-100 bg-white p-4">
+          <div className="max-w-2xl mx-auto">
+            <PromptInputBox 
+              onSend={handleSendMessage}
+              placeholder="Schreib eine Nachricht..."
+              isLoading={isSending}
+            />
+          </div>
         </div>
       )}
     </div>
