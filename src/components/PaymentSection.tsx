@@ -246,29 +246,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
               )}
 
-              {/* Cost Breakdown */}
+              {/* Total Price Only */}
               <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-4 font-jakarta">
-                  Kostenaufschlüsselung
-                </h3>
-
-                <div className="space-y-3 mb-4">
-                  {priceBreakdown.items.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center text-slate-600">
-                      <span className="text-sm font-medium font-jakarta">{item.label}</span>
-                      <span className="text-sm font-semibold text-slate-800 font-jakarta">CHF {formatPrice(item.amount)}</span>
-                    </div>
-                  ))}
-                  
-                  {!isUpgrade && expressService && (
-                    <div className="flex justify-between items-center text-slate-600">
-                      <span className="text-sm font-medium font-jakarta">Express-Service</span>
-                      <span className="text-sm font-semibold text-slate-800 font-jakarta">CHF 100.00</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+                <div className="flex justify-between items-center">
                   <span className="text-sm font-semibold text-slate-800 font-jakarta">
                     Gesamtpreis
                   </span>
