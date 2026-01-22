@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileIcon, Calendar, Info, Briefcase, Wallet, Receipt, Upload } from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
-import FormDataDisplay from './FormDataDisplay';
+import FormDataTableView from './FormDataTableView';
 import SimpleChatWindow from '@/components/chat/SimpleChatWindow';
 import AdminNotesCard from './AdminNotesCard';
 import DocumentsPdfDownloader from './DocumentsPdfDownloader';
@@ -323,7 +323,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </CardHeader>
               <CardContent>
                 {getYearDataStatus.hasFormData ? (
-                  <FormDataDisplay 
+                  <FormDataTableView 
                     formData={formDataForSelectedYear} 
                     documents={documentsForSelectedYear} 
                     selectedYear={selectedYear} 
