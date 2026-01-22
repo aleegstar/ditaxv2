@@ -559,13 +559,13 @@ const UserDetail: React.FC = () => {
                 
                 {/* Status Cluster */}
                 <div className="hidden lg:flex items-center gap-2">
-                  {/* Year Selector Dropdown */}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
-                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                  {/* Year Selector Dropdown - Pill Style */}
+                  <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-slate-50 border border-slate-200">
+                    <Calendar className="h-4 w-4 text-slate-500" />
                     <select
                       value={selectedYear}
                       onChange={(e) => handleYearChange(e.target.value)}
-                      className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer pr-1"
+                      className="text-sm font-medium text-slate-700 bg-transparent border-none outline-none cursor-pointer pr-1"
                     >
                       {Array.from(new Set([
                         ...formData.map(fd => fd.tax_year),
@@ -586,11 +586,11 @@ const UserDetail: React.FC = () => {
                     onStatusChanged={fetchUserData}
                   />
                   
-                  {/* Missing Items Indicator */}
+                  {/* Missing Items Indicator - Pill Style */}
                   {pendingMissingItemsCount > 0 && (
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/70">
-                      <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                      <span className="text-xs font-medium text-amber-700">
+                    <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-amber-50 border border-amber-200">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm font-medium text-amber-700">
                         {pendingMissingItemsCount} offen
                       </span>
                     </div>
@@ -634,12 +634,13 @@ const UserDetail: React.FC = () => {
             
             {/* Mobile Status Row */}
             <div className="flex flex-wrap items-center gap-2 mt-3 lg:hidden">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              {/* Year Selector - Pill Style */}
+              <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-slate-50 border border-slate-200">
+                <Calendar className="h-4 w-4 text-slate-500" />
                 <select
                   value={selectedYear}
                   onChange={(e) => handleYearChange(e.target.value)}
-                  className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer pr-1"
+                  className="text-sm font-medium text-slate-700 bg-transparent border-none outline-none cursor-pointer pr-1"
                 >
                   {Array.from(new Set([
                     ...formData.map(fd => fd.tax_year),
@@ -658,9 +659,9 @@ const UserDetail: React.FC = () => {
                 onStatusChanged={fetchUserData}
               />
               {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/70">
-                  <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                  <span className="text-xs font-medium text-amber-700">
+                <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-amber-50 border border-amber-200">
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <span className="text-sm font-medium text-amber-700">
                     {pendingMissingItemsCount} offen
                   </span>
                 </div>
