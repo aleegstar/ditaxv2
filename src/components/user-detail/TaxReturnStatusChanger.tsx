@@ -19,12 +19,14 @@ interface TaxReturnStatusChangerProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Ausstehend', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'processing', label: 'In Bearbeitung', color: 'bg-blue-100 text-blue-800' },
-  { value: 'missing_documents', label: 'Fehlende Unterlagen', color: 'bg-orange-100 text-orange-800' },
-  { value: 'missing_information', label: 'Fehlende Angaben', color: 'bg-red-100 text-red-800' },
-  { value: 'success', label: 'Abgeschlossen', color: 'bg-green-100 text-green-800' },
-  { value: 'completed', label: 'Erledigt', color: 'bg-green-100 text-green-800' },
+  { value: 'pending', label: 'Ausstehend', bgColor: 'bg-amber-50', textColor: 'text-amber-700', borderColor: 'border-amber-200' },
+  { value: 'processing', label: 'In Bearbeitung', bgColor: 'bg-blue-50', textColor: 'text-blue-700', borderColor: 'border-blue-200' },
+  { value: 'missing_documents', label: 'Fehlende Unterlagen', bgColor: 'bg-orange-50', textColor: 'text-orange-700', borderColor: 'border-orange-200' },
+  { value: 'missing_information', label: 'Fehlende Angaben', bgColor: 'bg-red-50', textColor: 'text-red-700', borderColor: 'border-red-200' },
+  { value: 'documents_submitted', label: 'Unterlagen eingereicht', bgColor: 'bg-purple-50', textColor: 'text-purple-700', borderColor: 'border-purple-200' },
+  { value: 'success', label: 'Abgeschlossen', bgColor: 'bg-emerald-50', textColor: 'text-emerald-700', borderColor: 'border-emerald-200' },
+  { value: 'completed', label: 'Erledigt', bgColor: 'bg-emerald-50', textColor: 'text-emerald-700', borderColor: 'border-emerald-200' },
+  { value: 'paid', label: 'Bezahlt', bgColor: 'bg-green-50', textColor: 'text-green-700', borderColor: 'border-green-200' },
 ];
 
 export const TaxReturnStatusChanger = ({
@@ -87,14 +89,19 @@ export const TaxReturnStatusChanger = ({
   const currentOption = STATUS_OPTIONS.find(s => s.value === currentStatus);
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Status:</span>
+    <div className="flex items-center gap-3">
       <Select
         value={currentStatus || 'pending'}
         onValueChange={handleStatusChange}
         disabled={isUpdating}
       >
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger 
+          className={`w-auto min-w-[180px] h-10 rounded-full border px-4 font-medium transition-all ${
+            currentOption 
+              ? `${currentOption.bgColor} ${currentOption.textColor} ${currentOption.borderColor}` 
+              : 'bg-slate-50 text-slate-600 border-slate-200'
+          }`}
+        >
           {isUpdating ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -103,21 +110,24 @@ export const TaxReturnStatusChanger = ({
           ) : (
             <SelectValue>
               {currentOption ? (
-                <Badge className={currentOption.color} variant="secondary">
-                  {currentOption.label}
-                </Badge>
+                <span className="font-medium">{currentOption.label}</span>
               ) : (
                 <span className="text-muted-foreground">Status wählen</span>
               )}
             </SelectValue>
           )}
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="rounded-xl border-slate-200 shadow-lg">
           {STATUS_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              <Badge className={option.color} variant="secondary">
-                {option.label}
-              </Badge>
+            <SelectItem 
+              key={option.value} 
+              value={option.value}
+              className="rounded-lg my-0.5 cursor-pointer"
+            >
+              <div className={`flex items-center gap-2 px-2 py-1 rounded-full ${option.bgColor} ${option.textColor}`}>
+                <div className={`w-2 h-2 rounded-full ${option.textColor.replace('text-', 'bg-')}`} />
+                <span className="font-medium text-sm">{option.label}</span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
