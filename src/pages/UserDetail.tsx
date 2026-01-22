@@ -559,10 +559,23 @@ const UserDetail: React.FC = () => {
                 
                 {/* Status Cluster */}
                 <div className="hidden lg:flex items-center gap-2">
-                  {/* Year Context */}
+                  {/* Year Selector Dropdown */}
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-medium">Steuerjahr {selectedYear}</span>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => handleYearChange(e.target.value)}
+                      className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer pr-1"
+                    >
+                      {Array.from(new Set([
+                        ...formData.map(fd => fd.tax_year),
+                        ...taxReturns.map(tr => tr.tax_year),
+                        ...completedTaxReturns.map(cr => cr.tax_year),
+                        new Date().getFullYear().toString()
+                      ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
+                        <option key={year} value={year}>Steuerjahr {year}</option>
+                      ))}
+                    </select>
                   </div>
                   
                   {/* Status */}
@@ -587,11 +600,11 @@ const UserDetail: React.FC = () => {
               
               {/* Right: Actions */}
               <div className="flex items-center gap-2">
-                {/* Primary Action */}
+                {/* Primary Action - Orange */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
                   size="sm"
-                  className="h-8 rounded-lg px-3 font-medium gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs"
+                  className="h-8 rounded-lg px-3 font-medium gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs"
                 >
                   <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
@@ -623,7 +636,20 @@ const UserDetail: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 mt-3 lg:hidden">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium">Steuerjahr {selectedYear}</span>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer pr-1"
+                >
+                  {Array.from(new Set([
+                    ...formData.map(fd => fd.tax_year),
+                    ...taxReturns.map(tr => tr.tax_year),
+                    ...completedTaxReturns.map(cr => cr.tax_year),
+                    new Date().getFullYear().toString()
+                  ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
+                    <option key={year} value={year}>Steuerjahr {year}</option>
+                  ))}
+                </select>
               </div>
               <TaxReturnStatusChanger
                 userId={user.id}
