@@ -191,10 +191,10 @@ export function AdminSidebar() {
   return (
     <div 
       data-sidebar 
-      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-sidebar border-r border-sidebar-border"
+      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-sidebar"
     >
       {/* Logo Header */}
-      <div className="flex items-center h-16 px-5 shrink-0 border-b border-sidebar-border">
+      <div className="flex items-center h-16 px-5 shrink-0">
         <div className="flex items-center gap-3">
           <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
           <div className="flex flex-col">
@@ -259,7 +259,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* User Profile Section */}
-      <div className="shrink-0 p-3 border-t border-sidebar-border bg-sidebar">
+      <div className="shrink-0 p-3 bg-sidebar">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors cursor-pointer">
