@@ -96,7 +96,7 @@ export const TaxReturnStatusChanger = ({
         disabled={isUpdating}
       >
         <SelectTrigger 
-          className={`w-auto min-w-[180px] h-10 rounded-full border px-4 font-medium transition-all ${
+          className={`w-auto min-w-[180px] h-9 rounded-full border px-4 text-xs font-medium transition-all ${
             currentOption 
               ? `${currentOption.bgColor} ${currentOption.textColor} ${currentOption.borderColor}` 
               : 'bg-slate-50 text-slate-600 border-slate-200'
