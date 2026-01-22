@@ -11,7 +11,7 @@ const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'tax-cover-sheet': {
     id: 'tax-cover-sheet',
     title: 'Deckblatt der Steuererklärung',
-    description: 'Das Deckblatt deiner Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde',
+    description: 'Das offizielle Deckblatt deiner Steuererklärung vom Steueramt',
     category: 'general',
     required: true
   },
