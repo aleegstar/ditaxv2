@@ -280,51 +280,41 @@ const UserTabs: React.FC<UserTabsProps> = ({
           </TabsTrigger>
         </TabsList>
         
-        <div className="pb-6">
-          <TabsContent value="info" className="space-y-6 mt-0">
-            <Card className="border-border/40 shadow-sm">
-              <CardHeader className="pb-4">
-                <div>
-                  <CardTitle className="text-lg">Formularangaben</CardTitle>
-                  <CardDescription className="text-sm">
-                    Eingereichte Steuerdaten für das Steuerjahr {selectedYear}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {getYearDataStatus.hasFormData ? (
-                  <FormDataTableView 
-                    formData={formDataForSelectedYear} 
-                    documents={documentsForSelectedYear} 
-                    selectedYear={selectedYear} 
-                    userId={userId} 
-                    userName={`${user.firstName} ${user.lastName}`} 
-                    isAdmin={true} 
-                  />
-                ) : (
-                  <div className="text-center py-10">
-                    <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FileIcon className="h-7 w-7 text-muted-foreground/60" />
+        <div className="pb-4">
+          <TabsContent value="info" className="mt-0">
+            {getYearDataStatus.hasFormData ? (
+              <FormDataTableView 
+                formData={formDataForSelectedYear} 
+                documents={documentsForSelectedYear} 
+                selectedYear={selectedYear} 
+                userId={userId} 
+                userName={`${user.firstName} ${user.lastName}`} 
+                isAdmin={true} 
+              />
+            ) : (
+              <Card className="border-border/30 shadow-sm">
+                <CardContent className="py-10">
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                      <FileIcon className="h-6 w-6 text-muted-foreground/60" />
                     </div>
-                    <p className="text-muted-foreground font-medium">Keine Formulardaten vorhanden</p>
-                    <p className="text-sm text-muted-foreground/70 mt-1">
-                      Für das Steuerjahr {selectedYear} wurden noch keine Angaben gemacht
+                    <p className="text-muted-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      Der Mandant hat noch keine Angaben gemacht
                     </p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
-          <TabsContent value="documents" className="space-y-6 mt-0">
-            <Card className="border-border/40 shadow-sm">
-              <CardHeader className="pb-4">
-                <div>
-                  <CardTitle className="text-lg">Hochgeladene Dokumente</CardTitle>
-                  <CardDescription className="text-sm">
-                    Vom Mandanten eingereichte Unterlagen für {selectedYear}
-                  </CardDescription>
-                </div>
+          <TabsContent value="documents" className="mt-0">
+            <Card className="border-border/30 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
+                <CardDescription className="text-xs">
+                  Vom Mandanten eingereichte Unterlagen für {selectedYear}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {documentsForSelectedYear.length === 0 ? (
