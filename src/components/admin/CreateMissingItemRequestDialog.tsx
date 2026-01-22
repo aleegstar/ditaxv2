@@ -18,10 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, FileWarning, HelpCircle, Loader2, Upload, FileText, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, FileWarning, HelpCircle, Loader2 } from 'lucide-react';
 import { useMissingItemRequests } from '@/hooks/useMissingItemRequests';
 import { supabase } from '@/integrations/supabase/client';
-import { SecurityService } from '@/services/SecurityService';
 import { useToast } from '@/hooks/use-toast';
 
 interface MissingItemInput {
@@ -51,9 +50,6 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
   const [requestType, setRequestType] = useState<'document' | 'information'>('document');
   const [items, setItems] = useState<MissingItemInput[]>([{ title: '', description: '' }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadedFilePath, setUploadedFilePath] = useState<string | null>(null);
   const { createRequests } = useMissingItemRequests();
   const { toast } = useToast();
 
@@ -71,95 +67,6 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
     const newItems = [...items];
     newItems[index][field] = value;
     setItems(newItems);
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        toast({
-          title: "Ungültiger Dateityp",
-          description: "Bitte wählen Sie eine PDF-Datei aus.",
-          variant: "destructive"
-        });
-        return;
-      }
-      setSelectedFile(file);
-      setUploadedFilePath(null);
-    }
-  };
-
-  const handleUploadFile = async () => {
-    if (!selectedFile || !taxYear) {
-      toast({
-        title: "Fehlende Informationen",
-        description: "Bitte wählen Sie eine Datei aus.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const isAdmin = await SecurityService.verifyAdminAccess('completed_tax_return_upload');
-      if (!isAdmin) {
-        throw new Error('Keine Admin-Berechtigung');
-      }
-
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) {
-        throw new Error(`Auth-Fehler: ${userError?.message || 'Benutzer nicht authentifiziert'}`);
-      }
-
-      const fileName = `${userId}_${taxYear}_${Date.now()}.pdf`;
-      const filePath = `${userId}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('completed-tax-returns')
-        .upload(filePath, selectedFile, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: 'application/pdf'
-        });
-
-      if (uploadError) {
-        throw new Error(`Upload fehlgeschlagen: ${uploadError.message}`);
-      }
-
-      // Insert record into completed_tax_returns table
-      const { error: dbError } = await supabase
-        .from('completed_tax_returns')
-        .insert({
-          user_id: userId,
-          tax_year: taxYear,
-          file_name: selectedFile.name,
-          file_path: filePath,
-          file_type: 'application/pdf',
-          status: 'available',
-          uploaded_by_admin_id: userData.user?.id
-        });
-
-      if (dbError) {
-        await supabase.storage.from('completed-tax-returns').remove([filePath]);
-        throw new Error(`Datenbank-Fehler: ${dbError.message}`);
-      }
-
-      setUploadedFilePath(filePath);
-      toast({
-        title: "Upload erfolgreich",
-        description: "Die Steuererklärung wurde hochgeladen."
-      });
-    } catch (error: any) {
-      console.error('Error uploading file:', error);
-      toast({
-        title: "Upload-Fehler",
-        description: error.message || "Die Datei konnte nicht hochgeladen werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   const handleSubmit = async () => {
@@ -213,8 +120,6 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
   const resetForm = () => {
     setItems([{ title: '', description: '' }]);
     setRequestType('document');
-    setSelectedFile(null);
-    setUploadedFilePath(null);
   };
 
   const handleClose = (open: boolean) => {
@@ -224,7 +129,7 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
     onOpenChange(open);
   };
 
-  const isValid = items.some(item => item.title.trim()) && uploadedFilePath;
+  const isValid = items.some(item => item.title.trim()) && taxReturnId;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -248,57 +153,10 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Step 1: Upload Tax Return PDF */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">1</span>
-              Steuererklärung hochladen
-            </Label>
-            <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-              {uploadedFilePath ? (
-                <div className="flex items-center gap-3 text-green-600">
-                  <CheckCircle2 className="h-5 w-5" />
-                  <div>
-                    <p className="font-medium">Steuererklärung hochgeladen</p>
-                    <p className="text-sm text-muted-foreground">{selectedFile?.name}</p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3">
-                    <Input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileSelect}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      onClick={handleUploadFile}
-                      disabled={!selectedFile || isUploading}
-                      size="sm"
-                    >
-                      {isUploading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {selectedFile && !uploadedFilePath && (
-                    <p className="text-sm text-muted-foreground">
-                      Ausgewählt: {selectedFile.name} - Klicken Sie auf Upload um fortzufahren
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Step 2: Request Type */}
+          {/* Step 1: Request Type */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">2</span>
+              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">1</span>
               Art der Anfrage
             </Label>
             <Select value={requestType} onValueChange={(v) => setRequestType(v as 'document' | 'information')}>
@@ -322,10 +180,10 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
             </Select>
           </div>
 
-          {/* Step 3: Items */}
+          {/* Step 2: Items */}
           <div className="space-y-4">
             <Label className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">3</span>
+              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">2</span>
               Anforderungen
             </Label>
             
