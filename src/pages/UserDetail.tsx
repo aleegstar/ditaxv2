@@ -82,6 +82,8 @@ const UserDetail: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>(urlYear || new Date().getFullYear().toString());
   const [loading, setLoading] = useState(true);
   const [missingItemDialogOpen, setMissingItemDialogOpen] = useState(false);
+  const [missingItemsCount, setMissingItemsCount] = useState(0);
+  const [pendingMissingItemsCount, setPendingMissingItemsCount] = useState(0);
   const { toast } = useToast();
 
   const fetchUserData = async () => {
@@ -311,6 +313,25 @@ const UserDetail: React.FC = () => {
     }
   }, [userId]);
 
+  // Fetch missing items on mount and when userId changes
+  useEffect(() => {
+    const fetchMissingItems = async () => {
+      if (!userId) return;
+      
+      const { data, error } = await supabase
+        .from('missing_item_requests')
+        .select('id, status')
+        .eq('user_id', userId);
+      
+      if (!error && data) {
+        setMissingItemsCount(data.length);
+        setPendingMissingItemsCount(data.filter(item => item.status === 'pending').length);
+      }
+    };
+    
+    fetchMissingItems();
+  }, [userId]);
+
   const handleDownloadCompletedTaxReturn = async (taxReturn: CompletedTaxReturn) => {
     try {
       console.log('Admin downloading completed tax return:', taxReturn.file_path);
@@ -485,111 +506,127 @@ const UserDetail: React.FC = () => {
   console.log('🔍 All documents:', documents);
   console.log('🔍 Transformed documents:', transformedUser.documents);
 
+  // Get current tax return status
+  const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear);
+  const currentStatus = currentTaxReturn?.status;
+  const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
+
   return (
     <div className="flex min-h-screen w-full" style={{ backgroundColor: 'rgb(244 244 244 / var(--tw-bg-opacity, 1))' }}>
       <AdminSidebar />
       
-      <main className="flex-1 p-6">
-        <div className="bg-white rounded-3xl shadow-sm min-h-[calc(100vh-3rem)] p-6">
-          {/* Modern Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <Link to="/admin">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Zurück zum Dashboard
-                </Button>
-              </Link>
-            </div>
+      <main className="flex-1 p-4 lg:p-6">
+        <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)]">
+          {/* Compact Header */}
+          <div className="px-6 py-4 border-b border-border/50">
+            {/* Back Link */}
+            <Link to="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Zurück</span>
+            </Link>
             
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center border-2 border-primary/20">
-                  <span className="text-2xl font-bold text-primary">
+            {/* Main Header Row */}
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+              {/* Left: Client Info */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border border-primary/10 flex-shrink-0">
+                  <span className="text-lg font-bold text-primary">
                     {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
                     {user.last_name?.charAt(0)?.toUpperCase() || ''}
                   </span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-bold tracking-tight">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl lg:text-2xl font-bold tracking-tight">
                       {user.first_name} {user.last_name}
                     </h1>
                     {transformedUser.formData?.contactInfo?.adressnummer && (
-                      <span className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+                      <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
                         Nr. {transformedUser.formData.contactInfo.adressnummer}
                       </span>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-lg">
-                    {user.email || 'Keine E-Mail verfügbar'}
+                  <p className="text-sm text-muted-foreground truncate">
+                    {user.email || 'Keine E-Mail angegeben'}
                   </p>
+                  
+                  {/* Status Row - Prominent */}
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <TaxReturnStatusChanger
+                      userId={user.id}
+                      taxYear={selectedYear}
+                      currentStatus={currentStatus || null}
+                      onStatusChanged={fetchUserData}
+                    />
+                    
+                    {/* Missing Items Indicator */}
+                    {pendingMissingItemsCount > 0 && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200">
+                        <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-xs font-medium text-amber-700">
+                          {pendingMissingItemsCount} {pendingMissingItemsCount === 1 ? 'Anfrage' : 'Anfragen'} offen
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              {/* Quick Actions */}
-              <div className="flex flex-wrap gap-2">
-                <FormDataPdfDownloader 
-                  userId={user.id} 
-                  taxYear={selectedYear}
-                  userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()} 
-                  userEmail={user.email || undefined}
-                />
-                <DocumentsPdfDownloader 
-                  userId={user.id} 
-                  taxYear={selectedYear}
-                  userName={`${user.first_name} ${user.last_name}`}
-                  documentCount={documents.length}
-                />
-                <CoverLetterDownloader
-                  userId={user.id}
-                  userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
-                />
+              {/* Right: Actions */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Primary Action */}
+                <Button
+                  onClick={() => setMissingItemDialogOpen(true)}
+                  size="sm"
+                  className={`rounded-full px-4 h-9 font-medium gap-1.5 transition-all ${
+                    isMissingDocuments 
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-sm' 
+                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                  }`}
+                >
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  Unterlagen anfordern
+                </Button>
+                
+                {/* Secondary Actions - More subtle */}
+                <div className="flex items-center gap-1 border-l border-border/50 pl-2 ml-1">
+                  <FormDataPdfDownloader 
+                    userId={user.id} 
+                    taxYear={selectedYear}
+                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()} 
+                    userEmail={user.email || undefined}
+                  />
+                  <DocumentsPdfDownloader 
+                    userId={user.id} 
+                    taxYear={selectedYear}
+                    userName={`${user.first_name} ${user.last_name}`}
+                    documentCount={documents.length}
+                  />
+                  <CoverLetterDownloader
+                    userId={user.id}
+                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                  />
+                </div>
               </div>
             </div>
-            
-            {/* Status Changer for Admin */}
-            <div className="mt-4 pt-4 border-t">
-              <TaxReturnStatusChanger
-                userId={user.id}
-                taxYear={selectedYear}
-                currentStatus={taxReturns.find(tr => tr.tax_year === selectedYear)?.status || null}
-                onStatusChanged={fetchUserData}
-              />
-            </div>
-          </div>
-
-          {/* Missing Items Request Button */}
-          <div className="mb-6">
-            <Button
-              onClick={() => setMissingItemDialogOpen(true)}
-              size="sm"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full px-[20px] py-[10px] font-medium border-0 transition-colors duration-200 gap-2"
-              style={{ boxShadow: 'rgba(249, 115, 22, 0.3) 0px 3px 10px 0px' }}
-            >
-              <AlertCircle className="h-4 w-4" />
-              Fehlende Unterlagen anfordern
-            </Button>
           </div>
 
           {/* Main Content */}
-          <UserTabs
-            user={transformedUser}
-            taxReturns={taxReturns}
-            onTaxReturnClick={handleTaxReturnClick}
-            onUploadClick={handleUploadClick}
-            userId={user.id}
-            allFormData={formData}
-            onYearChange={handleYearChange}
-            initialNotes={user.admin_notes || ''}
-            selectedYear={selectedYear}
-            completedTaxReturns={completedTaxReturns}
-            onCompletedTaxReturnsRefresh={fetchUserData}
-          />
+          <div className="p-6">
+            <UserTabs
+              user={transformedUser}
+              taxReturns={taxReturns}
+              onTaxReturnClick={handleTaxReturnClick}
+              onUploadClick={handleUploadClick}
+              userId={user.id}
+              allFormData={formData}
+              onYearChange={handleYearChange}
+              initialNotes={user.admin_notes || ''}
+              selectedYear={selectedYear}
+              completedTaxReturns={completedTaxReturns}
+              onCompletedTaxReturnsRefresh={fetchUserData}
+            />
+          </div>
         </div>
 
         {/* Missing Item Request Dialog */}
@@ -603,6 +640,18 @@ const UserDetail: React.FC = () => {
               title: "Anfrage erstellt",
               description: "Die Anfrage für fehlende Unterlagen wurde erfolgreich erstellt."
             });
+            // Refresh missing items count
+            const fetchMissingItems = async () => {
+              const { data } = await supabase
+                .from('missing_item_requests')
+                .select('id, status')
+                .eq('user_id', user.id);
+              if (data) {
+                setMissingItemsCount(data.length);
+                setPendingMissingItemsCount(data.filter(item => item.status === 'pending').length);
+              }
+            };
+            fetchMissingItems();
           }}
         />
       </main>

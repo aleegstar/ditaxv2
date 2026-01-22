@@ -4,7 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileIcon, Calendar, Info, Briefcase, Wallet, Receipt, Upload } from 'lucide-react';
+import { 
+  FileText, 
+  FolderOpen, 
+  FileCheck, 
+  Receipt, 
+  MessageSquare, 
+  StickyNote,
+  Calendar, 
+  FileIcon, 
+  Briefcase, 
+  Wallet, 
+  Upload 
+} from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
 import FormDataTableView from './FormDataTableView';
@@ -241,77 +253,93 @@ const UserTabs: React.FC<UserTabsProps> = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50">
+        {/* Enhanced TabsList with icons and better active state */}
+        <TabsList className="mb-6 h-auto p-1 bg-muted/40 rounded-xl flex flex-wrap gap-1">
           <TabsTrigger 
             value="info" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Formularangaben
+            <FileText className="h-4 w-4" />
+            <span>Formularangaben</span>
           </TabsTrigger>
           <TabsTrigger 
             value="documents" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Dokumente
+            <FolderOpen className="h-4 w-4" />
+            <span>Dokumente</span>
+            {documentsForSelectedYear.length > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                {documentsForSelectedYear.length}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger 
             value="tax-returns" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Steuererklärung
+            <FileCheck className="h-4 w-4" />
+            <span>Steuererklärung</span>
           </TabsTrigger>
           <TabsTrigger 
             value="definitive-bills" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Definitive Rechnungen
+            <Receipt className="h-4 w-4" />
+            <span>Def. Rechnungen</span>
           </TabsTrigger>
           <TabsTrigger 
             value="messages" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Nachrichten
+            <MessageSquare className="h-4 w-4" />
+            <span>Nachrichten</span>
           </TabsTrigger>
           <TabsTrigger 
             value="admin-notes" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:text-primary px-4 py-2.5 rounded-lg flex items-center gap-2 transition-all"
           >
-            Admin-Notizen
+            <StickyNote className="h-4 w-4" />
+            <span>Notizen</span>
           </TabsTrigger>
         </TabsList>
         
-        <div className="px-6 pb-6">
-          <TabsContent value="info" className="space-y-6">
-            <Card className="border-border/50">
-              <CardHeader className="space-y-4">
-                <div>
-                  <CardTitle className="text-xl">Ausgefüllte Formularangaben</CardTitle>
-                  <CardDescription>
-                    Nur relevante Angaben mit "Ja" werden angezeigt
-                  </CardDescription>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
-                    <Calendar className="h-4 w-4 text-slate-500" />
-                    <Select value={selectedYear} onValueChange={handleYearChange}>
-                      <SelectTrigger className="w-24 h-8 border-0 bg-transparent p-0 focus:ring-0">
-                        <SelectValue placeholder="Jahr" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableYears.map(year => (
-                          <SelectItem key={year} value={year}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+        <div className="pb-6">
+          <TabsContent value="info" className="space-y-6 mt-0">
+            <Card className="border-border/40 shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-lg">Formularangaben</CardTitle>
+                    <CardDescription className="text-sm">
+                      Eingereichte Steuerdaten für das ausgewählte Jahr
+                    </CardDescription>
                   </div>
-                  <FormDataPdfDownloader 
-                    userId={userId} 
-                    taxYear={selectedYear} 
-                    userName={`${user.firstName} ${user.lastName}`} 
-                    userEmail={user.email}
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Year Filter - Clear label */}
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5 border border-border/50">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Steuerjahr</span>
+                      <Select value={selectedYear} onValueChange={handleYearChange}>
+                        <SelectTrigger className="w-20 h-7 border-0 bg-transparent p-0 focus:ring-0 font-semibold">
+                          <SelectValue placeholder="Jahr" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          {availableYears.map(year => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <FormDataPdfDownloader 
+                      userId={userId} 
+                      taxYear={selectedYear} 
+                      userName={`${user.firstName} ${user.lastName}`} 
+                      userEmail={user.email}
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -325,13 +353,13 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     isAdmin={true} 
                   />
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <FileIcon className="h-8 w-8 text-muted-foreground" />
+                  <div className="text-center py-10">
+                    <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                      <FileIcon className="h-7 w-7 text-muted-foreground/60" />
                     </div>
-                    <p className="text-muted-foreground mb-2">Keine Formulardaten für {selectedYear} vorhanden</p>
-                    <p className="text-sm text-muted-foreground">
-                      Wählen Sie ein anderes Jahr oder erstellen Sie neue Daten
+                    <p className="text-muted-foreground font-medium">Keine Formulardaten vorhanden</p>
+                    <p className="text-sm text-muted-foreground/70 mt-1">
+                      Für das Steuerjahr {selectedYear} wurden noch keine Angaben gemacht
                     </p>
                   </div>
                 )}
@@ -339,48 +367,51 @@ const UserTabs: React.FC<UserTabsProps> = ({
             </Card>
           </TabsContent>
 
-          <TabsContent value="documents" className="space-y-6">
-            <Card className="border-border/50">
-              <CardHeader className="space-y-4">
-                <div>
-                  <CardTitle className="text-xl">Hochgeladene Dokumente</CardTitle>
-                  <CardDescription>
-                    Alle vom Benutzer hochgeladenen Dokumente für {selectedYear}
-                  </CardDescription>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
-                    <Calendar className="h-4 w-4 text-slate-500" />
-                    <Select value={selectedYear} onValueChange={handleYearChange}>
-                      <SelectTrigger className="w-24 h-8 border-0 bg-transparent p-0 focus:ring-0">
-                        <SelectValue placeholder="Jahr" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableYears.map(year => (
-                          <SelectItem key={year} value={year}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+          <TabsContent value="documents" className="space-y-6 mt-0">
+            <Card className="border-border/40 shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-lg">Hochgeladene Dokumente</CardTitle>
+                    <CardDescription className="text-sm">
+                      Vom Mandanten eingereichte Unterlagen
+                    </CardDescription>
                   </div>
-                  <DocumentsPdfDownloader 
-                    userId={userId} 
-                    taxYear={selectedYear} 
-                    userName={`${user.firstName} ${user.lastName}`} 
-                    documentCount={documentsForSelectedYear.length} 
-                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5 border border-border/50">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Steuerjahr</span>
+                      <Select value={selectedYear} onValueChange={handleYearChange}>
+                        <SelectTrigger className="w-20 h-7 border-0 bg-transparent p-0 focus:ring-0 font-semibold">
+                          <SelectValue placeholder="Jahr" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          {availableYears.map(year => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <DocumentsPdfDownloader 
+                      userId={userId} 
+                      taxYear={selectedYear} 
+                      userName={`${user.firstName} ${user.lastName}`} 
+                      documentCount={documentsForSelectedYear.length} 
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 {documentsForSelectedYear.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <FileIcon className="h-8 w-8 text-muted-foreground" />
+                  <div className="text-center py-10">
+                    <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                      <FolderOpen className="h-7 w-7 text-muted-foreground/60" />
                     </div>
-                    <p className="text-muted-foreground mb-2">Keine Dokumente für {selectedYear} hochgeladen</p>
-                    <p className="text-sm text-muted-foreground">
-                      Dokumente werden hier angezeigt, sobald sie hochgeladen wurden
+                    <p className="text-muted-foreground font-medium">Keine Dokumente hochgeladen</p>
+                    <p className="text-sm text-muted-foreground/70 mt-1">
+                      Für das Steuerjahr {selectedYear} wurden noch keine Unterlagen eingereicht
                     </p>
                   </div>
                 ) : (
