@@ -3,10 +3,6 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, FileWarning, HelpCircle, Loader2 } from 'lucide-react';
+import { Plus, Trash2, FileText, HelpCircle, Loader2, X } from 'lucide-react';
 import { useMissingItemRequests } from '@/hooks/useMissingItemRequests';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -130,50 +126,59 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
   };
 
   const isValid = items.some(item => item.title.trim()) && taxReturnId;
+  const validItemCount = items.filter(i => i.title.trim()).length;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {requestType === 'document' ? (
-              <FileWarning className="h-5 w-5 text-orange-500" />
-            ) : (
-              <HelpCircle className="h-5 w-5 text-red-500" />
-            )}
-            Fehlende Unterlagen/Angaben anfordern
-          </DialogTitle>
-          <DialogDescription>
-            {userName && taxYear && (
-              <span className="font-medium">
-                Für {userName} • Steuerjahr {taxYear}
-              </span>
-            )}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[540px] max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-xl [&>button]:hidden">
+        {/* Header */}
+        <div className="flex items-start justify-between p-6 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Fehlende Unterlagen/Angaben anfordern
+              </h2>
+              {userName && taxYear && (
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {userName} • {taxYear}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => handleClose(false)}
+            className="w-9 h-9 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center transition-colors"
+          >
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
 
-        <div className="space-y-6 py-4">
+        {/* Content */}
+        <div className="px-6 pb-4 space-y-5">
           {/* Step 1: Request Type */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">1</span>
+          <div className="space-y-2.5">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] flex items-center justify-center font-semibold">1</span>
               Art der Anfrage
             </Label>
             <Select value={requestType} onValueChange={(v) => setRequestType(v as 'document' | 'information')}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 rounded-xl border-primary/30 bg-primary/5 focus:ring-primary/20">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="document">
+              <SelectContent className="rounded-xl">
+                <SelectItem value="document" className="rounded-lg">
                   <div className="flex items-center gap-2">
-                    <FileWarning className="h-4 w-4 text-orange-500" />
-                    Fehlende Unterlagen
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span>Fehlende Unterlagen</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="information">
+                <SelectItem value="information" className="rounded-lg">
                   <div className="flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4 text-red-500" />
-                    Fehlende Angaben
+                    <HelpCircle className="h-4 w-4 text-amber-500" />
+                    <span>Fehlende Angaben</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -181,16 +186,16 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
           </div>
 
           {/* Step 2: Items */}
-          <div className="space-y-4">
-            <Label className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">2</span>
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] flex items-center justify-center font-semibold">2</span>
               Anforderungen
             </Label>
             
             {items.map((item, index) => (
-              <div key={index} className="relative border rounded-lg p-4 space-y-3 bg-muted/30">
+              <div key={index} className="relative border border-border/60 rounded-xl p-4 space-y-3 bg-muted/20">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
                     {index + 1}. Anforderung
                   </span>
                   {items.length > 1 && (
@@ -199,15 +204,15 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
                       variant="ghost"
                       size="sm"
                       onClick={() => removeItem(index)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   )}
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor={`title-${index}`}>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`title-${index}`} className="text-xs font-medium">
                     Titel <span className="text-destructive">*</span>
                   </Label>
                   <Input
@@ -215,17 +220,21 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
                     placeholder={requestType === 'document' ? 'z.B. Lohnausweis 2024' : 'z.B. Anzahl Arbeitstage im Homeoffice'}
                     value={item.title}
                     onChange={(e) => updateItem(index, 'title', e.target.value)}
+                    className="h-10 rounded-lg border-border/60 bg-background focus-visible:ring-primary/20"
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor={`desc-${index}`}>Beschreibung (optional)</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`desc-${index}`} className="text-xs font-medium text-muted-foreground">
+                    Beschreibung (optional)
+                  </Label>
                   <Textarea
                     id={`desc-${index}`}
                     placeholder={requestType === 'document' ? 'z.B. Bitte laden Sie Ihren Lohnausweis als PDF hoch' : 'z.B. Bitte geben Sie die genaue Anzahl der Homeoffice-Tage an'}
                     value={item.description}
                     onChange={(e) => updateItem(index, 'description', e.target.value)}
                     rows={2}
+                    className="rounded-lg border-border/60 bg-background resize-none focus-visible:ring-primary/20"
                   />
                 </div>
               </div>
@@ -235,7 +244,7 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
               type="button"
               variant="outline"
               onClick={addItem}
-              className="w-full"
+              className="w-full h-10 rounded-xl border-dashed border-border/80 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
               Weitere Anforderung hinzufügen
@@ -243,23 +252,31 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => handleClose(false)} disabled={isSubmitting}>
+        {/* Footer */}
+        <div className="flex items-center justify-center gap-3 p-6 pt-4 border-t border-border/40">
+          <Button 
+            variant="outline" 
+            onClick={() => handleClose(false)} 
+            disabled={isSubmitting}
+            className="h-10 px-6 rounded-xl border-border/60"
+          >
             Abbrechen
           </Button>
-          <Button onClick={handleSubmit} disabled={!isValid || isSubmitting}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={!isValid || isSubmitting}
+            className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90"
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Wird gesendet...
               </>
             ) : (
-              <>
-                {items.filter(i => i.title.trim()).length} Anfrage(n) senden
-              </>
+              <>{validItemCount} Anfrage(n) senden</>
             )}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
