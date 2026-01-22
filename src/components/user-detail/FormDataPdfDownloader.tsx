@@ -89,21 +89,17 @@ const FormDataPdfDownloader: React.FC<FormDataPdfDownloaderProps> = ({
     <Button
       onClick={handleDownload}
       disabled={isDownloading}
+      variant="ghost"
       size="sm"
-      className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] font-medium border-0 transition-colors duration-200 disabled:opacity-50"
-      style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+      className="h-8 px-3 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-lg gap-1.5 font-normal"
+      title="Formularangaben als PDF herunterladen"
     >
       {isDownloading ? (
-        <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          PDF wird generiert...
-        </>
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <>
-          <Download className="h-4 w-4 mr-2" />
-          Formularangaben als PDF
-        </>
+        <Download className="h-4 w-4" />
       )}
+      <span className="hidden sm:inline text-xs">Formular-PDF</span>
     </Button>
   );
 };

@@ -115,20 +115,19 @@ const DocumentsPdfDownloader: React.FC<DocumentsPdfDownloaderProps> = ({
     <Button
       onClick={handleDownloadPdf}
       disabled={isGenerating || documentCount === 0}
+      variant="ghost"
       size="sm"
-      className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] font-medium border-0 transition-colors duration-200 disabled:opacity-50"
-      style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+      className="h-8 px-3 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-lg gap-1.5 font-normal disabled:opacity-40"
+      title={`${documentCount} Dokumente als PDF herunterladen`}
     >
       {isGenerating ? (
-        <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          PDF wird erstellt...
-        </>
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <>
-          <Download className="h-4 w-4 mr-2" />
-          Unterlagen als PDF ({documentCount})
-        </>
+        <Download className="h-4 w-4" />
+      )}
+      <span className="hidden sm:inline text-xs">Dokumente</span>
+      {documentCount > 0 && (
+        <span className="text-xs text-muted-foreground/70">({documentCount})</span>
       )}
     </Button>
   );
