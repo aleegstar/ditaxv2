@@ -983,6 +983,7 @@ export type Database = {
           disable_otp_fallback: boolean | null
           documents_tour_completed: boolean | null
           email: string | null
+          feedback_prompt_shown_at: string | null
           first_name: string | null
           id: string
           last_name: string | null
@@ -1007,6 +1008,7 @@ export type Database = {
           disable_otp_fallback?: boolean | null
           documents_tour_completed?: boolean | null
           email?: string | null
+          feedback_prompt_shown_at?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
@@ -1031,6 +1033,7 @@ export type Database = {
           disable_otp_fallback?: boolean | null
           documents_tour_completed?: boolean | null
           email?: string | null
+          feedback_prompt_shown_at?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
