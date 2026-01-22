@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import DocumentPreview from './DocumentPreview';
-import FormDataPdfDownloader from './FormDataPdfDownloader';
 
 interface FormDataTableViewProps {
   formData: FormData;
@@ -177,10 +176,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                   <p className="text-sm text-muted-foreground">Kontakt- und Stammdaten</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">{selectedYear}</Badge>
-                <FormDataPdfDownloader userId={userId} taxYear={selectedYear} userName={userName} />
-              </div>
+              <Badge variant="outline">{selectedYear}</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-4">
