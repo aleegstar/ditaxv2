@@ -39,14 +39,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Processing notification for recipient:", recipient_id);
 
-    // Check if sender is an admin
-    const { data: senderRole } = await supabase
+    // Check if sender has admin role (handles users with multiple roles)
+    const { data: senderRoles, error: senderRoleError } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", sender_id)
-      .single();
+      .eq("role", "admin");
 
-    if (!senderRole || senderRole.role !== "admin") {
+    if (senderRoleError) {
+      console.error("Error checking sender role:", senderRoleError);
+    }
+
+    const isAdmin = senderRoles && senderRoles.length > 0;
+
+    if (!isAdmin) {
       console.log("Sender is not an admin, skipping notification");
       return new Response(JSON.stringify({ skipped: true, reason: "sender_not_admin" }), {
         status: 200,
@@ -55,13 +61,15 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Check if recipient is NOT an admin (only notify regular users)
-    const { data: recipientRole } = await supabase
+    const { data: recipientRoles } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", recipient_id)
-      .single();
+      .eq("role", "admin");
 
-    if (recipientRole?.role === "admin") {
+    const recipientIsAdmin = recipientRoles && recipientRoles.length > 0;
+
+    if (recipientIsAdmin) {
       console.log("Recipient is an admin, skipping notification");
       return new Response(JSON.stringify({ skipped: true, reason: "recipient_is_admin" }), {
         status: 200,
