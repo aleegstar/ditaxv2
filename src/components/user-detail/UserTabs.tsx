@@ -238,9 +238,9 @@ const UserTabs: React.FC<UserTabsProps> = ({
   };
 
   return (
-    <Card className="shadow-sm border-border/50">
+    <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="m-6 mb-6 h-12 w-auto p-1 bg-muted/50">
+        <TabsList className="mb-6 h-12 w-auto p-1 bg-muted/50">
           <TabsTrigger 
             value="info" 
             className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-6 py-2"
@@ -640,7 +640,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
         userId={userId} 
         isAdmin={true} 
       />
-    </Card>
+    </div>
   );
 };
 
