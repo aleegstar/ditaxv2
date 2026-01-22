@@ -115,9 +115,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "DiTax <noreply@ditax.ch>",
+      from: "Ditax <noreply@ditax.ch>",
       to: [profile.email],
-      subject: "Neue Nachricht von DiTax Support",
+      subject: "Neue Nachricht von Ditax Support",
       html: `
         <!DOCTYPE html>
         <html>
@@ -135,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="background-color: #1D64FF; padding: 32px 40px; border-radius: 12px 12px 0 0;">
                       <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">
-                        DiTax
+                        Ditax
                       </h1>
                     </td>
                   </tr>
@@ -183,7 +183,7 @@ const handler = async (req: Request): Promise<Response> => {
                         Diese E-Mail wurde automatisch gesendet. Bitte antworte nicht direkt auf diese E-Mail.
                       </p>
                       <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 12px; text-align: center;">
-                        © ${new Date().getFullYear()} DiTax. Alle Rechte vorbehalten.
+                        © ${new Date().getFullYear()} Ditax. Alle Rechte vorbehalten.
                       </p>
                     </td>
                   </tr>
