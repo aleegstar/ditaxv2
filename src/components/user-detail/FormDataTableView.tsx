@@ -224,9 +224,9 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                         <TableCell className="font-medium py-3">{displayValue(getValueLabel('religion', contactInfo.religion))}</TableCell>
                       </TableRow>
                       {contactInfo.adressnummer && (
-                        <TableRow className="group hover:bg-muted/50 bg-primary/5">
-                          <TableCell className="font-medium text-muted-foreground">Adressnummer</TableCell>
-                          <TableCell className="font-bold text-primary">
+                        <TableRow className="group hover:bg-muted/30 border-b border-border/30">
+                          <TableCell className="text-sm text-muted-foreground py-3">Adressnummer</TableCell>
+                          <TableCell className="font-medium py-3">
                             {contactInfo.adressnummer}
                             <CopyButton text={contactInfo.adressnummer} fieldId="adressnummer" copiedFields={copiedFields} onCopy={handleCopy} />
                           </TableCell>
