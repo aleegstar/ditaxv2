@@ -133,7 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   <!-- Header -->
                   <tr>
-                    <td style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); padding: 32px 40px; border-radius: 12px 12px 0 0;">
+                    <td style="background-color: #1D64FF; padding: 32px 40px; border-radius: 12px 12px 0 0;">
                       <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">
                         DiTax
                       </h1>
@@ -148,11 +148,11 @@ const handler = async (req: Request): Promise<Response> => {
                       </h2>
                       
                       <p style="margin: 0 0 24px 0; color: #52525b; font-size: 16px; line-height: 1.6;">
-                        Sie haben eine neue Nachricht von unserem Support-Team erhalten.
+                        Du hast eine neue Nachricht von unserem Support-Team erhalten.
                       </p>
                       
                       ${message_preview ? `
-                      <div style="background-color: #f4f4f5; border-left: 4px solid #0ea5e9; padding: 16px 20px; margin: 0 0 24px 0; border-radius: 0 8px 8px 0;">
+                      <div style="background-color: #f4f4f5; border-left: 4px solid #1D64FF; padding: 16px 20px; margin: 0 0 24px 0; border-radius: 0 8px 8px 0;">
                         <p style="margin: 0; color: #3f3f46; font-size: 14px; font-style: italic;">
                           "${message_preview}${message_preview.length >= 100 ? '...' : ''}"
                         </p>
@@ -160,13 +160,13 @@ const handler = async (req: Request): Promise<Response> => {
                       ` : ''}
                       
                       <p style="margin: 0 0 32px 0; color: #52525b; font-size: 16px; line-height: 1.6;">
-                        Melden Sie sich an, um die vollständige Nachricht zu lesen und zu antworten.
+                        Melde dich an, um die vollständige Nachricht zu lesen und zu antworten.
                       </p>
                       
                       <!-- CTA Button -->
                       <table role="presentation" cellspacing="0" cellpadding="0">
                         <tr>
-                          <td style="border-radius: 8px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                          <td style="border-radius: 12px; background-color: #1D64FF;">
                             <a href="${appUrl}/chat" target="_blank" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600;">
                               Chat öffnen →
                             </a>
@@ -180,7 +180,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <tr>
                     <td style="padding: 24px 40px; background-color: #fafafa; border-radius: 0 0 12px 12px; border-top: 1px solid #e4e4e7;">
                       <p style="margin: 0; color: #a1a1aa; font-size: 12px; text-align: center;">
-                        Diese E-Mail wurde automatisch gesendet. Bitte antworten Sie nicht direkt auf diese E-Mail.
+                        Diese E-Mail wurde automatisch gesendet. Bitte antworte nicht direkt auf diese E-Mail.
                       </p>
                       <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 12px; text-align: center;">
                         © ${new Date().getFullYear()} DiTax. Alle Rechte vorbehalten.
