@@ -284,38 +284,11 @@ const UserTabs: React.FC<UserTabsProps> = ({
           <TabsContent value="info" className="space-y-6 mt-0">
             <Card className="border-border/40 shadow-sm">
               <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <CardTitle className="text-lg">Formularangaben</CardTitle>
-                    <CardDescription className="text-sm">
-                      Eingereichte Steuerdaten für das ausgewählte Jahr
-                    </CardDescription>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/* Year Filter - Clear label */}
-                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5 border border-border/50">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground font-medium">Steuerjahr</span>
-                      <Select value={selectedYear} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-20 h-7 border-0 bg-transparent p-0 focus:ring-0 font-semibold">
-                          <SelectValue placeholder="Jahr" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <FormDataPdfDownloader 
-                      userId={userId} 
-                      taxYear={selectedYear} 
-                      userName={`${user.firstName} ${user.lastName}`} 
-                      userEmail={user.email}
-                    />
-                  </div>
+                <div>
+                  <CardTitle className="text-lg">Formularangaben</CardTitle>
+                  <CardDescription className="text-sm">
+                    Eingereichte Steuerdaten für das Steuerjahr {selectedYear}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -346,37 +319,11 @@ const UserTabs: React.FC<UserTabsProps> = ({
           <TabsContent value="documents" className="space-y-6 mt-0">
             <Card className="border-border/40 shadow-sm">
               <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <CardTitle className="text-lg">Hochgeladene Dokumente</CardTitle>
-                    <CardDescription className="text-sm">
-                      Vom Mandanten eingereichte Unterlagen
-                    </CardDescription>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-1.5 border border-border/50">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground font-medium">Steuerjahr</span>
-                      <Select value={selectedYear} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-20 h-7 border-0 bg-transparent p-0 focus:ring-0 font-semibold">
-                          <SelectValue placeholder="Jahr" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <DocumentsPdfDownloader 
-                      userId={userId} 
-                      taxYear={selectedYear} 
-                      userName={`${user.firstName} ${user.lastName}`} 
-                      documentCount={documentsForSelectedYear.length} 
-                    />
-                  </div>
+                <div>
+                  <CardTitle className="text-lg">Hochgeladene Dokumente</CardTitle>
+                  <CardDescription className="text-sm">
+                    Vom Mandanten eingereichte Unterlagen für {selectedYear}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
