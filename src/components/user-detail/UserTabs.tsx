@@ -241,49 +241,49 @@ const UserTabs: React.FC<UserTabsProps> = ({
     return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        {/* Tab Navigation - Segment Style */}
+        {/* Tab Navigation - Original Pill Style */}
         <div className="relative">
-          <TabsList className="relative z-10 h-11 w-auto p-1 bg-muted/40 border border-border/50 rounded-t-xl rounded-b-none">
+          <TabsList className="relative z-10 h-12 w-auto p-1 bg-muted/50 rounded-full mb-0">
             <TabsTrigger 
               value="info" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-b-background data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Formularangaben
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Dokumente
             </TabsTrigger>
             <TabsTrigger 
               value="tax-returns" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Steuererklärung
             </TabsTrigger>
             <TabsTrigger 
               value="definitive-bills" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Definitive Rechnungen
             </TabsTrigger>
             <TabsTrigger 
               value="messages" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Nachrichten
             </TabsTrigger>
             <TabsTrigger 
               value="admin-notes" 
-              className="relative data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=inactive]:text-muted-foreground px-5 py-2 rounded-lg rounded-b-none text-sm font-medium transition-all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-white data-[state=active]:shadow-sm px-6 py-2 rounded-full"
             >
               Admin-Notizen
             </TabsTrigger>
           </TabsList>
           
           {/* Content Container - Connected to Tabs */}
-          <div className="relative -mt-px bg-background border border-border/50 border-t-0 rounded-b-xl rounded-tr-xl shadow-sm">
+          <div className="relative mt-4 bg-background border border-border/40 rounded-xl shadow-sm">
             <div className="p-5">
               <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
