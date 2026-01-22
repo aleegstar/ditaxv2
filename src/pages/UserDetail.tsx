@@ -519,16 +519,18 @@ const UserDetail: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
           {/* Compact Header */}
           <div className="px-5 py-4 border-b border-border/40">
-            {/* Back Link */}
-            <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Zurück</span>
-            </Link>
-            
             {/* Main Header Row */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-              {/* Left: Client Info + Status Cluster */}
+              {/* Left: Back Button + Client Info + Status Cluster */}
               <div className="flex items-center gap-3">
+                {/* Back Button - Round */}
+                <Link 
+                  to="/admin" 
+                  className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors flex-shrink-0"
+                >
+                  <ArrowLeft className="h-4 w-4 text-slate-600" />
+                </Link>
+                
                 {/* Avatar */}
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <span className="text-base font-semibold text-primary">
