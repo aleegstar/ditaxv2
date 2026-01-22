@@ -500,109 +500,94 @@ const UserTabs: React.FC<UserTabsProps> = ({
           </TabsContent>
 
           <TabsContent value="tax-returns" className="space-y-6">
-            <Card className="border-border/50">
-              <CardHeader>
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-xl">Steuererklärung {selectedYear}</CardTitle>
-                    <CardDescription>
-                      {getYearDataStatus.hasTaxReturn || getYearDataStatus.hasCompletedReturn ? 
-                        'Daten verfügbar' : 'Keine Daten vorhanden'}
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <Select value={selectedYear} onValueChange={handleYearChange}>
-                        <SelectTrigger className="w-36">
-                          <SelectValue placeholder="Jahr wählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableYears.map(year => (
-                            <SelectItem key={year} value={year}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-8">
-                {/* In Processing Section */}
-                {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <h3 className="text-lg font-semibold">In Bearbeitung</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length}
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Steuererklärungen, die noch bearbeitet werden
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).map(taxReturn => (
-                        <Card 
-                          key={taxReturn.id} 
-                          className="cursor-pointer hover:shadow-md transition-all duration-200 border-border/50 hover:border-primary/20" 
-                          onClick={() => onTaxReturnClick(taxReturn)}
-                        >
-                          <CardHeader className="pb-3">
-                            <CardTitle className="text-base">Steuererklärung {taxReturn.taxYear}</CardTitle>
-                            <CardDescription>
-                              Status: {taxReturn.status}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="flex items-center justify-between">
-                              <Badge variant="secondary">
-                                {taxReturn.taxYear}
-                              </Badge>
-                              <div className={`w-2 h-2 rounded-full ${
-                                taxReturn.status === 'success' ? 'bg-green-500' : 
-                                taxReturn.status === 'processing' ? 'bg-yellow-500' : 'bg-gray-300'
-                              }`} />
-                            </div>
-                          </CardContent>
-                        </Card>
+            {/* Year Selector */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 rounded-full px-4 py-2 border border-slate-200">
+                  <Calendar className="h-4 w-4 text-slate-500" />
+                  <Select value={selectedYear} onValueChange={handleYearChange}>
+                    <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
+                      <SelectValue placeholder="Jahr" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {availableYears.map(year => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Completed Returns Section */}
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-lg font-semibold">Fertige Steuererklärungen</h3>
-                    <Badge variant="outline" className="text-xs">
-                      {completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear)).length}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    Vom Admin hochgeladene, fertige Steuererklärungen
-                  </p>
-                  <CompletedTaxReturnManager 
-                    userId={userId} 
-                    userName={`${user.firstName} ${user.lastName}`} 
-                    completedTaxReturns={completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear))} 
-                    onRefresh={onCompletedTaxReturnsRefresh} 
-                  />
+                    </SelectContent>
+                  </Select>
                 </div>
-                {!getYearDataStatus.hasTaxReturn && !getYearDataStatus.hasCompletedReturn && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <FileIcon className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground mb-2">Keine Steuererklärung für {selectedYear} vorhanden</p>
-                    <p className="text-sm text-muted-foreground">
-                      Erstellen Sie eine neue Steuererklärung oder laden Sie eine fertige hoch
-                    </p>
-                  </div>
+                {(getYearDataStatus.hasTaxReturn || getYearDataStatus.hasCompletedReturn) && (
+                  <span className="flex items-center gap-1.5 text-sm text-emerald-600">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    Daten verfügbar
+                  </span>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {/* In Processing Section */}
+            {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold text-slate-900">In Bearbeitung</h3>
+                  <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                    {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).map(taxReturn => (
+                    <div 
+                      key={taxReturn.id} 
+                      className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer" 
+                      onClick={() => onTaxReturnClick(taxReturn)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center border border-amber-200/50">
+                          <FileIcon className="h-6 w-6 text-amber-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-900">Steuererklärung {taxReturn.taxYear}</h4>
+                          <p className="text-sm text-slate-500">Status: {taxReturn.status}</p>
+                        </div>
+                      </div>
+                      <div className={`w-3 h-3 rounded-full ${
+                        taxReturn.status === 'success' ? 'bg-emerald-500' : 
+                        taxReturn.status === 'processing' ? 'bg-amber-500' : 'bg-slate-300'
+                      }`} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Completed Returns Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-slate-900">Fertige Steuererklärungen</h3>
+                <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                  {completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear)).length}
+                </span>
+              </div>
+              <CompletedTaxReturnManager 
+                userId={userId} 
+                userName={`${user.firstName} ${user.lastName}`} 
+                completedTaxReturns={completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear))} 
+                onRefresh={onCompletedTaxReturnsRefresh} 
+              />
+            </div>
+
+            {/* Empty State */}
+            {!getYearDataStatus.hasTaxReturn && !getYearDataStatus.hasCompletedReturn && completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear)).length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                  <FileIcon className="h-8 w-8 text-slate-400" />
+                </div>
+                <p className="text-slate-500 font-medium">Keine Steuererklärung für {selectedYear}</p>
+                <p className="text-slate-400 text-sm mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="definitive-bills" className="space-y-6">
