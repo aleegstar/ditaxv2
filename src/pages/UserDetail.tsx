@@ -515,81 +515,90 @@ const UserDetail: React.FC = () => {
     <div className="flex min-h-screen w-full" style={{ backgroundColor: 'rgb(244 244 244 / var(--tw-bg-opacity, 1))' }}>
       <AdminSidebar />
       
-      <main className="flex-1 p-4 lg:p-6">
-        <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)]">
+      <main className="flex-1 p-4 lg:p-5">
+        <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
           {/* Compact Header */}
-          <div className="px-6 py-4 border-b border-border/50">
+          <div className="px-5 py-4 border-b border-border/40">
             {/* Back Link */}
-            <Link to="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3">
-              <ArrowLeft className="h-4 w-4" />
+            <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2">
+              <ArrowLeft className="h-3.5 w-3.5" />
               <span>Zurück</span>
             </Link>
             
             {/* Main Header Row */}
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-              {/* Left: Client Info */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border border-primary/10 flex-shrink-0">
-                  <span className="text-lg font-bold text-primary">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              {/* Left: Client Info + Status Cluster */}
+              <div className="flex items-center gap-3">
+                {/* Avatar */}
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-base font-semibold text-primary">
                     {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
                     {user.last_name?.charAt(0)?.toUpperCase() || ''}
                   </span>
                 </div>
+                
+                {/* Name & Email */}
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-xl lg:text-2xl font-bold tracking-tight">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-semibold tracking-tight truncate">
                       {user.first_name} {user.last_name}
                     </h1>
                     {transformedUser.formData?.contactInfo?.adressnummer && (
-                      <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                        Nr. {transformedUser.formData.contactInfo.adressnummer}
+                      <span className="text-[10px] font-medium text-muted-foreground bg-muted/70 px-1.5 py-0.5 rounded flex-shrink-0">
+                        {transformedUser.formData.contactInfo.adressnummer}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {user.email || 'Keine E-Mail angegeben'}
+                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                    {user.email || 'Keine E-Mail'}
                   </p>
-                  
-                  {/* Status Row - Prominent */}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <TaxReturnStatusChanger
-                      userId={user.id}
-                      taxYear={selectedYear}
-                      currentStatus={currentStatus || null}
-                      onStatusChanged={fetchUserData}
-                    />
-                    
-                    {/* Missing Items Indicator */}
-                    {pendingMissingItemsCount > 0 && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200">
-                        <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                        <span className="text-xs font-medium text-amber-700">
-                          {pendingMissingItemsCount} {pendingMissingItemsCount === 1 ? 'Anfrage' : 'Anfragen'} offen
-                        </span>
-                      </div>
-                    )}
+                </div>
+                
+                {/* Divider */}
+                <div className="hidden lg:block w-px h-8 bg-border/60 mx-1" />
+                
+                {/* Status Cluster */}
+                <div className="hidden lg:flex items-center gap-2">
+                  {/* Year Context */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs font-medium">Steuerjahr {selectedYear}</span>
                   </div>
+                  
+                  {/* Status */}
+                  <TaxReturnStatusChanger
+                    userId={user.id}
+                    taxYear={selectedYear}
+                    currentStatus={currentStatus || null}
+                    onStatusChanged={fetchUserData}
+                  />
+                  
+                  {/* Missing Items Indicator */}
+                  {pendingMissingItemsCount > 0 && (
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/70">
+                      <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                      <span className="text-xs font-medium text-amber-700">
+                        {pendingMissingItemsCount} offen
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               
               {/* Right: Actions */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
                 {/* Primary Action */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
                   size="sm"
-                  className={`rounded-full px-4 h-9 font-medium gap-1.5 transition-all ${
-                    isMissingDocuments 
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-sm' 
-                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                  }`}
+                  className="h-8 rounded-lg px-3 font-medium gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs"
                 >
                   <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
                 </Button>
                 
-                {/* Secondary Actions - More subtle */}
-                <div className="flex items-center gap-1 border-l border-border/50 pl-2 ml-1">
+                {/* Secondary Actions - Grouped & Subtle */}
+                <div className="flex items-center gap-0.5 border-l border-border/50 pl-2 ml-1">
                   <FormDataPdfDownloader 
                     userId={user.id} 
                     taxYear={selectedYear}
@@ -609,10 +618,32 @@ const UserDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Mobile Status Row */}
+            <div className="flex flex-wrap items-center gap-2 mt-3 lg:hidden">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 border border-border/40">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium">Steuerjahr {selectedYear}</span>
+              </div>
+              <TaxReturnStatusChanger
+                userId={user.id}
+                taxYear={selectedYear}
+                currentStatus={currentStatus || null}
+                onStatusChanged={fetchUserData}
+              />
+              {pendingMissingItemsCount > 0 && (
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/70">
+                  <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                  <span className="text-xs font-medium text-amber-700">
+                    {pendingMissingItemsCount} offen
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Main Content */}
-          <div className="p-6">
+          <div className="p-5">
             <UserTabs
               user={transformedUser}
               taxReturns={taxReturns}

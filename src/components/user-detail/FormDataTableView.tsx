@@ -173,24 +173,24 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Section 1: Persönliche Daten - Two Column Layout */}
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader className="pb-4 border-b">
+        <Card className="border-border/40 shadow-sm overflow-hidden">
+          <CardHeader className="py-3 px-4 bg-muted/30 border-b border-border/40">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <User className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Persönliche Daten</CardTitle>
-                  <p className="text-sm text-muted-foreground">Kontakt- und Stammdaten</p>
+                  <CardTitle className="text-sm font-semibold">Persönliche Daten</CardTitle>
+                  <p className="text-xs text-muted-foreground">Kontakt- und Stammdaten</p>
                 </div>
               </div>
-              <Badge variant="outline">{selectedYear}</Badge>
+              <Badge variant="secondary" className="text-xs">{selectedYear}</Badge>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="p-4">
             {contactInfo ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column */}
@@ -341,19 +341,19 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 2: Einkommen */}
         {income && Object.keys(income).some(k => income[k as keyof typeof income]) && (
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="pb-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <Briefcase className="h-5 w-5 text-green-600" />
+          <Card className="border-border/40 shadow-sm overflow-hidden">
+            <CardHeader className="py-3 px-4 bg-emerald-50/50 border-b border-border/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Briefcase className="h-4 w-4 text-emerald-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Einkommen</CardTitle>
-                  <p className="text-sm text-muted-foreground">Einkommensquellen und Beschäftigung</p>
+                  <CardTitle className="text-sm font-semibold">Einkommen</CardTitle>
+                  <p className="text-xs text-muted-foreground">Einkommensquellen und Beschäftigung</p>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -439,19 +439,19 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 3: Vermögen */}
         {(assets || bankStatementDocs.length > 0) && (
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="pb-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Wallet className="h-5 w-5 text-blue-600" />
+          <Card className="border-border/40 shadow-sm overflow-hidden">
+            <CardHeader className="py-3 px-4 bg-blue-50/50 border-b border-border/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Wallet className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Vermögen</CardTitle>
-                  <p className="text-sm text-muted-foreground">Vermögenswerte und Verbindlichkeiten</p>
+                  <CardTitle className="text-sm font-semibold">Vermögen</CardTitle>
+                  <p className="text-xs text-muted-foreground">Vermögenswerte und Verbindlichkeiten</p>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -588,19 +588,19 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 4: Abzüge */}
         {deductions && Object.keys(deductions).some(k => deductions[k as keyof typeof deductions]) && (
-          <Card className="border-border/50 shadow-sm">
-            <CardHeader className="pb-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Receipt className="h-5 w-5 text-purple-600" />
+          <Card className="border-border/40 shadow-sm overflow-hidden">
+            <CardHeader className="py-3 px-4 bg-purple-50/50 border-b border-border/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Receipt className="h-4 w-4 text-purple-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Abzüge</CardTitle>
-                  <p className="text-sm text-muted-foreground">Steuerliche Abzugsmöglichkeiten</p>
+                  <CardTitle className="text-sm font-semibold">Abzüge</CardTitle>
+                  <p className="text-xs text-muted-foreground">Steuerliche Abzugsmöglichkeiten</p>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
