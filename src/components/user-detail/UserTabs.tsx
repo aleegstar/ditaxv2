@@ -591,7 +591,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
           </TabsContent>
           
           <TabsContent value="definitive-bills" className="space-y-6">
-            <UserDefinitiveTaxBill userId={userId} />
+            <UserDefinitiveTaxBill userId={userId} isAdmin={true} />
           </TabsContent>
           
           <TabsContent value="messages" className="space-y-6">
