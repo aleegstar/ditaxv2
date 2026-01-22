@@ -27,18 +27,16 @@ export const generateChecklistItems = (
   const checklistItems: ChecklistItem[] = [];
   console.log('📋 Starting checklist generation...');
   
-  // Check if tax cover sheet is needed (when no address number is provided)
-  if (!formData.contactInfo?.adressnummer || formData.contactInfo.adressnummer.trim() === '') {
-    checklistItems.push({
-      id: "tax-cover-sheet",
-      title: "Deckblatt der Steuererklärung",
-      description: "Das Deckblatt deiner Steuererklärung wird benötigt, da keine Adressnummer angegeben wurde",
-      category: "general",
-      uploaded: false,
-      required: true
-    });
-    console.log('✅ Added tax cover sheet (no address number)');
-  }
+  // Tax cover sheet is always required
+  checklistItems.push({
+    id: "tax-cover-sheet",
+    title: "Deckblatt der Steuererklärung",
+    description: "Das offizielle Deckblatt deiner Steuererklärung vom Steueramt",
+    category: "general",
+    uploaded: false,
+    required: true
+  });
+  console.log('✅ Added tax cover sheet (always required)');
   
   // Add income-related documents based on form data OR if income section has any progress
   if (formProgress.income || formData.income) {
