@@ -622,7 +622,7 @@ const UserDetail: React.FC = () => {
                     userId={user.id} 
                     taxYear={selectedYear}
                     userName={`${user.first_name} ${user.last_name}`}
-                    documentCount={documents.length}
+                    documentCount={documents.filter(d => d.tax_year === selectedYear).length}
                   />
                   <CoverLetterDownloader
                     userId={user.id}
