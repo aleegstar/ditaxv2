@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Save } from 'lucide-react';
+import { Save, StickyNote, Lock, Check } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +13,10 @@ interface AdminNotesCardProps {
 const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes }) => {
   const [adminNotes, setAdminNotes] = useState(initialNotes);
   const [savingNotes, setSavingNotes] = useState(false);
+  const [saved, setSaved] = useState(false);
   const { toast } = useToast();
+
+  const hasChanges = adminNotes !== initialNotes;
 
   const saveAdminNotes = async () => {
     setSavingNotes(true);
@@ -32,6 +34,8 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes })
           variant: "destructive"
         });
       } else {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
         toast({
           title: "Notizen gespeichert",
           description: "Die Admin-Notizen wurden erfolgreich gespeichert."
@@ -51,37 +55,72 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes })
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-xl font-semibold text-slate-900">Admin-Notizen</h3>
-        <p className="text-muted-foreground text-sm">
-          Nur für Administratoren sichtbar
-        </p>
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center border border-amber-200/50">
+            <StickyNote className="h-6 w-6 text-amber-600" />
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">Admin-Notizen</h3>
+            <div className="flex items-center gap-1.5 text-sm text-slate-500">
+              <Lock className="h-3.5 w-3.5" />
+              <span>Nur für Administratoren sichtbar</span>
+            </div>
+          </div>
+        </div>
+        {hasChanges && (
+          <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+            Ungespeicherte Änderungen
+          </span>
+        )}
       </div>
-      <div className="space-y-4">
-        <Textarea 
-          placeholder="Notizen zum Benutzer hinzufügen..." 
-          value={adminNotes} 
-          onChange={(e) => setAdminNotes(e.target.value)} 
-          className="min-h-[150px] resize-none rounded-xl border-slate-200" 
-        />
-        <Button 
-          onClick={saveAdminNotes} 
-          disabled={savingNotes} 
-          className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 py-3 h-12 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
-        >
-          {savingNotes ? (
-            <>
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              Wird gespeichert...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Speichern
-            </>
-          )}
-        </Button>
+
+      {/* Notes Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+        <div className="relative">
+          <Textarea 
+            placeholder="Notizen zum Benutzer hinzufügen..." 
+            value={adminNotes} 
+            onChange={(e) => setAdminNotes(e.target.value)} 
+            className="min-h-[180px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1d64ff] focus:ring-1 focus:ring-[#1d64ff]/20 transition-all text-slate-700 placeholder:text-slate-400" 
+          />
+        </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-slate-400">
+            {adminNotes.length} Zeichen
+          </p>
+          <Button 
+            onClick={saveAdminNotes} 
+            disabled={savingNotes || !hasChanges}
+            className={`
+              rounded-full px-6 py-2.5 h-11 text-sm font-medium border-0 transition-all duration-200 
+              flex items-center justify-center gap-2
+              ${saved 
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                : 'bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white disabled:bg-slate-100 disabled:text-slate-400'
+              }
+            `}
+          >
+            {savingNotes ? (
+              <>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Speichern...
+              </>
+            ) : saved ? (
+              <>
+                <Check className="h-4 w-4" />
+                Gespeichert
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Speichern
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
