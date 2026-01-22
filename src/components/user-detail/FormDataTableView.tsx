@@ -94,10 +94,10 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
     }
   };
 
-  // Label mappings
+  // Label mappings - empty state handling
   const getValueLabel = (key: string, value: any): string => {
     if (value === null || value === undefined || value === '') {
-      return 'Nicht angegeben';
+      return '';
     }
     if (typeof value === 'boolean') return value ? 'Ja' : 'Nein';
     if (key === 'maritalStatus') {
@@ -173,60 +173,57 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
   return (
     <>
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Section 1: Persönliche Daten - Two Column Layout */}
-        <Card className="border-border/40 shadow-sm overflow-hidden">
-          <CardHeader className="py-3 px-4 bg-muted/30 border-b border-border/40">
+        <Card className="border-border/30 shadow-sm overflow-hidden">
+          <CardHeader className="py-2.5 px-4 bg-muted/20 border-b border-border/30">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-primary" />
                 </div>
-                <div>
-                  <CardTitle className="text-sm font-semibold">Persönliche Daten</CardTitle>
-                  <p className="text-xs text-muted-foreground">Kontakt- und Stammdaten</p>
-                </div>
+                <CardTitle className="text-sm font-medium">Persönliche Daten</CardTitle>
               </div>
-              <Badge variant="secondary" className="text-xs">{selectedYear}</Badge>
+              <Badge variant="secondary" className="text-[10px] font-normal">{selectedYear}</Badge>
             </div>
           </CardHeader>
           <CardContent className="p-4">
             {contactInfo ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Column */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                    <User className="h-4 w-4" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                {/* Left Column - Personalien */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 pb-1 border-b border-border/30">
+                    <User className="h-3 w-3" />
                     Personalien
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3 w-36">Name</TableCell>
-                        <TableCell className="font-medium py-3">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5 w-28">Name</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(`${contactInfo.firstName || ''} ${contactInfo.lastName || ''}`.trim())}
                           {contactInfo.firstName && <CopyButton text={`${contactInfo.firstName} ${contactInfo.lastName}`} fieldId="name" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">Geburtsdatum</TableCell>
-                        <TableCell className="font-medium py-3">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">Geburtsdatum</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.birthDate ? new Date(contactInfo.birthDate).toLocaleDateString('de-CH') : null)}
                           {contactInfo.birthDate && <CopyButton text={new Date(contactInfo.birthDate).toLocaleDateString('de-CH')} fieldId="birthDate" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">Zivilstand</TableCell>
-                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('maritalStatus', contactInfo.maritalStatus))}</TableCell>
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">Zivilstand</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('maritalStatus', contactInfo.maritalStatus))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">Konfession</TableCell>
-                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('religion', contactInfo.religion))}</TableCell>
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">Konfession</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('religion', contactInfo.religion))}</TableCell>
                       </TableRow>
                       {contactInfo.adressnummer && (
-                        <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                          <TableCell className="text-sm text-muted-foreground py-3">Adressnummer</TableCell>
-                          <TableCell className="font-medium py-3">
+                        <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                          <TableCell className="text-xs text-muted-foreground/80 py-2.5">Adressnummer</TableCell>
+                          <TableCell className="text-sm font-medium py-2.5">
                             {contactInfo.adressnummer}
                             <CopyButton text={contactInfo.adressnummer} fieldId="adressnummer" copiedFields={copiedFields} onCopy={handleCopy} />
                           </TableCell>
@@ -236,42 +233,42 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                   </Table>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
+                {/* Right Column - Kontakt & Adresse */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 pb-1 border-b border-border/30">
+                    <MapPin className="h-3 w-3" />
                     Kontakt & Adresse
                   </h4>
                   <Table>
                     <TableBody>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3 w-36">Adresse</TableCell>
-                        <TableCell className="font-medium py-3">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5 w-28">Adresse</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.address)}
                           {contactInfo.address && <CopyButton text={contactInfo.address} fieldId="address" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">PLZ / Ort</TableCell>
-                        <TableCell className="font-medium py-3">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">PLZ / Ort</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(`${contactInfo.postalCode || ''} ${contactInfo.city || ''}`.trim())}
                           {(contactInfo.postalCode || contactInfo.city) && <CopyButton text={`${contactInfo.postalCode} ${contactInfo.city}`} fieldId="plzort" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">Kanton</TableCell>
-                        <TableCell className="font-medium py-3">{displayValue(getValueLabel('kanton', contactInfo.kanton))}</TableCell>
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">Kanton</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">{displayValue(getValueLabel('kanton', contactInfo.kanton))}</TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">Telefon</TableCell>
-                        <TableCell className="font-medium py-3">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">Telefon</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5">
                           {displayValue(contactInfo.phone)}
                           {contactInfo.phone && <CopyButton text={contactInfo.phone} fieldId="phone" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
                       </TableRow>
-                      <TableRow className="group hover:bg-muted/30 border-b border-border/30">
-                        <TableCell className="text-sm text-muted-foreground py-3">E-Mail</TableCell>
-                        <TableCell className="font-medium py-3 break-all">
+                      <TableRow className="group hover:bg-muted/20 border-b border-border/20">
+                        <TableCell className="text-xs text-muted-foreground/80 py-2.5">E-Mail</TableCell>
+                        <TableCell className="text-sm font-medium py-2.5 break-all">
                           {displayValue(contactInfo.email)}
                           {contactInfo.email && <CopyButton text={contactInfo.email} fieldId="email" copiedFields={copiedFields} onCopy={handleCopy} />}
                         </TableCell>
@@ -280,60 +277,64 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                   </Table>
                 </div>
 
-                {/* Spouse - Full Width */}
+                {/* Spouse - Full Width with Clear Separation */}
                 {contactInfo.maritalStatus === 'verheiratet' && (contactInfo.spouseFirstName || contactInfo.spouseLastName) && (
-                  <div className="lg:col-span-2 pt-2 border-t">
-                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2 mb-3">
-                      <Heart className="h-4 w-4" />
-                      Ehepartner/in
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4 bg-muted/30 rounded-lg p-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Name</p>
-                        <p className="font-medium">{contactInfo.spouseFirstName} {contactInfo.spouseLastName}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Konfession</p>
-                        <p className="font-medium">{getValueLabel('spouseReligion', contactInfo.spouseReligion)}</p>
+                  <div className="lg:col-span-2 mt-2">
+                    <div className="bg-rose-50/50 rounded-lg border border-rose-100/80 p-4">
+                      <h4 className="text-[11px] font-medium text-rose-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                        <Heart className="h-3 w-3" />
+                        Ehepartner/in
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Name</p>
+                          <p className="text-sm font-medium mt-0.5">{contactInfo.spouseFirstName} {contactInfo.spouseLastName}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Konfession</p>
+                          <p className="text-sm font-medium mt-0.5">{getValueLabel('spouseReligion', contactInfo.spouseReligion) || <span className="text-muted-foreground/50 text-xs italic">Nicht angegeben</span>}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Children - Full Width */}
+                {/* Children - Full Width with Clear Separation */}
                 {contactInfo.hasChildren && contactInfo.children && contactInfo.children.length > 0 && (
-                  <div className="lg:col-span-2 pt-2 border-t">
-                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2 mb-3">
-                      <Baby className="h-4 w-4" />
-                      Kinder ({contactInfo.children.length})
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {contactInfo.children.map((child, index) => (
-                        <div key={index} className="bg-muted/30 rounded-lg p-4">
-                          <p className="font-semibold text-base">{child.firstName} {child.lastName}</p>
-                          <div className="mt-2 space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Geburtsdatum:</span>
-                              <span>{child.birthDate ? new Date(child.birthDate).toLocaleDateString('de-CH') : '-'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Konfession:</span>
-                              <span>{getValueLabel('religion', child.religion)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Abzug:</span>
-                              <span className="text-right">{getValueLabel('deduction', child.deduction) || '-'}</span>
+                  <div className="lg:col-span-2 mt-2">
+                    <div className="bg-sky-50/50 rounded-lg border border-sky-100/80 p-4">
+                      <h4 className="text-[11px] font-medium text-sky-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                        <Baby className="h-3 w-3" />
+                        Kinder ({contactInfo.children.length})
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {contactInfo.children.map((child, index) => (
+                          <div key={index} className="bg-white/60 rounded-md p-3 border border-sky-100/50">
+                            <p className="text-sm font-medium">{child.firstName} {child.lastName}</p>
+                            <div className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+                              <div className="flex justify-between">
+                                <span>Geburtsdatum</span>
+                                <span className="text-foreground">{child.birthDate ? new Date(child.birthDate).toLocaleDateString('de-CH') : <span className="italic text-muted-foreground/50">—</span>}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Konfession</span>
+                                <span className="text-foreground">{getValueLabel('religion', child.religion) || <span className="italic text-muted-foreground/50">—</span>}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Abzug</span>
+                                <span className="text-foreground">{getValueLabel('deduction', child.deduction) || <span className="italic text-muted-foreground/50">—</span>}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                Keine persönlichen Daten vorhanden
+              <div className="text-center py-6 text-muted-foreground">
+                <p className="text-sm">Keine persönlichen Daten vorhanden</p>
               </div>
             )}
           </CardContent>
@@ -341,16 +342,13 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 2: Einkommen */}
         {income && Object.keys(income).some(k => income[k as keyof typeof income]) && (
-          <Card className="border-border/40 shadow-sm overflow-hidden">
-            <CardHeader className="py-3 px-4 bg-emerald-50/50 border-b border-border/40">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <Briefcase className="h-4 w-4 text-emerald-600" />
+          <Card className="border-border/30 shadow-sm overflow-hidden">
+            <CardHeader className="py-2.5 px-4 bg-emerald-50/30 border-b border-border/30">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Briefcase className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
-                <div>
-                  <CardTitle className="text-sm font-semibold">Einkommen</CardTitle>
-                  <p className="text-xs text-muted-foreground">Einkommensquellen und Beschäftigung</p>
-                </div>
+                <CardTitle className="text-sm font-medium">Einkommen</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -439,16 +437,13 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 3: Vermögen */}
         {(assets || bankStatementDocs.length > 0) && (
-          <Card className="border-border/40 shadow-sm overflow-hidden">
-            <CardHeader className="py-3 px-4 bg-blue-50/50 border-b border-border/40">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Wallet className="h-4 w-4 text-blue-600" />
+          <Card className="border-border/30 shadow-sm overflow-hidden">
+            <CardHeader className="py-2.5 px-4 bg-blue-50/30 border-b border-border/30">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Wallet className="h-3.5 w-3.5 text-blue-600" />
                 </div>
-                <div>
-                  <CardTitle className="text-sm font-semibold">Vermögen</CardTitle>
-                  <p className="text-xs text-muted-foreground">Vermögenswerte und Verbindlichkeiten</p>
-                </div>
+                <CardTitle className="text-sm font-medium">Vermögen</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -588,16 +583,13 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 4: Abzüge */}
         {deductions && Object.keys(deductions).some(k => deductions[k as keyof typeof deductions]) && (
-          <Card className="border-border/40 shadow-sm overflow-hidden">
-            <CardHeader className="py-3 px-4 bg-purple-50/50 border-b border-border/40">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Receipt className="h-4 w-4 text-purple-600" />
+          <Card className="border-border/30 shadow-sm overflow-hidden">
+            <CardHeader className="py-2.5 px-4 bg-purple-50/30 border-b border-border/30">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Receipt className="h-3.5 w-3.5 text-purple-600" />
                 </div>
-                <div>
-                  <CardTitle className="text-sm font-semibold">Abzüge</CardTitle>
-                  <p className="text-xs text-muted-foreground">Steuerliche Abzugsmöglichkeiten</p>
-                </div>
+                <CardTitle className="text-sm font-medium">Abzüge</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-0">

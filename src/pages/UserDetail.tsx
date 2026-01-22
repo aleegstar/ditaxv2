@@ -517,57 +517,57 @@ const UserDetail: React.FC = () => {
       
       <main className="flex-1 p-4 lg:p-5">
         <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
-          {/* Compact Header */}
-          <div className="px-5 py-4 border-b border-border/40">
+          {/* Refined Header */}
+          <div className="px-5 py-3 border-b border-border/30">
             {/* Main Header Row */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-              {/* Left: Back Button + Client Info + Status Cluster */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+              {/* Left: Back + Client Identity (Primary Focus) */}
               <div className="flex items-center gap-3">
-                {/* Back Button - Round */}
+                {/* Back Button */}
                 <Link 
                   to="/admin" 
-                  className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors flex-shrink-0"
+                  className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors flex-shrink-0"
                 >
-                  <ArrowLeft className="h-4 w-4 text-slate-600" />
+                  <ArrowLeft className="h-4 w-4 text-slate-500" />
                 </Link>
                 
                 {/* Avatar */}
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-base font-semibold text-primary">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-semibold text-primary">
                     {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
                     {user.last_name?.charAt(0)?.toUpperCase() || ''}
                   </span>
                 </div>
                 
-                {/* Name & Email */}
+                {/* Name & ID - Primary Hierarchy */}
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-semibold tracking-tight truncate">
+                    <h1 className="text-base font-semibold tracking-tight truncate">
                       {user.first_name} {user.last_name}
                     </h1>
                     {transformedUser.formData?.contactInfo?.adressnummer && (
-                      <span className="text-[10px] font-medium text-muted-foreground bg-muted/70 px-1.5 py-0.5 rounded flex-shrink-0">
-                        {transformedUser.formData.contactInfo.adressnummer}
+                      <span className="text-[10px] font-mono text-muted-foreground/70 bg-muted/50 px-1.5 py-0.5 rounded flex-shrink-0">
+                        ID: {transformedUser.formData.contactInfo.adressnummer}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                  <p className="text-xs text-muted-foreground/70 truncate max-w-[180px]">
                     {user.email || 'Keine E-Mail'}
                   </p>
                 </div>
                 
                 {/* Divider */}
-                <div className="hidden lg:block w-px h-8 bg-border/60 mx-1" />
+                <div className="hidden lg:block w-px h-7 bg-border/50 mx-2" />
                 
-                {/* Status Cluster */}
-                <div className="hidden lg:flex items-center gap-2">
-                  {/* Year Selector Dropdown - Pill Style */}
-                  <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-slate-50 border border-slate-200">
-                    <Calendar className="h-4 w-4 text-slate-500" />
+                {/* Status Cluster - Secondary Focus */}
+                <div className="hidden lg:flex items-center gap-1.5">
+                  {/* Year Selector - Subdued */}
+                  <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                    <Calendar className="h-3.5 w-3.5" />
                     <select
                       value={selectedYear}
                       onChange={(e) => handleYearChange(e.target.value)}
-                      className="text-sm font-medium text-slate-700 bg-transparent border-none outline-none cursor-pointer pr-1"
+                      className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
                     >
                       {Array.from(new Set([
                         ...formData.map(fd => fd.tax_year),
@@ -575,12 +575,12 @@ const UserDetail: React.FC = () => {
                         ...completedTaxReturns.map(cr => cr.tax_year),
                         new Date().getFullYear().toString()
                       ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
-                        <option key={year} value={year}>Steuerjahr {year}</option>
+                        <option key={year} value={year}>{year}</option>
                       ))}
                     </select>
                   </div>
                   
-                  {/* Status */}
+                  {/* Status Chip */}
                   <TaxReturnStatusChanger
                     userId={user.id}
                     taxYear={selectedYear}
@@ -588,11 +588,11 @@ const UserDetail: React.FC = () => {
                     onStatusChanged={fetchUserData}
                   />
                   
-                  {/* Missing Items Indicator - Pill Style */}
+                  {/* Missing Items - Warning State */}
                   {pendingMissingItemsCount > 0 && (
-                    <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-amber-50 border border-amber-200">
-                      <AlertCircle className="h-4 w-4 text-amber-600" />
-                      <span className="text-sm font-medium text-amber-700">
+                    <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      <span className="text-xs font-medium">
                         {pendingMissingItemsCount} offen
                       </span>
                     </div>
@@ -600,19 +600,19 @@ const UserDetail: React.FC = () => {
                 </div>
               </div>
               
-              {/* Right: Actions */}
+              {/* Right: Actions - Clear Hierarchy */}
               <div className="flex items-center gap-2">
-                {/* Primary Action - Blue Pill */}
+                {/* Primary Action - Prominent */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
-                  className="h-10 rounded-full px-5 font-medium gap-2 bg-primary hover:bg-primary/90 text-white text-sm"
+                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-primary hover:bg-primary/90 text-white text-xs shadow-sm"
                 >
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
                 </Button>
                 
-                {/* Secondary Actions - Grouped & Subtle */}
-                <div className="flex items-center gap-0.5 border-l border-border/50 pl-2 ml-1">
+                {/* Secondary Actions - Subdued */}
+                <div className="flex items-center gap-0.5 border-l border-border/40 pl-2 ml-1">
                   <FormDataPdfDownloader 
                     userId={user.id} 
                     taxYear={selectedYear}
@@ -634,14 +634,14 @@ const UserDetail: React.FC = () => {
             </div>
             
             {/* Mobile Status Row */}
-            <div className="flex flex-wrap items-center gap-2 mt-3 lg:hidden">
-              {/* Year Selector - Pill Style */}
-              <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-slate-50 border border-slate-200">
-                <Calendar className="h-4 w-4 text-slate-500" />
+            <div className="flex flex-wrap items-center gap-1.5 mt-2 lg:hidden">
+              {/* Year Selector */}
+              <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                <Calendar className="h-3.5 w-3.5" />
                 <select
                   value={selectedYear}
                   onChange={(e) => handleYearChange(e.target.value)}
-                  className="text-sm font-medium text-slate-700 bg-transparent border-none outline-none cursor-pointer pr-1"
+                  className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
                 >
                   {Array.from(new Set([
                     ...formData.map(fd => fd.tax_year),
@@ -649,7 +649,7 @@ const UserDetail: React.FC = () => {
                     ...completedTaxReturns.map(cr => cr.tax_year),
                     new Date().getFullYear().toString()
                   ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
-                    <option key={year} value={year}>Steuerjahr {year}</option>
+                    <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
               </div>
@@ -660,9 +660,9 @@ const UserDetail: React.FC = () => {
                 onStatusChanged={fetchUserData}
               />
               {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-2 h-10 px-4 rounded-full bg-amber-50 border border-amber-200">
-                  <AlertCircle className="h-4 w-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-700">
+                <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  <span className="text-xs font-medium">
                     {pendingMissingItemsCount} offen
                   </span>
                 </div>
@@ -670,8 +670,8 @@ const UserDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="p-5">
+          {/* Main Content - Reduced padding for tighter layout */}
+          <div className="p-4">
             <UserTabs
               user={transformedUser}
               taxReturns={taxReturns}
