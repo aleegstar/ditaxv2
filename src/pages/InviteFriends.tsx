@@ -1,12 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useReferralCode } from '@/hooks/useReferralCode';
 import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { Copy, Mail, Share2, Gift, Users, CheckCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 
 const InviteFriends: React.FC = () => {
+  const navigate = useNavigate();
   const {
     referralCode,
     redemptions,
@@ -23,22 +26,18 @@ const InviteFriends: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-2"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <Gift className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Freunde einladen</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Teile deinen Code und erhalte CHF 20.- Rabatt für jede erfolgreiche Einladung
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-background">
+      <SubpageHeader 
+        title="Freunde einladen" 
+        onBack={() => navigate(-1)}
+        showAvatar={false}
+      />
+      
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* Intro Text */}
+        <p className="text-center text-muted-foreground">
+          Teile deinen Code und erhalte CHF 20.- Rabatt für jede erfolgreiche Einladung
+        </p>
 
         {/* Main Card - Referral Code */}
         <motion.div
