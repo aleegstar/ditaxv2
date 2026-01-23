@@ -21,7 +21,8 @@ const paymentRequestSchema = z.object({
   expressService: z.boolean().optional().default(false),
   taxReturnId: z.string().uuid().optional().nullable(),
   origin: z.string().url().optional().nullable(),
-  paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default')
+  paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default'),
+  promoCodeId: z.string().optional().nullable() // Stripe promotion code ID for referral discounts
 })
 
 const logStep = (step: string, details?: any) => {
@@ -216,7 +217,8 @@ serve(async (req) => {
         expressService, 
         taxReturnId, 
         origin: bodyOrigin, 
-        paymentMethod
+        paymentMethod,
+        promoCodeId
       } = validatedRequest;
       
       // Check minimum amount for TWINT (CHF 5.00 = 500 cents)
@@ -492,10 +494,11 @@ serve(async (req) => {
             address: 'auto',
             shipping: 'never'
           },
-          allow_promotion_codes: true,
+          allow_promotion_codes: !promoCodeId, // Disable manual entry if we have a promo code
           phone_number_collection: {
             enabled: true,
           },
+          ...(promoCodeId && { discounts: [{ promotion_code: promoCodeId }] }), // Auto-apply promo code
         };
 
         // Configure billing address collection based on available data

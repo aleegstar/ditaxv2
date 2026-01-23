@@ -1,23 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
+import { ReferralCodeInput } from '@/components/referral/ReferralCodeInput';
+
 const TAX_YEARS = Array.from({
   length: 3
 }, (_, i) => {
   const year = new Date().getFullYear() - 1 + i;
   return year.toString();
 });
+
 export const WelcomeFlow = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [taxYear, setTaxYear] = useState(TAX_YEARS[0]);
@@ -25,12 +29,20 @@ export const WelcomeFlow = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
+  const [referralApplied, setReferralApplied] = useState(false);
+  
+  // Check if there's a referral code in the URL
+  const urlReferralCode = searchParams.get('ref');
+
   const steps = [{
     id: 'consent',
     title: 'Datenschutz & Einwilligungen'
   }, {
     id: 'name',
     title: 'Wie lautet dein Vorname?'
+  }, {
+    id: 'referral',
+    title: 'Empfehlungscode eingeben'
   }, {
     id: 'year',
     title: '' // Will be set dynamically with firstName
@@ -49,6 +61,17 @@ export const WelcomeFlow = () => {
     } else {
       await handleComplete();
     }
+  };
+  
+  const handleReferralSuccess = (promoCode: string) => {
+    setReferralApplied(true);
+    toast.success('CHF 20.- Rabatt gesichert!');
+    // Move to next step after short delay
+    setTimeout(() => setCurrentStep(currentStep + 1), 1500);
+  };
+  
+  const handleReferralSkip = () => {
+    setCurrentStep(currentStep + 1);
   };
   const handleComplete = async () => {
     setIsLoading(true);
@@ -164,6 +187,15 @@ export const WelcomeFlow = () => {
             </Button>
           </div>;
       case 2:
+        // Referral code step
+        return <div className="w-full space-y-5">
+            <ReferralCodeInput 
+              onSuccess={handleReferralSuccess}
+              onSkip={handleReferralSkip}
+              showSkip={true}
+            />
+          </div>;
+      case 3:
         return <div className="w-full space-y-5">
             <Select value={taxYear} onValueChange={setTaxYear}>
               <SelectTrigger className="text-xl h-auto py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-blue-600/20 focus:border-[#1D64FF] hover:border-slate-300 transition-all">
@@ -185,7 +217,7 @@ export const WelcomeFlow = () => {
     }
   };
   const getStepTitle = () => {
-    if (currentStep === 2 && firstName) {
+    if (currentStep === 3 && firstName) {
       return `Grüezi ${firstName}, welches Steuerjahr möchtest du erstellen?`;
     }
     return steps[currentStep].title;

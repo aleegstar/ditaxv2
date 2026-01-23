@@ -38,6 +38,7 @@ import DocumentsUpload from "./pages/DocumentsUpload";
 import Tickets from "./pages/Tickets";
 import MissingItems from "./pages/MissingItems";
 import Welcome from "./pages/Welcome";
+import InviteFriends from "./pages/InviteFriends";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import CreateTicket from "./pages/CreateTicket";
 import { MobileMenuSheet } from "@/components/ui/modern-mobile-menu";
@@ -210,6 +211,11 @@ const AuthenticatedApp = () => {
                 <Route path="/missing-items" element={
                   <ProtectedRoute>
                     <MissingItems />
+                  </ProtectedRoute>
+                } />
+                <Route path="/invite-friends" element={
+                  <ProtectedRoute>
+                    <InviteFriends />
                   </ProtectedRoute>
                 } />
                 <Route path="/help" element={<Help />} />
