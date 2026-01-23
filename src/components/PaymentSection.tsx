@@ -7,11 +7,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck, Gift } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { usePromoCodes } from '@/hooks/usePromoCodes';
 
 interface PaymentSectionProps {
   isUpgrade?: boolean;
@@ -34,6 +35,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [expressService, setExpressService] = useState(isUpgrade);
   const [user, setUser] = useState<any>(null);
+  const { promoCodes, getActivePromoCode } = usePromoCodes();
+  
+  const activePromo = getActivePromoCode();
+  const promoDiscount = activePromo ? activePromo.amount : 0;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -153,7 +158,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         items: priceBreakdown.items, // Use actual breakdown items instead of single item
         expressService,
         taxReturnId: taxReturnId,
-        origin: window.location.origin
+        origin: window.location.origin,
+        promoCodeId: activePromo?.promoId // Pass promo code ID to backend
       };
       console.log('💳 Creating payment session:', requestPayload);
       const {
@@ -202,6 +208,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   }
 
   const finalPrice = isUpgrade ? priceBreakdown.totalPrice : expressService ? priceBreakdown.totalPrice + 10000 : priceBreakdown.totalPrice;
+  const priceAfterDiscount = Math.max(0, finalPrice - promoDiscount);
 
   return (
     <div className="min-h-screen bg-white flex flex-col text-slate-800">
@@ -246,19 +253,51 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
               )}
 
-              {/* Total Price Only */}
+              {/* Promo Code Display */}
+              {activePromo && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <Gift className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-green-700 text-sm">
+                          Rabattcode aktiv
+                        </p>
+                        <p className="text-xs text-green-600">
+                          Code <span className="font-mono">{activePromo.code}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-lg font-bold text-green-600">
+                      -{formatPrice(promoDiscount)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Total Price */}
               <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-slate-800 font-jakarta">
-                    Gesamtpreis
-                  </span>
-                  <div className="text-right">
-                    <span className="block text-2xl font-semibold text-slate-800 tracking-tight font-jakarta">
-                      CHF {formatPrice(finalPrice)}
+                <div className="space-y-2">
+                  {activePromo && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">Zwischensumme</span>
+                      <span className="text-slate-500 line-through">CHF {formatPrice(finalPrice)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-slate-800 font-jakarta">
+                      {activePromo ? 'Nach Rabatt' : 'Gesamtpreis'}
                     </span>
-                    <span className="block text-[10px] text-slate-500 font-medium mt-0.5 font-jakarta">
-                      inkl. MwSt.
-                    </span>
+                    <div className="text-right">
+                      <span className="block text-2xl font-semibold text-slate-800 tracking-tight font-jakarta">
+                        CHF {formatPrice(priceAfterDiscount)}
+                      </span>
+                      <span className="block text-[10px] text-slate-500 font-medium mt-0.5 font-jakarta">
+                        inkl. MwSt.
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
