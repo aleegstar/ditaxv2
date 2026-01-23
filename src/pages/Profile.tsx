@@ -1,8 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, Mail, User, LogOut, Upload } from 'lucide-react';
+import { Camera, Mail, User, LogOut, Upload, Gift, ChevronRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -171,6 +171,39 @@ const Profile = () => {
 
           {/* Login History Section */}
           <LoginHistory />
+
+          <div className="h-px bg-slate-200 w-full" />
+
+          {/* Freunde einladen Section */}
+          <section className="space-y-4">
+            <div className="space-y-1">
+              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <Gift className="w-5 h-5 text-gray-600" />
+                Freunde einladen
+              </h2>
+              <p className="text-sm text-gray-600">
+                Lade Freunde ein und erhalte CHF 20.- Rabatt.
+              </p>
+            </div>
+
+            <Link 
+              to="/invite-friends"
+              className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center gap-4 transition-colors group"
+            >
+              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                <Gift className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-semibold text-gray-900 block">
+                  CHF 20.- für dich & deine Freunde
+                </span>
+                <span className="text-sm text-gray-600 block">
+                  Teile deinen persönlichen Code
+                </span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            </Link>
+          </section>
 
           {/* Logout Button */}
           <div className="pt-4">
