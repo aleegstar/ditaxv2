@@ -1079,6 +1079,80 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          max_referrals: number | null
+          successful_referrals: number | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_referrals?: number | null
+          successful_referrals?: number | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_referrals?: number | null
+          successful_referrals?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_redemptions: {
+        Row: {
+          id: string
+          referral_code_id: string
+          referred_at: string | null
+          referred_promo_used: boolean | null
+          referred_stripe_promo_id: string
+          referred_user_id: string
+          referrer_promo_used: boolean | null
+          referrer_stripe_promo_id: string
+          referrer_user_id: string
+        }
+        Insert: {
+          id?: string
+          referral_code_id: string
+          referred_at?: string | null
+          referred_promo_used?: boolean | null
+          referred_stripe_promo_id: string
+          referred_user_id: string
+          referrer_promo_used?: boolean | null
+          referrer_stripe_promo_id: string
+          referrer_user_id: string
+        }
+        Update: {
+          id?: string
+          referral_code_id?: string
+          referred_at?: string | null
+          referred_promo_used?: boolean | null
+          referred_stripe_promo_id?: string
+          referred_user_id?: string
+          referrer_promo_used?: boolean | null
+          referrer_stripe_promo_id?: string
+          referrer_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_redemptions_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_logs: {
         Row: {
           action: string
