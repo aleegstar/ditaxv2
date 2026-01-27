@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Shield, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,20 +130,27 @@ const MfaVerify = () => {
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="mfa-code">Verifizierungscode</Label>
-            <Input
-              id="mfa-code"
-              type="text"
-              placeholder="000000"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              onKeyPress={handleKeyPress}
-              className="text-center text-lg font-mono tracking-widest"
-              maxLength={6}
-              disabled={!challengeId}
-              autoFocus
-            />
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Verifizierungscode</Label>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={(value) => setCode(value)}
+                disabled={!challengeId}
+                onKeyDown={handleKeyPress}
+                autoFocus
+              >
+                <InputOTPGroup className="gap-2">
+                  <InputOTPSlot index={0} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={1} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={2} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={3} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={4} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                  <InputOTPSlot index={5} className="w-12 h-12 text-lg rounded-lg border-slate-200" />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
           </div>
 
           <div className="space-y-2 pt-2">
