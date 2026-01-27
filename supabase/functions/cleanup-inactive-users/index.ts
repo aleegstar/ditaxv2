@@ -24,12 +24,20 @@ Deno.serve(async (req) => {
 
     console.log('Starting inactive user cleanup...');
 
-    // Calculate the threshold date (7 days ago)
-    const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - 7);
-    const thresholdISO = thresholdDate.toISOString();
+    // Calculate the threshold dates
+    // 7 days for normal inactive accounts
+    const normalThresholdDate = new Date();
+    normalThresholdDate.setDate(normalThresholdDate.getDate() - 7);
+    
+    // 24 hours for accounts without terms acceptance (likely wrong email entries)
+    const fastThresholdDate = new Date();
+    fastThresholdDate.setHours(fastThresholdDate.getHours() - 24);
+    
+    const normalThresholdISO = normalThresholdDate.toISOString();
+    const fastThresholdISO = fastThresholdDate.toISOString();
 
-    console.log(`Looking for users created before: ${thresholdISO}`);
+    console.log(`Normal threshold (7 days): ${normalThresholdISO}`);
+    console.log(`Fast threshold (24 hours): ${fastThresholdISO}`);
 
     // Query auth.users for inactive accounts
     // Note: We need to use the admin API to access auth.users
@@ -43,13 +51,35 @@ Deno.serve(async (req) => {
     console.log(`Total users in database: ${authUsers.users.length}`);
 
     // Filter users that meet our criteria
-    const inactiveUsers = authUsers.users.filter(user => {
+    const inactiveUsers: typeof authUsers.users = [];
+    
+    for (const user of authUsers.users) {
       const createdAt = new Date(user.created_at);
       const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
       
-      // User must be older than 7 days and never signed in
-      return createdAt < thresholdDate && lastSignIn === null;
-    });
+      // Skip if user has ever signed in
+      if (lastSignIn !== null) continue;
+      
+      // Check profile for terms acceptance
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('terms_accepted_at')
+        .eq('id', user.id)
+        .single();
+      
+      // Fast cleanup: 24 hours for accounts without terms acceptance
+      if (!profile?.terms_accepted_at && createdAt < fastThresholdDate) {
+        console.log(`Fast cleanup candidate: ${user.email} (no terms, >24h old)`);
+        inactiveUsers.push(user);
+        continue;
+      }
+      
+      // Normal cleanup: 7 days for accounts that never signed in
+      if (createdAt < normalThresholdDate) {
+        console.log(`Normal cleanup candidate: ${user.email} (>7 days old, never signed in)`);
+        inactiveUsers.push(user);
+      }
+    }
 
     console.log(`Found ${inactiveUsers.length} potentially inactive users`);
 
@@ -195,7 +225,8 @@ Deno.serve(async (req) => {
         inactive_users_found: inactiveUsers.length,
         users_deleted: deletedUsers.length,
         users_skipped: skippedUsers.length,
-        threshold_date: thresholdISO
+        normal_threshold_date: normalThresholdISO,
+        fast_threshold_date: fastThresholdISO
       },
       deleted_user_ids: deletedUsers,
       skipped_user_ids: skippedUsers

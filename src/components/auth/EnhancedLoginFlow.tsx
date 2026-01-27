@@ -348,7 +348,18 @@ export const EnhancedLoginFlow: React.FC = () => {
             <div className="flex items-center justify-center">
               <Button
                 variant="ghost"
-                onClick={() => {
+                onClick={async () => {
+                  // Cleanup unverified account if OTP was not entered
+                  if (email && !otpCode) {
+                    try {
+                      await supabase.functions.invoke('cleanup-unverified-registrations', {
+                        body: { email: email.trim() }
+                      });
+                    } catch (error) {
+                      // Silently ignore - not critical
+                      console.warn('Cleanup of unverified account failed:', error);
+                    }
+                  }
                   setStep('email');
                   setOtpCode('');
                   setHasPasskeys(false);
