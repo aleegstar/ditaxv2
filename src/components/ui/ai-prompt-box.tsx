@@ -626,19 +626,14 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
             <Button
               variant="default"
               size="icon"
-              className={cn(
-                "h-8 w-8 rounded-full transition-all duration-200",
-                hasContent
-                  ? "bg-gray-900 hover:bg-gray-800 text-white"
-                  : "bg-transparent hover:bg-gray-200 text-gray-400 hover:text-gray-600"
-              )}
+              className="h-8 w-8 rounded-full bg-[#1D64FF] hover:bg-[#1a5ae6] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => {
                 if (hasContent) handleSubmit();
               }}
-              disabled={isLoading && !hasContent}
+              disabled={!hasContent || isLoading}
             >
               {isLoading ? (
-                <Square className="h-4 w-4 fill-gray-900 animate-pulse" />
+                <Square className="h-4 w-4 fill-white animate-pulse" />
               ) : (
                 <ArrowUp className="h-4 w-4" />
               )}
