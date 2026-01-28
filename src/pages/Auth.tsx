@@ -437,34 +437,34 @@ const Auth = () => {
             duration: 0.3
           }}>
                 {/* Logo Centered */}
-                <div className="flex justify-center mb-5">
-                  <img alt="Ditax" className="w-auto h-9 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                <div className="flex justify-center mb-6">
+                  <img alt="Ditax" className="w-auto h-10 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-4 space-y-0.5">
-                  <h1 className="font-normal tracking-tight font-jakarta text-slate-800 text-xl">
+                <div className="text-center mb-5 space-y-1">
+                  <h1 className="font-normal tracking-tight font-jakarta text-slate-600 text-lg">
                     Anmelden
                   </h1>
-                  <p className="text-sm text-slate-500 font-jakarta">
+                  <p className="text-sm text-slate-400 font-jakarta">
                     Kein Konto? Wir erstellen automatisch eins für dich.
                   </p>
                 </div>
 
                 {/* Email Form */}
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
+                <form onSubmit={handleEmailSubmit} className="space-y-3.5">
                   <div>
                     <label htmlFor="email" className="sr-only">E-Mail-Adresse</label>
-                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse" required disabled={isLoading} />
+                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse" required disabled={isLoading} />
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
+                  <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-[15px] font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
                     {isEmailLoading ? 'Code wird gesendet...' : 'Login-Code senden'}
                   </button>
                   
                   {/* Microcopy */}
-                  <div className="text-center pt-2">
-                    <p className="text-xs text-slate-500 font-jakarta">
+                  <div className="text-center pt-1.5">
+                    <p className="text-xs text-slate-400 font-jakarta leading-relaxed">
                       Wir senden dir einen einmaligen Code per E-Mail. Kein Passwort. Kein Spam.
                     </p>
                   </div>
@@ -569,9 +569,9 @@ const Auth = () => {
       }}>
             <div className="relative w-full">
               {/* Social Login Container - Light Design */}
-              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200">
+              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-white to-slate-50/80 border-t border-slate-200/80">
               {/* Pill Handle Divider */}
-              <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
+              <div className="w-9 h-1 rounded-full bg-slate-200 mb-4" />
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
                 <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
