@@ -389,9 +389,10 @@ export const EnhancedLoginFlow: React.FC = () => {
           {/* Email/OTP Authentication Section */}
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Email:</label>
               <Input
                 type="email"
-                placeholder="deine.email@beispiel.de"
+                placeholder="name@mail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -423,7 +424,7 @@ export const EnhancedLoginFlow: React.FC = () => {
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  {otpDisabled ? 'E-Mail-Codes deaktiviert' : 'Code per E-Mail senden'}
+                  {otpDisabled ? 'E-Mail-Codes deaktiviert' : 'Login Code senden'}
                 </>
               )}
             </Button>
