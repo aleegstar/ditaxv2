@@ -453,12 +453,12 @@ const Auth = () => {
 
                 {/* Email Form */}
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-lg font-semibold text-slate-800 font-jakarta">
-                      Email:
+                  <div className="space-y-1">
+                    <label htmlFor="email" className="text-sm font-medium text-slate-500 font-jakarta">
+                      E-Mail-Adresse
                     </label>
                     <div className="relative">
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="name@mail.com" required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="deine@email.com" required disabled={isLoading} />
                     </div>
                   </div>
 
