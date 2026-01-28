@@ -255,7 +255,7 @@ const MultiStepContactForm = ({
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
-      <div className="relative z-10 px-6 py-8 w-full max-w-[500px] md:max-w-2xl">
+      <div className="relative z-10 px-6 py-8 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <SubpageHeader

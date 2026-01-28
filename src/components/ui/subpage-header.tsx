@@ -40,7 +40,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
       "sticky top-0 z-30 bg-white",
       className
     )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
         {/* Back Button - fixed width */}
         <button 
           onClick={onBack}
@@ -91,10 +91,13 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               onClick={() => navigate('/profile')} 
               className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all"
             >
-              <img 
+            <img 
                 src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
                 alt="Profil" 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/lovable-uploads/default-avatar.png';
+                }}
               />
             </button>
           ) : !showModeToggle && (
