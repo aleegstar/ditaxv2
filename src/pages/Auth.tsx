@@ -437,12 +437,12 @@ const Auth = () => {
             duration: 0.3
           }}>
                 {/* Logo Centered */}
-                <div className="flex justify-center mb-10">
+                <div className="flex justify-center mb-6">
                   <img alt="Ditax" className="w-auto h-10 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-10 space-y-2">
+                <div className="text-center mb-4 space-y-1">
                   <h1 className="font-medium tracking-tighter font-jakarta text-slate-900 text-2xl">
                     Anmelden
                   </h1>
@@ -452,7 +452,7 @@ const Auth = () => {
                 </div>
 
                 {/* Email Form */}
-                <form onSubmit={handleEmailSubmit} className="space-y-5">
+                <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div className="space-y-1.5">
                     <label htmlFor="email" className="text-lg font-semibold text-slate-800 font-jakarta">
                       Email:
@@ -467,7 +467,7 @@ const Auth = () => {
                   </button>
                   
                   {/* Microcopy */}
-                  <div className="text-center space-y-1 pt-3">
+                  <div className="text-center space-y-0.5 pt-2">
                     <p className="text-xs text-slate-500 font-jakarta">
                       Wir schicken dir einen einmaligen Code per E-Mail.
                     </p>
@@ -478,7 +478,7 @@ const Auth = () => {
                 </form>
 
                 {/* Oder Divider - hidden when input is focused */}
-                {!isInputFocused && <div className="flex items-center gap-4 w-full mt-10">
+                {!isInputFocused && <div className="flex items-center gap-4 w-full mt-14">
                     <div className="flex-1 h-px bg-slate-200" />
                     <span className="text-sm text-slate-500 font-medium font-jakarta">Oder</span>
                     <div className="flex-1 h-px bg-slate-200" />
@@ -585,7 +585,7 @@ const Auth = () => {
               />
               
               {/* Social Login Container */}
-              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
+              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-[28px] bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-500/50">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
