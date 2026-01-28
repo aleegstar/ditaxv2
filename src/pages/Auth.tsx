@@ -437,13 +437,13 @@ const Auth = () => {
             duration: 0.3
           }}>
                 {/* Logo Centered */}
-                <div className="flex justify-center mb-3">
-                  <img alt="Ditax" className="w-auto h-8 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                <div className="flex justify-center mb-5">
+                  <img alt="Ditax" className="w-auto h-9 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
                 {/* Header */}
                 <div className="text-center mb-4 space-y-0.5">
-                  <h1 className="font-medium tracking-tighter font-jakarta text-slate-900 text-2xl">
+                  <h1 className="font-normal tracking-tight font-jakarta text-slate-800 text-xl">
                     Anmelden
                   </h1>
                   <p className="text-sm text-slate-500 font-jakarta">
