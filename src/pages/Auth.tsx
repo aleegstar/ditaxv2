@@ -454,7 +454,7 @@ const Auth = () => {
                 {/* Email Form */}
                 <form onSubmit={handleEmailSubmit} className="space-y-5">
                   <div className="space-y-1.5">
-                    <label htmlFor="email" className="text-sm font-medium text-slate-700 font-jakarta">
+                    <label htmlFor="email" className="text-lg font-semibold text-slate-800 font-jakarta">
                       Email:
                     </label>
                     <div className="relative">
