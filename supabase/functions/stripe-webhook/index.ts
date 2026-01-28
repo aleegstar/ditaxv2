@@ -96,15 +96,66 @@ serve(async (req) => {
       requestId 
     });
 
-    // Prepare payment event record
+    // Validate user_id against tax_return ownership for security
+    let validatedUserId: string | null = null;
+    let validatedTaxReturnId: string | null = metadata.taxReturnId || null;
+    
+    if (validatedTaxReturnId && metadata.userId) {
+      // Verify that the claimed user_id actually owns the tax_return
+      const { data: taxReturn, error: taxReturnError } = await supabase
+        .from('tax_returns')
+        .select('user_id')
+        .eq('id', validatedTaxReturnId)
+        .maybeSingle();
+      
+      if (taxReturnError) {
+        logStep("Error validating tax_return ownership", { error: taxReturnError, requestId });
+      } else if (taxReturn && taxReturn.user_id === metadata.userId) {
+        // User ID matches tax_return owner - safe to use
+        validatedUserId = metadata.userId;
+        logStep("User ID validated against tax_return ownership", { 
+          userId: validatedUserId, 
+          taxReturnId: validatedTaxReturnId,
+          requestId 
+        });
+      } else if (taxReturn) {
+        // Mismatch detected - use tax_return's actual owner for security
+        logStep("WARNING: Metadata userId mismatch with tax_return owner", { 
+          claimedUserId: metadata.userId,
+          actualOwnerId: taxReturn.user_id,
+          taxReturnId: validatedTaxReturnId,
+          requestId 
+        });
+        validatedUserId = taxReturn.user_id;
+      }
+    } else if (metadata.userId && !validatedTaxReturnId) {
+      // No tax_return to validate against - only set user_id if we can verify it exists
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', metadata.userId)
+        .maybeSingle();
+      
+      if (profile) {
+        validatedUserId = metadata.userId;
+        logStep("User ID validated via profile lookup", { userId: validatedUserId, requestId });
+      } else {
+        logStep("WARNING: Could not validate userId - profile not found", { 
+          claimedUserId: metadata.userId, 
+          requestId 
+        });
+      }
+    }
+
+    // Prepare payment event record with validated user_id
     const paymentEvent: any = {
       event_id: event.id,
       event_type: event.type,
       session_id: sessionId,
       payment_intent_id: paymentIntentId,
       customer_id: customerId,
-      user_id: metadata.userId || null,
-      tax_return_id: metadata.taxReturnId || null,
+      user_id: validatedUserId,
+      tax_return_id: validatedTaxReturnId,
       raw_event: event,
       processed: false,
     };
