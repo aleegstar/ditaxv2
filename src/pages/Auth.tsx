@@ -453,13 +453,9 @@ const Auth = () => {
 
                 {/* Email Form */}
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div className="space-y-1">
-                    <label htmlFor="email" className="text-sm font-medium text-slate-500 font-jakarta">
-                      E-Mail-Adresse
-                    </label>
-                    <div className="relative">
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="deine@email.com" required disabled={isLoading} />
-                    </div>
+                  <div>
+                    <label htmlFor="email" className="sr-only">E-Mail-Adresse</label>
+                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse" required disabled={isLoading} />
                   </div>
 
                   <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
