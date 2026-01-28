@@ -196,7 +196,14 @@ export const TaxYearDashboard: React.FC = () => {
           </h1>
 
           <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all">
-            <img src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} alt="Profil" className="w-full h-full object-cover" />
+            <img 
+              src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
+              alt="Profil" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/lovable-uploads/default-avatar.png';
+              }}
+            />
           </button>
         </div>
       </header>

@@ -293,7 +293,7 @@ const UserTaxReturns = () => {
     return 'Grüezi,';
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-28 text-gray-900 bg-white"
+    className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-gray-900 bg-white"
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
