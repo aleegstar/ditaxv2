@@ -385,8 +385,8 @@ export const TaxYearDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Referral Banner - nur nach erfolgreicher Zahlung */}
-        {paymentStatus === 'paid' && (
+        {/* Referral Banner - nur nach vollständigem Abschluss (alle Schritte + Zahlung) */}
+        {isCompleted('submit') && (
           <div className="mt-8">
             <ReferralBanner variant="compact" />
           </div>
