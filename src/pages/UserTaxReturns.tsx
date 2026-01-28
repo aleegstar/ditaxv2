@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap } from 'lucide-react';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -70,6 +72,18 @@ const UserTaxReturns = () => {
     pendingDocuments,
     pendingInformation
   } = usePendingMissingItemsCount(userId);
+  
+  // Pull-to-refresh for mobile
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+  
+  const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 60,
+    maxPullDistance: 100
+  });
+  
   useEffect(() => {
     if (authLoading) return;
     if (!isValid || !userId) {
@@ -278,7 +292,15 @@ const UserTaxReturns = () => {
   const getGreeting = () => {
     return 'Grüezi,';
   };
-  return <div className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-28 text-gray-900 bg-white">
+  return <div 
+    className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-28 text-gray-900 bg-white"
+    onTouchStart={pullHandlers.onTouchStart}
+    onTouchMove={pullHandlers.onTouchMove}
+    onTouchEnd={pullHandlers.onTouchEnd}
+  >
+      {/* Pull-to-Refresh Indicator */}
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
+      
       {/* Main Container */}
       <main className="min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4 relative">
         {/* Header */}

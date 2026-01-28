@@ -264,12 +264,6 @@ export const WelcomeFlow = () => {
         </div>
       </motion.main>
 
-      {/* Footer */}
-      <footer className="mt-8 flex items-center justify-center gap-3">
-        
-        
-      </footer>
-
       {/* Smooth Transition Animation */}
       <AnimatePresence>
         {showTransition && <motion.div className="fixed inset-0 z-[51] bg-white flex items-center justify-center" initial={{

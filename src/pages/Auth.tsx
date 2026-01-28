@@ -489,14 +489,14 @@ const Auth = () => {
             duration: 0.3
           }}>
                 {/* Logo Centered */}
-                <div className="flex justify-center mb-10">
-                  <img src="/ditax-logo-new.svg" alt="Ditax" className="w-auto h-10 object-contain" />
+                <div className="flex justify-center mb-6">
+                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-10 object-contain" />
                 </div>
 
                 {/* Header with Shield Icon */}
                 <div className="text-center mb-8 space-y-2">
                   
-                  <h1 className="text-3xl font-medium tracking-tighter font-jakarta text-slate-900">
+                  <h1 className="text-lg font-normal tracking-tight font-jakarta text-slate-600">
                     Code eingeben
                   </h1>
                   <p className="text-sm text-slate-500 font-jakarta max-w-[80%] mx-auto leading-relaxed">
