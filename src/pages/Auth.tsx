@@ -564,9 +564,9 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.15)] rounded-t-3xl bg-gradient-to-b from-slate-100 to-slate-200 border-t border-slate-300">
+            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
               {/* Pill Handle Divider */}
-              <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
+              <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
@@ -592,11 +592,11 @@ const Auth = () => {
 
               {/* Footer Links with centered Aikido Badge */}
               <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
-                <a href="/impressum" className="hover:text-slate-600 transition-colors">Impressum</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <a href="/impressum" className="hover:text-white transition-colors">Impressum</a>
+                <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
                 
                 
-                <a className="hover:text-slate-600 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
+                <a className="hover:text-white transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
                 
                 
               </div>
