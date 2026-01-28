@@ -585,7 +585,7 @@ const Auth = () => {
               />
               
               {/* Social Login Container */}
-              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
+              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
