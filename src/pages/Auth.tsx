@@ -568,28 +568,12 @@ const Auth = () => {
         delay: 0.2
       }}>
             <div className="relative w-full">
-              {/* Rainbow Shadow Effect - positioned above container */}
-              <div 
-                className="absolute -top-2 left-1/2 -translate-x-1/2 w-[60%] h-4 animate-rainbow bg-[length:200%] rounded-full blur-lg opacity-35 pointer-events-none"
-                style={{ 
-                  backgroundImage: 'linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)))',
-                  '--speed': '4s'
-                } as React.CSSProperties}
-              />
-              
-              {/* Social Login Container */}
-              <div 
-                className="flex flex-col items-center overflow-hidden w-full pt-4 px-6 pb-6 md:pb-8 relative rounded-t-[32px] border-t border-white/10"
-                style={{
-                  background: 'linear-gradient(to bottom, rgba(100, 116, 139, 0.15) 0%, rgba(51, 65, 85, 0.6) 20%, rgba(30, 41, 59, 0.9) 50%, rgb(15, 23, 42) 100%)'
-                }}
-              >
-              {/* Pill Handle Divider */}
-              <div className="w-10 h-1 rounded-full bg-slate-400/50 mb-4" />
+              {/* Social Login Container - Light Design */}
+              <div className="flex flex-col items-center w-full pt-6 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200">
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
-                <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
+                <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
                   <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -600,7 +584,7 @@ const Auth = () => {
                 </button>
 
                 {/* Apple Login */}
-                <button onClick={handleAppleAuth} disabled={isLoading} className="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
+                <button onClick={handleAppleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
                   <svg className="w-5 h-5 shrink-0 fill-current text-slate-800 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                   </svg>
@@ -609,15 +593,11 @@ const Auth = () => {
 
               </div>
 
-              {/* Footer Links with centered Aikido Badge */}
-              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-400 font-medium font-jakarta">
-                <a href="/impressum" className="hover:text-white transition-colors">Impressum</a>
-                <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
-                
-                
-                <a className="hover:text-white transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
-                
-                
+              {/* Footer Links */}
+              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-500 font-medium font-jakarta">
+                <a href="/impressum" className="hover:text-slate-700 transition-colors">Impressum</a>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
               </div>
             </div>
             </div>
