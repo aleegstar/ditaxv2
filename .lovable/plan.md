@@ -1,92 +1,150 @@
 
-# Plan: Rainbow Shadow für Social Login Container
+# Implementierungsplan: Verbesserungen aus dem App-Test
 
-## Ziel
+## Zusammenfassung
+Dieser Plan setzt die vier identifizierten Verbesserungsvorschläge um, die während des App-Tests gefunden wurden. Die Änderungen fokussieren sich auf visuelle Konsistenz im Auth-Flow, Code-Bereinigung und bessere Mobile-UX.
 
-Ein animierter Rainbow-Glow-Effekt (wie beim "Get Unlimited Access" Button) soll hinter dem Social Login Container erscheinen. Der Effekt wird nach oben hin ausstrahlen und dem Container einen Premium-Look verleihen.
+---
 
-## Screenshot-Analyse
+## 1. Logo-Konsistenz im Auth-Flow korrigieren
 
-| Element | Beschreibung |
-|---------|--------------|
-| Screenshot 1 | Rainbow-Button mit animiertem Farbverlauf-Schatten unter dem Button |
-| Screenshot 2 | Social Login Container mit dunklem Hintergrund - hier soll der Rainbow-Glow nach oben hin angewendet werden |
+**Problem:** Der OTP-Code-Eingabe-Screen verwendet ein anderes Logo-Asset als der Haupt-Login-Screen.
 
-## Technische Umsetzung
+**Änderung:**
+- **Datei:** `src/pages/Auth.tsx`
+- **Zeile 493:** Logo-Pfad ändern von `/ditax-logo-new.svg` zu `/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png`
 
-### Vorhandene Ressourcen
-
-Das Projekt hat bereits:
-- CSS-Variablen für Rainbow-Farben (`--color-1` bis `--color-5`)
-- `animate-rainbow` Animation in Tailwind
-- Rainbow-Keyframes in `tailwind.config.ts`
-
-### Änderungen an `src/pages/Auth.tsx`
-
-Im Social Login Container (Zeile 577) wird ein Pseudo-Element oder zusätzliches `div` hinzugefügt:
-
-```text
-┌────────────────────────────────────────┐
-│     ~~~~ Rainbow Glow (nach oben) ~~~~ │
-├────────────────────────────────────────┤
-│                                        │
-│      ┌──────────────────────────┐      │
-│      │   Weiter mit Google      │      │
-│      └──────────────────────────┘      │
-│                                        │
-│      ┌──────────────────────────┐      │
-│      │   Weiter mit Apple       │      │
-│      └──────────────────────────┘      │
-│                                        │
-│         Impressum • Datenschutz        │
-│                                        │
-└────────────────────────────────────────┘
-```
-
-### Code-Implementierung
-
-1. **Wrapper-Struktur anpassen** (Zeile 577):
-
+**Vorher:**
 ```tsx
-{/* Social Login Container mit Rainbow Glow */}
-<div className="relative">
-  {/* Rainbow Glow Element - positioned behind */}
-  <div 
-    className="absolute -top-8 left-1/2 -translate-x-1/2 w-[80%] h-16 
-               animate-rainbow bg-[length:200%] rounded-full blur-2xl opacity-60
-               bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),
-               hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))]"
-    style={{ '--speed': '4s' } as React.CSSProperties}
-  />
-  
-  {/* Existing container */}
-  <div className="flex flex-col items-center ... bg-gradient-to-b from-slate-700 to-slate-900 ...">
-    {/* Social buttons content */}
-  </div>
-</div>
+<img src="/ditax-logo-new.svg" alt="Ditax" className="w-auto h-10 object-contain" />
 ```
 
-### Rainbow Glow Styling
+**Nachher:**
+```tsx
+<img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-10 object-contain" />
+```
 
-| Eigenschaft | Wert | Zweck |
-|-------------|------|-------|
-| `position` | absolute, -top-8 | Positioniert über dem Container |
-| `width` | 80% | Schmaler als Container für natürlichen Glow |
-| `height` | 16 (4rem) | Höhe des Glow-Bereichs |
-| `blur-2xl` | blur(40px) | Weicher Schatten-Effekt |
-| `opacity-60` | 0.6 | Subtiler aber sichtbarer Effekt |
-| `animate-rainbow` | 4s linear infinite | Animierter Farbverlauf |
-| `rounded-full` | Abgerundet | Organische Glow-Form |
+---
+
+## 2. OTP-Screen Headline-Hierarchie anpassen
+
+**Problem:** Die Headline auf dem OTP-Screen ist visuell zu dominant (`text-3xl font-medium`) im Vergleich zum Main-Login-Screen (`text-lg font-normal text-slate-600`).
+
+**Änderung:**
+- **Datei:** `src/pages/Auth.tsx`
+- **Zeile 499:** Headline-Styling angleichen
+
+**Vorher:**
+```tsx
+<h1 className="text-3xl font-medium tracking-tighter font-jakarta text-slate-900">
+  Code eingeben
+</h1>
+```
+
+**Nachher:**
+```tsx
+<h1 className="text-lg font-normal tracking-tight font-jakarta text-slate-600">
+  Code eingeben
+</h1>
+```
+
+**Zusätzlich:** Spacing zwischen Logo und Header anpassen (mb-10 → mb-6) für konsistente Abstände.
+
+---
+
+## 3. WelcomeFlow Footer bereinigen
+
+**Problem:** Leerer `<footer>`-Block im WelcomeFlow-Component ohne Inhalt.
+
+**Änderung:**
+- **Datei:** `src/components/welcome/WelcomeFlow.tsx`
+- **Zeilen 267-271:** Leeren Footer-Block entfernen
+
+**Vorher:**
+```tsx
+{/* Footer */}
+<footer className="mt-8 flex items-center justify-center gap-3">
+  
+  
+</footer>
+```
+
+**Nachher:** Vollständig entfernt.
+
+---
+
+## 4. Pull-to-Refresh für Dashboard implementieren
+
+**Problem:** Das Dashboard (UserTaxReturns) bietet keine Pull-to-Refresh-Funktion für mobile Nutzer.
+
+**Ansatz:** Implementierung einer einfachen Pull-to-Refresh-Logik mit Touch-Events, die den bestehenden `refetch()`-Aufruf nutzt.
+
+**Änderungen:**
+- **Datei:** `src/pages/UserTaxReturns.tsx`
+- Neue State-Variablen: `isPulling`, `pullDistance`, `isRefreshing`
+- Touch-Event-Handler für `touchstart`, `touchmove`, `touchend`
+- Visuelles Feedback mit einem Refresh-Indikator
+
+**Implementierung:**
+```tsx
+// Neue Imports
+import { RefreshCw } from 'lucide-react';
+
+// Neue States
+const [isPulling, setIsPulling] = useState(false);
+const [pullDistance, setPullDistance] = useState(0);
+const [isRefreshing, setIsRefreshing] = useState(false);
+const startY = useRef(0);
+
+// Touch-Handler
+const handleTouchStart = (e: React.TouchEvent) => {
+  if (window.scrollY === 0) {
+    startY.current = e.touches[0].clientY;
+    setIsPulling(true);
+  }
+};
+
+const handleTouchMove = (e: React.TouchEvent) => {
+  if (!isPulling) return;
+  const currentY = e.touches[0].clientY;
+  const distance = Math.max(0, Math.min(100, currentY - startY.current));
+  setPullDistance(distance);
+};
+
+const handleTouchEnd = async () => {
+  if (pullDistance > 60) {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  }
+  setIsPulling(false);
+  setPullDistance(0);
+};
+
+// JSX: Pull-to-Refresh Indikator
+{pullDistance > 0 && (
+  <div className="fixed top-0 left-0 right-0 flex justify-center pt-4 z-50">
+    <RefreshCw className={`w-6 h-6 text-blue-500 ${isRefreshing ? 'animate-spin' : ''}`} 
+               style={{ transform: `rotate(${pullDistance * 3.6}deg)` }} />
+  </div>
+)}
+```
+
+---
+
+## Technische Details
+
+| Datei | Änderungstyp | Zeilen |
+|-------|--------------|--------|
+| `src/pages/Auth.tsx` | Edit | 492-499 |
+| `src/components/welcome/WelcomeFlow.tsx` | Delete | 267-271 |
+| `src/pages/UserTaxReturns.tsx` | Add | Neue States + Handler + JSX |
+
+---
 
 ## Erwartetes Ergebnis
 
-- Animierter Rainbow-Glow strahlt nach oben vom Social Login Container
-- Gleiche Farbpalette wie beim Rainbow-Button (rot, violett, blau, cyan, grün)
-- Sanfte, professionelle Animation die kontinuierlich läuft
-- Container selbst bleibt unverändert dunkel
-
-## Datei-Änderungen
-
-| Datei | Änderung |
-|-------|----------|
-| `src/pages/Auth.tsx` | Rainbow Glow div über dem Social Login Container hinzufügen |
+1. Einheitliches Logo auf allen Auth-Screens
+2. Konsistente visuelle Hierarchie zwischen Login- und OTP-Screen
+3. Sauberer Code ohne leere DOM-Elemente
+4. Verbesserte Mobile-UX mit Pull-to-Refresh auf dem Dashboard
