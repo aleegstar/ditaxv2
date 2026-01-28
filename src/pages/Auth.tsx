@@ -444,10 +444,10 @@ const Auth = () => {
                 {/* Header */}
                 <div className="text-center mb-10 space-y-2">
                   <h1 className="font-medium tracking-tighter font-jakarta text-slate-900 text-2xl">
-                    Anmelden oder Registrieren  
+                    Anmelden
                   </h1>
                   <p className="text-sm text-slate-500 font-jakarta">
-                    Melde dich an, um fortzufahren
+                    Kein Konto? Wir erstellen automatisch eins für dich.
                   </p>
                 </div>
 
@@ -463,8 +463,18 @@ const Auth = () => {
                   </div>
 
                   <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
-                    {isEmailLoading ? 'Code wird gesendet...' : 'Login Code senden'}
+                    {isEmailLoading ? 'Code wird gesendet...' : 'Login-Code senden'}
                   </button>
+                  
+                  {/* Microcopy */}
+                  <div className="text-center space-y-1 pt-3">
+                    <p className="text-xs text-slate-500 font-jakarta">
+                      Wir schicken dir einen einmaligen Code per E-Mail.
+                    </p>
+                    <p className="text-[11px] text-slate-400 font-jakarta">
+                      Kein Passwort. Kein Spam.
+                    </p>
+                  </div>
                 </form>
 
                 {/* Oder Divider - hidden when input is focused */}
@@ -553,8 +563,8 @@ const Auth = () => {
           {/* Gradient Fade Background */}
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
 
-          {/* The Domed Button Container */}
-          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
+          {/* The Domed Button Container - positioned higher on mobile */}
+          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto mb-[5vh] md:mb-0" initial={{
         opacity: 0,
         y: 50
       }} animate={{
@@ -564,7 +574,7 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
+            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
