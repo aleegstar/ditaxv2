@@ -19,9 +19,19 @@ export const incomeQuestions: QuestionConfig = {
       explanation: 'Kapitalauszahlungen aus der beruflichen Vorsorge (Säule 2) oder der gebundenen Selbstvorsorge (Säule 3a) bei Pensionierung, Invalidität, Auswanderung oder Aufnahme einer selbständigen Erwerbstätigkeit. Diese werden separat und zu einem reduzierten Steuersatz besteuert.'
     },
     {
+      id: 'hasRental',
+      text: 'Hast du Mieteinnahmen?',
+      explanation: 'Mieteinnahmen aus der Vermietung von Wohnungen, Häusern, Gewerberäumen oder anderen Immobilien müssen als Einkommen deklariert werden. Dies umfasst auch Untervermietungen und kurzfristige Vermietungen über Plattformen wie Airbnb.'
+    },
+    {
+      id: 'hasDividends',
+      text: 'Hast du Dividenden oder Kapitalerträge erhalten?',
+      explanation: 'Dividenden aus Aktien, Genossenschaftsanteilen und anderen Beteiligungen sowie Zinserträge aus Obligationen und anderen Wertpapieren müssen als Einkommen deklariert werden. Dies gilt für in- und ausländische Erträge.'
+    },
+    {
       id: 'hasOtherIncome',
       text: 'Hast du weitere Einkommen generiert?',
-      explanation: 'Weitere Einkommen umfassen Nebeneinkommen aus Teilzeitarbeit, Mieteinnahmen aus vermieteten Immobilien, Pachterträge, Dividenden und Zinserträge, Tantiemen, Gratifikationen, Honorare aus selbständiger Nebentätigkeit sowie alle anderen nicht bereits erfassten Einkommensarten.'
+      explanation: 'Weitere Einkommen umfassen Nebeneinkommen aus Teilzeitarbeit, Pachterträge, Tantiemen, Gratifikationen, Honorare aus selbständiger Nebentätigkeit sowie alle anderen nicht bereits erfassten Einkommensarten.'
     },
     {
       id: 'hasFreelance',
