@@ -168,7 +168,7 @@ const UnifiedAlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      "w-full py-4 rounded-full font-medium transition-colors",
+      "w-full py-3 rounded-full font-medium transition-colors",
       "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
       actionVariantStyles[variant],
       className
