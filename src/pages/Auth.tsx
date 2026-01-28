@@ -442,7 +442,7 @@ const Auth = () => {
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-4 space-y-1">
+                <div className="text-center mb-4 space-y-0.5">
                   <h1 className="font-medium tracking-tighter font-jakarta text-slate-900 text-2xl">
                     Anmelden
                   </h1>
@@ -467,21 +467,18 @@ const Auth = () => {
                   </button>
                   
                   {/* Microcopy */}
-                  <div className="text-center space-y-0.5 pt-2">
+                  <div className="text-center pt-2">
                     <p className="text-xs text-slate-500 font-jakarta">
-                      Wir schicken dir einen einmaligen Code per E-Mail.
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-jakarta">
-                      Kein Passwort. Kein Spam.
+                      Wir senden dir einen einmaligen Code per E-Mail. Kein Passwort. Kein Spam.
                     </p>
                   </div>
                 </form>
 
                 {/* Oder Divider - hidden when input is focused */}
                 {!isInputFocused && <div className="flex items-center gap-4 w-full mt-14">
-                    <div className="flex-1 h-px bg-slate-200" />
-                    <span className="text-sm text-slate-500 font-medium font-jakarta">Oder</span>
-                    <div className="flex-1 h-px bg-slate-200" />
+                    <div className="flex-1 h-px bg-slate-300" />
+                    <span className="text-sm text-slate-600 font-medium font-jakarta">Oder</span>
+                    <div className="flex-1 h-px bg-slate-300" />
                   </div>}
               </motion.div> : <motion.div key="code-step" initial={{
             opacity: 0,
