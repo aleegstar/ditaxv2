@@ -437,7 +437,7 @@ const Auth = () => {
             duration: 0.3
           }}>
                 {/* Logo Centered */}
-                <div className="flex justify-center mb-4 mt-3">
+                <div className="flex justify-center mb-3">
                   <img alt="Ditax" className="w-auto h-8 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
