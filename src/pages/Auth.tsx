@@ -575,9 +575,9 @@ const Auth = () => {
         delay: 0.2
       }}>
             <div className="relative w-full">
-              {/* Rainbow Glow Element - positioned above container */}
+              {/* Rainbow Shadow Effect - positioned above container */}
               <div 
-                className="absolute -top-3 left-1/2 -translate-x-1/2 w-[65%] h-5 animate-rainbow bg-[length:200%] rounded-full blur-lg opacity-45 pointer-events-none"
+                className="absolute -top-6 left-1/2 -translate-x-1/2 w-[75%] h-12 animate-rainbow bg-[length:200%] rounded-full blur-2xl opacity-70 pointer-events-none"
                 style={{ 
                   backgroundImage: 'linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)))',
                   '--speed': '4s'
@@ -585,7 +585,7 @@ const Auth = () => {
               />
               
               {/* Social Login Container */}
-              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-[28px] bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-500/50">
+              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-[28px] bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-500/50 shadow-[0_-12px_40px_-8px_rgba(0,0,0,0.4)]">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
