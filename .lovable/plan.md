@@ -1,92 +1,80 @@
 
-# Implementierungsplan: Layout- und UX-Verbesserungen
+# Plan: Formular-Korrekturen
 
 ## Zusammenfassung
-Dieser Plan korrigiert die während des Audits identifizierten Layout-Inkonsistenzen und UX-Verbesserungen auf der Hauptseite und im /form-Flow.
+Dieser Plan behebt die identifizierten Inkonsistenzen in den Formularen:
+1. Container-Breiten-Standardisierung
+2. ID-Synchronisierung zwischen yesNoQuestions und AssetsForm
 
 ---
 
-## 1. SubpageHeader Breite korrigieren
+## 1. Container-Breiten korrigieren
 
-**Problem:** Der SubpageHeader verwendet `max-w-7xl` statt dem Subpage-Standard `max-w-4xl`.
+**Problem:** MultiStepYesNoForm verwendet `max-w-[500px]` statt dem Standard `max-w-4xl`.
 
-**Änderung:**
-- **Datei:** `src/components/ui/subpage-header.tsx`
-- **Zeile 37:** `max-w-7xl` ändern zu `max-w-4xl`
+**Änderungen:**
+- **Datei:** `src/components/forms/multistep/MultiStepYesNoForm.tsx`
+- **Zeile 576:** `max-w-[500px]` ändern zu `max-w-4xl`
+- **Zeile 637:** `max-w-[500px]` ändern zu `max-w-4xl`
 
 **Vorher:**
 ```tsx
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
+<div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto ...">
 ```
 
 **Nachher:**
 ```tsx
-<div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+<div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto ...">
 ```
 
 ---
 
-## 2. MultiStepContactForm Breite vereinheitlichen
+## 2. ID-Diskrepanz beheben: hasSecuritiesAccount vs hasDepositAccount
 
-**Problem:** Das Formular verwendet `max-w-[500px]` statt `max-w-4xl`.
+**Problem:** 
+- `yesNoQuestions.ts` verwendet `hasSecuritiesAccount` (Zeile 83)
+- `AssetsForm.tsx` verwendet `hasDepositAccount` (Zeile 41)
 
-**Änderung:**
-- **Datei:** `src/components/forms/MultiStepContactForm.tsx`
-- Container-Wrapper auf `max-w-4xl` ändern für Desktop-Konsistenz
+Dies führt dazu, dass die Antwort aus dem Yes/No-Fragebogen nicht korrekt in den Expert-Modus übernommen wird.
 
----
-
-## 3. iOS Safe-Area-Insets hinzufügen
-
-**Problem:** Das Dashboard verwendet statisches `pb-28` ohne Berücksichtigung von iOS Home-Indicator.
+**Lösung:** Den ID-Namen in `yesNoQuestions.ts` auf `hasDepositAccount` ändern, um Konsistenz mit dem AssetsForm und der bestehenden Datenstruktur herzustellen.
 
 **Änderung:**
-- **Datei:** `src/pages/UserTaxReturns.tsx`
-- Tailwind `pb-safe` oder CSS `env(safe-area-inset-bottom)` hinzufügen
+- **Datei:** `src/config/yesNoQuestions.ts`
+- **Zeile 83:** `hasSecuritiesAccount` ändern zu `hasDepositAccount`
 
-**Implementierung:**
+**Vorher:**
 ```tsx
-// Im Footer-Bereich
-<div className="pb-28 pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))]">
+{
+  id: 'hasSecuritiesAccount',
+  text: 'Hast du ein Depotkonto?',
+  ...
+}
 ```
 
----
-
-## 4. Avatar onError Fallback hinzufügen
-
-**Problem:** Fehlende Fallback-Logik wenn Avatar-Bilder nicht laden können.
-
-**Änderung:**
-- **Dateien:** `src/components/TaxYearDashboard.tsx`, `src/components/ui/subpage-header.tsx`
-- `onError` Handler für Avatar-Images hinzufügen
-
-**Implementierung:**
+**Nachher:**
 ```tsx
-<img 
-  src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
-  alt="Profil" 
-  className="w-full h-full object-cover"
-  onError={(e) => {
-    e.currentTarget.src = '/lovable-uploads/default-avatar.png';
-  }}
-/>
+{
+  id: 'hasDepositAccount',
+  text: 'Hast du ein Depotkonto?',
+  ...
+}
 ```
 
 ---
 
 ## Technische Details
 
-| Datei | Änderungstyp | Beschreibung |
-|-------|--------------|--------------|
-| `src/components/ui/subpage-header.tsx` | Edit | max-w-7xl → max-w-4xl, Avatar onError |
-| `src/components/forms/MultiStepContactForm.tsx` | Edit | max-w-[500px] → max-w-4xl |
-| `src/pages/UserTaxReturns.tsx` | Edit | iOS safe-area-insets |
-| `src/components/TaxYearDashboard.tsx` | Edit | Avatar onError fallback |
+| Datei | Zeile | Änderungstyp | Beschreibung |
+|-------|-------|--------------|--------------|
+| `src/components/forms/multistep/MultiStepYesNoForm.tsx` | 576 | Edit | max-w-[500px] → max-w-4xl |
+| `src/components/forms/multistep/MultiStepYesNoForm.tsx` | 637 | Edit | max-w-[500px] → max-w-4xl |
+| `src/config/yesNoQuestions.ts` | 83 | Edit | hasSecuritiesAccount → hasDepositAccount |
 
 ---
 
 ## Erwartetes Ergebnis
 
-1. Konsistente Seitenbreiten (max-w-4xl) auf allen Subpages
-2. Bessere Darstellung auf iOS-Geräten mit Home-Indicator
-3. Robuste Avatar-Anzeige mit Fallback bei Ladefehlern
+1. Konsistente Formular-Breiten auf Desktop (max-w-4xl)
+2. Korrekte Datenübernahme zwischen Yes/No-Fragebogen und Expert-Modus für die Depotkonto-Frage
+3. Keine Datenverluste beim Wechsel zwischen Formular-Modi
