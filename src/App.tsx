@@ -29,6 +29,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Cookies from "./pages/Cookies";
 import AcceptableUse from "./pages/AcceptableUse";
+import Impressum from "./pages/Impressum";
 import PrivacySettings from "./pages/PrivacySettings";
 import Index from "./pages/Index";
 import PaymentPage from "./pages/Payment";
@@ -518,7 +519,7 @@ const App = () => {
                 <Route path="/datenschutzrichtlinie" element={<Privacy />} />
                 <Route path="/agb" element={<Terms />} />
                 <Route path="/cookie-richtlinie" element={<Cookies />} />
-          <Route path="/impressum" element={<AcceptableUse />} />
+          <Route path="/impressum" element={<Impressum />} />
           <Route path="/nutzungsbedingungen" element={<Terms />} />
                 
                 <Route
