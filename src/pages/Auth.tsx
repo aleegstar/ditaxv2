@@ -564,7 +564,7 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.08)] rounded-t-3xl bg-slate-50 border-t border-slate-200">
+            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.15)] rounded-t-3xl bg-gradient-to-b from-slate-100 to-slate-200 border-t border-slate-300">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
               
