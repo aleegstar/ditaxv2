@@ -1,80 +1,74 @@
 
-# Plan: Formular-Korrekturen
+
+# Plan: Synchronisierung Yes/No-Fragen mit Dokumenten-Checkliste
 
 ## Zusammenfassung
-Dieser Plan behebt die identifizierten Inkonsistenzen in den Formularen:
-1. Container-Breiten-Standardisierung
-2. ID-Synchronisierung zwischen yesNoQuestions und AssetsForm
+
+Die Analyse zeigt, dass die Dokumenten-Checkliste zwei Dokumente anfordert, für die **keine entsprechenden Yes/No-Fragen existieren**:
+1. Mieteinnahmen-Belege (`hasRental`)
+2. Dividenden-Bescheinigung (`hasDividends`)
+
+## Identifizierte Probleme
+
+### Problem 1: Mieteinnahmen
+- **Checklist prüft:** `formData.income?.hasRental || formData.income?.rentalIncome > 0`
+- **Yes/No-Frage:** Existiert nicht
+- **Konsequenz:** Das Dokument wird nie angefragt, es sei denn, der User nutzt den Expert-Modus
+
+### Problem 2: Dividenden
+- **Checklist prüft:** `formData.income?.hasDividends || formData.income?.capitalIncome > 0`
+- **Yes/No-Frage:** Existiert nicht
+- **Konsequenz:** Das Dokument wird nie angefragt, es sei denn, der User nutzt den Expert-Modus
 
 ---
 
-## 1. Container-Breiten korrigieren
+## Lösungsoptionen
 
-**Problem:** MultiStepYesNoForm verwendet `max-w-[500px]` statt dem Standard `max-w-4xl`.
+### Option A: Yes/No-Fragen hinzufügen (Empfohlen)
+Zwei neue Fragen zur `incomeQuestions` Konfiguration hinzufügen:
 
-**Änderungen:**
-- **Datei:** `src/components/forms/multistep/MultiStepYesNoForm.tsx`
-- **Zeile 576:** `max-w-[500px]` ändern zu `max-w-4xl`
-- **Zeile 637:** `max-w-[500px]` ändern zu `max-w-4xl`
-
-**Vorher:**
-```tsx
-<div className="h-screen md:max-w-2xl bg-white w-full max-w-[500px] mr-auto ml-auto ...">
-```
-
-**Nachher:**
-```tsx
-<div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto ...">
-```
-
----
-
-## 2. ID-Diskrepanz beheben: hasSecuritiesAccount vs hasDepositAccount
-
-**Problem:** 
-- `yesNoQuestions.ts` verwendet `hasSecuritiesAccount` (Zeile 83)
-- `AssetsForm.tsx` verwendet `hasDepositAccount` (Zeile 41)
-
-Dies führt dazu, dass die Antwort aus dem Yes/No-Fragebogen nicht korrekt in den Expert-Modus übernommen wird.
-
-**Lösung:** Den ID-Namen in `yesNoQuestions.ts` auf `hasDepositAccount` ändern, um Konsistenz mit dem AssetsForm und der bestehenden Datenstruktur herzustellen.
-
-**Änderung:**
-- **Datei:** `src/config/yesNoQuestions.ts`
-- **Zeile 83:** `hasSecuritiesAccount` ändern zu `hasDepositAccount`
-
-**Vorher:**
-```tsx
+**Neue Fragen:**
+```typescript
 {
-  id: 'hasSecuritiesAccount',
-  text: 'Hast du ein Depotkonto?',
-  ...
+  id: 'hasRental',
+  text: 'Hast du Mieteinnahmen?',
+  explanation: 'Mieteinnahmen aus der Vermietung von Wohnungen, Häusern, Gewerberäumen oder anderen Immobilien müssen als Einkommen deklariert werden. Dies umfasst auch Untervermietungen und kurzfristige Vermietungen über Plattformen wie Airbnb.'
+},
+{
+  id: 'hasDividends',
+  text: 'Hast du Dividenden oder Kapitalerträge erhalten?',
+  explanation: 'Dividenden aus Aktien, Genossenschaftsanteilen und anderen Beteiligungen sowie Zinserträge aus Obligationen und anderen Wertpapieren müssen als Einkommen deklariert werden. Dies gilt für in- und ausländische Erträge.'
 }
 ```
 
-**Nachher:**
-```tsx
-{
-  id: 'hasDepositAccount',
-  text: 'Hast du ein Depotkonto?',
-  ...
-}
-```
+### Option B: Checklisten-Checks entfernen
+Die Checks für `hasRental` und `hasDividends` aus dem Checklist-Generator entfernen.
 
 ---
 
-## Technische Details
+## Empfehlung
 
-| Datei | Zeile | Änderungstyp | Beschreibung |
-|-------|-------|--------------|--------------|
-| `src/components/forms/multistep/MultiStepYesNoForm.tsx` | 576 | Edit | max-w-[500px] → max-w-4xl |
-| `src/components/forms/multistep/MultiStepYesNoForm.tsx` | 637 | Edit | max-w-[500px] → max-w-4xl |
-| `src/config/yesNoQuestions.ts` | 83 | Edit | hasSecuritiesAccount → hasDepositAccount |
+**Option A** ist empfohlen, da:
+1. Mieteinnahmen und Dividenden steuerlich relevante Einkommen sind
+2. Die Dokumenten-Checkliste die entsprechende Logik bereits enthält
+3. Der User durch die Fragen korrekt geführt wird
 
 ---
 
-## Erwartetes Ergebnis
+## Technische Änderungen
 
-1. Konsistente Formular-Breiten auf Desktop (max-w-4xl)
-2. Korrekte Datenübernahme zwischen Yes/No-Fragebogen und Expert-Modus für die Depotkonto-Frage
-3. Keine Datenverluste beim Wechsel zwischen Formular-Modi
+| Datei | Zeile | Änderung |
+|-------|-------|----------|
+| `src/config/yesNoQuestions.ts` | nach Zeile 25 | Neue Frage `hasRental` einfügen |
+| `src/config/yesNoQuestions.ts` | nach Zeile 25 | Neue Frage `hasDividends` einfügen |
+
+---
+
+## Komplette Übersicht nach Korrektur
+
+Nach der Implementierung werden **alle** Dokumente korrekt basierend auf Yes/No-Antworten angefragt:
+
+**Einkommen:** 8 Fragen → 8 Dokumente
+**Vermögen:** 7 Fragen → 6 Dokumente (Fahrzeuge ausgenommen)
+**Abzüge:** 9 Fragen → 9 Dokumente
+
