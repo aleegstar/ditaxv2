@@ -557,7 +557,7 @@ const Auth = () => {
           <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
 
           {/* The Domed Button Container - positioned higher on mobile */}
-          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto mb-[5vh] md:mb-0" initial={{
+          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
         opacity: 0,
         y: 50
       }} animate={{
@@ -569,8 +569,9 @@ const Auth = () => {
       }}>
             <div className="relative w-full">
               {/* Social Login Container - Light Design */}
-              <div className="flex flex-col items-center w-full pt-6 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200">
-              
+              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200">
+              {/* Pill Handle Divider */}
+              <div className="w-10 h-1 rounded-full bg-slate-300 mb-4" />
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
                 <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
