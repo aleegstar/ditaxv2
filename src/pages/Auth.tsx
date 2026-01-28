@@ -578,9 +578,14 @@ const Auth = () => {
               />
               
               {/* Social Login Container */}
-              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-[28px] bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-500/50 shadow-[0_-12px_40px_-8px_rgba(0,0,0,0.4)]">
+              <div 
+                className="flex flex-col items-center overflow-hidden w-full pt-4 px-6 pb-6 md:pb-8 relative rounded-t-[32px] border-t border-white/10"
+                style={{
+                  background: 'linear-gradient(to bottom, rgba(100, 116, 139, 0.15) 0%, rgba(51, 65, 85, 0.6) 20%, rgba(30, 41, 59, 0.9) 50%, rgb(15, 23, 42) 100%)'
+                }}
+              >
               {/* Pill Handle Divider */}
-              <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
+              <div className="w-10 h-1 rounded-full bg-slate-400/50 mb-4" />
               
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
