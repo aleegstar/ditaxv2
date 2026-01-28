@@ -574,7 +574,18 @@ const Auth = () => {
         duration: 0.5,
         delay: 0.2
       }}>
-            <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
+            <div className="relative w-full">
+              {/* Rainbow Glow Element - positioned above container */}
+              <div 
+                className="absolute -top-8 left-1/2 -translate-x-1/2 w-[80%] h-16 animate-rainbow bg-[length:200%] rounded-full blur-2xl opacity-60 pointer-events-none"
+                style={{ 
+                  backgroundImage: 'linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)))',
+                  '--speed': '4s'
+                } as React.CSSProperties}
+              />
+              
+              {/* Social Login Container */}
+              <div className="flex flex-col items-center overflow-hidden w-full pt-3 px-6 pb-6 md:pb-8 relative shadow-[0_-8px_30px_-5px_rgba(0,0,0,0.3)] rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600">
               {/* Pill Handle Divider */}
               <div className="w-10 h-1 rounded-full bg-slate-500 mb-4" />
               
@@ -610,6 +621,7 @@ const Auth = () => {
                 
                 
               </div>
+            </div>
             </div>
           </motion.div>
         </div>}
