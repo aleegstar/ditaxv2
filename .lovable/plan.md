@@ -1,50 +1,55 @@
 
-# Plan: Fehlende DELETE RLS-Policy für Benachrichtigungen hinzufügen
+# Plan: Auth-Seite UI-Text anpassen
 
 ## Problemanalyse
 
-Das Löschen von Benachrichtigungen funktioniert nicht dauerhaft, weil die **DELETE RLS-Policy fehlt**.
+Die Änderungen wurden in der falschen Datei gemacht. Es gibt zwei Auth-Komponenten:
 
-### Aktueller Zustand der `user_notifications` Tabelle
+| Datei | Wird verwendet auf | Status |
+|-------|-------------------|--------|
+| `src/pages/Auth.tsx` | `/auth` Route | **Diese muss geändert werden** |
+| `src/components/auth/EnhancedLoginFlow.tsx` | Wird nicht verwendet | Wurde fälschlicherweise geändert |
 
-| Operation | RLS-Policy | Status |
-|-----------|-----------|--------|
-| SELECT | `Users can view their own notifications` | ✅ Vorhanden |
-| INSERT | `Service role can create notifications` | ✅ Vorhanden |
-| UPDATE | `Users can update their own notifications` | ✅ Vorhanden |
-| **DELETE** | **Keine Policy** | ❌ **FEHLT** |
+## Gewünschte Änderungen
 
-### Was passiert beim Löschen
-
-1. Benutzer klickt auf "Löschen"
-2. Frontend sendet DELETE-Request an Supabase
-3. **RLS blockiert die Löschung** (keine Policy = kein Zugriff)
-4. Kein Fehler wird zurückgegeben (stille Ablehnung)
-5. Lokaler State wird trotzdem aktualisiert → Benachrichtigung verschwindet
-6. Beim Neuladen werden Daten aus DB geladen → Benachrichtigung erscheint wieder
-
-## Lösung
-
-Eine DELETE RLS-Policy erstellen, die Benutzern erlaubt, ihre eigenen Benachrichtigungen zu löschen.
+1. **E-Mail Label hinzufügen**: "Email:" oberhalb des Inputfeldes
+2. **Placeholder ändern**: Von "name@firma.com" zu "name@mail.com"
+3. **Button-Text ändern**: Von "Anmelden" zu "Login Code senden"
 
 ## Technische Umsetzung
 
-### Neue RLS-Policy (SQL Migration)
+### Datei: `src/pages/Auth.tsx`
 
-```sql
-CREATE POLICY "Users can delete their own notifications"
-  ON public.user_notifications
-  FOR DELETE
-  USING (auth.uid() = user_id);
+**Zeile 456-466 anpassen:**
+
+```tsx
+// Vorher (aktuell)
+<div className="space-y-1.5">
+  <div className="relative">
+    <input ... placeholder="name@firma.com" ... />
+  </div>
+</div>
+<button ...>
+  {isEmailLoading ? 'Code wird gesendet...' : 'Anmelden'}
+</button>
+
+// Nachher (neu)
+<div className="space-y-1.5">
+  <label className="text-sm font-medium text-slate-700 font-jakarta">
+    Email:
+  </label>
+  <div className="relative">
+    <input ... placeholder="name@mail.com" ... />
+  </div>
+</div>
+<button ...>
+  {isEmailLoading ? 'Code wird gesendet...' : 'Login Code senden'}
+</button>
 ```
-
-Diese Policy:
-- Gilt nur für DELETE-Operationen
-- Erlaubt Löschung nur wenn `auth.uid()` = `user_id`
-- Verhindert, dass Benutzer fremde Benachrichtigungen löschen können
 
 ## Erwartetes Ergebnis
 
-- Benutzer können ihre eigenen Benachrichtigungen löschen
-- Gelöschte Benachrichtigungen bleiben nach dem Neuladen gelöscht
-- Sicherheit bleibt gewahrt (nur eigene Benachrichtigungen löschbar)
+Die `/auth` Seite zeigt:
+- "Email:" Label über dem Eingabefeld
+- Placeholder "name@mail.com"
+- Button mit Text "Login Code senden"
