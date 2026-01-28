@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, BookOpen, UploadCloud, Send, LucideIcon, ArrowLeft } from 'lucide-react';
-import { ReferralBanner } from '@/components/referral/ReferralBanner';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
@@ -384,13 +383,6 @@ export const TaxYearDashboard: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Referral Banner - nur nach vollständigem Abschluss (alle Schritte + Zahlung) */}
-        {isCompleted('submit') && (
-          <div className="mt-8">
-            <ReferralBanner variant="compact" />
-          </div>
-        )}
       </main>
     </div>;
 };
