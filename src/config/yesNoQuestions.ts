@@ -80,7 +80,7 @@ export const assetsQuestions: QuestionConfig = {
       }
     },
     {
-      id: 'hasSecuritiesAccount',
+      id: 'hasDepositAccount',
       text: 'Hast du ein Depotkonto?',
       explanation: 'Depotkonten enthalten Wertpapiere wie Aktien, Obligationen, Anlagefonds, ETFs, strukturierte Produkte sowie andere börsengehandelte Anlagen. Alle Wertpapiere in der Schweiz und im Ausland müssen mit dem Kurswert per 31. Dezember deklariert werden. Auch ausländische Depots und Online-Broker wie Interactive Brokers, Swissquote oder Trading 212 gehören dazu.'
     },
