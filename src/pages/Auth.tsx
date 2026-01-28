@@ -577,7 +577,7 @@ const Auth = () => {
             <div className="relative w-full">
               {/* Rainbow Glow Element - positioned above container */}
               <div 
-                className="absolute -top-4 left-1/2 -translate-x-1/2 w-[70%] h-8 animate-rainbow bg-[length:200%] rounded-full blur-xl opacity-50 pointer-events-none"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 w-[65%] h-5 animate-rainbow bg-[length:200%] rounded-full blur-lg opacity-45 pointer-events-none"
                 style={{ 
                   backgroundImage: 'linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)))',
                   '--speed': '4s'
