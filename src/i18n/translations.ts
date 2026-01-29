@@ -353,6 +353,21 @@ export interface Translation {
   // Profile
   profile: {
     title: string;
+    loading: string;
+    signOutSuccess: string;
+    signOutError: string;
+    profilePicture: string;
+    profilePictureDescription: string;
+    profileInfo: string;
+    profileInfoDescription: string;
+    nameNotAvailable: string;
+    emailNotAvailable: string;
+    edit: string;
+    inviteFriends: string;
+    inviteFriendsDescription: string;
+    inviteFriendsReward: string;
+    shareYourCode: string;
+    signOut: string;
     personalInfo: string;
     firstName: string;
     lastName: string;
@@ -1351,6 +1366,21 @@ export const translations: Record<'de' | 'en', Translation> = {
     
     profile: {
       title: 'Profil',
+      loading: 'Profil wird geladen...',
+      signOutSuccess: 'Erfolgreich abgemeldet',
+      signOutError: 'Fehler beim Abmelden',
+      profilePicture: 'Profilbild',
+      profilePictureDescription: 'Laden Sie Ihr Profilbild hoch oder ändern Sie es.',
+      profileInfo: 'Profil-Informationen',
+      profileInfoDescription: 'Deine persönlichen Daten und Kontoinformationen.',
+      nameNotAvailable: 'Name nicht verfügbar',
+      emailNotAvailable: 'E-Mail nicht verfügbar',
+      edit: 'Bearbeiten',
+      inviteFriends: 'Freunde einladen',
+      inviteFriendsDescription: 'Lade Freunde ein und erhalte CHF 20.- Rabatt.',
+      inviteFriendsReward: 'CHF 20.- für dich & deine Freunde',
+      shareYourCode: 'Teile deinen persönlichen Code',
+      signOut: 'Abmelden',
       personalInfo: 'Persönliche Informationen',
       firstName: 'Vorname',
       lastName: 'Nachname',
@@ -2406,6 +2436,21 @@ export const translations: Record<'de' | 'en', Translation> = {
     
     profile: {
       title: 'Profile',
+      loading: 'Loading profile...',
+      signOutSuccess: 'Successfully signed out',
+      signOutError: 'Error signing out',
+      profilePicture: 'Profile Picture',
+      profilePictureDescription: 'Upload or change your profile picture.',
+      profileInfo: 'Profile Information',
+      profileInfoDescription: 'Your personal data and account information.',
+      nameNotAvailable: 'Name not available',
+      emailNotAvailable: 'Email not available',
+      edit: 'Edit',
+      inviteFriends: 'Invite Friends',
+      inviteFriendsDescription: 'Invite friends and get CHF 20.- discount.',
+      inviteFriendsReward: 'CHF 20.- for you & your friends',
+      shareYourCode: 'Share your personal code',
+      signOut: 'Sign Out',
       personalInfo: 'Personal Information',
       firstName: 'First Name',
       lastName: 'Last Name',

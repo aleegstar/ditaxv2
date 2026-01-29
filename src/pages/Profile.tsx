@@ -12,21 +12,23 @@ import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MfaSettings } from '@/components/auth/MfaSettings';
 import { LoginHistory } from '@/components/ui/login-history';
+import { useI18n } from '@/contexts/I18nContext';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { profile, loading, updateAvatar } = useProfile();
+  const { t } = useI18n();
 
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      toast.success('Erfolgreich abgemeldet');
+      toast.success(t.profile.signOutSuccess);
       navigate('/auth');
     } catch (error: any) {
       console.error('Sign out error:', error);
-      toast.error('Fehler beim Abmelden: ' + error.message);
+      toast.error(t.profile.signOutError + ': ' + error.message);
     }
   };
 
@@ -48,8 +50,8 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-white p-4 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#1D64FF] mx-auto"></div>
-          <p className="mt-4 text-slate-500">Profil wird geladen...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">{t.profile.loading}</p>
         </div>
       </div>
     );
@@ -64,7 +66,7 @@ const Profile = () => {
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <SubpageHeader 
-          title="Profil"
+          title={t.profile.title}
           onBack={() => navigate('/')}
         />
       </motion.div>
@@ -76,11 +78,11 @@ const Profile = () => {
           {/* Section: Profilbild */}
           <section className="space-y-5">
             <div className="space-y-1">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-gray-600" />
-                Profilbild
+              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <Camera className="w-5 h-5 text-muted-foreground" />
+                {t.profile.profilePicture}
               </h2>
-              <p className="text-sm text-gray-600">Laden Sie Ihr Profilbild hoch oder ändern Sie es.</p>
+              <p className="text-sm text-muted-foreground">{t.profile.profilePictureDescription}</p>
             </div>
             
             <div className="flex items-center">
@@ -119,40 +121,40 @@ const Profile = () => {
           {/* Section: Profil-Informationen */}
           <section className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-600" />
-                Profil-Informationen
+              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <User className="w-5 h-5 text-muted-foreground" />
+                {t.profile.profileInfo}
               </h2>
-              <p className="text-sm text-gray-600">Deine persönlichen Daten und Kontoinformationen.</p>
+              <p className="text-sm text-muted-foreground">{t.profile.profileInfoDescription}</p>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center gap-4 transition-colors group">
-              <div className="w-12 h-12 rounded-full bg-gray-200 border border-gray-300 overflow-hidden shrink-0">
+            <div className="bg-muted/50 border border-border hover:bg-muted hover:border-border/80 p-4 rounded-xl flex items-center gap-4 transition-colors group">
+              <div className="w-12 h-12 rounded-full bg-muted border border-border overflow-hidden shrink-0">
                 <Avatar className="w-full h-full">
                   <AvatarImage 
                     src={profile?.avatar_url || undefined} 
                     alt="Avatar"
                     className="w-full h-full object-cover"
                   />
-                  <AvatarFallback className="w-full h-full bg-gray-200 text-gray-600 font-medium">
+                  <AvatarFallback className="w-full h-full bg-muted text-muted-foreground font-medium">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
               </div>
               <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-foreground">
                   {profile?.first_name || profile?.last_name 
                     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-                    : 'Name nicht verfügbar'
+                    : t.profile.nameNotAvailable
                   }
                 </span>
-                <span className="text-sm text-gray-600 flex items-center gap-1.5 truncate">
+                <span className="text-sm text-muted-foreground flex items-center gap-1.5 truncate">
                   <Mail className="w-3.5 h-3.5 shrink-0" />
-                  {profile?.email || 'E-Mail nicht verfügbar'}
+                  {profile?.email || t.profile.emailNotAvailable}
                 </span>
               </div>
-              <button className="text-xs font-medium text-gray-700 hover:text-gray-900 border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-all shrink-0">
-                Bearbeiten
+              <button className="text-xs font-medium text-foreground hover:text-foreground/80 border border-border hover:border-border/80 bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-all shrink-0">
+                {t.profile.edit}
               </button>
             </div>
           </section>
@@ -177,31 +179,31 @@ const Profile = () => {
           {/* Freunde einladen Section */}
           <section className="space-y-4">
             <div className="space-y-1">
-              <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <Gift className="w-5 h-5 text-gray-600" />
-                Freunde einladen
+              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <Gift className="w-5 h-5 text-muted-foreground" />
+                {t.profile.inviteFriends}
               </h2>
-              <p className="text-sm text-gray-600">
-                Lade Freunde ein und erhalte CHF 20.- Rabatt.
+              <p className="text-sm text-muted-foreground">
+                {t.profile.inviteFriendsDescription}
               </p>
             </div>
 
             <Link 
               to="/invite-friends"
-              className="bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 p-4 rounded-xl flex items-center gap-4 transition-colors group"
+              className="bg-muted/50 border border-border hover:bg-muted hover:border-border/80 p-4 rounded-xl flex items-center gap-4 transition-colors group"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                <Gift className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Gift className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <span className="text-sm font-semibold text-gray-900 block">
-                  CHF 20.- für dich & deine Freunde
+                <span className="text-sm font-semibold text-foreground block">
+                  {t.profile.inviteFriendsReward}
                 </span>
-                <span className="text-sm text-gray-600 block">
-                  Teile deinen persönlichen Code
+                <span className="text-sm text-muted-foreground block">
+                  {t.profile.shareYourCode}
                 </span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
             </Link>
           </section>
 
@@ -209,10 +211,10 @@ const Profile = () => {
           <div className="pt-4">
             <button 
               onClick={handleSignOut}
-              className="w-full h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-all duration-200 font-medium text-[15px] flex items-center justify-center gap-2 group shadow-sm"
+              className="w-full h-12 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive hover:bg-destructive/20 hover:border-destructive/30 transition-all duration-200 font-medium text-[15px] flex items-center justify-center gap-2 group shadow-sm"
             >
               <LogOut className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
-              Abmelden
+              {t.profile.signOut}
             </button>
           </div>
 
