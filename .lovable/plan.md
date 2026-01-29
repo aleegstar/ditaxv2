@@ -1,70 +1,63 @@
 
-# Plan: Steuerdaten nach ausgewählter Person filtern
+# Plan: Steuererklärung-Erstellung nach Tax Filer filtern
 
 ## Problem
-Wenn du die Person wechselst, werden weiterhin dieselben Steuererklärungen (2029, 2028) mit demselben Fortschritt (25%) angezeigt. Das liegt daran, dass die Datenabfrage nur nach Benutzer-ID filtert, nicht nach der ausgewählten Person.
+Beim Erstellen einer neuen Steuererklärung für eine zweite Person erscheint die Fehlermeldung "Steuererklärung für 2024 existiert bereits", obwohl die erste Person die Steuererklärung besitzt, nicht die zweite.
+
+## Ursache
+In der `createNewTaxReturn` Funktion in `src/pages/UserTaxReturns.tsx`:
+
+1. **Duplikat-Prüfung** (Zeile 209): Prüft nur `user_id` und `tax_year` - die `tax_filer_id` fehlt
+2. **INSERT-Statement** (Zeilen 219-225): Enthält keine `tax_filer_id`
+
+---
 
 ## Lösung
-Die `useTaxYearData`-Hook muss die `activeTaxFilerId` aus dem `TaxFilerContext` verwenden, um alle Abfragen nach der ausgewählten Person zu filtern.
+
+### Datei: `src/pages/UserTaxReturns.tsx`
+
+#### 1. Duplikat-Prüfung erweitern
+```text
+// Vorher (Zeile 209)
+.eq('user_id', userId).eq('tax_year', year)
+
+// Nachher
+.eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId)
+```
+
+#### 2. INSERT mit tax_filer_id
+```text
+// Vorher (Zeilen 219-225)
+.insert({
+  user_id: userId,
+  tax_year: year,
+  status: 'pending',
+  payment_status: 'pending',
+  workflow_step: 'data_collection'
+})
+
+// Nachher
+.insert({
+  user_id: userId,
+  tax_filer_id: activeTaxFilerId,
+  tax_year: year,
+  status: 'pending',
+  payment_status: 'pending',
+  workflow_step: 'data_collection'
+})
+```
 
 ---
 
-## Technische Änderungen
-
-### 1. Hook erweitern: `useTaxYearData`
-**Datei:** `src/hooks/use-tax-year-data.ts`
-
-Die Hook erhält einen zusätzlichen Parameter `taxFilerId` und filtert alle Datenbankabfragen danach:
-
-```text
-// Vorher
-export const useTaxYearData = (userId: string | null)
-
-// Nachher
-export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
-```
-
-Betroffene Abfragen:
-| Tabelle | Änderung |
-|---------|----------|
-| `tax_returns` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
-| `form_progress` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
-| `form_data` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
-| `uploaded_documents` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
-| `completed_tax_returns` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
-
-### 2. UserTaxReturns anpassen
-**Datei:** `src/pages/UserTaxReturns.tsx`
-
-Die Seite muss die `activeTaxFilerId` aus dem Context an die Hook übergeben:
-
-```text
-// Vorher
-const { taxReturns, ... } = useTaxYearData(userId);
-
-// Nachher
-const { activeTaxFilerId } = useTaxFiler();
-const { taxReturns, ... } = useTaxYearData(userId, activeTaxFilerId);
-```
-
-### 3. Reaktive Aktualisierung
-Wenn der Benutzer die Person wechselt:
-1. `activeTaxFilerId` ändert sich im Context
-2. Die Hook erkennt die Änderung und lädt die Daten neu
-3. Die UI zeigt die korrekten Steuererklärungen und Fortschritte für diese Person
-
----
-
-## Betroffene Dateien
+## Betroffene Datei
 | Datei | Änderung |
 |-------|----------|
-| `src/hooks/use-tax-year-data.ts` | `taxFilerId` Parameter hinzufügen, alle Queries filtern |
-| `src/pages/UserTaxReturns.tsx` | `activeTaxFilerId` an Hook übergeben |
+| `src/pages/UserTaxReturns.tsx` | `tax_filer_id` bei Duplikat-Check und INSERT hinzufügen |
 
 ---
 
 ## Ergebnis
 Nach dieser Änderung:
-- Jede Person hat ihre eigenen Steuererklärungen
-- Der Fortschritt wird pro Person separat berechnet
-- Beim Wechsel der Person werden die korrekten Daten geladen
+- Jede Person kann ihre eigene Steuererklärung für dasselbe Jahr haben
+- Die Duplikat-Prüfung berücksichtigt die ausgewählte Person
+- Neue Steuererklärungen werden korrekt der ausgewählten Person zugeordnet
