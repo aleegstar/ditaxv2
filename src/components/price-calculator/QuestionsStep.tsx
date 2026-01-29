@@ -2,6 +2,7 @@ import React from 'react';
 import { getQuestionsForSection } from '@/config/yesNoQuestions';
 import { YesNoQuestion } from './YesNoQuestion';
 import { RepeaterCountInput } from './RepeaterCountInput';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface QuestionsStepProps {
   section: 'income' | 'assets' | 'deductions';
@@ -18,7 +19,8 @@ export const QuestionsStep: React.FC<QuestionsStepProps> = ({
   onAnswer,
   onRepeaterCount
 }) => {
-  const questions = getQuestionsForSection(section).questions;
+  const { t } = useI18n();
+  const questions = getQuestionsForSection(section, t).questions;
 
   return (
     <div className="space-y-6">
