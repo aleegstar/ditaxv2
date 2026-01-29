@@ -53,10 +53,7 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
   const activeFiler = taxFilers.find(f => f.id === activeTaxFilerId);
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <Users className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm text-muted-foreground">Für:</span>
-      
+    <div className={cn('flex items-center', className)}>
       <Select 
         value={activeTaxFilerId || ''} 
         onValueChange={handleFilerChange}
@@ -89,18 +86,6 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
           ))}
         </SelectContent>
       </Select>
-
-      {showManageButton && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleManageClick}
-          className="text-xs text-primary hover:text-primary/80 hover:bg-primary/5 rounded-lg h-8 px-2 ml-1"
-        >
-          <Settings className="h-3.5 w-3.5 mr-1" />
-          {t.taxFilers?.manage || 'Verwalten'}
-        </Button>
-      )}
     </div>
   );
 };
