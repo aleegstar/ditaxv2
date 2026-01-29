@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift } from 'lucide-react';
+import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift, Globe } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -12,6 +12,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
+import { useI18n } from '@/contexts/I18nContext';
+import { SwissFlag, UKFlag } from '@/components/ui/flag-icons';
 type IconComponentType = React.ElementType<{
   className?: string;
 }>;
@@ -97,6 +99,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const {
     forceTour: startDocumentsTour
   } = useDocumentsTour();
+  const { language, switchLanguage, t } = useI18n();
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(true);
   const [feedbackOpen, setFeedbackOpen] = useState(true);
@@ -214,14 +217,41 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     </button>;
   return <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-white border-r border-slate-200">
-        {/* Header with Logo */}
+        {/* Header with Logo and Language Switcher */}
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
           </div>
-          <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
-            <X className="w-5 h-5 text-slate-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1">
+              <button
+                onClick={() => switchLanguage('de')}
+                className={`p-1.5 rounded-full transition-all ${
+                  language === 'de' 
+                    ? 'bg-white shadow-sm ring-1 ring-slate-200' 
+                    : 'hover:bg-slate-200'
+                }`}
+                title="Deutsch (Schweiz)"
+              >
+                <SwissFlag className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => switchLanguage('en')}
+                className={`p-1.5 rounded-full transition-all ${
+                  language === 'en' 
+                    ? 'bg-white shadow-sm ring-1 ring-slate-200' 
+                    : 'hover:bg-slate-200'
+                }`}
+                title="English"
+              >
+                <UKFlag className="w-5 h-5" />
+              </button>
+            </div>
+            <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Menu Content */}

@@ -53,3 +53,23 @@ export const AmericanFlag: React.FC<{
     </svg>
   </div>
 );
+
+// Round UK Flag Component
+export const UKFlag: React.FC<{
+  className?: string;
+}> = ({ className = "w-6 h-6" }) => (
+  <div className={`${className} rounded-full overflow-hidden border border-gray-200 flex-shrink-0`}>
+    <svg viewBox="0 0 32 32" className="w-full h-full">
+      {/* Blue background */}
+      <rect width="32" height="32" fill="#012169"/>
+      {/* White diagonal cross */}
+      <path d="M0,0 L32,32 M32,0 L0,32" stroke="white" strokeWidth="5"/>
+      {/* Red diagonal cross */}
+      <path d="M0,0 L32,32 M32,0 L0,32" stroke="#C8102E" strokeWidth="2.5"/>
+      {/* White horizontal/vertical cross */}
+      <path d="M16,0 L16,32 M0,16 L32,16" stroke="white" strokeWidth="8"/>
+      {/* Red horizontal/vertical cross */}
+      <path d="M16,0 L16,32 M0,16 L32,16" stroke="#C8102E" strokeWidth="4"/>
+    </svg>
+  </div>
+);
