@@ -1306,6 +1306,34 @@ export interface Translation {
     profile: string;
     logout: string;
   };
+
+  // Cookie Consent
+  cookieConsent: {
+    title: string;
+    description: string;
+    acceptAll: string;
+    essentialOnly: string;
+    settings: string;
+    saveSettings: string;
+    cancel: string;
+    readPrivacyPolicy: string;
+    essential: {
+      title: string;
+      description: string;
+    };
+    functional: {
+      title: string;
+      description: string;
+    };
+    analytics: {
+      title: string;
+      description: string;
+    };
+    marketing: {
+      title: string;
+      description: string;
+    };
+  };
 }
 
 export const translations: Record<'de' | 'en', Translation> = {
@@ -2653,6 +2681,34 @@ export const translations: Record<'de' | 'en', Translation> = {
       profile: 'Profil',
       logout: 'Abmelden',
     },
+
+    // Cookie Consent
+    cookieConsent: {
+      title: 'Cookie-Einstellungen',
+      description: 'Wir verwenden Cookies, um deine Erfahrung zu verbessern und unsere Dienste zu optimieren. Du kannst deine Präferenzen jederzeit anpassen.',
+      acceptAll: 'Alle akzeptieren',
+      essentialOnly: 'Nur essenzielle',
+      settings: 'Einstellungen',
+      saveSettings: 'Einstellungen speichern',
+      cancel: 'Abbrechen',
+      readPrivacyPolicy: 'Datenschutzerklärung lesen',
+      essential: {
+        title: 'Essenzielle Cookies',
+        description: 'Diese Cookies sind für das Funktionieren der Website unerlässlich.',
+      },
+      functional: {
+        title: 'Funktionale Cookies',
+        description: 'Helfen dabei, erweiterte Funktionalitäten bereitzustellen.',
+      },
+      analytics: {
+        title: 'Analyse-Cookies',
+        description: 'Helfen uns zu verstehen, wie Besucher die Website nutzen.',
+      },
+      marketing: {
+        title: 'Marketing-Cookies',
+        description: 'Werden verwendet, um relevante Werbung anzuzeigen.',
+      },
+    },
   },
   
   en: {
@@ -3996,6 +4052,34 @@ export const translations: Record<'de' | 'en', Translation> = {
       privacySettings: 'Privacy Settings',
       profile: 'Profile',
       logout: 'Logout',
+    },
+
+    // Cookie Consent
+    cookieConsent: {
+      title: 'Cookie Settings',
+      description: 'We use cookies to improve your experience and optimize our services. You can adjust your preferences at any time.',
+      acceptAll: 'Accept All',
+      essentialOnly: 'Essential Only',
+      settings: 'Settings',
+      saveSettings: 'Save Settings',
+      cancel: 'Cancel',
+      readPrivacyPolicy: 'Read Privacy Policy',
+      essential: {
+        title: 'Essential Cookies',
+        description: 'These cookies are necessary for the website to function.',
+      },
+      functional: {
+        title: 'Functional Cookies',
+        description: 'Help provide enhanced functionality.',
+      },
+      analytics: {
+        title: 'Analytics Cookies',
+        description: 'Help us understand how visitors use the website.',
+      },
+      marketing: {
+        title: 'Marketing Cookies',
+        description: 'Used to display relevant advertising.',
+      },
     },
   },
 };

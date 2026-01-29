@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface CookiePreferences {
   essential: boolean;
@@ -24,11 +24,10 @@ const CookieConsent = () => {
   });
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
 
   // Don't show cookie consent on price calculator page
-  if (location.pathname === '/preisrechner') {
-    return null;
-  }
+  const isPreisrechner = location.pathname === '/preisrechner';
 
   useEffect(() => {
     const consent = localStorage.getItem('cookie-consent');
@@ -79,7 +78,7 @@ const CookieConsent = () => {
       [key]: value
     }));
   };
-
+  if (isPreisrechner) return null;
   if (!showBanner && !showSettings) return null;
 
   return (
@@ -98,31 +97,30 @@ const CookieConsent = () => {
               <div className="relative p-6">
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-2 text-gray-800">Cookie-Einstellungen</h3>
+                    <h3 className="font-semibold mb-2 text-gray-800">{t.cookieConsent.title}</h3>
                     <p className="text-sm text-gray-700 mb-4">
-                      Wir verwenden Cookies, um deine Erfahrung zu verbessern und unsere Dienste zu optimieren. 
-                      Du kannst deine Präferenzen jederzeit anpassen.
+                      {t.cookieConsent.description}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         onClick={handleAcceptAll}
                         className="bg-blue-600/90 hover:bg-blue-700/90 backdrop-blur-sm border border-white/20 text-white"
                       >
-                        Alle akzeptieren
+                        {t.cookieConsent.acceptAll}
                       </Button>
                       <Button
                         onClick={handleRejectAll}
                         variant="outline"
                         className="bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30"
                       >
-                        Nur essenzielle
+                        {t.cookieConsent.essentialOnly}
                       </Button>
                       <Button
                         onClick={() => setShowSettings(true)}
                         variant="ghost"
                         className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20"
                       >
-                        Einstellungen
+                        {t.cookieConsent.settings}
                       </Button>
                     </div>
                   </div>
@@ -150,16 +148,16 @@ const CookieConsent = () => {
                 
                 {/* Content */}
                 <div className="relative p-6">
-                  <h2 className="text-2xl font-bold mb-4 text-gray-800">Cookie-Einstellungen</h2>
+                  <h2 className="text-2xl font-bold mb-4 text-gray-800">{t.cookieConsent.title}</h2>
                   
                   <div className="space-y-6">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-800">Essenzielle Cookies</h3>
+                        <h3 className="font-semibold text-gray-800">{t.cookieConsent.essential.title}</h3>
                         <Switch checked={true} disabled />
                       </div>
                       <p className="text-sm text-gray-700">
-                        Diese Cookies sind für das Funktionieren der Website unerlässlich.
+                        {t.cookieConsent.essential.description}
                       </p>
                     </div>
 
@@ -167,14 +165,14 @@ const CookieConsent = () => {
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-800">Funktionale Cookies</h3>
+                        <h3 className="font-semibold text-gray-800">{t.cookieConsent.functional.title}</h3>
                         <Switch 
                           checked={preferences.functional}
                           onCheckedChange={(checked) => handlePreferenceChange('functional', checked)}
                         />
                       </div>
                       <p className="text-sm text-gray-700">
-                        Helfen dabei, erweiterte Funktionalitäten bereitzustellen.
+                        {t.cookieConsent.functional.description}
                       </p>
                     </div>
 
@@ -182,14 +180,14 @@ const CookieConsent = () => {
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-800">Analyse-Cookies</h3>
+                        <h3 className="font-semibold text-gray-800">{t.cookieConsent.analytics.title}</h3>
                         <Switch 
                           checked={preferences.analytics}
                           onCheckedChange={(checked) => handlePreferenceChange('analytics', checked)}
                         />
                       </div>
                       <p className="text-sm text-gray-700">
-                        Helfen uns zu verstehen, wie Besucher die Website nutzen.
+                        {t.cookieConsent.analytics.description}
                       </p>
                     </div>
 
@@ -197,14 +195,14 @@ const CookieConsent = () => {
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-800">Marketing-Cookies</h3>
+                        <h3 className="font-semibold text-gray-800">{t.cookieConsent.marketing.title}</h3>
                         <Switch 
                           checked={preferences.marketing}
                           onCheckedChange={(checked) => handlePreferenceChange('marketing', checked)}
                         />
                       </div>
                       <p className="text-sm text-gray-700">
-                        Werden verwendet, um relevante Werbung anzuzeigen.
+                        {t.cookieConsent.marketing.description}
                       </p>
                     </div>
                   </div>
@@ -214,14 +212,14 @@ const CookieConsent = () => {
                       onClick={handleSavePreferences} 
                       className="flex-1 bg-blue-600/90 hover:bg-blue-700/90 backdrop-blur-sm border border-white/20"
                     >
-                      Einstellungen speichern
+                      {t.cookieConsent.saveSettings}
                     </Button>
                     <Button 
                       onClick={() => setShowSettings(false)} 
                       variant="outline"
                       className="bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30"
                     >
-                      Abbrechen
+                      {t.cookieConsent.cancel}
                     </Button>
                   </div>
 
@@ -230,7 +228,7 @@ const CookieConsent = () => {
                       onClick={() => navigate('/privacy')}
                       className="text-sm text-blue-700 hover:text-blue-800 hover:underline font-medium"
                     >
-                      Datenschutzerklärung lesen
+                      {t.cookieConsent.readPrivacyPolicy}
                     </button>
                   </div>
                 </div>
