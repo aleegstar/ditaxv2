@@ -1,290 +1,215 @@
 
-
-# Code-Überprüfung: Sicherheit, Performance & Verbesserungspotenzial
+# Analyse: Übersetzungsprobleme und Lösungsplan
 
 ## Zusammenfassung
 
-Nach einer umfassenden Analyse des Projekts kann ich bestätigen: **Die Sicherheitsarchitektur ist sehr solide implementiert**. Es gibt jedoch einige **kritische RLS-Lücken** und **Performance-Optimierungsmöglichkeiten**.
+Die i18n-Infrastruktur ist grundsätzlich vorhanden (`I18nContext`, `translations.ts`), aber es gibt **systematische Lücken** in der Anwendung. Viele Komponenten verwenden **hardcodierte deutsche Texte** statt der Übersetzungsvariablen.
 
 ---
 
-## 1. SICHERHEIT - Stärken
+## 1. Identifizierte Problemkategorien
 
-### Was bereits sehr gut umgesetzt ist:
+### Kategorie A: Komponenten ohne `useI18n`-Import
 
-| Bereich | Implementation | Status |
-|---------|----------------|--------|
-| Server-seitige Admin-Verifizierung | `has_role()` RPC-Funktion | Korrekt |
-| Input-Validierung | Zod-Schemas in Edge Functions | Korrekt |
-| Rate Limiting | Progressive Blocking, 10 Req/5 Min für Admin-Ops | Korrekt |
-| SQL Injection Protection | Parameterisierte Queries via Supabase Client | Korrekt |
-| CSRF Protection | Token-basiert in `securityHeaders.ts` | Korrekt |
-| Audit Logging | Immutable Logs mit Hash-Kette | Korrekt |
-| Session Management | 30-Minuten Idle-Timeout, Auto-Logout | Korrekt |
-| Storage RLS | Bucket-Policies mit Ordner-Validierung | Korrekt |
-| Passwort-los Auth | OTP + WebAuthn/Passkeys | Korrekt |
-| 2FA/MFA | TOTP-basiert mit Enrollment-Flow | Korrekt |
-| Verschlüsselung | AES-256-GCM für sensible Felder | Korrekt |
-| Two-Person Approval | Admin-Aktionen benötigen zweite Genehmigung | Korrekt |
+Diese Komponenten importieren und nutzen das Übersetzungssystem gar nicht:
 
----
+| Datei | Zeilen mit Hardcoded Text |
+|-------|--------------------------|
+| `src/components/forms/multistep/YesNoQuestion.tsx` | "Ja", "Nein", "Mehr Informationen", "Diese Angabe trifft auf mich zu" |
+| `src/components/ui/form-mode-toggle.tsx` | "Ausfüll-Modus wählen", "Ja/Nein", "Experten-Modus" |
+| `src/config/yesNoQuestions.ts` | Alle Fragen und Erklärungen (8 Income, 7 Assets, 9 Deductions) |
+| `src/components/welcome/WelcomeFlow.tsx` | "Weiter", "Los geht's!", "Vorname", "Datenschutzbestimmungen" |
+| `src/components/OnboardingTour.tsx` | Tour-Schritte (title, description) |
+| `src/components/auth/EnhancedLoginFlow.tsx` | "Anmelden", "Code eingeben", "Mit Fingerprint anmelden" |
 
-## 2. SICHERHEIT - Kritische Findings
+### Kategorie B: Komponenten mit `useI18n` aber Teilverwendung
 
-### Problem 1: `profiles` Tabelle - Öffentlicher Lesezugriff
+Diese Komponenten haben i18n integriert, nutzen aber nicht alle Keys:
 
-**Risiko: HOCH**
+| Datei | Problem |
+|-------|---------|
+| `src/components/forms/IncomeForm.tsx` | Titel nutzt `t.taxReturn.dashboard.sections.income`, aber `submitLabel="Speichern"` ist hardcoded |
+| `src/components/forms/DeductionsForm.tsx` | `submitLabel="Speichern"` statt `t.forms.save` |
+| `src/components/forms/AssetsForm.tsx` | `submitLabel="Speichern"` statt `t.forms.save` |
+| `src/components/DocumentChecklist.tsx` | Hardcoded: "Authentifizierung erforderlich", "Pflichtdokumente", "Zur Anmeldung" |
 
-Die Security-Scan zeigt, dass die `profiles`-Tabelle unter Umständen für unauthentifizierte Benutzer lesbar sein könnte. Die aktuelle Policy erlaubt nur `authenticated` Benutzer, aber es fehlt eine explizite Blockierung für `anon`.
+### Kategorie C: Toast-Nachrichten mit Hardcoded Text
 
-**Betroffene sensible Daten:**
-- E-Mail-Adressen
-- Telefonnummern  
-- Physische Adressen
-- Geburtsdaten
-- Admin-Notizen
+Viele Toast-Meldungen umgehen das Übersetzungssystem:
 
-**Lösung:**
-```sql
--- Explizit anon-Zugriff blockieren
-CREATE POLICY "Block anonymous access to profiles"
-ON public.profiles
-FOR SELECT
-TO anon
-USING (false);
-```
-
-### Problem 2: `account_deletion_feedback` - Fehlende SELECT-Policy
-
-**Risiko: MITTEL**
-
-Die Tabelle enthält E-Mail-Adressen gelöschter Benutzer. Aktuell existiert nur eine INSERT-Policy für `service_role`, aber keine restriktive SELECT-Policy.
-
-**Lösung:**
-```sql
-CREATE POLICY "Only admins can view deletion feedback"
-ON public.account_deletion_feedback
-FOR SELECT
-TO authenticated
-USING (has_role(auth.uid(), 'admin'::app_role));
-```
-
-### Problem 3: `user_roles` - Fehlende SELECT-Policy
-
-**Risiko: MITTEL**
-
-Angreifer könnten Admin-Benutzer enumerieren.
-
-**Lösung:**
-```sql
-CREATE POLICY "Users can view own role"
-ON public.user_roles
-FOR SELECT
-TO authenticated
-USING (user_id = auth.uid());
-
-CREATE POLICY "Admins can view all roles"
-ON public.user_roles
-FOR SELECT
-TO authenticated
-USING (has_role(auth.uid(), 'admin'::app_role));
-```
-
-### Problem 4: Leaked Password Protection
-
-**Risiko: NIEDRIG** (Da passwordless)
-
-Supabase zeigt "Leaked Password Protection Disabled". Da die App jedoch passwordless arbeitet (OTP/Passkeys), ist dies kein kritisches Risiko.
-
-**Empfehlung:** Trotzdem im Supabase Dashboard aktivieren unter:
-`Authentication → Attack Protection → Enable Leaked Password Protection`
-
----
-
-## 3. PERFORMANCE - Verbesserungspotenzial
-
-### Problem 1: Kein Code-Splitting / Lazy Loading
-
-**Impact: HOCH**
-
-Aktuell werden **alle Seiten** beim initialen Laden gebündelt. Bei 40+ Seiten führt dies zu:
-- Lange initiale Ladezeit
-- Unnötiger Bandbreitenverbrauch
-- Schlechte Core Web Vitals
-
-**Aktuelle Situation:**
 ```tsx
-// App.tsx - Alle Imports synchron
-import AdminPanel from "./pages/Admin";
-import UserTaxReturns from "./pages/UserTaxReturns";
-import Chat from "./pages/Chat";
-// ... 30+ weitere synchrone Imports
-```
+// Beispiel aus MultiStepYesNoForm.tsx
+toast({
+  title: 'Fehler bei der Antwort',  // Hardcoded!
+  description: 'Bitte versuche es erneut.',
+});
 
-**Empfohlene Lösung:**
-```tsx
-import { lazy, Suspense } from 'react';
-
-const AdminPanel = lazy(() => import('./pages/Admin'));
-const UserTaxReturns = lazy(() => import('./pages/UserTaxReturns'));
-const Chat = lazy(() => import('./pages/Chat'));
-
-// Verwendung mit Suspense
-<Suspense fallback={<LoadingSpinner />}>
-  <Routes>
-    <Route path="/admin/*" element={<AdminPanel />} />
-    ...
-  </Routes>
-</Suspense>
-```
-
-**Erwartete Verbesserung:** 40-60% kleineres Initial Bundle
-
-### Problem 2: Fehlende React Query Nutzung
-
-**Impact: MITTEL**
-
-TanStack Query ist installiert, wird aber kaum genutzt. Stattdessen werden `useState` + `useEffect` für Daten verwendet.
-
-**Aktuelle Situation (useProfile.ts):**
-```tsx
-const [profile, setProfile] = useState<Profile | null>(null);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  fetchProfile();
-}, []);
-```
-
-**Empfohlene Lösung:**
-```tsx
-const { data: profile, isLoading } = useQuery({
-  queryKey: ['profile', userId],
-  queryFn: fetchProfile,
-  staleTime: 5 * 60 * 1000, // 5 Minuten Cache
+toast({
+  title: 'Änderung gespeichert',  // Hardcoded!
+  description: 'Deine Antwort wurde aktualisiert.',
 });
 ```
 
-**Vorteile:**
-- Automatisches Caching
-- Deduplizierung von Requests
-- Optimistic Updates
-- Background Refetching
+---
 
-### Problem 3: Keine Prefetching-Strategie
+## 2. Fehlende Übersetzungs-Keys
 
-**Impact: MITTEL**
+Diese Keys müssen in `translations.ts` hinzugefügt werden:
 
-Bei Navigation werden Daten erst geladen wenn die Seite erreicht wird.
+### Für Yes/No-Fragen
 
-**Empfehlung:**
-```tsx
-// Bei Hover über Navigation-Links
-onMouseEnter={() => {
-  queryClient.prefetchQuery({
-    queryKey: ['documents', userId],
-    queryFn: fetchDocuments,
-  });
-}}
-```
-
-### Problem 4: Keine Bundle-Optimierung in Vite
-
-**Impact: MITTEL**
-
-Die `vite.config.ts` enthält keine Build-Optimierungen.
-
-**Empfohlene Ergänzungen:**
 ```typescript
-build: {
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-        'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-        'vendor-supabase': ['@supabase/supabase-js'],
-        'vendor-charts': ['recharts'],
-      }
-    }
-  },
-  chunkSizeWarningLimit: 500,
-}
+// Neue Struktur in Translation Interface
+yesNoForm: {
+  yes: string;
+  no: string;
+  yesDescription: string;
+  noDescription: string;
+  moreInfo: string;
+  answerSaved: string;
+  answerSavedDescription: string;
+  answerError: string;
+  answerErrorDescription: string;
+  // Alle Fragen und Erklärungen aus yesNoQuestions.ts
+  questions: {
+    income: {
+      hasPension: { text: string; explanation: string; };
+      hasSalary: { text: string; explanation: string; };
+      // ... alle weiteren
+    };
+    assets: { /* ... */ };
+    deductions: { /* ... */ };
+  };
+};
+```
+
+### Für Onboarding/Welcome
+
+```typescript
+onboarding: {
+  consentTitle: string;
+  nameTitle: string;
+  yearTitle: string;
+  termsAccept: string;
+  privacyPolicy: string;
+  termsOfService: string;
+  newsletterTitle: string;
+  newsletterDescription: string;
+  next: string;
+  letsGo: string;
+  firstName: string;
+};
+
+tour: {
+  welcomeDescription: string;
+  addYearTitle: string;
+  addYearDescription: string;
+  chatTitle: string;
+  chatDescription: string;
+  documentsTitle: string;
+  documentsDescription: string;
+  continueCardTitle: string;
+  continueCardDescription: string;
+};
 ```
 
 ---
 
-## 4. CODE-QUALITÄT - Bereits gut
+## 3. Technische Lösung
 
-| Aspekt | Status | Details |
-|--------|--------|---------|
-| TypeScript | Sehr gut | Strenge Typisierung durchgehend |
-| useMemo/useCallback | Gut | 343 Verwendungen in Komponenten |
-| Error Boundaries | Gut | Global und pro-Route implementiert |
-| ErrorBoundary | Gut | Mit Android-spezifischem Handling |
-| Form Validation | Sehr gut | Zod + react-hook-form |
-| i18n | Gut | Vollständig implementiert |
-| Accessibility | Basis | Radix UI Komponenten bieten a11y |
+### Schritt 1: Übersetzungs-Keys erweitern
 
----
+`src/i18n/translations.ts` um ca. 150+ neue Keys erweitern für:
+- Yes/No-Fragen (24 Fragen mit Erklärungen)
+- Onboarding/Welcome Flow
+- Tour-Schritte
+- Auth-Flows
+- Toast-Nachrichten
+- Form-Controls
 
-## 5. EMPFOHLENE PRIORISIERUNG
+### Schritt 2: Komponenten refaktorieren
 
-### Sofort (Kritisch):
-1. RLS-Policy für `profiles` Tabelle gegen `anon` absichern
-2. SELECT-Policy für `account_deletion_feedback` hinzufügen
-3. SELECT-Policy für `user_roles` hinzufügen
+**Priorisierte Dateien:**
 
-### Kurzfristig (Performance):
-4. Lazy Loading für Seiten implementieren
-5. TanStack Query für Daten-Fetching nutzen
-6. Bundle-Splitting in Vite konfigurieren
+| Priorität | Datei | Aufwand |
+|-----------|-------|---------|
+| Hoch | `src/config/yesNoQuestions.ts` → Refactor zu Funktion mit i18n | Gross |
+| Hoch | `src/components/forms/multistep/YesNoQuestion.tsx` | Klein |
+| Hoch | `src/components/welcome/WelcomeFlow.tsx` | Mittel |
+| Hoch | `src/components/auth/EnhancedLoginFlow.tsx` | Mittel |
+| Mittel | `src/components/OnboardingTour.tsx` | Mittel |
+| Mittel | `src/components/DocumentChecklist.tsx` | Klein |
+| Niedrig | `src/components/ui/form-mode-toggle.tsx` | Klein |
 
-### Mittelfristig (Nice-to-have):
-7. Prefetching-Strategie implementieren
-8. Service Worker für Offline-Caching
-9. Image-Optimierung mit lazy loading
+### Schritt 3: yesNoQuestions.ts umstrukturieren
 
----
+Das aktuelle Design ist problematisch, da es eine statische Konfiguration ist. Lösung:
 
-## Technische Details der RLS-Fixes
+```typescript
+// src/config/yesNoQuestions.ts
+import { Translation } from '@/i18n/translations';
 
-**Migration für alle drei RLS-Probleme:**
+export const getIncomeQuestions = (t: Translation): QuestionConfig => ({
+  section: 'income',
+  questions: [
+    {
+      id: 'hasPension',
+      text: t.yesNoForm.questions.income.hasPension.text,
+      explanation: t.yesNoForm.questions.income.hasPension.explanation
+    },
+    // ...
+  ]
+});
+```
 
-```sql
--- 1. Block anonymous access to profiles
-CREATE POLICY "Block anonymous access to profiles"
-ON public.profiles
-FOR SELECT
-TO anon
-USING (false);
+### Schritt 4: Verwendung in Komponenten
 
--- 2. Restrict account_deletion_feedback access
-CREATE POLICY "Only admins can view deletion feedback"
-ON public.account_deletion_feedback
-FOR SELECT
-TO authenticated
-USING (has_role(auth.uid(), 'admin'::app_role));
-
--- 3. Restrict user_roles visibility
-CREATE POLICY "Users can view own role only"
-ON public.user_roles
-FOR SELECT
-TO authenticated
-USING (
-  user_id = auth.uid() OR 
-  has_role(auth.uid(), 'admin'::app_role)
-);
+```tsx
+// MultiStepYesNoForm.tsx
+const { t } = useI18n();
+const questionsConfig = getQuestionsForSection(section, t);
 ```
 
 ---
 
-## Fazit
+## 4. Geschätzter Umfang
 
-**Sicherheit: 8.5/10** - Sehr solide Basis, aber 3 RLS-Lücken müssen geschlossen werden
+| Bereich | Anzahl Änderungen |
+|---------|-------------------|
+| Neue Translation Keys (DE) | ~150 |
+| Neue Translation Keys (EN) | ~150 |
+| Komponenten zu refaktorieren | ~12 |
+| Config-Dateien umzubauen | 1 |
 
-**Performance: 6/10** - Funktional, aber ohne moderne Optimierungen
+---
 
-**Code-Qualität: 8/10** - Gute Patterns, TypeScript, Error Handling
+## 5. Empfohlenes Vorgehen
 
-Die kritischen Sicherheitslücken sollten sofort behoben werden. Die Performance-Optimierungen können schrittweise implementiert werden und bringen signifikante Verbesserungen für die User Experience.
+### Phase 1: Kritische Benutzer-Flows (Priorität: HOCH)
+1. Auth/Login-Flow (`EnhancedLoginFlow.tsx`)
+2. Welcome/Onboarding (`WelcomeFlow.tsx`)
+3. Yes/No-Fragen (`yesNoQuestions.ts` + `YesNoQuestion.tsx`)
 
+### Phase 2: Formulare und Dokumenten-Checkliste (Priorität: MITTEL)
+4. Form-Komponenten (`IncomeForm`, `DeductionsForm`, `AssetsForm`)
+5. Dokumenten-Checkliste
+6. Tour-Komponenten
+
+### Phase 3: UI-Komponenten und Edge Cases (Priorität: NIEDRIG)
+7. Form Mode Toggle
+8. Toast-Nachrichten durchgehend
+9. Fehlermeldungen
+
+---
+
+## 6. Implementierungsvorschlag
+
+Soll ich mit **Phase 1** beginnen? Das würde umfassen:
+
+1. Alle fehlenden Keys in `translations.ts` hinzufügen (DE + EN)
+2. `yesNoQuestions.ts` zu einer Funktion umbauen, die `t` akzeptiert
+3. `YesNoQuestion.tsx` mit i18n versehen
+4. `WelcomeFlow.tsx` mit i18n versehen
+5. `EnhancedLoginFlow.tsx` mit i18n versehen
+
+Dies würde die wichtigsten Benutzer-Flows (Registrierung, Onboarding, Steuerformulare) vollständig übersetzt machen.
