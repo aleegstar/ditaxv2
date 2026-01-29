@@ -1,261 +1,177 @@
 
-# Vollständige i18n-Integration für Hauptseite (/) und Formularseite (/form)
+# Multi-Personen-Steuererklarungen
 
-## Problem-Zusammenfassung
+## Ubersicht
 
-Die beiden Hauptseiten der Anwendung (`UserTaxReturns.tsx` und `TaxYearDashboard.tsx`) sowie deren Subkomponenten **verwenden kein i18n** - alle Texte sind hardcodiert auf Deutsch.
+Aktuell ist jede Steuererklarung direkt mit einem User-Account verknupft (`user_id` in `tax_returns`). Das bedeutet: **1 Account = 1 Person = mehrere Jahre**. Wenn ein Elternteil Steuererklarungen fur sich selbst und 2 Kinder erstellen mochte, benotigt er aktuell 3 separate Accounts.
 
----
-
-## Identifizierte Komponenten ohne i18n
-
-### Hauptseite `/` (UserTaxReturns.tsx)
-| Zeile | Hardcodierter Text |
-|-------|-------------------|
-| 162 | "Steuererklärung nicht gefunden" |
-| 176 | "Steuererklärung {year} wurde gelöscht" |
-| 180 | "Fehler beim Löschen der Steuererklärung" |
-| 206 | "Steuererklärung für {year} existiert bereits" |
-| 223 | "Steuererklärung für {year} bereits vorhanden" |
-| 230 | "Neue Steuererklärung für {year} erstellt" |
-| 235 | "Fehler beim Erstellen der Steuererklärung" |
-| 290 | "Benutzer" (Fallback-Name) |
-| 293 | "Grüezi," |
-| 357 | "Löschen" |
-| 370-371 | "Aktiv" |
-| 379-386 | "Steuererklärung", "Erfassung läuft..." |
-| 402 | "Weiter" |
-| ... | Weitere ~50 hardcodierte Strings |
-
-### Formularseite `/form` (TaxYearDashboard.tsx)
-| Zeile | Hardcodierter Text |
-|-------|-------------------|
-| 63-80 | Sektionstiteln: "Kontaktangaben", "Abzüge", "Einkommen", "Vermögen" |
-| 194 | "Steuererklärung {year}" |
-| 224-225 | "Persönliche Angaben" |
-| 254 | "{completed} von {total} erledigt" |
-| 329 | "Belege & Unterlagen" |
-| 332 | "Dokumente hochladen" |
-| 335 | "Zuerst Schritt 1 abschliessen" |
-| 372 | "Prüfung & Versand" |
-| 375 | "Abschliessen & bezahlen" |
-| 378 | "Zuerst Schritt 1 & 2 abschliessen" |
-
-### Subkomponenten
-| Komponente | Hardcodierte Texte |
-|------------|-------------------|
-| `MissingItemsAlert.tsx` | "Aktion erforderlich", "Unterlage(n) werden benötigt" |
-| `ProfileWithNotifications.tsx` | Ggf. Tooltips/Labels |
-| `AddTaxYearDropdown.tsx` | Dropdown-Beschriftungen |
-
----
-
-## Lösungsplan
-
-### Phase 1: Neue Translation Keys hinzufügen
-
-Erweiterung von `src/i18n/translations.ts` um folgende Bereiche:
+Die Losung ist ein **Steuerpflichtigen-Konzept (Tax Filer / Steuerperson)**, das zwischen dem User-Account und den Steuererklarungen steht.
 
 ```text
-userDashboard: {
-  greeting: string;                    // "Grüezi,"
-  fallbackUser: string;                // "Benutzer"
-  
-  // Tax Return Cards
-  taxReturn: string;                   // "Steuererklärung"
-  active: string;                      // "Aktiv"
-  processing: string;                  // "In Bearbeitung"
-  completed: string;                   // "Abgeschlossen"
-  expressService: string;              // "Express"
-  
-  // Actions
-  continue: string;                    // "Weiter"
-  delete: string;                      // "Löschen"
-  progress: string;                    // "{progress}%"
-  documents: string;                   // "{count} Dokumente"
-  
-  // Card descriptions
-  activeDescription: string;           // "Erfassung läuft..."
-  processingDescription: string;       // "Ihre Steuererklärung..."
-  completedDescription: string;        // "Steuererklärung abgeschlossen"
-  
-  // Messages
-  taxReturnNotFound: string;
-  taxReturnDeleted: string;
-  deleteError: string;
-  taxReturnExists: string;
-  taxReturnCreated: string;
-  createError: string;
-  
-  // Add year
-  addTaxYear: string;
-  selectYear: string;
-}
+Aktuelle Struktur:
++------------------+       +------------------+
+|      User        | 1:n   |   Tax Return     |
+|   (Account)      |------>|   (2023, 2024)   |
++------------------+       +------------------+
 
-formDashboard: {
-  title: string;                       // "Steuererklärung {year}"
-  
-  // Step 1
-  personalInfo: string;                // "Persönliche Angaben"
-  tasksCompleted: string;              // "{completed} von {total} erledigt"
-  
-  // Sections
-  contactInfo: string;                 // "Kontaktangaben"
-  deductions: string;                  // "Abzüge"
-  income: string;                      // "Einkommen"
-  assets: string;                      // "Vermögen"
-  
-  // Step 2
-  documentsTitle: string;              // "Belege & Unterlagen"
-  uploadDocuments: string;             // "Dokumente hochladen"
-  completeStep1First: string;          // "Zuerst Schritt 1 abschliessen"
-  
-  // Step 3
-  reviewAndSubmit: string;             // "Prüfung & Versand"
-  completeAndPay: string;              // "Abschliessen & bezahlen"
-  completeSteps12First: string;        // "Zuerst Schritt 1 & 2 abschliessen"
-}
-
-missingItems: {
-  actionRequired: string;              // "Aktion erforderlich"
-  documentsNeeded: string;             // "{count} Unterlage(n) werden benötigt"
-  infoNeeded: string;                  // "{count} Angabe(n) werden benötigt"
-  bothNeeded: string;                  // "{docs} Unterlagen und {info} Angaben..."
-}
-```
-
-### Phase 2: Komponenten-Updates
-
-#### 2.1 UserTaxReturns.tsx
-```text
-1. Import useI18n
-2. Alle toast() Aufrufe mit t.userDashboard.* ersetzen
-3. Greeting-Bereich mit t.userDashboard.greeting
-4. Kartentitel/-beschreibungen ersetzen
-5. Buttons und Labels übersetzen
-```
-
-#### 2.2 TaxYearDashboard.tsx
-```text
-1. Import useI18n
-2. Sektionstiteln in angabenSections dynamisch aus t.formDashboard.*
-3. Header-Titel mit t.formDashboard.title
-4. Statusmeldungen ersetzen
-5. Schritt-Beschreibungen übersetzen
-```
-
-#### 2.3 MissingItemsAlert.tsx
-```text
-1. Import useI18n
-2. getMessage() Funktion mit i18n-Keys refaktorieren
-3. "Aktion erforderlich" übersetzen
+Neue Struktur:
++------------------+       +------------------+       +------------------+
+|      User        | 1:n   |   Tax Filer      | 1:n   |   Tax Return     |
+|   (Account)      |------>|   (Person)       |------>|   (2023, 2024)   |
++------------------+       +------------------+       +------------------+
+                           |  - Max Muster    |
+                           |  - Anna (Kind)   |
+                           |  - Leo (Kind)    |
+                           +------------------+
 ```
 
 ---
 
-## Betroffene Dateien
+## Technischer Plan
 
-| Datei | Änderungsart |
-|-------|-------------|
-| `src/i18n/translations.ts` | ~80 neue Keys (DE + EN) |
-| `src/pages/UserTaxReturns.tsx` | useI18n + ~60 String-Ersetzungen |
-| `src/components/TaxYearDashboard.tsx` | useI18n + ~30 String-Ersetzungen |
-| `src/components/dashboard/MissingItemsAlert.tsx` | useI18n + ~5 String-Ersetzungen |
+### 1. Neue Datenbank-Tabelle: `tax_filers`
+
+```sql
+CREATE TABLE public.tax_filers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  date_of_birth date,
+  relationship text, -- 'self' | 'child' | 'spouse' | 'parent' | 'other'
+  ahv_number text,
+  is_primary boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- RLS aktivieren
+ALTER TABLE public.tax_filers ENABLE ROW LEVEL SECURITY;
+
+-- User kann nur eigene Steuerpflichtigen sehen/bearbeiten
+CREATE POLICY "Users can manage own tax filers" ON public.tax_filers
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+```
+
+### 2. Bestehende Tabellen erweitern
+
+Alle Tabellen, die aktuell `user_id` verwenden, benotigen eine zusatzliche `tax_filer_id` Spalte:
+
+| Tabelle | Anderung |
+|---------|----------|
+| `tax_returns` | + `tax_filer_id uuid REFERENCES tax_filers(id)` |
+| `form_data` | + `tax_filer_id uuid REFERENCES tax_filers(id)` |
+| `form_progress` | + `tax_filer_id uuid REFERENCES tax_filers(id)` |
+| `uploaded_documents` | + `tax_filer_id uuid REFERENCES tax_filers(id)` |
+| `completed_tax_returns` | + `tax_filer_id uuid REFERENCES tax_filers(id)` |
+
+### 3. Migration fur bestehende User
+
+```sql
+-- Fur jeden existierenden User einen primaren Tax Filer erstellen
+INSERT INTO tax_filers (user_id, first_name, last_name, relationship, is_primary)
+SELECT 
+  p.id,
+  COALESCE(p.first_name, 'Unbekannt'),
+  COALESCE(p.last_name, ''),
+  'self',
+  true
+FROM profiles p;
+
+-- Bestehende tax_returns mit dem neuen tax_filer verknupfen
+UPDATE tax_returns tr
+SET tax_filer_id = tf.id
+FROM tax_filers tf
+WHERE tr.user_id = tf.user_id AND tf.is_primary = true;
+```
+
+### 4. Frontend-Anderungen
+
+#### A. Neuer Personen-Wahler im Dashboard
+
+**Komponente: `TaxFilerSelector.tsx`**
+- Dropdown/Tabs zur Auswahl der Person
+- "Person hinzufugen" Button
+- Aktive Person wird im Context gespeichert
+
+#### B. Personen-Verwaltungsseite: `/tax-filers`
+
+- Liste aller Steuerpflichtigen
+- Formular zum Hinzufugen neuer Personen (Name, Geburtsdatum, Beziehung)
+- Bearbeiten/Loschen von Personen
+- "Primary" Person kann nicht geloscht werden
+
+#### C. Anpassung der Datenladung
+
+**FormContext.tsx erweitern:**
+```typescript
+// Neuer State
+const [activeTaxFilerId, setActiveTaxFilerId] = useState<string | null>(null);
+
+// Datenladung mit tax_filer_id filtern
+const { data } = await supabase
+  .from('form_data')
+  .select('*')
+  .eq('tax_year', yearToLoad)
+  .eq('tax_filer_id', activeTaxFilerId);
+```
+
+#### D. Dashboard (UserTaxReturns.tsx)
+
+- Steuererklarungen nach Person gruppieren
+- Personen-Switcher im Header
+- Separate Fortschrittsanzeige pro Person
+
+### 5. UX-Flow fur Benutzer
+
+1. **Neuer Benutzer:** Automatisch wird ein "Ich selbst" Tax Filer erstellt
+2. **Person hinzufugen:** 
+   - Im Dashboard "Person hinzufugen" klicken
+   - Namen, Geburtsdatum, Beziehung eingeben
+   - Person erscheint im Personen-Wahler
+3. **Steuererklarung erstellen:** 
+   - Person auswahlen
+   - Jahr auswahlen
+   - Formular ausfullen (pro Person separiert)
 
 ---
 
-## Technische Implementierung
+## Implementierungsreihenfolge
 
-### Schritt 1: Translation Keys erweitern (translations.ts)
+| Phase | Aufwand | Beschreibung |
+|-------|---------|--------------|
+| 1 | ~2h | Datenbank: `tax_filers` Tabelle + RLS |
+| 2 | ~2h | Migration: Bestehende User zu Tax Filern |
+| 3 | ~4h | Frontend: `TaxFilerSelector` + Context |
+| 4 | ~3h | Frontend: Personen-Verwaltungsseite |
+| 5 | ~4h | Anpassung aller Queries (FormContext, Hooks) |
+| 6 | ~2h | Dashboard-Anpassung + i18n |
 
-Neue Interfaces und Übersetzungen für beide Sprachen:
-
-```typescript
-// Interface-Erweiterung
-userDashboard: {
-  greeting: string;
-  fallbackUser: string;
-  taxReturn: string;
-  active: string;
-  processing: string;
-  // ... alle weiteren Keys
-};
-
-formDashboard: {
-  title: string;
-  personalInfo: string;
-  // ... alle weiteren Keys
-};
-
-missingItems: {
-  actionRequired: string;
-  documentsNeeded: string;
-  // ... alle weiteren Keys
-};
-```
-
-### Schritt 2: UserTaxReturns.tsx aktualisieren
-
-```typescript
-import { useI18n } from '@/contexts/I18nContext';
-
-const UserTaxReturns = () => {
-  const { t } = useI18n();
-  
-  // Beispiel: Greeting
-  const getGreeting = () => t.userDashboard.greeting;
-  
-  // Beispiel: Toast
-  toast.success(t.userDashboard.taxReturnDeleted.replace('{year}', year));
-```
-
-### Schritt 3: TaxYearDashboard.tsx aktualisieren
-
-```typescript
-import { useI18n } from '@/contexts/I18nContext';
-
-export const TaxYearDashboard: React.FC = () => {
-  const { t } = useI18n();
-  
-  const angabenSections: DashboardSection[] = [
-    { id: 'contact', title: t.formDashboard.contactInfo, icon: User, param: 'kontakt' },
-    { id: 'deductions', title: t.formDashboard.deductions, icon: Shield, param: 'abzuege' },
-    // ...
-  ];
-```
-
-### Schritt 4: MissingItemsAlert.tsx aktualisieren
-
-```typescript
-import { useI18n } from '@/contexts/I18nContext';
-
-export const MissingItemsAlert: React.FC<...> = (...) => {
-  const { t } = useI18n();
-  
-  const getMessage = () => {
-    if (pendingDocuments > 0 && pendingInformation > 0) {
-      return t.missingItems.bothNeeded
-        .replace('{docs}', String(pendingDocuments))
-        .replace('{info}', String(pendingInformation));
-    }
-    // ...
-  };
-```
+**Gesamtaufwand:** ~17 Stunden
 
 ---
 
-## Erwartetes Ergebnis
+## Vorteile dieser Losung
 
-Nach der Implementierung:
+- **Ruckwartskompatibel:** Bestehende Benutzer behalten ihre Daten
+- **Skalierbar:** Beliebig viele Personen pro Account
+- **Sauber getrennt:** Jede Person hat eigene Formulardaten
+- **Flexibel:** Kann spater fur Ehepartner-gemeinsame Steuererklarung erweitert werden
 
-1. **Hauptseite (`/`)**: Vollständig übersetzbar
-   - Begrüssung wechselt zu "Hello," / "Grüezi,"
-   - Alle Kartentexte ändern sich
-   - Toast-Nachrichten in korrekter Sprache
+---
 
-2. **Formularseite (`/form`)**: Vollständig übersetzbar
-   - Header-Titel: "Tax Return 2029" / "Steuererklärung 2029"
-   - Sektionsnamen: "Contact Info" / "Kontaktangaben"
-   - Statusmeldungen in korrekter Sprache
+## Alternative: Einfachere Losung
 
-3. **Konsistenz**: Sprachumschaltung im Menü wirkt sofort auf alle Seiten
+Falls der volle Umfang zu gross ist, gibt es eine **Minimal-Variante**:
+
+**"Steuererklarung fur andere Person"** als Tag/Label auf bestehenden Steuererklarungen:
+- Neues Feld `behalf_of_name` in `tax_returns`
+- Im Dashboard wird der Name angezeigt
+- Keine separate Personenverwaltung
+- Nachteil: Weniger strukturiert, keine Wiederverwendung der Personendaten uber Jahre
+
+---
+
+Soll ich mit der vollstandigen Losung (Multi-Personen) oder der einfacheren Variante (Label) beginnen?
