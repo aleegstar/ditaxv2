@@ -242,8 +242,8 @@ const TaxFilers: React.FC = () => {
             </DialogTitle>
             <DialogDescription className="text-primary mt-1">
               {editingFiler
-                ? (t.taxFilers?.editDescription || 'Ändern Sie die Daten der Person.')
-                : (t.taxFilers?.addDescription || 'Fügen Sie eine neue Person hinzu, für die Sie Steuererklärungen erstellen möchten.')}
+                ? (t.taxFilers?.editDescription || 'Ändere die Daten der Person.')
+                : (t.taxFilers?.addDescription || 'Füge eine neue Person hinzu, für die du Steuererklärungen erstellen möchtest.')}
             </DialogDescription>
           </div>
 
@@ -319,7 +319,7 @@ const TaxFilers: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
-                className="flex-1 rounded-xl border-border"
+                className="flex-1 rounded-xl border-border text-foreground"
               >
                 {t.common?.cancel || 'Abbrechen'}
               </Button>
