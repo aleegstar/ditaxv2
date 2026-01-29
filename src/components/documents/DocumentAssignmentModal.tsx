@@ -12,6 +12,7 @@ import DocumentCheckScreen from './DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 import { Progress } from '@/components/ui/progress';
 import { isMobileAppContext } from '@/utils/platform';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import {
   ModernUploadDialog,
   ModernUploadDialogContent,
@@ -56,6 +57,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
   
   const documentValidator = DocumentValidator.getInstance();
   const { toast } = useToast();
+  const { activeTaxFilerId } = useTaxFiler();
 
   useEffect(() => {
     if (open) {
@@ -73,13 +75,18 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('uploaded_documents')
         .select('*')
         .eq('user_id', user.id)
         .eq('tax_year', taxYear)
-        .eq('status', 'active')
-        .order('upload_date', { ascending: false });
+        .eq('status', 'active');
+
+      if (activeTaxFilerId) {
+        query = query.eq('tax_filer_id', activeTaxFilerId);
+      }
+
+      const { data, error } = await query.order('upload_date', { ascending: false });
 
       if (error) throw error;
       setDocuments(data || []);
