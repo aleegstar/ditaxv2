@@ -7,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
 import { useI18n } from '@/contexts/I18nContext';
-import { FamilyHintCard } from './FamilyHintCard';
 
 const TAX_YEARS = Array.from({
   length: 3
@@ -30,8 +29,9 @@ export const WelcomeFlow = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
-  const [showFamilyHint, setShowFamilyHint] = useState(false);
+  const [dataSaved, setDataSaved] = useState(false);
 
+  // 4 steps: consent, name, year, family
   const steps = [{
     id: 'consent',
     title: t.onboarding.consentTitle
@@ -41,6 +41,9 @@ export const WelcomeFlow = () => {
   }, {
     id: 'year',
     title: '' // Will be set dynamically with firstName
+  }, {
+    id: 'family',
+    title: t.onboarding.familyHintTitle
   }];
   
   const handleNext = async () => {
@@ -52,14 +55,19 @@ export const WelcomeFlow = () => {
       toast.error(t.onboarding.enterNameError);
       return;
     }
+    
+    // After step 3 (year selection), save data and show transition
+    if (currentStep === 2) {
+      await handleSaveData();
+      return;
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
-    } else {
-      await handleComplete();
     }
   };
   
-  const handleComplete = async () => {
+  const handleSaveData = async () => {
     setIsLoading(true);
     setShowTransition(true);
 
@@ -105,12 +113,13 @@ export const WelcomeFlow = () => {
       }
       
 
-      // Wait for DB transaction to commit before showing family hint
+      // Wait for DB transaction to commit
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Show family hint instead of navigating directly
+      // Mark data as saved and proceed to step 4 (family hint)
+      setDataSaved(true);
       setShowTransition(false);
-      setShowFamilyHint(true);
+      setCurrentStep(3);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(t.onboarding.genericError);
@@ -120,11 +129,11 @@ export const WelcomeFlow = () => {
     }
   };
 
-  const handleFamilyHintLater = () => {
+  const handleFamilyLater = () => {
     navigate('/', { replace: true });
   };
 
-  const handleFamilyHintNow = () => {
+  const handleFamilyNow = () => {
     navigate('/tax-filers', { replace: true });
   };
   
@@ -193,10 +202,47 @@ export const WelcomeFlow = () => {
                   </SelectItem>)}
               </SelectContent>
             </Select>
-            <Button onClick={handleComplete} disabled={isLoading} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>{t.onboarding.letsGo}</span>
+            <Button onClick={handleNext} disabled={isLoading} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
+              <span>{t.onboarding.next}</span>
               <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
             </Button>
+          </div>;
+      case 3:
+        // Family hint step - integrated as step 4
+        return <div className="w-full space-y-5">
+            <div className="bg-white rounded-2xl p-6 w-full space-y-4 border border-slate-200 shadow-sm">
+              {/* Icon & Description */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-[#1D64FF]" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    {t.onboarding.familyHintDescription}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={handleFamilyLater}
+                disabled={isLoading}
+                variant="outline"
+                className="flex-1 rounded-2xl py-5 h-auto text-lg font-medium border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                {t.onboarding.familyHintLater}
+              </Button>
+              <Button
+                onClick={handleFamilyNow}
+                disabled={isLoading}
+                className="flex-1 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-lg font-medium group"
+              >
+                <span>{t.onboarding.familyHintNow}</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+            </div>
           </div>;
       default:
         return null;
@@ -209,32 +255,6 @@ export const WelcomeFlow = () => {
     }
     return steps[currentStep].title;
   };
-  
-  // Show family hint screen
-  if (showFamilyHint) {
-    return (
-      <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
-        {/* Logo above card */}
-        <motion.div 
-          className="mb-8 flex items-center justify-center" 
-          initial={{ opacity: 0, y: -10 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.4 }}
-        >
-          <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-10 w-auto object-contain" />
-        </motion.div>
-
-        {/* Family Hint Card */}
-        <div className="w-full max-w-lg">
-          <FamilyHintCard 
-            onLater={handleFamilyHintLater}
-            onAddNow={handleFamilyHintNow}
-            isLoading={isLoading}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
       {/* Logo above card */}
