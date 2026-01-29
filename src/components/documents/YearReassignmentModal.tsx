@@ -10,6 +10,7 @@ import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 interface YearReassignmentModalProps {
   open: boolean;
@@ -34,6 +35,7 @@ const YearReassignmentModal: React.FC<YearReassignmentModalProps> = ({
   const [targetYear, setTargetYear] = useState<string>('');
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { activeTaxFilerId } = useTaxFiler();
 
   useEffect(() => {
     if (open) {
@@ -53,13 +55,18 @@ const YearReassignmentModal: React.FC<YearReassignmentModalProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('uploaded_documents')
         .select('*')
         .eq('user_id', user.id)
         .eq('tax_year', currentYear)
-        .eq('status', 'active')
-        .order('upload_date', { ascending: false });
+        .eq('status', 'active');
+
+      if (activeTaxFilerId) {
+        query = query.eq('tax_filer_id', activeTaxFilerId);
+      }
+
+      const { data, error } = await query.order('upload_date', { ascending: false });
 
       if (error) throw error;
       setDocuments(data || []);

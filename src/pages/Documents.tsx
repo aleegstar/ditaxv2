@@ -215,17 +215,21 @@ const DocumentsContent: React.FC<{
         }
       } = await supabase.auth.getUser();
       if (!user) return;
-      const {
-        data,
-        error
-      } = await supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
+      
+      let query = supabase.from('completed_tax_returns').select('tax_year').eq('user_id', user.id);
+      
+      if (activeTaxFilerId) {
+        query = query.eq('tax_filer_id', activeTaxFilerId);
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
       const completed = data?.map(item => item.tax_year) || [];
       setCompletedYears(completed);
     } catch (error) {
       console.error('Error loading completed tax years:', error);
     }
-  }, []);
+  }, [activeTaxFilerId]);
   const loadDocuments = useCallback(async (showLoadingSpinner = true) => {
     // Prevent concurrent loading requests
     if (loadingRef.current) return;
@@ -265,7 +269,7 @@ const DocumentsContent: React.FC<{
       setLoading(false);
       loadingRef.current = false;
     }
-  }, [selectedYear, toast]);
+  }, [selectedYear, toast, activeTaxFilerId]);
 
   // Initial load effect
   useEffect(() => {
@@ -276,12 +280,12 @@ const DocumentsContent: React.FC<{
     };
   }, [loadCompletedTaxYears]);
 
-  // Load documents when year changes
+  // Load documents when year or person changes
   useEffect(() => {
     if (mountedRef.current) {
       loadDocuments();
     }
-  }, [selectedYear, loadDocuments]);
+  }, [selectedYear, loadDocuments, activeTaxFilerId]);
 
   // Reload on visibility change (returning to tab)
   useEffect(() => {

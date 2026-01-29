@@ -191,10 +191,12 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           .from('uploaded_documents')
           .insert({
             user_id: userId,
+            tax_filer_id: activeTaxFilerId || null,
             checklist_item_id: checklistItem.id,
             file_name: fileWithPreview.file.name,
             file_type: fileWithPreview.file.type,
             file_path: filePath,
+            tax_year: taxYear,
             status: 'active',
             metadata: {
               uploadRequestId,
