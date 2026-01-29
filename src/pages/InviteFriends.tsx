@@ -7,9 +7,11 @@ import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { Copy, Mail, Share2, Gift, Users, CheckCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SubpageHeader } from '@/components/ui/subpage-header';
+import { useI18n } from '@/contexts/I18nContext';
 
 const InviteFriends: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const {
     referralCode,
     redemptions,
@@ -28,7 +30,7 @@ const InviteFriends: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <SubpageHeader 
-        title="Freunde einladen" 
+        title={t.inviteFriends.title}
         onBack={() => navigate(-1)}
         showAvatar={false}
       />
@@ -36,7 +38,7 @@ const InviteFriends: React.FC = () => {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Intro Text */}
         <p className="text-center text-muted-foreground">
-          Teile deinen Code und erhalte CHF 20.- Rabatt für jede erfolgreiche Einladung
+          {t.inviteFriends.subtitle}
         </p>
 
         {/* Main Card - Referral Code */}
@@ -47,9 +49,9 @@ const InviteFriends: React.FC = () => {
         >
           <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
             <CardHeader className="text-center">
-              <CardTitle className="text-lg">Dein persönlicher Empfehlungscode</CardTitle>
+              <CardTitle className="text-lg">{t.inviteFriends.yourCode}</CardTitle>
               <CardDescription>
-                Teile diesen Code mit Freunden und Familie
+                {t.inviteFriends.yourCodeDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -69,7 +71,7 @@ const InviteFriends: React.FC = () => {
                     </span>
                     <div className="mt-2 text-sm text-muted-foreground flex items-center justify-center gap-1">
                       <Copy className="h-4 w-4" />
-                      Klicken zum Kopieren
+                      {t.inviteFriends.clickToCopy}
                     </div>
                   </div>
 
@@ -80,7 +82,7 @@ const InviteFriends: React.FC = () => {
                         {referralCode.successful_referrals}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Erfolgreiche Einladungen
+                        {t.inviteFriends.successfulInvites}
                       </div>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
@@ -88,7 +90,7 @@ const InviteFriends: React.FC = () => {
                         {referralCode.max_referrals - referralCode.successful_referrals}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Verbleibend
+                        {t.inviteFriends.remaining}
                       </div>
                     </div>
                   </div>
@@ -101,7 +103,7 @@ const InviteFriends: React.FC = () => {
                       onClick={shareViaWhatsApp}
                     >
                       <Share2 className="h-4 w-4 mr-2" />
-                      WhatsApp
+                      {t.inviteFriends.shareViaWhatsApp}
                     </Button>
                     <Button
                       variant="outline"
@@ -109,7 +111,7 @@ const InviteFriends: React.FC = () => {
                       onClick={shareViaEmail}
                     >
                       <Mail className="h-4 w-4 mr-2" />
-                      E-Mail
+                      {t.inviteFriends.shareViaEmail}
                     </Button>
                   </div>
 
@@ -118,12 +120,12 @@ const InviteFriends: React.FC = () => {
                     onClick={copyToClipboard}
                   >
                     <Copy className="h-4 w-4 mr-2" />
-                    Code kopieren
+                    {t.inviteFriends.copyCode}
                   </Button>
                 </>
               ) : (
                 <div className="text-center py-4 text-muted-foreground">
-                  Fehler beim Laden des Codes
+                  {t.inviteFriends.errorLoading}
                 </div>
               )}
             </CardContent>
@@ -140,7 +142,7 @@ const InviteFriends: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                So funktioniert's
+                {t.inviteFriends.howItWorks}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -150,9 +152,9 @@ const InviteFriends: React.FC = () => {
                     1
                   </div>
                   <div>
-                    <div className="font-medium">Code teilen</div>
+                    <div className="font-medium">{t.inviteFriends.step1Title}</div>
                     <div className="text-sm text-muted-foreground">
-                      Teile deinen persönlichen Code mit Freunden
+                      {t.inviteFriends.step1Description}
                     </div>
                   </div>
                 </div>
@@ -161,9 +163,9 @@ const InviteFriends: React.FC = () => {
                     2
                   </div>
                   <div>
-                    <div className="font-medium">Freund registriert sich</div>
+                    <div className="font-medium">{t.inviteFriends.step2Title}</div>
                     <div className="text-sm text-muted-foreground">
-                      Dein Freund gibt den Code bei der Registrierung ein
+                      {t.inviteFriends.step2Description}
                     </div>
                   </div>
                 </div>
@@ -172,9 +174,9 @@ const InviteFriends: React.FC = () => {
                     3
                   </div>
                   <div>
-                    <div className="font-medium">Beide erhalten CHF 20.-</div>
+                    <div className="font-medium">{t.inviteFriends.step3Title}</div>
                     <div className="text-sm text-muted-foreground">
-                      Du und dein Freund erhalten sofort einen Rabattcode
+                      {t.inviteFriends.step3Description}
                     </div>
                   </div>
                 </div>
@@ -194,10 +196,10 @@ const InviteFriends: React.FC = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Gift className="h-5 w-5 text-green-500" />
-                  Deine Rabattcodes
+                  {t.inviteFriends.yourDiscountCodes}
                 </CardTitle>
                 <CardDescription>
-                  Diese Codes werden automatisch beim Checkout angewendet
+                  {t.inviteFriends.autoApplied}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -212,7 +214,7 @@ const InviteFriends: React.FC = () => {
                         <div>
                           <div className="font-mono font-medium">{promo.code}</div>
                           <div className="text-xs text-muted-foreground">
-                            {promo.type === 'earned' ? 'Verdient durch Einladung' : 'Empfehlungsrabatt'}
+                            {promo.type === 'earned' ? t.inviteFriends.earnedByInvite : t.inviteFriends.referralDiscount}
                           </div>
                         </div>
                       </div>
@@ -236,7 +238,7 @@ const InviteFriends: React.FC = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Letzte Einladungen</CardTitle>
+                <CardTitle className="text-lg">{t.inviteFriends.recentInvites}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -247,7 +249,7 @@ const InviteFriends: React.FC = () => {
                     >
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Erfolgreiche Einladung</span>
+                        <span className="text-sm">{t.inviteFriends.successfulInvite}</span>
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {new Date(redemption.referred_at).toLocaleDateString('de-CH')}

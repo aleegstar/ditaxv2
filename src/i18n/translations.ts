@@ -1001,6 +1001,71 @@ export interface Translation {
     dataLoadError: string;
   };
 
+  // Documents Page
+  documentsPage: {
+    title: string;
+    uploadDocuments: string;
+    noDocuments: string;
+    noDocumentsDescription: string;
+    uploadFirst: string;
+    sortByDateDesc: string;
+    sortByDateAsc: string;
+    sortByNameAsc: string;
+    sortByNameDesc: string;
+    sortByType: string;
+    search: string;
+    error: string;
+    loadError: string;
+    uploadSuccess: string;
+    uploadSuccessDescription: string;
+    fileTooLarge: string;
+    invalidFormat: string;
+    uploadFailed: string;
+    filterSort: string;
+  };
+
+  // Invite Friends Page
+  inviteFriends: {
+    title: string;
+    subtitle: string;
+    yourCode: string;
+    yourCodeDescription: string;
+    clickToCopy: string;
+    successfulInvites: string;
+    remaining: string;
+    shareViaWhatsApp: string;
+    shareViaEmail: string;
+    copyCode: string;
+    errorLoading: string;
+    howItWorks: string;
+    step1Title: string;
+    step1Description: string;
+    step2Title: string;
+    step2Description: string;
+    step3Title: string;
+    step3Description: string;
+    yourDiscountCodes: string;
+    autoApplied: string;
+    earnedByInvite: string;
+    referralDiscount: string;
+    recentInvites: string;
+    successfulInvite: string;
+  };
+
+  // Add Tax Year
+  addTaxYear: {
+    newYear: string;
+    newTaxReturn: string;
+    startNewTaxReturn: string;
+    selectTaxYear: string;
+    addTaxYear: string;
+    chooseYear: string;
+    taxYear: string;
+    createTaxReturn: string;
+    allYearsCreated: string;
+    yearsAlreadyExist: string;
+  };
+
   // User Dashboard (Main Page /)
   userDashboard: {
     greeting: string;
@@ -1999,6 +2064,71 @@ export const translations: Record<'de' | 'en', Translation> = {
       enterNameError: 'Bitte gib deinen Namen ein',
       authError: 'Authentifizierung fehlgeschlagen',
       genericError: 'Ein Fehler ist aufgetreten'
+    },
+
+    // Documents Page
+    documentsPage: {
+      title: 'Dokumente',
+      uploadDocuments: 'Dokumente hochladen',
+      noDocuments: 'Keine Dokumente',
+      noDocumentsDescription: 'Lade deine erste Unterlage hoch',
+      uploadFirst: 'Erste Unterlage hochladen',
+      sortByDateDesc: 'Datum (Neueste zuerst)',
+      sortByDateAsc: 'Datum (Älteste zuerst)',
+      sortByNameAsc: 'Name (A-Z)',
+      sortByNameDesc: 'Name (Z-A)',
+      sortByType: 'Dateityp',
+      search: 'Suchen...',
+      error: 'Fehler',
+      loadError: 'Dokumente konnten nicht geladen werden',
+      uploadSuccess: 'Upload erfolgreich',
+      uploadSuccessDescription: '{count} Datei(en) hochgeladen',
+      fileTooLarge: 'ist zu gross (max. 10 MB)',
+      invalidFormat: 'hat ein ungültiges Format',
+      uploadFailed: 'Dateien konnten nicht hochgeladen werden',
+      filterSort: 'Sortieren',
+    },
+
+    // Invite Friends Page
+    inviteFriends: {
+      title: 'Freunde einladen',
+      subtitle: 'Teile deinen Code und erhalte CHF 20.- Rabatt für jede erfolgreiche Einladung',
+      yourCode: 'Dein persönlicher Empfehlungscode',
+      yourCodeDescription: 'Teile diesen Code mit Freunden und Familie',
+      clickToCopy: 'Klicken zum Kopieren',
+      successfulInvites: 'Erfolgreiche Einladungen',
+      remaining: 'Verbleibend',
+      shareViaWhatsApp: 'WhatsApp',
+      shareViaEmail: 'E-Mail',
+      copyCode: 'Code kopieren',
+      errorLoading: 'Fehler beim Laden des Codes',
+      howItWorks: 'So funktioniert\'s',
+      step1Title: 'Code teilen',
+      step1Description: 'Teile deinen persönlichen Code mit Freunden',
+      step2Title: 'Freund registriert sich',
+      step2Description: 'Dein Freund gibt den Code bei der Registrierung ein',
+      step3Title: 'Beide erhalten CHF 20.-',
+      step3Description: 'Du und dein Freund erhalten sofort einen Rabattcode',
+      yourDiscountCodes: 'Deine Rabattcodes',
+      autoApplied: 'Diese Codes werden automatisch beim Checkout angewendet',
+      earnedByInvite: 'Verdient durch Einladung',
+      referralDiscount: 'Empfehlungsrabatt',
+      recentInvites: 'Letzte Einladungen',
+      successfulInvite: 'Erfolgreiche Einladung',
+    },
+
+    // Add Tax Year
+    addTaxYear: {
+      newYear: 'Neues Jahr',
+      newTaxReturn: 'Neue Steuererklärung',
+      startNewTaxReturn: 'Starten Sie eine neue Steuererklärung',
+      selectTaxYear: 'Steuerjahr auswählen',
+      addTaxYear: 'Steuerjahr hinzufügen',
+      chooseYear: 'Wähle ein Steuerjahr aus',
+      taxYear: 'Steuerjahr',
+      createTaxReturn: 'Steuererklärung erstellen',
+      allYearsCreated: 'Alle Jahre erstellt',
+      yearsAlreadyExist: '2024-2030 sind bereits vorhanden',
     },
 
     // Tour
@@ -3130,6 +3260,71 @@ export const translations: Record<'de' | 'en', Translation> = {
       enterNameError: 'Please enter your name',
       authError: 'Authentication failed',
       genericError: 'An error occurred'
+    },
+
+    // Documents Page
+    documentsPage: {
+      title: 'Documents',
+      uploadDocuments: 'Upload documents',
+      noDocuments: 'No documents',
+      noDocumentsDescription: 'Upload your first document',
+      uploadFirst: 'Upload first document',
+      sortByDateDesc: 'Date (Newest first)',
+      sortByDateAsc: 'Date (Oldest first)',
+      sortByNameAsc: 'Name (A-Z)',
+      sortByNameDesc: 'Name (Z-A)',
+      sortByType: 'File type',
+      search: 'Search...',
+      error: 'Error',
+      loadError: 'Could not load documents',
+      uploadSuccess: 'Upload successful',
+      uploadSuccessDescription: '{count} file(s) uploaded',
+      fileTooLarge: 'is too large (max. 10 MB)',
+      invalidFormat: 'has an invalid format',
+      uploadFailed: 'Could not upload files',
+      filterSort: 'Sort',
+    },
+
+    // Invite Friends Page
+    inviteFriends: {
+      title: 'Invite Friends',
+      subtitle: 'Share your code and get CHF 20.- discount for each successful invite',
+      yourCode: 'Your personal referral code',
+      yourCodeDescription: 'Share this code with friends and family',
+      clickToCopy: 'Click to copy',
+      successfulInvites: 'Successful invites',
+      remaining: 'Remaining',
+      shareViaWhatsApp: 'WhatsApp',
+      shareViaEmail: 'Email',
+      copyCode: 'Copy code',
+      errorLoading: 'Error loading code',
+      howItWorks: 'How it works',
+      step1Title: 'Share code',
+      step1Description: 'Share your personal code with friends',
+      step2Title: 'Friend registers',
+      step2Description: 'Your friend enters the code during registration',
+      step3Title: 'Both get CHF 20.-',
+      step3Description: 'You and your friend both receive a discount code immediately',
+      yourDiscountCodes: 'Your discount codes',
+      autoApplied: 'These codes are automatically applied at checkout',
+      earnedByInvite: 'Earned by invitation',
+      referralDiscount: 'Referral discount',
+      recentInvites: 'Recent invites',
+      successfulInvite: 'Successful invite',
+    },
+
+    // Add Tax Year
+    addTaxYear: {
+      newYear: 'New Year',
+      newTaxReturn: 'New Tax Return',
+      startNewTaxReturn: 'Start a new tax return',
+      selectTaxYear: 'Select tax year',
+      addTaxYear: 'Add tax year',
+      chooseYear: 'Choose a tax year',
+      taxYear: 'Tax year',
+      createTaxReturn: 'Create tax return',
+      allYearsCreated: 'All years created',
+      yearsAlreadyExist: '2024-2030 already exist',
     },
 
     // Tour
