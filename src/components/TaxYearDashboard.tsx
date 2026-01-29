@@ -6,7 +6,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 import { useI18n } from '@/contexts/I18nContext';
-
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 interface DashboardSection {
   id: string;
   title: string;
@@ -208,6 +209,13 @@ export const TaxYearDashboard: React.FC = () => {
           </button>
         </div>
       </header>
+
+      {/* Tax Filer Selector - only show if more than one person */}
+      <TaxFilerSelector 
+        className="max-w-4xl mx-auto px-4 sm:px-6 mb-4" 
+        variant="compact" 
+        showManageButton={false} 
+      />
 
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 pt-4">

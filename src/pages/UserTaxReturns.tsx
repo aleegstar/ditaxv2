@@ -25,7 +25,8 @@ import { SignatureDialog } from '@/components/signature/SignatureDialog';
 import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
 import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
 import { useI18n } from '@/contexts/I18nContext';
-
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -318,7 +319,7 @@ const UserTaxReturns = () => {
         </header>
 
         {/* Greeting Section */}
-        <section className="pb-10">
+        <section className="pb-6">
           <div className="flex flex-col gap-1">
             <p className="font-medium text-gray-500 font-jakarta text-sm">
               {getGreeting()}
@@ -329,7 +330,18 @@ const UserTaxReturns = () => {
           </div>
         </section>
 
+        {/* Tax Filer Selector - only show if more than one person */}
+        <TaxFilerSelector 
+          className="mb-6" 
+          variant="default" 
+          showManageButton={true} 
+        />
+
         {/* Missing Items Alert */}
+        <MissingItemsAlert 
+          pendingDocuments={pendingDocuments} 
+          pendingInformation={pendingInformation} 
+        />
         <MissingItemsAlert 
           pendingDocuments={pendingDocuments} 
           pendingInformation={pendingInformation} 
