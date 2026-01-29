@@ -63,7 +63,8 @@ class EncryptedDocumentService {
     checklistItemId: string | null,
     userId: string,
     taxYear: string,
-    checklistItemTitle?: string
+    checklistItemTitle?: string,
+    taxFilerId?: string | null
   ): Promise<void> {
     try {
       console.log('🔐 Starting encrypted document upload for user:', userId);
@@ -121,6 +122,7 @@ class EncryptedDocumentService {
         .insert({
           id: fileId,
           user_id: userId,
+          tax_filer_id: taxFilerId || null,
           checklist_item_id: checklistItemId,
           file_name: displayFileName,
           file_type: file.type,

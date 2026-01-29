@@ -11,6 +11,7 @@ import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from '@/contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -37,6 +38,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   onDocumentSubmitted
 }) => {
   const { taxYear } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,7 +149,8 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           checklistItem.id,
           userId,
           taxYear,
-          checklistItem.title
+          checklistItem.title,
+          activeTaxFilerId
         );
 
         // Mark as uploaded with encryption

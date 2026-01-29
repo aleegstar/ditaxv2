@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFormContext, FormProvider } from '@/contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
 import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
@@ -163,6 +164,7 @@ const DocumentsContent: React.FC<{
     taxYear,
     formDataLoaded
   } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const {
     showTour,
     isReady,
@@ -238,10 +240,16 @@ const DocumentsContent: React.FC<{
         }
       } = await supabase.auth.getUser();
       if (!user) return;
+      let query = supabase.from('uploaded_documents').select('*').eq('user_id', user.id).eq('tax_year', selectedYear).eq('status', 'active');
+      
+      if (activeTaxFilerId) {
+        query = query.eq('tax_filer_id', activeTaxFilerId);
+      }
+      
       const {
         data,
         error
-      } = await supabase.from('uploaded_documents').select('*').eq('user_id', user.id).eq('tax_year', selectedYear).eq('status', 'active').order('upload_date', {
+      } = await query.order('upload_date', {
         ascending: false
       });
       if (error) throw error;
@@ -360,6 +368,7 @@ const DocumentsContent: React.FC<{
           error: dbError
         } = await supabase.from('uploaded_documents').insert({
           user_id: user.id,
+          tax_filer_id: activeTaxFilerId || null,
           file_name: file.name,
           file_type: file.type,
           file_path: filePath,

@@ -6,6 +6,7 @@ import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { useFormContext } from '@/contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 import { FileUpload, Screenshot } from './ui/pdf-preview-page';
 import { validateFile } from '@/utils/fileValidation';
@@ -64,6 +65,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
   initialFiles
 }) => {
   const { taxYear } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -356,7 +358,8 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         checklistItem?.id || null, 
         userId, 
         taxYear,
-        checklistItem?.title
+        checklistItem?.title,
+        activeTaxFilerId
       );
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 100, uploaded: true, uploading: false } : f));
       return true;
