@@ -7,6 +7,7 @@ import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { useFormContext } from '@/contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 interface InlineDocumentUploaderProps {
   checklistItem: ChecklistItem;
@@ -49,6 +50,7 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   onClose
 }) => {
   const { taxYear } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -281,7 +283,7 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       const userId = sessionData.session.user.id;
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, uploading: true, progress: 20 } : f));
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 50 } : f));
-      await encryptedDocService.uploadEncryptedDocument(fileWithPreview.file, checklistItem.id, userId, taxYear, checklistItem.title);
+      await encryptedDocService.uploadEncryptedDocument(fileWithPreview.file, checklistItem.id, userId, taxYear, checklistItem.title, activeTaxFilerId);
       setFiles(prev => prev.map(f => f.id === fileWithPreview.id ? { ...f, progress: 100, uploaded: true, uploading: false } : f));
       return true;
     } catch (err: any) {
