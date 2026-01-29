@@ -1,203 +1,120 @@
 
-# Plan: Tax Filer ID Filterung im gesamten System überprüfen und korrigieren
+# Plan: Dedizierte Personenauswahl-Seite statt Dropdown
 
-## Analyse-Ergebnis
+## Aktuelle Situation
+- Bei mehreren Personen erscheint ein **Dropdown auf der Hauptseite** (`TaxFilerSelector`)
+- Der Benutzer kann während der Arbeit zwischen Personen wechseln
+- Dies kann verwirrend sein, da man möglicherweise versehentlich Daten für die falsche Person sieht
 
-Nach eingehender Prüfung des Codes habe ich folgende Bereiche identifiziert, in denen die `tax_filer_id` fehlt oder inkorrekt gehandhabt wird:
-
----
-
-## Problemübersicht
-
-| Bereich | Status | Problem |
-|---------|--------|---------|
-| `useTaxYearData` Hook | ✅ Korrigiert | Bereits in vorherigem Schritt behoben |
-| `UserTaxReturns` (Erstellung) | ✅ Korrigiert | Bereits in vorherigem Schritt behoben |
-| `FormContext` (form_data, form_progress) | ✅ Vorhanden | `activeTaxFilerId` wird korrekt verwendet |
-| `DocumentService.fetchDocuments` | ✅ Vorhanden | `taxFilerId` wird korrekt gefiltert |
-| `/documents` Page - Direktupload | ❌ Fehlt | `tax_filer_id` fehlt beim Insert |
-| `/documents` Page - Laden | ❌ Fehlt | `tax_filer_id` fehlt beim Select |
-| `EncryptedDocumentService` | ❌ Fehlt | `tax_filer_id` fehlt beim Insert |
-| `EnhancedDocumentUploader` | ❌ Fehlt | `tax_filer_id` wird nicht übergeben |
-| `InlineDocumentUploader` | ❌ Fehlt | `tax_filer_id` wird nicht übergeben |
-| `DocumentUploader` | ❌ Fehlt | `tax_filer_id` wird nicht übergeben |
+## Neue Lösung
+Eine **dedizierte Personenauswahl-Seite** erscheint **vor dem Dashboard**, wenn mehr als eine Person vorhanden ist. Erst nach der Auswahl wird das Dashboard angezeigt.
 
 ---
 
-## Erforderliche Änderungen
-
-### 1. EncryptedDocumentService erweitern
-**Datei:** `src/services/EncryptedDocumentService.ts`
-
-Die `uploadEncryptedDocument` Methode muss einen neuen Parameter `taxFilerId` akzeptieren:
+## Benutzerfluss
 
 ```text
-// Vorher (Zeile 61-67)
-async uploadEncryptedDocument(
-  file: File,
-  checklistItemId: string | null,
-  userId: string,
-  taxYear: string,
-  checklistItemTitle?: string
-)
-
-// Nachher
-async uploadEncryptedDocument(
-  file: File,
-  checklistItemId: string | null,
-  userId: string,
-  taxYear: string,
-  checklistItemTitle?: string,
-  taxFilerId?: string | null
-)
-```
-
-Und beim Insert (Zeile 119-141):
-```text
-.insert({
-  ...
-  tax_filer_id: taxFilerId || null,
-  ...
-})
+Login → Personen prüfen
+         ↓
+    Nur 1 Person? → Dashboard (/)
+         ↓
+    Mehrere Personen? → Personenauswahl-Seite (/select-person)
+                              ↓
+                        Person wählen → Dashboard (/)
 ```
 
 ---
 
-### 2. EnhancedDocumentUploader anpassen
-**Datei:** `src/components/EnhancedDocumentUploader.tsx`
+## Technische Änderungen
 
-- Import `useTaxFiler` aus dem Context
-- `activeTaxFilerId` beim Upload übergeben
+### 1. Neue Seite erstellen: `/select-person`
+**Neue Datei:** `src/pages/SelectPerson.tsx`
 
+- Zeigt alle verfügbaren Personen als anklickbare Karten
+- Beim Klick wird `setActiveTaxFilerId` gesetzt und zur Hauptseite navigiert
+- Option "Person hinzufügen" am Ende
+- Design: Saubere, moderne Karten im bestehenden Stil
+
+### 2. TaxFilerContext erweitern
+**Datei:** `src/contexts/TaxFilerContext.tsx`
+
+Neue Felder hinzufügen:
+| Feld | Beschreibung |
+|------|--------------|
+| `hasMultipleFilers` | Boolean - ob mehr als 1 Person existiert |
+| `selectionConfirmed` | Boolean - ob Person explizit gewählt wurde |
+| `confirmSelection()` | Methode zum Bestätigen der Auswahl |
+| `resetSelection()` | Methode zum Zurücksetzen (bei Logout) |
+
+### 3. UserTaxReturns.tsx anpassen
+**Datei:** `src/pages/UserTaxReturns.tsx`
+
+- Prüfen ob `hasMultipleFilers && !selectionConfirmed`
+- Falls ja: Redirect zu `/select-person`
+- `TaxFilerSelector` Dropdown entfernen
+
+### 4. Alle geschützten Seiten absichern
+**Betroffene Dateien:**
+- `src/pages/Documents.tsx`
+- `src/pages/Index.tsx` (Form)
+- Andere geschützte Routen
+
+Prüflogik am Anfang:
 ```text
-// Neue Import
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-
-// Im Komponenten-Body
-const { activeTaxFilerId } = useTaxFiler();
-
-// Beim Upload (Zeile 354-360)
-await encryptedDocService.uploadEncryptedDocument(
-  fileWithPreview.file, 
-  checklistItem?.id || null, 
-  userId, 
-  taxYear,
-  checklistItem?.title,
-  activeTaxFilerId  // Neu
-);
+if (hasMultipleFilers && !selectionConfirmed) {
+  navigate('/select-person');
+  return null;
+}
 ```
 
----
+### 5. App.tsx Route hinzufügen
+**Datei:** `src/App.tsx`
 
-### 3. InlineDocumentUploader anpassen
-**Datei:** `src/components/InlineDocumentUploader.tsx`
-
-Gleiche Änderung wie EnhancedDocumentUploader:
-- `useTaxFiler` importieren
-- `activeTaxFilerId` übergeben
-
----
-
-### 4. DocumentUploader anpassen
-**Datei:** `src/components/DocumentUploader.tsx`
-
-Gleiche Änderung wie EnhancedDocumentUploader:
-- `useTaxFiler` importieren
-- `activeTaxFilerId` übergeben
-
----
-
-### 5. Documents Page - Direktupload korrigieren
-**Datei:** `src/pages/Documents.tsx`
-
-Beim direkten Upload (Zeile 361-370) fehlt `tax_filer_id`:
-
+Neue Route registrieren:
 ```text
-// Vorher
-.insert({
-  user_id: user.id,
-  file_name: file.name,
-  file_type: file.type,
-  file_path: filePath,
-  tax_year: selectedYear,
-  status: 'active',
-  is_assigned_to_checklist: false,
-  document_category: 'upload'
-})
-
-// Nachher
-.insert({
-  user_id: user.id,
-  tax_filer_id: activeTaxFilerId,  // Neu
-  file_name: file.name,
-  ...
-})
+<Route path="/select-person" element={<SelectPerson />} />
 ```
 
----
+### 6. Header mit aktiver Person anzeigen
+**Datei:** `src/components/ui/welcome-header.tsx` oder neuer Header
 
-### 6. Documents Page - Laden korrigieren
-**Datei:** `src/pages/Documents.tsx`
-
-Beim Laden der Dokumente (Zeile 241-246) fehlt die Filterung:
-
-```text
-// Vorher
-.eq('user_id', user.id)
-.eq('tax_year', selectedYear)
-.eq('status', 'active')
-
-// Nachher
-.eq('user_id', user.id)
-.eq('tax_year', selectedYear)
-.eq('tax_filer_id', activeTaxFilerId)  // Neu
-.eq('status', 'active')
-```
+- Bei mehreren Personen: Anzeige der aktuell ausgewählten Person
+- Klick darauf → zurück zu `/select-person`
 
 ---
 
-### 7. Documents Page - Context Integration
-**Datei:** `src/pages/Documents.tsx`
+## UI-Design für Personenauswahl-Seite
 
-Die `DocumentsContent` Komponente muss Zugriff auf den TaxFilerContext erhalten:
-
-```text
-// Import hinzufügen
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-
-// In DocumentsContent
-const { activeTaxFilerId } = useTaxFiler();
-```
+- **Header:** "Für wen möchtest du arbeiten?"
+- **Karten:** Pro Person eine Karte mit:
+  - Avatar/Icon
+  - Name
+  - Beziehung (Kind, Ehepartner, etc.)
+  - Anzahl offener Steuererklärungen
+- **Footer:** "Person hinzufügen" Button → führt zu `/tax-filers`
+- **Stil:** Konsistent mit bestehendem Card-Design (rounded-[2.5rem], Schatten)
 
 ---
 
-## Admin-Bereich
+## Zusammenfassung der Dateien
 
-Der Admin-Bereich (`/admin`) zeigt Daten **aller Benutzer** an und ist daher nicht von der Tax Filer Filterung betroffen. Die Admin-Ansichten zeigen:
-- Alle Benutzer mit ihren Steuererklärungen
-- Fehlende Dokumente aller Benutzer
-- Signierte Steuererklärungen aller Benutzer
-
-Dies ist korrekt, da Admins den Überblick über alle Daten benötigen.
-
----
-
-## Zusammenfassung der zu ändernden Dateien
-
-| Datei | Änderungstyp |
-|-------|--------------|
-| `src/services/EncryptedDocumentService.ts` | Parameter + Insert erweitern |
-| `src/components/EnhancedDocumentUploader.tsx` | Context nutzen, Parameter übergeben |
-| `src/components/InlineDocumentUploader.tsx` | Context nutzen, Parameter übergeben |
-| `src/components/DocumentUploader.tsx` | Context nutzen, Parameter übergeben |
-| `src/pages/Documents.tsx` | Context nutzen, Query + Insert erweitern |
+| Datei | Änderung |
+|-------|----------|
+| `src/pages/SelectPerson.tsx` | **NEU** - Personenauswahl-Seite |
+| `src/contexts/TaxFilerContext.tsx` | `selectionConfirmed`, `hasMultipleFilers` hinzufügen |
+| `src/pages/UserTaxReturns.tsx` | Redirect-Logik, Dropdown entfernen |
+| `src/pages/Documents.tsx` | Redirect-Logik hinzufügen |
+| `src/pages/Index.tsx` | Redirect-Logik hinzufügen |
+| `src/App.tsx` | Route `/select-person` hinzufügen |
+| `src/components/dashboard/TaxFilerSelector.tsx` | Zu Header-Anzeige umbauen (ohne Dropdown) |
 
 ---
 
-## Ergebnis nach Implementierung
+## Ergebnis
 
-Nach diesen Änderungen:
-- Jeder Tax Filer hat seine eigenen Dokumente
-- Dokument-Uploads werden korrekt der ausgewählten Person zugeordnet
-- Beim Wechsel der Person werden nur deren Dokumente angezeigt
-- Die Dokumenten-Checkliste ist personenspezifisch
+Nach dieser Änderung:
+- Bei mehreren Personen wird zuerst die Person gewählt
+- Alle nachfolgenden Seiten zeigen Daten für diese Person
+- Kein versehentliches Arbeiten mit falschen Daten
+- Klare visuelle Bestätigung, für wen man arbeitet
+- Möglichkeit, jederzeit zur Personenauswahl zurückzukehren
