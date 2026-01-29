@@ -43,11 +43,11 @@ const SelectPerson: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white antialiased">
-      <div className="max-w-lg mx-auto px-4 pt-8 pb-12">
+    <div className="min-h-screen bg-background antialiased">
+      <div className="max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}
-        <div className="flex justify-center mb-12">
-          <img src={ditaxLogoFull} alt="ditax" className="h-8" />
+        <div className="flex justify-center mb-14">
+          <img src={ditaxLogoFull} alt="ditax" className="h-9" />
         </div>
 
         {/* Header */}
@@ -55,18 +55,18 @@ const SelectPerson: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-center mb-8"
+          className="text-center mb-10"
         >
-          <h1 className="text-2xl font-semibold text-foreground mb-2">
+          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-slate-900 tracking-tight mb-3">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-[1.1rem] leading-relaxed text-slate-500">
             {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
           </p>
         </motion.div>
 
-        {/* Person Cards */}
-        <div className="space-y-3">
+        {/* Person Cards - Modern BlueTaxYearCard Style */}
+        <div className="space-y-4">
           {taxFilers.map((filer, index) => (
             <motion.button
               key={filer.id}
@@ -74,57 +74,63 @@ const SelectPerson: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative flex items-center gap-4 p-4 bg-background rounded-2xl border border-border hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200"
+              className="w-full group relative overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
             >
-              {/* Avatar */}
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center flex-shrink-0">
-                <User className="w-7 h-7 text-primary" strokeWidth={1.5} />
-              </div>
+              <div className="flex items-center gap-5">
+                {/* Avatar */}
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/10">
+                  <User className="w-8 h-8 text-primary" strokeWidth={1.5} />
+                </div>
 
-              {/* Info */}
-              <div className="flex-1 text-left">
-                <h3 className="text-lg font-medium text-foreground">
-                  {filer.first_name} {filer.last_name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {getRelationshipLabel(filer.relationship, t)}
-                  {filer.is_primary && (
-                    <span className="ml-2 text-primary">
-                      • {t.taxFilers?.primary || 'Primär'}
-                    </span>
-                  )}
-                </p>
-              </div>
+                {/* Info */}
+                <div className="flex-1 text-left">
+                  <h3 className="text-[1.25rem] font-medium text-slate-900 tracking-tight mb-1">
+                    {filer.first_name} {filer.last_name}
+                  </h3>
+                  <p className="text-[0.95rem] text-slate-400 font-medium tracking-wide">
+                    {getRelationshipLabel(filer.relationship, t)}
+                    {filer.is_primary && (
+                      <span className="ml-2 text-primary">
+                        • {t.taxFilers?.primary || 'Primär'}
+                      </span>
+                    )}
+                  </p>
+                </div>
 
-              {/* Arrow */}
-              <ChevronRight 
-                className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" 
-                strokeWidth={1.5} 
-              />
+                {/* Arrow */}
+                <div className="bg-primary/5 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                  <ChevronRight 
+                    className="w-5 h-5 text-primary group-hover:translate-x-0.5 transition-transform" 
+                    strokeWidth={2} 
+                  />
+                </div>
+              </div>
             </motion.button>
           ))}
 
-          {/* Add Person Button */}
+          {/* Add Person Button - Modern dashed style */}
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: taxFilers.length * 0.1 }}
             onClick={handleAddPerson}
-            className="w-full flex items-center gap-4 p-4 bg-muted/50 rounded-2xl border border-dashed border-border hover:border-primary/50 hover:bg-muted transition-all duration-200"
+            className="w-full overflow-hidden rounded-[2.2rem] p-7 border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-300"
           >
-            {/* Icon */}
-            <div className="w-14 h-14 rounded-full bg-background border border-border flex items-center justify-center flex-shrink-0">
-              <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
-            </div>
+            <div className="flex items-center gap-5">
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
+                <Plus className="w-7 h-7 text-slate-400" strokeWidth={1.5} />
+              </div>
 
-            {/* Text */}
-            <div className="flex-1 text-left">
-              <h3 className="text-base font-medium text-muted-foreground">
-                {t.taxFilers?.addPerson || 'Person hinzufügen'}
-              </h3>
-              <p className="text-sm text-muted-foreground/70">
-                {t.taxFilers?.addDescription || 'Kind, Ehepartner oder andere'}
-              </p>
+              {/* Text */}
+              <div className="flex-1 text-left">
+                <h3 className="text-[1.1rem] font-medium text-slate-500 tracking-tight mb-1">
+                  {t.taxFilers?.addPerson || 'Person hinzufügen'}
+                </h3>
+                <p className="text-[0.9rem] text-slate-400">
+                  {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
+                </p>
+              </div>
             </div>
           </motion.button>
         </div>
