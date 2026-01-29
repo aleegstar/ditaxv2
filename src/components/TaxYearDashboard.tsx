@@ -213,7 +213,6 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Tax Filer Selector - only show if more than one person */}
       <TaxFilerSelector 
         className="max-w-4xl mx-auto px-4 sm:px-6 mb-4" 
-        variant="compact" 
         showManageButton={false} 
       />
 

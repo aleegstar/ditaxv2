@@ -333,7 +333,6 @@ const UserTaxReturns = () => {
         {/* Tax Filer Selector - only show if more than one person */}
         <TaxFilerSelector 
           className="mb-6" 
-          variant="default" 
           showManageButton={true} 
         />
 
