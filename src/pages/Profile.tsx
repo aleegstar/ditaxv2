@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, Mail, User, LogOut, Upload, Gift, ChevronRight } from 'lucide-react';
+import { Camera, Mail, User, LogOut, Upload, Gift, ChevronRight, Users } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -173,6 +173,39 @@ const Profile = () => {
 
           {/* Login History Section */}
           <LoginHistory />
+
+          <div className="h-px bg-slate-200 w-full" />
+
+          {/* Personen Section */}
+          <section className="space-y-4">
+            <div className="space-y-1">
+              <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <Users className="w-5 h-5 text-muted-foreground" />
+                {t.profile.managePeople}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {t.profile.managePeopleDescription}
+              </p>
+            </div>
+
+            <Link 
+              to="/tax-filers"
+              className="bg-muted/50 border border-border hover:bg-muted hover:border-border/80 p-4 rounded-xl flex items-center gap-4 transition-colors group"
+            >
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-semibold text-foreground block">
+                  {t.profile.managePeopleCard}
+                </span>
+                <span className="text-sm text-muted-foreground block">
+                  {t.profile.managePeopleCardDescription}
+                </span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+          </section>
 
           <div className="h-px bg-slate-200 w-full" />
 
