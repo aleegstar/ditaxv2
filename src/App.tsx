@@ -44,6 +44,7 @@ const CreateTicket = lazy(() => import("./pages/CreateTicket"));
 const AndroidDebug = lazy(() => import("./pages/AndroidDebug"));
 const TaxReturnTracking = lazy(() => import("./pages/TaxReturnTracking"));
 const TaxReturnActions = lazy(() => import("./pages/TaxReturnActions"));
+const TaxFilers = lazy(() => import("./pages/TaxFilers"));
 
 // Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
@@ -53,6 +54,7 @@ import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingTourProvider, useOnboardingTour } from "@/contexts/OnboardingTourContext";
 import { DocumentsTourProvider } from "@/contexts/DocumentsTourContext";
 import { I18nProvider } from "@/contexts/I18nContext";
+import { TaxFilerProvider } from "@/contexts/TaxFilerContext";
 import AdminRouteGuard from "@/components/guards/AdminRouteGuard";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -169,10 +171,11 @@ const AuthenticatedApp = () => {
 
   return (
     <ErrorBoundary>
-      <OnboardingTourProvider>
-        <DocumentsTourProvider>
-          <SidebarProvider>
-          <div className="min-h-screen w-full bg-background flex flex-col">
+      <TaxFilerProvider>
+        <OnboardingTourProvider>
+          <DocumentsTourProvider>
+            <SidebarProvider>
+            <div className="min-h-screen w-full bg-background flex flex-col">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <Routes>
                 <Route path="/" element={<UserTaxReturns />} />
@@ -229,19 +232,24 @@ const AuthenticatedApp = () => {
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/cookies" element={<Cookies />} />
                 <Route path="/acceptable-use" element={<AcceptableUse />} />
-                    <Route path="/privacy-settings" element={<PrivacySettings />} />
-                    <Route path="/debug" element={<AndroidDebug />} />
-                    
-                    <Route 
-                      path="/profile" 
-                      element={
-                        <ProtectedRoute>
-                          <Profile />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    
-                    <Route path="*" element={<NotFound />} />
+                <Route path="/privacy-settings" element={<PrivacySettings />} />
+                <Route path="/debug" element={<AndroidDebug />} />
+                <Route path="/tax-filers" element={
+                  <ProtectedRoute>
+                    <TaxFilers />
+                  </ProtectedRoute>
+                } />
+                
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
               
@@ -281,9 +289,10 @@ const AuthenticatedApp = () => {
           {/* Global Mobile Menu Sheet - single instance for entire app */}
           <GlobalMobileMenuSheet />
           
-        </SidebarProvider>
-      </DocumentsTourProvider>
-      </OnboardingTourProvider>
+          </SidebarProvider>
+        </DocumentsTourProvider>
+        </OnboardingTourProvider>
+      </TaxFilerProvider>
     </ErrorBoundary>
   );
 };

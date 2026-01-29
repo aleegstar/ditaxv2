@@ -140,14 +140,14 @@ const { data } = await supabase
 
 ## Implementierungsreihenfolge
 
-| Phase | Aufwand | Beschreibung |
-|-------|---------|--------------|
-| 1 | ~2h | Datenbank: `tax_filers` Tabelle + RLS |
-| 2 | ~2h | Migration: Bestehende User zu Tax Filern |
-| 3 | ~4h | Frontend: `TaxFilerSelector` + Context |
-| 4 | ~3h | Frontend: Personen-Verwaltungsseite |
-| 5 | ~4h | Anpassung aller Queries (FormContext, Hooks) |
-| 6 | ~2h | Dashboard-Anpassung + i18n |
+| Phase | Aufwand | Beschreibung | Status |
+|-------|---------|--------------|--------|
+| 1 | ~2h | Datenbank: `tax_filers` Tabelle + RLS | ✅ Fertig |
+| 2 | ~2h | Migration: Bestehende User zu Tax Filern | ✅ Fertig |
+| 3 | ~4h | Frontend: `TaxFilerSelector` + Context | ✅ Fertig |
+| 4 | ~3h | Frontend: Personen-Verwaltungsseite | ✅ Fertig |
+| 5 | ~4h | Anpassung aller Queries (FormContext, Hooks) | ⏳ Ausstehend |
+| 6 | ~2h | Dashboard-Anpassung + Integration | ⏳ Ausstehend |
 
 **Gesamtaufwand:** ~17 Stunden
 

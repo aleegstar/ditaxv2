@@ -722,6 +722,39 @@ export interface Translation {
     lastUpdated: string;
     resolvedAt: string;
   };
+
+  // Tax Filers (Multi-person support)
+  taxFilers: {
+    title: string;
+    pageTitle: string;
+    pageDescription: string;
+    selectPerson: string;
+    primary: string;
+    manage: string;
+    addPerson: string;
+    editPerson: string;
+    deletePerson: string;
+    addPersonHint: string;
+    noPersons: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    relationship: string;
+    relationships: {
+      self: string;
+      child: string;
+      spouse: string;
+      parent: string;
+      other: string;
+    };
+    addDescription: string;
+    editDescription: string;
+    deleteTitle: string;
+    deleteDescription: string;
+    deleteConfirm: string;
+    infoTitle: string;
+    infoDescription: string;
+  };
   
   // Common
   common: {
@@ -2030,6 +2063,38 @@ export const translations: Record<'de' | 'en', Translation> = {
       createdBy: 'Erstellt von',
       lastUpdated: 'Zuletzt aktualisiert',
       resolvedAt: 'Gelöst am',
+    },
+
+    taxFilers: {
+      title: 'Steuerpflichtiger',
+      pageTitle: 'Personen verwalten',
+      pageDescription: 'Verwalten Sie hier die Personen, für die Sie Steuererklärungen erstellen möchten. Zum Beispiel für Ihre Kinder oder Eltern.',
+      selectPerson: 'Person wählen',
+      primary: 'Primär',
+      manage: 'Verwalten',
+      addPerson: 'Person hinzufügen',
+      editPerson: 'Person bearbeiten',
+      deletePerson: 'Person löschen',
+      addPersonHint: 'Sie können weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.',
+      noPersons: 'Keine Personen gefunden.',
+      firstName: 'Vorname',
+      lastName: 'Nachname',
+      dateOfBirth: 'Geburtsdatum',
+      relationship: 'Beziehung',
+      relationships: {
+        self: 'Ich selbst',
+        child: 'Kind',
+        spouse: 'Ehepartner',
+        parent: 'Elternteil',
+        other: 'Andere',
+      },
+      addDescription: 'Fügen Sie eine neue Person hinzu, für die Sie Steuererklärungen erstellen möchten.',
+      editDescription: 'Ändern Sie die Daten der Person.',
+      deleteTitle: 'Person löschen?',
+      deleteDescription: 'Möchten Sie diese Person wirklich löschen? Alle zugehörigen Steuererklärungen und Dokumente werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.',
+      deleteConfirm: 'Löschen',
+      infoTitle: 'Hinweis',
+      infoDescription: 'Jede Person hat separate Formulardaten und Dokumente. Die primäre Person (Sie selbst) kann nicht gelöscht werden.',
     },
     
     common: {
@@ -3404,6 +3469,38 @@ export const translations: Record<'de' | 'en', Translation> = {
       createdBy: 'Created By',
       lastUpdated: 'Last Updated',
       resolvedAt: 'Resolved At',
+    },
+
+    taxFilers: {
+      title: 'Tax Filer',
+      pageTitle: 'Manage Persons',
+      pageDescription: 'Manage the persons for whom you want to create tax returns. For example, for your children or parents.',
+      selectPerson: 'Select person',
+      primary: 'Primary',
+      manage: 'Manage',
+      addPerson: 'Add person',
+      editPerson: 'Edit person',
+      deletePerson: 'Delete person',
+      addPersonHint: 'You can add more persons to manage their tax returns.',
+      noPersons: 'No persons found.',
+      firstName: 'First name',
+      lastName: 'Last name',
+      dateOfBirth: 'Date of birth',
+      relationship: 'Relationship',
+      relationships: {
+        self: 'Myself',
+        child: 'Child',
+        spouse: 'Spouse',
+        parent: 'Parent',
+        other: 'Other',
+      },
+      addDescription: 'Add a new person for whom you want to create tax returns.',
+      editDescription: 'Edit the person\'s details.',
+      deleteTitle: 'Delete person?',
+      deleteDescription: 'Do you really want to delete this person? All associated tax returns and documents will also be deleted. This action cannot be undone.',
+      deleteConfirm: 'Delete',
+      infoTitle: 'Note',
+      infoDescription: 'Each person has separate form data and documents. The primary person (yourself) cannot be deleted.',
     },
     
     common: {
