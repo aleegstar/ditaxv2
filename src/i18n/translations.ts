@@ -392,6 +392,10 @@ export interface Translation {
     savePreferences: string;
     preferencesUpdated: string;
     preferencesUpdatedDescription: string;
+    managePeople: string;
+    managePeopleDescription: string;
+    managePeopleCard: string;
+    managePeopleCardDescription: string;
   };
   
   // Forms
@@ -1327,6 +1331,7 @@ export interface Translation {
     documents: string;
     chat: string;
     inviteFriends: string;
+    managePeople: string;
     help: string;
     knowledgeBase: string;
     startGuide: string;
@@ -1748,6 +1753,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       savePreferences: 'Einstellungen speichern',
       preferencesUpdated: 'Einstellungen aktualisiert',
       preferencesUpdatedDescription: 'Deine Datenschutz-Einstellungen wurden gespeichert.',
+      managePeople: 'Personen',
+      managePeopleDescription: 'Verwalte Personen, für die du Steuererklärungen erstellst.',
+      managePeopleCard: 'Personen verwalten',
+      managePeopleCardDescription: 'Steuererklärungen für Familienmitglieder',
     },
     
     forms: {
@@ -2738,6 +2747,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       documents: 'Dokumente',
       chat: 'Chat',
       inviteFriends: 'Freunde einladen',
+      managePeople: 'Personen verwalten',
       help: 'Hilfe',
       knowledgeBase: 'Wissensdatenbank',
       startGuide: 'Anleitung starten',
@@ -3158,6 +3168,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       savePreferences: 'Save Preferences',
       preferencesUpdated: 'Preferences Updated',
       preferencesUpdatedDescription: 'Your privacy settings have been saved.',
+      managePeople: 'People',
+      managePeopleDescription: 'Manage people for whom you create tax returns.',
+      managePeopleCard: 'Manage people',
+      managePeopleCardDescription: 'Tax returns for family members',
     },
     
     forms: {
@@ -4146,6 +4160,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       documents: 'Documents',
       chat: 'Chat',
       inviteFriends: 'Invite Friends',
+      managePeople: 'Manage people',
       help: 'Help',
       knowledgeBase: 'Knowledge Base',
       startGuide: 'Start Guide',

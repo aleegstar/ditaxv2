@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift, Globe } from 'lucide-react';
+import { Home, Plus, MessageCircle, Menu, X, FileText, User, HelpCircle, MessageSquare, Settings, LogOut, ChevronUp, ChevronDown, Shield, FileCheck, Cookie, MapPin, Send, Folder, LifeBuoy, Gift, Globe, Users } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -121,6 +121,10 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     label: t.menu.inviteFriends,
     icon: Gift,
     route: '/invite-friends'
+  }, {
+    label: t.menu.managePeople,
+    icon: Users,
+    route: '/tax-filers'
   }];
   const helpItems = [{
     label: t.menu.knowledgeBase,
