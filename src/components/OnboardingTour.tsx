@@ -7,11 +7,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
 import { debug } from '@/utils/debug';
 import { supabase } from '@/integrations/supabase/client';
+import { useI18n } from '@/contexts/I18nContext';
+import { Translation } from '@/i18n/translations';
 
 interface TourStep {
   id: string;
-  title: string;
-  description: string;
+  titleKey: keyof Translation['tour'] | null;
+  descriptionKey: keyof Translation['tour'];
   targetElement: string;
   position: 'top' | 'bottom' | 'left' | 'right';
 }
@@ -21,77 +23,39 @@ interface OnboardingTourProps {
   onSkip: () => void;
 }
 
-const mobileTourSteps: TourStep[] = [
+const getTourSteps = (): TourStep[] => [
   {
     id: 'welcome',
-    title: '',
-    description: 'Wir stellen dir die App kurz vor, damit du weisst, wie es funktioniert.',
+    titleKey: null, // Will use dynamic greeting
+    descriptionKey: 'welcomeDescription',
     targetElement: '',
     position: 'bottom'
   },
   {
     id: 'add-year',
-    title: 'Neues Steuerjahr',
-    description: 'Hier kannst du eine neue Steuererklärung starten.',
+    titleKey: 'addYearTitle',
+    descriptionKey: 'addYearDescription',
     targetElement: '[data-tour="add-year-card"]',
     position: 'top'
   },
   {
     id: 'chat',
-    title: 'Chat',
-    description: 'Hier kannst du mit uns chatten und Fragen stellen.',
+    titleKey: 'chatTitle',
+    descriptionKey: 'chatDescription',
     targetElement: '[data-tour="chat-header-icon"]',
     position: 'top'
   },
   {
     id: 'documents',
-    title: 'Unterlagen hochladen',
-    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen.',
+    titleKey: 'documentsTitle',
+    descriptionKey: 'documentsDescription',
     targetElement: '[data-tour="floating-document-button"]',
     position: 'top'
   },
   {
     id: 'continue-card',
-    title: 'Steuerjahr fortsetzen',
-    description: 'Steuererklärung öffnen und weiter bearbeiten.',
-    targetElement: '[data-tour="tax-year-card"]',
-    position: 'bottom'
-  }
-];
-
-const desktopTourSteps: TourStep[] = [
-  {
-    id: 'welcome',
-    title: '',
-    description: 'Wir stellen dir die App kurz vor, damit du weisst, wie es funktioniert.',
-    targetElement: '',
-    position: 'bottom'
-  },
-  {
-    id: 'add-year',
-    title: 'Neues Steuerjahr',
-    description: 'Hier kannst du eine neue Steuererklärung starten.',
-    targetElement: '[data-tour="add-year-card"]',
-    position: 'top'
-  },
-  {
-    id: 'chat',
-    title: 'Chat',
-    description: 'Hier kannst du mit uns chatten und Fragen stellen.',
-    targetElement: '[data-tour="chat-header-icon"]',
-    position: 'top'
-  },
-  {
-    id: 'documents',
-    title: 'Unterlagen hochladen',
-    description: 'Mit diesem Button kannst du jederzeit Dokumente hochladen.',
-    targetElement: '[data-tour="floating-document-button"]',
-    position: 'top'
-  },
-  {
-    id: 'continue-card',
-    title: 'Steuerjahr fortsetzen',
-    description: 'Steuererklärung öffnen und weiter bearbeiten.',
+    titleKey: 'continueCardTitle',
+    descriptionKey: 'continueCardDescription',
     targetElement: '[data-tour="tax-year-card"]',
     position: 'bottom'
   }
@@ -103,9 +67,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   const [userFirstName, setUserFirstName] = useState<string>('');
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { t } = useI18n();
   
-  // Use different tour steps based on device type
-  const tourSteps = isMobile ? mobileTourSteps : desktopTourSteps;
+  const tourSteps = getTourSteps();
 
   // Load user's first name
   useEffect(() => {
@@ -132,7 +96,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   }, []);
 
   const updateSpotlight = (targetElement: string, attempt = 0) => {
-    // Skip spotlight for welcome step (no target element)
     if (!targetElement) {
       return;
     }
@@ -140,9 +103,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     debug.log(`🎯 Tour: Updating spotlight for element: ${targetElement} (attempt ${attempt})`);
     
     const tryFind = (): { element: Element | null; foundSelector: string } => {
-      // Try multiple selectors separated by comma
       const selectors = targetElement.split(',').map(s => s.trim());
-      // Try each selector in order
       for (const selector of selectors) {
         try {
           const el = document.querySelector(selector);
@@ -154,33 +115,22 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         }
       }
       
-      // Enhanced fallback selectors with better mobile/desktop support
       const fallbackSelectors = isMobile ? [
-        // Add year button
         '[data-tour="add-year"]',
         '.year-dropdown-button',
-        // Floating document button
         '[data-tour="floating-document-button"]',
-        // Prefer explicit header chat icon
         '[data-tour="chat-header-icon"]',
-        // Tax year card
         '[data-tour="tax-year-card"]',
         '.blue-tax-year-card',
-        // Legacy fallbacks
         '.continue-tax-card',
         '.card'
       ] : [
-        // Add year button
         '[data-tour="add-year"]',
         '.year-dropdown-button',
-        // Floating document button
         '[data-tour="floating-document-button"]',
-        // Prefer explicit header chat icon
         '[data-tour="chat-header-icon"]',
-        // Tax year card
         '[data-tour="tax-year-card"]',
         '.blue-tax-year-card',
-        // Legacy fallbacks
         '.continue-tax-card',
         '.card'
       ];
@@ -199,7 +149,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     if (element) {
       debug.log(`✅ Tour: Found element with selector: ${foundSelector}`);
       
-      // Check if element is in viewport before scrolling
       const rect = element.getBoundingClientRect();
       const isInViewport = (
         rect.top >= 0 &&
@@ -208,7 +157,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         rect.right <= window.innerWidth
       );
       
-      // Only scroll if element is not fully visible
       if (!isInViewport) {
         try {
           (element as HTMLElement).scrollIntoView({ 
@@ -217,7 +165,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             behavior: 'smooth' 
           });
           
-          // Wait for scroll to complete before calculating position
           setTimeout(() => {
             const updatedRect = element.getBoundingClientRect();
             setSpotlightPosition({
@@ -231,7 +178,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         } catch {}
       }
       
-      // Use viewport-relative coordinates (no scroll offsets for fixed overlay)
       const x = Math.max(0, Math.floor(rect.left));
       const y = Math.max(0, Math.floor(rect.top));
       const width = Math.max(50, Math.ceil(rect.width));
@@ -247,7 +193,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
       debug.log('🎯 Tour: Spotlight position (viewport):', validatedPosition);
       setSpotlightPosition(validatedPosition);
     } else {
-      // Retry a few times as elements may mount with delay/animation
       if (attempt < 10) {
         debug.warn('⚠️ No element found, retrying...', attempt + 1);
         setTimeout(() => updateSpotlight(targetElement, attempt + 1), 150);
@@ -268,7 +213,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   useEffect(() => {
     const currentStepData = tourSteps[currentStep];
     if (currentStepData && currentStepData.targetElement) {
-      // Wait a bit for the DOM to be ready
       const timer = setTimeout(() => {
         updateSpotlight(currentStepData.targetElement);
       }, 100);
@@ -277,12 +221,10 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   }, [currentStep, tourSteps]);
 
   useEffect(() => {
-    // Hide sidebar during tour for better mobile experience only on mobile
     if (isMobile) {
       document.body.classList.add('hide-sidebar');
     }
     
-    // Initial spotlight update
     if (tourSteps[currentStep] && tourSteps[currentStep].targetElement) {
       updateSpotlight(tourSteps[currentStep].targetElement);
     }
@@ -295,7 +237,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   }, [isMobile]);
 
   useEffect(() => {
-    // Re-calculate spotlight position on window resize and scroll
     const handleReposition = () => {
       if (tourSteps[currentStep] && tourSteps[currentStep].targetElement) {
         updateSpotlight(tourSteps[currentStep].targetElement);
@@ -316,15 +257,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     if (currentStep < tourSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Beim letzten Schritt: Fokus auf das Target-Element setzen
       const lastStepData = tourSteps[tourSteps.length - 1];
       
       onComplete();
       
-      // Fokus nach kurzer Verzögerung setzen (nach dem Overlay fade-out)
       if (lastStepData?.targetElement) {
         setTimeout(() => {
-          // Versuche mehrere Selektoren (wie beim Spotlight)
           const selectors = lastStepData.targetElement.split(',').map(s => s.trim());
           
           for (const selector of selectors) {
@@ -335,7 +273,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               break;
             }
           }
-        }, 700); // Nach dem Overlay fade-out (duration: 0.6s)
+        }, 700);
       }
     }
   };
@@ -354,7 +292,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     const currentStepData = tourSteps[currentStep];
     if (!currentStepData) return {};
 
-    // For welcome step, center the tooltip
     if (!currentStepData.targetElement) {
       const tooltipWidth = isMobile ? 280 : 320;
       const tooltipHeight = isMobile ? 180 : 200;
@@ -372,11 +309,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     let top = 0;
     let left = 0;
 
-    // For desktop, consider sidebar width (approximately 288px when open)
     const sidebarWidth = isMobile ? 0 : 288;
     const availableWidth = window.innerWidth - sidebarWidth;
 
-    // Position based on step position preference and available space
     switch (currentStepData.position) {
       case 'bottom':
         top = spotlightPosition.y + spotlightPosition.height + padding;
@@ -387,14 +322,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             spotlightPosition.x + (spotlightPosition.width / 2) - (tooltipWidth / 2)
           ));
         } else {
-          // On desktop, account for sidebar
           left = Math.max(sidebarWidth + padding, Math.min(
             window.innerWidth - tooltipWidth - padding,
             spotlightPosition.x + (spotlightPosition.width / 2) - (tooltipWidth / 2)
           ));
         }
         
-        // If tooltip would be off-screen at bottom, place above
         if (top + tooltipHeight > window.innerHeight - padding) {
           top = Math.max(padding, spotlightPosition.y - tooltipHeight - padding);
         }
@@ -409,14 +342,12 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
             spotlightPosition.x + (spotlightPosition.width / 2) - (tooltipWidth / 2)
           ));
         } else {
-          // On desktop, account for sidebar
           left = Math.max(sidebarWidth + padding, Math.min(
             window.innerWidth - tooltipWidth - padding,
             spotlightPosition.x + (spotlightPosition.width / 2) - (tooltipWidth / 2)
           ));
         }
         
-        // If tooltip would be off-screen at top, place below
         if (top < padding) {
           top = spotlightPosition.y + spotlightPosition.height + padding;
         }
@@ -424,25 +355,21 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
 
       case 'right':
         if (isMobile) {
-          // On mobile, show below instead of right
           top = spotlightPosition.y + spotlightPosition.height + padding;
           left = Math.max(padding, Math.min(
             window.innerWidth - tooltipWidth - padding,
             spotlightPosition.x + (spotlightPosition.width / 2) - (tooltipWidth / 2)
           ));
         } else {
-          // On desktop, position to the right with proper spacing
           top = Math.max(padding, Math.min(
             window.innerHeight - tooltipHeight - padding,
             spotlightPosition.y + (spotlightPosition.height / 2) - (tooltipHeight / 2)
           ));
-          left = spotlightPosition.x + spotlightPosition.width + padding * 2; // Extra padding for better separation
+          left = spotlightPosition.x + spotlightPosition.width + padding * 2;
           
-          // If tooltip would be off-screen to the right, try left side
           if (left + tooltipWidth > window.innerWidth - padding) {
             left = Math.max(sidebarWidth + padding, spotlightPosition.x - tooltipWidth - padding * 2);
             
-            // If still off-screen, place below instead
             if (left < sidebarWidth + padding) {
               top = spotlightPosition.y + spotlightPosition.height + padding;
               left = Math.max(sidebarWidth + padding, Math.min(
@@ -456,7 +383,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
 
       case 'left':
         if (isMobile) {
-          // On mobile, show below instead of left
           top = spotlightPosition.y + spotlightPosition.height + padding;
           left = Math.max(padding, Math.min(
             window.innerWidth - tooltipWidth - padding,
@@ -469,11 +395,9 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           ));
           left = Math.max(sidebarWidth + padding, spotlightPosition.x - tooltipWidth - padding * 2);
           
-          // If tooltip would be off-screen to the left, place to the right
           if (left < sidebarWidth + padding) {
             left = spotlightPosition.x + spotlightPosition.width + padding * 2;
             
-            // If still off-screen, place below instead
             if (left + tooltipWidth > window.innerWidth - padding) {
               top = spotlightPosition.y + spotlightPosition.height + padding;
               left = Math.max(sidebarWidth + padding, Math.min(
@@ -492,6 +416,17 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
   const currentStepData = tourSteps[currentStep];
   if (!currentStepData) return null;
 
+  const getStepTitle = () => {
+    if (currentStepData.id === 'welcome') {
+      return `${t.tour.welcomeGreeting} ${userFirstName} 👋`;
+    }
+    return currentStepData.titleKey ? t.tour[currentStepData.titleKey] : '';
+  };
+
+  const getStepDescription = () => {
+    return t.tour[currentStepData.descriptionKey];
+  };
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -501,7 +436,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
-        {/* Light overlay with transparent hole - only show for steps with target elements */}
+        {/* Light overlay with transparent hole */}
         {currentStepData.targetElement && (
           <>
             <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
@@ -528,7 +463,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               <rect width="100%" height="100%" fill="rgba(0,0,0,0.75)" mask="url(#tour-spotlight-mask)" />
             </svg>
             
-            {/* Outline and glow to emphasize spotlight target */}
+            {/* Outline and glow */}
             <motion.div 
               className="absolute pointer-events-none rounded-xl border-2 border-[#1D64FF] shadow-[0_0_0_4px_rgba(29,100,255,0.2),0_0_30px_rgba(29,100,255,0.3)]"
               animate={{
@@ -550,7 +485,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           <div className="absolute inset-0 bg-black/75" />
         )}
 
-
         {/* Progress indicator */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex gap-2">
           {tourSteps.map((_, index) => (
@@ -568,7 +502,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         <button
           onClick={handleSkip}
           className="absolute top-4 right-4 z-[10002] w-10 h-10 rounded-full bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 hover:text-slate-800 transition-all duration-200 shadow-lg"
-          aria-label="Tour schließen"
+          aria-label={t.tour.closeTour}
         >
           <X className="w-5 h-5" />
         </button>
@@ -594,7 +528,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
             )}
           >
-            {/* Arrow pointing in correct direction based on tooltip position - only for non-welcome steps */}
+            {/* Arrow */}
             <AnimatePresence mode="wait">
               {currentStepData.targetElement && (() => {
                 const arrowKey = `${currentStepData.position}-${isMobile}`;
@@ -605,7 +539,6 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                 } else if (currentStepData.position === 'top') {
                   return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white" />;
                 } else if (currentStepData.position === 'bottom') {
-                  // position === 'bottom' or mobile fallback
                   return <motion.div key={arrowKey} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white" />;
                 }
               })()}
@@ -624,23 +557,19 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                     "font-semibold text-slate-900 mb-2 transition-all duration-300",
                     isMobile ? "text-base" : "text-lg"
                   )}>
-                    {currentStepData.id === 'welcome' 
-                      ? `Grüezi ${userFirstName} 👋` 
-                      : currentStepData.title}
+                    {getStepTitle()}
                   </h3>
                   <p className={cn(
                     "text-slate-500 mb-4 transition-all duration-300",
                     isMobile ? "text-sm" : "text-base"
                   )}>
-                    {currentStepData.description}
+                    {getStepDescription()}
                   </p>
                 </motion.div>
               </AnimatePresence>
               
               <div className="flex gap-2 justify-center">
-                {/* Show different buttons based on step */}
                 {currentStep === 0 ? (
-                  // First step (welcome): Skip and Next
                   <>
                     <Button
                       variant="outline"
@@ -648,18 +577,17 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       onClick={handleSkip}
                       className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                     >
-                      Überspringen
+                      {t.tour.skip}
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
                       className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-md"
                     >
-                      Weiter
+                      {t.tour.next}
                     </Button>
                   </>
                 ) : (
-                  // All other steps: Back and Next
                   <>
                     <Button
                       variant="outline"
@@ -667,14 +595,14 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       onClick={handlePrevious}
                       className="text-slate-500 border-slate-200 bg-white hover:bg-slate-50 hover:text-slate-700"
                     >
-                      Zurück
+                      {t.tour.back}
                     </Button>
                     <Button
                       size={isMobile ? "sm" : "default"}
                       onClick={handleNext}
                       className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white shadow-md"
                     >
-                      {currentStep === tourSteps.length - 1 ? "Fertig" : "Weiter"}
+                      {currentStep === tourSteps.length - 1 ? t.tour.finish : t.tour.next}
                     </Button>
                   </>
                 )}

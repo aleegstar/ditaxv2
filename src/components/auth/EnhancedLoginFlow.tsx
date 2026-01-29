@@ -10,6 +10,7 @@ import { ConsentStep } from './ConsentStep';
 import { MfaChallenge } from './MfaChallenge';
 import { useEnhancedWebAuthn } from '@/hooks/use-enhanced-webauthn';
 import { isDespiaNative, triggerDespiaPasskeyAuth } from '@/lib/despia';
+import { useI18n } from '@/contexts/I18nContext';
 
 export const EnhancedLoginFlow: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,6 +21,7 @@ export const EnhancedLoginFlow: React.FC = () => {
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [hasPasskeys, setHasPasskeys] = useState(false);
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const { 
     checkPasskeysForEmail, 
@@ -28,7 +30,6 @@ export const EnhancedLoginFlow: React.FC = () => {
     isLoading: isPasskeyLoading 
   } = useEnhancedWebAuthn();
 
-  // Check if user has OTP disabled when email is entered
   const checkOtpStatus = async (userEmail: string) => {
     try {
       const { data, error } = await supabase
@@ -41,7 +42,6 @@ export const EnhancedLoginFlow: React.FC = () => {
         setOtpDisabled(data.disable_otp_fallback || false);
       }
     } catch (error) {
-      // User might not exist yet, that's okay
       setOtpDisabled(false);
     }
   };
@@ -52,24 +52,21 @@ export const EnhancedLoginFlow: React.FC = () => {
 
     setLoading(true);
     try {
-      // Check if user has disabled OTP
       await checkOtpStatus(email);
       
-      // Check if user has passkeys
       const passkeyCheck = await checkPasskeysForEmail(email.trim());
       setHasPasskeys(passkeyCheck.has_passkeys);
 
       if (otpDisabled) {
         toast({
-          title: 'OTP deaktiviert',
-          description: 'Für dieses Konto sind E-Mail-Codes deaktiviert. Bitte aktivieren Sie einen Fingerprint in den Profileinstellungen.',
+          title: t.authFlow.otpDisabled,
+          description: t.authFlow.otpDisabledHint,
           variant: 'default',
         });
         setLoading(false);
         return;
       }
 
-      // Send OTP
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -81,14 +78,14 @@ export const EnhancedLoginFlow: React.FC = () => {
 
       setStep('otp');
       toast({
-        title: 'Code gesendet',
-        description: 'Wir haben dir einen Anmeldecode per E-Mail gesendet.',
+        title: t.authFlow.codeSent,
+        description: t.authFlow.codeSentDescription,
       });
     } catch (error: any) {
       console.error('Email submission error:', error);
       toast({
-        title: 'Fehler beim Senden',
-        description: error.message || 'E-Mail-Code konnte nicht gesendet werden.',
+        title: t.authFlow.sendError,
+        description: error.message || t.authFlow.sendError,
         variant: 'destructive',
       });
     } finally {
@@ -99,7 +96,6 @@ export const EnhancedLoginFlow: React.FC = () => {
   const handlePasskeyAuth = async () => {
     if (!email.trim()) return;
     
-    // Check if running in Despia - open system browser for passkey auth
     if (isDespiaNative()) {
       triggerDespiaPasskeyAuth(email.trim());
       return;
@@ -110,7 +106,6 @@ export const EnhancedLoginFlow: React.FC = () => {
       const result = await authenticateWithPasskey(email.trim());
       
       if (result.success) {
-        // Check consent for passkey users too
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
@@ -124,16 +119,16 @@ export const EnhancedLoginFlow: React.FC = () => {
         }
         
         toast({
-          title: 'Anmeldung erfolgreich',
-          description: 'Du wurdest erfolgreich angemeldet.',
+          title: t.authFlow.loginSuccess,
+          description: t.authFlow.loginSuccessDescription,
         });
         navigate('/');
       }
     } catch (error: any) {
       console.error('Passkey authentication error:', error);
       toast({
-        title: 'Fehler bei Fingerprint-Anmeldung',
-        description: error.message || 'Die Fingerprint-Anmeldung ist fehlgeschlagen.',
+        title: t.authFlow.passkeyError,
+        description: error.message || t.authFlow.passkeyError,
         variant: 'destructive',
       });
     } finally {
@@ -171,7 +166,6 @@ export const EnhancedLoginFlow: React.FC = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Check if user has MFA enabled
         const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
         const activeFactor = mfaFactors?.totp?.find(factor => factor.status === 'verified');
 
@@ -182,7 +176,6 @@ export const EnhancedLoginFlow: React.FC = () => {
           return;
         }
 
-        // Check if user has already given consent
         const hasConsent = await checkConsentStatus(data.user.id);
         
         if (!hasConsent) {
@@ -193,16 +186,16 @@ export const EnhancedLoginFlow: React.FC = () => {
       }
 
       toast({
-        title: 'Anmeldung erfolgreich',
-        description: 'Du wurdest erfolgreich angemeldet.',
+        title: t.authFlow.loginSuccess,
+        description: t.authFlow.loginSuccessDescription,
       });
       
       navigate('/');
     } catch (error: any) {
       console.error('OTP verification error:', error);
       toast({
-        title: 'Ungültiger Code',
-        description: 'Der eingegebene Code ist ungültig oder abgelaufen.',
+        title: t.authFlow.invalidCode,
+        description: t.authFlow.invalidCode,
         variant: 'destructive',
       });
     } finally {
@@ -211,12 +204,10 @@ export const EnhancedLoginFlow: React.FC = () => {
   };
 
   const handlePasskeySuccess = async () => {
-    // Check consent for passkey users too
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Check if user has MFA enabled
         const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
         const activeFactor = mfaFactors?.totp?.find(factor => factor.status === 'verified');
 
@@ -242,8 +233,8 @@ export const EnhancedLoginFlow: React.FC = () => {
 
   const handleConsentComplete = () => {
     toast({
-      title: 'Anmeldung erfolgreich',
-      description: 'Du wurdest erfolgreich angemeldet.',
+      title: t.authFlow.loginSuccess,
+      description: t.authFlow.loginSuccessDescription,
     });
     navigate('/');
   };
@@ -253,7 +244,6 @@ export const EnhancedLoginFlow: React.FC = () => {
   };
 
   const handleMfaCancel = () => {
-    // Sign out and go back to email step
     supabase.auth.signOut();
     setStep('email');
     setMfaFactorId(null);
@@ -285,13 +275,13 @@ export const EnhancedLoginFlow: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Code eingeben</CardTitle>
+            <CardTitle className="text-2xl">{t.authFlow.enterCode}</CardTitle>
             <CardDescription>
-              Wir haben dir einen Code an {email} gesendet
+              {t.authFlow.codeSentTo.replace('{email}', email)}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Passkey Button - Only show if user has passkeys */}
+            {/* Passkey Button */}
             {hasPasskeys && isWebAuthnSupported && (
               <>
                 <Button
@@ -306,7 +296,7 @@ export const EnhancedLoginFlow: React.FC = () => {
                   ) : (
                     <Fingerprint className="mr-2 h-4 w-4" />
                   )}
-                  {isPasskeyLoading ? 'Authentifizierung...' : 'Mit Fingerprint anmelden'}
+                  {isPasskeyLoading ? t.authFlow.passkeyAuthenticating : t.authFlow.passkeyLogin}
                 </Button>
                 
                 <div className="relative">
@@ -314,7 +304,7 @@ export const EnhancedLoginFlow: React.FC = () => {
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">oder Code eingeben</span>
+                    <span className="bg-background px-2 text-muted-foreground">{t.authFlow.orEnterCode}</span>
                   </div>
                 </div>
               </>
@@ -324,7 +314,7 @@ export const EnhancedLoginFlow: React.FC = () => {
               <div className="space-y-2">
                 <Input
                   type="text"
-                  placeholder="6-stelliger Code"
+                  placeholder={t.authFlow.sixDigitCode}
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
                   maxLength={6}
@@ -337,10 +327,10 @@ export const EnhancedLoginFlow: React.FC = () => {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Wird überprüft...
+                    {t.authFlow.verifying}
                   </>
                 ) : (
-                  'Anmelden'
+                  t.authFlow.verifyButton
                 )}
               </Button>
             </form>
@@ -349,14 +339,12 @@ export const EnhancedLoginFlow: React.FC = () => {
               <Button
                 variant="ghost"
                 onClick={async () => {
-                  // Cleanup unverified account if OTP was not entered
                   if (email && !otpCode) {
                     try {
                       await supabase.functions.invoke('cleanup-unverified-registrations', {
                         body: { email: email.trim() }
                       });
                     } catch (error) {
-                      // Silently ignore - not critical
                       console.warn('Cleanup of unverified account failed:', error);
                     }
                   }
@@ -367,7 +355,7 @@ export const EnhancedLoginFlow: React.FC = () => {
                 className="text-sm"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                E-Mail ändern
+                {t.authFlow.changeEmail}
               </Button>
             </div>
           </CardContent>
@@ -380,19 +368,18 @@ export const EnhancedLoginFlow: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Anmelden</CardTitle>
+          <CardTitle className="text-2xl">{t.authFlow.login}</CardTitle>
           <CardDescription>
-            Melde dich mit deiner E-Mail an
+            {t.authFlow.loginSubtitle}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Email/OTP Authentication Section */}
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Email:</label>
+              <label className="text-sm font-medium text-foreground">{t.authFlow.emailLabel}</label>
               <Input
                 type="email"
-                placeholder="name@mail.com"
+                placeholder={t.authFlow.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -405,7 +392,7 @@ export const EnhancedLoginFlow: React.FC = () => {
                 <div className="flex items-center gap-2 text-amber-800">
                   <AlertCircle className="h-4 w-4" />
                   <span className="text-sm">
-                    E-Mail-Codes sind für dieses Konto deaktiviert. Verwende deinen Fingerprint.
+                    {t.authFlow.otpDisabledHint}
                   </span>
                 </div>
               </div>
@@ -419,25 +406,25 @@ export const EnhancedLoginFlow: React.FC = () => {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Code wird gesendet...
+                  {t.authFlow.sendingCode}
                 </>
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  {otpDisabled ? 'E-Mail-Codes deaktiviert' : 'Login Code senden'}
+                  {otpDisabled ? t.authFlow.codeDisabled : t.authFlow.sendCode}
                 </>
               )}
             </Button>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Haben Sie noch kein Konto?{' '}
+            {t.authFlow.noAccount}{' '}
             <Button
               variant="link"
               className="p-0 h-auto font-normal"
               onClick={() => navigate('/auth?mode=signup')}
             >
-              Jetzt registrieren
+              {t.authFlow.registerNow}
             </Button>
           </div>
         </CardContent>

@@ -151,7 +151,7 @@ const IncomeForm = ({
       title={t.taxReturn.dashboard.sections.income}
       onBack={() => setSearchParams({})}
       onSubmit={handleSubmit}
-      submitLabel="Speichern"
+      submitLabel={t.forms.save}
       showFooter={!embedded}
     >
       {/* Checkbox List */}
