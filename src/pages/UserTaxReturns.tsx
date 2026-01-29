@@ -24,6 +24,8 @@ import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleto
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
 import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
 import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
+import { useI18n } from '@/contexts/I18nContext';
+
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -38,6 +40,7 @@ interface TaxReturn {
 }
 const UserTaxReturns = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const {
     setMenuSheetOpen
   } = useSidebar();
@@ -159,7 +162,7 @@ const UserTaxReturns = () => {
     try {
       const taxReturn = taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
       if (!taxReturn) {
-        toast.error('Steuererklärung nicht gefunden');
+        toast.error(t.userDashboard.taxReturnNotFound);
         return;
       }
 
@@ -173,11 +176,11 @@ const UserTaxReturns = () => {
         error
       } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
       if (error) throw error;
-      toast.success(`Steuererklärung ${year} wurde gelöscht`);
+      toast.success(t.userDashboard.taxReturnDeleted.replace('{year}', year));
       await refetch();
     } catch (error) {
       console.error('Error deleting tax year:', error);
-      toast.error('Fehler beim Löschen der Steuererklärung');
+      toast.error(t.userDashboard.deleteError);
     } finally {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
@@ -203,7 +206,7 @@ const UserTaxReturns = () => {
         data: existingReturn
       } = await supabase.from('tax_returns').select('id').eq('user_id', userId).eq('tax_year', year).maybeSingle();
       if (existingReturn) {
-        toast.info(`Steuererklärung für ${year} existiert bereits`);
+        toast.info(t.userDashboard.taxReturnExists.replace('{year}', year));
         await refetch();
         setIsCreatingTaxReturn(false);
         return;
@@ -220,19 +223,19 @@ const UserTaxReturns = () => {
       }).select().single();
       if (error) {
         if (error.code === '23505') {
-          toast.success(`Steuererklärung für ${year} bereits vorhanden`);
+          toast.success(t.userDashboard.taxReturnAlreadyExists.replace('{year}', year));
           await refetch();
           navigate('/');
           return;
         }
         throw error;
       }
-      toast.success(`Neue Steuererklärung für ${year} erstellt`);
+      toast.success(t.userDashboard.taxReturnCreated.replace('{year}', year));
       await refetch();
       navigate('/');
     } catch (error) {
       console.error('Error creating tax return:', error);
-      toast.error('Fehler beim Erstellen der Steuererklärung');
+      toast.error(t.userDashboard.createError);
     } finally {
       setIsCreatingTaxReturn(false);
     }
@@ -287,10 +290,10 @@ const UserTaxReturns = () => {
     if (userProfile?.first_name) {
       return userProfile.first_name;
     }
-    return 'Benutzer';
+    return t.userDashboard.fallbackUser;
   };
   const getGreeting = () => {
-    return 'Grüezi,';
+    return t.userDashboard.greeting;
   };
   return <div 
     className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-gray-900 bg-white"
@@ -354,7 +357,7 @@ const UserTaxReturns = () => {
                     setDeleteDialogOpen(true);
                   }} className="text-red-600 hover:text-red-700">
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Löschen
+                        {t.userDashboard.delete}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -368,7 +371,7 @@ const UserTaxReturns = () => {
                   <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                     <span className="text-xs font-semibold text-gray-700 font-jakarta tracking-wide uppercase">
-                      Aktiv
+                      {t.userDashboard.active}
                     </span>
                   </div>
                 </div>
@@ -377,12 +380,12 @@ const UserTaxReturns = () => {
                 <div className="flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-xl font-medium tracking-tight text-gray-900 font-jakarta">
-                      Steuererklärung
+                      {t.userDashboard.taxReturn}
                     </h2>
                   </div>
 
                   <p className="text-gray-500 text-sm leading-relaxed font-jakarta line-clamp-2">
-                    Erfassung läuft. Belege werden automatisch kategorisiert.
+                    {t.userDashboard.activeDescription}
                   </p>
 
                   {/* Bottom Action Row */}
@@ -399,7 +402,7 @@ const UserTaxReturns = () => {
                     </div>
 
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
-                      Weiter
+                      {t.userDashboard.continue}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
@@ -420,7 +423,7 @@ const UserTaxReturns = () => {
                   <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
                     <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
-                      In Bearbeitung
+                      {t.userDashboard.processing}
                     </span>
                   </div>
                 </div>
@@ -429,12 +432,12 @@ const UserTaxReturns = () => {
                 <div className="flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-xl font-medium tracking-tight text-gray-900 font-jakarta">
-                      Steuererklärung
+                      {t.userDashboard.taxReturn}
                     </h2>
                   </div>
 
                   <p className="text-gray-500 text-sm leading-relaxed font-jakarta line-clamp-2">
-                    Deine Steuererklärung wird aktuell erstellt.
+                    {t.userDashboard.processingDescription}
                   </p>
 
                   {/* Bottom Action Row */}
@@ -442,18 +445,18 @@ const UserTaxReturns = () => {
                     <div className="flex items-center gap-2">
                       {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
-                          <span>Express</span>
+                          <span>{t.userDashboard.expressService}</span>
                         </div> : <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
                           <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-                          <span>Standard</span>
+                          <span>{t.userDashboard.standardService}</span>
                         </div>}
                       {!isExpress && <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
-                          Upgrade möglich
+                          {t.userDashboard.upgradeAvailable}
                         </span>}
                     </div>
 
                     <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
-                      Tracking
+                      {t.userDashboard.tracking}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
@@ -480,12 +483,12 @@ const UserTaxReturns = () => {
                     {needsSignature ? <>
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
                         <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
-                          Signatur ausstehend
+                          {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
                         <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
                         <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
-                          Fertig
+                          {t.userDashboard.finished}
                         </span>
                       </>}
                   </div>
@@ -494,7 +497,7 @@ const UserTaxReturns = () => {
                 <div className="px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className={`text-xl font-medium tracking-tight font-jakarta ${needsSignature ? 'text-gray-700' : 'text-gray-400'}`}>
-                      Steuererklärung
+                      {t.userDashboard.taxReturn}
                     </h2>
                     {isSigned && <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
                         <Check className="w-3.5 h-3.5" strokeWidth={2} />
@@ -502,18 +505,18 @@ const UserTaxReturns = () => {
                   </div>
 
                   <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-gray-400'}`}>
-                    {needsSignature ? 'Bitte unterschreibe deine Steuererklärung.' : `Bescheid vom ${existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+                    {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
                   year: 'numeric'
-                }) : '–'} liegt vor.`}
+                }) : '–')}
                   </p>
 
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-4">
                       {needsSignature ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
-                          <span>Aktion nötig</span>
+                          <span>{t.userDashboard.actionRequired}</span>
                         </div> : <div className="flex items-center gap-1.5 text-gray-400 font-medium text-sm font-jakarta">
                           <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
                           <span>100%</span>
@@ -521,7 +524,7 @@ const UserTaxReturns = () => {
                     </div>
 
                     <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'}`}>
-                      {needsSignature ? 'Unterschreiben' : 'Details'}
+                      {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
@@ -544,10 +547,10 @@ const UserTaxReturns = () => {
             </div>
             <div className="text-left">
               <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
-                Dokumente
+                {t.userDashboard.documents}
               </span>
               <span className="block text-[10px] text-white/80 font-medium">
-                hochladen
+                {t.userDashboard.uploadDocuments}
               </span>
             </div>
           </button>
@@ -576,17 +579,17 @@ const UserTaxReturns = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Steuererklärung löschen?</AlertDialogTitle>
+            <AlertDialogTitle>{t.userDashboard.deleteDialogTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Möchtest du die Steuererklärung für {yearToDelete} wirklich löschen? Alle zugehörigen Daten und Dokumente werden unwiderruflich entfernt.
+              {t.userDashboard.deleteDialogDescription.replace('{year}', yearToDelete || '')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
             <AlertDialogCancel disabled={isDeleting} className="w-full bg-white hover:bg-gray-50 border border-gray-200 font-medium h-12 rounded-full text-gray-900">
-              Abbrechen
+              {t.userDashboard.cancelDelete}
             </AlertDialogCancel>
             <AlertDialogAction onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium">
-              {isDeleting ? 'Wird gelöscht...' : 'Löschen'}
+              {isDeleting ? t.userDashboard.deleting : t.userDashboard.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
