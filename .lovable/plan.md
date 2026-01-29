@@ -1,86 +1,142 @@
-# Multi-Personen-Steuererklärungen - Implementierungsplan
 
-## Status: Phase 5 abgeschlossen ✅
+# Erweiterung des Welcome-Flows für Multi-Personen
 
-## Übersicht
+## Aktuelle Situation
 
-Das System unterstützt nun mehrere Steuerpflichtige (Personen) pro Benutzerkonto. Ein Elternteil kann Steuererklärungen für sich selbst, Ehepartner und Kinder erstellen - alles unter einem Account.
+Der Welcome-Flow besteht aus 3 Schritten:
+1. **Datenschutz & Einwilligungen** (Consent)
+2. **Vorname** (First Name)
+3. **Steuerjahr** (Tax Year)
+
+Nach Abschluss wird automatisch ein "Primary" Tax Filer mit dem eingegebenen Vornamen erstellt (durch den Datenbank-Trigger).
+
+---
+
+## Optionen zur Erweiterung
+
+### Option A: Hinweis am Ende (Empfohlen - Minimal)
+
+Nach Schritt 3 (Steuerjahr) wird ein **kurzer Hinweis** angezeigt, dass weitere Personen hinzugefügt werden können:
 
 ```text
-+------------------+       +------------------+       +------------------+
-|      User        | 1:n   |   Tax Filer      | 1:n   |   Tax Return     |
-|   (Account)      |------>|   (Person)       |------>|   (2023, 2024)   |
-+------------------+       +------------------+       +------------------+
-                           |  - Max Muster    |
-                           |  - Anna (Kind)   |
-                           |  - Leo (Kind)    |
-                           +------------------+
++------------------------------------------+
+|  💡 Tipp                                 |
+|                                          |
+|  Du kannst auch Steuererklärungen        |
+|  für Familienmitglieder erstellen.       |
+|                                          |
+|  [Später einrichten]  [Jetzt hinzufügen] |
++------------------------------------------+
+```
+
+**Vorteile:**
+- Macht User auf die Funktion aufmerksam
+- Blockiert nicht den Hauptflow
+- Schnelles Onboarding bleibt erhalten
+
+---
+
+### Option B: Optionaler Schritt 4 (Erweitert)
+
+Ein neuer **optionaler Schritt** nach dem Steuerjahr:
+
+```text
+Schritt 4: "Erstellst du die Steuererklärung für weitere Personen?"
+
+[ ] Ja, für Familienmitglieder (Kinder, Ehepartner, etc.)
+[ ] Nein, nur für mich selbst
+
+Falls "Ja":
+→ Weiterleitung zu /tax-filers nach Onboarding
+→ Oder: Inline-Formular zum direkten Hinzufügen
+```
+
+**Vorteile:**
+- Proaktive Abfrage der Nutzungsabsicht
+- Bessere Vorbereitung des Users
+
+**Nachteile:**
+- Verlängert das Onboarding
+- Könnte neue User überfordern
+
+---
+
+### Option C: Kein Zusatz im Onboarding
+
+Stattdessen wird die Multi-Personen-Funktion **im Dashboard prominent** beworben:
+
+- Banner/Card auf der Startseite: "Steuererklärung für Familienmitglieder erstellen"
+- Eintrag in der Sidebar/Navigation
+- Tooltip beim ersten Besuch
+
+---
+
+## Empfehlung
+
+**Option A (Hinweis am Ende)** ist die beste Balance:
+
+1. Hält das Onboarding schlank (3 Schritte bleiben)
+2. Informiert neue User über die Funktion
+3. "Jetzt hinzufügen" leitet direkt zu `/tax-filers` weiter
+4. "Später einrichten" navigiert normal zum Dashboard
+
+---
+
+## Technische Umsetzung (Option A)
+
+### Änderungen
+
+| Datei | Änderung |
+|-------|----------|
+| `WelcomeFlow.tsx` | Neuer Zustand `showFamilyHint` nach Schritt 3 |
+| `translations.ts` | Neue Keys für Hinweis-Texte |
+
+### Ablauf
+
+```text
+Schritt 1 → Schritt 2 → Schritt 3 → [Hinweis-Modal] → Dashboard oder /tax-filers
+```
+
+### Neuer Code-Block (vereinfacht)
+
+```typescript
+// Nach handleComplete(), vor Navigation:
+if (!showFamilyHint) {
+  setShowFamilyHint(true);
+  return; // Zeige Hinweis statt direkt zu navigieren
+}
+
+// Wenn User "Später" wählt → navigate('/')
+// Wenn User "Jetzt hinzufügen" wählt → navigate('/tax-filers')
+```
+
+### i18n-Keys
+
+```typescript
+onboarding: {
+  familyHintTitle: 'Steuererklärung für andere?',
+  familyHintDescription: 'Du kannst auch Steuererklärungen für Familienmitglieder (Kinder, Ehepartner) unter deinem Account erstellen.',
+  familyHintLater: 'Später einrichten',
+  familyHintNow: 'Jetzt hinzufügen'
+}
 ```
 
 ---
 
-## Abgeschlossene Phasen
+## Aufwand
 
-### Phase 1 & 2: Datenbank ✅
-- `tax_filers` Tabelle erstellt mit RLS-Policies
-- Bestehende Tabellen um `tax_filer_id` erweitert
-- Migration für bestehende User zu Tax Filern durchgeführt
-- Automatische Trigger für neue Benutzer implementiert
-
-### Phase 3: TaxFilerContext ✅
-- `TaxFilerContext.tsx` erstellt mit vollständiger CRUD-Funktionalität
-- `TaxFilerSelector.tsx` Komponente für Personenwechsel
-- Integration in `App.tsx`
-
-### Phase 4: Personen-Verwaltungsseite ✅
-- `/tax-filers` Route mit Verwaltungsoberfläche
-- Hinzufügen, Bearbeiten, Löschen von Personen
-- i18n-Unterstützung für DE/EN
-
-### Phase 5: FormContext-Integration ✅
-Alle Queries filtern jetzt nach `tax_filer_id`:
-- ✅ `loadFormDataFromDatabase`
-- ✅ `saveSection`
-- ✅ `updateQuestionProgress`
-- ✅ `hasDataForPreviousYear`
-- ✅ `importFromPreviousYear`
-- ✅ `saveChatMessage`
-- ✅ `loadChatHistory`
-- ✅ `loadQuestionProgress`
-- ✅ `loadDocuments`
-- ✅ DocumentService aktualisiert für `tax_filer_id` Support
+| Option | Aufwand | Komplexität |
+|--------|---------|-------------|
+| A (Hinweis) | ~1-2h | Niedrig |
+| B (Extra Schritt) | ~3-4h | Mittel |
+| C (Kein Onboarding) | 0h | - |
 
 ---
 
-## Nächste Schritte (Phase 6)
+## Frage an dich
 
-### Dashboard-Anpassung
-- [ ] Steuererklärungen nach Person gruppieren
-- [ ] Personen-Switcher im Dashboard-Header integrieren
-- [ ] TaxFilerSelector in UserTaxReturns.tsx einbinden
+Welche Option bevorzugst du?
 
-### Upload-Komponenten
-- [ ] Document-Upload mit `tax_filer_id` erweitern
-- [ ] Checklist-Upload anpassen
-
----
-
-## Implementierungsreihenfolge
-
-| Phase | Aufwand | Beschreibung | Status |
-|-------|---------|--------------|--------|
-| 1 | ~2h | Datenbank: `tax_filers` Tabelle + RLS | ✅ Fertig |
-| 2 | ~2h | Migration: Bestehende User zu Tax Filern | ✅ Fertig |
-| 3 | ~4h | Frontend: `TaxFilerSelector` + Context | ✅ Fertig |
-| 4 | ~3h | Frontend: Personen-Verwaltungsseite | ✅ Fertig |
-| 5 | ~4h | Anpassung aller Queries (FormContext, Hooks) | ✅ Fertig |
-| 6 | ~2h | Dashboard-Anpassung + Integration | ⏳ Ausstehend |
-
----
-
-## Vorteile
-
-- **Rückwärtskompatibel:** Bestehende Benutzer behalten ihre Daten
-- **Skalierbar:** Beliebig viele Personen pro Account
-- **Sauber getrennt:** Jede Person hat eigene Formulardaten
-- **Flexibel:** Kann später für Ehepartner-gemeinsame Steuererklärung erweitert werden
+- **Option A**: Kurzer Hinweis nach dem letzten Schritt
+- **Option B**: Optionaler vierter Schritt mit Abfrage
+- **Option C**: Keine Änderung am Onboarding, stattdessen Dashboard-Banner
