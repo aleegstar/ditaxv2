@@ -54,7 +54,7 @@ const UserTaxReturns = () => {
     isValid,
     isLoading: authLoading
   } = useAuthValidation();
-  const { activeTaxFilerId } = useTaxFiler();
+  const { activeTaxFilerId, hasMultipleFilers, selectionConfirmed, confirmSelection } = useTaxFiler();
   const {
     taxReturns,
     formProgress,
@@ -95,7 +95,12 @@ const UserTaxReturns = () => {
       navigate('/auth');
       return;
     }
-  }, [userId, isValid, authLoading, navigate]);
+    // Redirect to person selection if multiple filers exist and no selection confirmed
+    if (hasMultipleFilers && !selectionConfirmed) {
+      navigate('/select-person', { replace: true });
+      return;
+    }
+  }, [userId, isValid, authLoading, navigate, hasMultipleFilers, selectionConfirmed]);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [shouldRedirectToWelcome, setShouldRedirectToWelcome] = useState(false);
   useEffect(() => {
@@ -264,6 +269,12 @@ const UserTaxReturns = () => {
   if (authLoading || loading || profileLoading || !isReady || !onboardingChecked || shouldRedirectToWelcome) {
     return <UserTaxReturnsSkeleton />;
   }
+
+  // Also show skeleton while redirecting to select-person
+  if (hasMultipleFilers && !selectionConfirmed) {
+    return <UserTaxReturnsSkeleton />;
+  }
+
   if (!loading && taxReturns.length === 0 && userProfile?.onboarding_tour_completed !== true) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
@@ -332,14 +343,8 @@ const UserTaxReturns = () => {
           </div>
         </section>
 
-        {/* Tax Filer Selector - only show if more than one person */}
-        <TaxFilerSelector 
-          className="mb-6" 
-          showManageButton={true} 
-        />
-
         {/* Missing Items Alert */}
-        <MissingItemsAlert 
+        <MissingItemsAlert
           pendingDocuments={pendingDocuments} 
           pendingInformation={pendingInformation} 
         />
