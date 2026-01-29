@@ -59,14 +59,11 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
         onValueChange={handleFilerChange}
         disabled={isLoading}
       >
-        <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 gap-1">
+        <SelectTrigger className="h-9 w-auto border border-border bg-white px-4 rounded-full shadow-sm focus:ring-0 gap-1.5">
           <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'}>
             {activeFiler && (
               <span className="text-sm font-medium text-foreground">
                 {activeFiler.first_name} {activeFiler.last_name}
-                <span className="text-muted-foreground font-normal ml-2">
-                  ({getRelationshipLabel(activeFiler.relationship, t)})
-                </span>
               </span>
             )}
           </SelectValue>
