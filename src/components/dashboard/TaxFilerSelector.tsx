@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,13 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { User, UserPlus, ChevronDown } from 'lucide-react';
+import { Users, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface TaxFilerSelectorProps {
   className?: string;
-  variant?: 'default' | 'compact';
   showManageButton?: boolean;
 }
 
@@ -32,7 +31,6 @@ const getRelationshipLabel = (relationship: string, t: any): string => {
 
 const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ 
   className, 
-  variant = 'default',
   showManageButton = true 
 }) => {
   const { taxFilers, activeTaxFilerId, setActiveTaxFilerId, isLoading } = useTaxFiler();
@@ -55,47 +53,38 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
   const activeFiler = taxFilers.find(f => f.id === activeTaxFilerId);
 
   return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <User className="h-4 w-4" />
-        <span>Für:</span>
-      </div>
+    <div className={cn('flex items-center gap-2', className)}>
+      <Users className="h-4 w-4 text-muted-foreground" />
+      <span className="text-sm text-muted-foreground">Für:</span>
       
       <Select 
         value={activeTaxFilerId || ''} 
         onValueChange={handleFilerChange}
         disabled={isLoading}
       >
-        <SelectTrigger className="h-9 w-auto min-w-[180px] bg-card border-border rounded-xl text-sm font-medium shadow-sm hover:bg-muted transition-colors">
+        <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 gap-1">
           <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'}>
             {activeFiler && (
-              <div className="flex items-center gap-2">
-                <span>{activeFiler.first_name} {activeFiler.last_name}</span>
-                <span className="text-xs text-muted-foreground">
+              <span className="text-sm font-medium text-foreground">
+                {activeFiler.first_name} {activeFiler.last_name}
+                <span className="text-muted-foreground font-normal ml-2">
                   ({getRelationshipLabel(activeFiler.relationship, t)})
                 </span>
-              </div>
+              </span>
             )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-white border-border rounded-xl shadow-lg">
+        <SelectContent className="bg-white border-border rounded-xl shadow-lg min-w-[200px]">
           {taxFilers.map((filer) => (
             <SelectItem 
               key={filer.id} 
               value={filer.id}
-              className="rounded-lg cursor-pointer"
+              className="rounded-lg cursor-pointer py-2"
             >
-              <div className="flex items-center gap-2 py-0.5">
-                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-3 w-3 text-primary" />
-                </div>
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">{filer.first_name} {filer.last_name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {getRelationshipLabel(filer.relationship, t)}
-                  </span>
-                </div>
-              </div>
+              <span className="font-medium">{filer.first_name} {filer.last_name}</span>
+              <span className="text-muted-foreground ml-2">
+                ({getRelationshipLabel(filer.relationship, t)})
+              </span>
             </SelectItem>
           ))}
         </SelectContent>
@@ -106,9 +95,9 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
           variant="ghost"
           size="sm"
           onClick={handleManageClick}
-          className="text-xs text-primary hover:text-primary/80 hover:bg-primary/5 rounded-lg h-9 px-3"
+          className="text-xs text-primary hover:text-primary/80 hover:bg-primary/5 rounded-lg h-8 px-2 ml-1"
         >
-          <UserPlus className="h-4 w-4 mr-1.5" />
+          <Settings className="h-3.5 w-3.5 mr-1" />
           {t.taxFilers?.manage || 'Verwalten'}
         </Button>
       )}
