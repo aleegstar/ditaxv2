@@ -17,7 +17,9 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
+import { X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -225,8 +227,14 @@ const TaxFilers: React.FC = () => {
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden bg-white">
+          {/* Custom Close Button */}
+          <DialogClose className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10">
+            <X className="h-4 w-4 text-slate-500" />
+            <span className="sr-only">Schließen</span>
+          </DialogClose>
+          
           {/* Header */}
-          <div className="p-6 pb-4">
+          <div className="p-6 pb-4 pr-16">
             <DialogTitle className="text-xl font-semibold text-foreground">
               {editingFiler 
                 ? (t.taxFilers?.editPerson || 'Person bearbeiten')
