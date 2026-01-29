@@ -1,120 +1,53 @@
 
-# Plan: Dedizierte Personenauswahl-Seite statt Dropdown
 
-## Aktuelle Situation
-- Bei mehreren Personen erscheint ein **Dropdown auf der Hauptseite** (`TaxFilerSelector`)
-- Der Benutzer kann während der Arbeit zwischen Personen wechseln
-- Dies kann verwirrend sein, da man möglicherweise versehentlich Daten für die falsche Person sieht
+# Plan: Datenbank-Constraint aktualisieren für Multi-Person Support
 
-## Neue Lösung
-Eine **dedizierte Personenauswahl-Seite** erscheint **vor dem Dashboard**, wenn mehr als eine Person vorhanden ist. Erst nach der Auswahl wird das Dashboard angezeigt.
+## Problemursache
+
+Die Unique-Constraint `unique_user_tax_year` auf der Tabelle `tax_returns` prüft nur:
+- `user_id`
+- `tax_year`
+
+Die `tax_filer_id` fehlt! Daher blockiert die Datenbank das Erstellen einer Steuererklärung für Leano (2024), weil Sandro bereits eine für 2024 hat.
 
 ---
 
-## Benutzerfluss
+## Lösung
 
-```text
-Login → Personen prüfen
-         ↓
-    Nur 1 Person? → Dashboard (/)
-         ↓
-    Mehrere Personen? → Personenauswahl-Seite (/select-person)
-                              ↓
-                        Person wählen → Dashboard (/)
+Eine **Datenbankmigration** wird benötigt, um die Constraint zu ändern.
+
+### SQL-Migration
+
+```sql
+-- Alte Constraint entfernen
+ALTER TABLE tax_returns 
+DROP CONSTRAINT unique_user_tax_year;
+
+-- Neue Constraint mit tax_filer_id erstellen
+ALTER TABLE tax_returns 
+ADD CONSTRAINT unique_user_taxfiler_tax_year 
+UNIQUE (user_id, tax_filer_id, tax_year);
 ```
 
 ---
 
-## Technische Änderungen
+## Betroffene Tabelle
 
-### 1. Neue Seite erstellen: `/select-person`
-**Neue Datei:** `src/pages/SelectPerson.tsx`
-
-- Zeigt alle verfügbaren Personen als anklickbare Karten
-- Beim Klick wird `setActiveTaxFilerId` gesetzt und zur Hauptseite navigiert
-- Option "Person hinzufügen" am Ende
-- Design: Saubere, moderne Karten im bestehenden Stil
-
-### 2. TaxFilerContext erweitern
-**Datei:** `src/contexts/TaxFilerContext.tsx`
-
-Neue Felder hinzufügen:
-| Feld | Beschreibung |
-|------|--------------|
-| `hasMultipleFilers` | Boolean - ob mehr als 1 Person existiert |
-| `selectionConfirmed` | Boolean - ob Person explizit gewählt wurde |
-| `confirmSelection()` | Methode zum Bestätigen der Auswahl |
-| `resetSelection()` | Methode zum Zurücksetzen (bei Logout) |
-
-### 3. UserTaxReturns.tsx anpassen
-**Datei:** `src/pages/UserTaxReturns.tsx`
-
-- Prüfen ob `hasMultipleFilers && !selectionConfirmed`
-- Falls ja: Redirect zu `/select-person`
-- `TaxFilerSelector` Dropdown entfernen
-
-### 4. Alle geschützten Seiten absichern
-**Betroffene Dateien:**
-- `src/pages/Documents.tsx`
-- `src/pages/Index.tsx` (Form)
-- Andere geschützte Routen
-
-Prüflogik am Anfang:
-```text
-if (hasMultipleFilers && !selectionConfirmed) {
-  navigate('/select-person');
-  return null;
-}
-```
-
-### 5. App.tsx Route hinzufügen
-**Datei:** `src/App.tsx`
-
-Neue Route registrieren:
-```text
-<Route path="/select-person" element={<SelectPerson />} />
-```
-
-### 6. Header mit aktiver Person anzeigen
-**Datei:** `src/components/ui/welcome-header.tsx` oder neuer Header
-
-- Bei mehreren Personen: Anzeige der aktuell ausgewählten Person
-- Klick darauf → zurück zu `/select-person`
+| Tabelle | Constraint | Änderung |
+|---------|-----------|----------|
+| `tax_returns` | `unique_user_tax_year` | Erweitern um `tax_filer_id` |
 
 ---
 
-## UI-Design für Personenauswahl-Seite
+## Ergebnis nach Migration
 
-- **Header:** "Für wen möchtest du arbeiten?"
-- **Karten:** Pro Person eine Karte mit:
-  - Avatar/Icon
-  - Name
-  - Beziehung (Kind, Ehepartner, etc.)
-  - Anzahl offener Steuererklärungen
-- **Footer:** "Person hinzufügen" Button → führt zu `/tax-filers`
-- **Stil:** Konsistent mit bestehendem Card-Design (rounded-[2.5rem], Schatten)
+- Jede Person (tax_filer) kann ihre eigene Steuererklärung pro Jahr haben
+- Der eindeutige Schlüssel basiert auf `user_id + tax_filer_id + tax_year`
+- Der Fehler "Steuererklärung für 2024 bereits vorhanden" tritt nicht mehr auf, wenn unterschiedliche Personen gewählt werden
 
 ---
 
-## Zusammenfassung der Dateien
+## Hinweis
 
-| Datei | Änderung |
-|-------|----------|
-| `src/pages/SelectPerson.tsx` | **NEU** - Personenauswahl-Seite |
-| `src/contexts/TaxFilerContext.tsx` | `selectionConfirmed`, `hasMultipleFilers` hinzufügen |
-| `src/pages/UserTaxReturns.tsx` | Redirect-Logik, Dropdown entfernen |
-| `src/pages/Documents.tsx` | Redirect-Logik hinzufügen |
-| `src/pages/Index.tsx` | Redirect-Logik hinzufügen |
-| `src/App.tsx` | Route `/select-person` hinzufügen |
-| `src/components/dashboard/TaxFilerSelector.tsx` | Zu Header-Anzeige umbauen (ohne Dropdown) |
+Diese Migration ist **nicht destruktiv** - keine Daten gehen verloren. Die Constraint wird nur erweitert, um die neue Multi-Person-Architektur vollständig zu unterstützen.
 
----
-
-## Ergebnis
-
-Nach dieser Änderung:
-- Bei mehreren Personen wird zuerst die Person gewählt
-- Alle nachfolgenden Seiten zeigen Daten für diese Person
-- Kein versehentliches Arbeiten mit falschen Daten
-- Klare visuelle Bestätigung, für wen man arbeitet
-- Möglichkeit, jederzeit zur Personenauswahl zurückzukehren
