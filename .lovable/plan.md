@@ -1,138 +1,120 @@
 
 
-# Zugang zu "Personen verwalten" hinzufügen
+# Welcome Flow Animation Fix
 
 ## Problem
 
-Wenn ein neuer User im Onboarding bei Schritt 4 ("Steuererklärung für andere?") auf **"Später einrichten"** klickt, gibt es aktuell **keinen sichtbaren Einstiegspunkt**, um später zur `/tax-filers` Seite zu gelangen.
+Der aktuelle Ablauf ist falsch:
+1. Schritt 3 (Steuerjahr) → GIF Animation → Schritt 4 (Familie)
 
-Die einzige aktuelle Möglichkeit:
-- `TaxFilerSelector` hat einen "Verwalten" Button - aber dieser ist oft nicht sichtbar bei nur einer Person
+**Gewünschter Ablauf:**
+1. Schritt 3 (Steuerjahr) → direkt Schritt 4 (Familie)
+2. Schritt 4 (Familie) → Übergangsanimation → Hauptseite `/`
 
 ---
 
 ## Lösung
 
-Zwei Einstiegspunkte hinzufügen:
+### Änderungen in WelcomeFlow.tsx
 
-### 1. Mobile Sidebar Navigation
-
-In der `MobileMenuSheet` (Hamburger-Menü) einen neuen Eintrag hinzufügen:
-
-```text
-Navigation
-├── Steuern          → /
-├── Dokumente        → /documents
-├── Chat             → /chat
-├── Freunde einladen → /invite-friends
-└── Personen verwalten (NEU) → /tax-filers
+**1. GIF-Import entfernen (Zeile 12)**
+```typescript
+// ENTFERNEN:
+import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
 ```
 
-**Icon:** `Users` (von lucide-react)
+**2. handleSaveData vereinfachen (Zeile 70-130)**
 
-### 2. Profil-Seite
+Daten speichern und direkt zu Schritt 4 wechseln (ohne Animation):
 
-Neuen Abschnitt "Personen" auf der Profil-Seite hinzufügen (nach Login History, vor Logout):
+```typescript
+const handleSaveData = async () => {
+  setIsLoading(true);
+  try {
+    // ... Supabase calls bleiben gleich ...
+    
+    // Direkt zu Schritt 4 ohne Animation
+    setDataSaved(true);
+    setCurrentStep(3);
+  } catch (error) {
+    // ... error handling ...
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
 
-```text
-┌──────────────────────────────────────┐
-│ 👥 Personen                          │
-│ Verwalten Sie Familienmitglieder...  │
-│                                      │
-│ ┌──────────────────────────────────┐ │
-│ │ 👥  Personen verwalten       >   │ │
-│ │     Steuererklärungen für andere │ │
-│ └──────────────────────────────────┘ │
-└──────────────────────────────────────┘
+**3. handleFamilyLater und handleFamilyNow anpassen (Zeile 132-138)**
+
+Übergangsanimation vor Navigation zeigen:
+
+```typescript
+const handleFamilyLater = async () => {
+  setShowTransition(true);
+  await new Promise(resolve => setTimeout(resolve, 800));
+  navigate('/', { replace: true });
+};
+
+const handleFamilyNow = async () => {
+  setShowTransition(true);
+  await new Promise(resolve => setTimeout(resolve, 800));
+  navigate('/tax-filers', { replace: true });
+};
+```
+
+**4. Übergangsanimation anpassen (Zeile 329-355)**
+
+Statisches Logo statt GIF verwenden:
+
+```tsx
+<AnimatePresence>
+  {showTransition && (
+    <motion.div 
+      className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+    >
+      <motion.img 
+        src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png"
+        alt="ditax"
+        className="h-16 w-auto object-contain"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
 ```
 
 ---
 
-## Dateien
+## Neuer Ablauf
+
+```text
+Schritt 1 (Consent)
+      ↓
+Schritt 2 (Name)
+      ↓
+Schritt 3 (Jahr)
+      ↓ [Daten speichern im Hintergrund]
+Schritt 4 (Familie)
+      ↓
+┌─────────────────────────────────────┐
+│   Übergangsanimation (Logo fade)    │
+│   ~800ms                            │
+└─────────────────────────────────────┘
+      ↓
+Hauptseite (/) oder /tax-filers
+```
+
+---
+
+## Datei
 
 | Datei | Änderung |
 |-------|----------|
-| `src/components/ui/modern-mobile-menu.tsx` | Neuer Navigations-Eintrag "Personen verwalten" |
-| `src/pages/Profile.tsx` | Neuer Abschnitt "Personen" mit Link zu `/tax-filers` |
-| `src/i18n/translations.ts` | Neue Übersetzungsschlüssel |
-
----
-
-## Technische Details
-
-### modern-mobile-menu.tsx (Zeile ~108-124)
-
-```typescript
-const navigationItems = [
-  { label: t.menu.taxes, icon: CustomHomeIcon, route: '/' },
-  { label: t.menu.documents, icon: CustomFolderIcon, route: '/documents' },
-  { label: t.menu.chat, icon: CustomSendIcon, route: '/chat' },
-  { label: t.menu.inviteFriends, icon: Gift, route: '/invite-friends' },
-  // NEU:
-  { label: t.menu.managePeople, icon: Users, route: '/tax-filers' },
-];
-```
-
-### Profile.tsx (nach Login History Section)
-
-```tsx
-{/* Personen Section - NEU */}
-<section className="space-y-4">
-  <div className="space-y-1">
-    <h2 className="text-base font-semibold flex items-center gap-2">
-      <Users className="w-5 h-5 text-muted-foreground" />
-      {t.profile.managePeople}
-    </h2>
-    <p className="text-sm text-muted-foreground">
-      {t.profile.managePeopleDescription}
-    </p>
-  </div>
-
-  <Link to="/tax-filers" className="...">
-    <Users className="w-6 h-6 text-primary" />
-    <div>
-      <span>Personen verwalten</span>
-      <span>Steuererklärungen für Familienmitglieder</span>
-    </div>
-    <ChevronRight />
-  </Link>
-</section>
-```
-
-### translations.ts
-
-```typescript
-// Deutsch
-menu: {
-  managePeople: 'Personen verwalten',
-},
-profile: {
-  managePeople: 'Personen',
-  managePeopleDescription: 'Verwalten Sie Personen, für die Sie Steuererklärungen erstellen.',
-  managePeopleCard: 'Personen verwalten',
-  managePeopleCardDescription: 'Steuererklärungen für Familienmitglieder',
-}
-
-// Englisch
-menu: {
-  managePeople: 'Manage people',
-},
-profile: {
-  managePeople: 'People',
-  managePeopleDescription: 'Manage people for whom you create tax returns.',
-  managePeopleCard: 'Manage people',
-  managePeopleCardDescription: 'Tax returns for family members',
-}
-```
-
----
-
-## Zusammenfassung
-
-Nach dieser Änderung kann ein User die `/tax-filers` Seite finden über:
-
-1. **Mobile Sidebar** → "Personen verwalten" (direkt in der Navigation)
-2. **Profil-Seite** → Abschnitt "Personen" (logischer Ort für Account-bezogene Einstellungen)
-
-Beide Wege sind intuitiv und gut sichtbar.
+| `src/components/welcome/WelcomeFlow.tsx` | GIF entfernen, Animation-Timing anpassen |
 
