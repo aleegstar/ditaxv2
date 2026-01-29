@@ -219,23 +219,23 @@ export const WelcomeFlow = () => {
               </div>
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Buttons - Primary is "Continue", secondary is "Add people" */}
+            <div className="flex flex-col gap-3">
               <Button
                 onClick={handleFamilyLater}
                 disabled={isLoading}
-                variant="outline"
-                className="flex-1 rounded-2xl py-5 h-auto text-lg font-medium border-slate-200 text-slate-700 hover:bg-slate-50"
+                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-lg font-medium group"
               >
-                {t.onboarding.familyHintLater}
+                <span>{t.onboarding.familyHintLater}</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
               <Button
                 onClick={handleFamilyNow}
                 disabled={isLoading}
-                className="flex-1 bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-lg font-medium group"
+                variant="ghost"
+                className="w-full rounded-2xl py-4 h-auto text-base font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               >
-                <span>{t.onboarding.familyHintNow}</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                {t.onboarding.familyHintNow}
               </Button>
             </div>
           </div>;

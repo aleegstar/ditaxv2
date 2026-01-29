@@ -2390,10 +2390,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       enterNameError: 'Bitte gib deinen Namen ein',
       authError: 'Authentifizierung fehlgeschlagen',
       genericError: 'Ein Fehler ist aufgetreten',
-      familyHintTitle: 'Steuererklärung für andere?',
-      familyHintDescription: 'Du kannst auch Steuererklärungen für Familienmitglieder (Kinder, Ehepartner) unter deinem Account erstellen.',
-      familyHintLater: 'Später einrichten',
-      familyHintNow: 'Jetzt hinzufügen'
+      familyHintTitle: 'Alles bereit!',
+      familyHintDescription: 'Du kannst jederzeit weitere Personen (Ehepartner, Kinder) hinzufügen und deren Steuererklärungen unter deinem Account verwalten.',
+      familyHintLater: 'Weiter',
+      familyHintNow: 'Personen hinzufügen'
     },
 
     // Documents Page
@@ -3850,10 +3850,10 @@ export const translations: Record<'de' | 'en', Translation> = {
       enterNameError: 'Please enter your name',
       authError: 'Authentication failed',
       genericError: 'An error occurred',
-      familyHintTitle: 'File for others?',
-      familyHintDescription: 'You can also create tax returns for family members (children, spouse) under your account.',
-      familyHintLater: 'Set up later',
-      familyHintNow: 'Add now'
+      familyHintTitle: 'All set!',
+      familyHintDescription: 'You can add more people (spouse, children) anytime and manage their tax returns under your account.',
+      familyHintLater: 'Continue',
+      familyHintNow: 'Add people'
     },
 
     // Documents Page
