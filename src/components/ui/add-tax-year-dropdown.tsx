@@ -7,6 +7,7 @@ import {
   DrawerTrigger,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { useI18n } from '@/contexts/I18nContext';
 
 interface AddTaxYearDropdownProps {
   onYearSelect: (year: string) => void;
@@ -17,6 +18,7 @@ interface AddTaxYearDropdownProps {
 
 export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, variant = 'default' }: AddTaxYearDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useI18n();
   
   // Available years: 2024-2030, excluding existing years
   const allYears = ['2030', '2029', '2028', '2027', '2026', '2025', '2024'];
@@ -36,10 +38,10 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
             <Check className="w-8 h-8" strokeWidth={1.5} />
           </div>
           <h3 className="text-xl font-medium text-gray-900 font-jakarta tracking-tight mb-2">
-            Alle Jahre erstellt
+            {t.addTaxYear.allYearsCreated}
           </h3>
           <p className="text-sm font-medium text-gray-500 font-jakarta">
-            2024-2030 sind bereits vorhanden
+            {t.addTaxYear.yearsAlreadyExist}
           </p>
         </div>
       );
@@ -62,10 +64,10 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
               )}
             </div>
             <h3 className="text-xl font-medium text-gray-900 font-jakarta tracking-tight mb-2">
-              Neues Jahr
+              {t.addTaxYear.newYear}
             </h3>
             <p className="text-sm font-medium text-gray-500 font-jakarta">
-              Starten Sie eine neue Steuererklärung
+              {t.addTaxYear.startNewTaxReturn}
             </p>
           </button>
         </DrawerTrigger>
@@ -83,8 +85,8 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
                 <Plus className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Steuerjahr hinzufügen</h3>
-                <p className="text-sm text-gray-500">Wähle ein Steuerjahr aus</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t.addTaxYear.addTaxYear}</h3>
+                <p className="text-sm text-gray-500">{t.addTaxYear.chooseYear}</p>
               </div>
             </div>
             <DrawerClose asChild>
@@ -106,8 +108,8 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
                   <Plus className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-base font-medium text-gray-900">Steuerjahr {year}</p>
-                  <p className="text-sm text-gray-500">Steuererklärung erstellen</p>
+                  <p className="text-base font-medium text-gray-900">{t.addTaxYear.taxYear} {year}</p>
+                  <p className="text-sm text-gray-500">{t.addTaxYear.createTaxReturn}</p>
                 </div>
               </button>
             ))}
@@ -126,10 +128,10 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
             <Check className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-medium text-zinc-500 font-jakarta mb-1">
-            Alle Jahre erstellt
+            {t.addTaxYear.allYearsCreated}
           </h3>
           <p className="text-sm text-zinc-600 font-jakarta">
-            2024-2030 sind bereits vorhanden
+            {t.addTaxYear.yearsAlreadyExist}
           </p>
         </div>
       </div>
@@ -163,10 +165,10 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
               )}
             </div>
             <h3 className="text-lg font-medium text-zinc-300 font-jakarta mb-1">
-              Neue Steuererklärung
+              {t.addTaxYear.newTaxReturn}
             </h3>
             <p className="text-sm text-zinc-500 font-jakarta">
-              Steuerjahr auswählen
+              {t.addTaxYear.selectTaxYear}
             </p>
           </div>
         </motion.div>
@@ -185,8 +187,8 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
               <Plus className="w-6 h-6 text-[#1D64FF]" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Steuerjahr hinzufügen</h3>
-              <p className="text-sm text-zinc-500">Wähle ein Steuerjahr aus</p>
+              <h3 className="text-lg font-semibold text-white">{t.addTaxYear.addTaxYear}</h3>
+              <p className="text-sm text-zinc-500">{t.addTaxYear.chooseYear}</p>
             </div>
           </div>
           <DrawerClose asChild>
@@ -208,8 +210,8 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
                 <Plus className="w-5 h-5 text-[#1D64FF] group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-base font-medium text-white">Steuerjahr {year}</p>
-                <p className="text-sm text-zinc-500">Steuererklärung erstellen</p>
+                <p className="text-base font-medium text-white">{t.addTaxYear.taxYear} {year}</p>
+                <p className="text-sm text-zinc-500">{t.addTaxYear.createTaxReturn}</p>
               </div>
             </button>
           ))}
