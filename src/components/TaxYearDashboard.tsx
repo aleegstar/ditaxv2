@@ -5,6 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface DashboardSection {
   id: string;
@@ -13,6 +14,7 @@ interface DashboardSection {
   param: string;
 }
 export const TaxYearDashboard: React.FC = () => {
+  const { t } = useI18n();
   const {
     formProgress,
     taxYear,
@@ -60,22 +62,22 @@ export const TaxYearDashboard: React.FC = () => {
   // Calculate allAngabenComplete early for useEffect
   const angabenSectionsEarly: DashboardSection[] = [{
     id: 'contact',
-    title: 'Kontaktangaben',
+    title: t.formDashboard.contactInfo,
     icon: User,
     param: 'kontakt'
   }, {
     id: 'deductions',
-    title: 'Abzüge',
+    title: t.formDashboard.deductions,
     icon: Shield,
     param: 'abzuege'
   }, {
     id: 'income',
-    title: 'Einkommen',
+    title: t.formDashboard.income,
     icon: Wallet,
     param: 'einkommen'
   }, {
     id: 'assets',
-    title: 'Vermögen',
+    title: t.formDashboard.assets,
     icon: Landmark,
     param: 'vermoegen'
   }];
@@ -110,22 +112,22 @@ export const TaxYearDashboard: React.FC = () => {
   }
   const angabenSections: DashboardSection[] = [{
     id: 'contact',
-    title: 'Kontaktangaben',
+    title: t.formDashboard.contactInfo,
     icon: User,
     param: 'kontakt'
   }, {
     id: 'deductions',
-    title: 'Abzüge',
+    title: t.formDashboard.deductions,
     icon: Shield,
     param: 'abzuege'
   }, {
     id: 'income',
-    title: 'Einkommen',
+    title: t.formDashboard.income,
     icon: Wallet,
     param: 'einkommen'
   }, {
     id: 'assets',
-    title: 'Vermögen',
+    title: t.formDashboard.assets,
     icon: Landmark,
     param: 'vermoegen'
   }];
@@ -191,7 +193,7 @@ export const TaxYearDashboard: React.FC = () => {
           </button>
 
           <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
-            Steuererklärung {taxYear}
+            {t.formDashboard.title.replace('{year}', taxYear)}
           </h1>
 
           <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all">
@@ -222,7 +224,7 @@ export const TaxYearDashboard: React.FC = () => {
             </div>
             <div className="flex-1 min-h-[40px] flex flex-col justify-center">
               <span className="font-semibold text-slate-600">
-                Persönliche Angaben
+                {t.formDashboard.personalInfo}
               </span>
             </div>
             <ChevronDown className="w-5 h-5 text-slate-400" />
@@ -248,10 +250,14 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h2 className={`font-semibold ${allAngabenComplete ? 'text-slate-600' : 'text-slate-900'}`}>
-                  Persönliche Angaben
+                  {t.formDashboard.personalInfo}
                 </h2>
                 {!allAngabenComplete && (
-                  <p className="text-sm text-slate-500">{angabenProgress.completed} von {angabenProgress.total} erledigt</p>
+                  <p className="text-sm text-slate-500">
+                    {t.formDashboard.tasksCompleted
+                      .replace('{completed}', String(angabenProgress.completed))
+                      .replace('{total}', String(angabenProgress.total))}
+                  </p>
                 )}
               </div>
               {allAngabenComplete && (
@@ -326,13 +332,13 @@ export const TaxYearDashboard: React.FC = () => {
                     ? 'text-slate-900' 
                     : 'text-slate-400'
               }`}>
-                Belege & Unterlagen
+                {t.formDashboard.documentsTitle}
               </h3>
               {allAngabenComplete && !isDocumentsComplete && (
-                <p className="text-sm text-slate-500 mt-0.5">Dokumente hochladen</p>
+                <p className="text-sm text-slate-500 mt-0.5">{t.formDashboard.uploadDocuments}</p>
               )}
               {!allAngabenComplete && (
-                <p className="text-sm text-slate-400 mt-0.5">Zuerst Schritt 1 abschliessen</p>
+                <p className="text-sm text-slate-400 mt-0.5">{t.formDashboard.completeStep1First}</p>
               )}
             </div>
             {allAngabenComplete && (
@@ -369,13 +375,13 @@ export const TaxYearDashboard: React.FC = () => {
                     ? 'text-slate-900' 
                     : 'text-slate-400'
               }`}>
-                Prüfung & Versand
+                {t.formDashboard.reviewAndSubmit}
               </h3>
               {canSubmit && !isCompleted('submit') && (
-                <p className="text-sm text-slate-500 mt-0.5">Abschliessen & bezahlen</p>
+                <p className="text-sm text-slate-500 mt-0.5">{t.formDashboard.completeAndPay}</p>
               )}
               {!canSubmit && (
-                <p className="text-sm text-slate-400 mt-0.5">Zuerst Schritt 1 & 2 abschliessen</p>
+                <p className="text-sm text-slate-400 mt-0.5">{t.formDashboard.completeSteps12First}</p>
               )}
             </div>
             {canSubmit && (

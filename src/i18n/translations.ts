@@ -924,6 +924,71 @@ export interface Translation {
     navigationError: string;
     navigationErrorDescription: string;
   };
+
+  // User Dashboard (Main Page /)
+  userDashboard: {
+    greeting: string;
+    fallbackUser: string;
+    taxReturn: string;
+    active: string;
+    processing: string;
+    completed: string;
+    expressService: string;
+    standardService: string;
+    upgradeAvailable: string;
+    continue: string;
+    delete: string;
+    tracking: string;
+    details: string;
+    sign: string;
+    activeDescription: string;
+    processingDescription: string;
+    signatureRequired: string;
+    signaturePending: string;
+    finished: string;
+    actionRequired: string;
+    decisionFrom: string;
+    deleteDialogTitle: string;
+    deleteDialogDescription: string;
+    deleting: string;
+    cancelDelete: string;
+    documents: string;
+    uploadDocuments: string;
+    taxReturnNotFound: string;
+    taxReturnDeleted: string;
+    deleteError: string;
+    taxReturnExists: string;
+    taxReturnAlreadyExists: string;
+    taxReturnCreated: string;
+    createError: string;
+  };
+
+  // Form Dashboard (/form)
+  formDashboard: {
+    title: string;
+    personalInfo: string;
+    tasksCompleted: string;
+    contactInfo: string;
+    deductions: string;
+    income: string;
+    assets: string;
+    documentsTitle: string;
+    uploadDocuments: string;
+    completeStep1First: string;
+    reviewAndSubmit: string;
+    completeAndPay: string;
+    completeSteps12First: string;
+  };
+
+  // Missing Items Alert
+  missingItems: {
+    actionRequired: string;
+    documentsNeeded: string;
+    documentsNeededSingular: string;
+    infoNeeded: string;
+    infoNeededSingular: string;
+    bothNeeded: string;
+  };
 }
 
 export const translations: Record<'de' | 'en', Translation> = {
@@ -1891,6 +1956,71 @@ export const translations: Record<'de' | 'en', Translation> = {
       navigationError: 'Navigation Error',
       navigationErrorDescription: 'Bitte versuche es erneut.',
     },
+
+    // User Dashboard (Main Page /)
+    userDashboard: {
+      greeting: 'Grüezi,',
+      fallbackUser: 'Benutzer',
+      taxReturn: 'Steuererklärung',
+      active: 'Aktiv',
+      processing: 'In Bearbeitung',
+      completed: 'Abgeschlossen',
+      expressService: 'Express',
+      standardService: 'Standard',
+      upgradeAvailable: 'Upgrade möglich',
+      continue: 'Weiter',
+      delete: 'Löschen',
+      tracking: 'Tracking',
+      details: 'Details',
+      sign: 'Unterschreiben',
+      activeDescription: 'Erfassung läuft. Belege werden automatisch kategorisiert.',
+      processingDescription: 'Deine Steuererklärung wird aktuell erstellt.',
+      signatureRequired: 'Bitte unterschreibe deine Steuererklärung.',
+      signaturePending: 'Signatur ausstehend',
+      finished: 'Fertig',
+      actionRequired: 'Aktion nötig',
+      decisionFrom: 'Bescheid vom {date} liegt vor.',
+      deleteDialogTitle: 'Steuererklärung löschen?',
+      deleteDialogDescription: 'Möchtest du die Steuererklärung für {year} wirklich löschen? Alle zugehörigen Daten und Dokumente werden unwiderruflich entfernt.',
+      deleting: 'Wird gelöscht...',
+      cancelDelete: 'Abbrechen',
+      documents: 'Dokumente',
+      uploadDocuments: 'hochladen',
+      taxReturnNotFound: 'Steuererklärung nicht gefunden',
+      taxReturnDeleted: 'Steuererklärung {year} wurde gelöscht',
+      deleteError: 'Fehler beim Löschen der Steuererklärung',
+      taxReturnExists: 'Steuererklärung für {year} existiert bereits',
+      taxReturnAlreadyExists: 'Steuererklärung für {year} bereits vorhanden',
+      taxReturnCreated: 'Neue Steuererklärung für {year} erstellt',
+      createError: 'Fehler beim Erstellen der Steuererklärung',
+    },
+
+    // Form Dashboard (/form)
+    formDashboard: {
+      title: 'Steuererklärung {year}',
+      personalInfo: 'Persönliche Angaben',
+      tasksCompleted: '{completed} von {total} erledigt',
+      contactInfo: 'Kontaktangaben',
+      deductions: 'Abzüge',
+      income: 'Einkommen',
+      assets: 'Vermögen',
+      documentsTitle: 'Belege & Unterlagen',
+      uploadDocuments: 'Dokumente hochladen',
+      completeStep1First: 'Zuerst Schritt 1 abschliessen',
+      reviewAndSubmit: 'Prüfung & Versand',
+      completeAndPay: 'Abschliessen & bezahlen',
+      completeSteps12First: 'Zuerst Schritt 1 & 2 abschliessen',
+    },
+
+    // Missing Items Alert
+    missingItems: {
+      actionRequired: 'Aktion erforderlich',
+      documentsNeeded: '{count} Unterlagen werden benötigt',
+      documentsNeededSingular: '{count} Unterlage wird benötigt',
+      infoNeeded: '{count} Angaben werden benötigt',
+      infoNeededSingular: '{count} Angabe wird benötigt',
+      bothNeeded: '{docs} Unterlagen und {info} Angaben werden benötigt',
+    },
   },
   
   en: {
@@ -2856,6 +2986,71 @@ export const translations: Record<'de' | 'en', Translation> = {
       saveErrorDescription: 'Data could not be saved.',
       navigationError: 'Navigation error',
       navigationErrorDescription: 'Please try again.',
+    },
+
+    // User Dashboard (Main Page /)
+    userDashboard: {
+      greeting: 'Hello,',
+      fallbackUser: 'User',
+      taxReturn: 'Tax Return',
+      active: 'Active',
+      processing: 'Processing',
+      completed: 'Completed',
+      expressService: 'Express',
+      standardService: 'Standard',
+      upgradeAvailable: 'Upgrade available',
+      continue: 'Continue',
+      delete: 'Delete',
+      tracking: 'Tracking',
+      details: 'Details',
+      sign: 'Sign',
+      activeDescription: 'Data entry in progress. Documents are automatically categorized.',
+      processingDescription: 'Your tax return is currently being prepared.',
+      signatureRequired: 'Please sign your tax return.',
+      signaturePending: 'Signature pending',
+      finished: 'Done',
+      actionRequired: 'Action required',
+      decisionFrom: 'Decision from {date} is available.',
+      deleteDialogTitle: 'Delete tax return?',
+      deleteDialogDescription: 'Do you really want to delete the tax return for {year}? All associated data and documents will be permanently removed.',
+      deleting: 'Deleting...',
+      cancelDelete: 'Cancel',
+      documents: 'Documents',
+      uploadDocuments: 'upload',
+      taxReturnNotFound: 'Tax return not found',
+      taxReturnDeleted: 'Tax return {year} has been deleted',
+      deleteError: 'Error deleting tax return',
+      taxReturnExists: 'Tax return for {year} already exists',
+      taxReturnAlreadyExists: 'Tax return for {year} already exists',
+      taxReturnCreated: 'New tax return for {year} created',
+      createError: 'Error creating tax return',
+    },
+
+    // Form Dashboard (/form)
+    formDashboard: {
+      title: 'Tax Return {year}',
+      personalInfo: 'Personal Information',
+      tasksCompleted: '{completed} of {total} completed',
+      contactInfo: 'Contact Info',
+      deductions: 'Deductions',
+      income: 'Income',
+      assets: 'Assets',
+      documentsTitle: 'Documents & Receipts',
+      uploadDocuments: 'Upload documents',
+      completeStep1First: 'Complete step 1 first',
+      reviewAndSubmit: 'Review & Submit',
+      completeAndPay: 'Complete & pay',
+      completeSteps12First: 'Complete steps 1 & 2 first',
+    },
+
+    // Missing Items Alert
+    missingItems: {
+      actionRequired: 'Action required',
+      documentsNeeded: '{count} documents needed',
+      documentsNeededSingular: '{count} document needed',
+      infoNeeded: '{count} items of information needed',
+      infoNeededSingular: '{count} item of information needed',
+      bothNeeded: '{docs} documents and {info} items of information needed',
     },
   },
 };

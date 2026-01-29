@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, FileText, MessageSquare, ArrowRight } from 'lucide-react';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface MissingItemsAlertProps {
   pendingDocuments: number;
@@ -12,18 +13,25 @@ export const MissingItemsAlert: React.FC<MissingItemsAlertProps> = ({
   pendingInformation,
 }) => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const totalPending = pendingDocuments + pendingInformation;
 
   if (totalPending === 0) return null;
 
   const getMessage = () => {
     if (pendingDocuments > 0 && pendingInformation > 0) {
-      return `${pendingDocuments} Unterlage${pendingDocuments > 1 ? 'n' : ''} und ${pendingInformation} Angabe${pendingInformation > 1 ? 'n' : ''} werden benötigt`;
+      return t.missingItems.bothNeeded
+        .replace('{docs}', String(pendingDocuments))
+        .replace('{info}', String(pendingInformation));
     }
     if (pendingDocuments > 0) {
-      return `${pendingDocuments} Unterlage${pendingDocuments > 1 ? 'n' : ''} ${pendingDocuments > 1 ? 'werden' : 'wird'} benötigt`;
+      return pendingDocuments > 1
+        ? t.missingItems.documentsNeeded.replace('{count}', String(pendingDocuments))
+        : t.missingItems.documentsNeededSingular.replace('{count}', String(pendingDocuments));
     }
-    return `${pendingInformation} Angabe${pendingInformation > 1 ? 'n' : ''} ${pendingInformation > 1 ? 'werden' : 'wird'} benötigt`;
+    return pendingInformation > 1
+      ? t.missingItems.infoNeeded.replace('{count}', String(pendingInformation))
+      : t.missingItems.infoNeededSingular.replace('{count}', String(pendingInformation));
   };
 
   return (
@@ -39,7 +47,7 @@ export const MissingItemsAlert: React.FC<MissingItemsAlertProps> = ({
       {/* Content */}
       <div className="flex-1 text-left">
         <h3 className="font-semibold text-amber-900 font-jakarta text-sm">
-          Aktion erforderlich
+          {t.missingItems.actionRequired}
         </h3>
         <p className="text-amber-700 text-sm font-jakarta mt-0.5">
           {getMessage()}
