@@ -1,11 +1,12 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import LegalDocumentPage from '@/components/legal/LegalDocumentPage';
+import { useI18n } from '@/contexts/I18nContext';
 
 const Privacy = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const privacyContent = `
 <h1>Ditax by Graber Sandro Datenschutzrichtlinie</h1>
@@ -150,7 +151,7 @@ privacyofficer@ditax.ch
   return (
     <div className="min-h-screen bg-white">
       <SubpageHeader 
-        title="Datenschutz" 
+        title={t.privacyPolicyPage.title}
         onBack={() => navigate(-1)} 
       />
       <LegalDocumentPage

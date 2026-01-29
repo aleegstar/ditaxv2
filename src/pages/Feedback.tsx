@@ -7,17 +7,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-
-const emojis = [
-  { value: 1, emoji: '😢', label: 'Sehr unzufrieden' },
-  { value: 2, emoji: '😕', label: 'Unzufrieden' },
-  { value: 3, emoji: '😐', label: 'Neutral' },
-  { value: 4, emoji: '🙂', label: 'Zufrieden' },
-  { value: 5, emoji: '😍', label: 'Sehr zufrieden' }
-];
+import { useI18n } from '@/contexts/I18nContext';
 
 const Feedback = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
+  
+  const emojis = [
+    { value: 1, emoji: '😢', label: t.feedbackPage.ratings.veryUnsatisfied },
+    { value: 2, emoji: '😕', label: t.feedbackPage.ratings.unsatisfied },
+    { value: 3, emoji: '😐', label: t.feedbackPage.ratings.neutral },
+    { value: 4, emoji: '🙂', label: t.feedbackPage.ratings.satisfied },
+    { value: 5, emoji: '😍', label: t.feedbackPage.ratings.verySatisfied }
+  ];
+
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [featureRequest, setFeatureRequest] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,8 +29,8 @@ const Feedback = () => {
   const handleSubmit = async () => {
     if (!selectedRating) {
       toast({
-        title: 'Bewertung fehlt',
-        description: 'Bitte wähle eine Bewertung aus.',
+        title: t.feedbackPage.ratingRequired,
+        description: t.feedbackPage.ratingRequiredDescription,
         variant: 'destructive'
       });
       return;
@@ -40,8 +43,8 @@ const Feedback = () => {
       
       if (!user) {
         toast({
-          title: 'Nicht angemeldet',
-          description: 'Bitte melde dich an, um Feedback zu geben.',
+          title: t.feedbackPage.notLoggedIn,
+          description: t.feedbackPage.notLoggedInDescription,
           variant: 'destructive'
         });
         return;
@@ -60,15 +63,15 @@ const Feedback = () => {
 
       setIsSubmitted(true);
       toast({
-        title: 'Vielen Dank! 🎉',
-        description: 'Dein Feedback wurde erfolgreich übermittelt.'
+        title: t.feedbackPage.successToast,
+        description: t.feedbackPage.successToastDescription
       });
 
     } catch (error: any) {
       console.error('Feedback submission error:', error);
       toast({
-        title: 'Fehler',
-        description: 'Beim Senden ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+        title: t.feedbackPage.error,
+        description: t.feedbackPage.errorDescription,
         variant: 'destructive'
       });
     } finally {
@@ -80,7 +83,7 @@ const Feedback = () => {
     return (
       <div className="min-h-screen bg-white">
         <SubpageHeader 
-          title="Feedback" 
+          title={t.feedbackPage.title}
           onBack={() => navigate(-1)} 
         />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
@@ -88,17 +91,17 @@ const Feedback = () => {
             <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
               <Check className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-semibold text-slate-900">
-              Vielen Dank für dein Feedback!
+            <h2 className="text-2xl font-semibold text-foreground">
+              {t.feedbackPage.thankYouTitle}
             </h2>
-            <p className="text-slate-600 max-w-md">
-              Deine Meinung hilft uns, Ditax stetig zu verbessern.
+            <p className="text-muted-foreground max-w-md">
+              {t.feedbackPage.thankYouMessage}
             </p>
             <Button 
               onClick={() => navigate('/')}
               className="mt-4"
             >
-              Zurück zur Startseite
+              {t.feedbackPage.backToHome}
             </Button>
           </div>
         </div>
@@ -109,15 +112,15 @@ const Feedback = () => {
   return (
     <div className="min-h-screen bg-white">
       <SubpageHeader 
-        title="Feedback" 
+        title={t.feedbackPage.title}
         onBack={() => navigate(-1)} 
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="space-y-8">
           {/* Rating Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-medium text-slate-900 text-center">
-              Wie zufrieden bist du mit Ditax?
+            <h2 className="text-lg font-medium text-foreground text-center">
+              {t.feedbackPage.satisfactionQuestion}
             </h2>
             
             <div className="flex justify-center gap-3 sm:gap-6">
@@ -129,13 +132,13 @@ const Feedback = () => {
                     'flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl transition-all duration-200',
                     selectedRating === item.value
                       ? 'bg-primary/10 ring-2 ring-primary scale-110'
-                      : 'hover:bg-slate-100 hover:scale-105'
+                      : 'hover:bg-muted hover:scale-105'
                   )}
                   aria-label={item.label}
                 >
                   <span className="text-3xl sm:text-4xl">{item.emoji}</span>
                   <span className={cn(
-                    'text-xs text-slate-500 hidden sm:block',
+                    'text-xs text-muted-foreground hidden sm:block',
                     selectedRating === item.value && 'text-primary font-medium'
                   )}>
                     {item.label}
@@ -146,22 +149,22 @@ const Feedback = () => {
           </div>
 
           {/* Divider */}
-          <div className="border-t border-slate-200" />
+          <div className="border-t border-border" />
 
           {/* Feature Request Section */}
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-slate-700">
-              Welche Funktionen wünschst du dir? 
-              <span className="text-slate-400 font-normal ml-1">(optional)</span>
+            <label className="block text-sm font-medium text-foreground">
+              {t.feedbackPage.featureRequestLabel}
+              <span className="text-muted-foreground font-normal ml-1">{t.feedbackPage.featureRequestOptional}</span>
             </label>
             <Textarea
               value={featureRequest}
               onChange={(e) => setFeatureRequest(e.target.value)}
-              placeholder="z.B. Automatische Belegerfassung, iOS Widget, Export-Funktion..."
+              placeholder={t.feedbackPage.featureRequestPlaceholder}
               className="min-h-[120px] resize-none"
               maxLength={1000}
             />
-            <p className="text-xs text-slate-400 text-right">
+            <p className="text-xs text-muted-foreground text-right">
               {featureRequest.length}/1000
             </p>
           </div>
@@ -173,7 +176,7 @@ const Feedback = () => {
             className="w-full"
             size="lg"
           >
-            {isSubmitting ? 'Wird gesendet...' : 'Feedback senden'}
+            {isSubmitting ? t.feedbackPage.submitting : t.feedbackPage.submitButton}
           </Button>
         </div>
       </div>

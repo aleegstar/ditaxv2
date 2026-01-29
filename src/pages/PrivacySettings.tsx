@@ -20,23 +20,26 @@ import {
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface PrivacyPreferences {
   marketing_emails: boolean;
 }
 
-const DELETION_REASONS = [
-  { value: 'not_using', label: 'Ich nutze den Service nicht mehr' },
-  { value: 'too_expensive', label: 'Zu teuer' },
-  { value: 'privacy_concerns', label: 'Datenschutzbedenken' },
-  { value: 'bad_experience', label: 'Schlechte Benutzererfahrung' },
-  { value: 'found_alternative', label: 'Andere Steuerlösung gefunden' },
-  { value: 'other', label: 'Sonstiges' },
-];
-
 const PrivacySettings = () => {
   const { userId, isValid } = useAuthValidation();
   const navigate = useNavigate();
+  const { t } = useI18n();
+  
+  const DELETION_REASONS = [
+    { value: 'not_using', label: t.privacySettingsPage.deletionReasons.notUsing },
+    { value: 'too_expensive', label: t.privacySettingsPage.deletionReasons.tooExpensive },
+    { value: 'privacy_concerns', label: t.privacySettingsPage.deletionReasons.privacyConcerns },
+    { value: 'bad_experience', label: t.privacySettingsPage.deletionReasons.badExperience },
+    { value: 'found_alternative', label: t.privacySettingsPage.deletionReasons.foundAlternative },
+    { value: 'other', label: t.privacySettingsPage.deletionReasons.other },
+  ];
+  
   const [preferences, setPreferences] = useState<PrivacyPreferences>({
     marketing_emails: false
   });
@@ -86,14 +89,14 @@ const PrivacySettings = () => {
         .eq('id', userId);
       if (error) throw error;
       toast({
-        title: "Einstellungen gespeichert",
-        description: "Ihre Datenschutz-Einstellungen wurden aktualisiert."
+        title: t.privacySettingsPage.settingsSaved,
+        description: t.privacySettingsPage.settingsSavedDescription
       });
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast({
-        title: "Fehler",
-        description: "Einstellungen konnten nicht gespeichert werden.",
+        title: t.privacySettingsPage.saveError,
+        description: t.privacySettingsPage.saveErrorDescription,
         variant: "destructive"
       });
     }
@@ -125,14 +128,14 @@ const PrivacySettings = () => {
       URL.revokeObjectURL(url);
       
       toast({
-        title: "Daten heruntergeladen",
-        description: "Ihre Daten wurden als JSON-Datei heruntergeladen."
+        title: t.privacySettingsPage.dataDownloaded,
+        description: t.privacySettingsPage.dataDownloadedDescription
       });
     } catch (error) {
       console.error('Error downloading user data:', error);
       toast({
-        title: "Fehler",
-        description: "Daten konnten nicht heruntergeladen werden.",
+        title: t.privacySettingsPage.downloadError,
+        description: t.privacySettingsPage.downloadErrorDescription,
         variant: "destructive"
       });
     }
@@ -148,8 +151,8 @@ const PrivacySettings = () => {
   const handleFeedbackNext = () => {
     if (!selectedReason) {
       toast({
-        title: "Grund erforderlich",
-        description: "Bitte wählen Sie einen Grund für die Kontolöschung.",
+        title: t.privacySettingsPage.reasonRequired,
+        description: t.privacySettingsPage.reasonRequiredDescription,
         variant: "destructive"
       });
       return;
@@ -159,10 +162,10 @@ const PrivacySettings = () => {
   };
 
   const deleteAllUserData = async () => {
-    if (deleteConfirm !== 'LÖSCHEN') {
+    if (deleteConfirm !== t.privacySettingsPage.deleteConfirmWord) {
       toast({
-        title: "Bestätigung erforderlich",
-        description: "Bitte geben Sie 'LÖSCHEN' ein, um fortzufahren.",
+        title: t.privacySettingsPage.confirmRequired,
+        description: t.privacySettingsPage.confirmRequiredDescription,
         variant: "destructive"
       });
       return;
@@ -174,7 +177,7 @@ const PrivacySettings = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        throw new Error('Keine aktive Sitzung gefunden');
+        throw new Error(t.privacySettingsPage.noActiveSession);
       }
 
       // Get the reason label for storage
@@ -195,8 +198,8 @@ const PrivacySettings = () => {
         await supabase.auth.signOut();
         
         toast({
-          title: "Account-Daten gelöscht",
-          description: "Ihre Daten wurden gelöscht. Sie werden jetzt abgemeldet.",
+          title: t.privacySettingsPage.dataDeleted,
+          description: t.privacySettingsPage.dataDeletedDescription,
         });
         
         setTimeout(() => navigate('/auth'), 1000);
@@ -205,13 +208,13 @@ const PrivacySettings = () => {
 
       if (data?.partial) {
         toast({
-          title: "Daten gelöscht",
-          description: "Ihre Daten wurden erfolgreich gelöscht. Sie werden jetzt abgemeldet.",
+          title: t.privacySettingsPage.dataDeleted,
+          description: t.privacySettingsPage.dataDeletedDescription,
         });
       } else {
         toast({
-          title: "Account vollständig gelöscht",
-          description: "Ihr Account und alle Daten wurden erfolgreich gelöscht.",
+          title: t.privacySettingsPage.accountDeleted,
+          description: t.privacySettingsPage.accountDeletedDescription,
         });
       }
 
@@ -228,8 +231,8 @@ const PrivacySettings = () => {
       }
       
       toast({
-        title: "Daten gelöscht",
-        description: "Ihre Daten wurden gelöscht. Sie werden jetzt abgemeldet.",
+        title: t.privacySettingsPage.dataDeleted,
+        description: t.privacySettingsPage.dataDeletedDescription,
       });
       
       setTimeout(() => navigate('/auth'), 1000);
@@ -242,16 +245,16 @@ const PrivacySettings = () => {
   if (!isValid) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-slate-600">Bitte melden Sie sich an.</p>
+        <p className="text-muted-foreground">{t.privacySettingsPage.pleaseLogin}</p>
       </div>
     );
   }
 
   return (
-    <div className="antialiased min-h-screen flex flex-col text-gray-900 bg-white">
+    <div className="antialiased min-h-screen flex flex-col text-foreground bg-white">
       {/* Header / Navigation */}
       <SubpageHeader
-        title="Datenschutz-Einstellungen"
+        title={t.privacySettingsPage.title}
         onBack={() => navigate(-1)}
       />
 
@@ -265,19 +268,19 @@ const PrivacySettings = () => {
                 <Shield className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="text-xl tracking-tight text-gray-900 font-semibold">
-                  Datenschutz-Präferenzen
+                <h2 className="text-xl tracking-tight text-foreground font-semibold">
+                  {t.privacySettingsPage.privacyPreferences}
                 </h2>
               </div>
             </div>
 
             <div className="flex items-start justify-between py-2">
               <div className="pr-8">
-                <p className="text-base font-medium text-gray-900">
-                  Marketing-E-Mails
+                <p className="text-base font-medium text-foreground">
+                  {t.privacySettingsPage.marketingEmails}
                 </p>
-                <p className="text-base text-gray-500 mt-1">
-                  Erhalten Sie Updates, Newsletter und exklusive Angebote.
+                <p className="text-base text-muted-foreground mt-1">
+                  {t.privacySettingsPage.marketingEmailsDescription}
                 </p>
               </div>
 
@@ -295,36 +298,35 @@ const PrivacySettings = () => {
           <div className="px-8 pb-8 pt-2">
             <button 
               onClick={savePreferences}
-              className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 hover:-translate-y-0.5"
+              className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-primary/20 text-base font-semibold text-white bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 hover:-translate-y-0.5"
             >
-              Einstellungen speichern
+              {t.privacySettingsPage.saveSettings}
             </button>
           </div>
         </section>
 
         {/* Card 2: Data Portability */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+        <section className="bg-white rounded-2xl border border-border shadow-xl shadow-muted/40 overflow-hidden">
           <div className="p-8">
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-violet-100/50 shadow-sm">
                 <Download className="w-5 h-5" strokeWidth={1.5} />
               </div>
-              <h2 className="text-xl tracking-tight text-gray-900 font-semibold">
-                Datenportabilität
+              <h2 className="text-xl tracking-tight text-foreground font-semibold">
+                {t.privacySettingsPage.dataPortability}
               </h2>
             </div>
 
-            <p className="text-base text-gray-500 mb-8 max-w-xl">
-              Laden Sie eine Kopie aller Ihrer gespeicherten Daten inklusive
-              Einstellungen und Historie im JSON-Format herunter.
+            <p className="text-base text-muted-foreground mb-8 max-w-xl">
+              {t.privacySettingsPage.dataPortabilityDescription}
             </p>
 
             <button 
               onClick={downloadUserData}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-white border border-gray-200 rounded-xl shadow-sm text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-white border border-border rounded-xl shadow-sm text-base font-medium text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-muted transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
             >
               <Download className="w-4 h-4" strokeWidth={1.5} />
-              Meine Daten herunterladen
+              {t.privacySettingsPage.downloadMyData}
             </button>
           </div>
         </section>
@@ -340,13 +342,12 @@ const PrivacySettings = () => {
                 <Trash2 className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <h2 className="text-xl tracking-tight text-red-700 font-semibold">
-                Account löschen
+                {t.privacySettingsPage.deleteAccount}
               </h2>
             </div>
 
-            <p className="text-base text-gray-600 mb-8 max-w-xl">
-              Diese Aktion löscht unwiderruflich alle Ihre Daten. Sobald Sie
-              fortfahren, kann dieser Prozess nicht rückgängig gemacht werden.
+            <p className="text-base text-muted-foreground mb-8 max-w-xl">
+              {t.privacySettingsPage.deleteAccountDescription}
             </p>
 
             <button 
@@ -354,7 +355,7 @@ const PrivacySettings = () => {
               className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-red-600/20 text-base font-semibold text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 hover:-translate-y-0.5"
             >
               <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-              Account löschen
+              {t.privacySettingsPage.deleteAccountButton}
             </button>
           </div>
         </section>
@@ -366,10 +367,10 @@ const PrivacySettings = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Warum möchten Sie gehen?
+              {t.privacySettingsPage.whyLeaving}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Ihr Feedback hilft uns, unseren Service zu verbessern.
+              {t.privacySettingsPage.feedbackHelps}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
@@ -386,15 +387,15 @@ const PrivacySettings = () => {
             </RadioGroup>
 
             <div className="space-y-2">
-              <Label htmlFor="additional-feedback" className="text-slate-700">
-                Zusätzliches Feedback (optional)
+              <Label htmlFor="additional-feedback" className="text-foreground">
+                {t.privacySettingsPage.additionalFeedback}
               </Label>
               <Textarea
                 id="additional-feedback"
-                placeholder="Was können wir besser machen?"
+                placeholder={t.privacySettingsPage.additionalFeedbackPlaceholder}
                 value={additionalFeedback}
                 onChange={(e) => setAdditionalFeedback(e.target.value)}
-                className="resize-none bg-slate-50 border-slate-200"
+                className="resize-none bg-muted border-border"
                 rows={3}
               />
             </div>
@@ -402,13 +403,13 @@ const PrivacySettings = () => {
 
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
-              Abbrechen
+              {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleFeedbackNext}
               className="bg-red-600 hover:bg-red-700"
             >
-              Weiter
+              {t.privacySettingsPage.next}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -420,30 +421,30 @@ const PrivacySettings = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <Trash2 className="h-5 w-5" />
-              Endgültige Bestätigung
+              {t.privacySettingsPage.finalConfirmation}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600">
-              <span className="font-semibold text-red-600">Achtung:</span> Diese Aktion löscht unwiderruflich:
-              <ul className="list-disc list-inside mt-2 space-y-1 text-slate-500">
-                <li>Ihr Benutzerprofil</li>
-                <li>Alle Steuererklärungen</li>
-                <li>Alle hochgeladenen Dokumente</li>
-                <li>Alle Chat-Nachrichten</li>
+            <AlertDialogDescription className="text-muted-foreground">
+              <span className="font-semibold text-red-600">{t.privacySettingsPage.warningLabel}</span> Diese Aktion löscht unwiderruflich:
+              <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground">
+                <li>{t.privacySettingsPage.deleteWarningList.profile}</li>
+                <li>{t.privacySettingsPage.deleteWarningList.taxReturns}</li>
+                <li>{t.privacySettingsPage.deleteWarningList.documents}</li>
+                <li>{t.privacySettingsPage.deleteWarningList.chatMessages}</li>
               </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="py-4 space-y-2">
-            <Label htmlFor="confirm-delete" className="text-slate-700">
-              Geben Sie <span className="font-bold text-red-600">LÖSCHEN</span> ein, um zu bestätigen
+            <Label htmlFor="confirm-delete" className="text-foreground">
+              {t.privacySettingsPage.typeToConfirm.replace('{word}', '')} <span className="font-bold text-red-600">{t.privacySettingsPage.deleteConfirmWord}</span>
             </Label>
             <input 
               id="confirm-delete"
               type="text" 
-              placeholder="LÖSCHEN" 
+              placeholder={t.privacySettingsPage.deleteConfirmWord}
               value={deleteConfirm} 
               onChange={(e) => setDeleteConfirm(e.target.value)} 
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+              className="w-full p-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
             />
           </div>
 
@@ -454,14 +455,14 @@ const PrivacySettings = () => {
                 setDeleteConfirm('');
               }}
             >
-              Abbrechen
+              {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={deleteAllUserData}
-              disabled={deleteConfirm !== 'LÖSCHEN' || isDeleting}
+              disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
               className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
             >
-              {isDeleting ? 'Wird gelöscht...' : 'Unwiderruflich löschen'}
+              {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

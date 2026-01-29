@@ -1,11 +1,12 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import LegalDocumentPage from '@/components/legal/LegalDocumentPage';
+import { useI18n } from '@/contexts/I18nContext';
 
 const Terms = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   
   const termsContent = `<h2>Ditax by Graber Sandro Nutzungsbedingungen</h2>
 <p>Diese Nutzungsbedingungen regeln deine Nutzung von Ditax, unserer Website unter <a href="https://ditax.ch">https://ditax.ch</a>, und aller damit verbundenen Dienstleistungen, die von Ditax by Graber Sandro bereitgestellt werden.</p>
@@ -59,7 +60,7 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-white">
       <SubpageHeader 
-        title="Nutzungsbedingungen" 
+        title={t.termsPage.title}
         onBack={() => navigate(-1)} 
       />
       <LegalDocumentPage
