@@ -121,8 +121,8 @@ const AssetsForm = ({
     } catch (error) {
       console.error('Error saving assets:', error);
       toast({
-        title: "Fehler beim Speichern",
-        description: "Die Daten konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+        title: t.forms.saveError,
+        description: t.forms.saveErrorDescription,
         variant: "destructive"
       });
     }
@@ -157,7 +157,7 @@ const AssetsForm = ({
       title={t.assets.title}
       onBack={() => setSearchParams({})}
       onSubmit={handleSubmit}
-      submitLabel="Speichern"
+      submitLabel={t.forms.save}
       showFooter={!embedded}
     >
       {/* Checkbox List */}

@@ -312,12 +312,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       
       // Graceful fallback - don't let the app crash
       toast({
-        title: 'Fehler bei der Antwort',
-        description: 'Bitte versuche es erneut.',
+        title: t.toasts.answerError,
+        description: t.toasts.answerErrorDescription,
         variant: 'destructive'
       });
     }
-  }, [formState.currentQuestionIndex, formState.answers, viewState.isEditing, section, formData, updateFormData, saveSection]);
+  }, [formState.currentQuestionIndex, formState.answers, viewState.isEditing, section, formData, updateFormData, saveSection, t]);
 
   const handleRepeaterDataChange = (data: any[]) => {
     if (!currentQuestion) return;
@@ -373,8 +373,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     dispatchViewState({ type: 'COMPLETE_EDITING' });
     
     toast({
-      title: 'Änderung gespeichert',
-      description: 'Deine Antwort wurde aktualisiert.',
+      title: t.toasts.changeSaved,
+      description: t.toasts.changeSavedDescription,
     });
   }, []);
 
@@ -446,8 +446,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
-            title: 'Fehler beim Speichern',
-            description: 'Die Daten konnten nicht gespeichert werden.',
+            title: t.toasts.saveError,
+            description: t.toasts.saveErrorDescription,
             variant: 'destructive'
           });
         }
@@ -464,8 +464,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       
       // Graceful fallback
       toast({
-        title: 'Navigation Error',
-        description: 'Bitte versuche es erneut.',
+        title: t.toasts.navigationError,
+        description: t.toasts.navigationErrorDescription,
         variant: 'destructive'
       });
     }

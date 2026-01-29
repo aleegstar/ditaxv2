@@ -853,6 +853,77 @@ export interface Translation {
     authError: string;
     genericError: string;
   };
+
+  // Tour
+  tour: {
+    welcomeGreeting: string;
+    welcomeDescription: string;
+    addYearTitle: string;
+    addYearDescription: string;
+    chatTitle: string;
+    chatDescription: string;
+    documentsTitle: string;
+    documentsDescription: string;
+    continueCardTitle: string;
+    continueCardDescription: string;
+    skip: string;
+    back: string;
+    next: string;
+    finish: string;
+    closeTour: string;
+  };
+
+  // Auth
+  authFlow: {
+    login: string;
+    loginSubtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    sendCode: string;
+    sendingCode: string;
+    codeDisabled: string;
+    enterCode: string;
+    codeSentTo: string;
+    verifyButton: string;
+    verifying: string;
+    sixDigitCode: string;
+    changeEmail: string;
+    passkeyLogin: string;
+    passkeyAuthenticating: string;
+    orEnterCode: string;
+    otpDisabled: string;
+    otpDisabledHint: string;
+    noAccount: string;
+    registerNow: string;
+    codeSent: string;
+    codeSentDescription: string;
+    loginSuccess: string;
+    loginSuccessDescription: string;
+    sendError: string;
+    invalidCode: string;
+    passkeyError: string;
+  };
+
+  // Form Mode Toggle
+  formModeToggle: {
+    selectMode: string;
+    yesNo: string;
+    expertMode: string;
+    yesNoDescription: string;
+    expertDescription: string;
+  };
+
+  // Toast Messages
+  toasts: {
+    answerError: string;
+    answerErrorDescription: string;
+    changeSaved: string;
+    changeSavedDescription: string;
+    saveError: string;
+    saveErrorDescription: string;
+    navigationError: string;
+    navigationErrorDescription: string;
+  };
 }
 
 export const translations: Record<'de' | 'en', Translation> = {
@@ -1749,6 +1820,77 @@ export const translations: Record<'de' | 'en', Translation> = {
       authError: 'Authentifizierung fehlgeschlagen',
       genericError: 'Ein Fehler ist aufgetreten'
     },
+
+    // Tour
+    tour: {
+      welcomeGreeting: 'Grüezi',
+      welcomeDescription: 'Wir stellen dir die App kurz vor, damit du weisst, wie es funktioniert.',
+      addYearTitle: 'Neues Steuerjahr',
+      addYearDescription: 'Hier kannst du eine neue Steuererklärung starten.',
+      chatTitle: 'Chat',
+      chatDescription: 'Hier kannst du mit uns chatten und Fragen stellen.',
+      documentsTitle: 'Unterlagen hochladen',
+      documentsDescription: 'Mit diesem Button kannst du jederzeit Dokumente hochladen.',
+      continueCardTitle: 'Steuerjahr fortsetzen',
+      continueCardDescription: 'Steuererklärung öffnen und weiter bearbeiten.',
+      skip: 'Überspringen',
+      back: 'Zurück',
+      next: 'Weiter',
+      finish: 'Fertig',
+      closeTour: 'Tour schließen',
+    },
+
+    // Auth
+    authFlow: {
+      login: 'Anmelden',
+      loginSubtitle: 'Melde dich mit deiner E-Mail an',
+      emailLabel: 'Email:',
+      emailPlaceholder: 'name@mail.com',
+      sendCode: 'Login Code senden',
+      sendingCode: 'Code wird gesendet...',
+      codeDisabled: 'E-Mail-Codes deaktiviert',
+      enterCode: 'Code eingeben',
+      codeSentTo: 'Wir haben dir einen Code an {email} gesendet',
+      verifyButton: 'Anmelden',
+      verifying: 'Wird überprüft...',
+      sixDigitCode: '6-stelliger Code',
+      changeEmail: 'E-Mail ändern',
+      passkeyLogin: 'Mit Fingerprint anmelden',
+      passkeyAuthenticating: 'Authentifizierung...',
+      orEnterCode: 'oder Code eingeben',
+      otpDisabled: 'OTP deaktiviert',
+      otpDisabledHint: 'E-Mail-Codes sind für dieses Konto deaktiviert. Verwende deinen Fingerprint.',
+      noAccount: 'Haben Sie noch kein Konto?',
+      registerNow: 'Jetzt registrieren',
+      codeSent: 'Code gesendet',
+      codeSentDescription: 'Wir haben dir einen Anmeldecode per E-Mail gesendet.',
+      loginSuccess: 'Anmeldung erfolgreich',
+      loginSuccessDescription: 'Du wurdest erfolgreich angemeldet.',
+      sendError: 'Fehler beim Senden',
+      invalidCode: 'Ungültiger Code',
+      passkeyError: 'Fehler bei Fingerprint-Anmeldung',
+    },
+
+    // Form Mode Toggle
+    formModeToggle: {
+      selectMode: 'Ausfüll-Modus wählen',
+      yesNo: 'Ja/Nein',
+      expertMode: 'Experten-Modus',
+      yesNoDescription: 'Einzelne Fragen mit Ja/Nein beantworten',
+      expertDescription: 'Alle Felder auf einmal ausfüllen',
+    },
+
+    // Toast Messages
+    toasts: {
+      answerError: 'Fehler bei der Antwort',
+      answerErrorDescription: 'Bitte versuche es erneut.',
+      changeSaved: 'Änderung gespeichert',
+      changeSavedDescription: 'Deine Antwort wurde aktualisiert.',
+      saveError: 'Fehler beim Speichern',
+      saveErrorDescription: 'Die Daten konnten nicht gespeichert werden.',
+      navigationError: 'Navigation Error',
+      navigationErrorDescription: 'Bitte versuche es erneut.',
+    },
   },
   
   en: {
@@ -2643,6 +2785,77 @@ export const translations: Record<'de' | 'en', Translation> = {
       enterNameError: 'Please enter your name',
       authError: 'Authentication failed',
       genericError: 'An error occurred'
+    },
+
+    // Tour
+    tour: {
+      welcomeGreeting: 'Hello',
+      welcomeDescription: 'Let us show you around the app so you know how it works.',
+      addYearTitle: 'New Tax Year',
+      addYearDescription: 'Here you can start a new tax return.',
+      chatTitle: 'Chat',
+      chatDescription: 'Here you can chat with us and ask questions.',
+      documentsTitle: 'Upload Documents',
+      documentsDescription: 'Use this button to upload documents anytime.',
+      continueCardTitle: 'Continue Tax Year',
+      continueCardDescription: 'Open and continue editing your tax return.',
+      skip: 'Skip',
+      back: 'Back',
+      next: 'Next',
+      finish: 'Finish',
+      closeTour: 'Close tour',
+    },
+
+    // Auth
+    authFlow: {
+      login: 'Sign In',
+      loginSubtitle: 'Sign in with your email',
+      emailLabel: 'Email:',
+      emailPlaceholder: 'name@mail.com',
+      sendCode: 'Send Login Code',
+      sendingCode: 'Sending code...',
+      codeDisabled: 'Email codes disabled',
+      enterCode: 'Enter Code',
+      codeSentTo: 'We sent you a code to {email}',
+      verifyButton: 'Sign In',
+      verifying: 'Verifying...',
+      sixDigitCode: '6-digit code',
+      changeEmail: 'Change email',
+      passkeyLogin: 'Sign in with Fingerprint',
+      passkeyAuthenticating: 'Authenticating...',
+      orEnterCode: 'or enter code',
+      otpDisabled: 'OTP Disabled',
+      otpDisabledHint: 'Email codes are disabled for this account. Use your fingerprint.',
+      noAccount: "Don't have an account?",
+      registerNow: 'Register now',
+      codeSent: 'Code sent',
+      codeSentDescription: 'We sent you a login code via email.',
+      loginSuccess: 'Login successful',
+      loginSuccessDescription: 'You have been successfully signed in.',
+      sendError: 'Error sending code',
+      invalidCode: 'Invalid code',
+      passkeyError: 'Fingerprint login error',
+    },
+
+    // Form Mode Toggle
+    formModeToggle: {
+      selectMode: 'Select fill mode',
+      yesNo: 'Yes/No',
+      expertMode: 'Expert Mode',
+      yesNoDescription: 'Answer individual questions with Yes/No',
+      expertDescription: 'Fill in all fields at once',
+    },
+
+    // Toast Messages
+    toasts: {
+      answerError: 'Error with answer',
+      answerErrorDescription: 'Please try again.',
+      changeSaved: 'Change saved',
+      changeSavedDescription: 'Your answer has been updated.',
+      saveError: 'Save error',
+      saveErrorDescription: 'Data could not be saved.',
+      navigationError: 'Navigation error',
+      navigationErrorDescription: 'Please try again.',
     },
   },
 };
