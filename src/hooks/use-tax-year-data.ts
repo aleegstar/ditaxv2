@@ -30,6 +30,28 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
   
   const mountedRef = useRef(true);
   const loadingRef = useRef(false);
+  const previousTaxFilerIdRef = useRef<string | null>(null);
+
+  // Reset data when taxFilerId changes to avoid showing stale data
+  useEffect(() => {
+    if (previousTaxFilerIdRef.current !== null && previousTaxFilerIdRef.current !== taxFilerId) {
+      console.log('🔄 TaxFilerId changed, resetting data...', previousTaxFilerIdRef.current, '->', taxFilerId);
+      setData({
+        taxReturns: [],
+        formProgress: {},
+        formData: {},
+        uploadedDocuments: {},
+        completedTaxReturns: {},
+        definitiveTaxBills: {},
+        supportTickets: {},
+        loading: true,
+        error: null
+      });
+      // Reset loading ref to allow immediate reload
+      loadingRef.current = false;
+    }
+    previousTaxFilerIdRef.current = taxFilerId;
+  }, [taxFilerId]);
 
   const loadTaxYearData = useCallback(async () => {
     if (!userId || !taxFilerId) return;
