@@ -206,7 +206,7 @@ const UserTaxReturns = () => {
     try {
       const {
         data: existingReturn
-      } = await supabase.from('tax_returns').select('id').eq('user_id', userId).eq('tax_year', year).maybeSingle();
+      } = await supabase.from('tax_returns').select('id').eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId).maybeSingle();
       if (existingReturn) {
         toast.info(t.userDashboard.taxReturnExists.replace('{year}', year));
         await refetch();
@@ -218,6 +218,7 @@ const UserTaxReturns = () => {
         error
       } = await supabase.from('tax_returns').insert({
         user_id: userId,
+        tax_filer_id: activeTaxFilerId,
         tax_year: year,
         status: 'pending',
         payment_status: 'pending',
