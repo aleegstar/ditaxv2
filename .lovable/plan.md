@@ -1,89 +1,70 @@
 
-# Plan: Tax Filer Wechsel-Funktion implementieren
+# Plan: Steuerdaten nach ausgewählter Person filtern
 
 ## Problem
-Du hast 2 Personen (Tax Filers) angelegt, aber es gibt keine Möglichkeit, zwischen ihnen zu wechseln. Das System lädt immer automatisch den primären Benutzer (dich selbst).
+Wenn du die Person wechselst, werden weiterhin dieselben Steuererklärungen (2029, 2028) mit demselben Fortschritt (25%) angezeigt. Das liegt daran, dass die Datenabfrage nur nach Benutzer-ID filtert, nicht nach der ausgewählten Person.
 
 ## Lösung
-Die vorhandene `TaxFilerSelector`-Komponente wird an zwei wichtigen Stellen in die App eingebaut, damit du einfach zwischen den Personen wechseln kannst.
+Die `useTaxYearData`-Hook muss die `activeTaxFilerId` aus dem `TaxFilerContext` verwenden, um alle Abfragen nach der ausgewählten Person zu filtern.
 
 ---
 
-## Änderungen
+## Technische Änderungen
 
-### 1. Tax Filer Selector auf dem Formular-Dashboard hinzufügen
-**Datei:** `src/components/TaxYearDashboard.tsx`
+### 1. Hook erweitern: `useTaxYearData`
+**Datei:** `src/hooks/use-tax-year-data.ts`
 
-Der Personen-Wähler wird direkt unter dem Header eingefügt:
-- Zeigt die aktuell ausgewählte Person an
-- Ermöglicht den Wechsel zwischen allen verfügbaren Personen per Dropdown
-- Wird nur angezeigt, wenn mehr als eine Person vorhanden ist
+Die Hook erhält einen zusätzlichen Parameter `taxFilerId` und filtert alle Datenbankabfragen danach:
 
-### 2. Tax Filer Selector auf dem Haupt-Dashboard hinzufügen
+```text
+// Vorher
+export const useTaxYearData = (userId: string | null)
+
+// Nachher
+export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
+```
+
+Betroffene Abfragen:
+| Tabelle | Änderung |
+|---------|----------|
+| `tax_returns` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
+| `form_progress` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
+| `form_data` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
+| `uploaded_documents` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
+| `completed_tax_returns` | `.eq('tax_filer_id', taxFilerId)` hinzufügen |
+
+### 2. UserTaxReturns anpassen
 **Datei:** `src/pages/UserTaxReturns.tsx`
 
-Ein kompakter Personen-Wähler wird im Greeting-Bereich eingefügt:
-- Zeigt "Steuererklärung für: [Name]" an
-- Ermöglicht den Wechsel zwischen Personen
-- Wird nur angezeigt, wenn mehr als eine Person vorhanden ist
-
----
-
-## Technische Details
-
-### Import der benötigten Komponenten
-```text
-- TaxFilerSelector aus '@/components/dashboard/TaxFilerSelector'
-- useTaxFiler aus '@/contexts/TaxFilerContext'
-```
-
-### Integration in TaxYearDashboard
-Der Selector wird zwischen Header und dem ersten Step eingefügt:
+Die Seite muss die `activeTaxFilerId` aus dem Context an die Hook übergeben:
 
 ```text
-+------------------------------------+
-|  ← Steuererklärung 2029    [Avatar]|  <- Header
-+------------------------------------+
-|  👤 Person: [Dropdown Selector]    |  <- NEU: Tax Filer Selector
-+------------------------------------+
-|  1. Persönliche Angaben           |
-|  ...                               |
-+------------------------------------+
+// Vorher
+const { taxReturns, ... } = useTaxYearData(userId);
+
+// Nachher
+const { activeTaxFilerId } = useTaxFiler();
+const { taxReturns, ... } = useTaxYearData(userId, activeTaxFilerId);
 ```
 
-### Integration in UserTaxReturns
-Der Selector wird im Greeting-Bereich eingefügt:
-
-```text
-+------------------------------------+
-|  ditax Logo        [Notification]  |
-+------------------------------------+
-|  Guten Tag                         |
-|  Sandro                            |
-|  📋 Für: [Chiara ▼] verwalten     |  <- NEU: Kompakter Selector
-+------------------------------------+
-|  [Steuerjahr-Karten]               |
-+------------------------------------+
-```
-
-### Verhalten beim Wechsel
-Wenn du eine andere Person auswählst:
-1. Der `activeTaxFilerId` wird im Context aktualisiert
-2. Die Formulardaten werden automatisch für diese Person neu geladen
-3. Alle Eingaben und Dokumente werden separat pro Person gespeichert
+### 3. Reaktive Aktualisierung
+Wenn der Benutzer die Person wechselt:
+1. `activeTaxFilerId` ändert sich im Context
+2. Die Hook erkennt die Änderung und lädt die Daten neu
+3. Die UI zeigt die korrekten Steuererklärungen und Fortschritte für diese Person
 
 ---
 
 ## Betroffene Dateien
 | Datei | Änderung |
 |-------|----------|
-| `src/components/TaxYearDashboard.tsx` | TaxFilerSelector unter Header einfügen |
-| `src/pages/UserTaxReturns.tsx` | Kompakten TaxFilerSelector im Greeting-Bereich einfügen |
+| `src/hooks/use-tax-year-data.ts` | `taxFilerId` Parameter hinzufügen, alle Queries filtern |
+| `src/pages/UserTaxReturns.tsx` | `activeTaxFilerId` an Hook übergeben |
 
 ---
 
 ## Ergebnis
-Nach dieser Änderung kannst du:
-- Auf dem Haupt-Dashboard sehen, für welche Person du gerade arbeitest
-- Einfach zwischen Personen wechseln, ohne zur Verwaltungsseite zu gehen
-- Separate Steuererklärungen für jede Person führen
+Nach dieser Änderung:
+- Jede Person hat ihre eigenen Steuererklärungen
+- Der Fortschritt wird pro Person separat berechnet
+- Beim Wechsel der Person werden die korrekten Daten geladen
