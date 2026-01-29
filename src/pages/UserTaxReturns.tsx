@@ -173,10 +173,10 @@ const UserTaxReturns = () => {
         return;
       }
 
-      // Delete associated data
-      await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year);
-      await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year);
-      await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year);
+      // Delete associated data for the specific tax filer
+      await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
+      await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
+      await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
 
       // Delete the tax return
       const {

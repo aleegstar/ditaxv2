@@ -31,6 +31,8 @@ export const TaxYearDashboard: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
 
+  const { activeTaxFilerId } = useTaxFiler();
+
   // Load payment status
   useEffect(() => {
     const loadPaymentStatus = async () => {
@@ -39,16 +41,16 @@ export const TaxYearDashboard: React.FC = () => {
           user
         }
       } = await supabase.auth.getUser();
-      if (!user || !taxYear) return;
+      if (!user || !taxYear || !activeTaxFilerId) return;
       const {
         data
-      } = await supabase.from('tax_returns').select('payment_status').eq('user_id', user.id).eq('tax_year', taxYear).maybeSingle();
+      } = await supabase.from('tax_returns').select('payment_status').eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId).maybeSingle();
       if (data?.payment_status) {
         setPaymentStatus(data.payment_status);
       }
     };
     loadPaymentStatus();
-  }, [taxYear]);
+  }, [taxYear, activeTaxFilerId]);
 
   // Mark component as ready after initial data load
   useEffect(() => {

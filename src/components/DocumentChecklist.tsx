@@ -137,14 +137,21 @@ const DocumentChecklist: React.FC = () => {
     }
   }, [isLoading, initialLoadComplete]);
 
-  // Load unassigned documents count for current year
+  // Load unassigned documents count for current year and tax filer
   const loadUnassignedDocsCount = useCallback(async () => {
     if (!userId || !taxYear) return;
+    
+    // Get activeTaxFilerId from localStorage as fallback
+    const activeTaxFilerId = localStorage.getItem('activeTaxFilerId');
+    
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('uploaded_documents').select('id, checklist_item_id').eq('user_id', userId).eq('status', 'active').eq('is_assigned_to_checklist', false).eq('tax_year', taxYear);
+      let query = supabase.from('uploaded_documents').select('id, checklist_item_id').eq('user_id', userId).eq('status', 'active').eq('is_assigned_to_checklist', false).eq('tax_year', taxYear);
+      
+      if (activeTaxFilerId) {
+        query = query.eq('tax_filer_id', activeTaxFilerId);
+      }
+      
+      const { data, error } = await query;
       if (error) {
         debug.error('Error loading unassigned documents:', error);
         return;
