@@ -45,6 +45,7 @@ const AndroidDebug = lazy(() => import("./pages/AndroidDebug"));
 const TaxReturnTracking = lazy(() => import("./pages/TaxReturnTracking"));
 const TaxReturnActions = lazy(() => import("./pages/TaxReturnActions"));
 const TaxFilers = lazy(() => import("./pages/TaxFilers"));
+const SelectPerson = lazy(() => import("./pages/SelectPerson"));
 
 // Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
@@ -179,6 +180,7 @@ const AuthenticatedApp = () => {
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <Routes>
                 <Route path="/" element={<UserTaxReturns />} />
+                <Route path="/select-person" element={<SelectPerson />} />
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/form" element={<Index />} />
                 <Route path="/form/documents/upload/:itemId" element={<DocumentUploadPage />} />

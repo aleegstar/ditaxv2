@@ -1,89 +1,52 @@
 import React from 'react';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Users, Settings } from 'lucide-react';
+import { User, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface TaxFilerSelectorProps {
   className?: string;
-  showManageButton?: boolean;
 }
 
-const getRelationshipLabel = (relationship: string, t: any): string => {
-  const labels: Record<string, string> = {
-    self: t.taxFilers?.relationships?.self || 'Ich selbst',
-    child: t.taxFilers?.relationships?.child || 'Kind',
-    spouse: t.taxFilers?.relationships?.spouse || 'Ehepartner',
-    parent: t.taxFilers?.relationships?.parent || 'Elternteil',
-    other: t.taxFilers?.relationships?.other || 'Andere'
-  };
-  return labels[relationship] || relationship;
-};
-
-const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ 
-  className, 
-  showManageButton = true 
-}) => {
-  const { taxFilers, activeTaxFilerId, setActiveTaxFilerId, isLoading } = useTaxFiler();
+/**
+ * TaxFilerSelector - Shows the currently active tax filer as a clickable header element.
+ * When clicked, navigates back to the person selection page.
+ * Only renders if there are multiple tax filers.
+ */
+const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ className }) => {
+  const { taxFilers, activeTaxFiler, hasMultipleFilers } = useTaxFiler();
   const { t } = useI18n();
   const navigate = useNavigate();
 
-  // Only show selector if there are multiple tax filers
-  if (taxFilers.length <= 1) {
+  // Only show if there are multiple tax filers
+  if (!hasMultipleFilers || !activeTaxFiler) {
     return null;
   }
 
-  const handleFilerChange = (filerId: string) => {
-    setActiveTaxFilerId(filerId);
+  const handleClick = () => {
+    navigate('/select-person');
   };
-
-  const handleManageClick = () => {
-    navigate('/tax-filers');
-  };
-
-  const activeFiler = taxFilers.find(f => f.id === activeTaxFilerId);
 
   return (
-    <div className={cn('flex items-center', className)}>
-      <Select 
-        value={activeTaxFilerId || ''} 
-        onValueChange={handleFilerChange}
-        disabled={isLoading}
-      >
-        <SelectTrigger className="h-9 w-auto border border-border bg-white px-4 rounded-full shadow-sm focus:ring-0 gap-1.5">
-          <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'}>
-            {activeFiler && (
-              <span className="text-sm font-medium text-foreground">
-                {activeFiler.first_name} {activeFiler.last_name}
-              </span>
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="bg-white border-border rounded-xl shadow-lg min-w-[200px]">
-          {taxFilers.map((filer) => (
-            <SelectItem 
-              key={filer.id} 
-              value={filer.id}
-              className="rounded-lg cursor-pointer py-2"
-            >
-              <span className="font-medium">{filer.first_name} {filer.last_name}</span>
-              <span className="text-muted-foreground ml-2">
-                ({getRelationshipLabel(filer.relationship, t)})
-              </span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <button
+      onClick={handleClick}
+      className={cn(
+        'flex items-center gap-2 px-3 py-1.5 rounded-full',
+        'bg-primary/5 hover:bg-primary/10 border border-primary/20',
+        'transition-all duration-200 group',
+        className
+      )}
+    >
+      <User className="w-4 h-4 text-primary" strokeWidth={1.5} />
+      <span className="text-sm font-medium text-foreground">
+        {activeTaxFiler.first_name} {activeTaxFiler.last_name}
+      </span>
+      <ChevronRight 
+        className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" 
+        strokeWidth={1.5} 
+      />
+    </button>
   );
 };
 

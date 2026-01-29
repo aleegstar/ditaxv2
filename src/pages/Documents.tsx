@@ -709,9 +709,24 @@ const DocumentsContent: React.FC<{
 // Main component that wraps DocumentsContent with FormProvider
 const Documents: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
   const isTransitionEntry = searchParams.get('transition') === 'true';
+  
+  // Redirect to person selection if multiple filers exist and no selection confirmed
+  useEffect(() => {
+    if (hasMultipleFilers && !selectionConfirmed) {
+      navigate('/select-person', { replace: true });
+    }
+  }, [hasMultipleFilers, selectionConfirmed, navigate]);
+
+  // Show loading while redirecting
+  if (hasMultipleFilers && !selectionConfirmed) {
+    return null;
+  }
+
   return <FormProvider taxYear={selectedYear}>
       <DocumentsContent selectedYear={selectedYear} onYearChange={setSelectedYear} isTransitionEntry={isTransitionEntry} />
     </FormProvider>;

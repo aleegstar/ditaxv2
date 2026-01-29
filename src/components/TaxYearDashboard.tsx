@@ -211,10 +211,7 @@ export const TaxYearDashboard: React.FC = () => {
       </header>
 
       {/* Tax Filer Selector - only show if more than one person */}
-      <TaxFilerSelector 
-        className="max-w-4xl mx-auto px-4 sm:px-6 mb-4" 
-        showManageButton={false} 
-      />
+      <TaxFilerSelector className="max-w-4xl mx-auto px-4 sm:px-6 mb-4" />
 
       {/* Main Content / Timeline */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 pt-4">

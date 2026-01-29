@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormProvider, useFormContext } from '../contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import DocumentChecklist from '@/components/DocumentChecklist';
 import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import MultiStepContactForm from '@/components/forms/MultiStepContactForm';
@@ -141,6 +142,9 @@ const Index = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const year = searchParams.get('year') || new Date().getFullYear().toString();
 
+  // Get tax filer context for redirect logic
+  const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+
   // Handle auth tokens from deep link
   useEffect(() => {
     const accessToken = searchParams.get("at");
@@ -184,18 +188,21 @@ const Index = () => {
           from: window.location.pathname
         }
       });
+    } else if (hasMultipleFilers && !selectionConfirmed) {
+      // Redirect to person selection if not confirmed
+      navigate('/select-person', { replace: true });
     } else {
       console.log('✅ User authenticated, showing content');
     }
-  }, [isValid, userId, isLoading, navigate]);
+  }, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed]);
 
-  // Show nothing while auth is being checked
+  // Show nothing while auth is being checked or redirecting
   if (isLoading || !authChecked) {
     return null;
   }
 
-  // If not authenticated after check, don't render content
-  if (!isValid || !userId) {
+  // If not authenticated or needs person selection, don't render content
+  if (!isValid || !userId || (hasMultipleFilers && !selectionConfirmed)) {
     return null;
   }
   return <FormProvider taxYear={year}>

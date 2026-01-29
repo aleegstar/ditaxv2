@@ -36,6 +36,11 @@ interface TaxFilerContextType {
   updateTaxFiler: (id: string, input: Partial<TaxFilerInput>) => Promise<TaxFiler | null>;
   deleteTaxFiler: (id: string) => Promise<boolean>;
   getPrimaryTaxFiler: () => TaxFiler | null;
+  // New fields for person selection flow
+  hasMultipleFilers: boolean;
+  selectionConfirmed: boolean;
+  confirmSelection: () => void;
+  resetSelection: () => void;
 }
 
 const TaxFilerContext = createContext<TaxFilerContextType | undefined>(undefined);
@@ -47,6 +52,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [selectionConfirmed, setSelectionConfirmed] = useState(false);
 
   // Initialize session
   useEffect(() => {
@@ -60,7 +66,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (mounted) {
         setSession(newSession);
         setSessionLoaded(true);
@@ -69,6 +75,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (!newSession) {
           setTaxFilers([]);
           setActiveTaxFilerId(null);
+          setSelectionConfirmed(false);
         }
       }
     });
@@ -140,6 +147,19 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getPrimaryTaxFiler = useCallback(() => {
     return taxFilers.find(f => f.is_primary) || null;
   }, [taxFilers]);
+
+  // Computed: has multiple filers
+  const hasMultipleFilers = useMemo(() => taxFilers.length > 1, [taxFilers]);
+
+  // Confirm selection (called when user explicitly picks a person)
+  const confirmSelection = useCallback(() => {
+    setSelectionConfirmed(true);
+  }, []);
+
+  // Reset selection (for logout or when needed)
+  const resetSelection = useCallback(() => {
+    setSelectionConfirmed(false);
+  }, []);
 
   // Create new tax filer
   const createTaxFiler = useCallback(async (input: TaxFilerInput): Promise<TaxFiler | null> => {
@@ -295,7 +315,11 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     createTaxFiler,
     updateTaxFiler,
     deleteTaxFiler,
-    getPrimaryTaxFiler
+    getPrimaryTaxFiler,
+    hasMultipleFilers,
+    selectionConfirmed,
+    confirmSelection,
+    resetSelection
   };
 
   return (
