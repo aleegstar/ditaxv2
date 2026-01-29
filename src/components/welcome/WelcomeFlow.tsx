@@ -11,6 +11,7 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
 import { useI18n } from '@/contexts/I18nContext';
+import { FamilyHintCard } from './FamilyHintCard';
 
 const TAX_YEARS = Array.from({
   length: 3
@@ -29,6 +30,7 @@ export const WelcomeFlow = () => {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
+  const [showFamilyHint, setShowFamilyHint] = useState(false);
 
   const steps = [{
     id: 'consent',
@@ -103,13 +105,12 @@ export const WelcomeFlow = () => {
       }
       
 
-      // Wait for DB transaction to commit before navigating
+      // Wait for DB transaction to commit before showing family hint
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Navigate without full reload
-      navigate('/', {
-        replace: true
-      });
+      // Show family hint instead of navigating directly
+      setShowTransition(false);
+      setShowFamilyHint(true);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(t.onboarding.genericError);
@@ -117,6 +118,14 @@ export const WelcomeFlow = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFamilyHintLater = () => {
+    navigate('/', { replace: true });
+  };
+
+  const handleFamilyHintNow = () => {
+    navigate('/tax-filers', { replace: true });
   };
   
   const canProceed = () => {
@@ -201,6 +210,32 @@ export const WelcomeFlow = () => {
     return steps[currentStep].title;
   };
   
+  // Show family hint screen
+  if (showFamilyHint) {
+    return (
+      <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
+        {/* Logo above card */}
+        <motion.div 
+          className="mb-8 flex items-center justify-center" 
+          initial={{ opacity: 0, y: -10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.4 }}
+        >
+          <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-10 w-auto object-contain" />
+        </motion.div>
+
+        {/* Family Hint Card */}
+        <div className="w-full max-w-lg">
+          <FamilyHintCard 
+            onLater={handleFamilyHintLater}
+            onAddNow={handleFamilyHintNow}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
       {/* Logo above card */}
       <motion.div className="mb-8 flex items-center justify-center" initial={{
