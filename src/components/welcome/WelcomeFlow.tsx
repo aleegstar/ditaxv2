@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowRight, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
 import { useI18n } from '@/contexts/I18nContext';
 
 const TAX_YEARS = Array.from({
@@ -69,10 +68,6 @@ export const WelcomeFlow = () => {
   
   const handleSaveData = async () => {
     setIsLoading(true);
-    setShowTransition(true);
-
-    // Wait for animation to complete (shorter duration)
-    await new Promise(resolve => setTimeout(resolve, 1800));
     try {
       const {
         data: {
@@ -108,32 +103,32 @@ export const WelcomeFlow = () => {
         payment_status: 'pending'
       });
       if (taxReturnError && taxReturnError.code !== '23505') {
-        // Ignore duplicate error
         throw taxReturnError;
       }
-      
 
       // Wait for DB transaction to commit
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Mark data as saved and proceed to step 4 (family hint)
+      // Mark data as saved and proceed to step 4 (family hint) - no animation
       setDataSaved(true);
-      setShowTransition(false);
       setCurrentStep(3);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(t.onboarding.genericError);
-      setShowTransition(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFamilyLater = () => {
+  const handleFamilyLater = async () => {
+    setShowTransition(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
     navigate('/', { replace: true });
   };
 
-  const handleFamilyNow = () => {
+  const handleFamilyNow = async () => {
+    setShowTransition(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
     navigate('/tax-filers', { replace: true });
   };
   
@@ -328,30 +323,24 @@ export const WelcomeFlow = () => {
 
       {/* Smooth Transition Animation */}
       <AnimatePresence>
-        {showTransition && <motion.div className="fixed inset-0 z-[51] bg-white flex items-center justify-center" initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} transition={{
-        duration: 0.4,
-        ease: "easeInOut"
-      }}>
-            {/* Logo appears */}
-            <motion.div initial={{
-          opacity: 0,
-          scale: 0.9
-        }} animate={{
-          opacity: 1,
-          scale: 1,
-          transition: {
-            delay: 0.2,
-            duration: 0.6,
-            ease: [0.34, 1.56, 0.64, 1]
-          }
-        }}>
-              <img src={ditaxSplashTransition} alt="ditax" className="h-72 md:h-80 w-auto object-contain" />
-            </motion.div>
-          </motion.div>}
+        {showTransition && (
+          <motion.div 
+            className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <motion.img 
+              src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png"
+              alt="ditax"
+              className="h-16 w-auto object-contain"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>;
 };
