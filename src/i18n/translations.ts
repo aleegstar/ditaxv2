@@ -743,36 +743,7 @@ export interface Translation {
     };
   };
 
-  // Document checklist
-  documentChecklist: {
-    title: string;
-    generateChecklist: string;
-    generating: string;
-    loading: string;
-    authRequired: string;
-    authRequiredDesc: string;
-    goToLogin: string;
-    checkSession: string;
-    errorLoading: string;
-    updateStarted: string;
-    updateDescription: string;
-    noDocuments: string;
-    noDocumentsDesc: string;
-    description: string;
-    loadingMessage: string;
-    categories: {
-      general: string;
-      income: string;
-      assets: string;
-      deductions: string;
-    };
-    required: string;
-    or: string;
-    view: string;
-    delete: string;
-    upload: string;
-    assign: string;
-  };
+  // Note: documentChecklist is now defined in the multiStepContactForm section below (line ~1105)
 
   // Common UI elements
   ui: {
@@ -1004,6 +975,7 @@ export interface Translation {
   // Documents Page
   documentsPage: {
     title: string;
+    taxYear: string;
     uploadDocuments: string;
     noDocuments: string;
     noDocumentsDescription: string;
@@ -1022,6 +994,11 @@ export interface Translation {
     invalidFormat: string;
     uploadFailed: string;
     filterSort: string;
+    upload: string;
+    collectReceipts: string;
+    collectReceiptsDescription: string;
+    lockedBanner: string;
+    pleaseLogin: string;
   };
 
   // Invite Friends Page
@@ -1064,6 +1041,82 @@ export interface Translation {
     createTaxReturn: string;
     allYearsCreated: string;
     yearsAlreadyExist: string;
+  };
+
+  // MultiStep Contact Form
+  multiStepContactForm: {
+    title: string;
+    personalData: string;
+    personalDataDescription: string;
+    currentAddress: string;
+    currentAddressDescription: string;
+    additionalInfo: string;
+    additionalInfoDescription: string;
+    family: string;
+    familyDescription: string;
+    street: string;
+    streetNumber: string;
+    selectCanton: string;
+    notAvailableYet: string;
+    addressAsOf: string;
+    differentAddressAsOf: string;
+    firefighterLabel: string;
+    iDoFirefighterService: string;
+    spouseTitle: string;
+    childrenLabel: string;
+    iHaveChildren: string;
+    finish: string;
+    continue: string;
+    back: string;
+    fillRequired: string;
+    fillRequiredDescription: string;
+  };
+
+  // Document Checklist
+  documentChecklist: {
+    title: string;
+    generateChecklist: string;
+    generating: string;
+    loading: string;
+    authRequired: string;
+    authRequiredDesc: string;
+    goToLogin: string;
+    checkSession: string;
+    errorLoading: string;
+    updateStarted: string;
+    updateDescription: string;
+    noDocuments: string;
+    noDocumentsDesc: string;
+    description: string;
+    loadingMessage: string;
+    categories: {
+      general: string;
+      income: string;
+      assets: string;
+      deductions: string;
+    };
+    required: string;
+    or: string;
+    view: string;
+    delete: string;
+    upload: string;
+    assign: string;
+    mandatoryDocuments: string;
+    documents: string;
+    uploaded: string;
+    stillRequired: string;
+    allMandatoryPresent: string;
+    completedOf: string;
+    file: string;
+    files: string;
+    viewDocs: string;
+    remove: string;
+    generateNow: string;
+    dialogTitle: string;
+    taxReturnYear: string;
+    dialogDescription: string;
+    later: string;
+    createNow: string;
   };
 
   // User Dashboard (Main Page /)
@@ -1868,36 +1921,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       },
     },
 
-    // Document checklist
-    documentChecklist: {
-      title: 'Unterlagen',
-      generateChecklist: 'Checkliste jetzt generieren',
-      generating: 'Wird geladen...',
-      loading: 'Wird geladen...',
-      authRequired: 'Authentifizierung erforderlich',
-      authRequiredDesc: 'Du musst angemeldet sein, um deine Dokumente zu verwalten.',
-      goToLogin: 'Zur Anmeldung',
-      checkSession: 'Session prüfen',
-      errorLoading: 'Fehler beim Laden der Dokumente',
-      updateStarted: 'Aktualisierung gestartet',
-      updateDescription: 'Die Dokumentenliste wird aktualisiert.',
-      noDocuments: 'Keine Dokumente',
-      noDocumentsDesc: 'Für diesen Punkt wurden keine Dokumente gefunden.',
-      description: 'Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.',
-      loadingMessage: 'Bitte warte, während deine Daten geladen werden.',
-      categories: {
-        general: 'Allgemeine Dokumente',
-        income: 'Einkommen',
-        assets: 'Vermögen',
-        deductions: 'Abzüge',
-      },
-      required: 'Erforderlich',
-      or: 'oder',
-      view: 'Ansehen',
-      delete: 'Löschen',
-      upload: 'Hochladen',
-      assign: 'Zuweisen',
-    },
+    // Note: documentChecklist is now defined later with extended properties
 
     // Common UI elements
     ui: {
@@ -2069,6 +2093,7 @@ export const translations: Record<'de' | 'en', Translation> = {
     // Documents Page
     documentsPage: {
       title: 'Dokumente',
+      taxYear: 'Steuerjahr',
       uploadDocuments: 'Dokumente hochladen',
       noDocuments: 'Keine Dokumente',
       noDocumentsDescription: 'Lade deine erste Unterlage hoch',
@@ -2087,6 +2112,11 @@ export const translations: Record<'de' | 'en', Translation> = {
       invalidFormat: 'hat ein ungültiges Format',
       uploadFailed: 'Dateien konnten nicht hochgeladen werden',
       filterSort: 'Sortieren',
+      upload: 'Hochladen',
+      collectReceipts: 'Belege sammeln',
+      collectReceiptsDescription: 'Füge deine Rechnungen und Quittungen direkt hinzu.',
+      lockedBanner: 'Diese Steuererklärung wurde eingereicht. Dokumente können nicht mehr geändert werden.',
+      pleaseLogin: 'Bitte melde dich an',
     },
 
     // Invite Friends Page
@@ -2129,6 +2159,82 @@ export const translations: Record<'de' | 'en', Translation> = {
       createTaxReturn: 'Steuererklärung erstellen',
       allYearsCreated: 'Alle Jahre erstellt',
       yearsAlreadyExist: '2024-2030 sind bereits vorhanden',
+    },
+
+    // MultiStep Contact Form
+    multiStepContactForm: {
+      title: 'Kontaktangaben',
+      personalData: 'Persönliche Daten',
+      personalDataDescription: 'Name, Geburtsdatum, Religion, Zivilstand',
+      currentAddress: 'Aktuelle Adresse',
+      currentAddressDescription: 'Strasse, PLZ, Stadt, Kanton',
+      additionalInfo: 'Zusätzliche Angaben',
+      additionalInfoDescription: 'Adresse per 31.12., Feuerwehrdienst',
+      family: 'Familie',
+      familyDescription: 'Ehepartner und Kinder',
+      street: 'Strasse',
+      streetNumber: 'Nr.',
+      selectCanton: 'Kanton auswählen',
+      notAvailableYet: 'noch nicht verfügbar',
+      addressAsOf: 'Adresse per 31.12.',
+      differentAddressAsOf: 'Andere Adresse per 31.12.',
+      firefighterLabel: 'Feuerwehrdienst',
+      iDoFirefighterService: 'Ich leiste Feuerwehrdienst',
+      spouseTitle: 'Ehepartner/in',
+      childrenLabel: 'Kinder',
+      iHaveChildren: 'Ich habe Kinder',
+      finish: 'Abschliessen',
+      continue: 'Weiter',
+      back: 'Zurück',
+      fillRequired: 'Pflichtfelder ausfüllen',
+      fillRequiredDescription: 'Bitte füllen Sie alle erforderlichen Felder aus.',
+    },
+
+    // Document Checklist
+    documentChecklist: {
+      title: 'Unterlagen',
+      generateChecklist: 'Checkliste jetzt generieren',
+      generating: 'Wird geladen...',
+      loading: 'Wird geladen...',
+      authRequired: 'Authentifizierung erforderlich',
+      authRequiredDesc: 'Du musst angemeldet sein, um deine Dokumente zu verwalten.',
+      goToLogin: 'Zur Anmeldung',
+      checkSession: 'Session prüfen',
+      errorLoading: 'Fehler beim Laden der Dokumente',
+      updateStarted: 'Aktualisierung gestartet',
+      updateDescription: 'Die Dokumentenliste wird aktualisiert.',
+      noDocuments: 'Keine Dokumente',
+      noDocumentsDesc: 'Für diesen Punkt wurden keine Dokumente gefunden.',
+      description: 'Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.',
+      loadingMessage: 'Bitte warte, während deine Daten geladen werden.',
+      categories: {
+        general: 'Allgemeine Dokumente',
+        income: 'Einkommen',
+        assets: 'Vermögen',
+        deductions: 'Abzüge',
+      },
+      required: 'Pflicht',
+      or: 'oder',
+      view: 'Ansehen',
+      delete: 'Löschen',
+      upload: 'Hochladen',
+      assign: 'Zuweisen',
+      mandatoryDocuments: 'Pflichtdokumente',
+      documents: 'Dokumente',
+      uploaded: 'hochgeladen',
+      stillRequired: 'erforderlich',
+      allMandatoryPresent: 'Alle Pflichtdokumente vorhanden',
+      completedOf: 'von',
+      file: 'Datei',
+      files: 'Dateien',
+      viewDocs: 'Ansehen',
+      remove: 'Entfernen',
+      generateNow: 'Checkliste jetzt generieren',
+      dialogTitle: 'Alle Unterlagen vollständig!',
+      taxReturnYear: 'Steuererklärung',
+      dialogDescription: 'Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?',
+      later: 'Später',
+      createNow: 'Ja, jetzt erstellen',
     },
 
     // Tour
@@ -3093,6 +3199,22 @@ export const translations: Record<'de' | 'en', Translation> = {
       delete: 'Delete',
       upload: 'Upload',
       assign: 'Assign',
+      mandatoryDocuments: 'Mandatory documents',
+      documents: 'Documents',
+      uploaded: 'uploaded',
+      stillRequired: 'required',
+      allMandatoryPresent: 'All mandatory documents present',
+      completedOf: 'of',
+      file: 'File',
+      files: 'Files',
+      viewDocs: 'View',
+      remove: 'Remove',
+      generateNow: 'Generate checklist now',
+      dialogTitle: 'All documents complete!',
+      taxReturnYear: 'Tax return',
+      dialogDescription: 'You have uploaded all required documents. Would you like to create your tax return now?',
+      later: 'Later',
+      createNow: 'Yes, create now',
     },
 
     // Common UI elements
@@ -3265,6 +3387,7 @@ export const translations: Record<'de' | 'en', Translation> = {
     // Documents Page
     documentsPage: {
       title: 'Documents',
+      taxYear: 'Tax year',
       uploadDocuments: 'Upload documents',
       noDocuments: 'No documents',
       noDocumentsDescription: 'Upload your first document',
@@ -3283,6 +3406,11 @@ export const translations: Record<'de' | 'en', Translation> = {
       invalidFormat: 'has an invalid format',
       uploadFailed: 'Could not upload files',
       filterSort: 'Sort',
+      upload: 'Upload',
+      collectReceipts: 'Collect receipts',
+      collectReceiptsDescription: 'Add your invoices and receipts directly.',
+      lockedBanner: 'This tax return has been submitted. Documents can no longer be changed.',
+      pleaseLogin: 'Please log in',
     },
 
     // Invite Friends Page
@@ -3325,6 +3453,35 @@ export const translations: Record<'de' | 'en', Translation> = {
       createTaxReturn: 'Create tax return',
       allYearsCreated: 'All years created',
       yearsAlreadyExist: '2024-2030 already exist',
+    },
+
+    // MultiStep Contact Form
+    multiStepContactForm: {
+      title: 'Contact Information',
+      personalData: 'Personal Data',
+      personalDataDescription: 'Name, date of birth, religion, marital status',
+      currentAddress: 'Current Address',
+      currentAddressDescription: 'Street, postal code, city, canton',
+      additionalInfo: 'Additional Information',
+      additionalInfoDescription: 'Address as of Dec 31, firefighter service',
+      family: 'Family',
+      familyDescription: 'Spouse and children',
+      street: 'Street',
+      streetNumber: 'No.',
+      selectCanton: 'Select canton',
+      notAvailableYet: 'not available yet',
+      addressAsOf: 'Address as of Dec 31',
+      differentAddressAsOf: 'Different address as of Dec 31',
+      firefighterLabel: 'Firefighter Service',
+      iDoFirefighterService: 'I perform firefighter service',
+      spouseTitle: 'Spouse',
+      childrenLabel: 'Children',
+      iHaveChildren: 'I have children',
+      finish: 'Finish',
+      continue: 'Continue',
+      back: 'Back',
+      fillRequired: 'Fill in required fields',
+      fillRequiredDescription: 'Please fill in all required fields.',
     },
 
     // Tour

@@ -9,10 +9,11 @@ import { useFormContext, FormProvider } from '@/contexts';
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
 import { DocumentsTour } from '@/components/DocumentsTour';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
+import { useI18n } from '@/contexts/I18nContext';
 
 import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import UploadActionSheet from '@/components/documents/UploadActionSheet';
-import { de } from 'date-fns/locale';
+import { de, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
@@ -130,6 +131,7 @@ const DocumentsContent: React.FC<{
   onYearChange,
   isTransitionEntry
 }) => {
+  const { t, language } = useI18n();
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -247,8 +249,8 @@ const DocumentsContent: React.FC<{
     } catch (error) {
       console.error('Error loading documents:', error);
       toast({
-        title: "Fehler",
-        description: "Dokumente konnten nicht geladen werden",
+        title: t.documentsPage.error,
+        description: t.documentsPage.loadError,
         variant: "destructive"
       });
     } finally {
@@ -314,8 +316,8 @@ const DocumentsContent: React.FC<{
     } = await supabase.auth.getUser();
     if (!user) {
       toast({
-        title: "Fehler",
-        description: "Bitte melde dich an",
+        title: t.documentsPage.error,
+        description: t.documentsPage.pleaseLogin,
         variant: "destructive"
       });
       return;
@@ -327,8 +329,8 @@ const DocumentsContent: React.FC<{
         // Validate file
         if (file.size > 10 * 1024 * 1024) {
           toast({
-            title: "Fehler",
-            description: `${file.name} ist zu gross (max. 10 MB)`,
+            title: t.documentsPage.error,
+            description: `${file.name} ${t.documentsPage.fileTooLarge}`,
             variant: "destructive"
           });
           errorCount++;
@@ -337,8 +339,8 @@ const DocumentsContent: React.FC<{
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp', 'application/pdf'];
         if (!allowedTypes.includes(file.type)) {
           toast({
-            title: "Fehler",
-            description: `${file.name} hat ein ungültiges Format`,
+            title: t.documentsPage.error,
+            description: `${file.name} ${t.documentsPage.invalidFormat}`,
             variant: "destructive"
           });
           errorCount++;
@@ -379,16 +381,16 @@ const DocumentsContent: React.FC<{
     }
     if (successCount > 0) {
       toast({
-        title: "Upload erfolgreich",
-        description: `${successCount} ${successCount === 1 ? 'Datei' : 'Dateien'} hochgeladen`
+        title: t.documentsPage.uploadSuccess,
+        description: `${successCount} ${successCount === 1 ? t.documentChecklist.file : t.documentChecklist.files} ${t.documentChecklist.uploaded}`
       });
       // Use soft reload (no spinner) to avoid flicker since user just uploaded
       loadDocuments(false);
     }
     if (errorCount > 0 && successCount === 0) {
       toast({
-        title: "Fehler",
-        description: "Dateien konnten nicht hochgeladen werden",
+        title: t.documentsPage.error,
+        description: t.documentsPage.uploadFailed,
         variant: "destructive"
       });
     }
@@ -412,8 +414,8 @@ const DocumentsContent: React.FC<{
     setShowUploader(false);
     setSelectedFiles([]);
     toast({
-      title: "Upload erfolgreich",
-      description: "Deine Dokumente wurden hochgeladen"
+      title: t.documentsPage.uploadSuccess,
+      description: t.documentsPage.uploadSuccessDescription.replace('{count}', 'Deine')
     });
   };
 
@@ -435,23 +437,23 @@ const DocumentsContent: React.FC<{
     }
   });
 
-  // Sort options
-  const sortOptions = [{
+  // Sort options - translated
+  const sortOptions = useMemo(() => [{
     value: 'date_desc',
-    label: 'Datum (Neueste zuerst)'
+    label: t.documentsPage.sortByDateDesc
   }, {
     value: 'date_asc',
-    label: 'Datum (Älteste zuerst)'
+    label: t.documentsPage.sortByDateAsc
   }, {
     value: 'name_asc',
-    label: 'Name (A-Z)'
+    label: t.documentsPage.sortByNameAsc
   }, {
     value: 'name_desc',
-    label: 'Name (Z-A)'
+    label: t.documentsPage.sortByNameDesc
   }, {
     value: 'type',
-    label: 'Dateityp'
-  }] as const;
+    label: t.documentsPage.sortByType
+  }] as const, [t]);
 
   // Format file size
   const formatFileSize = (bytes: number | null | undefined) => {
@@ -478,7 +480,7 @@ const DocumentsContent: React.FC<{
               </button>
 
               <h1 className="text-base font-semibold tracking-tight text-slate-900">
-                Dokumente hochladen
+                {t.documentsPage.uploadDocuments}
               </h1>
               <div className="w-10" />
             </div>
@@ -508,7 +510,7 @@ const DocumentsContent: React.FC<{
           showAvatar={true} 
           titleElement={
             <div className="flex items-center gap-2" data-tour="documents-year-selector">
-              <span className="text-lg font-semibold text-foreground">Steuerjahr</span>
+              <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
               <div className="relative">
                 <button 
                   onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)} 
@@ -550,7 +552,7 @@ const DocumentsContent: React.FC<{
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
               <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" strokeWidth={1.5} />
               <p className="text-sm text-amber-800">
-                Diese Steuererklärung wurde eingereicht. Dokumente können nicht mehr geändert werden.
+                {t.documentsPage.lockedBanner}
               </p>
             </div>
           )}
@@ -564,7 +566,7 @@ const DocumentsContent: React.FC<{
               </div>
               
               {/* Search Input */}
-              <input type="text" placeholder="Suche..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-base text-slate-800 placeholder:text-slate-400 focus:outline-none" />
+              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-base text-slate-800 placeholder:text-slate-400 focus:outline-none" />
               
               {/* Filter Button */}
               <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors", showSortDropdown && "bg-muted/50")}>
@@ -600,7 +602,7 @@ const DocumentsContent: React.FC<{
                 {filteredDocuments.map(doc => {
               const isImage = doc.file_type?.startsWith('image/');
               const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
-              const uploadDate = new Date(doc.upload_date).toLocaleDateString('de-CH', {
+              const uploadDate = new Date(doc.upload_date).toLocaleDateString(language === 'de' ? 'de-CH' : 'en-GB', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
@@ -642,9 +644,9 @@ const DocumentsContent: React.FC<{
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-xl font-semibold text-zinc-900 tracking-tight">Belege sammeln</h2>
+                    <h2 className="text-xl font-semibold text-zinc-900 tracking-tight">{t.documentsPage.collectReceipts}</h2>
                     <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
-                      Füge deine Rechnungen und Quittungen direkt hinzu.
+                      {t.documentsPage.collectReceiptsDescription}
                     </p>
                   </div>
                 </div>
@@ -669,7 +671,7 @@ const DocumentsContent: React.FC<{
               </div>
               <div className="text-left">
                 <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
-                  Hochladen
+                  {t.documentsPage.upload}
                 </span>
               </div>
             </button>
