@@ -28,6 +28,7 @@ import { DOCUMENT_PROFILES, getDocumentProfile, getAllProfiles } from '@/config/
 import LayoutAnalyzer from './LayoutAnalyzer';
 import NativeOcrService from './NativeOcrService';
 import TesseractOcrService from './TesseractOcrService';
+import TesseractWasmOcrService from './TesseractWasmOcrService';
 import CloudOcrService from './CloudOcrService';
 import { matchKeywords } from '@/utils/documentKeywords';
 import { isMobileAppContext, isDesktopBrowser } from '@/utils/platform';
@@ -44,6 +45,7 @@ class DocumentValidator {
   private layoutAnalyzer: LayoutAnalyzer;
   private nativeOcr: NativeOcrService;
   private tesseractOcr: TesseractOcrService;
+  private tesseractWasmOcr: TesseractWasmOcrService;
   private cloudOcr: CloudOcrService;
   private nativeOcrInitialized: boolean = false;
   private cloudOcrConsent: boolean = false;
@@ -52,6 +54,7 @@ class DocumentValidator {
     this.layoutAnalyzer = LayoutAnalyzer.getInstance();
     this.nativeOcr = NativeOcrService.getInstance();
     this.tesseractOcr = TesseractOcrService.getInstance();
+    this.tesseractWasmOcr = TesseractWasmOcrService.getInstance();
     this.cloudOcr = CloudOcrService.getInstance();
   }
 
@@ -166,8 +169,33 @@ class DocumentValidator {
           console.log('[DocumentValidator] Tesseract OCR fehlgeschlagen, Fallback');
           onProgress?.({ step: 'ocr', percent: 80, message: 'Texterkennung nicht möglich - manuelle Prüfung' });
         }
+      } else if (isMobileAppContext()) {
+        // Mobile WebView: tesseract-wasm - optimized for WebViews, 100% local
+        // This is the new fallback for mobile when native OCR is not available
+        console.log('[DocumentValidator] Using tesseract-wasm (mobile WebView)');
+        onProgress?.({ step: 'ocr', percent: 35, message: 'Text wird lokal erkannt...' });
+        onProgress?.({ step: 'ocr', percent: 40, message: 'Alle Daten bleiben auf Ihrem Gerät' });
+        
+        keywordSignals = await this.detectKeywordsWithTesseractWasm(file, (percent) => {
+          // Map progress (0-100) to our progress range (40-80)
+          const mappedPercent = 40 + Math.round(percent * 0.4);
+          onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Lokale OCR (WebView)...' });
+        });
+        
+        // If tesseract-wasm failed, try Cloud OCR as last resort (if consented)
+        if (!keywordSignals?.available && this.isCloudOcrReady()) {
+          console.log('[DocumentValidator] tesseract-wasm failed, trying Cloud OCR (with consent)');
+          onProgress?.({ step: 'ocr', percent: 60, message: 'Cloud-OCR wird verwendet...' });
+          keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
+        }
+        
+        // If all OCR methods failed, show fallback message
+        if (!keywordSignals?.available) {
+          console.log('[DocumentValidator] All OCR methods failed - manual confirmation required');
+          onProgress?.({ step: 'ocr', percent: 80, message: 'Texterkennung nicht möglich - manuelle Prüfung' });
+        }
       } else if (this.isCloudOcrReady()) {
-        // Mobile context with Cloud OCR consent - use Cloud OCR
+        // Other context with Cloud OCR consent - use Cloud OCR
         // PRIVACY: User has explicitly consented to cloud processing
         console.log('[DocumentValidator] Using Cloud OCR (with consent)');
         onProgress?.({ step: 'ocr', percent: 35, message: 'Cloud-OCR wird verwendet...' });
@@ -175,9 +203,8 @@ class DocumentValidator {
         
         keywordSignals = await this.detectKeywordsWithCloudOcr(file, expectedDocTypeId);
       } else {
-        // Mobile context without OCR - skip OCR, user must confirm manually
-        console.log('[DocumentValidator] Mobile context without OCR capability - skipping OCR');
-        console.log('[DocumentValidator] Hint: Enable Cloud OCR with setCloudOcrConsent(true)');
+        // Unknown context without OCR - skip OCR, user must confirm manually
+        console.log('[DocumentValidator] Unknown context without OCR capability - skipping OCR');
       }
       
       // Update progress after OCR
@@ -308,6 +335,59 @@ class DocumentValidator {
     } catch (error) {
       console.error('[DocumentValidator] Tesseract OCR failed:', error);
       return { available: false, matchCountsByDocType: {}, source: 'tesseract-ocr' };
+    }
+  }
+
+  /**
+   * Detect keywords using tesseract-wasm (WebView-optimized OCR)
+   * PRIVACY: 100% local processing, no data sent to cloud
+   * @param file - The image file to process
+   * @param onProgress - Optional progress callback
+   */
+  private async detectKeywordsWithTesseractWasm(
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<KeywordSignals | undefined> {
+    if (!this.tesseractWasmOcr.isAvailable()) {
+      console.log('[DocumentValidator] tesseract-wasm not available');
+      return { available: false, matchCountsByDocType: {}, source: 'none' };
+    }
+
+    try {
+      console.log('[DocumentValidator] Attempting tesseract-wasm OCR for image (local)...');
+      const detectedTexts = await this.tesseractWasmOcr.detectTextFromFile(file, onProgress);
+
+      if (!detectedTexts.length) {
+        console.log('[DocumentValidator] tesseract-wasm: No text detected');
+        return { available: false, matchCountsByDocType: {}, source: 'tesseract-wasm' };
+      }
+
+      // Match against all profiles
+      const matchCountsByDocType: Record<string, number> = {};
+      const allMatchedLabels: string[] = [];
+
+      for (const profile of getAllProfiles()) {
+        if (profile.keywordHints && profile.keywordHints.length > 0) {
+          const result = this.tesseractWasmOcr.matchKeywords(detectedTexts, profile.keywordHints);
+          matchCountsByDocType[profile.id] = result.matchCount;
+
+          if (result.matchedLabels.length > 0) {
+            allMatchedLabels.push(...result.matchedLabels.slice(0, 3));
+          }
+        }
+      }
+
+      console.log('[DocumentValidator] tesseract-wasm: Keywords matched', matchCountsByDocType);
+
+      return {
+        available: true,
+        matchCountsByDocType,
+        matchedLabels: [...new Set(allMatchedLabels)].slice(0, 10),
+        source: 'tesseract-wasm'
+      };
+    } catch (error) {
+      console.error('[DocumentValidator] tesseract-wasm failed:', error);
+      return { available: false, matchCountsByDocType: {}, source: 'tesseract-wasm' };
     }
   }
 
