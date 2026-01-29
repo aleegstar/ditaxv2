@@ -16,8 +16,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
@@ -226,24 +224,25 @@ const TaxFilers: React.FC = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden">
+          {/* Header */}
+          <div className="p-6 pb-4">
+            <DialogTitle className="text-xl font-semibold text-foreground">
               {editingFiler 
                 ? (t.taxFilers?.editPerson || 'Person bearbeiten')
                 : (t.taxFilers?.addPerson || 'Person hinzufügen')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-primary mt-1">
               {editingFiler
                 ? (t.taxFilers?.editDescription || 'Ändern Sie die Daten der Person.')
                 : (t.taxFilers?.addDescription || 'Fügen Sie eine neue Person hinzu, für die Sie Steuererklärungen erstellen möchten.')}
             </DialogDescription>
-          </DialogHeader>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">
+                <Label htmlFor="firstName" className="text-sm text-muted-foreground">
                   {t.taxFilers?.firstName || 'Vorname'} *
                 </Label>
                 <Input
@@ -252,10 +251,11 @@ const TaxFilers: React.FC = () => {
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                   autoComplete="given-name"
+                  className="rounded-xl border-border"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">
+                <Label htmlFor="lastName" className="text-sm text-muted-foreground">
                   {t.taxFilers?.lastName || 'Nachname'} *
                 </Label>
                 <Input
@@ -264,12 +264,13 @@ const TaxFilers: React.FC = () => {
                   onChange={(e) => setLastName(e.target.value)}
                   required
                   autoComplete="family-name"
+                  className="rounded-xl border-border"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">
+              <Label htmlFor="dateOfBirth" className="text-sm text-muted-foreground">
                 {t.taxFilers?.dateOfBirth || 'Geburtsdatum'}
               </Label>
               <Input
@@ -278,11 +279,12 @@ const TaxFilers: React.FC = () => {
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
                 autoComplete="bday"
+                className="rounded-xl border-border"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="relationship">
+              <Label htmlFor="relationship" className="text-sm text-muted-foreground">
                 {t.taxFilers?.relationship || 'Beziehung'} *
               </Label>
               <Select
@@ -290,7 +292,7 @@ const TaxFilers: React.FC = () => {
                 onValueChange={(val) => setRelationship(val as RelationshipType)}
                 disabled={editingFiler?.is_primary}
               >
-                <SelectTrigger>
+                <SelectTrigger className="rounded-xl border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -303,21 +305,27 @@ const TaxFilers: React.FC = () => {
               </Select>
             </div>
 
-            <DialogFooter>
+            {/* Buttons */}
+            <div className="flex gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsDialogOpen(false)}
+                className="flex-1 rounded-xl border-border"
               >
                 {t.common?.cancel || 'Abbrechen'}
               </Button>
-              <Button type="submit" disabled={isSaving || !firstName.trim() || !lastName.trim()}>
+              <Button 
+                type="submit" 
+                disabled={isSaving || !firstName.trim() || !lastName.trim()}
+                className="flex-1 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white"
+              >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {editingFiler 
                   ? (t.forms?.save || 'Speichern')
-                  : (t.taxFilers?.addPerson || 'Hinzufügen')}
+                  : (t.taxFilers?.addPerson || 'Person hinzufügen')}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
