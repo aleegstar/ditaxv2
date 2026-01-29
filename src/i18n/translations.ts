@@ -789,6 +789,70 @@ export interface Translation {
     pending: string;
     processing: string;
   };
+
+  // Yes/No Form
+  yesNoForm: {
+    yes: string;
+    no: string;
+    yesDescription: string;
+    noDescription: string;
+    moreInfo: string;
+    answerSaved: string;
+    answerSavedDescription: string;
+    answerError: string;
+    answerErrorDescription: string;
+    questions: {
+      income: {
+        hasPension: { text: string; explanation: string; };
+        hasGiftInheritance: { text: string; explanation: string; };
+        hasPensionPayout: { text: string; explanation: string; };
+        hasRental: { text: string; explanation: string; };
+        hasDividends: { text: string; explanation: string; };
+        hasOtherIncome: { text: string; explanation: string; };
+        hasFreelance: { text: string; explanation: string; };
+        hasSalary: { text: string; explanation: string; };
+      };
+      assets: {
+        hasVehicle: { text: string; explanation: string; };
+        hasProperty: { text: string; explanation: string; };
+        hasMortgage: { text: string; explanation: string; };
+        hasDebt: { text: string; explanation: string; };
+        hasDepositAccount: { text: string; explanation: string; };
+        hasCrypto: { text: string; explanation: string; };
+        hasOtherAssets: { text: string; explanation: string; };
+      };
+      deductions: {
+        hasPillar3a: { text: string; explanation: string; };
+        hasBVGPurchase: { text: string; explanation: string; };
+        hasEducationExpenses: { text: string; explanation: string; };
+        hasDonations: { text: string; explanation: string; };
+        hasPropertyMaintenance: { text: string; explanation: string; };
+        hasOtherDeductions: { text: string; explanation: string; };
+        hasSupportedPersons: { text: string; explanation: string; };
+        hasMaintenancePayments: { text: string; explanation: string; };
+        hasChildcare: { text: string; explanation: string; };
+      };
+    };
+  };
+
+  // Onboarding/Welcome
+  onboarding: {
+    consentTitle: string;
+    nameTitle: string;
+    yearTitle: string;
+    termsAccept: string;
+    privacyPolicy: string;
+    termsOfService: string;
+    newsletterTitle: string;
+    newsletterDescription: string;
+    next: string;
+    letsGo: string;
+    firstName: string;
+    acceptTermsError: string;
+    enterNameError: string;
+    authError: string;
+    genericError: string;
+  };
 }
 
 export const translations: Record<'de' | 'en', Translation> = {
@@ -1549,6 +1613,142 @@ export const translations: Record<'de' | 'en', Translation> = {
       pending: 'Ausstehend',
       processing: 'Wird verarbeitet',
     },
+
+    // Yes/No Form
+    yesNoForm: {
+      yes: 'Ja',
+      no: 'Nein',
+      yesDescription: 'Diese Angabe trifft auf mich zu.',
+      noDescription: 'Diese Angabe trifft nicht auf mich zu.',
+      moreInfo: 'Mehr Informationen',
+      answerSaved: 'Änderung gespeichert',
+      answerSavedDescription: 'Deine Antwort wurde aktualisiert.',
+      answerError: 'Fehler bei der Antwort',
+      answerErrorDescription: 'Bitte versuche es erneut.',
+      questions: {
+        income: {
+          hasPension: {
+            text: 'Erhältst du Renten aus Sozialversicherungen oder einer Pensionskasse?',
+            explanation: 'Dazu gehören AHV-Renten, IV-Renten, Pensionskassenrenten, berufliche Vorsorge (BVG), Unfallrenten, Militärversicherungsrenten sowie ausländische Sozialversicherungsrenten. Auch Renten von Freizügigkeitsstiftungen und vorzeitige Pensionierungsleistungen zählen dazu.'
+          },
+          hasGiftInheritance: {
+            text: 'Hast du eine Schenkung oder einen Erbvorbezug erhalten?',
+            explanation: 'Schenkungen sind unentgeltliche Zuwendungen von Dritten wie Geldgeschenke, Immobilien oder andere Wertsachen. Erbvorbezüge sind Vermögenswerte, die du bereits zu Lebzeiten der Erblasser erhalten hast und die später vom Erbe abgezogen werden. Beide müssen in der Steuererklärung deklariert werden.'
+          },
+          hasPensionPayout: {
+            text: 'Hast du eine Kapitalauszahlung aus der Säule 2 oder Säule 3 erhalten?',
+            explanation: 'Kapitalauszahlungen aus der beruflichen Vorsorge (Säule 2) oder der gebundenen Selbstvorsorge (Säule 3a) bei Pensionierung, Invalidität, Auswanderung oder Aufnahme einer selbständigen Erwerbstätigkeit. Diese werden separat und zu einem reduzierten Steuersatz besteuert.'
+          },
+          hasRental: {
+            text: 'Hast du Mieteinnahmen?',
+            explanation: 'Mieteinnahmen aus der Vermietung von Wohnungen, Häusern, Gewerberäumen oder anderen Immobilien müssen als Einkommen deklariert werden. Dies umfasst auch Untervermietungen und kurzfristige Vermietungen über Plattformen wie Airbnb.'
+          },
+          hasDividends: {
+            text: 'Hast du Dividenden oder Kapitalerträge erhalten?',
+            explanation: 'Dividenden aus Aktien, Genossenschaftsanteilen und anderen Beteiligungen sowie Zinserträge aus Obligationen und anderen Wertpapieren müssen als Einkommen deklariert werden. Dies gilt für in- und ausländische Erträge.'
+          },
+          hasOtherIncome: {
+            text: 'Hast du weitere Einkommen generiert?',
+            explanation: 'Weitere Einkommen umfassen Nebeneinkommen aus Teilzeitarbeit, Pachterträge, Tantiemen, Gratifikationen, Honorare aus selbständiger Nebentätigkeit sowie alle anderen nicht bereits erfassten Einkommensarten.'
+          },
+          hasFreelance: {
+            text: 'Bist du selbständigerwerbend?',
+            explanation: 'Selbständigerwerbend sind Personen, die ein eigenes Unternehmen führen, freiberuflich tätig sind oder als Einzelfirma, GmbH oder AG geschäftlich aktiv sind. Dazu gehören auch Ärzte mit eigener Praxis, Anwälte, Berater, Handwerker mit eigenem Betrieb sowie Online-Unternehmer und Influencer.'
+          },
+          hasSalary: {
+            text: 'Bist du Arbeitnehmer?',
+            explanation: 'Als Arbeitnehmer gelten alle Personen in einem Anstellungsverhältnis mit einem Arbeitsvertrag. Dazu gehören Vollzeit- und Teilzeitangestellte, Lehrlinge, Praktikanten, Temporärangestellte sowie Personen mit mehreren Arbeitgebern. Der Lohn wird durch den Lohnausweis dokumentiert.'
+          }
+        },
+        assets: {
+          hasVehicle: {
+            text: 'Besitzt du Fahrzeuge?',
+            explanation: 'Alle motorisierten Fahrzeuge wie Autos, Motorräder, Wohnmobile, Boote, Jet-Skis und andere Wasserfahrzeuge müssen als Vermögen deklariert werden. Der Verkehrswert zum Stichtag 31. Dezember ist massgebend, nicht der ursprüngliche Kaufpreis. Leasingfahrzeuge gehören nicht zum steuerbaren Vermögen.'
+          },
+          hasProperty: {
+            text: 'Besitzt du Immobilien?',
+            explanation: 'Zu den Immobilien gehören das selbstbewohnte Eigenheim, Ferienhäuser, vermietete Liegenschaften, Eigentumswohnungen, Bauland, landwirtschaftliche Grundstücke sowie Anteile an Immobilienfonds oder Immobilien-AGs. Der Steuerwert wird meist durch die Steuerbehörden festgelegt und kann vom Marktwert abweichen.'
+          },
+          hasMortgage: {
+            text: 'Hast du Hypotheken oder Immobilienkredite?',
+            explanation: 'Hypotheken und andere Immobilienkredite sind abzugsfähige Schulden. Dazu gehören erste und zweite Hypotheken, Vorfinanzierungskredite für den Hausbau, Renovationskredite sowie private Darlehen für Immobilienkäufe. Der Schuldsaldo per 31. Dezember ist massgebend für die Steuererklärung.'
+          },
+          hasDebt: {
+            text: 'Hast du Schulden?',
+            explanation: 'Abzugsfähige Schulden umfassen Bankkredite, Privatkredite, Kreditkartenschulden, Leasingverpflichtungen, geschäftliche Darlehen, Steuerschulden sowie Verbindlichkeiten gegenüber Dritten. Nicht abzugsfähig sind Schulden für den Lebensunterhalt oder Konsumschulden ohne wirtschaftlichen Zweck.'
+          },
+          hasDepositAccount: {
+            text: 'Hast du ein Depotkonto?',
+            explanation: 'Depotkonten enthalten Wertpapiere wie Aktien, Obligationen, Anlagefonds, ETFs, strukturierte Produkte sowie andere börsengehandelte Anlagen. Alle Wertpapiere in der Schweiz und im Ausland müssen mit dem Kurswert per 31. Dezember deklariert werden. Auch ausländische Depots und Online-Broker wie Interactive Brokers, Swissquote oder Trading 212 gehören dazu.'
+          },
+          hasCrypto: {
+            text: 'Besitzt du Kryptowährungen?',
+            explanation: 'Kryptowährungen wie Bitcoin, Ethereum, Litecoin und alle anderen digitalen Assets gelten als steuerbares Vermögen. Der Wert per 31. Dezember gemäss offiziellen Kurslisten der Eidgenössischen Steuerverwaltung ist massgebend. Auch DeFi-Tokens, NFTs und Staking-Rewards müssen deklariert werden.'
+          },
+          hasOtherAssets: {
+            text: 'Hast du weitere Vermögen?',
+            explanation: 'Weitere Vermögenswerte umfassen Kunstwerke, Antiquitäten, Schmuck, Edelmetalle, Sammlungen, Lebensversicherungen mit Rückkaufswert, Forderungen gegenüber Dritten, Beteiligungen an nicht kotierten Unternehmen sowie alle anderen Wertsachen mit einem Verkehrswert über 5000 Franken.'
+          }
+        },
+        deductions: {
+          hasPillar3a: {
+            text: 'Zahlst du in die Säule 3a ein?',
+            explanation: 'Die Säule 3a ist die steuerlich begünstigte, gebundene Selbstvorsorge. Einzahlungen können bis zum gesetzlichen Maximum (aktuell 7056 CHF für Angestellte, 35280 CHF für Selbständige ohne Pensionskasse) vollständig vom steuerbaren Einkommen abgezogen werden. Die Einzahlungen müssen bis zum 31. Dezember erfolgen.'
+          },
+          hasBVGPurchase: {
+            text: 'Hast du Einkäufe in die Pensionskasse getätigt?',
+            explanation: 'Freiwillige Einkäufe in die berufliche Vorsorge (BVG) zur Verbesserung der Alters- und Invalidenleistungen sind vollständig steuerlich abzugsfähig. Der mögliche Einkaufsbetrag wird durch die Pensionskasse berechnet und im Vorsorgeausweis ausgewiesen. Bei Kapitalbezug innerhalb von drei Jahren sind Einschränkungen zu beachten.'
+          },
+          hasEducationExpenses: {
+            text: 'Hast du Weiterbildungskosten?',
+            explanation: 'Abzugsfähig sind berufsorientierte Aus- und Weiterbildungskosten, Umschulungen, Studiengänge zur beruflichen Verbesserung, Sprachkurse mit beruflichem Bezug, Fachliteratur, Seminar- und Kursgebühren. Reine Hobbyaktivitäten oder allgemeinbildende Kurse ohne beruflichen Bezug sind nicht abzugsfähig.'
+          },
+          hasDonations: {
+            text: 'Hast du Spenden geleistet?',
+            explanation: 'Spenden an gemeinnützige, mildtätige oder kirchliche Organisationen mit Sitz in der Schweiz sind bis zu 20% des Reineinkommens abzugsfähig. Die Organisation muss von der Steuerbehörde als gemeinnützig anerkannt sein. Spenden an politische Parteien oder ausländische Organisationen sind grundsätzlich nicht abzugsfähig.'
+          },
+          hasPropertyMaintenance: {
+            text: 'Hast du Unterhaltskosten für Liegenschaften?',
+            explanation: 'Abzugsfähig sind Kosten für den Unterhalt und die Renovation von selbstbewohnten und vermieteten Liegenschaften. Dazu gehören Reparaturen, Erneuerungen, energetische Sanierungen, Gartenpflege und Schneeräumung. Wertvermehrende Investitionen können über mehrere Jahre verteilt abgezogen werden.'
+          },
+          hasOtherDeductions: {
+            text: 'Hast du weitere Abzüge?',
+            explanation: 'Weitere abzugsfähige Kosten umfassen Verwaltungskosten für Wertschriften, Steuerberatungskosten, Versicherungsprämien für Erwerbs- und Berufsunfähigkeit, Kranken- und Unfallversicherungsprämien sowie außerordentliche Belastungen wie hohe Krankheitskosten oder Katastrophenschäden.'
+          },
+          hasSupportedPersons: {
+            text: 'Unterstützt du andere Personen finanziell?',
+            explanation: 'Unterstützungsleistungen an bedürftige Angehörige wie Eltern, Grosseltern, erwachsene Kinder oder andere Verwandte sind abzugsfähig, wenn diese nicht über ausreichende eigene Mittel verfügen. Die Unterstützung muss regelmässig und in erheblichem Umfang erfolgen. Ein Nachweis der Bedürftigkeit ist erforderlich.'
+          },
+          hasMaintenancePayments: {
+            text: 'Zahlst du Unterhaltsbeiträge?',
+            explanation: 'Gesetzlich oder gerichtlich festgelegte Unterhaltszahlungen an geschiedene oder getrennt lebende Ehegatten sowie Alimente für Kinder sind vollständig vom Einkommen abzugsfähig. Freiwillige Zahlungen über das gesetzlich Vorgeschriebene hinaus sind nur in Ausnahmefällen abzugsfähig. Kinderalimente werden beim Empfänger als Einkommen besteuert.'
+          },
+          hasChildcare: {
+            text: 'Hast du Kinderbetreuungskosten?',
+            explanation: 'Kosten für die Betreuung von Kindern unter 14 Jahren durch Dritte sind abzugsfähig, wenn beide Elternteile erwerbstätig sind oder sich in Ausbildung befinden. Dazu gehören Kosten für Krippen, Kindergärten, Horte, Tagesmütter und Babysitter. Die Betreuung durch Verwandte ist nur bei nachgewiesener Entlohnung abzugsfähig.'
+          }
+        }
+      }
+    },
+
+    // Onboarding/Welcome
+    onboarding: {
+      consentTitle: 'Datenschutz & Einwilligungen',
+      nameTitle: 'Wie lautet dein Vorname?',
+      yearTitle: 'Grüezi {name}, welches Steuerjahr möchtest du erstellen?',
+      termsAccept: 'Ich akzeptiere die',
+      privacyPolicy: 'Datenschutzbestimmungen',
+      termsOfService: 'Nutzungsbedingungen',
+      newsletterTitle: 'Newsletter & Marketing-E-Mails',
+      newsletterDescription: 'Erhalte Updates zu Steueränderungen und hilfreiche Tipps (optional)',
+      next: 'Weiter',
+      letsGo: "Los geht's!",
+      firstName: 'Vorname',
+      acceptTermsError: 'Bitte akzeptiere die Datenschutzbestimmungen und Nutzungsbedingungen',
+      enterNameError: 'Bitte gib deinen Namen ein',
+      authError: 'Authentifizierung fehlgeschlagen',
+      genericError: 'Ein Fehler ist aufgetreten'
+    },
   },
   
   en: {
@@ -2307,6 +2507,142 @@ export const translations: Record<'de' | 'en', Translation> = {
       complete: 'Complete',
       pending: 'Pending',
       processing: 'Processing',
+    },
+
+    // Yes/No Form
+    yesNoForm: {
+      yes: 'Yes',
+      no: 'No',
+      yesDescription: 'This applies to me.',
+      noDescription: 'This does not apply to me.',
+      moreInfo: 'More information',
+      answerSaved: 'Answer saved',
+      answerSavedDescription: 'Your answer has been updated.',
+      answerError: 'Error saving answer',
+      answerErrorDescription: 'Please try again.',
+      questions: {
+        income: {
+          hasPension: {
+            text: 'Do you receive pensions from social insurance or a pension fund?',
+            explanation: 'This includes AHV pensions, IV pensions, pension fund pensions, occupational pension (BVG), accident pensions, military insurance pensions, and foreign social insurance pensions. Pensions from vested benefits foundations and early retirement benefits also count.'
+          },
+          hasGiftInheritance: {
+            text: 'Have you received a gift or inheritance advance?',
+            explanation: 'Gifts are gratuitous contributions from third parties such as cash gifts, real estate, or other valuables. Inheritance advances are assets received during the lifetime of the testator that are later deducted from the inheritance. Both must be declared in the tax return.'
+          },
+          hasPensionPayout: {
+            text: 'Have you received a capital payout from Pillar 2 or Pillar 3?',
+            explanation: 'Capital payouts from occupational pension (Pillar 2) or tied private pension (Pillar 3a) upon retirement, disability, emigration, or starting self-employment. These are taxed separately at a reduced rate.'
+          },
+          hasRental: {
+            text: 'Do you have rental income?',
+            explanation: 'Rental income from renting apartments, houses, commercial spaces, or other properties must be declared as income. This also includes subletting and short-term rentals via platforms like Airbnb.'
+          },
+          hasDividends: {
+            text: 'Have you received dividends or capital gains?',
+            explanation: 'Dividends from shares, cooperative shares, and other investments, as well as interest income from bonds and other securities, must be declared as income. This applies to both domestic and foreign income.'
+          },
+          hasOtherIncome: {
+            text: 'Have you generated other income?',
+            explanation: 'Other income includes part-time employment income, lease income, royalties, bonuses, fees from self-employed side activities, and all other income types not already covered.'
+          },
+          hasFreelance: {
+            text: 'Are you self-employed?',
+            explanation: 'Self-employed persons are those who run their own business, work freelance, or are commercially active as a sole proprietorship, GmbH, or AG. This also includes doctors with their own practice, lawyers, consultants, craftsmen with their own business, and online entrepreneurs and influencers.'
+          },
+          hasSalary: {
+            text: 'Are you an employee?',
+            explanation: 'Employees are all persons in an employment relationship with an employment contract. This includes full-time and part-time employees, apprentices, interns, temporary workers, and persons with multiple employers. The salary is documented by the salary certificate.'
+          }
+        },
+        assets: {
+          hasVehicle: {
+            text: 'Do you own vehicles?',
+            explanation: 'All motorized vehicles such as cars, motorcycles, motorhomes, boats, jet skis, and other watercraft must be declared as assets. The market value as of December 31 is relevant, not the original purchase price. Leased vehicles are not part of taxable assets.'
+          },
+          hasProperty: {
+            text: 'Do you own real estate?',
+            explanation: 'Real estate includes owner-occupied homes, vacation homes, rental properties, condominiums, building land, agricultural land, and shares in real estate funds or real estate companies. The tax value is usually set by the tax authorities and may differ from market value.'
+          },
+          hasMortgage: {
+            text: 'Do you have mortgages or real estate loans?',
+            explanation: 'Mortgages and other real estate loans are deductible debts. This includes first and second mortgages, pre-financing loans for home construction, renovation loans, and private loans for real estate purchases. The debt balance as of December 31 is relevant for the tax return.'
+          },
+          hasDebt: {
+            text: 'Do you have debts?',
+            explanation: 'Deductible debts include bank loans, private loans, credit card debts, leasing obligations, business loans, tax debts, and liabilities to third parties. Debts for living expenses or consumer debts without economic purpose are not deductible.'
+          },
+          hasDepositAccount: {
+            text: 'Do you have a securities account?',
+            explanation: 'Securities accounts contain securities such as stocks, bonds, investment funds, ETFs, structured products, and other exchange-traded investments. All securities in Switzerland and abroad must be declared at market value as of December 31. This also includes foreign accounts and online brokers like Interactive Brokers, Swissquote, or Trading 212.'
+          },
+          hasCrypto: {
+            text: 'Do you own cryptocurrencies?',
+            explanation: 'Cryptocurrencies like Bitcoin, Ethereum, Litecoin, and all other digital assets are taxable assets. The value as of December 31 according to official price lists from the Federal Tax Administration is relevant. DeFi tokens, NFTs, and staking rewards must also be declared.'
+          },
+          hasOtherAssets: {
+            text: 'Do you have other assets?',
+            explanation: 'Other assets include artworks, antiques, jewelry, precious metals, collections, life insurance with surrender value, claims against third parties, participations in unlisted companies, and all other valuables with a market value over 5,000 francs.'
+          }
+        },
+        deductions: {
+          hasPillar3a: {
+            text: 'Do you pay into Pillar 3a?',
+            explanation: 'Pillar 3a is the tax-advantaged, tied private pension. Contributions can be fully deducted from taxable income up to the legal maximum (currently CHF 7,056 for employees, CHF 35,280 for self-employed without pension fund). Contributions must be made by December 31.'
+          },
+          hasBVGPurchase: {
+            text: 'Have you made pension fund purchases?',
+            explanation: 'Voluntary purchases into occupational pension (BVG) to improve retirement and disability benefits are fully tax-deductible. The possible purchase amount is calculated by the pension fund and shown in the pension certificate. Restrictions apply if capital is withdrawn within three years.'
+          },
+          hasEducationExpenses: {
+            text: 'Do you have education costs?',
+            explanation: 'Deductible are job-related education and training costs, retraining, degree programs for career advancement, language courses with professional relevance, specialist literature, and seminar and course fees. Pure hobby activities or general education courses without professional relevance are not deductible.'
+          },
+          hasDonations: {
+            text: 'Have you made donations?',
+            explanation: 'Donations to charitable, benevolent, or ecclesiastical organizations based in Switzerland are deductible up to 20% of net income. The organization must be recognized as charitable by the tax authority. Donations to political parties or foreign organizations are generally not deductible.'
+          },
+          hasPropertyMaintenance: {
+            text: 'Do you have property maintenance costs?',
+            explanation: 'Deductible are costs for maintenance and renovation of owner-occupied and rented properties. This includes repairs, renewals, energy-efficient renovations, garden care, and snow removal. Value-enhancing investments can be deducted over several years.'
+          },
+          hasOtherDeductions: {
+            text: 'Do you have other deductions?',
+            explanation: 'Other deductible costs include securities management costs, tax consulting fees, disability insurance premiums, health and accident insurance premiums, and extraordinary burdens such as high medical costs or disaster damage.'
+          },
+          hasSupportedPersons: {
+            text: 'Do you financially support other persons?',
+            explanation: 'Support payments to needy relatives such as parents, grandparents, adult children, or other relatives are deductible if they do not have sufficient means of their own. Support must be regular and substantial. Proof of need is required.'
+          },
+          hasMaintenancePayments: {
+            text: 'Do you pay alimony?',
+            explanation: 'Legally or judicially determined maintenance payments to divorced or separated spouses and child support are fully deductible from income. Voluntary payments beyond legal requirements are only deductible in exceptional cases. Child support is taxed as income for the recipient.'
+          },
+          hasChildcare: {
+            text: 'Do you have childcare costs?',
+            explanation: 'Costs for childcare by third parties for children under 14 are deductible if both parents are employed or in education. This includes costs for daycare, kindergartens, after-school care, childminders, and babysitters. Care by relatives is only deductible with documented compensation.'
+          }
+        }
+      }
+    },
+
+    // Onboarding/Welcome
+    onboarding: {
+      consentTitle: 'Privacy & Consent',
+      nameTitle: 'What is your first name?',
+      yearTitle: 'Hello {name}, which tax year would you like to create?',
+      termsAccept: 'I accept the',
+      privacyPolicy: 'Privacy Policy',
+      termsOfService: 'Terms of Service',
+      newsletterTitle: 'Newsletter & Marketing Emails',
+      newsletterDescription: 'Receive updates on tax changes and helpful tips (optional)',
+      next: 'Next',
+      letsGo: "Let's go!",
+      firstName: 'First name',
+      acceptTermsError: 'Please accept the privacy policy and terms of service',
+      enterNameError: 'Please enter your name',
+      authError: 'Authentication failed',
+      genericError: 'An error occurred'
     },
   },
 };

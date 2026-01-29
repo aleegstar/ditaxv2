@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ditaxSplashTransition from '@/assets/ditax-splash-transition.gif';
+import { useI18n } from '@/contexts/I18nContext';
 
 const TAX_YEARS = Array.from({
   length: 3
@@ -20,6 +21,7 @@ const TAX_YEARS = Array.from({
 
 export const WelcomeFlow = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [currentStep, setCurrentStep] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [taxYear, setTaxYear] = useState(TAX_YEARS[0]);
@@ -30,10 +32,10 @@ export const WelcomeFlow = () => {
 
   const steps = [{
     id: 'consent',
-    title: 'Datenschutz & Einwilligungen'
+    title: t.onboarding.consentTitle
   }, {
     id: 'name',
-    title: 'Wie lautet dein Vorname?'
+    title: t.onboarding.nameTitle
   }, {
     id: 'year',
     title: '' // Will be set dynamically with firstName
@@ -41,11 +43,11 @@ export const WelcomeFlow = () => {
   
   const handleNext = async () => {
     if (currentStep === 0 && !termsAccepted) {
-      toast.error('Bitte akzeptiere die Datenschutzbestimmungen und Nutzungsbedingungen');
+      toast.error(t.onboarding.acceptTermsError);
       return;
     }
     if (currentStep === 1 && !firstName.trim()) {
-      toast.error('Bitte gib deinen Namen ein');
+      toast.error(t.onboarding.enterNameError);
       return;
     }
     if (currentStep < steps.length - 1) {
@@ -54,6 +56,7 @@ export const WelcomeFlow = () => {
       await handleComplete();
     }
   };
+  
   const handleComplete = async () => {
     setIsLoading(true);
     setShowTransition(true);
@@ -67,7 +70,7 @@ export const WelcomeFlow = () => {
         }
       } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Authentifizierung fehlgeschlagen');
+        toast.error(t.onboarding.authError);
         navigate('/auth');
         return;
       }
@@ -109,17 +112,19 @@ export const WelcomeFlow = () => {
       });
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      toast.error('Ein Fehler ist aufgetreten');
+      toast.error(t.onboarding.genericError);
       setShowTransition(false);
     } finally {
       setIsLoading(false);
     }
   };
+  
   const canProceed = () => {
     if (currentStep === 0) return termsAccepted;
     if (currentStep === 1) return firstName.trim().length > 0;
     return true;
   };
+  
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
@@ -128,13 +133,13 @@ export const WelcomeFlow = () => {
               <label className="flex items-start gap-4 cursor-pointer group">
                 <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
                 <div className="flex-1 text-slate-700 text-sm leading-relaxed text-left">
-                  Ich akzeptiere die{' '}
+                  {t.onboarding.termsAccept}{' '}
                   <Link to="/privacy" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
-                    Datenschutzbestimmungen
+                    {t.onboarding.privacyPolicy}
                   </Link>
-                  {' '}und{' '}
+                  {' '}{t.auth.termsText.includes('und') ? 'und' : 'and'}{' '}
                   <Link to="/terms" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
-                    Nutzungsbedingungen
+                    {t.onboarding.termsOfService}
                   </Link>
                 </div>
               </label>
@@ -144,10 +149,10 @@ export const WelcomeFlow = () => {
                   <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
                   <div className="flex-1 text-slate-700 leading-relaxed text-left">
                     <div className="font-medium mb-1 text-sm text-slate-800">
-                      Newsletter & Marketing-E-Mails
+                      {t.onboarding.newsletterTitle}
                     </div>
                     <div className="text-slate-500 text-xs leading-relaxed">
-                      Erhalte Updates zu Steueränderungen und hilfreiche Tipps (optional)
+                      {t.onboarding.newsletterDescription}
                     </div>
                   </div>
                 </label>
@@ -155,15 +160,15 @@ export const WelcomeFlow = () => {
             </div>
 
             <Button onClick={handleNext} disabled={isLoading || !canProceed()} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>Weiter</span>
+              <span>{t.onboarding.next}</span>
               <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
             </Button>
           </div>;
       case 1:
         return <div className="w-full space-y-5">
-            <Input type="text" placeholder="Vorname" value={firstName} onChange={e => setFirstName(e.target.value)} className="text-xl h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-[#1D64FF] focus-visible:ring-2 focus-visible:ring-blue-600/20 shadow-sm" onKeyDown={e => e.key === 'Enter' && handleNext()} autoFocus />
+            <Input type="text" placeholder={t.onboarding.firstName} value={firstName} onChange={e => setFirstName(e.target.value)} className="text-xl h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-[#1D64FF] focus-visible:ring-2 focus-visible:ring-blue-600/20 shadow-sm" onKeyDown={e => e.key === 'Enter' && handleNext()} autoFocus />
             <Button onClick={handleNext} disabled={isLoading || !canProceed()} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>Weiter</span>
+              <span>{t.onboarding.next}</span>
               <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
             </Button>
           </div>;
@@ -180,7 +185,7 @@ export const WelcomeFlow = () => {
               </SelectContent>
             </Select>
             <Button onClick={handleComplete} disabled={isLoading} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>Los geht's!</span>
+              <span>{t.onboarding.letsGo}</span>
               <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
             </Button>
           </div>;
@@ -188,12 +193,14 @@ export const WelcomeFlow = () => {
         return null;
     }
   };
+  
   const getStepTitle = () => {
     if (currentStep === 2 && firstName) {
-      return `Grüezi ${firstName}, welches Steuerjahr möchtest du erstellen?`;
+      return t.onboarding.yearTitle.replace('{name}', firstName);
     }
     return steps[currentStep].title;
   };
+  
   return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased">
       {/* Logo above card */}
       <motion.div className="mb-8 flex items-center justify-center" initial={{

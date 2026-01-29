@@ -3,6 +3,7 @@ import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
 import { getQuestionsForSection } from '@/config/yesNoQuestions';
 import { FormData } from '@/types';
 import { SimplifiedFormData } from '@/types/priceCalculator';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface PriceCalculatorState {
   started: boolean;
@@ -13,6 +14,7 @@ interface PriceCalculatorState {
 }
 
 export const usePriceCalculator = () => {
+  const { t } = useI18n();
   const [state, setState] = useState<PriceCalculatorState>({
     started: false,
     currentStep: 1,
@@ -30,12 +32,12 @@ export const usePriceCalculator = () => {
     
     if (state.currentStep === 4) return 100; // Results step
     
-    const currentQuestions = getQuestionsForSection(state.currentSection).questions;
+    const currentQuestions = getQuestionsForSection(state.currentSection, t).questions;
     const answeredQuestions = currentQuestions.filter(q => state.answers[q.id] !== undefined).length;
     const sectionProgress = (answeredQuestions / currentQuestions.length) * (100 / sections.length);
     
     return Math.min(baseProgress + sectionProgress, 95); // Max 95% until results
-  }, [state.currentStep, state.currentSection, state.answers]);
+  }, [state.currentStep, state.currentSection, state.answers, t]);
 
   // Convert answers to mock FormData format for price calculation
   const formData = useMemo((): FormData => {
@@ -69,19 +71,19 @@ export const usePriceCalculator = () => {
     };
 
     // Filter answers by section and apply to mock data
-    getQuestionsForSection('income').questions.forEach(q => {
+    getQuestionsForSection('income', t).questions.forEach(q => {
       if (state.answers[q.id] !== undefined) {
         mockFormData.income[q.id] = state.answers[q.id];
       }
     });
 
-    getQuestionsForSection('assets').questions.forEach(q => {
+    getQuestionsForSection('assets', t).questions.forEach(q => {
       if (state.answers[q.id] !== undefined) {
         mockFormData.assets[q.id] = state.answers[q.id];
       }
     });
 
-    getQuestionsForSection('deductions').questions.forEach(q => {
+    getQuestionsForSection('deductions', t).questions.forEach(q => {
       if (state.answers[q.id] !== undefined) {
         mockFormData.deductions[q.id] = state.answers[q.id];
       }

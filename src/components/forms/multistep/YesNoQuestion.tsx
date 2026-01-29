@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, X, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
@@ -18,6 +19,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   className
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useI18n();
 
   return (
     <motion.div
@@ -46,7 +48,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
               <div className="p-1 rounded-md bg-slate-200 text-slate-500 group-open:bg-blue-100 group-open:text-blue-600 transition-colors">
                 <Info className="w-4 h-4" />
               </div>
-              <span>Mehr Informationen</span>
+              <span>{t.yesNoForm.moreInfo}</span>
               <ChevronDown className="w-4 h-4 ml-auto text-slate-400 transition-transform duration-200 group-open:rotate-180" />
             </summary>
             <div className="px-4 pb-4 pt-0 text-sm text-slate-500 leading-relaxed border-t border-slate-200/50 mt-2 bg-white rounded-b-xl">
@@ -81,10 +83,10 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           </div>
           <div>
             <span className="block text-lg font-semibold text-slate-900 mb-1">
-              Ja
+              {t.yesNoForm.yes}
             </span>
             <span className="block text-sm text-slate-500 group-hover:text-slate-600">
-              Diese Angabe trifft auf mich zu.
+              {t.yesNoForm.yesDescription}
             </span>
           </div>
         </button>
@@ -110,10 +112,10 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           </div>
           <div>
             <span className="block text-lg font-semibold text-slate-900 mb-1">
-              Nein
+              {t.yesNoForm.no}
             </span>
             <span className="block text-sm text-slate-500 group-hover:text-slate-600">
-              Diese Angabe trifft nicht auf mich zu.
+              {t.yesNoForm.noDescription}
             </span>
           </div>
         </button>

@@ -14,6 +14,7 @@ import { androidDebug } from '@/utils/androidDebug';
 import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
 import { Capacitor } from '@capacitor/core';
 import { isAndroidEnvironment } from '@/utils/platform';
+import { useI18n } from '@/contexts/I18nContext';
 
 interface MultiStepYesNoFormProps {
   section: 'income' | 'assets' | 'deductions';
@@ -101,6 +102,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     handleBack: contextHandleBack
   } = useFormContext();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   // Use Android environment detection for stable rendering
   const isAndroid = isAndroidEnvironment();
@@ -111,7 +113,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [section]);
 
-  const questionsConfig = getQuestionsForSection(section);
+  const questionsConfig = getQuestionsForSection(section, t);
   const questions = questionsConfig.questions;
 
   const [formState, setFormState] = useState<MultiStepFormState>({
