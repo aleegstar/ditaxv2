@@ -586,6 +586,105 @@ export interface Translation {
     feedbackSubmittedDescription: string;
     anonymous: string;
   };
+
+  // Feedback Page
+  feedbackPage: {
+    title: string;
+    satisfactionQuestion: string;
+    featureRequestLabel: string;
+    featureRequestOptional: string;
+    featureRequestPlaceholder: string;
+    submitButton: string;
+    submitting: string;
+    ratingRequired: string;
+    ratingRequiredDescription: string;
+    notLoggedIn: string;
+    notLoggedInDescription: string;
+    error: string;
+    errorDescription: string;
+    thankYouTitle: string;
+    thankYouMessage: string;
+    backToHome: string;
+    successToast: string;
+    successToastDescription: string;
+    ratings: {
+      veryUnsatisfied: string;
+      unsatisfied: string;
+      neutral: string;
+      satisfied: string;
+      verySatisfied: string;
+    };
+  };
+
+  // Privacy Settings Page
+  privacySettingsPage: {
+    title: string;
+    pleaseLogin: string;
+    privacyPreferences: string;
+    marketingEmails: string;
+    marketingEmailsDescription: string;
+    saveSettings: string;
+    settingsSaved: string;
+    settingsSavedDescription: string;
+    saveError: string;
+    saveErrorDescription: string;
+    dataPortability: string;
+    dataPortabilityDescription: string;
+    downloadMyData: string;
+    dataDownloaded: string;
+    dataDownloadedDescription: string;
+    downloadError: string;
+    downloadErrorDescription: string;
+    deleteAccount: string;
+    deleteAccountDescription: string;
+    deleteAccountButton: string;
+    // Deletion dialog
+    whyLeaving: string;
+    feedbackHelps: string;
+    reasonRequired: string;
+    reasonRequiredDescription: string;
+    additionalFeedback: string;
+    additionalFeedbackPlaceholder: string;
+    cancel: string;
+    next: string;
+    finalConfirmation: string;
+    warningLabel: string;
+    deleteWarningList: {
+      profile: string;
+      taxReturns: string;
+      documents: string;
+      chatMessages: string;
+    };
+    typeToConfirm: string;
+    deleteConfirmWord: string;
+    confirmRequired: string;
+    confirmRequiredDescription: string;
+    deleting: string;
+    dataDeleted: string;
+    dataDeletedDescription: string;
+    accountDeleted: string;
+    accountDeletedDescription: string;
+    noActiveSession: string;
+    // Deletion reasons
+    deletionReasons: {
+      notUsing: string;
+      tooExpensive: string;
+      privacyConcerns: string;
+      badExperience: string;
+      foundAlternative: string;
+      other: string;
+    };
+  };
+
+  // Terms Page
+  termsPage: {
+    title: string;
+  };
+
+  // Privacy Policy Page
+  privacyPolicyPage: {
+    title: string;
+  };
   
   // Payment
   payment: {
@@ -1772,7 +1871,104 @@ export const translations: Record<'de' | 'en', Translation> = {
       feedbackSubmittedDescription: 'Vielen Dank für dein Feedback!',
       anonymous: 'Anonym',
     },
-    
+
+    // Feedback Page
+    feedbackPage: {
+      title: 'Feedback',
+      satisfactionQuestion: 'Wie zufrieden bist du mit Ditax?',
+      featureRequestLabel: 'Welche Funktionen wünschst du dir?',
+      featureRequestOptional: '(optional)',
+      featureRequestPlaceholder: 'z.B. Automatische Belegerfassung, iOS Widget, Export-Funktion...',
+      submitButton: 'Feedback senden',
+      submitting: 'Wird gesendet...',
+      ratingRequired: 'Bewertung fehlt',
+      ratingRequiredDescription: 'Bitte wähle eine Bewertung aus.',
+      notLoggedIn: 'Nicht angemeldet',
+      notLoggedInDescription: 'Bitte melde dich an, um Feedback zu geben.',
+      error: 'Fehler',
+      errorDescription: 'Beim Senden ist ein Fehler aufgetreten. Bitte versuche es erneut.',
+      thankYouTitle: 'Vielen Dank für dein Feedback!',
+      thankYouMessage: 'Deine Meinung hilft uns, Ditax stetig zu verbessern.',
+      backToHome: 'Zurück zur Startseite',
+      successToast: 'Vielen Dank! 🎉',
+      successToastDescription: 'Dein Feedback wurde erfolgreich übermittelt.',
+      ratings: {
+        veryUnsatisfied: 'Sehr unzufrieden',
+        unsatisfied: 'Unzufrieden',
+        neutral: 'Neutral',
+        satisfied: 'Zufrieden',
+        verySatisfied: 'Sehr zufrieden',
+      },
+    },
+
+    // Privacy Settings Page
+    privacySettingsPage: {
+      title: 'Datenschutz-Einstellungen',
+      pleaseLogin: 'Bitte melden Sie sich an.',
+      privacyPreferences: 'Datenschutz-Präferenzen',
+      marketingEmails: 'Marketing-E-Mails',
+      marketingEmailsDescription: 'Erhalten Sie Updates, Newsletter und exklusive Angebote.',
+      saveSettings: 'Einstellungen speichern',
+      settingsSaved: 'Einstellungen gespeichert',
+      settingsSavedDescription: 'Ihre Datenschutz-Einstellungen wurden aktualisiert.',
+      saveError: 'Fehler',
+      saveErrorDescription: 'Einstellungen konnten nicht gespeichert werden.',
+      dataPortability: 'Datenportabilität',
+      dataPortabilityDescription: 'Laden Sie eine Kopie aller Ihrer gespeicherten Daten inklusive Einstellungen und Historie im JSON-Format herunter.',
+      downloadMyData: 'Meine Daten herunterladen',
+      dataDownloaded: 'Daten heruntergeladen',
+      dataDownloadedDescription: 'Ihre Daten wurden als JSON-Datei heruntergeladen.',
+      downloadError: 'Fehler',
+      downloadErrorDescription: 'Daten konnten nicht heruntergeladen werden.',
+      deleteAccount: 'Account löschen',
+      deleteAccountDescription: 'Diese Aktion löscht unwiderruflich alle Ihre Daten. Sobald Sie fortfahren, kann dieser Prozess nicht rückgängig gemacht werden.',
+      deleteAccountButton: 'Account löschen',
+      whyLeaving: 'Warum möchten Sie gehen?',
+      feedbackHelps: 'Ihr Feedback hilft uns, unseren Service zu verbessern.',
+      reasonRequired: 'Grund erforderlich',
+      reasonRequiredDescription: 'Bitte wählen Sie einen Grund für die Kontolöschung.',
+      additionalFeedback: 'Zusätzliches Feedback (optional)',
+      additionalFeedbackPlaceholder: 'Was können wir besser machen?',
+      cancel: 'Abbrechen',
+      next: 'Weiter',
+      finalConfirmation: 'Endgültige Bestätigung',
+      warningLabel: 'Achtung:',
+      deleteWarningList: {
+        profile: 'Ihr Benutzerprofil',
+        taxReturns: 'Alle Steuererklärungen',
+        documents: 'Alle hochgeladenen Dokumente',
+        chatMessages: 'Alle Chat-Nachrichten',
+      },
+      typeToConfirm: 'Geben Sie {word} ein, um zu bestätigen',
+      deleteConfirmWord: 'LÖSCHEN',
+      confirmRequired: 'Bestätigung erforderlich',
+      confirmRequiredDescription: "Bitte geben Sie 'LÖSCHEN' ein, um fortzufahren.",
+      deleting: 'Wird gelöscht...',
+      dataDeleted: 'Daten gelöscht',
+      dataDeletedDescription: 'Ihre Daten wurden gelöscht. Sie werden jetzt abgemeldet.',
+      accountDeleted: 'Account vollständig gelöscht',
+      accountDeletedDescription: 'Ihr Account und alle Daten wurden erfolgreich gelöscht.',
+      noActiveSession: 'Keine aktive Sitzung gefunden',
+      deletionReasons: {
+        notUsing: 'Ich nutze den Service nicht mehr',
+        tooExpensive: 'Zu teuer',
+        privacyConcerns: 'Datenschutzbedenken',
+        badExperience: 'Schlechte Benutzererfahrung',
+        foundAlternative: 'Andere Steuerlösung gefunden',
+        other: 'Sonstiges',
+      },
+    },
+
+    // Terms Page
+    termsPage: {
+      title: 'Nutzungsbedingungen',
+    },
+
+    // Privacy Policy Page
+    privacyPolicyPage: {
+      title: 'Datenschutzrichtlinie',
+    },
+
     payment: {
       title: 'Zahlung',
       success: 'Erfolgreich',
@@ -3020,6 +3216,103 @@ export const translations: Record<'de' | 'en', Translation> = {
       feedbackSubmitted: 'Feedback Submitted',
       feedbackSubmittedDescription: 'Thank you for your feedback!',
       anonymous: 'Anonymous',
+    },
+
+    // Feedback Page
+    feedbackPage: {
+      title: 'Feedback',
+      satisfactionQuestion: 'How satisfied are you with Ditax?',
+      featureRequestLabel: 'What features would you like to see?',
+      featureRequestOptional: '(optional)',
+      featureRequestPlaceholder: 'e.g. Automatic receipt capture, iOS widget, export function...',
+      submitButton: 'Submit Feedback',
+      submitting: 'Submitting...',
+      ratingRequired: 'Rating required',
+      ratingRequiredDescription: 'Please select a rating.',
+      notLoggedIn: 'Not logged in',
+      notLoggedInDescription: 'Please log in to submit feedback.',
+      error: 'Error',
+      errorDescription: 'An error occurred while submitting. Please try again.',
+      thankYouTitle: 'Thank you for your feedback!',
+      thankYouMessage: 'Your opinion helps us continuously improve Ditax.',
+      backToHome: 'Back to Home',
+      successToast: 'Thank you! 🎉',
+      successToastDescription: 'Your feedback has been successfully submitted.',
+      ratings: {
+        veryUnsatisfied: 'Very unsatisfied',
+        unsatisfied: 'Unsatisfied',
+        neutral: 'Neutral',
+        satisfied: 'Satisfied',
+        verySatisfied: 'Very satisfied',
+      },
+    },
+
+    // Privacy Settings Page
+    privacySettingsPage: {
+      title: 'Privacy Settings',
+      pleaseLogin: 'Please log in.',
+      privacyPreferences: 'Privacy Preferences',
+      marketingEmails: 'Marketing Emails',
+      marketingEmailsDescription: 'Receive updates, newsletters and exclusive offers.',
+      saveSettings: 'Save Settings',
+      settingsSaved: 'Settings Saved',
+      settingsSavedDescription: 'Your privacy settings have been updated.',
+      saveError: 'Error',
+      saveErrorDescription: 'Settings could not be saved.',
+      dataPortability: 'Data Portability',
+      dataPortabilityDescription: 'Download a copy of all your stored data including settings and history in JSON format.',
+      downloadMyData: 'Download My Data',
+      dataDownloaded: 'Data Downloaded',
+      dataDownloadedDescription: 'Your data has been downloaded as a JSON file.',
+      downloadError: 'Error',
+      downloadErrorDescription: 'Data could not be downloaded.',
+      deleteAccount: 'Delete Account',
+      deleteAccountDescription: 'This action will permanently delete all your data. Once you proceed, this process cannot be undone.',
+      deleteAccountButton: 'Delete Account',
+      whyLeaving: 'Why are you leaving?',
+      feedbackHelps: 'Your feedback helps us improve our service.',
+      reasonRequired: 'Reason required',
+      reasonRequiredDescription: 'Please select a reason for account deletion.',
+      additionalFeedback: 'Additional feedback (optional)',
+      additionalFeedbackPlaceholder: 'What can we do better?',
+      cancel: 'Cancel',
+      next: 'Next',
+      finalConfirmation: 'Final Confirmation',
+      warningLabel: 'Warning:',
+      deleteWarningList: {
+        profile: 'Your user profile',
+        taxReturns: 'All tax returns',
+        documents: 'All uploaded documents',
+        chatMessages: 'All chat messages',
+      },
+      typeToConfirm: 'Type {word} to confirm',
+      deleteConfirmWord: 'DELETE',
+      confirmRequired: 'Confirmation required',
+      confirmRequiredDescription: "Please type 'DELETE' to proceed.",
+      deleting: 'Deleting...',
+      dataDeleted: 'Data Deleted',
+      dataDeletedDescription: 'Your data has been deleted. You will now be logged out.',
+      accountDeleted: 'Account Completely Deleted',
+      accountDeletedDescription: 'Your account and all data have been successfully deleted.',
+      noActiveSession: 'No active session found',
+      deletionReasons: {
+        notUsing: "I'm not using the service anymore",
+        tooExpensive: 'Too expensive',
+        privacyConcerns: 'Privacy concerns',
+        badExperience: 'Bad user experience',
+        foundAlternative: 'Found another tax solution',
+        other: 'Other',
+      },
+    },
+
+    // Terms Page
+    termsPage: {
+      title: 'Terms of Service',
+    },
+
+    // Privacy Policy Page
+    privacyPolicyPage: {
+      title: 'Privacy Policy',
     },
     
     payment: {
