@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { User, UserPlus, Users } from 'lucide-react';
+import { User, UserPlus, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -39,8 +39,8 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
   const { t } = useI18n();
   const navigate = useNavigate();
 
-  // Don't render if only one tax filer (the primary)
-  if (taxFilers.length <= 1 && !showManageButton) {
+  // Only show selector if there are multiple tax filers
+  if (taxFilers.length <= 1) {
     return null;
   }
 
@@ -52,76 +52,43 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
     navigate('/tax-filers');
   };
 
-  const getDisplayName = (filer: TaxFiler) => {
-    const name = `${filer.first_name} ${filer.last_name}`.trim();
-    if (filer.is_primary) {
-      return `${name} (${t.taxFilers?.primary || 'Primär'})`;
-    }
-    return `${name} (${getRelationshipLabel(filer.relationship, t)})`;
-  };
-
-  if (variant === 'compact') {
-    return (
-      <div className={cn('flex items-center gap-2', className)}>
-        <Users className="h-4 w-4 text-muted-foreground" />
-        <Select 
-          value={activeTaxFilerId || ''} 
-          onValueChange={handleFilerChange}
-          disabled={isLoading}
-        >
-          <SelectTrigger className="h-8 w-auto min-w-[150px] text-sm">
-            <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'} />
-          </SelectTrigger>
-          <SelectContent>
-            {taxFilers.map((filer) => (
-              <SelectItem key={filer.id} value={filer.id}>
-                <div className="flex items-center gap-2">
-                  <User className="h-3 w-3" />
-                  <span>{getDisplayName(filer)}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  }
+  const activeFiler = taxFilers.find(f => f.id === activeTaxFilerId);
 
   return (
-    <div className={cn('bg-card border border-border rounded-xl p-4', className)}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          <h3 className="font-medium text-foreground">
-            {t.taxFilers?.title || 'Steuerpflichtiger'}
-          </h3>
-        </div>
-        {showManageButton && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleManageClick}
-            className="text-xs"
-          >
-            <UserPlus className="h-4 w-4 mr-1" />
-            {t.taxFilers?.manage || 'Verwalten'}
-          </Button>
-        )}
+    <div className={cn('flex items-center gap-3', className)}>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <User className="h-4 w-4" />
+        <span>Für:</span>
       </div>
-
+      
       <Select 
         value={activeTaxFilerId || ''} 
         onValueChange={handleFilerChange}
         disabled={isLoading}
       >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'} />
-        </SelectTrigger>
-        <SelectContent>
-          {taxFilers.map((filer) => (
-            <SelectItem key={filer.id} value={filer.id}>
+        <SelectTrigger className="h-9 w-auto min-w-[180px] bg-card border-border rounded-xl text-sm font-medium shadow-sm hover:bg-muted transition-colors">
+          <SelectValue placeholder={t.taxFilers?.selectPerson || 'Person wählen'}>
+            {activeFiler && (
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
+                <span>{activeFiler.first_name} {activeFiler.last_name}</span>
+                <span className="text-xs text-muted-foreground">
+                  ({getRelationshipLabel(activeFiler.relationship, t)})
+                </span>
+              </div>
+            )}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="bg-white border-border rounded-xl shadow-lg">
+          {taxFilers.map((filer) => (
+            <SelectItem 
+              key={filer.id} 
+              value={filer.id}
+              className="rounded-lg cursor-pointer"
+            >
+              <div className="flex items-center gap-2 py-0.5">
+                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-3 w-3 text-primary" />
+                </div>
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{filer.first_name} {filer.last_name}</span>
                   <span className="text-xs text-muted-foreground">
@@ -134,10 +101,16 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({
         </SelectContent>
       </Select>
 
-      {taxFilers.length === 1 && (
-        <p className="text-xs text-muted-foreground mt-2">
-          {t.taxFilers?.addPersonHint || 'Sie können weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.'}
-        </p>
+      {showManageButton && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleManageClick}
+          className="text-xs text-primary hover:text-primary/80 hover:bg-primary/5 rounded-lg h-9 px-3"
+        >
+          <UserPlus className="h-4 w-4 mr-1.5" />
+          {t.taxFilers?.manage || 'Verwalten'}
+        </Button>
       )}
     </div>
   );
