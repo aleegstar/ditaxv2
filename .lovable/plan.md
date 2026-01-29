@@ -1,51 +1,90 @@
 
 
-# Plan: Vollständige Multi-Person Unterstützung implementieren
+# Plan: Vollständige tax_filer_id Trennung für /documents Route
 
 ## Problemursache
 
-**1. Datenbank-Constraint fehlt `tax_filer_id`:**
-```sql
--- AKTUELL (blockiert Leano's 2024 Steuererklärung):
-UNIQUE (user_id, tax_year)
+Die `/documents`-Route zeigt Dokumente aller Personen, weil:
 
--- BENÖTIGT:
-UNIQUE (user_id, tax_filer_id, tax_year)
-```
-
-**2. Code-Stellen ohne `tax_filer_id` Filterung:**
-
-| Datei | Zeile | Problem |
-|-------|-------|---------|
-| `PaymentSection.tsx` | 136 | SELECT ohne `tax_filer_id` |
-| `PaymentSection.tsx` | 142-146 | INSERT ohne `tax_filer_id` |
-| `TaxYearDashboard.tsx` | 45 | SELECT ohne `tax_filer_id` |
-| `UserTaxReturns.tsx` | 177-179 | DELETE ohne `tax_filer_id` |
-| `DocumentChecklist.tsx` | 147 | SELECT ohne `tax_filer_id` |
+1. **useCallback dependency fehlt**: `loadDocuments` nutzt `activeTaxFilerId` intern, aber es fehlt in der dependency-Liste
+2. **useEffect reagiert nicht auf Personenwechsel**: Der Effect läuft nur bei Jahr-Änderung, nicht bei Person-Änderung
+3. **Mehrere Komponenten ohne tax_filer_id Filterung**
 
 ---
 
-## Schritt 1: Datenbank-Migration
+## Betroffene Dateien
 
-```sql
--- Alte Constraint entfernen
-ALTER TABLE tax_returns DROP CONSTRAINT IF EXISTS unique_user_tax_year;
-
--- Neue Constraint mit tax_filer_id
-ALTER TABLE tax_returns 
-ADD CONSTRAINT unique_user_taxfiler_tax_year 
-UNIQUE (user_id, tax_filer_id, tax_year);
-```
-
-Diese Migration ist **nicht destruktiv** - keine Daten gehen verloren.
+| Datei | Problem |
+|-------|---------|
+| `src/pages/Documents.tsx` | useCallback dependencies + useEffect |
+| `src/components/documents/YearReassignmentModal.tsx` | SELECT ohne tax_filer_id |
+| `src/components/documents/DocumentAssignmentModal.tsx` | SELECT ohne tax_filer_id |
+| `src/components/DocumentUploader.tsx` | INSERT ohne tax_filer_id |
 
 ---
 
-## Schritt 2: PaymentSection.tsx korrigieren
+## Schritt 1: Documents.tsx - loadDocuments reparieren
 
-**Datei:** `src/components/PaymentSection.tsx`
+**Problem**: Zeile 268 - `activeTaxFilerId` fehlt in dependencies
 
-Context-Hook hinzufügen und Queries anpassen:
+```text
+// VORHER (Zeile 268)
+}, [selectedYear, toast]);
+
+// NACHHER
+}, [selectedYear, toast, activeTaxFilerId]);
+```
+
+---
+
+## Schritt 2: Documents.tsx - useEffect für Person-Wechsel
+
+**Problem**: Zeile 280-284 reagiert nicht auf activeTaxFilerId
+
+```text
+// VORHER
+useEffect(() => {
+  if (mountedRef.current) {
+    loadDocuments();
+  }
+}, [selectedYear, loadDocuments]);
+
+// NACHHER - activeTaxFilerId als dependency
+useEffect(() => {
+  if (mountedRef.current) {
+    loadDocuments();
+  }
+}, [selectedYear, loadDocuments, activeTaxFilerId]);
+```
+
+---
+
+## Schritt 3: Documents.tsx - loadCompletedTaxYears mit tax_filer_id
+
+**Zeile 210-228**: SELECT muss auch nach Person filtern
+
+```text
+// VORHER
+.from('completed_tax_returns')
+.select('tax_year')
+.eq('user_id', user.id);
+
+// NACHHER
+let query = supabase
+  .from('completed_tax_returns')
+  .select('tax_year')
+  .eq('user_id', user.id);
+
+if (activeTaxFilerId) {
+  query = query.eq('tax_filer_id', activeTaxFilerId);
+}
+```
+
+---
+
+## Schritt 4: YearReassignmentModal.tsx - tax_filer_id Filterung
+
+**Zeile 56-62**: Import TaxFilerContext und filtern
 
 ```text
 // Import hinzufügen
@@ -54,101 +93,86 @@ import { useTaxFiler } from '@/contexts/TaxFilerContext';
 // Im Komponenten-Body
 const { activeTaxFilerId } = useTaxFiler();
 
-// Zeile 136 - SELECT mit tax_filer_id
-.eq('user_id', user.id)
-.eq('tax_year', year)
-.eq('tax_filer_id', activeTaxFilerId)  // NEU
+// In loadDocuments
+let query = supabase
+  .from('uploaded_documents')
+  .select('*')
+  .eq('user_id', user.id)
+  .eq('tax_year', currentYear)
+  .eq('status', 'active');
 
-// Zeile 142-146 - INSERT mit tax_filer_id
+if (activeTaxFilerId) {
+  query = query.eq('tax_filer_id', activeTaxFilerId);
+}
+```
+
+---
+
+## Schritt 5: DocumentAssignmentModal.tsx - tax_filer_id Filterung
+
+**Zeile 76-82**: Import TaxFilerContext und filtern
+
+```text
+// Import hinzufügen
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
+
+// Im Komponenten-Body
+const { activeTaxFilerId } = useTaxFiler();
+
+// In loadDocuments
+let query = supabase
+  .from('uploaded_documents')
+  .select('*')
+  .eq('user_id', user.id)
+  .eq('tax_year', taxYear)
+  .eq('status', 'active');
+
+if (activeTaxFilerId) {
+  query = query.eq('tax_filer_id', activeTaxFilerId);
+}
+```
+
+---
+
+## Schritt 6: DocumentUploader.tsx - tax_filer_id beim Insert
+
+**Zeile 190-206**: tax_filer_id mit speichern
+
+```text
+// Import hinzufügen (falls noch nicht vorhanden)
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
+
+// Im Komponenten-Body
+const { activeTaxFilerId } = useTaxFiler();
+
+// In insert
 .insert({
-  user_id: user.id,
-  tax_filer_id: activeTaxFilerId,  // NEU
-  tax_year: year,
-  payment_status: 'pending'
+  user_id: userId,
+  tax_filer_id: activeTaxFilerId || null,  // NEU
+  checklist_item_id: checklistItem.id,
+  file_name: fileWithPreview.file.name,
+  ...
 })
 ```
 
 ---
 
-## Schritt 3: TaxYearDashboard.tsx korrigieren
+## Zusammenfassung der Änderungen
 
-**Datei:** `src/components/TaxYearDashboard.tsx`
-
-```text
-// Import hinzufügen
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-
-// Im Komponenten-Body
-const { activeTaxFilerId } = useTaxFiler();
-
-// Zeile 45 - SELECT mit tax_filer_id
-.eq('user_id', user.id)
-.eq('tax_year', taxYear)
-.eq('tax_filer_id', activeTaxFilerId)  // NEU
-```
-
----
-
-## Schritt 4: UserTaxReturns.tsx DELETE korrigieren
-
-**Datei:** `src/pages/UserTaxReturns.tsx`
-
-```text
-// Zeile 177-179 - DELETE mit tax_filer_id
-await supabase.from('form_data').delete()
-  .eq('user_id', userId)
-  .eq('tax_year', year)
-  .eq('tax_filer_id', activeTaxFilerId);  // NEU
-
-await supabase.from('form_progress').delete()
-  .eq('user_id', userId)
-  .eq('tax_year', year)
-  .eq('tax_filer_id', activeTaxFilerId);  // NEU
-
-await supabase.from('uploaded_documents').delete()
-  .eq('user_id', userId)
-  .eq('tax_year', year)
-  .eq('tax_filer_id', activeTaxFilerId);  // NEU
-```
-
----
-
-## Schritt 5: DocumentChecklist.tsx korrigieren
-
-**Datei:** `src/components/DocumentChecklist.tsx`
-
-```text
-// Import und Context hinzufügen (falls noch nicht vorhanden)
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-const { activeTaxFilerId } = useTaxFiler();
-
-// Zeile 147 - SELECT mit tax_filer_id
-.eq('user_id', userId)
-.eq('status', 'active')
-.eq('is_assigned_to_checklist', false)
-.eq('tax_year', taxYear)
-.eq('tax_filer_id', activeTaxFilerId)  // NEU
-```
-
----
-
-## Zusammenfassung
-
-| Änderung | Typ |
-|----------|-----|
-| Datenbank: `unique_user_taxfiler_tax_year` Constraint | Migration |
-| `PaymentSection.tsx` | Code + Context |
-| `TaxYearDashboard.tsx` | Code + Context |
-| `UserTaxReturns.tsx` | Code (DELETE-Queries) |
-| `DocumentChecklist.tsx` | Code + Context |
+| Datei | Änderungstyp |
+|-------|--------------|
+| `Documents.tsx` | useCallback deps + useEffect deps + loadCompletedTaxYears |
+| `YearReassignmentModal.tsx` | Context + Query Filter |
+| `DocumentAssignmentModal.tsx` | Context + Query Filter |
+| `DocumentUploader.tsx` | Context + Insert |
 
 ---
 
 ## Ergebnis
 
 Nach dieser Implementierung:
-- Jede Person kann ihre eigene Steuererklärung pro Jahr haben
-- Leano kann eine 2024-Steuererklärung erstellen, auch wenn Sandro bereits eine hat
-- Alle Daten (Formulare, Dokumente, Fortschritt) werden personenspezifisch behandelt
-- Die Datenbank garantiert Eindeutigkeit auf Personenebene
+- Dokumente werden nur für die ausgewählte Person angezeigt
+- Uploads werden der richtigen Person zugeordnet
+- Jahres-Neuzuordnung funktioniert personenspezifisch
+- Wechsel zwischen Personen lädt automatisch die richtigen Dokumente
 
