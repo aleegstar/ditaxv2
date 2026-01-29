@@ -1,55 +1,57 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { App as CapacitorApp } from '@capacitor/app';
 
-import NotFound from "./pages/NotFound";
-import AdminPanel from "./pages/Admin";
-import UserTaxReturns from "./pages/UserTaxReturns";
-import Chat from "./pages/Chat";
-import UserDetail from "./pages/UserDetail";
-import Auth from "./pages/Auth";
-import GoogleAuth from "./pages/GoogleAuth";
-import AppleAuth from "./pages/AppleAuth";
-import WebAuthnAuth from "./pages/WebAuthnAuth";
-import AuthSuccess from "./pages/AuthSuccess";
-import NativeCallback from "./pages/NativeCallback";
-import MfaVerify from "./pages/MfaVerify";
+// Lazy-loaded page components for code splitting
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminPanel = lazy(() => import("./pages/Admin"));
+const UserTaxReturns = lazy(() => import("./pages/UserTaxReturns"));
+const Chat = lazy(() => import("./pages/Chat"));
+const UserDetail = lazy(() => import("./pages/UserDetail"));
+const Auth = lazy(() => import("./pages/Auth"));
+const GoogleAuth = lazy(() => import("./pages/GoogleAuth"));
+const AppleAuth = lazy(() => import("./pages/AppleAuth"));
+const WebAuthnAuth = lazy(() => import("./pages/WebAuthnAuth"));
+const AuthSuccess = lazy(() => import("./pages/AuthSuccess"));
+const NativeCallback = lazy(() => import("./pages/NativeCallback"));
+const MfaVerify = lazy(() => import("./pages/MfaVerify"));
+const AuthBridge = lazy(() => import("./pages/AuthBridge"));
+const Profile = lazy(() => import("./pages/Profile"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PriceCalculator = lazy(() => import("./pages/PriceCalculator"));
+const Help = lazy(() => import("./pages/Help"));
+const Feedback = lazy(() => import("./pages/Feedback"));
+const Roadmap = lazy(() => import("./pages/Roadmap"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Cookies = lazy(() => import("./pages/Cookies"));
+const AcceptableUse = lazy(() => import("./pages/AcceptableUse"));
+const Impressum = lazy(() => import("./pages/Impressum"));
+const PrivacySettings = lazy(() => import("./pages/PrivacySettings"));
+const Index = lazy(() => import("./pages/Index"));
+const PaymentPage = lazy(() => import("./pages/Payment"));
+const DocumentUploadPage = lazy(() => import("./pages/DocumentUploadPage"));
+const Documents = lazy(() => import("./pages/Documents"));
+const DocumentsUpload = lazy(() => import("./pages/DocumentsUpload"));
+const Tickets = lazy(() => import("./pages/Tickets"));
+const MissingItems = lazy(() => import("./pages/MissingItems"));
+const Welcome = lazy(() => import("./pages/Welcome"));
+const InviteFriends = lazy(() => import("./pages/InviteFriends"));
+const CreateTicket = lazy(() => import("./pages/CreateTicket"));
+const AndroidDebug = lazy(() => import("./pages/AndroidDebug"));
+const TaxReturnTracking = lazy(() => import("./pages/TaxReturnTracking"));
+const TaxReturnActions = lazy(() => import("./pages/TaxReturnActions"));
 
-import AuthBridge from "./pages/AuthBridge";
-import Profile from "./pages/Profile";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PriceCalculator from "./pages/PriceCalculator";
-import Help from "./pages/Help";
-import Feedback from "./pages/Feedback";
-import Roadmap from "./pages/Roadmap";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Cookies from "./pages/Cookies";
-import AcceptableUse from "./pages/AcceptableUse";
-import Impressum from "./pages/Impressum";
-import PrivacySettings from "./pages/PrivacySettings";
-import Index from "./pages/Index";
-import PaymentPage from "./pages/Payment";
-import DocumentUploadPage from "./pages/DocumentUploadPage";
-import Documents from "./pages/Documents";
-import DocumentsUpload from "./pages/DocumentsUpload";
-import Tickets from "./pages/Tickets";
-import MissingItems from "./pages/MissingItems";
-import Welcome from "./pages/Welcome";
-import InviteFriends from "./pages/InviteFriends";
+// Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
-import CreateTicket from "./pages/CreateTicket";
 import { MobileMenuSheet } from "@/components/ui/modern-mobile-menu";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingTourProvider, useOnboardingTour } from "@/contexts/OnboardingTourContext";
 import { DocumentsTourProvider } from "@/contexts/DocumentsTourContext";
-
-
-
 import { I18nProvider } from "@/contexts/I18nContext";
 import AdminRouteGuard from "@/components/guards/AdminRouteGuard";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
@@ -57,10 +59,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { NativeErrorMonitor } from "@/utils/nativeErrorMonitor";
 import { androidDebug } from "@/utils/androidDebug";
 import { Capacitor } from '@capacitor/core';
-import AndroidDebug from "./pages/AndroidDebug";
 import FloatingDebugButton from "@/components/debug/FloatingDebugButton";
-import TaxReturnTracking from "./pages/TaxReturnTracking";
-import TaxReturnActions from "./pages/TaxReturnActions";
 import { useFontLoader } from "@/hooks/useFontLoader";
 import { useAuthValidation } from "@/hooks/use-auth-validation";
 import SpaRedirector from "@/components/SpaRedirector";
@@ -71,6 +70,7 @@ import { useFeedbackPrompt } from "@/hooks/useFeedbackPrompt";
 import { FeedbackPrompt } from "@/components/feedback/FeedbackPrompt";
 import { setStatusBarDark } from "@/utils/despiaStatusBar";
 import { isDespiaEnvironment } from "@/utils/platform";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -140,27 +140,29 @@ const AuthenticatedApp = () => {
   if (isAdminRoute) {
     return (
       <ErrorBoundary>
-        <div className="h-screen w-full">
-          <Routes>
-            <Route 
-              path="/admin/*" 
-              element={
-                <AdminRouteGuard>
-                  <AdminPanel />
-                </AdminRouteGuard>
-              } 
-            />
-            <Route 
-              path="/admin/user/:id" 
-              element={
-                <AdminRouteGuard>
-                  <UserDetail />
-                </AdminRouteGuard>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
+          <div className="h-screen w-full">
+            <Routes>
+              <Route 
+                path="/admin/*" 
+                element={
+                  <AdminRouteGuard>
+                    <AdminPanel />
+                  </AdminRouteGuard>
+                } 
+              />
+              <Route 
+                path="/admin/user/:id" 
+                element={
+                  <AdminRouteGuard>
+                    <UserDetail />
+                  </AdminRouteGuard>
+                } 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -171,6 +173,7 @@ const AuthenticatedApp = () => {
         <DocumentsTourProvider>
           <SidebarProvider>
           <div className="min-h-screen w-full bg-background flex flex-col">
+            <Suspense fallback={<LoadingSpinner fullScreen />}>
               <Routes>
                 <Route path="/" element={<UserTaxReturns />} />
                 <Route path="/welcome" element={<Welcome />} />
@@ -240,6 +243,7 @@ const AuthenticatedApp = () => {
                     
                     <Route path="*" element={<NotFound />} />
               </Routes>
+            </Suspense>
               
               {/* Floating Debug Button for Android */}
               <FloatingDebugButton />
@@ -500,39 +504,41 @@ const App = () => {
           <TooltipProvider>
             <BrowserRouter>
               <SpaRedirector />
-              <Routes>
-                <Route path="/preisrechner" element={<PriceCalculator />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/google-auth" element={<GoogleAuth />} />
-                <Route path="/apple-auth" element={<AppleAuth />} />
-                <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
-                <Route path="/mfa-verify" element={<MfaVerify />} />
-                <Route path="/auth-success" element={<AuthSuccess />} />
-                <Route path="/native-callback" element={<NativeCallback />} />
-                <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
-                <Route path="/native-callback/:deeplinkScheme/*" element={<NativeCallback />} />
-                
-                <Route path="/auth-bridge" element={<AuthBridge />} />
-                <Route path="/login" element={<Navigate to="/auth" replace />} />
-                
-                {/* Public legal pages - accessible without authentication */}
-                <Route path="/datenschutzrichtlinie" element={<Privacy />} />
-                <Route path="/agb" element={<Terms />} />
-                <Route path="/cookie-richtlinie" element={<Cookies />} />
-          <Route path="/impressum" element={<Impressum />} />
-          <Route path="/nutzungsbedingungen" element={<Terms />} />
-                
-                <Route
-                  path="/*"
-                  element={
-                    isAuthenticated ? (
-                      <AuthenticatedApp />
-                    ) : (
-                      <Navigate to="/auth" replace />
-                    )
-                  }
-                />
-              </Routes>
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <Routes>
+                  <Route path="/preisrechner" element={<PriceCalculator />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/google-auth" element={<GoogleAuth />} />
+                  <Route path="/apple-auth" element={<AppleAuth />} />
+                  <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
+                  <Route path="/mfa-verify" element={<MfaVerify />} />
+                  <Route path="/auth-success" element={<AuthSuccess />} />
+                  <Route path="/native-callback" element={<NativeCallback />} />
+                  <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
+                  <Route path="/native-callback/:deeplinkScheme/*" element={<NativeCallback />} />
+                  
+                  <Route path="/auth-bridge" element={<AuthBridge />} />
+                  <Route path="/login" element={<Navigate to="/auth" replace />} />
+                  
+                  {/* Public legal pages - accessible without authentication */}
+                  <Route path="/datenschutzrichtlinie" element={<Privacy />} />
+                  <Route path="/agb" element={<Terms />} />
+                  <Route path="/cookie-richtlinie" element={<Cookies />} />
+                  <Route path="/impressum" element={<Impressum />} />
+                  <Route path="/nutzungsbedingungen" element={<Terms />} />
+                  
+                  <Route
+                    path="/*"
+                    element={
+                      isAuthenticated ? (
+                        <AuthenticatedApp />
+                      ) : (
+                        <Navigate to="/auth" replace />
+                      )
+                    }
+                  />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
         </I18nProvider>
