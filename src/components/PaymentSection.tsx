@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { usePromoCodes } from '@/hooks/usePromoCodes';
-
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
   upgradeReturnId?: string;
@@ -27,6 +27,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     formData,
     taxYear
   } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const navigate = useNavigate();
   const year = taxYear || (new Date().getFullYear() - 1).toString();
   const [isLoading, setIsLoading] = useState(false);
@@ -130,10 +131,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       if (isUpgrade && upgradeReturnId) {
         taxReturnId = upgradeReturnId;
       } else {
-        let {
+      let {
           data: taxReturn,
           error: fetchError
-        } = await supabase.from('tax_returns').select('id').eq('user_id', user.id).eq('tax_year', year).maybeSingle();
+        } = await supabase.from('tax_returns').select('id').eq('user_id', user.id).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId).maybeSingle();
 
         if (!taxReturn) {
           const {
@@ -141,6 +142,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             error: insertError
           } = await supabase.from('tax_returns').insert({
             user_id: user.id,
+            tax_filer_id: activeTaxFilerId,
             tax_year: year,
             payment_status: 'pending'
           }).select('id').single();
