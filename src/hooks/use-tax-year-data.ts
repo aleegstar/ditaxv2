@@ -15,7 +15,7 @@ interface TaxYearData {
   error: string | null;
 }
 
-export const useTaxYearData = (userId: string | null) => {
+export const useTaxYearData = (userId: string | null, taxFilerId: string | null) => {
   const [data, setData] = useState<TaxYearData>({
     taxReturns: [],
     formProgress: {},
@@ -32,7 +32,7 @@ export const useTaxYearData = (userId: string | null) => {
   const loadingRef = useRef(false);
 
   const loadTaxYearData = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !taxFilerId) return;
     if (loadingRef.current) return; // Prevent concurrent loads
     
     loadingRef.current = true;
@@ -48,28 +48,33 @@ export const useTaxYearData = (userId: string | null) => {
           .from('tax_returns')
           .select('*')
           .eq('user_id', userId)
+          .eq('tax_filer_id', taxFilerId)
           .order('tax_year', { ascending: false }),
         
         supabase
           .from('form_progress')
           .select('*')
-          .eq('user_id', userId),
+          .eq('user_id', userId)
+          .eq('tax_filer_id', taxFilerId),
         
         supabase
           .from('form_data')
           .select('tax_year, form_type, data')
-          .eq('user_id', userId),
+          .eq('user_id', userId)
+          .eq('tax_filer_id', taxFilerId),
         
         supabase
           .from('uploaded_documents')
           .select('*')
           .eq('user_id', userId)
+          .eq('tax_filer_id', taxFilerId)
           .eq('status', 'active'),
         
         supabase
           .from('completed_tax_returns')
           .select('*')
-          .eq('user_id', userId),
+          .eq('user_id', userId)
+          .eq('tax_filer_id', taxFilerId),
         
         supabase
           .from('definitive_tax_bills')
@@ -190,7 +195,7 @@ export const useTaxYearData = (userId: string | null) => {
     } finally {
       loadingRef.current = false;
     }
-  }, [userId]);
+  }, [userId, taxFilerId]);
 
   useEffect(() => {
     mountedRef.current = true;

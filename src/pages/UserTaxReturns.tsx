@@ -54,6 +54,7 @@ const UserTaxReturns = () => {
     isValid,
     isLoading: authLoading
   } = useAuthValidation();
+  const { activeTaxFilerId } = useTaxFiler();
   const {
     taxReturns,
     formProgress,
@@ -65,7 +66,7 @@ const UserTaxReturns = () => {
     loading,
     error,
     refetch
-  } = useTaxYearData(userId);
+  } = useTaxYearData(userId, activeTaxFilerId);
   const {
     forceTour
   } = useOnboardingTour();
