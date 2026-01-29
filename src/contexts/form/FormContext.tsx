@@ -8,6 +8,7 @@ import { generateChecklistItems } from './checklistGenerator';
 import { documentService } from '../../services/DocumentService';
 import type { Session } from '@supabase/supabase-js';
 import { androidDebug, safeClone } from '../../utils/androidDebug';
+import { useTaxFiler } from '../TaxFilerContext';
 
 // Production-safe logging - only log in development
 const isDev = process.env.NODE_ENV === 'development';
@@ -38,10 +39,14 @@ const calculateCurrentStep = (formProgress: FormProgressType, formDataLoaded: bo
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: string }> = ({ children, taxYear: propTaxYear }) => {
+  // Get active tax filer from TaxFilerContext
+  const { activeTaxFilerId, activeTaxFiler, isLoading: isTaxFilerLoading } = useTaxFiler();
+  
   // Stable refs to prevent unnecessary re-renders
   const loadingRef = useRef<boolean>(false);
   const taxYearSwitchRef = useRef<boolean>(false);
   const initialLoadCompletedRef = useRef<boolean>(false);
+  const previousTaxFilerIdRef = useRef<string | null>(null);
   
   // Core state
   const [formData, setFormData] = useState<FormData>(() => JSON.parse(JSON.stringify(defaultFormData)));
@@ -152,8 +157,14 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       return;
     }
     
-    androidDebug.log(`Starting loadFormDataFromDatabase for year: ${yearToLoad}`);
-    console.log(`🔄 [LOAD] Loading form data for year: ${yearToLoad}`);
+    // Wait for tax filer to be available
+    if (!activeTaxFilerId) {
+      console.log('⚠️ No active tax filer, skipping load');
+      return;
+    }
+    
+    androidDebug.log(`Starting loadFormDataFromDatabase for year: ${yearToLoad}, taxFilerId: ${activeTaxFilerId}`);
+    console.log(`🔄 [LOAD] Loading form data for year: ${yearToLoad}, tax filer: ${activeTaxFilerId}`);
     loadingRef.current = true;
     setIsDataLoading(true);
     
@@ -179,12 +190,13 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
 
       androidDebug.log('Session found, loading form data from database');
 
-      // Load data with cached session - filter out _progress records
+      // Load data with cached session - filter by tax_filer_id
       const { data, error } = await supabase
         .from('form_data')
         .select('form_type, data')
         .eq('tax_year', yearToLoad)
         .eq('user_id', session.user.id)
+        .eq('tax_filer_id', activeTaxFilerId)
         .not('form_type', 'like', '%_progress');
 
       if (error) {
@@ -297,7 +309,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       loadingRef.current = false;
       setIsDataLoading(false);
     }
-  }, [session]);
+  }, [session, activeTaxFilerId]);
 
   // Enhanced tax year switching with complete isolation
   const switchTaxYear = useCallback(async (newTaxYear: string) => {
@@ -440,14 +452,15 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       [section]: questionIndex
     }));
     
-    // Save to database if we have a session and tax year
-    if (session && taxYear) {
+    // Save to database if we have a session, tax year and tax filer
+    if (session && taxYear && activeTaxFilerId) {
       try {
         const { data: existingData, error: checkError } = await supabase
           .from('form_data')
           .select('id, data')
           .eq('user_id', session.user.id)
           .eq('tax_year', taxYear)
+          .eq('tax_filer_id', activeTaxFilerId)
           .eq('form_type', `${section}_progress`);
 
         if (checkError) {
@@ -471,6 +484,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
             .insert({
               user_id: session.user.id,
               tax_year: taxYear,
+              tax_filer_id: activeTaxFilerId,
               form_type: `${section}_progress`,
               data: progressData
             });
@@ -479,7 +493,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         console.error('Error saving question progress:', error);
       }
     }
-  }, [session, taxYear]);
+  }, [session, taxYear, activeTaxFilerId]);
 
   // Reset field functionality
   const resetFormField = useCallback((section: FormSectionKey, fieldName: string) => {
@@ -699,17 +713,23 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       return;
     }
 
-    console.log(`💾 [SAVE] Saving section ${section} for year ${taxYear} with data:`, data);
+    if (!activeTaxFilerId) {
+      console.log("⚠️ [SAVE] No active tax filer - cannot save");
+      return;
+    }
+
+    console.log(`💾 [SAVE] Saving section ${section} for year ${taxYear}, tax filer ${activeTaxFilerId} with data:`, data);
 
     try {
       setLoading(true);
 
-      // Use cached session directly
+      // Use cached session directly - filter by tax_filer_id
       const { data: existingData, error: checkError } = await supabase
         .from('form_data')
         .select('id')
         .eq('user_id', session.user.id)
         .eq('tax_year', taxYear)
+        .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section);
 
       if (checkError) {
@@ -743,6 +763,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
           .insert({
             user_id: session.user.id,
             tax_year: taxYear,
+            tax_filer_id: activeTaxFilerId,
             form_type: section,
             data
           });
@@ -753,7 +774,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         throw result.error;
       }
 
-      console.log(`✅ [SAVE] Successfully saved ${section} data to database for year ${taxYear}`);
+      console.log(`✅ [SAVE] Successfully saved ${section} data to database for year ${taxYear}, tax filer ${activeTaxFilerId}`);
 
     } catch (error: any) {
       console.error('❌ [SAVE] Error saving form data:', error);
@@ -770,7 +791,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   // Import functions for previous year data
   const hasDataForPreviousYear = useCallback(async (section: FormSectionKey): Promise<boolean> => {
     try {
-      if (!session) return false;
+      if (!session || !activeTaxFilerId) return false;
 
       const previousYear = (parseInt(taxYear) - 1).toString();
       
@@ -779,6 +800,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         .select('id')
         .eq('user_id', session.user.id)
         .eq('tax_year', previousYear)
+        .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section)
         .limit(1);
 
@@ -792,22 +814,27 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       console.error('Error in hasDataForPreviousYear:', error);
       return false;
     }
-  }, [taxYear, session]);
+  }, [taxYear, session, activeTaxFilerId]);
 
   const importFromPreviousYear = useCallback(async (section: FormSectionKey) => {
     try {
       if (!session) {
         throw new Error('Nicht authentifiziert');
       }
+      
+      if (!activeTaxFilerId) {
+        throw new Error('Keine Person ausgewählt');
+      }
 
       const previousYear = (parseInt(taxYear) - 1).toString();
       
-      // Get data from previous year
+      // Get data from previous year for the same tax filer
       const { data: previousData, error: fetchError } = await supabase
         .from('form_data')
         .select('data')
         .eq('user_id', session.user.id)
         .eq('tax_year', previousYear)
+        .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section)
         .maybeSingle();
 
@@ -863,7 +890,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       console.error('Error importing from previous year:', error);
       throw error;
     }
-  }, [taxYear, session, saveSection]);
+  }, [taxYear, session, activeTaxFilerId, saveSection]);
 
   // Placeholder functions for compatibility
   const addChild = useCallback((childData: any) => {
@@ -897,11 +924,16 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       return;
     }
     
+    if (!activeTaxFilerId) {
+      console.log('No active tax filer for loading documents');
+      return;
+    }
+    
     try {
-      console.log('Loading documents for tax year:', taxYear);
-      const docs = await documentService.fetchDocuments(true, taxYear); // Force refresh with tax year
+      console.log(`Loading documents for tax year: ${taxYear}, tax filer: ${activeTaxFilerId}`);
+      const docs = await documentService.fetchDocuments(true, taxYear, activeTaxFilerId);
       
-      console.log('📄 Documents loaded in FormContext for year', taxYear, ':', docs.length);
+      console.log(`📄 Documents loaded in FormContext for year ${taxYear}, tax filer ${activeTaxFilerId}:`, docs.length);
       
       // Update document status in FormContext
       const newUploadedMap: Record<string, boolean> = {};
@@ -930,7 +962,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error loading documents in FormContext:', error);
     }
-  }, [taxYear, session, updateDocumentProgress]);
+  }, [taxYear, session, activeTaxFilerId, updateDocumentProgress]);
 
   // Chat history functions
   const saveChatMessage = useCallback(async (stepId: string, messageType: 'question' | 'answer', content: string, stepIndex: number) => {
@@ -945,6 +977,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         .insert({
           user_id: session.user.id,
           tax_year: taxYear,
+          tax_filer_id: activeTaxFilerId,
           step_id: stepId,
           message_type: messageType,
           content,
@@ -958,17 +991,18 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in saveChatMessage:', error);
     }
-  }, [taxYear, session]);
+  }, [taxYear, session, activeTaxFilerId]);
 
   const loadChatHistory = useCallback(async () => {
     try {
-      if (!session) return;
+      if (!session || !activeTaxFilerId) return;
 
       const { data, error } = await supabase
         .from('form_chat_history')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('tax_year', taxYear)
+        .eq('tax_filer_id', activeTaxFilerId)
         .order('step_index', { ascending: true })
         .order('timestamp', { ascending: true });
 
@@ -1005,7 +1039,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in loadChatHistory:', error);
     }
-  }, [taxYear, session]);
+  }, [taxYear, session, activeTaxFilerId]);
 
   const clearChatHistory = useCallback(() => {
     setChatHistory([]);
@@ -1013,7 +1047,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
 
   // Load question progress from database
   const loadQuestionProgress = useCallback(async () => {
-    if (!session || !taxYear) return;
+    if (!session || !taxYear || !activeTaxFilerId) return;
 
     try {
       const { data, error } = await supabase
@@ -1021,6 +1055,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         .select('form_type, data')
         .eq('user_id', session.user.id)
         .eq('tax_year', taxYear)
+        .eq('tax_filer_id', activeTaxFilerId)
         .in('form_type', ['income_progress', 'assets_progress', 'deductions_progress']);
 
       if (error) {
@@ -1044,18 +1079,27 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in loadQuestionProgress:', error);
     }
-  }, [session, taxYear]);
+  }, [session, taxYear, activeTaxFilerId]);
 
-  // Initial load effect - wait for session to be loaded (runs only once per tax year)
+  // Initial load effect - wait for session and tax filer to be loaded
   useEffect(() => {
-    // Prevent multiple loads for the same session
-    if (initialLoadCompletedRef.current) {
+    // Prevent multiple loads for the same session/tax filer combination
+    if (initialLoadCompletedRef.current && previousTaxFilerIdRef.current === activeTaxFilerId) {
       return;
     }
     
-    if (sessionLoaded && taxYear && !formDataLoaded && !loading && !taxYearSwitchRef.current) {
-      initialLoadCompletedRef.current = true; // Mark as loaded BEFORE starting
-      console.log(`🚀 Initial load for tax year: ${taxYear} with session:`, session ? 'Available' : 'Not available');
+    // Reload when tax filer changes
+    if (previousTaxFilerIdRef.current !== activeTaxFilerId && activeTaxFilerId) {
+      console.log(`🔄 Tax filer changed from ${previousTaxFilerIdRef.current} to ${activeTaxFilerId}, reloading data`);
+      initialLoadCompletedRef.current = false;
+      setFormDataLoaded(false);
+      previousTaxFilerIdRef.current = activeTaxFilerId;
+    }
+    
+    if (sessionLoaded && taxYear && activeTaxFilerId && !formDataLoaded && !loading && !taxYearSwitchRef.current && !isTaxFilerLoading) {
+      initialLoadCompletedRef.current = true;
+      previousTaxFilerIdRef.current = activeTaxFilerId;
+      console.log(`🚀 Initial load for tax year: ${taxYear}, tax filer: ${activeTaxFilerId} with session:`, session ? 'Available' : 'Not available');
       loadFormDataFromDatabase(taxYear);
       loadQuestionProgress();
       // Load documents automatically on initialization
@@ -1064,7 +1108,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         loadDocuments();
       }
     }
-  }, [sessionLoaded, taxYear, formDataLoaded, loading, session]);
+  }, [sessionLoaded, taxYear, activeTaxFilerId, formDataLoaded, loading, session, isTaxFilerLoading]);
 
   // Removed auto-generate checklist to prevent infinite loops
 
