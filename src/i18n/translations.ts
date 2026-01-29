@@ -970,6 +970,10 @@ export interface Translation {
     enterNameError: string;
     authError: string;
     genericError: string;
+    familyHintTitle: string;
+    familyHintDescription: string;
+    familyHintLater: string;
+    familyHintNow: string;
   };
 
   // Tour
@@ -2376,7 +2380,11 @@ export const translations: Record<'de' | 'en', Translation> = {
       acceptTermsError: 'Bitte akzeptiere die Datenschutzbestimmungen und Nutzungsbedingungen',
       enterNameError: 'Bitte gib deinen Namen ein',
       authError: 'Authentifizierung fehlgeschlagen',
-      genericError: 'Ein Fehler ist aufgetreten'
+      genericError: 'Ein Fehler ist aufgetreten',
+      familyHintTitle: 'Steuererklärung für andere?',
+      familyHintDescription: 'Du kannst auch Steuererklärungen für Familienmitglieder (Kinder, Ehepartner) unter deinem Account erstellen.',
+      familyHintLater: 'Später einrichten',
+      familyHintNow: 'Jetzt hinzufügen'
     },
 
     // Documents Page
@@ -3827,7 +3835,11 @@ export const translations: Record<'de' | 'en', Translation> = {
       acceptTermsError: 'Please accept the privacy policy and terms of service',
       enterNameError: 'Please enter your name',
       authError: 'Authentication failed',
-      genericError: 'An error occurred'
+      genericError: 'An error occurred',
+      familyHintTitle: 'File for others?',
+      familyHintDescription: 'You can also create tax returns for family members (children, spouse) under your account.',
+      familyHintLater: 'Set up later',
+      familyHintNow: 'Add now'
     },
 
     // Documents Page
