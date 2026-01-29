@@ -21,7 +21,10 @@ import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
+import { useI18n } from '@/contexts/I18nContext';
+
 const DocumentChecklist: React.FC = () => {
+  const { t } = useI18n();
   const {
     checklistItems,
     generateChecklist,
@@ -203,10 +206,10 @@ const DocumentChecklist: React.FC = () => {
     }));
   };
   const categoryMap: Record<string, string> = {
-    'general': 'Allgemeine Dokumente',
-    'income': 'Einkommen',
-    'assets': 'Vermögen',
-    'deductions': 'Abzüge'
+    'general': t.documentChecklist.categories.general,
+    'income': t.documentChecklist.categories.income,
+    'assets': t.documentChecklist.categories.assets,
+    'deductions': t.documentChecklist.categories.deductions
   };
   const categoryIcons: Record<string, React.ComponentType<{
     className?: string;
@@ -379,7 +382,7 @@ const DocumentChecklist: React.FC = () => {
   }
   return <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center">
       {/* Header */}
-      <SubpageHeader title="Unterlagen" onBack={handleBack} className="w-full max-w-4xl" />
+      <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-4xl" />
 
       {/* Main Content */}
       <main className="w-full max-w-4xl space-y-8 sm:py-12 sm:px-6 pt-8 px-4 pb-8">
@@ -395,10 +398,10 @@ const DocumentChecklist: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <span className="text-sm font-medium text-slate-700">
-                    {allOptional ? 'Dokumente' : 'Pflichtdokumente'}
+                    {allOptional ? t.documentChecklist.documents : t.documentChecklist.mandatoryDocuments}
                   </span>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {allOptional ? `${totalCompleted} von ${checklistItems.length} hochgeladen` : completedRequired === totalRequired ? 'Alle Pflichtdokumente vorhanden' : `Noch ${totalRequired - completedRequired} erforderlich`}
+                    {allOptional ? `${totalCompleted} ${t.documentChecklist.completedOf} ${checklistItems.length} ${t.documentChecklist.uploaded}` : completedRequired === totalRequired ? t.documentChecklist.allMandatoryPresent : `${t.documentChecklist.stillRequired}: ${totalRequired - completedRequired}`}
                   </p>
                 </div>
                 <div className="text-right">
@@ -479,7 +482,7 @@ const DocumentChecklist: React.FC = () => {
                               {categoryMap[category]}
                             </span>
                             <span className="block text-xs text-slate-500">
-                              {items.filter(i => i.uploaded).length} von {items.length} erledigt
+                              {items.filter(i => i.uploaded).length} {t.documentChecklist.completedOf} {items.length} {t.documentChecklist.uploaded}
                             </span>
                           </div>
                         </div>
@@ -499,7 +502,7 @@ const DocumentChecklist: React.FC = () => {
                                     {item.title}
                                   </h3>
                                   {!item.uploaded && item.required && <span className="shrink-0 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
-                                      Pflicht
+                                      {t.documentChecklist.required}
                                     </span>}
                                 </div>
                                 
@@ -513,15 +516,15 @@ const DocumentChecklist: React.FC = () => {
                                     <div className="flex items-center gap-1.5 text-green-600">
                                       <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                                       <span className="text-xs font-medium">
-                                        {itemFiles.length} {itemFiles.length === 1 ? 'Datei' : 'Dateien'}
+                                        {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-4">
                                       <button onClick={() => handleViewDocuments(item.id, 0)} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-                                        Ansehen
+                                        {t.documentChecklist.viewDocs}
                                       </button>
                                       <button onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} className="text-xs text-slate-400 hover:text-red-500 transition-colors">
-                                        Entfernen
+                                        {t.documentChecklist.remove}
                                       </button>
                                     </div>
                                   </div>}
@@ -531,7 +534,7 @@ const DocumentChecklist: React.FC = () => {
                                     {/* Primary: Upload new document */}
                                     <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                      Hochladen
+                                      {t.documentChecklist.upload}
                                     </button>
                                     
                                     {/* Secondary: Assign existing document - ghost/outline style */}
@@ -540,7 +543,7 @@ const DocumentChecklist: React.FC = () => {
                           item
                         })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-transparent text-slate-600 font-medium text-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
                                         <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
-                                        Zuweisen
+                                        {t.documentChecklist.assign}
                                       </button>}
                                   </div>}
                               </div>;
@@ -582,15 +585,15 @@ const DocumentChecklist: React.FC = () => {
             {/* Header without icon */}
             <div className="flex flex-col items-center mb-4">
               <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
-                Alle Unterlagen vollständig!
+                {t.documentChecklist.dialogTitle}
               </DialogTitle>
               <p className="text-sm text-slate-500 mt-1 text-center">
-                Steuererklärung {taxYear}
+                {t.documentChecklist.taxReturnYear} {taxYear}
               </p>
             </div>
 
             <p className="text-slate-600 text-sm leading-relaxed text-center mb-6">
-              Du hast alle benötigten Unterlagen hochgeladen. Möchtest du jetzt deine Steuererklärung erstellen lassen?
+              {t.documentChecklist.dialogDescription}
             </p>
 
             <div className="flex flex-col gap-3">
@@ -599,13 +602,13 @@ const DocumentChecklist: React.FC = () => {
                 onClick={() => setShowCompletionDialog(false)}
                 className="w-full h-12 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
               >
-                Später
+                {t.documentChecklist.later}
               </Button>
               <Button
                 onClick={() => navigate('/payment')}
                 className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)]"
               >
-                Ja, jetzt erstellen
+                {t.documentChecklist.createNow}
               </Button>
             </div>
           </div>

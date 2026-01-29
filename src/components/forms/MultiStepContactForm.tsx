@@ -17,12 +17,7 @@ interface MultiStepContactFormProps {
   embedded?: boolean;
 }
 
-const steps = [
-  { id: 1, title: 'Persönliche Daten', description: 'Name, Geburtsdatum, Religion, Zivilstand', icon: User },
-  { id: 2, title: 'Aktuelle Adresse', description: 'Strasse, PLZ, Stadt, Kanton', icon: MapPin },
-  { id: 3, title: 'Zusätzliche Angaben', description: 'Adresse per 31.12., Feuerwehrdienst', icon: FileText },
-  { id: 4, title: 'Familie', description: 'Ehepartner und Kinder', icon: Users }
-];
+// Steps are now dynamically generated based on translations
 
 // Shallow comparison helper
 const shallowEqual = (obj1: any, obj2: any): boolean => {
@@ -50,7 +45,13 @@ const MultiStepContactForm = ({
   } = useFormContext();
   const { t } = useI18n();
 
-
+  // Steps with translated content
+  const steps = [
+    { id: 1, title: t.multiStepContactForm.personalData, description: t.multiStepContactForm.personalDataDescription, icon: User },
+    { id: 2, title: t.multiStepContactForm.currentAddress, description: t.multiStepContactForm.currentAddressDescription, icon: MapPin },
+    { id: 3, title: t.multiStepContactForm.additionalInfo, description: t.multiStepContactForm.additionalInfoDescription, icon: FileText },
+    { id: 4, title: t.multiStepContactForm.family, description: t.multiStepContactForm.familyDescription, icon: Users }
+  ];
   // Step state
   const [currentStep, setCurrentFormStep] = useState(1);
 
@@ -187,8 +188,8 @@ const MultiStepContactForm = ({
   const handleNext = async () => {
     if (!validateCurrentStep()) {
       toast({
-        title: "Pflichtfelder ausfüllen",
-        description: "Bitte füllen Sie alle erforderlichen Felder aus.",
+        title: t.multiStepContactForm.fillRequired,
+        description: t.multiStepContactForm.fillRequiredDescription,
         variant: "destructive"
       });
       return;
@@ -259,7 +260,7 @@ const MultiStepContactForm = ({
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <SubpageHeader
-            title="Kontaktangaben"
+            title={t.multiStepContactForm.title}
             onBack={() => window.history.back()}
             className="!sticky !top-0 !z-30 -mx-6 -mt-8 mb-8"
           />
@@ -281,7 +282,7 @@ const MultiStepContactForm = ({
         {/* Section Heading */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-slate-800">
-            {steps.find(step => step.id === currentStep)?.title || 'Kontaktdaten'}
+            {steps.find(step => step.id === currentStep)?.title || t.multiStepContactForm.title}
           </h2>
         </div>
 
@@ -372,7 +373,7 @@ const MultiStepContactForm = ({
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <Label htmlFor="address" className={lightLabelClass}>Strasse</Label>
+                    <Label htmlFor="address" className={lightLabelClass}>{t.multiStepContactForm.street}</Label>
                     <Input
                       id="address"
                       value={address}
@@ -383,7 +384,7 @@ const MultiStepContactForm = ({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="adressnummer" className={lightLabelClass}>Nr.</Label>
+                    <Label htmlFor="adressnummer" className={lightLabelClass}>{t.multiStepContactForm.streetNumber}</Label>
                     <Input
                       id="adressnummer"
                       value={adressnummer}
@@ -423,7 +424,7 @@ const MultiStepContactForm = ({
                   <Label htmlFor="kanton" className={lightLabelClass}>Kanton</Label>
                   <Select value={kanton} onValueChange={setKanton}>
                     <SelectTrigger className={lightSelectTriggerClass}>
-                      <SelectValue placeholder="Kanton auswählen" />
+                      <SelectValue placeholder={t.multiStepContactForm.selectCanton} />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200 max-h-[300px]">
                       <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
@@ -462,11 +463,11 @@ const MultiStepContactForm = ({
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <Label className={lightLabelClass}>Adresse per 31.12.{taxYear}</Label>
+                  <Label className={lightLabelClass}>{t.multiStepContactForm.addressAsOf}{taxYear}</Label>
                   <CustomCheckbox
                     checked={hadDifferentAddressEnd === true}
                     onCheckedChange={(checked) => setHadDifferentAddressEnd(checked === true ? true : undefined)}
-                    label="Andere Adresse per 31.12."
+                    label={t.multiStepContactForm.differentAddressAsOf}
                   />
                 </div>
 
@@ -534,11 +535,11 @@ const MultiStepContactForm = ({
                 )}
 
                 <div className="space-y-4">
-                  <Label className={lightLabelClass}>Feuerwehrdienst</Label>
+                  <Label className={lightLabelClass}>{t.multiStepContactForm.firefighterLabel}</Label>
                   <CustomCheckbox
                     checked={firefighterService === true}
                     onCheckedChange={(checked) => setFirefighterService(checked === true ? true : undefined)}
-                    label="Ich leiste Feuerwehrdienst"
+                    label={t.multiStepContactForm.iDoFirefighterService}
                   />
                 </div>
               </div>
@@ -549,7 +550,7 @@ const MultiStepContactForm = ({
               <div className="space-y-6">
                 {maritalStatus === 'verheiratet' && (
                   <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <h3 className="text-lg font-medium text-slate-800">Ehepartner/in</h3>
+                    <h3 className="text-lg font-medium text-slate-800">{t.multiStepContactForm.spouseTitle}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="spouseFirstName" className={lightLabelClass}>Vorname</Label>
@@ -593,11 +594,11 @@ const MultiStepContactForm = ({
                 )}
 
                 <div className="space-y-4">
-                  <Label className={lightLabelClass}>Kinder</Label>
+                  <Label className={lightLabelClass}>{t.multiStepContactForm.childrenLabel}</Label>
                   <CustomCheckbox
                     checked={hasChildren === true}
                     onCheckedChange={(checked) => setHasChildren(checked === true ? true : undefined)}
-                    label="Ich habe Kinder"
+                    label={t.multiStepContactForm.iHaveChildren}
                   />
                 </div>
 
@@ -618,7 +619,7 @@ const MultiStepContactForm = ({
               disabled={!validateCurrentStep()}
               className="w-full py-4 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-semibold text-lg tracking-tight disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              {currentStep === steps.length ? 'Abschliessen' : 'Weiter'}
+              {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
             </button>
 
             {(currentStep > 1 || embedded) && (
@@ -627,7 +628,7 @@ const MultiStepContactForm = ({
                 onClick={handleBack}
                 className="w-full py-3 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors duration-200"
               >
-                Zurück
+                {t.multiStepContactForm.back}
               </button>
             )}
           </div>
