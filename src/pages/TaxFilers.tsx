@@ -224,7 +224,7 @@ const TaxFilers: React.FC = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden">
+        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden bg-white">
           {/* Header */}
           <div className="p-6 pb-4">
             <DialogTitle className="text-xl font-semibold text-foreground">
