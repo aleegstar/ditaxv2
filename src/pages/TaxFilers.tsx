@@ -340,23 +340,23 @@ const TaxFilers: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmFiler} onOpenChange={() => setDeleteConfirmFiler(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="border-0 shadow-xl rounded-2xl bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>
+            <AlertDialogTitle className="text-xl font-semibold text-foreground">
               {t.taxFilers?.deleteTitle || 'Person löschen?'}
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-primary">
               {t.taxFilers?.deleteDescription || 
-                'Möchten Sie diese Person wirklich löschen? Alle zugehörigen Steuererklärungen und Dokumente werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.'}
+                'Möchtest du diese Person wirklich löschen? Alle zugehörigen Steuererklärungen und Dokumente werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>
+          <AlertDialogFooter className="flex gap-3 pt-2 sm:flex-row">
+            <AlertDialogCancel className="flex-1 rounded-xl border-border text-foreground mt-0">
               {t.common?.cancel || 'Abbrechen'}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {t.taxFilers?.deleteConfirm || 'Löschen'}
             </AlertDialogAction>
