@@ -989,6 +989,30 @@ export interface Translation {
     infoNeededSingular: string;
     bothNeeded: string;
   };
+
+  // Menu
+  menu: {
+    navigation: string;
+    taxes: string;
+    documents: string;
+    chat: string;
+    inviteFriends: string;
+    help: string;
+    knowledgeBase: string;
+    startGuide: string;
+    startDocumentsGuide: string;
+    feedbackAndRoadmap: string;
+    feedback: string;
+    roadmap: string;
+    legal: string;
+    privacy: string;
+    terms: string;
+    cookiePolicy: string;
+    cookieSettings: string;
+    privacySettings: string;
+    profile: string;
+    logout: string;
+  };
 }
 
 export const translations: Record<'de' | 'en', Translation> = {
@@ -2021,6 +2045,30 @@ export const translations: Record<'de' | 'en', Translation> = {
       infoNeededSingular: '{count} Angabe wird benötigt',
       bothNeeded: '{docs} Unterlagen und {info} Angaben werden benötigt',
     },
+
+    // Menu
+    menu: {
+      navigation: 'Navigation',
+      taxes: 'Steuern',
+      documents: 'Dokumente',
+      chat: 'Chat',
+      inviteFriends: 'Freunde einladen',
+      help: 'Hilfe',
+      knowledgeBase: 'Wissensdatenbank',
+      startGuide: 'Anleitung starten',
+      startDocumentsGuide: 'Dokumenten Anleitung starten',
+      feedbackAndRoadmap: 'Feedback & Roadmap',
+      feedback: 'Feedback',
+      roadmap: 'Roadmap',
+      legal: 'Rechtliches',
+      privacy: 'Datenschutz',
+      terms: 'Nutzungsbedingungen',
+      cookiePolicy: 'Cookie-Richtlinie',
+      cookieSettings: 'Cookie-Einstellungen',
+      privacySettings: 'Datenschutz-Einstellungen',
+      profile: 'Profil',
+      logout: 'Abmelden',
+    },
   },
   
   en: {
@@ -3051,6 +3099,30 @@ export const translations: Record<'de' | 'en', Translation> = {
       infoNeeded: '{count} items of information needed',
       infoNeededSingular: '{count} item of information needed',
       bothNeeded: '{docs} documents and {info} items of information needed',
+    },
+
+    // Menu
+    menu: {
+      navigation: 'Navigation',
+      taxes: 'Taxes',
+      documents: 'Documents',
+      chat: 'Chat',
+      inviteFriends: 'Invite Friends',
+      help: 'Help',
+      knowledgeBase: 'Knowledge Base',
+      startGuide: 'Start Guide',
+      startDocumentsGuide: 'Start Documents Guide',
+      feedbackAndRoadmap: 'Feedback & Roadmap',
+      feedback: 'Feedback',
+      roadmap: 'Roadmap',
+      legal: 'Legal',
+      privacy: 'Privacy',
+      terms: 'Terms of Service',
+      cookiePolicy: 'Cookie Policy',
+      cookieSettings: 'Cookie Settings',
+      privacySettings: 'Privacy Settings',
+      profile: 'Profile',
+      logout: 'Logout',
     },
   },
 };

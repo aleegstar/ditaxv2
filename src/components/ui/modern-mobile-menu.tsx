@@ -106,35 +106,35 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const [legalOpen, setLegalOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigationItems = [{
-    label: 'Steuern',
+    label: t.menu.taxes,
     icon: CustomHomeIcon,
     route: '/'
   }, {
-    label: 'Dokumente',
+    label: t.menu.documents,
     icon: CustomFolderIcon,
     route: '/documents'
   }, {
-    label: 'Chat',
+    label: t.menu.chat,
     icon: CustomSendIcon,
     route: '/chat'
   }, {
-    label: 'Freunde einladen',
+    label: t.menu.inviteFriends,
     icon: Gift,
     route: '/invite-friends'
   }];
   const helpItems = [{
-    label: 'Wissensdatenbank',
+    label: t.menu.knowledgeBase,
     icon: HelpCircle,
     route: '/help'
   }, {
-    label: 'Anleitung starten',
+    label: t.menu.startGuide,
     icon: CustomSettingsIcon,
     action: () => {
       onOpenChange(false);
       setTimeout(() => startOnboardingTour(), 300);
     }
   }, {
-    label: 'Dokumenten Anleitung starten',
+    label: t.menu.startDocumentsGuide,
     icon: Folder,
     action: () => {
       onOpenChange(false);
@@ -143,34 +143,34 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     }
   }];
   const feedbackItems = [{
-    label: 'Feedback',
+    label: t.menu.feedback,
     icon: MessageSquare,
     route: '/feedback'
   }, {
-    label: 'Roadmap',
+    label: t.menu.roadmap,
     icon: MapPin,
     route: '/roadmap'
   }];
   const legalItems = [{
-    label: 'Datenschutz',
+    label: t.menu.privacy,
     icon: Shield,
     route: '/privacy'
   }, {
-    label: 'Nutzungsbedingungen',
+    label: t.menu.terms,
     icon: FileCheck,
     route: '/terms'
   }, {
-    label: 'Cookie-Richtlinie',
+    label: t.menu.cookiePolicy,
     icon: Cookie,
     route: '/cookies'
   }, {
-    label: 'Cookie-Einstellungen',
+    label: t.menu.cookieSettings,
     icon: Cookie,
     action: () => {
       onOpenChange(false);
     }
   }, {
-    label: 'Datenschutz-Einstellungen',
+    label: t.menu.privacySettings,
     icon: Settings,
     route: '/privacy-settings'
   }];
@@ -258,7 +258,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
         <div className="flex-1 overflow-y-auto">
           {/* Navigation Section */}
           <div className="pt-2">
-            <SectionHeader title="Navigation" isOpen={navigationOpen} onToggle={() => setNavigationOpen(!navigationOpen)} />
+            <SectionHeader title={t.menu.navigation} isOpen={navigationOpen} onToggle={() => setNavigationOpen(!navigationOpen)} />
             {navigationOpen && <div className="pb-2">
                 {navigationItems.map(item => <MenuItem key={item.label} item={item} isActive={location.pathname === item.route} />)}
               </div>}
@@ -266,7 +266,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
           {/* Help Section */}
           <div className="pt-2">
-            <SectionHeader title="Hilfe" isOpen={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
+            <SectionHeader title={t.menu.help} isOpen={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
             {helpOpen && <div className="pb-2">
                 {helpItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
@@ -274,7 +274,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
           {/* Feedback & Roadmap Section */}
           <div className="pt-2">
-            <SectionHeader title="Feedback & Roadmap" isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
+            <SectionHeader title={t.menu.feedbackAndRoadmap} isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
             {feedbackOpen && <div className="pb-2">
                 {feedbackItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
@@ -282,7 +282,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
           {/* Legal Section */}
           <div className="pt-2">
-            <SectionHeader title="Rechtliches" isOpen={legalOpen} onToggle={() => setLegalOpen(!legalOpen)} />
+            <SectionHeader title={t.menu.legal} isOpen={legalOpen} onToggle={() => setLegalOpen(!legalOpen)} />
             {legalOpen && <div className="pb-2">
                 {legalItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
@@ -308,7 +308,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             onOpenChange(false);
           }} className="w-full flex items-center gap-4 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
                 <User className="w-5 h-5 text-slate-400" />
-                <span className="font-medium">Profil</span>
+                <span className="font-medium">{t.menu.profile}</span>
               </button>
               <button onClick={async () => {
             await supabase.auth.signOut();
@@ -316,7 +316,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             navigate('/auth');
           }} className="w-full flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-50 transition-colors">
                 <LogOut className="w-5 h-5" />
-                <span className="font-medium">Abmelden</span>
+                <span className="font-medium">{t.menu.logout}</span>
               </button>
             </div>}
         </div>
