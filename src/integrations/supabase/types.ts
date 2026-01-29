@@ -340,6 +340,7 @@ export type Database = {
           signed_at: string | null
           signed_pdf_path: string | null
           status: string
+          tax_filer_id: string | null
           tax_year: string
           updated_at: string
           upload_date: string
@@ -356,6 +357,7 @@ export type Database = {
           signed_at?: string | null
           signed_pdf_path?: string | null
           status?: string
+          tax_filer_id?: string | null
           tax_year: string
           updated_at?: string
           upload_date?: string
@@ -372,6 +374,7 @@ export type Database = {
           signed_at?: string | null
           signed_pdf_path?: string | null
           status?: string
+          tax_filer_id?: string | null
           tax_year?: string
           updated_at?: string
           upload_date?: string
@@ -379,6 +382,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "completed_tax_returns_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "completed_tax_returns_user_id_fkey"
             columns: ["user_id"]
@@ -589,6 +599,7 @@ export type Database = {
           message_type: string
           step_id: string
           step_index: number
+          tax_filer_id: string | null
           tax_year: string
           timestamp: number
           user_id: string
@@ -600,6 +611,7 @@ export type Database = {
           message_type: string
           step_id: string
           step_index: number
+          tax_filer_id?: string | null
           tax_year: string
           timestamp: number
           user_id: string
@@ -611,11 +623,19 @@ export type Database = {
           message_type?: string
           step_id?: string
           step_index?: number
+          tax_filer_id?: string | null
           tax_year?: string
           timestamp?: number
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "form_chat_history_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "form_chat_history_user_id_fkey"
             columns: ["user_id"]
@@ -634,6 +654,7 @@ export type Database = {
           id: string
           ssn_encrypted: string | null
           ssn_iv: string | null
+          tax_filer_id: string | null
           tax_id_encrypted: string | null
           tax_id_iv: string | null
           tax_year: string
@@ -648,6 +669,7 @@ export type Database = {
           id?: string
           ssn_encrypted?: string | null
           ssn_iv?: string | null
+          tax_filer_id?: string | null
           tax_id_encrypted?: string | null
           tax_id_iv?: string | null
           tax_year: string
@@ -662,6 +684,7 @@ export type Database = {
           id?: string
           ssn_encrypted?: string | null
           ssn_iv?: string | null
+          tax_filer_id?: string | null
           tax_id_encrypted?: string | null
           tax_id_iv?: string | null
           tax_year?: string
@@ -669,6 +692,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "form_data_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "form_data_user_id_fkey"
             columns: ["user_id"]
@@ -684,6 +714,7 @@ export type Database = {
           current_step: number | null
           form_sections: Json | null
           id: string
+          tax_filer_id: string | null
           tax_year: string
           updated_at: string | null
           user_id: string
@@ -693,6 +724,7 @@ export type Database = {
           current_step?: number | null
           form_sections?: Json | null
           id?: string
+          tax_filer_id?: string | null
           tax_year: string
           updated_at?: string | null
           user_id: string
@@ -702,11 +734,19 @@ export type Database = {
           current_step?: number | null
           form_sections?: Json | null
           id?: string
+          tax_filer_id?: string | null
           tax_year?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "form_progress_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "form_progress_user_id_fkey"
             columns: ["user_id"]
@@ -1291,6 +1331,53 @@ export type Database = {
           },
         ]
       }
+      tax_filers: {
+        Row: {
+          ahv_number: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          first_name: string
+          id: string
+          is_primary: boolean | null
+          last_name: string
+          relationship: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ahv_number?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name: string
+          id?: string
+          is_primary?: boolean | null
+          last_name: string
+          relationship?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ahv_number?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name?: string
+          id?: string
+          is_primary?: boolean | null
+          last_name?: string
+          relationship?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tax_return_signatures: {
         Row: {
           authorization_accepted: boolean
@@ -1379,6 +1466,7 @@ export type Database = {
           payment_intent_id: string | null
           payment_status: string | null
           status: string | null
+          tax_filer_id: string | null
           tax_year: string
           updated_at: string
           user_id: string
@@ -1396,6 +1484,7 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           status?: string | null
+          tax_filer_id?: string | null
           tax_year: string
           updated_at?: string
           user_id: string
@@ -1413,12 +1502,20 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           status?: string | null
+          tax_filer_id?: string | null
           tax_year?: string
           updated_at?: string
           user_id?: string
           workflow_step?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tax_returns_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tax_returns_user_id_fkey"
             columns: ["user_id"]
@@ -1543,6 +1640,7 @@ export type Database = {
           is_assigned_to_checklist: boolean | null
           metadata: Json | null
           status: string
+          tax_filer_id: string | null
           tax_year: string | null
           upload_date: string
           user_id: string
@@ -1558,6 +1656,7 @@ export type Database = {
           is_assigned_to_checklist?: boolean | null
           metadata?: Json | null
           status?: string
+          tax_filer_id?: string | null
           tax_year?: string | null
           upload_date?: string
           user_id: string
@@ -1573,11 +1672,19 @@ export type Database = {
           is_assigned_to_checklist?: boolean | null
           metadata?: Json | null
           status?: string
+          tax_filer_id?: string | null
           tax_year?: string | null
           upload_date?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "uploaded_documents_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "uploaded_documents_user_id_fkey"
             columns: ["user_id"]
