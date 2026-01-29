@@ -439,22 +439,19 @@ export const TaxReturnActionDialog = ({
                 className="mt-2"
               />
             </div>
-            <div className="flex gap-3 flex-col sm:flex-row">
+            <div className="flex gap-3 pt-2">
               <Button 
+                type="button"
                 variant="outline" 
                 onClick={() => setUploadDialogOpen(false)} 
-                className="w-full bg-white hover:bg-gray-50 border border-[rgb(230,230,230)] font-medium h-12 rounded-full"
-                style={{ color: 'rgb(26, 32, 44)' }}
+                className="flex-1 rounded-xl border-border text-foreground"
               >
                 Abbrechen
               </Button>
               <Button 
                 onClick={handleTaxBillUpload} 
                 disabled={!selectedFile || uploadLoading} 
-                className="w-full h-12 rounded-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white border-0"
-                style={{
-                  boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-                }}
+                className="flex-1 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white"
               >
                 {uploadLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Hochladen
