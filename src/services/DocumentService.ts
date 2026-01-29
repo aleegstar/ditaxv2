@@ -43,26 +43,32 @@ export class DocumentService {
     return data.session.user.id;
   }
 
-  async fetchDocuments(forceRefresh: boolean = false, taxYear: string): Promise<DocumentMetadata[]> {
+  async fetchDocuments(forceRefresh: boolean = false, taxYear: string, taxFilerId?: string): Promise<DocumentMetadata[]> {
     const now = Date.now();
-    const cacheKey = `documents:${taxYear}`;
+    const cacheKey = `documents:${taxYear}:${taxFilerId || 'all'}`;
     const lastFetch = this.lastFetchTime.get(cacheKey) || 0;
     
     if (!forceRefresh && this.documentCache.has(cacheKey) && (now - lastFetch) < this.CACHE_DURATION) {
-      console.log(`[DocumentService] Returning cached documents for year ${taxYear}`);
+      console.log(`[DocumentService] Returning cached documents for year ${taxYear}, filer ${taxFilerId || 'all'}`);
       return this.documentCache.get(cacheKey) || [];
     }
 
-    console.log(`[DocumentService] Fetching documents from server for year ${taxYear}`);
+    console.log(`[DocumentService] Fetching documents from server for year ${taxYear}, filer ${taxFilerId || 'all'}`);
     const userId = await this.checkAuth();
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('uploaded_documents')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .eq('tax_year', taxYear)
-      .order('upload_date', { ascending: false });
+      .eq('tax_year', taxYear);
+    
+    // Filter by tax_filer_id if provided
+    if (taxFilerId) {
+      query = query.eq('tax_filer_id', taxFilerId);
+    }
+    
+    const { data, error } = await query.order('upload_date', { ascending: false });
 
     if (error) throw error;
 
@@ -75,7 +81,8 @@ export class DocumentService {
     uploadDate: new Date(doc.upload_date),
     metadata: { 
       ...(doc.metadata as Record<string, any> || {}),
-      taxYear 
+      taxYear,
+      taxFilerId
     }
   }));
 
