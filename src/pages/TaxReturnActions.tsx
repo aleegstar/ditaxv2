@@ -117,8 +117,8 @@ export default function TaxReturnActions() {
       console.error('Error loading data:', error);
       toast({
         variant: "destructive",
-        title: "Fehler",
-        description: error?.message || "Daten konnten nicht geladen werden."
+        title: t.taxReturnActions.error,
+        description: error?.message || t.taxReturnActions.dataLoadError
       });
       navigate('/');
     } finally {
@@ -152,8 +152,8 @@ export default function TaxReturnActions() {
       if (!fileList || fileList.length === 0) {
         toast({
           variant: "destructive",
-          title: "Datei nicht gefunden",
-          description: "Die Datei wurde im Speicher nicht gefunden."
+          title: t.taxReturnActions.fileNotFound,
+          description: t.taxReturnActions.fileNotFoundDescription
         });
         return;
       }
@@ -174,15 +174,15 @@ export default function TaxReturnActions() {
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Download erfolgreich",
-        description: `${completedTaxReturn.file_name} wurde heruntergeladen.`
+        title: t.taxReturnActions.downloadSuccess,
+        description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', completedTaxReturn.file_name)
       });
     } catch (error: any) {
       console.error('Download error:', error);
       toast({
         variant: "destructive",
-        title: "Download fehlgeschlagen",
-        description: error?.message || "Fehler beim Herunterladen."
+        title: t.taxReturnActions.downloadFailed,
+        description: error?.message || t.taxReturnActions.downloadFailedDescription
       });
     }
   };
@@ -205,8 +205,8 @@ export default function TaxReturnActions() {
       if (!fileList || fileList.length === 0) {
         toast({
           variant: "destructive",
-          title: "Datei nicht gefunden",
-          description: "Die Datei wurde im Speicher nicht gefunden."
+          title: t.taxReturnActions.fileNotFound,
+          description: t.taxReturnActions.fileNotFoundDescription
         });
         return;
       }
@@ -219,15 +219,15 @@ export default function TaxReturnActions() {
 
       window.open(data.signedUrl, '_blank');
       toast({
-        title: "Datei geöffnet",
-        description: `${completedTaxReturn.file_name} wurde in einem neuen Tab geöffnet.`
+        title: t.taxReturnActions.fileOpened,
+        description: t.taxReturnActions.fileOpenedDescription.replace('{fileName}', completedTaxReturn.file_name)
       });
     } catch (error: any) {
       console.error('View error:', error);
       toast({
         variant: "destructive",
-        title: "Anzeige fehlgeschlagen",
-        description: error?.message || "Fehler beim Öffnen der Datei."
+        title: t.taxReturnActions.viewFailed,
+        description: error?.message || t.taxReturnActions.viewFailedDescription
       });
     }
   };
@@ -252,15 +252,15 @@ export default function TaxReturnActions() {
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Download erfolgreich",
-        description: `${definitiveTaxBill.file_name} wurde heruntergeladen.`
+        title: t.taxReturnActions.downloadSuccess,
+        description: t.taxReturnActions.downloadSuccessDescription.replace('{fileName}', definitiveTaxBill.file_name)
       });
     } catch (error: any) {
       console.error('Tax bill download error:', error);
       toast({
         variant: "destructive",
-        title: "Download fehlgeschlagen",
-        description: error?.message || "Fehler beim Herunterladen der Steuerrechnung."
+        title: t.taxReturnActions.downloadFailed,
+        description: error?.message || t.taxReturnActions.downloadFailedDescription
       });
     }
   };
@@ -277,15 +277,15 @@ export default function TaxReturnActions() {
 
       window.open(data.signedUrl, '_blank');
       toast({
-        title: "Steuerrechnung geöffnet",
-        description: `${definitiveTaxBill.file_name} wurde in einem neuen Tab geöffnet.`
+        title: t.taxReturnActions.billOpened,
+        description: t.taxReturnActions.billOpenedDescription.replace('{fileName}', definitiveTaxBill.file_name)
       });
     } catch (error: any) {
       console.error('Tax bill view error:', error);
       toast({
         variant: "destructive",
-        title: "Anzeige fehlgeschlagen",
-        description: error?.message || "Fehler beim Öffnen der Steuerrechnung."
+        title: t.taxReturnActions.viewFailed,
+        description: error?.message || t.taxReturnActions.viewFailedDescription
       });
     }
   };
@@ -293,8 +293,8 @@ export default function TaxReturnActions() {
   const handleTaxBillUpload = async () => {
     if (!selectedFile) {
       toast({
-        title: "Fehler",
-        description: "Bitte wähle eine Datei aus.",
+        title: t.taxReturnActions.error,
+        description: t.taxReturnActions.selectFileFirst,
         variant: "destructive",
       });
       return;
@@ -325,8 +325,8 @@ export default function TaxReturnActions() {
       if (insertError) throw insertError;
 
       toast({
-        title: "Erfolg",
-        description: "Steuerrechnung wurde erfolgreich hochgeladen.",
+        title: t.taxReturnActions.uploadSuccess,
+        description: t.taxReturnActions.uploadSuccessDescription,
       });
 
       setUploadDialogOpen(false);
@@ -335,8 +335,8 @@ export default function TaxReturnActions() {
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({
-        title: "Fehler",
-        description: error?.message || "Upload fehlgeschlagen.",
+        title: t.taxReturnActions.uploadFailed,
+        description: error?.message || t.taxReturnActions.uploadFailedDescription,
         variant: "destructive",
       });
     } finally {
@@ -353,22 +353,22 @@ export default function TaxReturnActions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1D64FF]" />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!completedTaxReturn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-slate-900">Keine Steuererklärung gefunden</h1>
+          <h1 className="text-2xl font-bold mb-4 text-foreground">{t.taxReturnActions.notFound}</h1>
           <Button 
             onClick={() => navigate('/')}
-            className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-full"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full"
           >
-            Zurück zur Übersicht
+            {t.taxReturnActions.backToOverview}
           </Button>
         </div>
       </div>
@@ -377,18 +377,18 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         {/* Header */}
-        <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl">
+        <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
             <button 
               onClick={() => navigate('/')}
-              className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-100 transition-colors"
+              className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border/80 hover:bg-muted transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-slate-900 flex-1 text-center pr-10">
-              Steuererklärung {taxYear}
+            <h1 className="text-lg font-semibold text-foreground flex-1 text-center pr-10">
+              {t.taxReturnActions.title} {taxYear}
             </h1>
           </div>
         </div>
@@ -396,32 +396,32 @@ export default function TaxReturnActions() {
         <div className="max-w-2xl mx-auto px-4 pt-6 pb-24 md:pb-6 space-y-6 relative z-10">
           {/* Signature Card - Show prominently if needs signature */}
           {needsSignature && (
-            <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1D64FF] to-[#1D64FF]/80 shadow-lg transition-transform duration-500 hover:scale-[1.005]">
+            <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 shadow-lg transition-transform duration-500 hover:scale-[1.005]">
               <div className="relative z-10 flex flex-col h-full p-6">
                 <div className="mb-4">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 border border-white/30 cursor-default">
                     <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></div>
                     <span className="text-xs font-medium tracking-wide text-white uppercase">
-                      Aktion erforderlich
+                      {t.taxReturnActions.actionRequired}
                     </span>
                   </div>
                 </div>
                 <div className="max-w-2xl mb-4">
                   <h2 className="font-medium tracking-tight text-white text-2xl mb-2 leading-tight">
-                    Unterschrift erforderlich
+                    {t.taxReturnActions.signatureRequired}
                   </h2>
                   <p className="text-white/80 text-sm">
-                    Bitte unterschreibe deine Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.
+                    {t.taxReturnActions.signatureDescription}
                   </p>
                 </div>
                 <div className="mt-auto">
                   <button 
                     onClick={() => setSignatureDialogOpen(true)}
-                    className="group relative overflow-hidden bg-white text-[#1D64FF] rounded-full font-semibold text-sm sm:text-base hover:bg-white/90 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-white text-primary rounded-full font-semibold text-sm sm:text-base hover:bg-white/90 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                     style={{ boxShadow: '0 0 20px rgba(255, 255, 255, 0.3)' }}
                   >
                     <PenTool className="w-5 h-5" />
-                    <span>Jetzt unterschreiben</span>
+                    <span>{t.taxReturnActions.signNow}</span>
                   </button>
                 </div>
               </div>
@@ -436,11 +436,11 @@ export default function TaxReturnActions() {
                   <CheckCircle className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-emerald-900">Elektronisch unterschrieben</h3>
+                  <h3 className="font-medium text-emerald-900">{t.taxReturnActions.electronicallySigned}</h3>
                   <p className="text-sm text-emerald-700">
                     {signatureData?.signed_at 
-                      ? `Am ${new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                      : 'Deine Steuererklärung wurde signiert und kann eingereicht werden.'
+                      ? t.taxReturnActions.signedAt.replace('{date}', new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
+                      : t.taxReturnActions.signedDescription
                     }
                   </p>
                 </div>
@@ -450,35 +450,35 @@ export default function TaxReturnActions() {
 
           {/* Abgeschlossene Steuererklärung - nur anzeigen wenn signiert */}
           {isSigned && (
-          <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
+          <div className="relative w-full overflow-hidden rounded-[2rem] bg-background border border-border shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 border border-emerald-200 cursor-default">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
                   <span className="text-xs font-medium tracking-wide text-emerald-700 uppercase">
-                    Abgeschlossen
+                    {t.taxReturnActions.completed}
                   </span>
                 </div>
               </div>
               <div className="max-w-2xl mb-6">
-                <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
-                  Steuerjahr {taxYear}
+                <h2 className="font-medium tracking-tight text-foreground text-2xl mb-0 leading-tight">
+                  {t.taxReturnActions.taxYear} {taxYear}
                 </h2>
               </div>
               <div className="mt-auto flex flex-col gap-3">
                 <button 
                   onClick={handleView}
-                  className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                  className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                 >
                   <Eye className="w-5 h-5" />
-                  <span>Ansehen</span>
+                  <span>{t.taxReturnActions.view}</span>
                 </button>
                 <button 
                   onClick={handleDownload}
-                  className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                  className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                 >
                   <Download className="w-5 h-5" />
-                  <span>Herunterladen</span>
+                  <span>{t.taxReturnActions.download}</span>
                 </button>
               </div>
             </div>
@@ -487,28 +487,28 @@ export default function TaxReturnActions() {
 
           {/* Definitive Steuerrechnung - nur anzeigen wenn signiert */}
           {isSigned && (
-          <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
+          <div className="relative w-full overflow-hidden rounded-[2rem] bg-background border border-border shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
                 {definitiveTaxBill ? (
                   <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 border border-emerald-200 cursor-default">
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
                     <span className="text-xs font-medium tracking-wide text-emerald-700 uppercase">
-                      Vorhanden
+                      {t.taxReturnActions.available}
                     </span>
                   </div>
                 ) : (
                   <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 border border-amber-200 cursor-default">
                     <div className="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
                     <span className="text-xs font-medium tracking-wide text-amber-700 uppercase">
-                      Ausstehend
+                      {t.taxReturnActions.pending}
                     </span>
                   </div>
                 )}
               </div>
               <div className="max-w-2xl mb-6">
-                <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
-                  Definitive Steuerrechnung
+                <h2 className="font-medium tracking-tight text-foreground text-2xl mb-0 leading-tight">
+                  {t.taxReturnActions.definitiveTaxBill}
                 </h2>
               </div>
               
@@ -516,30 +516,30 @@ export default function TaxReturnActions() {
                 <div className="mt-auto flex flex-col gap-3">
                   <button 
                     onClick={handleTaxBillView}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Eye className="w-5 h-5" />
-                    <span>Rechnung ansehen</span>
+                    <span>{t.taxReturnActions.viewBill}</span>
                   </button>
                   <button 
                     onClick={handleTaxBillDownload}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Download className="w-5 h-5" />
-                    <span>Rechnung herunterladen</span>
+                    <span>{t.taxReturnActions.downloadBill}</span>
                   </button>
                 </div>
               ) : (
                 <div className="mt-auto flex flex-col gap-3">
-                  <p className="text-sm text-slate-500 mb-2">
-                    Noch keine Steuerrechnung vorhanden. Lade sie hier hoch, sobald du sie erhalten hast.
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {t.taxReturnActions.noBillYet}
                   </p>
                   <button 
                     onClick={() => setUploadDialogOpen(true)}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Upload className="w-5 h-5" />
-                    <span>Steuerrechnung hochladen</span>
+                    <span>{t.taxReturnActions.uploadBill}</span>
                   </button>
                 </div>
               )}
@@ -549,28 +549,28 @@ export default function TaxReturnActions() {
 
           {/* Problem melden - nur vor Unterschrift */}
           {!isSigned && (
-          <div className="relative w-full overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-sm transition-transform duration-500 hover:scale-[1.005]">
+          <div className="relative w-full overflow-hidden rounded-[2rem] bg-background border border-border shadow-sm transition-transform duration-500 hover:scale-[1.005]">
             <div className="relative z-10 flex flex-col h-full p-6">
               <div className="mb-4">
                 {supportTickets.length > 0 ? (
-                  <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 border border-blue-200 cursor-default">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[#1D64FF]"></div>
-                    <span className="text-xs font-medium tracking-wide text-[#1D64FF] uppercase">
-                      {supportTickets.length} {supportTickets.length === 1 ? 'Ticket' : 'Tickets'}
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 border border-primary/20 cursor-default">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                    <span className="text-xs font-medium tracking-wide text-primary uppercase">
+                      {supportTickets.length} {supportTickets.length === 1 ? t.taxReturnActions.ticket : t.taxReturnActions.tickets}
                     </span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 border border-slate-200 cursor-default">
-                    <div className="h-1.5 w-1.5 rounded-full bg-slate-500"></div>
-                    <span className="text-xs font-medium tracking-wide text-slate-500 uppercase">
-                      Support
+                  <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 border border-border cursor-default">
+                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground"></div>
+                    <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                      {t.taxReturnActions.support}
                     </span>
                   </div>
                 )}
               </div>
               <div className="max-w-2xl mb-6">
-                <h2 className="font-medium tracking-tight text-slate-900 text-2xl mb-0 leading-tight">
-                  Hilfe benötigt?
+                <h2 className="font-medium tracking-tight text-foreground text-2xl mb-0 leading-tight">
+                  {t.taxReturnActions.needHelp}
                 </h2>
               </div>
               
@@ -580,17 +580,17 @@ export default function TaxReturnActions() {
                     {supportTickets.map((ticket) => (
                       <div 
                         key={ticket.id}
-                        className="p-3 bg-slate-50 rounded-xl border border-slate-200"
+                        className="p-3 bg-muted rounded-xl border border-border"
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-sm text-slate-900">{ticket.title}</p>
-                            <p className="text-xs text-slate-500">
+                            <p className="font-medium text-sm text-foreground">{ticket.title}</p>
+                            <p className="text-xs text-muted-foreground">
                               Status: {
-                                ticket.status === 'open' ? 'Offen' :
-                                ticket.status === 'in_progress' ? 'In Bearbeitung' :
-                                ticket.status === 'resolved' ? 'Erledigt' :
-                                'Geschlossen'
+                                ticket.status === 'open' ? t.taxReturnActions.statusOpen :
+                                ticket.status === 'in_progress' ? t.taxReturnActions.statusInProgress :
+                                ticket.status === 'resolved' ? t.taxReturnActions.statusResolved :
+                                t.taxReturnActions.statusClosed
                               }
                             </p>
                           </div>
@@ -600,30 +600,30 @@ export default function TaxReturnActions() {
                   </div>
                   <button 
                     onClick={() => navigate(`/tickets?year=${taxYear}`)}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <Eye className="w-5 h-5" />
-                    <span>Tickets anzeigen</span>
+                    <span>{t.taxReturnActions.viewTickets}</span>
                   </button>
                   <button 
                     onClick={handleCreateTicket}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <AlertTriangle className="w-5 h-5" />
-                    <span>Neues Ticket</span>
+                    <span>{t.taxReturnActions.newTicket}</span>
                   </button>
                 </div>
               ) : (
                 <div className="mt-auto flex flex-col gap-3">
-                  <p className="text-sm text-slate-500 mb-2">
-                    Falls du Fragen hast oder ein Problem feststellst, kannst du uns hier kontaktieren.
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {t.taxReturnActions.contactUs}
                   </p>
                   <button 
                     onClick={handleCreateTicket}
-                    className="group relative overflow-hidden bg-slate-100 text-slate-700 rounded-full font-semibold text-sm sm:text-base border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
+                    className="group relative overflow-hidden bg-muted text-foreground rounded-full font-semibold text-sm sm:text-base border border-border hover:bg-muted/80 hover:border-border/80 transition-all duration-300 w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   >
                     <AlertTriangle className="w-5 h-5" />
-                    <span>Problem melden</span>
+                    <span>{t.taxReturnActions.reportProblem}</span>
                   </button>
                 </div>
               )}
@@ -635,39 +635,39 @@ export default function TaxReturnActions() {
 
       {/* Upload Dialog */}
       <ModernUploadDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <ModernUploadDialogContent className="sm:max-w-md bg-white border border-slate-200">
+        <ModernUploadDialogContent className="sm:max-w-md bg-background border border-border">
           <ModernUploadDialogHeader>
-            <ModernUploadDialogTitle className="text-slate-900">Steuerrechnung hochladen</ModernUploadDialogTitle>
+            <ModernUploadDialogTitle className="text-foreground">{t.taxReturnActions.uploadTaxBill}</ModernUploadDialogTitle>
           </ModernUploadDialogHeader>
           <div className="space-y-4 mt-4">
             <div>
-              <Label htmlFor="tax-bill-upload" className="text-slate-600">PDF-Datei oder Bild auswählen</Label>
+              <Label htmlFor="tax-bill-upload" className="text-muted-foreground">{t.taxReturnActions.selectFile}</Label>
               <Input
                 id="tax-bill-upload"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,image/*"
                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                className="mt-2 bg-slate-50 border-slate-200 text-slate-900 file:text-slate-700 file:bg-slate-100 file:border-0 file:rounded-md"
+                className="mt-2 bg-muted border-border text-foreground file:text-foreground file:bg-muted file:border-0 file:rounded-md"
               />
             </div>
             <div className="flex gap-3 flex-col sm:flex-row">
               <Button 
                 variant="outline" 
                 onClick={() => setUploadDialogOpen(false)} 
-                className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-medium h-12 rounded-full"
+                className="w-full bg-muted hover:bg-muted/80 border border-border text-foreground font-medium h-12 rounded-full"
               >
-                Abbrechen
+                {t.taxReturnActions.cancel}
               </Button>
               <Button 
                 onClick={handleTaxBillUpload} 
                 disabled={!selectedFile || uploadLoading} 
-                className="w-full h-12 rounded-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white border-0"
+                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground border-0"
                 style={{
                   boxShadow: '0 0 20px rgba(29, 100, 255, 0.4)'
                 }}
               >
                 {uploadLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Hochladen
+                {t.taxReturnActions.upload}
               </Button>
             </div>
           </div>

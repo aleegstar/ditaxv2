@@ -940,6 +940,67 @@ export interface Translation {
     navigationErrorDescription: string;
   };
 
+  // Tax Return Actions Page
+  taxReturnActions: {
+    title: string;
+    loading: string;
+    notFound: string;
+    backToOverview: string;
+    actionRequired: string;
+    signatureRequired: string;
+    signatureDescription: string;
+    signNow: string;
+    electronicallySigned: string;
+    signedAt: string;
+    signedDescription: string;
+    completed: string;
+    taxYear: string;
+    view: string;
+    download: string;
+    available: string;
+    pending: string;
+    definitiveTaxBill: string;
+    viewBill: string;
+    downloadBill: string;
+    noBillYet: string;
+    uploadBill: string;
+    support: string;
+    ticket: string;
+    tickets: string;
+    needHelp: string;
+    statusOpen: string;
+    statusInProgress: string;
+    statusResolved: string;
+    statusClosed: string;
+    viewTickets: string;
+    newTicket: string;
+    contactUs: string;
+    reportProblem: string;
+    uploadTaxBill: string;
+    selectFile: string;
+    cancel: string;
+    upload: string;
+    fileNotFound: string;
+    fileNotFoundDescription: string;
+    downloadSuccess: string;
+    downloadSuccessDescription: string;
+    downloadFailed: string;
+    downloadFailedDescription: string;
+    fileOpened: string;
+    fileOpenedDescription: string;
+    viewFailed: string;
+    viewFailedDescription: string;
+    billOpened: string;
+    billOpenedDescription: string;
+    uploadSuccess: string;
+    uploadSuccessDescription: string;
+    uploadFailed: string;
+    uploadFailedDescription: string;
+    error: string;
+    selectFileFirst: string;
+    dataLoadError: string;
+  };
+
   // User Dashboard (Main Page /)
   userDashboard: {
     greeting: string;
@@ -2011,6 +2072,67 @@ export const translations: Record<'de' | 'en', Translation> = {
       navigationErrorDescription: 'Bitte versuche es erneut.',
     },
 
+    // Tax Return Actions Page
+    taxReturnActions: {
+      title: 'Steuererklärung',
+      loading: 'Laden...',
+      notFound: 'Keine Steuererklärung gefunden',
+      backToOverview: 'Zurück zur Übersicht',
+      actionRequired: 'Aktion erforderlich',
+      signatureRequired: 'Unterschrift erforderlich',
+      signatureDescription: 'Bitte unterschreibe deine Steuererklärung elektronisch, damit wir sie beim Steueramt einreichen können.',
+      signNow: 'Jetzt unterschreiben',
+      electronicallySigned: 'Elektronisch unterschrieben',
+      signedAt: 'Am {date}',
+      signedDescription: 'Deine Steuererklärung wurde signiert und kann eingereicht werden.',
+      completed: 'Abgeschlossen',
+      taxYear: 'Steuerjahr',
+      view: 'Ansehen',
+      download: 'Herunterladen',
+      available: 'Vorhanden',
+      pending: 'Ausstehend',
+      definitiveTaxBill: 'Definitive Steuerrechnung',
+      viewBill: 'Rechnung ansehen',
+      downloadBill: 'Rechnung herunterladen',
+      noBillYet: 'Noch keine Steuerrechnung vorhanden. Lade sie hier hoch, sobald du sie erhalten hast.',
+      uploadBill: 'Steuerrechnung hochladen',
+      support: 'Support',
+      ticket: 'Ticket',
+      tickets: 'Tickets',
+      needHelp: 'Hilfe benötigt?',
+      statusOpen: 'Offen',
+      statusInProgress: 'In Bearbeitung',
+      statusResolved: 'Erledigt',
+      statusClosed: 'Geschlossen',
+      viewTickets: 'Tickets anzeigen',
+      newTicket: 'Neues Ticket',
+      contactUs: 'Falls du Fragen hast oder ein Problem feststellst, kannst du uns hier kontaktieren.',
+      reportProblem: 'Problem melden',
+      uploadTaxBill: 'Steuerrechnung hochladen',
+      selectFile: 'PDF-Datei oder Bild auswählen',
+      cancel: 'Abbrechen',
+      upload: 'Hochladen',
+      fileNotFound: 'Datei nicht gefunden',
+      fileNotFoundDescription: 'Die Datei wurde im Speicher nicht gefunden.',
+      downloadSuccess: 'Download erfolgreich',
+      downloadSuccessDescription: '{fileName} wurde heruntergeladen.',
+      downloadFailed: 'Download fehlgeschlagen',
+      downloadFailedDescription: 'Fehler beim Herunterladen.',
+      fileOpened: 'Datei geöffnet',
+      fileOpenedDescription: '{fileName} wurde in einem neuen Tab geöffnet.',
+      viewFailed: 'Anzeige fehlgeschlagen',
+      viewFailedDescription: 'Fehler beim Öffnen der Datei.',
+      billOpened: 'Steuerrechnung geöffnet',
+      billOpenedDescription: '{fileName} wurde in einem neuen Tab geöffnet.',
+      uploadSuccess: 'Erfolg',
+      uploadSuccessDescription: 'Steuerrechnung wurde erfolgreich hochgeladen.',
+      uploadFailed: 'Fehler',
+      uploadFailedDescription: 'Upload fehlgeschlagen.',
+      error: 'Fehler',
+      selectFileFirst: 'Bitte wähle eine Datei aus.',
+      dataLoadError: 'Daten konnten nicht geladen werden.',
+    },
+
     // User Dashboard (Main Page /)
     userDashboard: {
       greeting: 'Grüezi,',
@@ -3079,6 +3201,67 @@ export const translations: Record<'de' | 'en', Translation> = {
       saveErrorDescription: 'Data could not be saved.',
       navigationError: 'Navigation error',
       navigationErrorDescription: 'Please try again.',
+    },
+
+    // Tax Return Actions Page
+    taxReturnActions: {
+      title: 'Tax Return',
+      loading: 'Loading...',
+      notFound: 'No tax return found',
+      backToOverview: 'Back to overview',
+      actionRequired: 'Action required',
+      signatureRequired: 'Signature required',
+      signatureDescription: 'Please sign your tax return electronically so we can submit it to the tax office.',
+      signNow: 'Sign now',
+      electronicallySigned: 'Electronically signed',
+      signedAt: 'On {date}',
+      signedDescription: 'Your tax return has been signed and can be submitted.',
+      completed: 'Completed',
+      taxYear: 'Tax year',
+      view: 'View',
+      download: 'Download',
+      available: 'Available',
+      pending: 'Pending',
+      definitiveTaxBill: 'Definitive tax bill',
+      viewBill: 'View bill',
+      downloadBill: 'Download bill',
+      noBillYet: 'No tax bill yet. Upload it here once you receive it.',
+      uploadBill: 'Upload tax bill',
+      support: 'Support',
+      ticket: 'Ticket',
+      tickets: 'Tickets',
+      needHelp: 'Need help?',
+      statusOpen: 'Open',
+      statusInProgress: 'In progress',
+      statusResolved: 'Resolved',
+      statusClosed: 'Closed',
+      viewTickets: 'View tickets',
+      newTicket: 'New ticket',
+      contactUs: 'If you have questions or notice a problem, you can contact us here.',
+      reportProblem: 'Report problem',
+      uploadTaxBill: 'Upload tax bill',
+      selectFile: 'Select PDF file or image',
+      cancel: 'Cancel',
+      upload: 'Upload',
+      fileNotFound: 'File not found',
+      fileNotFoundDescription: 'The file was not found in storage.',
+      downloadSuccess: 'Download successful',
+      downloadSuccessDescription: '{fileName} was downloaded.',
+      downloadFailed: 'Download failed',
+      downloadFailedDescription: 'Error downloading file.',
+      fileOpened: 'File opened',
+      fileOpenedDescription: '{fileName} was opened in a new tab.',
+      viewFailed: 'View failed',
+      viewFailedDescription: 'Error opening file.',
+      billOpened: 'Tax bill opened',
+      billOpenedDescription: '{fileName} was opened in a new tab.',
+      uploadSuccess: 'Success',
+      uploadSuccessDescription: 'Tax bill was uploaded successfully.',
+      uploadFailed: 'Error',
+      uploadFailedDescription: 'Upload failed.',
+      error: 'Error',
+      selectFileFirst: 'Please select a file.',
+      dataLoadError: 'Data could not be loaded.',
     },
 
     // User Dashboard (Main Page /)
