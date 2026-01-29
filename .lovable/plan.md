@@ -1,142 +1,200 @@
 
-# Erweiterung des Welcome-Flows für Multi-Personen
 
-## Aktuelle Situation
+# Mobile OCR mit tesseract-wasm
 
-Der Welcome-Flow besteht aus 3 Schritten:
-1. **Datenschutz & Einwilligungen** (Consent)
-2. **Vorname** (First Name)
-3. **Steuerjahr** (Tax Year)
+## Ubersicht
 
-Nach Abschluss wird automatisch ein "Primary" Tax Filer mit dem eingegebenen Vornamen erstellt (durch den Datenbank-Trigger).
+Da Capacitor OCR nicht verfugbar ist und Despia OCR erst ab v3.6 kommt, implementieren wir `tesseract-wasm` als WebView-kompatible Alternative.
+
+**Warum tesseract-wasm statt tesseract.js?**
+- Optimiert fur Browser/WebView Umgebungen
+- Kleinere Dateigrosse (~2.1MB vs ~4MB)
+- Automatischer SIMD-Fallback fur altere Gerate
+- Bessere Web Worker Architektur (OCRClient)
+- Bereits als Dependency installiert!
 
 ---
 
-## Optionen zur Erweiterung
+## Technischer Plan
 
-### Option A: Hinweis am Ende (Empfohlen - Minimal)
+### Phase 1: Deutsche Trainingsdaten hinzufugen
 
-Nach Schritt 3 (Steuerjahr) wird ein **kurzer Hinweis** angezeigt, dass weitere Personen hinzugefügt werden können:
+Die `deu.traineddata` Datei (~1.6MB) muss in `public/ocr/` abgelegt werden.
 
-```text
-+------------------------------------------+
-|  💡 Tipp                                 |
-|                                          |
-|  Du kannst auch Steuererklärungen        |
-|  für Familienmitglieder erstellen.       |
-|                                          |
-|  [Später einrichten]  [Jetzt hinzufügen] |
-+------------------------------------------+
+**Download-Quelle:** [tessdata_fast/deu.traineddata](https://github.com/tesseract-ocr/tessdata_fast/blob/main/deu.traineddata)
+
+**vite.config.ts anpassen:** Die Datei wird automatisch mit kopiert, da `public/` Ordner direkt ins Build geht.
+
+### Phase 2: TesseractWasmOcrService erstellen
+
+**Neue Datei: `src/services/TesseractWasmOcrService.ts`**
+
+```typescript
+import { OCRClient } from 'tesseract-wasm';
+
+class TesseractWasmOcrService {
+  private client: OCRClient | null = null;
+  private initialized: boolean = false;
+
+  async initialize(): Promise<boolean> {
+    if (this.initialized) return true;
+    
+    this.client = new OCRClient();
+    await this.client.loadModel('/ocr/deu.traineddata');
+    this.initialized = true;
+    return true;
+  }
+
+  async detectTextFromFile(file: File): Promise<string[]> {
+    if (!this.client) return [];
+    
+    const imageBitmap = await createImageBitmap(file);
+    await this.client.loadImage(imageBitmap);
+    const text = await this.client.getText();
+    
+    return text.split('\n').filter(line => line.trim());
+  }
+
+  async cleanup(): void {
+    this.client?.destroy();
+    this.client = null;
+    this.initialized = false;
+  }
+}
 ```
 
-**Vorteile:**
-- Macht User auf die Funktion aufmerksam
-- Blockiert nicht den Hauptflow
-- Schnelles Onboarding bleibt erhalten
+### Phase 3: DocumentValidator Integration
 
----
-
-### Option B: Optionaler Schritt 4 (Erweitert)
-
-Ein neuer **optionaler Schritt** nach dem Steuerjahr:
+**Anderungen in `DocumentValidator.ts`:**
 
 ```text
-Schritt 4: "Erstellst du die Steuererklärung für weitere Personen?"
+Aktuelle Fallback-Kette:
+1. Native OCR (Capacitor/Despia) → nicht verfugbar
+2. Desktop Browser → Tesseract.js ✓
+3. Mobile WebView → Cloud OCR (opt-in) oder keine Validierung
 
-[ ] Ja, für Familienmitglieder (Kinder, Ehepartner, etc.)
-[ ] Nein, nur für mich selbst
-
-Falls "Ja":
-→ Weiterleitung zu /tax-filers nach Onboarding
-→ Oder: Inline-Formular zum direkten Hinzufügen
+Neue Fallback-Kette:
+1. Native OCR (Capacitor/Despia) → nicht verfugbar
+2. Desktop Browser → Tesseract.js ✓
+3. Mobile WebView → tesseract-wasm (NEU) ✓
+4. Fallback → Manuelle Bestatigung
 ```
 
-**Vorteile:**
-- Proaktive Abfrage der Nutzungsabsicht
-- Bessere Vorbereitung des Users
+**Code-Anderung (Zeile 151-182):**
 
-**Nachteile:**
-- Verlängert das Onboarding
-- Könnte neue User überfordern
+```typescript
+} else if (isDesktopBrowser() || !isMobileAppContext()) {
+  // Desktop: Tesseract.js (bereits funktioniert)
+  console.log('[DocumentValidator] Using Tesseract.js (desktop browser)');
+  keywordSignals = await this.detectKeywordsWithTesseract(file, ...);
+  
+} else if (isMobileAppContext()) {
+  // Mobile WebView: tesseract-wasm (NEU)
+  console.log('[DocumentValidator] Using tesseract-wasm (mobile WebView)');
+  onProgress?.({ step: 'ocr', percent: 35, message: 'Text wird lokal erkannt...' });
+  
+  keywordSignals = await this.detectKeywordsWithTesseractWasm(file, (percent) => {
+    const mappedPercent = 35 + Math.round(percent * 0.45);
+    onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Lokale OCR...' });
+  });
+}
+```
 
----
+### Phase 4: Platform Detection anpassen
 
-### Option C: Kein Zusatz im Onboarding
-
-Stattdessen wird die Multi-Personen-Funktion **im Dashboard prominent** beworben:
-
-- Banner/Card auf der Startseite: "Steuererklärung für Familienmitglieder erstellen"
-- Eintrag in der Sidebar/Navigation
-- Tooltip beim ersten Besuch
-
----
-
-## Empfehlung
-
-**Option A (Hinweis am Ende)** ist die beste Balance:
-
-1. Hält das Onboarding schlank (3 Schritte bleiben)
-2. Informiert neue User über die Funktion
-3. "Jetzt hinzufügen" leitet direkt zu `/tax-filers` weiter
-4. "Später einrichten" navigiert normal zum Dashboard
+Die `isMobileAppContext()` Funktion in `platform.ts` erkennt bereits Despia WebViews. Fur tesseract-wasm brauchen wir keine Anderungen.
 
 ---
 
-## Technische Umsetzung (Option A)
+## Dateianderungen
 
-### Änderungen
-
-| Datei | Änderung |
+| Datei | Anderung |
 |-------|----------|
-| `WelcomeFlow.tsx` | Neuer Zustand `showFamilyHint` nach Schritt 3 |
-| `translations.ts` | Neue Keys für Hinweis-Texte |
+| `public/ocr/deu.traineddata` | Neu: Deutsche Trainingsdaten (~1.6MB) |
+| `src/services/TesseractWasmOcrService.ts` | Neu: Service fur tesseract-wasm OCR |
+| `src/services/DocumentValidator.ts` | Anpassung: tesseract-wasm als Mobile-Fallback |
 
-### Ablauf
+---
+
+## OCR-Fallback Diagramm
 
 ```text
-Schritt 1 → Schritt 2 → Schritt 3 → [Hinweis-Modal] → Dashboard oder /tax-filers
+Dokument hochgeladen (Bild)
+           |
+           v
+   Native OCR verfugbar?
+      /           \
+    Ja             Nein
+     |               |
+     v               v
+ Native OCR     Desktop Browser?
+ (ML Kit)         /        \
+               Ja           Nein (Mobile WebView)
+                |               |
+                v               v
+          Tesseract.js    tesseract-wasm
+               |               |
+               +-------+-------+
+                       |
+                       v
+               Keywords erkannt?
+                  /        \
+                Ja          Nein
+                 |            |
+                 v            v
+            Automatische   Manuelle
+            Zuordnung      Bestatigung
 ```
 
-### Neuer Code-Block (vereinfacht)
+---
 
-```typescript
-// Nach handleComplete(), vor Navigation:
-if (!showFamilyHint) {
-  setShowFamilyHint(true);
-  return; // Zeige Hinweis statt direkt zu navigieren
-}
+## Leistung und Speicher
 
-// Wenn User "Später" wählt → navigate('/')
-// Wenn User "Jetzt hinzufügen" wählt → navigate('/tax-filers')
-```
+| Aspekt | Wert |
+|--------|------|
+| WASM Core | ~700KB (Brotli) |
+| Fallback WASM | ~650KB (Brotli) |
+| Deutsche Trainingsdaten | ~1.6MB |
+| **Gesamt (erste Nutzung)** | **~3MB Download** |
+| Erkennungszeit | 2-5 Sekunden pro Bild |
+| Speicherverbrauch | ~50-100MB wahrend OCR |
 
-### i18n-Keys
+---
 
-```typescript
-onboarding: {
-  familyHintTitle: 'Steuererklärung für andere?',
-  familyHintDescription: 'Du kannst auch Steuererklärungen für Familienmitglieder (Kinder, Ehepartner) unter deinem Account erstellen.',
-  familyHintLater: 'Später einrichten',
-  familyHintNow: 'Jetzt hinzufügen'
-}
-```
+## Vorteile dieser Losung
+
+1. **100% lokal** - Alle Daten bleiben auf dem Gerat (DSGVO-konform)
+2. **Kein Cloud-Consent notig** - Funktioniert ohne Zustimmung
+3. **WebView-kompatibel** - Funktioniert in Despia vor v3.6
+4. **Automatischer SIMD-Fallback** - Unterstutzt altere Gerate
+5. **Zukunftssicher** - Kann spater durch Despia OCR ersetzt werden
 
 ---
 
 ## Aufwand
 
-| Option | Aufwand | Komplexität |
-|--------|---------|-------------|
-| A (Hinweis) | ~1-2h | Niedrig |
-| B (Extra Schritt) | ~3-4h | Mittel |
-| C (Kein Onboarding) | 0h | - |
+| Phase | Aufwand | Beschreibung |
+|-------|---------|--------------|
+| 1 | ~0.5h | Trainingsdaten hinzufugen |
+| 2 | ~2h | TesseractWasmOcrService erstellen |
+| 3 | ~1.5h | DocumentValidator Integration |
+| 4 | ~1h | Testing in Mobile WebView |
+
+**Gesamt:** ~5 Stunden
 
 ---
 
-## Frage an dich
+## Hinweis fur spater
 
-Welche Option bevorzugst du?
+Wenn Despia v3.6 verfugbar ist, kann `NativeOcrService.ts` das native OCR nutzen. Der Code dafur ist bereits vorhanden:
 
-- **Option A**: Kurzer Hinweis nach dem letzten Schritt
-- **Option B**: Optionaler vierter Schritt mit Abfrage
-- **Option C**: Keine Änderung am Onboarding, stattdessen Dashboard-Banner
+```typescript
+// In NativeOcrService.ts (bereits implementiert):
+if (typeof (window as any).despia?.ocr?.recognizeText === 'function') {
+  this.useDespia = true;
+  this.available = true;
+}
+```
+
+tesseract-wasm bleibt dann als Fallback fur altere Despia-Versionen.
+
