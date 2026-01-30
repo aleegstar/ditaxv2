@@ -341,6 +341,9 @@ const UserTaxReturns = () => {
               {getUserDisplayName()}
             </h1>
           </div>
+          
+          {/* Tax Filer Selector - shows if multiple persons exist */}
+          <TaxFilerSelector className="mt-4" />
         </section>
 
         {/* Missing Items Alert */}
