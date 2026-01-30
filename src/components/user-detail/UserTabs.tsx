@@ -109,6 +109,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
       }
     });
 
+    // Add years from uploaded documents - ensures documents with different years are visible
+    if (user.documents) {
+      user.documents.forEach(doc => {
+        if ((doc as any).tax_year) {
+          years.add(String((doc as any).tax_year));
+        }
+      });
+    }
+
     // Always include current year and surrounding years for admin convenience
     const currentYear = new Date().getFullYear();
     // Include 3 years back and 2 years forward to ensure 2024 is always visible
@@ -116,7 +125,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
       years.add(String(currentYear + i));
     }
     return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
-  }, [taxReturns, allFormData, completedTaxReturns]);
+  }, [taxReturns, allFormData, completedTaxReturns, user.documents]);
 
   // Transform and filter form data for selected year AND tax_filer_id
   const formDataForSelectedYear = useMemo(() => {

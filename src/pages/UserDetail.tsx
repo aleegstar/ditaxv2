@@ -498,24 +498,9 @@ const UserDetail: React.FC = () => {
 
   // Transform documents to match UploadedDocument interface and filter by year and tax filer
   const transformDocuments = (docs: Document[]) => {
-    console.log('🔍 transformDocuments called with:', docs);
-    console.log('🔍 Selected year for documents:', selectedYear);
-    console.log('🔍 Selected tax filer ID for documents:', selectedTaxFilerId);
-    
-    // Filter documents by tax year AND tax_filer_id
-    const filteredDocs = docs.filter(doc => {
-      if (!doc.tax_year) {
-        console.log('📄 Document has no tax_year, excluding:', doc.file_name);
-        return false;
-      }
-      const yearMatch = doc.tax_year === selectedYear;
-      const filerMatch = !selectedTaxFilerId || doc.tax_filer_id === selectedTaxFilerId;
-      return yearMatch && filerMatch;
-    });
-
-    console.log('📄 Filtered documents for year', selectedYear, 'and filer', selectedTaxFilerId, ':', filteredDocs);
-
-    return filteredDocs.map(doc => ({
+    // NO filtering here - pass all documents through
+    // Filtering is done in UserTabs.tsx to avoid double filtering
+    return docs.map(doc => ({
       id: doc.id,
       checklistItemId: doc.checklist_item_id,
       fileName: doc.file_name,
@@ -523,7 +508,8 @@ const UserDetail: React.FC = () => {
       url: doc.file_path,
       uploadDate: new Date(doc.upload_date),
       metadata: (doc as any).metadata || {},
-      tax_year: doc.tax_year
+      tax_year: doc.tax_year,
+      tax_filer_id: doc.tax_filer_id  // Include tax_filer_id for filtering in UserTabs
     }));
   };
 
