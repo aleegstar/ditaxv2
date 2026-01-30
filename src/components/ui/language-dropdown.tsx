@@ -32,7 +32,9 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
           <Globe className={variant === 'compact' ? 'w-4 h-4' : 'w-5 h-5'} />
           {showLabel && (
             <span className={`font-medium ${variant === 'compact' ? 'text-xs' : 'text-sm'}`}>
-              {t.menu.language}
+              <span className={language === 'de' ? 'text-slate-800' : 'text-slate-400'}>DE</span>
+              <span className="text-slate-300 mx-1">|</span>
+              <span className={language === 'en' ? 'text-slate-800' : 'text-slate-400'}>EN</span>
             </span>
           )}
         </button>
