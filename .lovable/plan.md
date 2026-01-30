@@ -1,97 +1,183 @@
 
-# Plan: Fix Duplicate Key Violation for Multi-Person Tax Data
+# Plan: Admin-Ansicht für Multi-Person-Steuererklärungen korrigieren
 
-## Problem Identified
+## Problem
 
-When saving form data for "Leano" (a second tax filer), the database throws:
-```
-duplicate key value violates unique constraint "form_data_unique"
-```
+Wenn Leano (Kind) eine Steuererklärung einreicht, zeigt der Admin unter `/admin/user/:id` die Daten von Sandro (Hauptbenutzer) statt Leano's Daten.
 
-## Root Cause Analysis
+## Ursache
 
-The database constraint `form_data_unique` is defined as:
-```sql
-UNIQUE (user_id, tax_year, form_type)
-```
+Die Admin-Komponenten berücksichtigen `tax_filer_id` nicht:
 
-This constraint **does not include `tax_filer_id`**, but the multi-person tax filer architecture requires each person to have their own form data. When:
-1. Sandro's data exists: `(user_id=X, tax_year=2024, form_type=contactInfo, tax_filer_id=sandro_id)`
-2. Leano tries to save: `(user_id=X, tax_year=2024, form_type=contactInfo, tax_filer_id=leano_id)`
+1. **`TaxReturnCreation.tsx`** (Zeile 434): Verlinkt nur mit `user_id` und `year`:
+   ```tsx
+   <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}`}>
+   ```
 
-The constraint sees a conflict on `(user_id, tax_year, form_type)` because it ignores `tax_filer_id`.
+2. **`UserDetail.tsx`** (Zeile 212-215): Filtert `form_data` nur nach `user_id`:
+   ```tsx
+   const { data: formDataResponse } = await supabase
+     .from('form_data')
+     .select('*')
+     .eq('user_id', userId);
+   ```
 
-## Solution
+3. **`transformFormDataArray`** (Zeile 432-455): Filtert nur nach `tax_year`, nicht nach `tax_filer_id`:
+   ```tsx
+   const yearFilteredData = formDataArray.filter(item => {
+     return item.tax_year === selectedYear;
+   });
+   ```
 
-Update the unique constraint to include `tax_filer_id`:
+## Datenstruktur im aktuellen Fall
 
-```sql
-ALTER TABLE form_data 
-DROP CONSTRAINT form_data_unique;
+- Benutzer `604af39e-...` hat 2 Steuerpflichtige:
+  - Sandro (`598fc1ec-...`) - primary
+  - Leano (`a1454d06-...`) - Kind
+  
+- Leano's Tax Return (`6c853f7d-...`) hat `tax_filer_id: a1454d06-...`
+- Leano's `form_data` hat `tax_filer_id: a1454d06-...`
+- Aber Admin sieht Sandro's Daten, weil kein `tax_filer_id`-Filter aktiv ist
 
-ALTER TABLE form_data 
-ADD CONSTRAINT form_data_unique 
-UNIQUE (user_id, tax_year, form_type, tax_filer_id);
-```
+## Lösung
 
-## Implementation Steps
+### 1. TaxReturnCreation.tsx anpassen
 
-### Step 1: Database Migration
+`tax_filer_id` zur URL hinzufügen:
 
-Create a migration to modify the unique constraint:
+```tsx
+// Vorher (Zeile 434)
+<Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}`}>
 
-```sql
--- Drop the existing constraint that doesn't account for tax_filer_id
-ALTER TABLE form_data DROP CONSTRAINT IF EXISTS form_data_unique;
-
--- Create new constraint that includes tax_filer_id
--- This allows different tax filers to have their own form data
-ALTER TABLE form_data 
-ADD CONSTRAINT form_data_unique 
-UNIQUE (user_id, tax_year, form_type, tax_filer_id);
-```
-
-### Step 2: Handle NULL tax_filer_id Records
-
-Some older records may have `tax_filer_id = NULL`. The new constraint will treat each NULL as distinct (PostgreSQL behavior), which could cause issues.
-
-First, check for affected records:
-```sql
-SELECT COUNT(*) FROM form_data WHERE tax_filer_id IS NULL;
+// Nachher
+<Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}&filer=${taxReturn.tax_filer_id}`}>
 ```
 
-If there are NULL records, we need to either:
-- Assign them to the user's primary tax filer, or
-- Keep them as-is (NULLs are treated as distinct in unique constraints)
+### 2. UserDetail.tsx anpassen
 
-### Step 3: Verify the Fix
+**a) URL-Parameter auslesen:**
+```tsx
+const urlYear = searchParams.get('year');
+const urlTaxFilerId = searchParams.get('filer');  // NEU
+```
 
-After migration:
-1. Sandro can save: `(user_id, 2024, contactInfo, sandro_id)` 
-2. Leano can also save: `(user_id, 2024, contactInfo, leano_id)` 
+**b) State für ausgewählten Tax Filer:**
+```tsx
+const [selectedTaxFilerId, setSelectedTaxFilerId] = useState<string | null>(urlTaxFilerId);
+const [taxFilers, setTaxFilers] = useState<any[]>([]);
+```
 
-Both records can coexist since `tax_filer_id` is now part of the unique key.
+**c) Tax Filers laden:**
+```tsx
+const { data: taxFilersData } = await supabase
+  .from('tax_filers')
+  .select('id, first_name, last_name, is_primary, relationship')
+  .eq('user_id', userId);
 
-## Technical Details
+setTaxFilers(taxFilersData || []);
 
-| Aspect | Current State | After Fix |
-|--------|---------------|-----------|
-| Unique Constraint | `(user_id, tax_year, form_type)` | `(user_id, tax_year, form_type, tax_filer_id)` |
-| Multiple Filers Same Year | Not supported | Fully supported |
-| Backward Compatibility | N/A | Existing data preserved |
+// Falls kein filer-Parameter: primären Tax Filer auswählen
+if (!urlTaxFilerId && taxFilersData?.length > 0) {
+  const primary = taxFilersData.find(f => f.is_primary);
+  setSelectedTaxFilerId(primary?.id || taxFilersData[0].id);
+} else if (urlTaxFilerId) {
+  setSelectedTaxFilerId(urlTaxFilerId);
+}
+```
 
-## Risk Assessment
+**d) transformFormDataArray mit tax_filer_id filtern:**
+```tsx
+const transformFormDataArray = (formDataArray: any[]) => {
+  const merged = { ...defaultFormData };
+  if (formDataArray?.length > 0) {
+    // Filter nach Jahr UND tax_filer_id
+    const filteredData = formDataArray.filter(item => {
+      const yearMatch = item.tax_year === selectedYear;
+      const filerMatch = !selectedTaxFilerId || item.tax_filer_id === selectedTaxFilerId;
+      return yearMatch && filerMatch;
+    });
+    // ... Rest bleibt gleich
+  }
+  return merged;
+};
+```
 
-| Risk | Mitigation |
-|------|------------|
-| Records with NULL tax_filer_id | Check for affected records first; assign to primary filer if needed |
-| Duplicate data after migration | Verify no duplicates exist before creating new constraint |
+### 3. Header mit Tax Filer Selector erweitern
 
-## No Code Changes Required
+Im Header-Bereich einen Dropdown für den Tax Filer hinzufügen:
 
-The application code (FormContext.tsx) already correctly:
-- Includes `tax_filer_id` in INSERT statements (line 766)
-- Filters by `tax_filer_id` when checking for existing records (line 732)
-- Filters by `tax_filer_id` when loading data (line 199)
+```tsx
+{taxFilers.length > 1 && (
+  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80">
+    <select
+      value={selectedTaxFilerId || ''}
+      onChange={(e) => setSelectedTaxFilerId(e.target.value)}
+      className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
+    >
+      {taxFilers.map(filer => (
+        <option key={filer.id} value={filer.id}>
+          {filer.first_name} {filer.last_name} 
+          {filer.is_primary ? ' (Hauptperson)' : ''}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+```
 
-The only issue is the database constraint, which this migration will fix.
+### 4. Dokumente ebenfalls nach tax_filer_id filtern
+
+In `transformDocuments`:
+```tsx
+const transformDocuments = (docs: Document[]) => {
+  const yearFilteredDocs = docs.filter(doc => {
+    if (!doc.tax_year) return false;
+    const yearMatch = doc.tax_year === selectedYear;
+    const filerMatch = !selectedTaxFilerId || doc.tax_filer_id === selectedTaxFilerId;
+    return yearMatch && filerMatch;
+  });
+  // ... Rest
+};
+```
+
+### 5. TaxReturnCreation.tsx: Tax Filer Name anzeigen
+
+Den Namen des Tax Filers in der Karte anzeigen:
+
+```tsx
+interface PaidTaxReturn {
+  // ... bestehende Felder
+  tax_filer_id: string;
+  tax_filer_name: string;  // NEU
+}
+
+// Beim Laden:
+const { data: taxFilerData } = await supabase
+  .from('tax_filers')
+  .select('first_name, last_name')
+  .eq('id', taxReturn.tax_filer_id)
+  .single();
+
+return {
+  ...taxReturn,
+  tax_filer_name: taxFilerData 
+    ? `${taxFilerData.first_name} ${taxFilerData.last_name}`
+    : 'Unbekannt'
+};
+```
+
+## Betroffene Dateien
+
+| Datei | Änderung |
+|-------|----------|
+| `src/components/admin/TaxReturnCreation.tsx` | Tax Filer ID zur URL hinzufügen, Tax Filer Name laden/anzeigen |
+| `src/pages/UserDetail.tsx` | URL-Parameter auslesen, Tax Filer State, Filter anpassen, Tax Filer Selector im Header |
+
+## Erwartetes Ergebnis
+
+Nach der Implementierung:
+1. Admin klickt auf Leano's Steuererklärung
+2. URL enthält `?year=2024&filer=a1454d06-...`
+3. UserDetail lädt und zeigt Leano's Daten korrekt
+4. Admin kann zwischen Sandro und Leano wechseln via Dropdown
+5. Formulardaten und Dokumente werden korrekt nach Tax Filer gefiltert
