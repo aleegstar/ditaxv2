@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,7 @@ interface TaxFiler {
   last_name: string;
   is_primary: boolean;
   relationship: string | null;
+  admin_notes: string | null;
 }
 
 interface CompletedTaxReturn {
@@ -184,7 +185,7 @@ const UserDetail: React.FC = () => {
       console.log('👥 Fetching tax filers for user:', userId);
       const { data: taxFilersData, error: taxFilersError } = await supabase
         .from('tax_filers')
-        .select('id, first_name, last_name, is_primary, relationship')
+        .select('id, first_name, last_name, is_primary, relationship, admin_notes')
         .eq('user_id', userId)
         .order('is_primary', { ascending: false });
 
@@ -424,6 +425,15 @@ const UserDetail: React.FC = () => {
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
   };
+
+  // Compute admin notes based on selected tax filer
+  const currentAdminNotes = useMemo(() => {
+    if (selectedTaxFilerId) {
+      const filer = taxFilers.find(f => f.id === selectedTaxFilerId);
+      return filer?.admin_notes || '';
+    }
+    return user?.admin_notes || '';
+  }, [selectedTaxFilerId, taxFilers, user]);
 
   // DEBUG RENDER STATE
   console.log('🎨 UserDetail render state:', {
@@ -748,7 +758,7 @@ const UserDetail: React.FC = () => {
               userId={user.id}
               allFormData={formData}
               onYearChange={handleYearChange}
-              initialNotes={user.admin_notes || ''}
+              initialNotes={currentAdminNotes}
               selectedYear={selectedYear}
               selectedTaxFilerId={selectedTaxFilerId}
               completedTaxReturns={completedTaxReturns}
