@@ -1,119 +1,135 @@
 
-# Plan: Dokumentenanzeige für Multi-Person Tax Filers korrigieren
+# Plan: Steuererklärungen und Definitive Rechnungen nach Tax Filer filtern
 
 ## Problem
 
-Im Admin-Bereich werden Leano's hochgeladene Dokumente nicht angezeigt, obwohl sie in der Datenbank existieren.
+Im Admin-Bereich bei `/admin/user/:id?year=2024&filer=...` werden für Leano (Kind):
+- Steuererklärungen von Sandro (Hauptperson) angezeigt
+- Definitive Rechnungen von Sandro angezeigt
 
-## Ursachenanalyse
+Die Filterung nach `selectedTaxFilerId` fehlt in beiden Bereichen.
 
-### Datensituation
-| Datentyp | Leano's tax_year |
-|----------|------------------|
-| tax_returns | 2024 |
-| uploaded_documents | 2026, 2033 |
+## Betroffene Code-Stellen
 
-Leano's Dokumente wurden mit `tax_year: 2026` hochgeladen, aber die URL zeigt `year=2024`.
+### 1. UserTabs.tsx - Steuererklärungen (tax-returns Tab)
 
-### Code-Probleme
-
-**Problem 1: `transformDocuments()` in UserDetail.tsx (Zeile 506-514)**
+**Zeile 482**: `taxReturns` wird nur nach Jahr gefiltert:
 ```tsx
-// Filtert Dokumente BEVOR sie zu UserTabs kommen
-const filteredDocs = docs.filter(doc => {
-  const yearMatch = doc.tax_year === selectedYear;
-  const filerMatch = !selectedTaxFilerId || doc.tax_filer_id === selectedTaxFilerId;
-  return yearMatch && filerMatch;
-});
-```
-Wenn `selectedYear = 2024` und Dokumente `tax_year = 2026` haben, werden sie aussortiert.
-
-**Problem 2: `tax_filer_id` fehlt im transformierten Dokument (Zeile 518-527)**
-```tsx
-return filteredDocs.map(doc => ({
-  id: doc.id,
-  checklistItemId: doc.checklist_item_id,
-  fileName: doc.file_name,
-  fileType: doc.file_type,
-  url: doc.file_path,
-  uploadDate: new Date(doc.upload_date),
-  metadata: (doc as any).metadata || {},
-  tax_year: doc.tax_year
-  // tax_filer_id FEHLT!
-}));
+taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear))
 ```
 
-**Problem 3: Doppelte Filterung**
-- `UserDetail.tsx` filtert die Dokumente
-- `UserTabs.tsx` filtert nochmals (Zeile 150-156)
+**Zeile 521-527**: `completedTaxReturns` wird nur nach Jahr gefiltert:
+```tsx
+completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear))
+```
+
+### 2. UserDefinitiveTaxBill.tsx - Definitive Rechnungen
+
+**Zeile 57-63**: Lädt alle Rechnungen nur nach `user_id`:
+```tsx
+const { data, error } = await supabase
+  .from('definitive_tax_bills')
+  .select('*')
+  .eq('user_id', userId)
+  .order('tax_year', { ascending: false });
+```
+
+Die Komponente kennt kein `selectedTaxFilerId`.
 
 ## Lösung
 
-### Schritt 1: UserDetail.tsx - transformDocuments anpassen
+### Schritt 1: UserTabs.tsx - taxReturns und completedTaxReturns filtern
 
-Die Filterung aus `transformDocuments()` entfernen und alle Dokumente ungefiltert übergeben. Die Filterung erfolgt dann nur in `UserTabs.tsx`:
-
-```tsx
-const transformDocuments = (docs: Document[]) => {
-  // KEINE Filterung hier - alle Dokumente durchreichen
-  // Filterung erfolgt in UserTabs.tsx
-  return docs.map(doc => ({
-    id: doc.id,
-    checklistItemId: doc.checklist_item_id,
-    fileName: doc.file_name,
-    fileType: doc.file_type,
-    url: doc.file_path,
-    uploadDate: new Date(doc.upload_date),
-    metadata: (doc as any).metadata || {},
-    tax_year: doc.tax_year,
-    tax_filer_id: doc.tax_filer_id  // NEU: tax_filer_id mitgeben
-  }));
-};
-```
-
-### Schritt 2: UserTabs.tsx - availableYears erweitern
-
-Dokument-Jahre zur Jahresauswahl hinzufügen:
+Zwei neue `useMemo` Hooks für gefilterte Daten:
 
 ```tsx
-const availableYears = useMemo(() => {
-  const years = new Set<string>();
+// Filter tax returns by year AND tax_filer_id
+const taxReturnsForSelectedYear = useMemo(() => {
+  return taxReturns.filter(tr => {
+    const yearMatch = String(tr.taxYear) === String(selectedYear);
+    const filerMatch = !selectedTaxFilerId || tr.tax_filer_id === selectedTaxFilerId;
+    return yearMatch && filerMatch;
+  });
+}, [taxReturns, selectedYear, selectedTaxFilerId]);
 
-  // ... bestehender Code für taxReturns, allFormData, completedTaxReturns ...
-
-  // NEU: Jahre aus Dokumenten hinzufügen
-  if (user.documents) {
-    user.documents.forEach(doc => {
-      if ((doc as any).tax_year) {
-        years.add(String((doc as any).tax_year));
-      }
-    });
-  }
-
-  // ... Rest bleibt gleich ...
-  return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
-}, [taxReturns, allFormData, completedTaxReturns, user.documents]);
+// Filter completed tax returns by year AND tax_filer_id  
+const completedReturnsForSelectedYear = useMemo(() => {
+  return completedTaxReturns.filter(ctr => {
+    const yearMatch = String(ctr.tax_year) === String(selectedYear);
+    const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
+    return yearMatch && filerMatch;
+  });
+}, [completedTaxReturns, selectedYear, selectedTaxFilerId]);
 ```
+
+Diese werden dann überall im Tax-Returns Tab verwendet.
+
+### Schritt 2: UserDefinitiveTaxBill.tsx - Props erweitern
+
+```tsx
+interface UserDefinitiveTaxBillProps {
+  userId: string;
+  isAdmin?: boolean;
+  selectedTaxFilerId?: string | null;  // NEU
+  selectedYear?: string;  // NEU für Konsistenz
+}
+```
+
+### Schritt 3: UserDefinitiveTaxBill.tsx - Filterung hinzufügen
+
+```tsx
+// Gefilterte Rechnungen basierend auf selectedTaxFilerId
+const filteredBills = useMemo(() => {
+  if (!selectedTaxFilerId) return bills;
+  // Hinweis: definitive_tax_bills hat aktuell kein tax_filer_id Feld
+  // Falls das Feld nicht existiert, zeigen wir alle an
+  return bills.filter(bill => {
+    // Falls tax_filer_id existiert, filtern
+    if ((bill as any).tax_filer_id) {
+      return (bill as any).tax_filer_id === selectedTaxFilerId;
+    }
+    // Sonst alle anzeigen (Rückwärtskompatibilität)
+    return true;
+  });
+}, [bills, selectedTaxFilerId]);
+```
+
+### Schritt 4: UserTabs.tsx - Props an UserDefinitiveTaxBill übergeben
+
+```tsx
+<UserDefinitiveTaxBill 
+  userId={userId} 
+  isAdmin={true}
+  selectedTaxFilerId={selectedTaxFilerId}
+  selectedYear={selectedYear}
+/>
+```
+
+### Schritt 5: Datenbank-Feld prüfen
+
+Die `definitive_tax_bills` Tabelle hat laut Schema kein `tax_filer_id` Feld. Falls Multi-Person-Support benötigt wird, müsste dieses Feld hinzugefügt werden. Für jetzt:
+
+- Falls `tax_filer_id` in `definitive_tax_bills` fehlt: Alle Rechnungen werden für alle Tax Filers angezeigt (mit Hinweis)
+- Falls vorhanden: Filterung wie geplant
 
 ## Betroffene Dateien
 
 | Datei | Änderung |
 |-------|----------|
-| `src/pages/UserDetail.tsx` | Filterung aus `transformDocuments` entfernen, `tax_filer_id` hinzufügen |
-| `src/components/user-detail/UserTabs.tsx` | `availableYears` mit Dokument-Jahren erweitern |
+| `src/components/user-detail/UserTabs.tsx` | Neue useMemo Hooks für gefilterte taxReturns/completedTaxReturns, Props an UserDefinitiveTaxBill übergeben |
+| `src/components/user-detail/UserDefinitiveTaxBill.tsx` | Props erweitern, Filterlogik hinzufügen |
 
 ## Technische Details
 
-| Aspekt | Vorher | Nachher |
-|--------|--------|---------|
-| Dokument-Filterung Ort | Doppelt (UserDetail + UserTabs) | Nur in UserTabs |
-| tax_filer_id in Dokumenten | Fehlt | Vorhanden |
-| availableYears inkl. Dokumente | Nein | Ja |
+| Bereich | Vorher | Nachher |
+|---------|--------|---------|
+| taxReturns Filter | nur `tax_year` | `tax_year` + `tax_filer_id` |
+| completedTaxReturns Filter | nur `tax_year` | `tax_year` + `tax_filer_id` |
+| UserDefinitiveTaxBill Props | `userId`, `isAdmin` | + `selectedTaxFilerId`, `selectedYear` |
 
 ## Erwartetes Ergebnis
 
 1. Admin wählt Leano aus dem Dropdown
-2. Alle verfügbaren Jahre (inkl. 2026 aus Dokumenten) sind im Dropdown sichtbar
-3. Admin wechselt zu Jahr 2026
-4. Leano's Dokumente (Zins- und Saldobescheinigung, Deckblatt) werden angezeigt
-5. Bei Jahr 2024 werden keine Dokumente angezeigt (weil keine für 2024 existieren)
+2. Im Tab "Steuererklärung": Nur Leano's Steuererklärungen werden angezeigt
+3. Im Tab "Definitive Rechnungen": Nur Leano's Rechnungen (falls `tax_filer_id` vorhanden)
+4. Wechsel zu Sandro zeigt entsprechend nur Sandro's Daten
