@@ -41,7 +41,7 @@ const SelectPerson: React.FC = () => {
   const handleSelectPerson = (filer: TaxFiler) => {
     console.log('🎯 SelectPerson: Selected filer:', filer.id, filer.first_name);
     setActiveTaxFilerId(filer.id);
-    confirmSelection();
+    confirmSelection(filer.id); // Pass ID directly to avoid stale closure
     // Navigate with state to trigger data refresh
     navigate('/', { state: { personSelected: true, filerId: filer.id } });
   };
