@@ -1,89 +1,136 @@
 
 
-# Plan: Bug-Fix - Falsches Steuerjahr beim Dokument-Upload
+# Plan: Admin-Notizen pro Tax Filer
 
 ## Problem
 
-Beim Hochladen von Dokumenten über die `/documents`-Seite wird das aktuelle Systemjahr (2026) statt des in der URL angegebenen Jahres (z.B. 2024) verwendet.
+Admin-Notizen werden aktuell in `profiles.admin_notes` gespeichert - ein Feld pro Benutzer-Account. Bei Familien mit mehreren Tax Filern (z.B. Sandro + Leano) gibt es nur ein gemeinsames Notiz-Feld statt separater Notizen pro Person.
 
-## Ursache
+## Aktuelle Situation
 
-In `src/pages/Documents.tsx` (Zeile 718-719):
-```tsx
-const currentYear = new Date().getFullYear();  // = 2026
-const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
-```
-
-Der URL-Parameter `?year=2024` wird komplett ignoriert! Das Steuerjahr wird immer auf das aktuelle Systemjahr gesetzt.
-
-## Auswirkung
-
-| Aktion | Erwartetes Ergebnis | Tatsächliches Ergebnis |
-|--------|---------------------|------------------------|
-| User öffnet `/documents?year=2024` | `selectedYear = "2024"` | `selectedYear = "2026"` |
-| User lädt Dokument hoch | `tax_year = "2024"` | `tax_year = "2026"` |
-| User erwartet Dokument bei 2024 | Sichtbar | Nicht sichtbar |
+| Aspekt | Aktuell |
+|--------|---------|
+| Speicherort | `profiles.admin_notes` |
+| Scope | 1 Notiz pro Account |
+| Problem | Notizen für Leano überschreiben Notizen für Sandro |
 
 ## Lösung
 
-### Schritt 1: URL-Parameter auslesen und als Default verwenden
+### Schritt 1: Datenbank - Neues Feld in tax_filers
 
-```tsx
-// In src/pages/Documents.tsx, Documents Komponente
-const Documents: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
-  
-  // NEU: URL-Parameter hat Priorität
-  const yearFromUrl = searchParams.get('year');
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<string>(
-    yearFromUrl || currentYear.toString()
-  );
-  
-  // ... rest bleibt gleich
+```sql
+ALTER TABLE tax_filers 
+ADD COLUMN admin_notes TEXT DEFAULT '';
 ```
 
-### Schritt 2: URL synchron halten bei Jahreswechsel
+Das ermöglicht separate Notizen pro Tax Filer.
+
+### Schritt 2: AdminNotesCard.tsx - Props erweitern
 
 ```tsx
-// Year-Change Handler aktualisiert auch die URL
-const handleYearChange = (newYear: string) => {
-  setSelectedYear(newYear);
-  navigate(`/documents?year=${newYear}`, { replace: true });
-};
+interface AdminNotesCardProps {
+  userId: string;
+  initialNotes: string;
+  taxFilerId?: string | null;  // NEU: Optional für Rückwärtskompatibilität
+}
+```
+
+Speicherlogik anpassen:
+- Wenn `taxFilerId` vorhanden: in `tax_filers.admin_notes` speichern
+- Fallback: in `profiles.admin_notes` speichern (Rückwärtskompatibilität)
+
+### Schritt 3: UserDetail.tsx - Notizen pro Tax Filer laden
+
+Neue Logik zum Laden der Notizen basierend auf `selectedTaxFilerId`:
+
+```tsx
+// Wenn ein Tax Filer ausgewählt ist, dessen Notizen laden
+const currentNotes = useMemo(() => {
+  if (selectedTaxFilerId) {
+    const filer = taxFilers.find(f => f.id === selectedTaxFilerId);
+    return filer?.admin_notes || '';
+  }
+  return user?.admin_notes || '';
+}, [selectedTaxFilerId, taxFilers, user]);
+```
+
+### Schritt 4: UserTabs.tsx - taxFilerId an AdminNotesCard übergeben
+
+```tsx
+<AdminNotesCard 
+  userId={userId} 
+  initialNotes={initialNotes} 
+  taxFilerId={selectedTaxFilerId}  // NEU
+/>
 ```
 
 ## Betroffene Dateien
 
 | Datei | Änderung |
 |-------|----------|
-| `src/pages/Documents.tsx` | URL-Parameter für `selectedYear` Initial-Wert verwenden |
+| **Datenbank** | `admin_notes` Spalte zu `tax_filers` hinzufügen |
+| `src/components/user-detail/AdminNotesCard.tsx` | Props erweitern, Speicherlogik für Tax Filer |
+| `src/pages/UserDetail.tsx` | Notizen basierend auf selectedTaxFilerId laden, taxFilers mit admin_notes fetchen |
+| `src/components/user-detail/UserTabs.tsx` | `taxFilerId` Prop an AdminNotesCard übergeben |
 
 ## Technische Details
 
-| Aspekt | Vorher | Nachher |
-|--------|--------|---------|
-| Default-Jahr | `new Date().getFullYear()` | `searchParams.get('year') \|\| new Date().getFullYear()` |
-| URL-Sync | Keine | URL wird bei Jahreswechsel aktualisiert |
+### Speicherlogik in AdminNotesCard
+
+```tsx
+const saveAdminNotes = async () => {
+  setSavingNotes(true);
+  try {
+    let error;
+    
+    if (taxFilerId) {
+      // Speichere in tax_filers für spezifischen Tax Filer
+      const result = await supabase
+        .from('tax_filers')
+        .update({ admin_notes: adminNotes })
+        .eq('id', taxFilerId);
+      error = result.error;
+    } else {
+      // Fallback: Speichere in profiles (alte Logik)
+      const result = await supabase
+        .from('profiles')
+        .update({ admin_notes: adminNotes })
+        .eq('id', userId);
+      error = result.error;
+    }
+    
+    // ... rest der Fehlerbehandlung
+  }
+};
+```
+
+### Tax Filers mit admin_notes laden
+
+In `UserDetail.tsx` muss das Laden der Tax Filers erweitert werden:
+
+```tsx
+const { data: filersData } = await supabase
+  .from('tax_filers')
+  .select('id, first_name, last_name, is_primary, relationship, admin_notes')  // admin_notes hinzugefügt
+  .eq('user_id', userId)
+  .order('is_primary', { ascending: false });
+```
 
 ## Erwartetes Ergebnis
 
-1. User navigiert zu `/documents?year=2024`
-2. `selectedYear` wird auf "2024" gesetzt
-3. User lädt Dokument hoch
-4. Dokument wird mit `tax_year = "2024"` gespeichert
-5. Dokument erscheint korrekt bei Steuerjahr 2024
+1. Admin wählt Sandro aus dem Dropdown
+2. Sandro's spezifische Admin-Notizen werden angezeigt
+3. Admin wechselt zu Leano
+4. Leano's separate Admin-Notizen werden angezeigt
+5. Änderungen werden für jeden Tax Filer unabhängig gespeichert
 
-## Vorhandene Dokumente korrigieren
+## Datenmodell nach Änderung
 
-Die bereits falsch hochgeladenen Dokumente (Leano's Dokumente mit `tax_year = 2026`) müssen manuell korrigiert werden:
+```text
+profiles
+├── admin_notes (bestehend, für Accounts ohne Multi-Filer)
 
-```sql
-UPDATE uploaded_documents 
-SET tax_year = '2024' 
-WHERE tax_filer_id = 'a1454d06-xxxx-xxxx-xxxx-xxxxxxxxxxxx' 
-AND tax_year = '2026';
+tax_filers  
+├── admin_notes (NEU, pro Tax Filer)
 ```
 
