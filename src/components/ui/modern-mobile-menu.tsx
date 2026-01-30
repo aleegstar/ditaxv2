@@ -278,6 +278,32 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 {legalItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
           </div>
+
+          {/* Referral Banner */}
+          <div className="px-4 py-4">
+            <button
+              onClick={() => {
+                navigate('/invite-friends');
+                onOpenChange(false);
+              }}
+              className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 p-4 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+              
+              <div className="relative flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-semibold text-sm">{t.menu.inviteFriends}</div>
+                  <div className="text-xs text-white/80">CHF 20 für dich & deine Freunde</div>
+                </div>
+                <ChevronDown className="w-4 h-4 text-white/60 -rotate-90" />
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* User Profile Section */}
