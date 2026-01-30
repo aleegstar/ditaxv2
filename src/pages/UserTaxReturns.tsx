@@ -54,7 +54,7 @@ const UserTaxReturns = () => {
     isValid,
     isLoading: authLoading
   } = useAuthValidation();
-  const { activeTaxFilerId, hasMultipleFilers, selectionConfirmed, confirmSelection } = useTaxFiler();
+  const { activeTaxFilerId, hasMultipleFilers, selectionConfirmed, confirmSelection, isLoading: taxFilerLoading } = useTaxFiler();
   const {
     taxReturns,
     formProgress,
@@ -266,7 +266,7 @@ const UserTaxReturns = () => {
   const getDocumentCount = (year: string): number => {
     return uploadedDocuments[year]?.length || 0;
   };
-  if (authLoading || loading || profileLoading || !isReady || !onboardingChecked || shouldRedirectToWelcome) {
+  if (authLoading || loading || profileLoading || !isReady || !onboardingChecked || shouldRedirectToWelcome || taxFilerLoading) {
     return <UserTaxReturnsSkeleton />;
   }
 
