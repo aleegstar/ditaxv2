@@ -275,8 +275,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
           </div>
 
           {/* Language Selector */}
-          <div className="px-4 pb-4 flex items-center gap-3">
-            <span className="text-sm text-slate-500 font-medium">{t.menu.language}:</span>
+          <div className="px-4 pb-4">
             <LanguageDropdown />
           </div>
         </div>
