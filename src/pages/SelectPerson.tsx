@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useProfile } from '@/hooks/useProfile';
 import { Plus, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
@@ -22,6 +23,20 @@ const SelectPerson: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { taxFilers, setActiveTaxFilerId, confirmSelection, isLoading } = useTaxFiler();
+  const { profile } = useProfile();
+
+  // Get avatar URL - for primary user, use profile avatar if tax_filer avatar is not set
+  const getAvatarUrl = (filer: TaxFiler): string | undefined => {
+    // If tax_filer has its own avatar, use it
+    if (filer.avatar_url) {
+      return filer.avatar_url;
+    }
+    // For primary user, fall back to profile avatar
+    if (filer.is_primary && profile?.avatar_url) {
+      return profile.avatar_url;
+    }
+    return undefined;
+  };
 
   const handleSelectPerson = (filer: TaxFiler) => {
     console.log('🎯 SelectPerson: Selected filer:', filer.id, filer.first_name);
@@ -81,7 +96,7 @@ const SelectPerson: React.FC = () => {
                 {/* Avatar */}
                 <Avatar className="w-16 h-16 ring-1 ring-primary/10 flex-shrink-0">
                   <AvatarImage 
-                    src={filer.avatar_url || undefined}
+                    src={getAvatarUrl(filer)}
                     alt={`${filer.first_name} ${filer.last_name}`}
                     className="object-cover"
                   />
