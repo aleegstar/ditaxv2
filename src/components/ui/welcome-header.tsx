@@ -47,11 +47,14 @@ export const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
       border: '1px solid rgba(255,255,255,0.5)'
     }}>
         {/* Profile Picture */}
-        {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/50" /> : <div className="w-9 h-9 rounded-full bg-slate-200 ring-2 ring-white/50 flex items-center justify-center">
-            <span className="text-sm font-medium text-slate-500">
-              {profile?.first_name?.charAt(0) || 'U'}
-            </span>
-          </div>}
+        <img 
+          src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
+          alt="Profile" 
+          className="w-9 h-9 rounded-full object-cover ring-2 ring-white/50"
+          onError={(e) => {
+            e.currentTarget.src = '/lovable-uploads/default-avatar.png';
+          }}
+        />
 
         {/* Greeting Text */}
         <div className="flex items-center gap-1.5 pr-2">
