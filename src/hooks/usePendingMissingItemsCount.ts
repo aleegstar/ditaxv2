@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export const usePendingMissingItemsCount = (userId?: string) => {
+export const usePendingMissingItemsCount = (userId?: string, taxFilerId?: string | null) => {
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingDocuments, setPendingDocuments] = useState(0);
   const [pendingInformation, setPendingInformation] = useState(0);
@@ -16,11 +16,17 @@ export const usePendingMissingItemsCount = (userId?: string) => {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('missing_item_requests')
         .select('id, request_type')
         .eq('user_id', userId)
         .in('status', ['pending', 'rejected']);
+
+      if (taxFilerId) {
+        query = query.eq('tax_filer_id', taxFilerId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -36,7 +42,7 @@ export const usePendingMissingItemsCount = (userId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, taxFilerId]);
 
   useEffect(() => {
     fetchPendingCount();
@@ -47,7 +53,7 @@ export const usePendingMissingItemsCount = (userId?: string) => {
     if (!userId) return;
 
     const channel = supabase
-      .channel(`missing_items_count_${userId}`)
+      .channel(`missing_items_count_${userId}_${taxFilerId || 'all'}`)
       .on(
         'postgres_changes',
         {
@@ -65,7 +71,7 @@ export const usePendingMissingItemsCount = (userId?: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, fetchPendingCount]);
+  }, [userId, taxFilerId, fetchPendingCount]);
 
   return {
     pendingCount,

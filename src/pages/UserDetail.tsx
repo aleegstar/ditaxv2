@@ -547,7 +547,7 @@ const UserDetail: React.FC = () => {
   console.log('🔍 Transformed documents:', transformedUser.documents);
 
   // Get current tax return status
-  const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear);
+  const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId);
   const currentStatus = currentTaxReturn?.status;
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
@@ -772,7 +772,13 @@ const UserDetail: React.FC = () => {
           open={missingItemDialogOpen}
           onOpenChange={setMissingItemDialogOpen}
           userId={user.id}
-          taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear)?.id}
+          taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId)?.id}
+          taxFilerId={selectedTaxFilerId}
+          userName={(() => {
+            const filer = taxFilers.find(f => f.id === selectedTaxFilerId);
+            return filer ? `${filer.first_name} ${filer.last_name}` : `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          })()}
+          taxYear={selectedYear}
           onSuccess={() => {
             toast({
               title: "Anfrage erstellt",

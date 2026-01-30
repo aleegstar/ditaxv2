@@ -35,6 +35,7 @@ export interface MissingItemResponse {
 export interface CreateMissingItemRequestInput {
   user_id: string;
   tax_return_id: string;
+  tax_filer_id?: string | null;
   request_type: 'document' | 'information';
   title: string;
   description?: string;
@@ -128,6 +129,7 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
       const requestsToInsert = items.map(item => ({
         user_id: item.user_id,
         tax_return_id: item.tax_return_id,
+        tax_filer_id: item.tax_filer_id || null,
         admin_id: user.id,
         request_type: item.request_type,
         title: item.title,
@@ -328,7 +330,7 @@ export const useMissingItemRequests = (userId?: string, taxReturnId?: string) =>
 };
 
 // Hook specifically for fetching pending requests for a user (for chat display)
-export const usePendingMissingItems = (userId?: string) => {
+export const usePendingMissingItems = (userId?: string, taxFilerId?: string | null) => {
   const [pendingRequests, setPendingRequests] = useState<MissingItemRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -341,12 +343,17 @@ export const usePendingMissingItems = (userId?: string) => {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('missing_item_requests')
         .select('*')
         .eq('user_id', userId)
-        .in('status', ['pending', 'rejected'])
-        .order('created_at', { ascending: true });
+        .in('status', ['pending', 'rejected']);
+
+      if (taxFilerId) {
+        query = query.eq('tax_filer_id', taxFilerId);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: true });
 
       if (error) throw error;
 
@@ -374,7 +381,7 @@ export const usePendingMissingItems = (userId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, taxFilerId]);
 
   useEffect(() => {
     fetchPendingRequests();

@@ -798,6 +798,7 @@ export type Database = {
           reminder_count: number
           request_type: string
           status: string
+          tax_filer_id: string | null
           tax_return_id: string
           title: string
           updated_at: string
@@ -812,6 +813,7 @@ export type Database = {
           reminder_count?: number
           request_type: string
           status?: string
+          tax_filer_id?: string | null
           tax_return_id: string
           title: string
           updated_at?: string
@@ -826,6 +828,7 @@ export type Database = {
           reminder_count?: number
           request_type?: string
           status?: string
+          tax_filer_id?: string | null
           tax_return_id?: string
           title?: string
           updated_at?: string
@@ -837,6 +840,13 @@ export type Database = {
             columns: ["admin_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_requests_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
             referencedColumns: ["id"]
           },
           {

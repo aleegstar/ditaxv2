@@ -29,6 +29,7 @@ interface CreateMissingItemRequestDialogProps {
   onOpenChange: (open: boolean) => void;
   userId: string;
   taxReturnId?: string;
+  taxFilerId?: string | null;
   userName?: string;
   taxYear?: string;
   onSuccess?: () => void;
@@ -39,6 +40,7 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
   onOpenChange,
   userId,
   taxReturnId,
+  taxFilerId,
   userName,
   taxYear,
   onSuccess,
@@ -87,6 +89,7 @@ export const CreateMissingItemRequestDialog: React.FC<CreateMissingItemRequestDi
         validItems.map(item => ({
           user_id: userId,
           tax_return_id: taxReturnId,
+          tax_filer_id: taxFilerId,
           request_type: requestType,
           title: item.title.trim(),
           description: item.description.trim() || undefined,
