@@ -117,10 +117,6 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     icon: CustomSendIcon,
     route: '/chat'
   }, {
-    label: t.menu.inviteFriends,
-    icon: Gift,
-    route: '/invite-friends'
-  }, {
     label: t.menu.managePeople,
     icon: Users,
     route: '/tax-filers'
