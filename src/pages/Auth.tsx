@@ -419,10 +419,6 @@ const Auth = () => {
     }
   };
   return <div className="min-h-screen bg-white text-slate-900 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-      {/* Language Switcher - top right */}
-      <div className="absolute top-4 right-4 z-30">
-        <LanguageSwitcher />
-      </div>
 
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72">
@@ -601,10 +597,12 @@ const Auth = () => {
               </div>
 
               {/* Footer Links */}
-              <div className="mt-6 flex justify-center items-center gap-4 text-[13px] text-slate-500 font-medium font-jakarta">
+              <div className="mt-6 flex justify-center items-center gap-3 text-[13px] text-slate-500 font-medium font-jakarta">
                 <a href="/impressum" className="hover:text-slate-700 transition-colors">Impressum</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <LanguageSwitcher />
               </div>
             </div>
             </div>
