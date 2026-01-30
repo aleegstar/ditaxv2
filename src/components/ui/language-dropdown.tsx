@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/contexts/I18nContext';
-import { Languages } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             variant === 'compact' ? 'w-8 h-8' : ''
           } ${className}`}
         >
-          <Languages className={variant === 'compact' ? 'w-4 h-4' : 'w-5 h-5'} />
+          <Globe className={variant === 'compact' ? 'w-4 h-4' : 'w-5 h-5'} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
