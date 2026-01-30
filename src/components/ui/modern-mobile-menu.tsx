@@ -211,14 +211,12 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     </button>;
   return <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-white border-r border-slate-200">
-        {/* Header with Logo and Language Switcher */}
+        {/* Header with Logo */}
         <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
           </div>
           <div className="flex items-center gap-2">
-            {/* Language Dropdown */}
-            <LanguageDropdown />
             <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
               <X className="w-5 h-5 text-slate-400" />
             </button>
@@ -274,6 +272,12 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 </div>
               </div>
             </button>
+          </div>
+
+          {/* Language Selector */}
+          <div className="px-4 pb-4 flex items-center gap-3">
+            <span className="text-sm text-slate-500 font-medium">{t.menu.language}:</span>
+            <LanguageDropdown />
           </div>
         </div>
 

@@ -1356,6 +1356,7 @@ export interface Translation {
     privacySettings: string;
     profile: string;
     logout: string;
+    language: string;
   };
 
   // Cookie Consent
@@ -2781,6 +2782,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       privacySettings: 'Datenschutz-Einstellungen',
       profile: 'Profil',
       logout: 'Abmelden',
+      language: 'Sprache',
     },
 
     // Cookie Consent
@@ -4203,6 +4205,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       privacySettings: 'Privacy Settings',
       profile: 'Profile',
       logout: 'Logout',
+      language: 'Language',
     },
 
     // Cookie Consent
