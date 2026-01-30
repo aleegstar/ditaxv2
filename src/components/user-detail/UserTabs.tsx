@@ -62,6 +62,7 @@ interface UserTabsProps {
   onYearChange: (year: string) => void;
   initialNotes: string;
   selectedYear: string;
+  selectedTaxFilerId: string | null;
   completedTaxReturns?: any[];
   onCompletedTaxReturnsRefresh?: () => void;
 }
@@ -76,6 +77,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
   onYearChange,
   initialNotes,
   selectedYear,
+  selectedTaxFilerId,
   completedTaxReturns = [],
   onCompletedTaxReturnsRefresh = () => {}
 }) => {
@@ -116,18 +118,20 @@ const UserTabs: React.FC<UserTabsProps> = ({
     return Array.from(years).sort((a, b) => parseInt(b) - parseInt(a));
   }, [taxReturns, allFormData, completedTaxReturns]);
 
-  // Transform and filter form data for selected year
+  // Transform and filter form data for selected year AND tax_filer_id
   const formDataForSelectedYear = useMemo(() => {
-    // Filter form data by selected year first
-    const yearFilteredData = allFormData.filter(item => {
-      return String(item.tax_year) === String(selectedYear);
+    // Filter form data by selected year AND tax_filer_id
+    const filteredData = allFormData.filter(item => {
+      const yearMatch = String(item.tax_year) === String(selectedYear);
+      const filerMatch = !selectedTaxFilerId || item.tax_filer_id === selectedTaxFilerId;
+      return yearMatch && filerMatch;
     });
 
     // Transform array into structured FormData object
     const transformedData = {
       ...defaultFormData
     };
-    yearFilteredData.forEach(item => {
+    filteredData.forEach(item => {
       if (item.form_type && item.data) {
         transformedData[item.form_type as keyof typeof transformedData] = {
           ...transformedData[item.form_type as keyof typeof transformedData],
@@ -136,22 +140,21 @@ const UserTabs: React.FC<UserTabsProps> = ({
       }
     });
     return transformedData;
-  }, [allFormData, selectedYear]);
+  }, [allFormData, selectedYear, selectedTaxFilerId]);
 
-  // Filter documents by selected year
+  // Filter documents by selected year AND tax_filer_id
   const documentsForSelectedYear = useMemo(() => {
     if (!user.documents) return [];
 
-    // Filter documents by tax_year if available, otherwise show all
+    // Filter documents by tax_year AND tax_filer_id
     return user.documents.filter(doc => {
-      // If document has tax_year property, filter by it
-      if ((doc as any).tax_year) {
-        return String((doc as any).tax_year) === String(selectedYear);
-      }
-      // For documents without tax_year, show them for current year for now
-      return true;
+      const yearMatch = (doc as any).tax_year 
+        ? String((doc as any).tax_year) === String(selectedYear)
+        : true;
+      const filerMatch = !selectedTaxFilerId || (doc as any).tax_filer_id === selectedTaxFilerId;
+      return yearMatch && filerMatch;
     });
-  }, [user.documents, selectedYear]);
+  }, [user.documents, selectedYear, selectedTaxFilerId]);
 
   // Group documents by category based on checklist item
   const groupedDocuments = useMemo(() => {
