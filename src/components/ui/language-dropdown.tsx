@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/contexts/I18nContext';
-import { ChevronDown } from 'lucide-react';
+import { Languages } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,40 +19,37 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
 }) => {
   const { language, switchLanguage } = useI18n();
 
-  const currentLabel = language === 'de' ? 'Deutsch' : 'English';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all ${
-            variant === 'compact' ? 'text-[13px] px-2.5 py-1' : 'text-sm'
+          className={`flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all ${
+            variant === 'compact' ? 'w-8 h-8' : ''
           } ${className}`}
         >
-          <span className="font-medium">{currentLabel}</span>
-          <ChevronDown className="w-3 h-3 opacity-60" />
+          <Languages className={variant === 'compact' ? 'w-4 h-4' : 'w-5 h-5'} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        align="center" 
+        align="end" 
         sideOffset={8}
-        className="min-w-[140px] bg-white border border-slate-200 shadow-lg rounded-xl z-[9999]"
+        className="min-w-[120px] bg-white border border-slate-200 shadow-xl rounded-xl z-[10000] p-1"
       >
         <DropdownMenuItem
           onClick={() => switchLanguage('de')}
-          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer rounded-lg mx-1 my-0.5 ${
-            language === 'de' ? 'bg-slate-100' : 'hover:bg-slate-50'
+          className={`flex items-center justify-center px-4 py-2.5 cursor-pointer rounded-lg text-center ${
+            language === 'de' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'
           }`}
         >
-          <span className="text-sm font-medium text-slate-700">Deutsch</span>
+          <span className="text-sm text-slate-700">Deutsch</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => switchLanguage('en')}
-          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer rounded-lg mx-1 my-0.5 ${
-            language === 'en' ? 'bg-slate-100' : 'hover:bg-slate-50'
+          className={`flex items-center justify-center px-4 py-2.5 cursor-pointer rounded-lg text-center ${
+            language === 'en' ? 'bg-slate-100 font-semibold' : 'hover:bg-slate-50'
           }`}
         >
-          <span className="text-sm font-medium text-slate-700">English</span>
+          <span className="text-sm text-slate-700">English</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
