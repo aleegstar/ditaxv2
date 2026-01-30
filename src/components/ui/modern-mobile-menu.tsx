@@ -150,10 +150,6 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     label: t.menu.feedback,
     icon: MessageSquare,
     route: '/feedback'
-  }, {
-    label: t.menu.roadmap,
-    icon: MapPin,
-    route: '/roadmap'
   }];
   const legalItems = [{
     label: t.menu.privacy,
@@ -276,9 +272,9 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               </div>}
           </div>
 
-          {/* Feedback & Roadmap Section */}
+          {/* Feedback Section */}
           <div className="pt-2">
-            <SectionHeader title={t.menu.feedbackAndRoadmap} isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
+            <SectionHeader title={t.menu.feedback} isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
             {feedbackOpen && <div className="pb-2">
                 {feedbackItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
