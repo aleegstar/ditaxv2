@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
 import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -418,6 +419,11 @@ const Auth = () => {
     }
   };
   return <div className="min-h-screen bg-white text-slate-900 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+      {/* Language Switcher - top right */}
+      <div className="absolute top-4 right-4 z-30">
+        <LanguageSwitcher />
+      </div>
+
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72">
 
