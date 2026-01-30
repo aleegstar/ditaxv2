@@ -45,7 +45,7 @@ privacy@ditax.ch</p>
       <LegalDocumentPage
         title=""
         staticContent={cookieContent}
-        useDarkBackground={false}
+        useWhiteBackground={true}
       />
     </div>
   );
