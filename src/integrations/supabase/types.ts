@@ -1333,6 +1333,7 @@ export type Database = {
       }
       tax_filers: {
         Row: {
+          admin_notes: string | null
           ahv_number: string | null
           avatar_url: string | null
           created_at: string | null
@@ -1346,6 +1347,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           ahv_number?: string | null
           avatar_url?: string | null
           created_at?: string | null
@@ -1359,6 +1361,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           ahv_number?: string | null
           avatar_url?: string | null
           created_at?: string | null

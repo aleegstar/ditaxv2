@@ -8,23 +8,42 @@ import { useToast } from '@/hooks/use-toast';
 interface AdminNotesCardProps {
   userId: string;
   initialNotes: string;
+  taxFilerId?: string | null;
 }
 
-const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes }) => {
+const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, taxFilerId }) => {
   const [adminNotes, setAdminNotes] = useState(initialNotes);
   const [savingNotes, setSavingNotes] = useState(false);
   const [saved, setSaved] = useState(false);
   const { toast } = useToast();
+
+  // Reset notes when initialNotes changes (e.g., when switching tax filers)
+  React.useEffect(() => {
+    setAdminNotes(initialNotes);
+  }, [initialNotes]);
 
   const hasChanges = adminNotes !== initialNotes;
 
   const saveAdminNotes = async () => {
     setSavingNotes(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ admin_notes: adminNotes })
-        .eq('id', userId);
+      let error;
+      
+      if (taxFilerId) {
+        // Save to tax_filers for specific tax filer
+        const result = await supabase
+          .from('tax_filers')
+          .update({ admin_notes: adminNotes })
+          .eq('id', taxFilerId);
+        error = result.error;
+      } else {
+        // Fallback: Save to profiles (legacy behavior)
+        const result = await supabase
+          .from('profiles')
+          .update({ admin_notes: adminNotes })
+          .eq('id', userId);
+        error = result.error;
+      }
 
       if (error) {
         console.error('Error saving admin notes:', error);
