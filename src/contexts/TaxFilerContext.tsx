@@ -57,7 +57,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     return null;
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading=true until we know filers state
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
@@ -153,8 +153,13 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Load tax filers when session becomes available
   useEffect(() => {
-    if (sessionLoaded && session) {
-      loadTaxFilers();
+    if (sessionLoaded) {
+      if (session) {
+        loadTaxFilers();
+      } else {
+        // No session, stop loading
+        setIsLoading(false);
+      }
     }
   }, [sessionLoaded, session, loadTaxFilers]);
 
