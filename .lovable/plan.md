@@ -1,70 +1,97 @@
 
-# Plan: Fix Person Selection Not Persisting Correctly
+# Plan: Fix Duplicate Key Violation for Multi-Person Tax Data
 
-## Problem
+## Problem Identified
 
-When selecting a different person (e.g., Leano), the selection does not persist - the app reverts to showing the previous person (Sandro).
+When saving form data for "Leano" (a second tax filer), the database throws:
+```
+duplicate key value violates unique constraint "form_data_unique"
+```
 
-## Root Cause
+## Root Cause Analysis
 
-There is a **stale closure bug** in the person selection flow:
+The database constraint `form_data_unique` is defined as:
+```sql
+UNIQUE (user_id, tax_year, form_type)
+```
 
-1. In `SelectPerson.tsx`, `handleSelectPerson` calls:
-   - `setActiveTaxFilerId(filer.id)` - schedules state update for Leano
-   - `confirmSelection()` - runs immediately with **old** activeTaxFilerId (Sandro)
+This constraint **does not include `tax_filer_id`**, but the multi-person tax filer architecture requires each person to have their own form data. When:
+1. Sandro's data exists: `(user_id=X, tax_year=2024, form_type=contactInfo, tax_filer_id=sandro_id)`
+2. Leano tries to save: `(user_id=X, tax_year=2024, form_type=contactInfo, tax_filer_id=leano_id)`
 
-2. The `confirmSelection` callback stores the old ID (Sandro) in sessionStorage
-
-3. When navigating to `/`, `loadTaxFilers` reads from sessionStorage and restores Sandro
+The constraint sees a conflict on `(user_id, tax_year, form_type)` because it ignores `tax_filer_id`.
 
 ## Solution
 
-Update `confirmSelection` to accept an optional `filerId` parameter, allowing the caller to pass the new ID directly instead of relying on stale state.
+Update the unique constraint to include `tax_filer_id`:
 
-### Changes Required
+```sql
+ALTER TABLE form_data 
+DROP CONSTRAINT form_data_unique;
 
-**File: `src/contexts/TaxFilerContext.tsx`**
+ALTER TABLE form_data 
+ADD CONSTRAINT form_data_unique 
+UNIQUE (user_id, tax_year, form_type, tax_filer_id);
+```
 
-1. Update the `TaxFilerContextType` interface:
-   - Change `confirmSelection: () => void` to `confirmSelection: (filerId?: string) => void`
+## Implementation Steps
 
-2. Update the `confirmSelection` implementation:
-   ```typescript
-   const confirmSelection = useCallback((filerId?: string) => {
-     const idToStore = filerId || activeTaxFilerId;
-     setSelectionConfirmed(true);
-     if (idToStore) {
-       sessionStorage.setItem(SESSION_KEY, idToStore);
-     }
-   }, [activeTaxFilerId]);
-   ```
+### Step 1: Database Migration
 
-**File: `src/pages/SelectPerson.tsx`**
+Create a migration to modify the unique constraint:
 
-3. Update `handleSelectPerson` to pass the filer ID:
-   ```typescript
-   const handleSelectPerson = (filer: TaxFiler) => {
-     console.log('Selected filer:', filer.id, filer.first_name);
-     setActiveTaxFilerId(filer.id);
-     confirmSelection(filer.id);  // Pass the new ID directly
-     navigate('/', { state: { personSelected: true, filerId: filer.id } });
-   };
-   ```
+```sql
+-- Drop the existing constraint that doesn't account for tax_filer_id
+ALTER TABLE form_data DROP CONSTRAINT IF EXISTS form_data_unique;
+
+-- Create new constraint that includes tax_filer_id
+-- This allows different tax filers to have their own form data
+ALTER TABLE form_data 
+ADD CONSTRAINT form_data_unique 
+UNIQUE (user_id, tax_year, form_type, tax_filer_id);
+```
+
+### Step 2: Handle NULL tax_filer_id Records
+
+Some older records may have `tax_filer_id = NULL`. The new constraint will treat each NULL as distinct (PostgreSQL behavior), which could cause issues.
+
+First, check for affected records:
+```sql
+SELECT COUNT(*) FROM form_data WHERE tax_filer_id IS NULL;
+```
+
+If there are NULL records, we need to either:
+- Assign them to the user's primary tax filer, or
+- Keep them as-is (NULLs are treated as distinct in unique constraints)
+
+### Step 3: Verify the Fix
+
+After migration:
+1. Sandro can save: `(user_id, 2024, contactInfo, sandro_id)` 
+2. Leano can also save: `(user_id, 2024, contactInfo, leano_id)` 
+
+Both records can coexist since `tax_filer_id` is now part of the unique key.
 
 ## Technical Details
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| `confirmSelection` signature | `() => void` | `(filerId?: string) => void` |
-| sessionStorage value | Uses stale closure value | Uses passed parameter or current state |
-| Backward compatibility | N/A | Yes - parameter is optional |
+| Aspect | Current State | After Fix |
+|--------|---------------|-----------|
+| Unique Constraint | `(user_id, tax_year, form_type)` | `(user_id, tax_year, form_type, tax_filer_id)` |
+| Multiple Filers Same Year | Not supported | Fully supported |
+| Backward Compatibility | N/A | Existing data preserved |
 
-## Testing
+## Risk Assessment
 
-After implementation:
-1. Log in with an account that has multiple tax filers
-2. Navigate to the person selection page
-3. Select a different person (e.g., Leano instead of Sandro)
-4. Verify the dashboard shows the selected person
-5. Refresh the page and verify the selection persists
-6. Switch persons again to confirm consistent behavior
+| Risk | Mitigation |
+|------|------------|
+| Records with NULL tax_filer_id | Check for affected records first; assign to primary filer if needed |
+| Duplicate data after migration | Verify no duplicates exist before creating new constraint |
+
+## No Code Changes Required
+
+The application code (FormContext.tsx) already correctly:
+- Includes `tax_filer_id` in INSERT statements (line 766)
+- Filters by `tax_filer_id` when checking for existing records (line 732)
+- Filters by `tax_filer_id` when loading data (line 199)
+
+The only issue is the database constraint, which this migration will fix.
