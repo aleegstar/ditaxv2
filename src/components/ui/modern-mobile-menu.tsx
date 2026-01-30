@@ -102,8 +102,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const { language, switchLanguage, t } = useI18n();
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(true);
-  const [feedbackOpen, setFeedbackOpen] = useState(true);
-  const [legalOpen, setLegalOpen] = useState(true);
+  const [legalOpen, setLegalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigationItems = [{
     label: t.menu.taxes,
@@ -145,8 +144,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
       navigate('/documents');
       setTimeout(() => startDocumentsTour(), 500);
     }
-  }];
-  const feedbackItems = [{
+  }, {
     label: t.menu.feedback,
     icon: MessageSquare,
     route: '/feedback'
@@ -272,13 +270,6 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               </div>}
           </div>
 
-          {/* Feedback Section */}
-          <div className="pt-2">
-            <SectionHeader title={t.menu.feedback} isOpen={feedbackOpen} onToggle={() => setFeedbackOpen(!feedbackOpen)} />
-            {feedbackOpen && <div className="pb-2">
-                {feedbackItems.map(item => <MenuItem key={item.label} item={item} />)}
-              </div>}
-          </div>
 
           {/* Legal Section */}
           <div className="pt-2">
