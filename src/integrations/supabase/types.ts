@@ -441,6 +441,7 @@ export type Database = {
           file_type: string
           id: string
           status: string
+          tax_filer_id: string | null
           tax_year: string
           updated_at: string
           upload_date: string
@@ -458,6 +459,7 @@ export type Database = {
           file_type?: string
           id?: string
           status?: string
+          tax_filer_id?: string | null
           tax_year: string
           updated_at?: string
           upload_date?: string
@@ -475,6 +477,7 @@ export type Database = {
           file_type?: string
           id?: string
           status?: string
+          tax_filer_id?: string | null
           tax_year?: string
           updated_at?: string
           upload_date?: string
@@ -482,7 +485,15 @@ export type Database = {
           uploaded_by_user_id?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "definitive_tax_bills_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       document_processing_status: {
         Row: {

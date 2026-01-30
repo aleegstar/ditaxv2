@@ -30,10 +30,15 @@ interface DefinitiveTaxBill {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  tax_filer_id: string | null;
   profiles?: {
     first_name: string;
     last_name: string;
     email: string;
+  } | null;
+  tax_filer?: {
+    first_name: string;
+    last_name: string;
   } | null;
 }
 
@@ -76,23 +81,36 @@ export function DefinitiveTaxBillManager() {
 
       if (billsError) throw billsError;
 
-      // Then get profile data for each bill
-      const billsWithProfiles = await Promise.all(
+      // Then get profile and tax_filer data for each bill
+      const billsWithData = await Promise.all(
         (billsData || []).map(async (bill) => {
+          // Get profile data
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('first_name, last_name, email')
             .eq('id', bill.user_id)
             .single();
 
+          // Get tax filer data if tax_filer_id exists
+          let taxFilerData = null;
+          if (bill.tax_filer_id) {
+            const { data: filerData, error: filerError } = await supabase
+              .from('tax_filers')
+              .select('first_name, last_name')
+              .eq('id', bill.tax_filer_id)
+              .single();
+            taxFilerData = filerError ? null : filerData;
+          }
+
           return {
             ...bill,
-            profiles: profileError ? null : profileData
+            profiles: profileError ? null : profileData,
+            tax_filer: taxFilerData
           };
         })
       );
 
-      setBills(billsWithProfiles);
+      setBills(billsWithData);
     } catch (error) {
       console.error('Error fetching definitive tax bills:', error);
       toast({
@@ -393,10 +411,14 @@ export function DefinitiveTaxBillManager() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    {bill.profiles?.first_name} {bill.profiles?.last_name} - {bill.tax_year}
+                    {bill.tax_filer 
+                      ? `${bill.tax_filer.first_name} ${bill.tax_filer.last_name}` 
+                      : `${bill.profiles?.first_name} ${bill.profiles?.last_name}`} - {bill.tax_year}
                   </CardTitle>
                   <CardDescription>
-                    {bill.profiles?.email} • Hochgeladen am {new Date(bill.upload_date).toLocaleDateString('de-DE')}
+                    {bill.profiles?.email} 
+                    {bill.tax_filer && ` • Tax Filer: ${bill.tax_filer.first_name} ${bill.tax_filer.last_name}`}
+                    {' • Hochgeladen am '}{new Date(bill.upload_date).toLocaleDateString('de-DE')}
                     {bill.uploaded_by_admin_id ? ' (von Admin)' : ' (von Benutzer)'}
                   </CardDescription>
                 </div>

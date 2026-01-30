@@ -165,6 +165,7 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
           file_name: selectedFile.name,
           file_path: filePath,
           file_type: selectedFile.type,
+          tax_filer_id: selectedTaxFilerId || null,
         };
 
         if (isAdmin) {
