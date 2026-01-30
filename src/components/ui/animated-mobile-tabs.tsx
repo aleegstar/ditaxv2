@@ -54,7 +54,7 @@ export function AnimatedMobileTabs({
   }
 
   // Hide navbar on certain routes
-  const showOnRoutes = ['/', '/documents', '/chat', '/help', '/feedback', '/roadmap']
+  const showOnRoutes = ['/', '/documents', '/chat', '/help', '/feedback']
   const shouldShowNavbar = showOnRoutes.includes(location.pathname)
   
   if (!shouldShowNavbar) {

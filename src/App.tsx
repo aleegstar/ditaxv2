@@ -24,7 +24,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PriceCalculator = lazy(() => import("./pages/PriceCalculator"));
 const Help = lazy(() => import("./pages/Help"));
 const Feedback = lazy(() => import("./pages/Feedback"));
-const Roadmap = lazy(() => import("./pages/Roadmap"));
+
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Cookies = lazy(() => import("./pages/Cookies"));
@@ -229,7 +229,7 @@ const AuthenticatedApp = () => {
                 } />
                 <Route path="/help" element={<Help />} />
                 <Route path="/feedback" element={<Feedback />} />
-                <Route path="/roadmap" element={<Roadmap />} />
+                
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/cookies" element={<Cookies />} />
