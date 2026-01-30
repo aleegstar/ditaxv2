@@ -48,9 +48,6 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         >
           <SwissFlag className="w-5 h-5" />
           <span className="text-sm font-medium text-slate-700">Deutsch</span>
-          {language === 'de' && (
-            <span className="ml-auto text-[#1D64FF]">✓</span>
-          )}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => switchLanguage('en')}
@@ -60,9 +57,6 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         >
           <UKFlag className="w-5 h-5" />
           <span className="text-sm font-medium text-slate-700">English</span>
-          {language === 'en' && (
-            <span className="ml-auto text-[#1D64FF]">✓</span>
-          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
