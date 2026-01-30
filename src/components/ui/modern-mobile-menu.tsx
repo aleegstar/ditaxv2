@@ -13,7 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { SwissFlag, UKFlag } from '@/components/ui/flag-icons';
+import { LanguageDropdown } from '@/components/ui/language-dropdown';
 type IconComponentType = React.ElementType<{
   className?: string;
 }>;
@@ -99,7 +99,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const {
     forceTour: startDocumentsTour
   } = useDocumentsTour();
-  const { language, switchLanguage, t } = useI18n();
+  const { t } = useI18n();
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(true);
   const [legalOpen, setLegalOpen] = useState(false);
@@ -217,31 +217,8 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
           </div>
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
-            <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1">
-              <button
-                onClick={() => switchLanguage('de')}
-                className={`p-1.5 rounded-full transition-all ${
-                  language === 'de' 
-                    ? 'bg-white shadow-sm ring-1 ring-slate-200' 
-                    : 'hover:bg-slate-200'
-                }`}
-                title="Deutsch (Schweiz)"
-              >
-                <SwissFlag className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => switchLanguage('en')}
-                className={`p-1.5 rounded-full transition-all ${
-                  language === 'en' 
-                    ? 'bg-white shadow-sm ring-1 ring-slate-200' 
-                    : 'hover:bg-slate-200'
-                }`}
-                title="English"
-              >
-                <UKFlag className="w-5 h-5" />
-              </button>
-            </div>
+            {/* Language Dropdown */}
+            <LanguageDropdown />
             <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
               <X className="w-5 h-5 text-slate-400" />
             </button>

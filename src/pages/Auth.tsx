@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
 import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { LanguageDropdown } from "@/components/ui/language-dropdown";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -602,7 +602,7 @@ const Auth = () => {
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                 <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <LanguageSwitcher />
+                <LanguageDropdown variant="compact" />
               </div>
             </div>
             </div>
