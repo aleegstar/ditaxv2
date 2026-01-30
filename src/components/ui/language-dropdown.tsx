@@ -1,6 +1,5 @@
 import React from 'react';
 import { useI18n } from '@/contexts/I18nContext';
-import { SwissFlag, UKFlag } from '@/components/ui/flag-icons';
 import { ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,8 +19,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
 }) => {
   const { language, switchLanguage } = useI18n();
 
-  const currentFlag = language === 'de' ? <SwissFlag className="w-4 h-4" /> : <UKFlag className="w-4 h-4" />;
-  const currentLabel = language === 'de' ? 'DE' : 'EN';
+  const currentLabel = language === 'de' ? 'Deutsch' : 'English';
 
   return (
     <DropdownMenu>
@@ -31,7 +29,6 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             variant === 'compact' ? 'text-[13px] px-2.5 py-1' : 'text-sm'
           } ${className}`}
         >
-          {currentFlag}
           <span className="font-medium">{currentLabel}</span>
           <ChevronDown className="w-3 h-3 opacity-60" />
         </button>
@@ -47,7 +44,6 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             language === 'de' ? 'bg-slate-100' : 'hover:bg-slate-50'
           }`}
         >
-          <SwissFlag className="w-5 h-5" />
           <span className="text-sm font-medium text-slate-700">Deutsch</span>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -56,7 +52,6 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             language === 'en' ? 'bg-slate-100' : 'hover:bg-slate-50'
           }`}
         >
-          <UKFlag className="w-5 h-5" />
           <span className="text-sm font-medium text-slate-700">English</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
