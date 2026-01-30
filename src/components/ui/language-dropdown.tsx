@@ -33,7 +33,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
       <DropdownMenuContent 
         align="end" 
         sideOffset={8}
-        className="min-w-[120px] bg-white border border-slate-200 shadow-xl rounded-xl z-[10000] p-1"
+        className="min-w-[120px] bg-white border border-slate-200 shadow-xl rounded-xl z-[10010] p-1"
       >
         <DropdownMenuItem
           onClick={() => switchLanguage('de')}
