@@ -1,110 +1,70 @@
 
-# Plan: Session-Persistenz für die Personenauswahl
+# Plan: Fix Person Selection Not Persisting Correctly
 
 ## Problem
 
-Aktuell wird die `selectionConfirmed` Variable nur im React State gehalten. Bei jeder Seitenaktualisierung oder Navigation wird der Zustand zurückgesetzt und der Benutzer muss erneut eine Person auswählen - obwohl er bereits eine gewählt hat.
+When selecting a different person (e.g., Leano), the selection does not persist - the app reverts to showing the previous person (Sandro).
 
----
+## Root Cause
 
-## Lösung
+There is a **stale closure bug** in the person selection flow:
 
-Die Auswahl wird im `sessionStorage` gespeichert, sodass sie für die Dauer der Browser-Session erhalten bleibt. Erst nach Logout oder Schliessen des Browsers muss der Benutzer erneut wählen.
+1. In `SelectPerson.tsx`, `handleSelectPerson` calls:
+   - `setActiveTaxFilerId(filer.id)` - schedules state update for Leano
+   - `confirmSelection()` - runs immediately with **old** activeTaxFilerId (Sandro)
 
----
+2. The `confirmSelection` callback stores the old ID (Sandro) in sessionStorage
 
-## Technischer Ansatz
+3. When navigating to `/`, `loadTaxFilers` reads from sessionStorage and restores Sandro
 
-### TaxFilerContext.tsx anpassen
+## Solution
 
-1. **Initialisierung aus sessionStorage**
-   - Beim Laden prüfen, ob ein `selectedTaxFilerId` im sessionStorage existiert
-   - Falls ja: `activeTaxFilerId` und `selectionConfirmed` entsprechend setzen
+Update `confirmSelection` to accept an optional `filerId` parameter, allowing the caller to pass the new ID directly instead of relying on stale state.
 
-2. **Persistenz bei Auswahl**
-   - Wenn `confirmSelection()` aufgerufen wird: ID in sessionStorage speichern
-   - Wenn `setActiveTaxFilerId()` mit neuer ID aufgerufen wird: ebenfalls speichern
+### Changes Required
 
-3. **Bereinigung bei Logout**
-   - In der `onAuthStateChange`-Logik: sessionStorage-Eintrag löschen wenn Session endet
+**File: `src/contexts/TaxFilerContext.tsx`**
 
-```text
-// Beispiel Pseudocode
-const SESSION_KEY = 'ditax_selected_tax_filer';
+1. Update the `TaxFilerContextType` interface:
+   - Change `confirmSelection: () => void` to `confirmSelection: (filerId?: string) => void`
 
-// Beim Initialisieren
-const storedFilerId = sessionStorage.getItem(SESSION_KEY);
-if (storedFilerId) {
-  setActiveTaxFilerId(storedFilerId);
-  setSelectionConfirmed(true);
-}
+2. Update the `confirmSelection` implementation:
+   ```typescript
+   const confirmSelection = useCallback((filerId?: string) => {
+     const idToStore = filerId || activeTaxFilerId;
+     setSelectionConfirmed(true);
+     if (idToStore) {
+       sessionStorage.setItem(SESSION_KEY, idToStore);
+     }
+   }, [activeTaxFilerId]);
+   ```
 
-// Bei Auswahl
-const confirmSelection = () => {
-  setSelectionConfirmed(true);
-  if (activeTaxFilerId) {
-    sessionStorage.setItem(SESSION_KEY, activeTaxFilerId);
-  }
-};
+**File: `src/pages/SelectPerson.tsx`**
 
-// Bei Logout
-sessionStorage.removeItem(SESSION_KEY);
-```
+3. Update `handleSelectPerson` to pass the filer ID:
+   ```typescript
+   const handleSelectPerson = (filer: TaxFiler) => {
+     console.log('Selected filer:', filer.id, filer.first_name);
+     setActiveTaxFilerId(filer.id);
+     confirmSelection(filer.id);  // Pass the new ID directly
+     navigate('/', { state: { personSelected: true, filerId: filer.id } });
+   };
+   ```
 
----
+## Technical Details
 
-## Ablauf nach Implementierung
+| Aspect | Before | After |
+|--------|--------|-------|
+| `confirmSelection` signature | `() => void` | `(filerId?: string) => void` |
+| sessionStorage value | Uses stale closure value | Uses passed parameter or current state |
+| Backward compatibility | N/A | Yes - parameter is optional |
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│                         LOGIN                                   │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-              ┌───────────────────────────────┐
-              │ sessionStorage hat Auswahl?   │
-              └───────────────────────────────┘
-                    │               │
-                   Ja              Nein
-                    │               │
-                    ▼               ▼
-        ┌───────────────┐   ┌───────────────────────┐
-        │  Dashboard    │   │ Mehrere Personen?     │
-        │  direkt       │   └───────────────────────┘
-        └───────────────┘         │           │
-                                 Ja          Nein
-                                  │           │
-                                  ▼           ▼
-                        ┌────────────┐  ┌───────────────┐
-                        │ /select-   │  │ Dashboard     │
-                        │  person    │  │ (Primär auto) │
-                        └────────────┘  └───────────────┘
-                                │
-                                ▼
-                     Benutzer wählt Person
-                                │
-                                ▼
-                    sessionStorage speichern
-                                │
-                                ▼
-                          Dashboard
-```
+## Testing
 
----
-
-## Dateien die geändert werden
-
-| Datei | Änderung |
-|-------|----------|
-| `src/contexts/TaxFilerContext.tsx` | Session-Persistenz hinzufügen |
-
----
-
-## Verhalten nach der Änderung
-
-- **Erster Login mit mehreren Personen**: Personenauswahl wird angezeigt
-- **Nach Auswahl**: Auswahl wird in sessionStorage gespeichert
-- **Seitenneulade/Navigation**: Keine erneute Auswahl nötig
-- **Aktiver Wechsel**: Über TaxFilerSelector auf Dashboard → zurück zur Auswahl
-- **Logout**: sessionStorage wird gelöscht, beim nächsten Login wieder Auswahl
-- **Browser/Tab schliessen**: sessionStorage wird automatisch gelöscht
+After implementation:
+1. Log in with an account that has multiple tax filers
+2. Navigate to the person selection page
+3. Select a different person (e.g., Leano instead of Sandro)
+4. Verify the dashboard shows the selected person
+5. Refresh the page and verify the selection persists
+6. Switch persons again to confirm consistent behavior
