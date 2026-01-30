@@ -40,7 +40,7 @@ interface TaxFilerContextType {
   // New fields for person selection flow
   hasMultipleFilers: boolean;
   selectionConfirmed: boolean;
-  confirmSelection: () => void;
+  confirmSelection: (filerId?: string) => void;
   resetSelection: () => void;
 }
 
@@ -178,10 +178,11 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const hasMultipleFilers = useMemo(() => taxFilers.length > 1, [taxFilers]);
 
   // Confirm selection and persist to sessionStorage
-  const confirmSelection = useCallback(() => {
+  const confirmSelection = useCallback((filerId?: string) => {
+    const idToStore = filerId || activeTaxFilerId;
     setSelectionConfirmed(true);
-    if (activeTaxFilerId) {
-      sessionStorage.setItem(SESSION_KEY, activeTaxFilerId);
+    if (idToStore) {
+      sessionStorage.setItem(SESSION_KEY, idToStore);
     }
   }, [activeTaxFilerId]);
 
