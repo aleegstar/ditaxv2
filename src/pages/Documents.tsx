@@ -715,9 +715,20 @@ const Documents: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  
+  // URL-Parameter hat Priorität für das Steuerjahr
+  const yearFromUrl = searchParams.get('year');
   const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
+  const [selectedYear, setSelectedYear] = useState<string>(
+    yearFromUrl || currentYear.toString()
+  );
   const isTransitionEntry = searchParams.get('transition') === 'true';
+  
+  // Handler für Jahreswechsel - aktualisiert auch die URL
+  const handleYearChange = (newYear: string) => {
+    setSelectedYear(newYear);
+    navigate(`/documents?year=${newYear}`, { replace: true });
+  };
   
   // Redirect to person selection if multiple filers exist and no selection confirmed
   useEffect(() => {
@@ -732,7 +743,7 @@ const Documents: React.FC = () => {
   }
 
   return <FormProvider taxYear={selectedYear}>
-      <DocumentsContent selectedYear={selectedYear} onYearChange={setSelectedYear} isTransitionEntry={isTransitionEntry} />
+      <DocumentsContent selectedYear={selectedYear} onYearChange={handleYearChange} isTransitionEntry={isTransitionEntry} />
     </FormProvider>;
 };
 export default Documents;
