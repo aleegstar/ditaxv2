@@ -12,6 +12,7 @@ export interface TaxFiler {
   relationship: 'self' | 'child' | 'spouse' | 'parent' | 'other';
   ahv_number: string | null;
   is_primary: boolean;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }

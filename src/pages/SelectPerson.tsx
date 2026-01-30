@@ -2,9 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { User, Plus, ChevronRight } from 'lucide-react';
+import { Plus, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const getRelationshipLabel = (relationship: string, t: any): string => {
   const labels: Record<string, string> = {
@@ -78,9 +79,16 @@ const SelectPerson: React.FC = () => {
             >
               <div className="flex items-center gap-5">
                 {/* Avatar */}
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/10">
-                  <User className="w-8 h-8 text-primary" strokeWidth={1.5} />
-                </div>
+                <Avatar className="w-16 h-16 ring-1 ring-primary/10 flex-shrink-0">
+                  <AvatarImage 
+                    src={filer.avatar_url || undefined}
+                    alt={`${filer.first_name} ${filer.last_name}`}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary text-lg font-medium">
+                    {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
 
                 {/* Info */}
                 <div className="flex-1 text-left">
