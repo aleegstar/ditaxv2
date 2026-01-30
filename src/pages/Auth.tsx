@@ -379,10 +379,10 @@ const Auth = () => {
         }
       }
       
-      toast.success("Erfolgreich angemeldet!");
+      toast.success(t.authFlow.loginSuccess);
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Fehler bei der Code-Verifikation");
+      toast.error(error.message || t.authFlow.codeVerificationError);
       setCode("");
     } finally {
       setIsEmailLoading(false);
@@ -405,10 +405,10 @@ const Auth = () => {
         }
       });
       if (error) throw error;
-      toast.success("Code erneut gesendet!");
+      toast.success(t.authFlow.codeSent);
       setResendCountdown(25);
     } catch (error: any) {
-      toast.error(error.message || "Fehler beim erneuten Senden des Codes");
+      toast.error(error.message || t.authFlow.sendError);
     } finally {
       setIsEmailLoading(false);
     }
@@ -450,28 +450,28 @@ const Auth = () => {
                 {/* Header */}
                 <div className="text-center mb-5 space-y-1">
                   <h1 className="font-normal tracking-tight font-jakarta text-slate-600 text-lg">
-                    Anmelden
+                    {t.authFlow.login}
                   </h1>
                   <p className="text-sm text-slate-400 font-jakarta">
-                    Kein Konto? Wir erstellen automatisch eins für dich.
+                    {t.authFlow.loginSubtitle}
                   </p>
                 </div>
 
                 {/* Email Form */}
                 <form onSubmit={handleEmailSubmit} className="space-y-3.5">
                   <div>
-                    <label htmlFor="email" className="sr-only">E-Mail-Adresse</label>
-                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse" required disabled={isLoading} />
+                    <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
+                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                   </div>
 
                   <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-[15px] font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
-                    {isEmailLoading ? 'Code wird gesendet...' : 'Login-Code senden'}
+                    {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
                   
                   {/* Microcopy */}
                   <div className="text-center pt-1.5">
                     <p className="text-xs text-slate-400 font-jakarta leading-relaxed">
-                      Wir senden dir einen einmaligen Code per E-Mail. Kein Passwort. Kein Spam.
+                      {t.authFlow.microcopy}
                     </p>
                   </div>
                 </form>
@@ -479,7 +479,7 @@ const Auth = () => {
                 {/* Oder Divider - hidden when input is focused */}
                 {!isInputFocused && <div className="flex items-center gap-4 w-full mt-14">
                     <div className="flex-1 h-px bg-slate-300" />
-                    <span className="text-sm text-slate-600 font-medium font-jakarta">Oder</span>
+                    <span className="text-sm text-slate-600 font-medium font-jakarta">{t.authFlow.or}</span>
                     <div className="flex-1 h-px bg-slate-300" />
                   </div>}
               </motion.div> : <motion.div key="code-step" initial={{
@@ -503,12 +503,12 @@ const Auth = () => {
                 <div className="text-center mb-8 space-y-2">
                   
                   <h1 className="text-lg font-normal tracking-tight font-jakarta text-slate-600">
-                    Code eingeben
+                    {t.authFlow.enterCode}
                   </h1>
                   <p className="text-sm text-slate-500 font-jakarta max-w-[80%] mx-auto leading-relaxed">
-                    Wir haben einen 6-stelligen Code an{' '}
+                    {t.authFlow.codeSentTo}{' '}
                     <span className="text-slate-800 font-medium">{email}</span>{' '}
-                    gesendet.
+                    {t.authFlow.codeSentToSuffix}
                   </p>
                 </div>
 
@@ -530,25 +530,25 @@ const Auth = () => {
 
                   {/* Verify Button */}
                   <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50 disabled:pointer-events-none">
-                    {isLoading ? 'Wird überprüft...' : 'Verifizieren'}
+                    {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
                   </button>
                 </div>
 
                 {/* Footer Actions */}
                 <div className="mt-8 flex flex-col items-center gap-4 text-center">
                   <p className="text-xs text-slate-500 font-jakarta">
-                    Keinen Code erhalten?
+                    {t.authFlow.noCodeReceived}
                     {resendCountdown > 0 ? <>
-                        <span className="text-slate-700 font-medium ml-1">Erneut senden</span>
+                        <span className="text-slate-700 font-medium ml-1">{t.authFlow.resend}</span>
                         <span className="ml-1 text-slate-400">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
                       </> : <button onClick={handleResendCode} disabled={isLoading} className="text-slate-700 hover:text-slate-900 font-medium transition-colors ml-1">
-                        Erneut senden
+                        {t.authFlow.resend}
                       </button>}
                   </p>
                   
                   <button onClick={handleBackClick} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors font-jakarta mt-2">
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    Zurück zum Login
+                    {t.authFlow.backToLogin}
                   </button>
                 </div>
               </motion.div>}
@@ -587,7 +587,7 @@ const Auth = () => {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                   </svg>
-                  <span className="font-medium text-[15px] tracking-tight">Weiter mit Google</span>
+                  <span className="font-medium text-[15px] tracking-tight">{t.authFlow.continueWithGoogle}</span>
                 </button>
 
                 {/* Apple Login */}
@@ -595,7 +595,7 @@ const Auth = () => {
                   <svg className="w-5 h-5 shrink-0 fill-current text-slate-800 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                   </svg>
-                  <span className="font-medium text-[15px] tracking-tight">Weiter mit Apple</span>
+                  <span className="font-medium text-[15px] tracking-tight">{t.authFlow.continueWithApple}</span>
                 </button>
 
               </div>

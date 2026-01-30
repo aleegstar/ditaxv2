@@ -1010,6 +1010,7 @@ export interface Translation {
     codeDisabled: string;
     enterCode: string;
     codeSentTo: string;
+    codeSentToSuffix: string;
     verifyButton: string;
     verifying: string;
     sixDigitCode: string;
@@ -1028,6 +1029,14 @@ export interface Translation {
     sendError: string;
     invalidCode: string;
     passkeyError: string;
+    microcopy: string;
+    or: string;
+    continueWithGoogle: string;
+    continueWithApple: string;
+    noCodeReceived: string;
+    resend: string;
+    backToLogin: string;
+    codeVerificationError: string;
   };
 
   // Form Mode Toggle
@@ -2565,15 +2574,16 @@ export const translations: Record<'de' | 'en', Translation> = {
     // Auth
     authFlow: {
       login: 'Anmelden',
-      loginSubtitle: 'Melde dich mit deiner E-Mail an',
+      loginSubtitle: 'Kein Konto? Wir erstellen automatisch eins für dich.',
       emailLabel: 'Email:',
-      emailPlaceholder: 'name@mail.com',
-      sendCode: 'Login Code senden',
+      emailPlaceholder: 'E-Mail-Adresse',
+      sendCode: 'Login-Code senden',
       sendingCode: 'Code wird gesendet...',
       codeDisabled: 'E-Mail-Codes deaktiviert',
       enterCode: 'Code eingeben',
-      codeSentTo: 'Wir haben dir einen Code an {email} gesendet',
-      verifyButton: 'Anmelden',
+      codeSentTo: 'Wir haben einen 6-stelligen Code an',
+      codeSentToSuffix: 'gesendet.',
+      verifyButton: 'Verifizieren',
       verifying: 'Wird überprüft...',
       sixDigitCode: '6-stelliger Code',
       changeEmail: 'E-Mail ändern',
@@ -2586,11 +2596,19 @@ export const translations: Record<'de' | 'en', Translation> = {
       registerNow: 'Jetzt registrieren',
       codeSent: 'Code gesendet',
       codeSentDescription: 'Wir haben dir einen Anmeldecode per E-Mail gesendet.',
-      loginSuccess: 'Anmeldung erfolgreich',
+      loginSuccess: 'Erfolgreich angemeldet!',
       loginSuccessDescription: 'Du wurdest erfolgreich angemeldet.',
       sendError: 'Fehler beim Senden',
       invalidCode: 'Ungültiger Code',
       passkeyError: 'Fehler bei Fingerprint-Anmeldung',
+      microcopy: 'Wir senden dir einen einmaligen Code per E-Mail. Kein Passwort. Kein Spam.',
+      or: 'Oder',
+      continueWithGoogle: 'Weiter mit Google',
+      continueWithApple: 'Weiter mit Apple',
+      noCodeReceived: 'Keinen Code erhalten?',
+      resend: 'Erneut senden',
+      backToLogin: 'Zurück zum Login',
+      codeVerificationError: 'Fehler bei der Code-Verifikation',
     },
 
     // Form Mode Toggle
@@ -3978,15 +3996,16 @@ export const translations: Record<'de' | 'en', Translation> = {
     // Auth
     authFlow: {
       login: 'Sign In',
-      loginSubtitle: 'Sign in with your email',
+      loginSubtitle: "No account? We'll create one automatically for you.",
       emailLabel: 'Email:',
-      emailPlaceholder: 'name@mail.com',
+      emailPlaceholder: 'Email address',
       sendCode: 'Send Login Code',
       sendingCode: 'Sending code...',
       codeDisabled: 'Email codes disabled',
       enterCode: 'Enter Code',
-      codeSentTo: 'We sent you a code to {email}',
-      verifyButton: 'Sign In',
+      codeSentTo: 'We sent a 6-digit code to',
+      codeSentToSuffix: '',
+      verifyButton: 'Verify',
       verifying: 'Verifying...',
       sixDigitCode: '6-digit code',
       changeEmail: 'Change email',
@@ -3999,11 +4018,19 @@ export const translations: Record<'de' | 'en', Translation> = {
       registerNow: 'Register now',
       codeSent: 'Code sent',
       codeSentDescription: 'We sent you a login code via email.',
-      loginSuccess: 'Login successful',
+      loginSuccess: 'Successfully signed in!',
       loginSuccessDescription: 'You have been successfully signed in.',
       sendError: 'Error sending code',
       invalidCode: 'Invalid code',
       passkeyError: 'Fingerprint login error',
+      microcopy: "We'll send you a one-time code via email. No password. No spam.",
+      or: 'Or',
+      continueWithGoogle: 'Continue with Google',
+      continueWithApple: 'Continue with Apple',
+      noCodeReceived: "Didn't receive a code?",
+      resend: 'Resend',
+      backToLogin: 'Back to login',
+      codeVerificationError: 'Code verification error',
     },
 
     // Form Mode Toggle
