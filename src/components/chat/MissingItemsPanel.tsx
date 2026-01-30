@@ -14,14 +14,16 @@ import { toast } from 'sonner';
 
 interface MissingItemsPanelProps {
   userId: string;
+  taxFilerId?: string | null;
   onSubmitted?: () => void;
 }
 
 export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
   userId,
+  taxFilerId,
   onSubmitted,
 }) => {
-  const { pendingRequests, loading, refetch } = usePendingMissingItems(userId);
+  const { pendingRequests, loading, refetch } = usePendingMissingItems(userId, taxFilerId);
   const { submitResponse, submitAllResponses } = useMissingItemRequests(userId);
   const [localResponses, setLocalResponses] = useState<Record<string, Partial<MissingItemResponse>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);

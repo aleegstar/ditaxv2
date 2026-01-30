@@ -399,6 +399,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               Chat wird geladen...
             </div> : messages.length === 0 ? <ChatEmptyState userId={userId} /> : <div className="max-w-2xl mx-auto space-y-4">
               {/* Missing Items Panel - Show if user has pending requests */}
+              {/* Note: taxFilerId would need to be passed from parent if filtering per filer is needed in chat */}
               <MissingItemsPanel userId={userId} onSubmitted={loadChatHistory} />
               
               {/* Time Divider */}
