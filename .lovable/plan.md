@@ -1,89 +1,110 @@
 
+# Plan: Session-Persistenz für die Personenauswahl
 
-# Plan: Profilbilder für TaxFilers auf der Select-Person Seite
+## Problem
 
-## Überblick
-
-Die Personenkarten auf `/select-person` zeigen aktuell nur ein generisches User-Icon. Das Ziel ist, das individuelle Profilbild jedes TaxFilers anzuzeigen.
-
----
-
-## Schritt 1: Datenbank-Migration
-
-Die `tax_filers` Tabelle hat aktuell keine `avatar_url` Spalte.
-
-```sql
-ALTER TABLE tax_filers 
-ADD COLUMN avatar_url TEXT DEFAULT NULL;
-```
+Aktuell wird die `selectionConfirmed` Variable nur im React State gehalten. Bei jeder Seitenaktualisierung oder Navigation wird der Zustand zurückgesetzt und der Benutzer muss erneut eine Person auswählen - obwohl er bereits eine gewählt hat.
 
 ---
 
-## Schritt 2: TypeScript-Interface erweitern
+## Lösung
 
-**Datei:** `src/contexts/TaxFilerContext.tsx`
+Die Auswahl wird im `sessionStorage` gespeichert, sodass sie für die Dauer der Browser-Session erhalten bleibt. Erst nach Logout oder Schliessen des Browsers muss der Benutzer erneut wählen.
+
+---
+
+## Technischer Ansatz
+
+### TaxFilerContext.tsx anpassen
+
+1. **Initialisierung aus sessionStorage**
+   - Beim Laden prüfen, ob ein `selectedTaxFilerId` im sessionStorage existiert
+   - Falls ja: `activeTaxFilerId` und `selectionConfirmed` entsprechend setzen
+
+2. **Persistenz bei Auswahl**
+   - Wenn `confirmSelection()` aufgerufen wird: ID in sessionStorage speichern
+   - Wenn `setActiveTaxFilerId()` mit neuer ID aufgerufen wird: ebenfalls speichern
+
+3. **Bereinigung bei Logout**
+   - In der `onAuthStateChange`-Logik: sessionStorage-Eintrag löschen wenn Session endet
 
 ```text
-export interface TaxFiler {
-  id: string;
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  date_of_birth: string | null;
-  relationship: 'self' | 'child' | 'spouse' | 'parent' | 'other';
-  ahv_number: string | null;
-  is_primary: boolean;
-  avatar_url: string | null;  // NEU
-  created_at: string;
-  updated_at: string;
+// Beispiel Pseudocode
+const SESSION_KEY = 'ditax_selected_tax_filer';
+
+// Beim Initialisieren
+const storedFilerId = sessionStorage.getItem(SESSION_KEY);
+if (storedFilerId) {
+  setActiveTaxFilerId(storedFilerId);
+  setSelectionConfirmed(true);
 }
+
+// Bei Auswahl
+const confirmSelection = () => {
+  setSelectionConfirmed(true);
+  if (activeTaxFilerId) {
+    sessionStorage.setItem(SESSION_KEY, activeTaxFilerId);
+  }
+};
+
+// Bei Logout
+sessionStorage.removeItem(SESSION_KEY);
 ```
 
 ---
 
-## Schritt 3: SelectPerson.tsx mit Avatar-Komponente
-
-**Datei:** `src/pages/SelectPerson.tsx`
-
-Das generische User-Icon wird durch die Avatar-Komponente ersetzt:
+## Ablauf nach Implementierung
 
 ```text
-// Import hinzufügen
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Avatar-Bereich ersetzen (Zeile 81-83)
-<Avatar className="w-16 h-16 ring-1 ring-primary/10">
-  <AvatarImage 
-    src={filer.avatar_url || '/lovable-uploads/default-avatar.png'} 
-    alt={`${filer.first_name} ${filer.last_name}`}
-    className="object-cover"
-    onError={(e) => {
-      e.currentTarget.src = '/lovable-uploads/default-avatar.png';
-    }}
-  />
-  <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary text-lg font-medium">
-    {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
-  </AvatarFallback>
-</Avatar>
+┌─────────────────────────────────────────────────────────────────┐
+│                         LOGIN                                   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+              ┌───────────────────────────────┐
+              │ sessionStorage hat Auswahl?   │
+              └───────────────────────────────┘
+                    │               │
+                   Ja              Nein
+                    │               │
+                    ▼               ▼
+        ┌───────────────┐   ┌───────────────────────┐
+        │  Dashboard    │   │ Mehrere Personen?     │
+        │  direkt       │   └───────────────────────┘
+        └───────────────┘         │           │
+                                 Ja          Nein
+                                  │           │
+                                  ▼           ▼
+                        ┌────────────┐  ┌───────────────┐
+                        │ /select-   │  │ Dashboard     │
+                        │  person    │  │ (Primär auto) │
+                        └────────────┘  └───────────────┘
+                                │
+                                ▼
+                     Benutzer wählt Person
+                                │
+                                ▼
+                    sessionStorage speichern
+                                │
+                                ▼
+                          Dashboard
 ```
 
-**Fallback-Strategie:**
-1. Zeigt `filer.avatar_url` wenn vorhanden
-2. Bei Ladefehler: Fallback zu `/lovable-uploads/default-avatar.png`
-3. Bei keinem Bild: Zeigt Initialen (z.B. "SG" für Sandro Graber)
+---
+
+## Dateien die geändert werden
+
+| Datei | Änderung |
+|-------|----------|
+| `src/contexts/TaxFilerContext.tsx` | Session-Persistenz hinzufügen |
 
 ---
 
-## Ergebnis
+## Verhalten nach der Änderung
 
-| Vorher | Nachher |
-|--------|---------|
-| Generisches User-Icon für alle | Individuelles Profilbild pro Person |
-| Keine Personalisierung | Initialen als Fallback (z.B. "LG" für Leano Graber) |
-
----
-
-## Hinweis: Avatar-Upload für TaxFilers
-
-Die Avatar-Spalte wird zunächst leer sein. Ein separater Avatar-Upload-Flow für TaxFilers (ähnlich wie `ProfileAvatarUpload`) könnte später auf der `/tax-filers` Bearbeitungsseite hinzugefügt werden.
-
+- **Erster Login mit mehreren Personen**: Personenauswahl wird angezeigt
+- **Nach Auswahl**: Auswahl wird in sessionStorage gespeichert
+- **Seitenneulade/Navigation**: Keine erneute Auswahl nötig
+- **Aktiver Wechsel**: Über TaxFilerSelector auf Dashboard → zurück zur Auswahl
+- **Logout**: sessionStorage wird gelöscht, beim nächsten Login wieder Auswahl
+- **Browser/Tab schliessen**: sessionStorage wird automatisch gelöscht
