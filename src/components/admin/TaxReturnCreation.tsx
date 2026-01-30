@@ -23,6 +23,8 @@ interface PaidTaxReturn {
   user_name: string;
   user_email: string;
   created_at: string;
+  tax_filer_id: string | null;
+  tax_filer_name: string;
 }
 
 const TaxReturnCreation: React.FC = () => {
@@ -101,12 +103,33 @@ const TaxReturnCreation: React.FC = () => {
             }
           }
 
-          console.log(`👤 User ${taxReturn.user_id}: name="${displayName}", email="${profile?.email || 'Keine E-Mail'}", tax_year="${taxReturn.tax_year}"`);
+          // Fetch tax filer name if tax_filer_id exists
+          let taxFilerName = 'Hauptperson';
+          if (taxReturn.tax_filer_id) {
+            const { data: taxFilerData, error: taxFilerError } = await supabase
+              .from('tax_filers')
+              .select('first_name, last_name, is_primary, relationship')
+              .eq('id', taxReturn.tax_filer_id)
+              .single();
+
+            if (taxFilerError) {
+              console.error(`❌ Error fetching tax filer ${taxReturn.tax_filer_id}:`, taxFilerError);
+            } else if (taxFilerData) {
+              taxFilerName = `${taxFilerData.first_name} ${taxFilerData.last_name}`.trim();
+              if (!taxFilerData.is_primary && taxFilerData.relationship) {
+                taxFilerName += ` (${taxFilerData.relationship})`;
+              }
+            }
+          }
+
+          console.log(`👤 User ${taxReturn.user_id}: name="${displayName}", email="${profile?.email || 'Keine E-Mail'}", tax_year="${taxReturn.tax_year}", tax_filer="${taxFilerName}"`);
 
           return {
             ...taxReturn,
             user_name: displayName,
-            user_email: profile?.email || 'Keine E-Mail'
+            user_email: profile?.email || 'Keine E-Mail',
+            tax_filer_id: taxReturn.tax_filer_id,
+            tax_filer_name: taxFilerName
           };
         })
       );
@@ -116,14 +139,16 @@ const TaxReturnCreation: React.FC = () => {
         returns: taxReturnsWithUserInfo.map(tr => ({ 
           user_email: tr.user_email, 
           tax_year: tr.tax_year, 
-          status: tr.status 
+          status: tr.status,
+          tax_filer_name: tr.tax_filer_name
         }))
       });
       console.log('📋 Complete tax returns summary:', taxReturnsWithUserInfo.map(tr => ({
         user: tr.user_name,
         email: tr.user_email,
         year: tr.tax_year,
-        status: tr.status
+        status: tr.status,
+        taxFiler: tr.tax_filer_name
       })));
 
       setPaidTaxReturns(taxReturnsWithUserInfo);
@@ -409,7 +434,7 @@ const TaxReturnCreation: React.FC = () => {
                   <div className="flex items-center gap-2 text-gray-700">
                     <User className="h-4 w-4" />
                     <div>
-                      <p className="font-medium">{taxReturn.user_name}</p>
+                      <p className="font-medium">{taxReturn.tax_filer_name}</p>
                       <p className="text-sm text-gray-600">{taxReturn.user_email}</p>
                     </div>
                   </div>
@@ -431,7 +456,7 @@ const TaxReturnCreation: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-2 pt-4">
-                  <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}`} className="w-full">
+                  <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`} className="w-full">
                     <Button 
                       className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
                       style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}

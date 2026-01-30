@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Download, FileIcon, Calendar, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Download, FileIcon, Calendar, AlertCircle, Users } from 'lucide-react';
 import { SecurityService } from '@/services/SecurityService';
 import { CreateMissingItemRequestDialog } from '@/components/admin/CreateMissingItemRequestDialog';
 
@@ -43,6 +43,15 @@ interface Document {
   upload_date: string;
   checklist_item_id: string;
   tax_year?: string;
+  tax_filer_id?: string;
+}
+
+interface TaxFiler {
+  id: string;
+  first_name: string;
+  last_name: string;
+  is_primary: boolean;
+  relationship: string | null;
 }
 
 interface CompletedTaxReturn {
@@ -71,8 +80,10 @@ const UserDetail: React.FC = () => {
   
   // DEBUG URL PARAMS
   const urlYear = searchParams.get('year');
+  const urlTaxFilerId = searchParams.get('filer');
   console.log('🔗 URL search params:', Object.fromEntries(searchParams.entries()));
   console.log('🔗 URL year parameter:', urlYear);
+  console.log('🔗 URL tax filer parameter:', urlTaxFilerId);
   
   const [user, setUser] = useState<DatabaseUser | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -80,6 +91,8 @@ const UserDetail: React.FC = () => {
   const [formData, setFormData] = useState<any[]>([]);
   const [taxReturns, setTaxReturns] = useState<any[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>(urlYear || new Date().getFullYear().toString());
+  const [taxFilers, setTaxFilers] = useState<TaxFiler[]>([]);
+  const [selectedTaxFilerId, setSelectedTaxFilerId] = useState<string | null>(urlTaxFilerId);
   const [loading, setLoading] = useState(true);
   const [missingItemDialogOpen, setMissingItemDialogOpen] = useState(false);
   const [missingItemsCount, setMissingItemsCount] = useState(0);
@@ -166,6 +179,32 @@ const UserDetail: React.FC = () => {
 
       console.log('✅ User profile fetched successfully:', userData);
       setUser(userData);
+
+      // Fetch tax filers for this user
+      console.log('👥 Fetching tax filers for user:', userId);
+      const { data: taxFilersData, error: taxFilersError } = await supabase
+        .from('tax_filers')
+        .select('id, first_name, last_name, is_primary, relationship')
+        .eq('user_id', userId)
+        .order('is_primary', { ascending: false });
+
+      if (taxFilersError) {
+        console.error('❌ Error fetching tax filers:', taxFilersError);
+      } else {
+        console.log('✅ Tax filers fetched:', taxFilersData);
+        setTaxFilers(taxFilersData || []);
+        
+        // Set selected tax filer: use URL param, or fall back to primary
+        if (urlTaxFilerId) {
+          console.log('🎯 Using URL tax filer ID:', urlTaxFilerId);
+          setSelectedTaxFilerId(urlTaxFilerId);
+        } else if (taxFilersData && taxFilersData.length > 0) {
+          const primary = taxFilersData.find(f => f.is_primary);
+          const defaultFilerId = primary?.id || taxFilersData[0].id;
+          console.log('🎯 No URL filer param, using default:', defaultFilerId);
+          setSelectedTaxFilerId(defaultFilerId);
+        }
+      }
 
       // Fetch user's active documents (consistent with user view)
       const { data: documentsData, error: documentsError } = await supabase
@@ -425,22 +464,24 @@ const UserDetail: React.FC = () => {
   const transformFormDataArray = (formDataArray: any[]) => {
     console.log('🔍 transformFormDataArray called with:', formDataArray);
     console.log('🔍 Selected year:', selectedYear);
+    console.log('🔍 Selected tax filer ID:', selectedTaxFilerId);
     
     // Start with default form data to ensure all required properties exist
     const merged = { ...defaultFormData };
 
     if (formDataArray && formDataArray.length > 0) {
-      // Filter by selected year first
-      const yearFilteredData = formDataArray.filter(item => {
-        const matches = item.tax_year === selectedYear;
-        console.log(`📅 Form item tax_year: ${item.tax_year}, matches ${selectedYear}: ${matches}`);
-        return matches;
+      // Filter by selected year AND tax_filer_id
+      const filteredData = formDataArray.filter(item => {
+        const yearMatch = item.tax_year === selectedYear;
+        const filerMatch = !selectedTaxFilerId || item.tax_filer_id === selectedTaxFilerId;
+        console.log(`📅 Form item tax_year: ${item.tax_year}, tax_filer_id: ${item.tax_filer_id}, yearMatch: ${yearMatch}, filerMatch: ${filerMatch}`);
+        return yearMatch && filerMatch;
       });
 
-      console.log('📅 Year filtered data:', yearFilteredData);
+      console.log('📅 Filtered data (year + filer):', filteredData);
 
       // Merge actual form data with defaults
-      yearFilteredData.forEach(item => {
+      filteredData.forEach(item => {
         if (item.form_type && item.data) {
           console.log(`📝 Processing form_type: ${item.form_type}, data:`, item.data);
           merged[item.form_type as keyof typeof merged] = {
@@ -455,31 +496,34 @@ const UserDetail: React.FC = () => {
     return merged;
   };
 
-  // Transform documents to match UploadedDocument interface and filter by year
+  // Transform documents to match UploadedDocument interface and filter by year and tax filer
   const transformDocuments = (docs: Document[]) => {
     console.log('🔍 transformDocuments called with:', docs);
     console.log('🔍 Selected year for documents:', selectedYear);
+    console.log('🔍 Selected tax filer ID for documents:', selectedTaxFilerId);
     
-    // Filter documents by tax year - only show documents with matching tax_year
-    const yearFilteredDocs = docs.filter(doc => {
+    // Filter documents by tax year AND tax_filer_id
+    const filteredDocs = docs.filter(doc => {
       if (!doc.tax_year) {
         console.log('📄 Document has no tax_year, excluding:', doc.file_name);
-        return false; // Exclude documents without tax_year
+        return false;
       }
-      return doc.tax_year === selectedYear;
+      const yearMatch = doc.tax_year === selectedYear;
+      const filerMatch = !selectedTaxFilerId || doc.tax_filer_id === selectedTaxFilerId;
+      return yearMatch && filerMatch;
     });
 
-    console.log('📄 Filtered documents for year', selectedYear, ':', yearFilteredDocs);
+    console.log('📄 Filtered documents for year', selectedYear, 'and filer', selectedTaxFilerId, ':', filteredDocs);
 
-    return yearFilteredDocs.map(doc => ({
+    return filteredDocs.map(doc => ({
       id: doc.id,
       checklistItemId: doc.checklist_item_id,
       fileName: doc.file_name,
       fileType: doc.file_type,
       url: doc.file_path,
       uploadDate: new Date(doc.upload_date),
-      metadata: (doc as any).metadata || {}, // Preserve the actual metadata from the database
-      tax_year: doc.tax_year // Preserve tax_year field
+      metadata: (doc as any).metadata || {},
+      tax_year: doc.tax_year
     }));
   };
 
@@ -561,6 +605,25 @@ const UserDetail: React.FC = () => {
                 
                 {/* Status Cluster - Secondary Focus */}
                 <div className="hidden lg:flex items-center gap-1.5">
+                  {/* Tax Filer Selector - Only show if multiple filers exist */}
+                  {taxFilers.length > 1 && (
+                    <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                      <Users className="h-3.5 w-3.5" />
+                      <select
+                        value={selectedTaxFilerId || ''}
+                        onChange={(e) => setSelectedTaxFilerId(e.target.value)}
+                        className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
+                      >
+                        {taxFilers.map(filer => (
+                          <option key={filer.id} value={filer.id}>
+                            {filer.first_name} {filer.last_name}
+                            {filer.is_primary ? ' (Hauptperson)' : filer.relationship ? ` (${filer.relationship})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  
                   {/* Year Selector - Subdued */}
                   <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
                     <Calendar className="h-3.5 w-3.5" />
@@ -635,6 +698,25 @@ const UserDetail: React.FC = () => {
             
             {/* Mobile Status Row */}
             <div className="flex flex-wrap items-center gap-1.5 mt-2 lg:hidden">
+              {/* Tax Filer Selector - Mobile */}
+              {taxFilers.length > 1 && (
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                  <Users className="h-3.5 w-3.5" />
+                  <select
+                    value={selectedTaxFilerId || ''}
+                    onChange={(e) => setSelectedTaxFilerId(e.target.value)}
+                    className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
+                  >
+                    {taxFilers.map(filer => (
+                      <option key={filer.id} value={filer.id}>
+                        {filer.first_name} {filer.last_name}
+                        {filer.is_primary ? ' (Hauptperson)' : filer.relationship ? ` (${filer.relationship})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
               {/* Year Selector */}
               <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
                 <Calendar className="h-3.5 w-3.5" />
