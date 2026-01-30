@@ -27,8 +27,8 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-1.5 text-slate-500 hover:text-slate-700 transition-colors ${
-            variant === 'compact' ? 'text-[13px]' : 'text-sm'
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-all ${
+            variant === 'compact' ? 'text-[13px] px-2.5 py-1' : 'text-sm'
           } ${className}`}
         >
           {currentFlag}
@@ -38,12 +38,13 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="center" 
-        className="min-w-[140px] bg-white border border-slate-200 shadow-lg rounded-xl z-[100]"
+        sideOffset={8}
+        className="min-w-[140px] bg-white border border-slate-200 shadow-lg rounded-xl z-[9999]"
       >
         <DropdownMenuItem
           onClick={() => switchLanguage('de')}
-          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer ${
-            language === 'de' ? 'bg-slate-50' : ''
+          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer rounded-lg mx-1 my-0.5 ${
+            language === 'de' ? 'bg-slate-100' : 'hover:bg-slate-50'
           }`}
         >
           <SwissFlag className="w-5 h-5" />
@@ -51,8 +52,8 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => switchLanguage('en')}
-          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer ${
-            language === 'en' ? 'bg-slate-50' : ''
+          className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer rounded-lg mx-1 my-0.5 ${
+            language === 'en' ? 'bg-slate-100' : 'hover:bg-slate-50'
           }`}
         >
           <UKFlag className="w-5 h-5" />
