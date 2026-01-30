@@ -282,21 +282,19 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 navigate('/invite-friends');
                 onOpenChange(false);
               }}
-              className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 p-4 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1D64FF] to-[#4B8CFF] p-4 text-white shadow-md hover:shadow-lg transition-all hover:translate-y-[-1px] active:translate-y-0"
             >
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-              
-              <div className="relative flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/20">
                   <Gift className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-sm">{t.menu.inviteFriends}</div>
-                  <div className="text-xs text-white/80">CHF 20 für dich & deine Freunde</div>
+                  <div className="font-semibold text-[15px]">{t.menu.inviteFriends}</div>
+                  <div className="text-xs text-white/75 mt-0.5">CHF 20 für dich & deine Freunde</div>
                 </div>
-                <ChevronDown className="w-4 h-4 text-white/60 -rotate-90" />
+                <div className="flex-shrink-0 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
+                  <ChevronDown className="w-3.5 h-3.5 text-white -rotate-90" />
+                </div>
               </div>
             </button>
           </div>
