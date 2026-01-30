@@ -10,7 +10,6 @@ import { toast } from 'sonner';
 import { ArrowRight, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/contexts/I18nContext';
-import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
 const TAX_YEARS = Array.from({
   length: 3
@@ -253,10 +252,6 @@ export const WelcomeFlow = () => {
   };
 
   return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
-      {/* Language Switcher - top right */}
-      <div className="absolute top-4 right-4 z-30">
-        <LanguageSwitcher />
-      </div>
       {/* Logo above card */}
       <motion.div className="mb-8 flex items-center justify-center" initial={{
       opacity: 0,
