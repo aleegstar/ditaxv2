@@ -478,17 +478,29 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </div>
             </div>
 
-            {/* In Processing Section */}
-            {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length > 0 && (
+            {/* In Processing Section - filtered by year AND tax_filer_id */}
+            {taxReturns.filter(taxReturn => {
+              const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
+              const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
+              return yearMatch && filerMatch;
+            }).length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <h3 className="text-lg font-semibold text-slate-900">In Bearbeitung</h3>
                   <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
-                    {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).length}
+                    {taxReturns.filter(taxReturn => {
+                      const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
+                      const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
+                      return yearMatch && filerMatch;
+                    }).length}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {taxReturns.filter(taxReturn => String(taxReturn.taxYear) === String(selectedYear)).map(taxReturn => (
+                  {taxReturns.filter(taxReturn => {
+                    const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
+                    const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
+                    return yearMatch && filerMatch;
+                  }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
                       className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer" 
@@ -513,24 +525,40 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </div>
             )}
 
-            {/* Completed Returns Section */}
+            {/* Completed Returns Section - filtered by year AND tax_filer_id */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <h3 className="text-lg font-semibold text-slate-900">Fertige Steuererklärungen</h3>
                 <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                  {completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear)).length}
+                  {completedTaxReturns.filter(ctr => {
+                    const yearMatch = String(ctr.tax_year) === String(selectedYear);
+                    const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
+                    return yearMatch && filerMatch;
+                  }).length}
                 </span>
               </div>
               <CompletedTaxReturnManager 
                 userId={userId} 
                 userName={`${user.firstName} ${user.lastName}`} 
-                completedTaxReturns={completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear))} 
+                completedTaxReturns={completedTaxReturns.filter(ctr => {
+                  const yearMatch = String(ctr.tax_year) === String(selectedYear);
+                  const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
+                  return yearMatch && filerMatch;
+                })} 
                 onRefresh={onCompletedTaxReturnsRefresh} 
               />
             </div>
 
-            {/* Empty State */}
-            {!getYearDataStatus.hasTaxReturn && !getYearDataStatus.hasCompletedReturn && completedTaxReturns.filter(ctr => String(ctr.tax_year) === String(selectedYear)).length === 0 && (
+            {/* Empty State - also filtered by tax_filer_id */}
+            {taxReturns.filter(tr => {
+              const yearMatch = String(tr.taxYear) === String(selectedYear);
+              const filerMatch = !selectedTaxFilerId || (tr as any).tax_filer_id === selectedTaxFilerId;
+              return yearMatch && filerMatch;
+            }).length === 0 && completedTaxReturns.filter(ctr => {
+              const yearMatch = String(ctr.tax_year) === String(selectedYear);
+              const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
+              return yearMatch && filerMatch;
+            }).length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
                   <FileIcon className="h-8 w-8 text-slate-400" />
@@ -542,7 +570,12 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
           
               <TabsContent value="definitive-bills" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
-                <UserDefinitiveTaxBill userId={userId} isAdmin={true} />
+                <UserDefinitiveTaxBill 
+                  userId={userId} 
+                  isAdmin={true} 
+                  selectedTaxFilerId={selectedTaxFilerId}
+                  selectedYear={selectedYear}
+                />
               </TabsContent>
           
               <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,14 +25,17 @@ interface DefinitiveTaxBill {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  tax_filer_id?: string | null;
 }
 
 interface UserDefinitiveTaxBillProps {
   userId: string;
   isAdmin?: boolean;
+  selectedTaxFilerId?: string | null;
+  selectedYear?: string;
 }
 
-export function UserDefinitiveTaxBill({ userId, isAdmin = false }: UserDefinitiveTaxBillProps) {
+export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFilerId, selectedYear }: UserDefinitiveTaxBillProps) {
   const [bills, setBills] = useState<DefinitiveTaxBill[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -225,6 +228,30 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false }: UserDefinitiv
     }
   };
 
+  // Filter bills by selectedTaxFilerId and selectedYear
+  const filteredBills = useMemo(() => {
+    let filtered = bills;
+    
+    // Filter by tax_filer_id if provided (for multi-person support)
+    if (selectedTaxFilerId) {
+      filtered = filtered.filter(bill => {
+        // If the bill has a tax_filer_id, filter by it
+        if (bill.tax_filer_id) {
+          return bill.tax_filer_id === selectedTaxFilerId;
+        }
+        // If no tax_filer_id on bill, show it (backwards compatibility)
+        return true;
+      });
+    }
+    
+    // Filter by year if provided
+    if (selectedYear) {
+      filtered = filtered.filter(bill => String(bill.tax_year) === String(selectedYear));
+    }
+    
+    return filtered;
+  }, [bills, selectedTaxFilerId, selectedYear]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -368,7 +395,7 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false }: UserDefinitiv
 
       {/* Bills List */}
       <div className="space-y-3">
-        {bills.map((bill) => {
+        {filteredBills.map((bill) => {
           const statusConfig = getStatusConfig(bill.status);
           const StatusIcon = statusConfig.icon;
           
@@ -419,12 +446,12 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false }: UserDefinitiv
           );
         })}
 
-        {bills.length === 0 && (
+        {filteredBills.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
             <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
               <FileText className="h-8 w-8 text-slate-400" />
             </div>
-            <p className="text-slate-600 font-medium">Keine definitiven Steuerrechnungen</p>
+            <p className="text-slate-600 font-medium">Keine definitiven Steuerrechnungen{selectedYear ? ` für ${selectedYear}` : ''}</p>
             <p className="text-slate-400 text-sm mt-1 text-center max-w-xs">
               {isAdmin 
                 ? 'Laden Sie die definitive Steuerrechnung für diesen Benutzer hoch.'
