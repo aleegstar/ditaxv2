@@ -764,6 +764,7 @@ const UserDetail: React.FC = () => {
               onYearChange={handleYearChange}
               initialNotes={user.admin_notes || ''}
               selectedYear={selectedYear}
+              selectedTaxFilerId={selectedTaxFilerId}
               completedTaxReturns={completedTaxReturns}
               onCompletedTaxReturnsRefresh={fetchUserData}
             />
