@@ -85,7 +85,13 @@ const SelectPerson: React.FC = () => {
                     alt={`${filer.first_name} ${filer.last_name}`}
                     className="object-cover"
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary text-lg font-medium">
+                  <AvatarFallback 
+                    className="text-xl font-semibold"
+                    style={{ 
+                      background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 100%)',
+                      color: 'hsl(var(--primary))'
+                    }}
+                  >
                     {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
