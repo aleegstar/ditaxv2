@@ -46,14 +46,28 @@ interface TaxFilerContextType {
 
 const TaxFilerContext = createContext<TaxFilerContextType | undefined>(undefined);
 
+const SESSION_KEY = 'ditax_selected_tax_filer';
+
 export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [taxFilers, setTaxFilers] = useState<TaxFiler[]>([]);
-  const [activeTaxFilerId, setActiveTaxFilerId] = useState<string | null>(null);
+  const [activeTaxFilerId, setActiveTaxFilerId] = useState<string | null>(() => {
+    // Initialize from sessionStorage
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(SESSION_KEY);
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
-  const [selectionConfirmed, setSelectionConfirmed] = useState(false);
+  const [selectionConfirmed, setSelectionConfirmed] = useState(() => {
+    // If we have a stored filer ID, selection is confirmed
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(SESSION_KEY) !== null;
+    }
+    return false;
+  });
 
   // Initialize session
   useEffect(() => {
@@ -72,11 +86,12 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSession(newSession);
         setSessionLoaded(true);
         
-        // Reset state on logout
+        // Reset state on logout and clear sessionStorage
         if (!newSession) {
           setTaxFilers([]);
           setActiveTaxFilerId(null);
           setSelectionConfirmed(false);
+          sessionStorage.removeItem(SESSION_KEY);
         }
       }
     });
@@ -116,10 +131,15 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const filers = (data || []) as TaxFiler[];
       setTaxFilers(filers);
 
-      // Set active tax filer to primary if not set
-      if (!activeTaxFilerId && filers.length > 0) {
+      // Set active tax filer to primary if not set and no stored selection
+      const storedFilerId = sessionStorage.getItem(SESSION_KEY);
+      if (!activeTaxFilerId && !storedFilerId && filers.length > 0) {
         const primary = filers.find(f => f.is_primary);
         setActiveTaxFilerId(primary?.id || filers[0].id);
+      } else if (storedFilerId && filers.some(f => f.id === storedFilerId)) {
+        // Validate stored filer ID still exists in the list
+        setActiveTaxFilerId(storedFilerId);
+        setSelectionConfirmed(true);
       }
 
       console.log(`✅ Loaded ${filers.length} tax filers`);
@@ -152,14 +172,18 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Computed: has multiple filers
   const hasMultipleFilers = useMemo(() => taxFilers.length > 1, [taxFilers]);
 
-  // Confirm selection (called when user explicitly picks a person)
+  // Confirm selection and persist to sessionStorage
   const confirmSelection = useCallback(() => {
     setSelectionConfirmed(true);
-  }, []);
+    if (activeTaxFilerId) {
+      sessionStorage.setItem(SESSION_KEY, activeTaxFilerId);
+    }
+  }, [activeTaxFilerId]);
 
-  // Reset selection (for logout or when needed)
+  // Reset selection and clear sessionStorage
   const resetSelection = useCallback(() => {
     setSelectionConfirmed(false);
+    sessionStorage.removeItem(SESSION_KEY);
   }, []);
 
   // Create new tax filer
