@@ -1,36 +1,24 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { LanguageDropdown } from "@/components/ui/language-dropdown";
-import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
-import { isAndroidEnvironment } from "@/utils/platform";
-import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
-import despia from 'despia-native';
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {
-    t
-  } = useI18n();
+  const { t } = useI18n();
   const [step, setStep] = useState<"main" | "code">("main");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
-  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  
-  const isOAuthInProgress = useRef(false);
-
-  // Combined loading state for backward compatibility
-  const isLoading = isEmailLoading || isOAuthLoading;
 
   // Handle deeplink callback from Despia native app
   // NEW: Session is now set in NativeCallback (Chrome Custom Tab) 
@@ -76,7 +64,7 @@ const Auth = () => {
       // Session was already set in NativeCallback (Chrome Custom Tab shares storage)
       if (success === 'true') {
         console.log('🔐 Success signal received, checking for existing session...');
-        setIsOAuthLoading(true);
+        setIsLoading(true);
         
         // Small delay to ensure session storage is synced
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -111,7 +99,7 @@ const Auth = () => {
           console.error('Error checking session:', err);
           toast.error('Fehler beim Laden der Session');
         } finally {
-          setIsOAuthLoading(false);
+          setIsLoading(false);
           window.history.replaceState({}, '', '/auth');
         }
         return;
@@ -119,7 +107,7 @@ const Auth = () => {
 
       // LEGACY: Handle tokens passed directly in URL (for web flow or old deeplinks)
       if (finalAccessToken) {
-        setIsOAuthLoading(true);
+        setIsLoading(true);
         try {
           const { error } = await supabase.auth.setSession({
             access_token: finalAccessToken,
@@ -134,7 +122,7 @@ const Auth = () => {
           console.error('Auth error:', error);
           toast.error(error.message || 'Fehler bei der Anmeldung');
         } finally {
-          setIsOAuthLoading(false);
+          setIsLoading(false);
         }
         return;
       }
@@ -156,7 +144,7 @@ const Auth = () => {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setIsEmailLoading(true);
+    setIsLoading(true);
     try {
       const {
         error
@@ -173,171 +161,10 @@ const Auth = () => {
     } catch (error: any) {
       toast.error(error.message || "Fehler beim Senden des Codes");
     } finally {
-      setIsEmailLoading(false);
+      setIsLoading(false);
     }
   };
-  const handleGoogleAuth = async () => {
-    if (isOAuthInProgress.current) return;
-    isOAuthInProgress.current = true;
-    setIsOAuthLoading(true);
-    const isDespia = isDespiaNative();
-    const isNativeCapacitor = Capacitor.isNativePlatform();
-
-    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
-    if (isDespia) {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke('auth-start', {
-          body: {
-            provider: 'google',
-            deeplink_scheme: 'ditax'
-          }
-        });
-        if (error || !data?.url) {
-          console.error('❌ Failed to get OAuth URL:', error);
-          toast.error("Fehler beim Starten der Anmeldung");
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-          return;
-        }
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
-      } catch (err) {
-        console.error('❌ Error starting native auth:', err);
-        toast.error("Fehler bei der Google-Anmeldung");
-        isOAuthInProgress.current = false;
-        setIsOAuthLoading(false);
-      }
-      return;
-    }
-
-    // Capacitor native browser
-    if (isNativeCapacitor || isAndroidEnvironment()) {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success',
-            skipBrowserRedirect: true
-          }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          await Browser.open({
-            url: data.url,
-            presentationStyle: 'popover'
-          });
-        }
-      } catch (error) {
-        console.error('Google auth error:', error);
-        toast.error("Fehler bei der Google-Anmeldung");
-        isOAuthInProgress.current = false;
-        setIsOAuthLoading(false);
-      }
-      return;
-    }
-
-    // Web Flow - Standard Supabase OAuth
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: 'https://app.ditax.ch/auth-success'
-        }
-      });
-    } catch (error) {
-      console.error('Google auth error:', error);
-      toast.error("Fehler bei der Google-Anmeldung");
-      isOAuthInProgress.current = false;
-      setIsOAuthLoading(false);
-    }
-  };
-  const handleAppleAuth = async () => {
-    if (isOAuthInProgress.current) return;
-    isOAuthInProgress.current = true;
-    setIsOAuthLoading(true);
-    const isDespia = isDespiaNative();
-    const isNativeCapacitor = Capacitor.isNativePlatform();
-
-    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
-    if (isDespia) {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke('auth-start', {
-          body: {
-            provider: 'apple',
-            deeplink_scheme: 'ditax'
-          }
-        });
-        if (error || !data?.url) {
-          console.error('Failed to get Apple OAuth URL:', error);
-          toast.error("Fehler beim Starten der Anmeldung");
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-          return;
-        }
-
-        // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
-      } catch (err) {
-        console.error('Error starting native Apple auth:', err);
-        toast.error("Fehler bei der Apple-Anmeldung");
-        isOAuthInProgress.current = false;
-        setIsOAuthLoading(false);
-      }
-      return;
-    }
-
-    // Capacitor native browser
-    if (isNativeCapacitor || isAndroidEnvironment()) {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.auth.signInWithOAuth({
-          provider: 'apple',
-          options: {
-            redirectTo: 'https://app.ditax.ch/auth-success',
-            skipBrowserRedirect: true
-          }
-        });
-        if (error) throw error;
-        if (data?.url) {
-          await Browser.open({
-            url: data.url,
-            presentationStyle: 'popover'
-          });
-        }
-      } catch (error) {
-        console.error('Apple auth error:', error);
-        toast.error("Fehler bei der Apple-Anmeldung");
-        isOAuthInProgress.current = false;
-        setIsOAuthLoading(false);
-      }
-      return;
-    }
-
-    // Web Flow
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: 'https://app.ditax.ch/auth-success'
-        }
-      });
-    } catch (error) {
-      console.error('Apple auth error:', error);
-      toast.error("Fehler bei der Apple-Anmeldung");
-      isOAuthInProgress.current = false;
-      setIsOAuthLoading(false);
-    }
-  };
+  // Social login functions removed for App Store review - will be re-added later
   const handleWebAuthnAuth = () => {
     const isDespia = isDespiaNative();
     if (isDespia) {
@@ -353,7 +180,7 @@ const Auth = () => {
     }
   };
   const handleCodeVerification = async (otpCode: string) => {
-    setIsEmailLoading(true);
+    setIsLoading(true);
     try {
       const {
         error
@@ -385,7 +212,7 @@ const Auth = () => {
       toast.error(error.message || t.authFlow.codeVerificationError);
       setCode("");
     } finally {
-      setIsEmailLoading(false);
+      setIsLoading(false);
     }
   };
   const handleBackClick = () => {
@@ -394,7 +221,7 @@ const Auth = () => {
   };
   const handleResendCode = async () => {
     if (resendCountdown > 0) return;
-    setIsEmailLoading(true);
+    setIsLoading(true);
     try {
       const {
         error
@@ -410,7 +237,7 @@ const Auth = () => {
     } catch (error: any) {
       toast.error(error.message || t.authFlow.sendError);
     } finally {
-      setIsEmailLoading(false);
+      setIsLoading(false);
     }
   };
   const handleWeiterClick = () => {
@@ -461,7 +288,7 @@ const Auth = () => {
                   </div>
 
                   <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-[15px] font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
-                    {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                    {isLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
                   
                   {/* Microcopy */}
@@ -553,58 +380,28 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Floating Bottom Social Login Island - Only show on main step */}
+      {/* Footer Links - Only show on main step */}
       {step === "main" && !isInputFocused && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
 
-          {/* The Domed Button Container - positioned higher on mobile */}
-          <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
+          <motion.div className="relative w-full flex justify-center items-end pb-6 md:pb-8 pointer-events-auto" initial={{
         opacity: 0,
-        y: 50
+        y: 20
       }} animate={{
         opacity: 1,
         y: 0
       }} transition={{
-        duration: 0.5,
+        duration: 0.4,
         delay: 0.2
       }}>
-            <div className="relative w-full">
-              {/* Social Login Container - Light Design */}
-              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-white to-slate-50/80 border-t border-slate-200/80">
-              {/* Pill Handle Divider */}
-              <div className="w-9 h-1 rounded-full bg-slate-200 mb-4" />
-              <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
-                {/* Google Login */}
-                <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
-                  <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                  </svg>
-                  <span className="font-medium text-[15px] tracking-tight">{t.authFlow.continueWithGoogle}</span>
-                </button>
-
-                {/* Apple Login */}
-                <button onClick={handleAppleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
-                  <svg className="w-5 h-5 shrink-0 fill-current text-slate-800 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
-                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
-                  </svg>
-                  <span className="font-medium text-[15px] tracking-tight">{t.authFlow.continueWithApple}</span>
-                </button>
-
-              </div>
-
-              {/* Footer Links */}
-              <div className="mt-6 flex justify-center items-center gap-3 text-[13px] text-slate-500 font-medium font-jakarta">
-                <a href="/impressum" className="hover:text-slate-700 transition-colors">Impressum</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                <LanguageDropdown variant="compact" />
-              </div>
-            </div>
+            {/* Footer Links */}
+            <div className="flex justify-center items-center gap-3 text-[13px] text-slate-500 font-medium font-jakarta">
+              <a href="/impressum" className="hover:text-slate-700 transition-colors">Impressum</a>
+              <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+              <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
+              <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+              <LanguageDropdown variant="compact" />
             </div>
           </motion.div>
         </div>}
