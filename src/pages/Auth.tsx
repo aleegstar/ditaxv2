@@ -299,12 +299,6 @@ const Auth = () => {
                   </div>
                 </form>
 
-                {/* Oder Divider - hidden when input is focused */}
-                {!isInputFocused && <div className="flex items-center gap-4 w-full mt-14">
-                    <div className="flex-1 h-px bg-slate-300" />
-                    <span className="text-sm text-slate-600 font-medium font-jakarta">{t.authFlow.or}</span>
-                    <div className="flex-1 h-px bg-slate-300" />
-                  </div>}
               </motion.div> : <motion.div key="code-step" initial={{
             opacity: 0,
             y: 20
