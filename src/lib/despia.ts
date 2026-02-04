@@ -68,10 +68,25 @@ export const buildOAuthUrl = (provider: 'google' | 'apple', redirectTo: string):
 
 /**
  * Detect if running on iOS in Despia
+ * Supports user agents: 'despia-ipad', 'despia-iphone', or standard iOS indicators
  */
 export const isDespiaIOS = (): boolean => {
   const ua = navigator.userAgent.toLowerCase();
-  return isDespiaNative() && (ua.includes('iphone') || ua.includes('ipad'));
+  const isIOS = isDespiaNative() && (
+    ua.includes('iphone') || 
+    ua.includes('ipad') || 
+    ua.includes('despia-ipad') ||
+    ua.includes('despia-iphone')
+  );
+  
+  if (isIOS) {
+    console.log('📱 Despia iOS detected:', { 
+      userAgent: ua,
+      isIPad: ua.includes('despia-ipad') || ua.includes('ipad')
+    });
+  }
+  
+  return isIOS;
 };
 
 /**
