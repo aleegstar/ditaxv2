@@ -13,6 +13,7 @@ import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import despia from 'despia-native';
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
