@@ -11,9 +11,8 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
 import despia from 'despia-native';
-
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -193,7 +192,7 @@ const Auth = () => {
         } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'google',
-            deeplink_scheme: DEEPLINK_SCHEME
+            deeplink_scheme: 'ditax'
           }
         });
         if (error || !data?.url) {
@@ -273,7 +272,7 @@ const Auth = () => {
         } = await supabase.functions.invoke('auth-start', {
           body: {
             provider: 'apple',
-            deeplink_scheme: DEEPLINK_SCHEME
+            deeplink_scheme: 'ditax'
           }
         });
         if (error || !data?.url) {

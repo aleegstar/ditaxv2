@@ -1,156 +1,183 @@
 
-# Plan: Korrektur der Social Auth für iPad (Despia)
 
-## Problem-Analyse
+# Plan: Missing Items nach Tax Filer filtern
 
-Das Problem liegt in der **NativeCallback.tsx** Seite. Der OAuth-Flow funktioniert wie folgt:
+## Problem
 
-```text
-1. User klickt "Mit Google anmelden" in der App (WebView)
-2. Auth.tsx ruft auth-start Edge Function auf
-3. despia('oauth://?url=...') öffnet ASWebAuthenticationSession (Safari-Sheet)
-4. User meldet sich bei Google an
-5. Google redirected zu /native-callback#access_token=xxx
-   ↓ HIER IST DAS PROBLEM ↓
-6. NativeCallback läuft in ASWebAuthenticationSession, NICHT im WebView!
-7. isDespiaNative() prüft User-Agent - aber Safari-Sheet hat anderen User-Agent!
-8. isDespiaNative() gibt FALSE zurück
-9. Deeplink wird NICHT gesendet
-10. User bleibt im Safari-Sheet stecken
+Wenn Admin "Fehlende Unterlagen/Angaben" für einen spezifischen Tax Filer (z.B. Leano) anfordert, werden diese nicht dem Tax Filer zugeordnet. Aktuell werden Missing Items nur nach `user_id` gefiltert, nicht nach `tax_filer_id`.
+
+## Aktuelle Situation
+
+| Aspekt | Status |
+|--------|--------|
+| `missing_item_requests.tax_filer_id` | Existiert NICHT |
+| Filterung Admin-Seite | Nur nach `user_id` |
+| Filterung User-Seite | Nur nach `user_id` |
+| Tax Return Auswahl | Nur nach `tax_year`, nicht nach `tax_filer_id` |
+
+## Betroffene Stellen
+
+### 1. Falscher Tax Return wird ausgewählt (UserDetail.tsx)
+```tsx
+// Zeile 550 & 775: Filtert nur nach tax_year, ignoriert selectedTaxFilerId
+const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear);
+taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear)?.id}
 ```
 
-## Root Cause
+### 2. Missing Item Requests haben kein tax_filer_id Feld
+Die Tabelle `missing_item_requests` hat kein `tax_filer_id` Feld.
 
-Die `isDespiaNative()` Funktion in `src/lib/despia.ts` prüft:
-```typescript
-navigator.userAgent.toLowerCase().includes('despia')
-```
-
-**Problem**: Die ASWebAuthenticationSession auf iOS (Safari-Sheet) hat einen **Standard-Safari User-Agent**, NICHT den Despia-User-Agent! Der Despia User-Agent wird nur im WebView gesetzt.
+### 3. User-seitige Anzeige filtert nicht nach Tax Filer
+In `useMissingItemRequests.ts` und `usePendingMissingItemsCount.ts` wird nur nach `user_id` gefiltert.
 
 ## Lösung
 
-In **NativeCallback.tsx** dürfen wir uns **nicht** auf `isDespiaNative()` verlassen. Stattdessen sollten wir:
+### Schritt 1: Datenbank - tax_filer_id zur Tabelle hinzufügen
 
-1. **Den deeplink_scheme aus dem URL-Pfad verwenden** (bereits vorhanden)
-2. **IMMER den Deeplink senden**, wenn ein `deeplink_scheme` vorhanden ist
-3. **Fallback auf Navigation**, wenn Deeplink nicht funktioniert
+```sql
+ALTER TABLE missing_item_requests 
+ADD COLUMN tax_filer_id UUID REFERENCES tax_filers(id);
+```
 
-### Änderungen
+### Schritt 2: CreateMissingItemRequestDialog - tax_filer_id übergeben
+
+Props erweitern:
+```tsx
+interface CreateMissingItemRequestDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userId: string;
+  taxReturnId?: string;
+  taxFilerId?: string | null;  // NEU
+  userName?: string;
+  taxYear?: string;
+  onSuccess?: () => void;
+}
+```
+
+Beim Erstellen speichern:
+```tsx
+const requestsToInsert = items.map(item => ({
+  user_id: item.user_id,
+  tax_return_id: item.tax_return_id,
+  tax_filer_id: taxFilerId || null,  // NEU
+  admin_id: user.id,
+  // ...
+}));
+```
+
+### Schritt 3: UserDetail.tsx - Korrekten Tax Return finden
+
+```tsx
+// Zeile 550: Tax Return nach year UND tax_filer_id filtern
+const currentTaxReturn = taxReturns.find(
+  tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
+);
+
+// Zeile 775: Dialog mit korrektem taxReturnId und taxFilerId aufrufen
+<CreateMissingItemRequestDialog
+  open={missingItemDialogOpen}
+  onOpenChange={setMissingItemDialogOpen}
+  userId={user.id}
+  taxReturnId={taxReturns.find(
+    tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
+  )?.id}
+  taxFilerId={selectedTaxFilerId}  // NEU
+  // ...
+/>
+```
+
+### Schritt 4: useMissingItemRequests Hook - tax_filer_id Parameter
+
+```tsx
+export const useMissingItemRequests = (userId?: string, taxReturnId?: string, taxFilerId?: string | null) => {
+  // ...
+  
+  let query = supabase
+    .from('missing_item_requests')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (taxFilerId) {
+    query = query.eq('tax_filer_id', taxFilerId);
+  }
+  
+  // ...
+};
+```
+
+### Schritt 5: CreateMissingItemRequestInput Interface erweitern
+
+```tsx
+export interface CreateMissingItemRequestInput {
+  user_id: string;
+  tax_return_id: string;
+  tax_filer_id?: string | null;  // NEU
+  request_type: 'document' | 'information';
+  title: string;
+  description?: string;
+}
+```
+
+### Schritt 6: User-seitige Hooks mit activeTaxFilerId
+
+Die User-Hooks (`usePendingMissingItems`, `usePendingMissingItemsCount`) müssen ebenfalls nach `tax_filer_id` filtern:
+
+```tsx
+// In usePendingMissingItemsCount.ts
+export const usePendingMissingItemsCount = (userId?: string, taxFilerId?: string | null) => {
+  // ...
+  let query = supabase
+    .from('missing_item_requests')
+    .select('id, request_type')
+    .eq('user_id', userId)
+    .in('status', ['pending', 'rejected']);
+
+  if (taxFilerId) {
+    query = query.eq('tax_filer_id', taxFilerId);
+  }
+  // ...
+};
+```
+
+### Schritt 7: MissingItemsPanel mit activeTaxFilerId
+
+```tsx
+// In ChatBotInterface.tsx - activeTaxFilerId an MissingItemsPanel übergeben
+<MissingItemsPanel 
+  userId={userId} 
+  taxFilerId={activeTaxFilerId}  // NEU
+  onSubmitted={loadChatHistory} 
+/>
+```
+
+## Betroffene Dateien
 
 | Datei | Änderung |
 |-------|----------|
-| `src/pages/NativeCallback.tsx` | `isDespiaNative()` Check entfernen, immer Deeplink senden wenn `deeplinkScheme` vorhanden ist |
+| **Datenbank** | `tax_filer_id` Spalte zu `missing_item_requests` hinzufügen |
+| `src/hooks/useMissingItemRequests.ts` | Interface erweitern, createRequests mit tax_filer_id, Filterung |
+| `src/hooks/usePendingMissingItemsCount.ts` | tax_filer_id Parameter und Filterung |
+| `src/components/admin/CreateMissingItemRequestDialog.tsx` | Props erweitern, tax_filer_id beim Insert |
+| `src/pages/UserDetail.tsx` | Tax Return nach tax_filer_id filtern, taxFilerId an Dialog |
+| `src/components/chat/MissingItemsPanel.tsx` | taxFilerId Prop hinzufügen |
+| `src/components/chat/ChatBotInterface.tsx` | activeTaxFilerId an MissingItemsPanel |
 
-### Vorher (Zeilen 121-142)
-
-```typescript
-// Check if we're in Despia native environment
-const inDespiaNative = isDespiaNative();
-console.log('🔗 Is Despia native:', inDespiaNative);
-
-if (inDespiaNative) {
-  // Send short deeplink to close Chrome Custom Tab
-  const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
-  console.log('🔗 Triggering deeplink:', shortDeeplinkUrl);
-  
-  // Trigger immediately
-  window.location.href = shortDeeplinkUrl;
-  
-  // Fallback...
-} else {
-  // Not in native - navigate to home immediately
-  console.log('🔗 Not in native, navigating to home...');
-  navigate('/', { replace: true });
-}
-```
-
-### Nachher
-
-```typescript
-// WICHTIG: Wir können isDespiaNative() hier NICHT verwenden!
-// Diese Seite läuft in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android),
-// nicht im Despia WebView. Der User-Agent ist daher Safari/Chrome, nicht Despia.
-// 
-// Stattdessen prüfen wir, ob ein deeplink_scheme vorhanden ist.
-// Wenn ja, kam der Request von einer nativen App und wir senden den Deeplink.
-const hasNativeScheme = deeplinkScheme && deeplinkScheme !== 'undefined';
-console.log('🔗 Has native scheme:', hasNativeScheme, 'scheme:', deeplinkScheme);
-
-if (hasNativeScheme) {
-  // Send short deeplink to close ASWebAuthenticationSession/Chrome Custom Tab
-  const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
-  console.log('🔗 Triggering deeplink:', shortDeeplinkUrl);
-  
-  // Trigger immediately
-  window.location.href = shortDeeplinkUrl;
-  
-  // Fallback: If deeplink doesn't work after 2 seconds, try navigate
-  setTimeout(() => {
-    console.log('🔗 Deeplink fallback: navigating to home...');
-    window.location.href = '/?success=true';
-  }, 2000);
-} else {
-  // No native scheme - this is a web flow, navigate directly
-  console.log('🔗 No native scheme, navigating to home...');
-  navigate('/', { replace: true });
-}
-```
-
-## Warum diese Lösung funktioniert
-
-1. **deeplink_scheme ist im URL-Pfad enthalten**: Die auth-start Edge Function baut die Redirect-URL als `/native-callback/ditax/` auf
-2. **Der Pfad-Parameter wird korrekt extrahiert**: `useParams()` holt `deeplinkScheme` aus dem Pfad
-3. **Kein User-Agent-Check nötig**: Wir wissen, dass der Request von einer nativen App kommt, wenn `deeplink_scheme` vorhanden ist
-4. **Deeplink mit oauth/ Prefix**: `ditax://oauth/auth?success=true` schliesst die ASWebAuthenticationSession korrekt
-
-## Technische Details
-
-### URL-Flow mit iPad
+## Datenmodell nach Änderung
 
 ```text
-1. Auth.tsx ruft auth-start auf
-   → deeplink_scheme: 'ditax'
-
-2. auth-start gibt OAuth URL zurück
-   → redirect_to: https://app.ditax.ch/native-callback/ditax/
-
-3. Nach Google-Login:
-   → https://app.ditax.ch/native-callback/ditax/#access_token=xxx
-
-4. NativeCallback extrahiert:
-   → deeplinkScheme = 'ditax' (aus useParams)
-   → accessToken (aus Hash)
-
-5. NativeCallback sendet Deeplink:
-   → window.location.href = 'ditax://oauth/auth?success=true'
-
-6. Despia fängt Deeplink ab:
-   → Schliesst ASWebAuthenticationSession
-   → Navigiert WebView zu /auth?success=true
-
-7. Auth.tsx prüft Session:
-   → supabase.auth.getSession() findet Session
-   → User ist eingeloggt
+missing_item_requests
+├── user_id (bestehend)
+├── tax_return_id (bestehend)
+├── tax_filer_id (NEU) ──────> tax_filers.id
 ```
 
-### Warum Session geteilt wird
+## Erwartetes Ergebnis
 
-Die Session wird in NativeCallback.tsx gesetzt (Zeile 102-105):
-```typescript
-const { error: sessionError } = await supabase.auth.setSession({
-  access_token: accessToken,
-  refresh_token: refreshToken || '',
-});
-```
+1. Admin wählt "Leano" im Tax Filer Dropdown
+2. Admin klickt "Unterlagen/Angaben anfordern"
+3. Missing Item Request wird mit Leano's `tax_filer_id` gespeichert
+4. User sieht nur Leano's Missing Items wenn Leano ausgewählt ist
+5. Sandro's Missing Items bleiben separat
 
-**iOS (ASWebAuthenticationSession)**: Teilt Cookies/Storage mit Safari und dem WebView, daher ist die Session auch im WebView verfügbar.
-
-**Android (Chrome Custom Tab)**: Teilt Cookies mit Chrome, und Despia nutzt dieselbe Chrome-Instanz, daher ist die Session auch verfügbar.
-
-## Zusammenfassung
-
-Die einzige Änderung ist in `src/pages/NativeCallback.tsx`:
-- Entferne die `isDespiaNative()` Prüfung
-- Prüfe stattdessen ob `deeplinkScheme` vorhanden ist
-- Sende Deeplink wenn ja, navigiere direkt wenn nein

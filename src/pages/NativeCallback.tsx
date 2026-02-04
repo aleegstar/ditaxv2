@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useParams, useNavigate } from "react-router-dom";
-import { DEEPLINK_SCHEME } from "@/lib/despia";
+import { DEEPLINK_SCHEME, isDespiaNative } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -118,31 +118,26 @@ const NativeCallback = () => {
         console.log('✅ Session set successfully!');
         setStatus('success');
 
-        // WICHTIG: Wir können isDespiaNative() hier NICHT verwenden!
-        // Diese Seite läuft in ASWebAuthenticationSession (iOS) oder Chrome Custom Tab (Android),
-        // nicht im Despia WebView. Der User-Agent ist daher Safari/Chrome, nicht Despia.
-        // 
-        // Stattdessen prüfen wir, ob ein deeplink_scheme vorhanden ist.
-        // Wenn ja, kam der Request von einer nativen App und wir senden den Deeplink.
-        const hasNativeScheme = deeplinkScheme && deeplinkScheme !== 'undefined';
-        console.log('🔗 Has native scheme:', hasNativeScheme, 'scheme:', deeplinkScheme);
+        // Check if we're in Despia native environment
+        const inDespiaNative = isDespiaNative();
+        console.log('🔗 Is Despia native:', inDespiaNative);
 
-        if (hasNativeScheme) {
-          // Send short deeplink to close ASWebAuthenticationSession/Chrome Custom Tab
+        if (inDespiaNative) {
+          // Send short deeplink to close Chrome Custom Tab
           const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
           console.log('🔗 Triggering deeplink:', shortDeeplinkUrl);
           
           // Trigger immediately
           window.location.href = shortDeeplinkUrl;
           
-          // Fallback: If deeplink doesn't work after 2 seconds, try navigate
+          // Fallback: If deeplink doesn't work after 1.5 seconds, navigate directly
           setTimeout(() => {
             console.log('🔗 Deeplink fallback: navigating to home...');
             window.location.href = '/?success=true';
-          }, 2000);
+          }, 1500);
         } else {
-          // No native scheme - this is a web flow, navigate directly
-          console.log('🔗 No native scheme, navigating to home...');
+          // Not in native - navigate to home immediately
+          console.log('🔗 Not in native, navigating to home...');
           navigate('/', { replace: true });
         }
 
