@@ -61,8 +61,9 @@ serve(async (req) => {
     // Format: /native-callback/{scheme}/#access_token=xxx
     const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
-    // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
-    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
+    // Build OAuth URL with PKCE disabled to get tokens directly in hash fragment
+    // CRITICAL: response_type=token is required to get access_token in hash instead of code
+    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&response_type=token`;
 
     console.log('✅ auth-start: Generated OAuth URL', { 
       oauthUrl, 
