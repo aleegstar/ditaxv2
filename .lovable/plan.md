@@ -1,183 +1,109 @@
 
+# Analyse: iPad Social Login funktioniert nicht
 
-# Plan: Missing Items nach Tax Filer filtern
+## Befunde der Code-Analyse
 
-## Problem
-
-Wenn Admin "Fehlende Unterlagen/Angaben" für einen spezifischen Tax Filer (z.B. Leano) anfordert, werden diese nicht dem Tax Filer zugeordnet. Aktuell werden Missing Items nur nach `user_id` gefiltert, nicht nach `tax_filer_id`.
-
-## Aktuelle Situation
-
-| Aspekt | Status |
-|--------|--------|
-| `missing_item_requests.tax_filer_id` | Existiert NICHT |
-| Filterung Admin-Seite | Nur nach `user_id` |
-| Filterung User-Seite | Nur nach `user_id` |
-| Tax Return Auswahl | Nur nach `tax_year`, nicht nach `tax_filer_id` |
-
-## Betroffene Stellen
-
-### 1. Falscher Tax Return wird ausgewählt (UserDetail.tsx)
-```tsx
-// Zeile 550 & 775: Filtert nur nach tax_year, ignoriert selectedTaxFilerId
-const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear);
-taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear)?.id}
+### 1. User Agent Erkennung - KORREKT
+Die `isDespiaNative()` Funktion prüft auf `despia` im User Agent:
+```typescript
+// src/lib/despia.ts Zeile 28-36
+export const isDespiaNative = (): boolean => {
+  const isDespia = typeof navigator !== 'undefined' && 
+         navigator.userAgent.toLowerCase().includes('despia');
+  return isDespia;
+};
 ```
 
-### 2. Missing Item Requests haben kein tax_filer_id Feld
-Die Tabelle `missing_item_requests` hat kein `tax_filer_id` Feld.
+**`despia-ipad`** enthält **`despia`**, daher wird dies korrekt erkannt.
 
-### 3. User-seitige Anzeige filtert nicht nach Tax Filer
-In `useMissingItemRequests.ts` und `usePendingMissingItemsCount.ts` wird nur nach `user_id` gefiltert.
+### 2. Das eigentliche Problem: Hardcodierter deeplink_scheme in Auth.tsx
+
+In `Auth.tsx` wird der `deeplink_scheme` **hardcodiert** statt die Konstante zu verwenden:
+
+| Datei | Zeile | Problem |
+|-------|-------|---------|
+| `src/pages/Auth.tsx` | 195 | `deeplink_scheme: 'ditax'` (hardcodiert) |
+| `src/pages/Auth.tsx` | 275 | `deeplink_scheme: 'ditax'` (hardcodiert) |
+
+Im Gegensatz dazu verwenden `GoogleAuth.tsx` und `AppleAuth.tsx` **korrekt** die Konstante:
+```typescript
+// GoogleAuth.tsx Zeile 33
+deeplink_scheme: DEEPLINK_SCHEME
+```
+
+### 3. Unterschied zwischen Android und iPad
+
+**Android** funktioniert, weil:
+- Der hardcodierte Wert `'ditax'` zufällig mit `DEEPLINK_SCHEME` übereinstimmt
+- Chrome Custom Tabs auf Android verhalten sich anders
+
+**iPad** funktioniert nicht, weil:
+- ASWebAuthenticationSession auf iOS strenger ist
+- Möglicherweise ist der DEEPLINK_SCHEME nicht importiert
+
+### 4. Fehlender Import in Auth.tsx
+
+```typescript
+// Auth.tsx Zeile 14 - DEEPLINK_SCHEME fehlt im Import!
+import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
+// Sollte sein:
+import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+```
 
 ## Lösung
 
-### Schritt 1: Datenbank - tax_filer_id zur Tabelle hinzufügen
-
-```sql
-ALTER TABLE missing_item_requests 
-ADD COLUMN tax_filer_id UUID REFERENCES tax_filers(id);
+### Änderung 1: DEEPLINK_SCHEME Import hinzufügen
+```typescript
+// Auth.tsx Zeile 14
+import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 ```
 
-### Schritt 2: CreateMissingItemRequestDialog - tax_filer_id übergeben
+### Änderung 2: Hardcodierte Werte ersetzen
+```typescript
+// Zeile 195 (Google)
+deeplink_scheme: DEEPLINK_SCHEME
 
-Props erweitern:
-```tsx
-interface CreateMissingItemRequestDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  userId: string;
-  taxReturnId?: string;
-  taxFilerId?: string | null;  // NEU
-  userName?: string;
-  taxYear?: string;
-  onSuccess?: () => void;
-}
+// Zeile 275 (Apple)
+deeplink_scheme: DEEPLINK_SCHEME
 ```
 
-Beim Erstellen speichern:
-```tsx
-const requestsToInsert = items.map(item => ({
-  user_id: item.user_id,
-  tax_return_id: item.tax_return_id,
-  tax_filer_id: taxFilerId || null,  // NEU
-  admin_id: user.id,
-  // ...
-}));
-```
-
-### Schritt 3: UserDetail.tsx - Korrekten Tax Return finden
-
-```tsx
-// Zeile 550: Tax Return nach year UND tax_filer_id filtern
-const currentTaxReturn = taxReturns.find(
-  tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
-);
-
-// Zeile 775: Dialog mit korrektem taxReturnId und taxFilerId aufrufen
-<CreateMissingItemRequestDialog
-  open={missingItemDialogOpen}
-  onOpenChange={setMissingItemDialogOpen}
-  userId={user.id}
-  taxReturnId={taxReturns.find(
-    tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
-  )?.id}
-  taxFilerId={selectedTaxFilerId}  // NEU
-  // ...
-/>
-```
-
-### Schritt 4: useMissingItemRequests Hook - tax_filer_id Parameter
-
-```tsx
-export const useMissingItemRequests = (userId?: string, taxReturnId?: string, taxFilerId?: string | null) => {
-  // ...
+### Änderung 3: Debug-Logging für iPad hinzufügen
+```typescript
+// In src/lib/despia.ts - isDespiaIOS verbessern
+export const isDespiaIOS = (): boolean => {
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = isDespiaNative() && (
+    ua.includes('iphone') || 
+    ua.includes('ipad') || 
+    ua.includes('despia-ipad')  // Explizit für iPad
+  );
   
-  let query = supabase
-    .from('missing_item_requests')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (taxFilerId) {
-    query = query.eq('tax_filer_id', taxFilerId);
+  if (isIOS) {
+    console.log('📱 Despia iOS detected:', { userAgent: ua });
   }
   
-  // ...
+  return isIOS;
 };
-```
-
-### Schritt 5: CreateMissingItemRequestInput Interface erweitern
-
-```tsx
-export interface CreateMissingItemRequestInput {
-  user_id: string;
-  tax_return_id: string;
-  tax_filer_id?: string | null;  // NEU
-  request_type: 'document' | 'information';
-  title: string;
-  description?: string;
-}
-```
-
-### Schritt 6: User-seitige Hooks mit activeTaxFilerId
-
-Die User-Hooks (`usePendingMissingItems`, `usePendingMissingItemsCount`) müssen ebenfalls nach `tax_filer_id` filtern:
-
-```tsx
-// In usePendingMissingItemsCount.ts
-export const usePendingMissingItemsCount = (userId?: string, taxFilerId?: string | null) => {
-  // ...
-  let query = supabase
-    .from('missing_item_requests')
-    .select('id, request_type')
-    .eq('user_id', userId)
-    .in('status', ['pending', 'rejected']);
-
-  if (taxFilerId) {
-    query = query.eq('tax_filer_id', taxFilerId);
-  }
-  // ...
-};
-```
-
-### Schritt 7: MissingItemsPanel mit activeTaxFilerId
-
-```tsx
-// In ChatBotInterface.tsx - activeTaxFilerId an MissingItemsPanel übergeben
-<MissingItemsPanel 
-  userId={userId} 
-  taxFilerId={activeTaxFilerId}  // NEU
-  onSubmitted={loadChatHistory} 
-/>
 ```
 
 ## Betroffene Dateien
 
 | Datei | Änderung |
 |-------|----------|
-| **Datenbank** | `tax_filer_id` Spalte zu `missing_item_requests` hinzufügen |
-| `src/hooks/useMissingItemRequests.ts` | Interface erweitern, createRequests mit tax_filer_id, Filterung |
-| `src/hooks/usePendingMissingItemsCount.ts` | tax_filer_id Parameter und Filterung |
-| `src/components/admin/CreateMissingItemRequestDialog.tsx` | Props erweitern, tax_filer_id beim Insert |
-| `src/pages/UserDetail.tsx` | Tax Return nach tax_filer_id filtern, taxFilerId an Dialog |
-| `src/components/chat/MissingItemsPanel.tsx` | taxFilerId Prop hinzufügen |
-| `src/components/chat/ChatBotInterface.tsx` | activeTaxFilerId an MissingItemsPanel |
+| `src/pages/Auth.tsx` | Import erweitern + hardcodierte Werte ersetzen |
+| `src/lib/despia.ts` | Debug-Logging für iPad |
 
-## Datenmodell nach Änderung
+## Warum Android nicht betroffen ist
 
-```text
-missing_item_requests
-├── user_id (bestehend)
-├── tax_return_id (bestehend)
-├── tax_filer_id (NEU) ──────> tax_filers.id
-```
+Der Code in `Auth.tsx` verwendet bereits `'ditax'` als String, was mit der Konstante übereinstimmt. Das Problem ist nicht der Wert selbst, sondern die Konsistenz und Wartbarkeit.
 
-## Erwartetes Ergebnis
+**Hinweis**: Falls das Problem weiterhin besteht, könnte es an der iOS ASWebAuthenticationSession liegen, die möglicherweise andere Redirect-Handling-Logik benötigt. In diesem Fall müsste die NativeCallback-Logik für iOS angepasst werden.
 
-1. Admin wählt "Leano" im Tax Filer Dropdown
-2. Admin klickt "Unterlagen/Angaben anfordern"
-3. Missing Item Request wird mit Leano's `tax_filer_id` gespeichert
-4. User sieht nur Leano's Missing Items wenn Leano ausgewählt ist
-5. Sandro's Missing Items bleiben separat
+## Test nach Implementierung
 
+1. iPad öffnen mit User Agent `despia-ipad`
+2. Google oder Apple Login starten
+3. Console-Logs prüfen für `📱 Despia native detected`
+4. OAuth Flow sollte ASWebAuthenticationSession öffnen
+5. Nach erfolgreicher Auth: Deeplink `ditax://oauth/auth?success=true` wird ausgelöst
+6. App sollte Session erkennen und zur Startseite navigieren
