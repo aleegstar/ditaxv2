@@ -1,183 +1,102 @@
 
+# Plan: Korrektur des OAuth Exit Schemes und iPad-Erkennung
 
-# Plan: Missing Items nach Tax Filer filtern
+## Identifizierte Probleme
 
-## Problem
+| Problem | Datei | Zeile | Beschreibung |
+|---------|-------|-------|--------------|
+| Hardcodierter Scheme | `Auth.tsx` | 195, 275 | `'ditax'` statt `DEEPLINK_SCHEME` Konstante |
+| iPad Erkennung | `despia.ts` | 72-75 | Keine explizite `despia-ipad` Prüfung |
 
-Wenn Admin "Fehlende Unterlagen/Angaben" für einen spezifischen Tax Filer (z.B. Leano) anfordert, werden diese nicht dem Tax Filer zugeordnet. Aktuell werden Missing Items nur nach `user_id` gefiltert, nicht nach `tax_filer_id`.
+## Analyse der `despia-ipad` User Agent Erkennung
 
-## Aktuelle Situation
+```text
+User Agent: "...despia-ipad..."
 
-| Aspekt | Status |
-|--------|--------|
-| `missing_item_requests.tax_filer_id` | Existiert NICHT |
-| Filterung Admin-Seite | Nur nach `user_id` |
-| Filterung User-Seite | Nur nach `user_id` |
-| Tax Return Auswahl | Nur nach `tax_year`, nicht nach `tax_filer_id` |
-
-## Betroffene Stellen
-
-### 1. Falscher Tax Return wird ausgewählt (UserDetail.tsx)
-```tsx
-// Zeile 550 & 775: Filtert nur nach tax_year, ignoriert selectedTaxFilerId
-const currentTaxReturn = taxReturns.find(tr => tr.tax_year === selectedYear);
-taxReturnId={taxReturns.find(tr => tr.tax_year === selectedYear)?.id}
+Prüfung                     Ergebnis
+─────────────────────────────────────
+ua.includes('despia')       ✅ true
+ua.includes('ipad')         ✅ true  
+ua.includes('iphone')       ❌ false
+ua.includes('despia-ipad')  ✅ true
 ```
 
-### 2. Missing Item Requests haben kein tax_filer_id Feld
-Die Tabelle `missing_item_requests` hat kein `tax_filer_id` Feld.
+Die aktuelle Erkennung funktioniert technisch, da `'despia-ipad'.includes('ipad')` = `true`. Zur Sicherheit und besseren Logs sollte `despia-ipad` explizit geprüft werden.
 
-### 3. User-seitige Anzeige filtert nicht nach Tax Filer
-In `useMissingItemRequests.ts` und `usePendingMissingItemsCount.ts` wird nur nach `user_id` gefiltert.
+## Geplante Änderungen
 
-## Lösung
+### 1. Auth.tsx - DEEPLINK_SCHEME Konstante verwenden
 
-### Schritt 1: Datenbank - tax_filer_id zur Tabelle hinzufügen
-
-```sql
-ALTER TABLE missing_item_requests 
-ADD COLUMN tax_filer_id UUID REFERENCES tax_filers(id);
+**Import erweitern (Zeile 14):**
+```tsx
+import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 ```
 
-### Schritt 2: CreateMissingItemRequestDialog - tax_filer_id übergeben
-
-Props erweitern:
+**Google OAuth (Zeile 195):**
 ```tsx
-interface CreateMissingItemRequestDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  userId: string;
-  taxReturnId?: string;
-  taxFilerId?: string | null;  // NEU
-  userName?: string;
-  taxYear?: string;
-  onSuccess?: () => void;
-}
+deeplink_scheme: DEEPLINK_SCHEME  // statt 'ditax'
 ```
 
-Beim Erstellen speichern:
+**Apple OAuth (Zeile 275):**
 ```tsx
-const requestsToInsert = items.map(item => ({
-  user_id: item.user_id,
-  tax_return_id: item.tax_return_id,
-  tax_filer_id: taxFilerId || null,  // NEU
-  admin_id: user.id,
-  // ...
-}));
+deeplink_scheme: DEEPLINK_SCHEME  // statt 'ditax'
 ```
 
-### Schritt 3: UserDetail.tsx - Korrekten Tax Return finden
+### 2. despia.ts - Robustere iPad-Erkennung
 
+**`isDespiaIOS()` erweitern (Zeile 72-75):**
 ```tsx
-// Zeile 550: Tax Return nach year UND tax_filer_id filtern
-const currentTaxReturn = taxReturns.find(
-  tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
-);
-
-// Zeile 775: Dialog mit korrektem taxReturnId und taxFilerId aufrufen
-<CreateMissingItemRequestDialog
-  open={missingItemDialogOpen}
-  onOpenChange={setMissingItemDialogOpen}
-  userId={user.id}
-  taxReturnId={taxReturns.find(
-    tr => tr.tax_year === selectedYear && tr.tax_filer_id === selectedTaxFilerId
-  )?.id}
-  taxFilerId={selectedTaxFilerId}  // NEU
-  // ...
-/>
-```
-
-### Schritt 4: useMissingItemRequests Hook - tax_filer_id Parameter
-
-```tsx
-export const useMissingItemRequests = (userId?: string, taxReturnId?: string, taxFilerId?: string | null) => {
-  // ...
+export const isDespiaIOS = (): boolean => {
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = isDespiaNative() && (
+    ua.includes('iphone') || 
+    ua.includes('ipad') || 
+    ua.includes('despia-ipad')  // Explizite iPad-Prüfung
+  );
   
-  let query = supabase
-    .from('missing_item_requests')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  if (taxFilerId) {
-    query = query.eq('tax_filer_id', taxFilerId);
+  if (isIOS) {
+    console.log('📱 Despia iOS detected:', { 
+      userAgent: ua,
+      isIPad: ua.includes('despia-ipad') || ua.includes('ipad')
+    });
   }
   
-  // ...
+  return isIOS;
 };
 ```
 
-### Schritt 5: CreateMissingItemRequestInput Interface erweitern
-
-```tsx
-export interface CreateMissingItemRequestInput {
-  user_id: string;
-  tax_return_id: string;
-  tax_filer_id?: string | null;  // NEU
-  request_type: 'document' | 'information';
-  title: string;
-  description?: string;
-}
-```
-
-### Schritt 6: User-seitige Hooks mit activeTaxFilerId
-
-Die User-Hooks (`usePendingMissingItems`, `usePendingMissingItemsCount`) müssen ebenfalls nach `tax_filer_id` filtern:
-
-```tsx
-// In usePendingMissingItemsCount.ts
-export const usePendingMissingItemsCount = (userId?: string, taxFilerId?: string | null) => {
-  // ...
-  let query = supabase
-    .from('missing_item_requests')
-    .select('id, request_type')
-    .eq('user_id', userId)
-    .in('status', ['pending', 'rejected']);
-
-  if (taxFilerId) {
-    query = query.eq('tax_filer_id', taxFilerId);
-  }
-  // ...
-};
-```
-
-### Schritt 7: MissingItemsPanel mit activeTaxFilerId
-
-```tsx
-// In ChatBotInterface.tsx - activeTaxFilerId an MissingItemsPanel übergeben
-<MissingItemsPanel 
-  userId={userId} 
-  taxFilerId={activeTaxFilerId}  // NEU
-  onSubmitted={loadChatHistory} 
-/>
-```
-
-## Betroffene Dateien
+## Zusammenfassung der Dateiänderungen
 
 | Datei | Änderung |
 |-------|----------|
-| **Datenbank** | `tax_filer_id` Spalte zu `missing_item_requests` hinzufügen |
-| `src/hooks/useMissingItemRequests.ts` | Interface erweitern, createRequests mit tax_filer_id, Filterung |
-| `src/hooks/usePendingMissingItemsCount.ts` | tax_filer_id Parameter und Filterung |
-| `src/components/admin/CreateMissingItemRequestDialog.tsx` | Props erweitern, tax_filer_id beim Insert |
-| `src/pages/UserDetail.tsx` | Tax Return nach tax_filer_id filtern, taxFilerId an Dialog |
-| `src/components/chat/MissingItemsPanel.tsx` | taxFilerId Prop hinzufügen |
-| `src/components/chat/ChatBotInterface.tsx` | activeTaxFilerId an MissingItemsPanel |
+| `src/pages/Auth.tsx` | Import `DEEPLINK_SCHEME`, ersetze hardcodierte `'ditax'` (2x) |
+| `src/lib/despia.ts` | Erweitere `isDespiaIOS()` mit expliziter `despia-ipad` Prüfung und Logging |
 
-## Datenmodell nach Änderung
+## Technische Details
+
+### Warum ist die Konstante wichtig?
+
+Die `DEEPLINK_SCHEME` Konstante (`"ditax"`) ist zentral in `src/lib/despia.ts` definiert. Bei einer Scheme-Änderung muss nur diese Stelle angepasst werden, statt mehrere Dateien zu durchsuchen.
+
+### Exit Flow gemäss Despia Dokumentation
 
 ```text
-missing_item_requests
-├── user_id (bestehend)
-├── tax_return_id (bestehend)
-├── tax_filer_id (NEU) ──────> tax_filers.id
+1. App ruft auth-start Edge Function auf
+   → Parameter: { provider: 'google', deeplink_scheme: 'ditax' }
+
+2. Edge Function gibt OAuth URL zurück
+   → redirect_to: https://app.ditax.ch/native-callback/ditax/
+
+3. Nach erfolgreicher Auth: NativeCallback.tsx
+   → Setzt Session
+   → Sendet Exit-Deeplink: ditax://oauth/auth?success=true
+
+4. Despia schliesst Chrome Custom Tab / ASWebAuthenticationSession
+   → WebView navigiert zu /auth?success=true
+
+5. Auth.tsx erkennt success=true
+   → Lädt bestehende Session
+   → Navigiert zu Home
 ```
 
-## Erwartetes Ergebnis
-
-1. Admin wählt "Leano" im Tax Filer Dropdown
-2. Admin klickt "Unterlagen/Angaben anfordern"
-3. Missing Item Request wird mit Leano's `tax_filer_id` gespeichert
-4. User sieht nur Leano's Missing Items wenn Leano ausgewählt ist
-5. Sandro's Missing Items bleiben separat
-
+Der `oauth/` Prefix im Deeplink ist kritisch - er signalisiert Despia, die Browser-Session zu schliessen.
