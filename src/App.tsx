@@ -121,6 +121,7 @@ const AuthenticatedApp = () => {
   const [showMfaSetup, setShowMfaSetup] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [initialPathChecked, setInitialPathChecked] = useState<string | null>(null);
   const { shouldShow: shouldShowMfaPrompt, markMfaOffered } = useMfaPrompt(user?.id);
   const { shouldShow: shouldShowFeedback, dismissPrompt: dismissFeedbackPrompt } = useFeedbackPrompt(user?.id);
 
@@ -142,8 +143,12 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     if (!user?.id) return;
     
-    // Skip check if already on welcome page or auth pages
-    if (location.pathname === '/welcome' || location.pathname.startsWith('/auth')) {
+    // Only run check once per session
+    if (onboardingChecked) return;
+    
+    // Skip check if already on welcome page or auth pages - no redirect needed
+    const currentPath = location.pathname;
+    if (currentPath === '/welcome' || currentPath.startsWith('/auth')) {
       setOnboardingChecked(true);
       return;
     }
@@ -159,6 +164,7 @@ const AuthenticatedApp = () => {
         // New user: no first_name and onboarding not completed
         if (profile && !profile.onboarding_tour_completed && !profile.first_name) {
           setNeedsOnboarding(true);
+          setInitialPathChecked(currentPath);
         }
       } catch (error) {
         console.error('Error checking onboarding status:', error);
@@ -168,14 +174,16 @@ const AuthenticatedApp = () => {
     };
     
     checkOnboarding();
-  }, [user?.id, location.pathname]);
+  }, [user?.id, onboardingChecked]);
 
   // Redirect to welcome if needed
   useEffect(() => {
-    if (onboardingChecked && needsOnboarding && location.pathname !== '/welcome') {
+    if (onboardingChecked && needsOnboarding && initialPathChecked && location.pathname !== '/welcome') {
       navigate('/welcome', { replace: true });
+      // Reset after redirect to prevent future redirects
+      setNeedsOnboarding(false);
     }
-  }, [onboardingChecked, needsOnboarding, location.pathname, navigate]);
+  }, [onboardingChecked, needsOnboarding, initialPathChecked, location.pathname, navigate]);
 
   const handleMfaSetupStart = async () => {
     await markMfaOffered();
