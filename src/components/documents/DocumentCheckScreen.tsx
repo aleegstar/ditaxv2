@@ -48,19 +48,33 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   // Get short status message
   const getStatusMessage = () => {
     if (isImageWithoutOcr) {
-      return 'Bitte manuell bestätigen';
+      return 'Texterkennung nicht möglich – bitte bestätigen';
     }
     if (confidence >= 80) {
-      return 'Dokument erkannt';
+      return 'Dokument wurde erkannt';
     }
     if (confidence >= 50) {
-      return 'Bitte bestätigen';
+      return 'Nicht eindeutig erkannt – bitte prüfen';
     }
     if (confidence >= 20) {
-      return 'Geringe Übereinstimmung';
+      return 'Scheint nicht das richtige Dokument zu sein';
     }
-    return 'Keine Übereinstimmung';
+    return 'Dokument wurde nicht erkannt';
   };
+
+  // Get explanation text for low confidence
+  const getExplanationText = () => {
+    if (confidence >= 80) return null;
+    if (isImageWithoutOcr) {
+      return 'Wir konnten keinen Text aus dem Bild lesen. Bitte prüfe, ob dies das richtige Dokument ist.';
+    }
+    if (confidence >= 50) {
+      return 'Das Dokument entspricht möglicherweise nicht dem erwarteten Typ. Bitte überprüfe es.';
+    }
+    return `Das hochgeladene Dokument scheint kein "${profile?.label || 'erwartetes Dokument'}" zu sein. Bitte lade das richtige Dokument hoch.`;
+  };
+
+  const explanationText = getExplanationText();
 
   // Get main warning reason (most important one)
   const getWarningReason = () => {
@@ -112,8 +126,15 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
           </div>
         </div>
 
+        {/* Explanation text for low confidence */}
+        {explanationText && (
+          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+            {explanationText}
+          </p>
+        )}
+
         {/* Warning reason if exists */}
-        {warningReason && confidence < 50 && (
+        {warningReason && confidence < 50 && !explanationText && (
           <p className="text-sm text-muted-foreground mt-2 pl-11">
             {warningReason}
           </p>
@@ -134,7 +155,7 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
           size="lg"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
-          Andere Datei hochladen
+          {confidence < 50 ? 'Richtiges Dokument hochladen' : 'Andere Datei hochladen'}
         </Button>
         
         {/* Secondary: Submit anyway */}
