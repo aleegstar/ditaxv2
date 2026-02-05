@@ -47,7 +47,7 @@ export const FeedbackPrompt: React.FC<FeedbackPromptProps> = ({
       />
       
       {/* Modal */}
-      <div className="fixed inset-x-4 bottom-8 sm:inset-auto sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-50 sm:w-full sm:max-w-[360px] animate-in slide-in-from-bottom-4 fade-in duration-300">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-[360px] animate-in zoom-in-95 fade-in duration-300">
         <div className="bg-white rounded-[28px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
           {/* Content with generous padding */}
           <div className="px-7 pt-10 pb-8">
