@@ -1,118 +1,89 @@
 
-# Plan: OCR-Check auf Mobile reparieren
+# Plan: OCR-Erkennung auf Mobile aktivieren
 
-## Problemanalyse
+## Problem gefunden
 
-Der OCR-Check für Dokumente auf Mobile funktioniert nicht, weil:
-
-### Hauptursache: Fehlende WASM-Dateien
-
-Die `tesseract-wasm` Bibliothek benötigt folgende Dateien in `/public/ocr/`:
-
-| Datei | Status | Beschreibung |
-|-------|--------|--------------|
-| `deu.traineddata` | Vorhanden | Deutsches Sprachmodell |
-| `tesseract-core.wasm` | **FEHLT** | Haupt-WASM-Binary |
-| `tesseract-core-fallback.wasm` | **FEHLT** | Fallback für ältere Geräte ohne SIMD |
-| `tesseract-worker.js` | **FEHLT** | Web Worker für Hintergrundverarbeitung |
-
-### Warum fehlen die Dateien?
-
-Die `vite.config.ts` konfiguriert `viteStaticCopy`, um diese Dateien während des Builds zu kopieren:
+Die OCR-Dokumentprüfung wird auf Mobile **vollständig übersprungen**. In `EnhancedDocumentUploader.tsx` Zeile 385-388:
 
 ```typescript
-viteStaticCopy({
-  targets: [
-    { src: 'node_modules/tesseract-wasm/dist/tesseract-core.wasm', dest: 'ocr' },
-    { src: 'node_modules/tesseract-wasm/dist/tesseract-core-fallback.wasm', dest: 'ocr' },
-    { src: 'node_modules/tesseract-wasm/dist/tesseract-worker.js', dest: 'ocr' }
-  ]
-})
-```
-
-Dieses Plugin kopiert nur beim **lokalen Build** (`npm run build`), nicht automatisch im Lovable-Deployment.
-
----
-
-## Lösung
-
-Die fehlenden WASM-Dateien müssen manuell in das `public/ocr/` Verzeichnis kopiert werden.
-
-### Schritt 1: WASM-Dateien hinzufügen
-
-Die Dateien werden aus dem `tesseract-wasm` npm-Paket extrahiert und in `public/ocr/` platziert:
-
-1. **`public/ocr/tesseract-worker.js`** - Web Worker Script
-2. **`public/ocr/tesseract-core.wasm`** - Haupt-WASM (mit SIMD-Unterstützung)
-3. **`public/ocr/tesseract-core-fallback.wasm`** - Fallback-WASM (ohne SIMD)
-
-### Schritt 2: Fehlerbehandlung verbessern
-
-In `TesseractWasmOcrService.ts` bessere Fehlermeldungen hinzufügen, falls die Dateien fehlen:
-
-```typescript
-// Vor der Initialisierung prüfen, ob Worker erreichbar ist
-const workerResponse = await fetch('/ocr/tesseract-worker.js', { method: 'HEAD' });
-if (!workerResponse.ok) {
-  console.error('[TesseractWasm] Worker file not found at /ocr/tesseract-worker.js');
-  return false;
+// MOBILE: Skip document validation entirely (temporarily disabled)
+if (isMobileAppContext()) {
+  console.log('[Upload] Mobile detected - skipping document validation');
+  await performUpload(filesToUpload);
+  return;
 }
 ```
 
----
+Dieser Code wurde als "temporäre" Lösung eingefügt, als die tesseract-wasm Dateien noch fehlten. Jetzt sind alle WASM-Dateien vorhanden:
 
-## Technische Details
+| Datei | Status |
+|-------|--------|
+| `deu.traineddata` | Vorhanden |
+| `tesseract-core.wasm` | Vorhanden |
+| `tesseract-core-fallback.wasm` | Vorhanden |
+| `tesseract-worker.js` | Vorhanden |
 
-### Dateigrössen (geschätzt)
-- `tesseract-worker.js`: ~50 KB
-- `tesseract-core.wasm`: ~2 MB (mit SIMD)
-- `tesseract-core-fallback.wasm`: ~2 MB (ohne SIMD)
-- `deu.traineddata`: ~1.6 MB (bereits vorhanden)
+## Lösung
 
-### OCR-Routing auf Mobile
+Die Mobile-Bypass-Logik entfernen und OCR aktivieren.
+
+### Änderung in EnhancedDocumentUploader.tsx
+
+**Vorher (Zeile 384-389):**
+```typescript
+// MOBILE: Skip document validation entirely (temporarily disabled)
+if (isMobileAppContext()) {
+  console.log('[Upload] Mobile detected - skipping document validation');
+  await performUpload(filesToUpload);
+  return;
+}
+```
+
+**Nachher:**
+```typescript
+// Document validation now works on mobile via tesseract-wasm
+// All WASM files are present in /public/ocr/
+```
+
+Der gesamte if-Block wird entfernt, sodass sowohl Desktop als auch Mobile die Validierung durchlaufen.
+
+## OCR-Ablauf nach Fix
 
 ```text
-Mobile Dokument-Upload
+Dokument hochladen (Mobile)
          │
          ▼
 ┌─────────────────────────┐
-│ Native OCR verfügbar?   │
-│ (Despia v3.6+ nötig)    │
-└───────────┬─────────────┘
-            │ Nein (aktuell)
-            ▼
-┌─────────────────────────┐
-│ tesseract-wasm          │ ← HIER SCHEITERT ES
-│ (WebView-optimiert)     │   (WASM-Dateien fehlen)
+│ documentValidator.      │
+│ validate()              │
 └───────────┬─────────────┘
             │
             ▼
 ┌─────────────────────────┐
-│ Manuelle Bestätigung    │
-│ (Fallback)              │
+│ Native OCR verfügbar?   │
+│ (Despia v3.6+ OCR)      │
+└───────────┬─────────────┘
+            │ Nein
+            ▼
+┌─────────────────────────┐
+│ isMobileAppContext()?   │ ── Ja ──▶ tesseract-wasm
+└───────────┬─────────────┘         (lokale WASM-OCR)
+            │ Nein
+            ▼
+┌─────────────────────────┐
+│ Tesseract.js            │
+│ (Desktop-Browser)       │
 └─────────────────────────┘
 ```
 
----
+## Zu ändernde Datei
 
-## Umsetzung
-
-### Zu erstellende Dateien
-
-1. `public/ocr/tesseract-worker.js`
-2. `public/ocr/tesseract-core.wasm`  
-3. `public/ocr/tesseract-core-fallback.wasm`
-
-### Zu ändernde Dateien
-
-1. `src/services/TesseractWasmOcrService.ts` - Bessere Fehlerbehandlung
-
----
+- `src/components/EnhancedDocumentUploader.tsx` - Mobile-Bypass entfernen (Zeilen 384-389)
 
 ## Erwartetes Ergebnis
 
-Nach der Implementierung:
-- Mobile OCR funktioniert mit tesseract-wasm
-- Dokumente werden lokal auf dem Gerät analysiert
-- Keywords werden erkannt und der Dokumenttyp automatisch bestimmt
-- 100% DSGVO-konform (keine Cloud-Übertragung)
+- Mobile-Nutzer sehen OCR-Fortschritt beim Dokument-Upload
+- Keywords werden aus Bildern erkannt
+- Dokumenttyp wird automatisch bestimmt
+- Falls OCR scheitert: Fallback auf manuelle Bestätigung
+- 100% lokale Verarbeitung (DSGVO-konform)
