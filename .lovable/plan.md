@@ -1,5 +1,8 @@
-
-# Plan: Behebung der Aikido Security Findings
+ # Plan: Behebung der Aikido Security Findings
+ 
+ **Status: ABGESCHLOSSEN** ✅
+ 
+ Letzte Aktualisierung: 2026-02-05
 
 ## Zusammenfassung der Probleme
 
@@ -9,9 +12,21 @@ Aus den Screenshots wurden 5 Sicherheitsprobleme identifiziert:
 |---------|-------|-----|--------|
 | CSP erlaubt inline JavaScript | 85 | Surface Monitoring | Bekannte Einschraenkung |
 | CSP blockiert eval() nicht | 75 | Surface Monitoring | Bekannte Einschraenkung |
-| JWT Token in Git History | 80 | Secrets | FALSE POSITIVE - ANON Key |
-| JWT Token in Git History (2) | 80 | Secrets | FALSE POSITIVE - ANON Key |
-| @remix-run/router CVE | 80 | Dependency | BEREITS BEHOBEN (1.23.2) |
+ | JWT Token in Git History | 80 | Secrets | ✅ FALSE POSITIVE - ANON Key |
+ | JWT Token in Git History (2) | 80 | Secrets | ✅ FALSE POSITIVE - ANON Key |
+ | @remix-run/router CVE | 80 | Dependency | ✅ BEHOBEN (1.23.2) |
+ 
+ ## Erforderliche manuelle Schritte
+ 
+ ### In Aikido Dashboard:
+ 
+ 1. **JWT Token Warnings als False Positive markieren:**
+    - Issues → Betroffene JWT-Issues auswaehlen
+    - "Mark as false positive" klicken
+    - Grund: "Supabase ANON key is a public key protected by RLS. Session tokens are runtime-only."
+ 
+ 2. **Security Scan erneut ausfuehren:**
+    - Bestaetigt, dass @remix-run/router 1.23.2 installiert ist
 
 ---
 
