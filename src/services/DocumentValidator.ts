@@ -650,15 +650,22 @@ class DocumentValidator {
       let otherScore = 0; // Max 20 Punkte
 
       // === OCR SCORING (80 Punkte max) ===
+      // Angepasste Schwellenwerte für bessere Mobile-OCR-Erkennung
       if (ocrMatchCount >= 5) {
         ocrScore = 80;
         reasons.push(`Viele passende Begriffe gefunden (${ocrMatchCount})`);
-      } else if (ocrMatchCount >= 3) {
-        ocrScore = 50;
+      } else if (ocrMatchCount >= 4) {
+        ocrScore = 70;
         reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+      } else if (ocrMatchCount >= 3) {
+        ocrScore = 60;
+        reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+      } else if (ocrMatchCount >= 2) {
+        ocrScore = 40;
+        reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
       } else if (ocrMatchCount >= 1) {
         ocrScore = 20;
-        reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
+        reasons.push(`Ein Begriff gefunden (${ocrMatchCount})`);
       } else {
         // 0 Matches = 0 OCR Punkte
         ocrScore = 0;
