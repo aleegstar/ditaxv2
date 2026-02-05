@@ -1,14 +1,15 @@
 /**
- * AI Document Validation Component
+ * Ditax Document Validation Component
  * 
- * A live AI analysis view that shows fields being detected and confirmed in real-time.
+ * A live analysis view that shows fields being detected and confirmed in real-time.
  * Fields resolve progressively with dynamic status messages.
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ditaxLogo from '@/assets/ditax-logo.svg';
 import { ValidationProgress } from '@/types/documentProfile';
 
 // ============================================================================
@@ -287,19 +288,20 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
                   <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
                 </motion.div>
               ) : (
-                <motion.div
+                <motion.img
                   key="analyzing"
+                  src={ditaxLogo}
+                  alt="ditax"
+                  className="w-10 h-10 object-contain"
                   animate={!prefersReducedMotion ? { 
-                    rotate: [0, 5, -5, 0] 
+                    scale: [1, 1.05, 1] 
                   } : {}}
                   transition={{ 
                     duration: 2, 
                     repeat: Infinity, 
                     ease: "easeInOut" 
                   }}
-                >
-                  <Sparkles className="w-8 h-8 text-primary" />
-                </motion.div>
+                />
               )}
             </AnimatePresence>
           </motion.div>
@@ -319,7 +321,7 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         {/* Title */}
         <div className="text-center">
           <h3 className="font-semibold text-foreground text-lg">
-            {isComplete ? 'Analyse abgeschlossen' : `AI prüft ${documentType}`}
+            {isComplete ? 'Analyse abgeschlossen' : `ditax prüft ${documentType}`}
           </h3>
           <motion.p 
             key={statusMessage}
