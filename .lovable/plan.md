@@ -1,118 +1,74 @@
 
+# Plan: Schnellerer Tour-Start mit weicherem Übergang
 
-# Plan: Behebung des doppelten Tour-Anzeige-Bugs
+## Übersicht
+Die Onboarding-Tour wird optimiert, um schneller zu starten und fliessendere Übergänge zu haben. Die Änderungen betreffen sowohl den Context (Timing) als auch die UI-Komponente (Animationen).
 
-## Problem-Analyse
+## Änderungen
 
-Wenn die Anleitung aus dem Menue manuell gestartet wird, erscheint sie mehrfach. Die Ursache ist eine **Race Condition** im `OnboardingTourContext`:
+### 1. Schnellerer Start (OnboardingTourContext.tsx)
 
-1. **Menue-Klick**: `forceTour()` wird aufgerufen
-2. **forceTour()** setzt `tourCompleted = false` und startet dann die Tour mit `setShowTour(true)`
-3. **Gleichzeitig**: Der `useEffect` (Zeile 178-238) erkennt, dass `tourCompleted` sich geaendert hat zu `false`
-4. **Auto-Start Logik**: Dieser Effect startet die Tour ebenfalls mit `setShowTour(true)`
-5. **Ergebnis**: Die Tour wird durch **zwei verschiedene Code-Pfade** gleichzeitig gestartet
+**Aktuelle Verzögerungen:**
+- 2000ms initiale Wartezeit vor dem Check
+- 500ms pro Element-Such-Versuch (bis zu 30 Versuche = 15 Sekunden worst case)
+
+**Neue Werte:**
+- Initiale Wartezeit: **800ms** (von 2000ms)
+- Element-Such-Intervall: **200ms** (von 500ms)
+- Maximale Versuche: **15** (von 30) = max. 3 Sekunden statt 15 Sekunden
+
+### 2. Weichere Animationen (OnboardingTour.tsx)
+
+**Overlay-Einblendung:**
+- Aktuelle Duration: 600ms
+- Neue Duration: **400ms** mit sanfterem Ease
+
+**Spotlight-Bewegung:**
+- Aktuelle Duration: 700ms
+- Neue Duration: **500ms** mit verbessertem Easing `[0.25, 0.1, 0.25, 1]`
+
+**Tooltip-Animation:**
+- Spring-Parameter optimieren: `damping: 28`, `stiffness: 200`
+- Schnellere, aber weichere Bewegung
+
+**Content-Übergänge:**
+- Aktuelle Duration für Text-Wechsel: 200ms
+- Neue Duration: **250ms** mit weicherem Ease für natürlicheren Flow
+
+### 3. Initiale Element-Suche optimieren
+
+- Spotlight-Update-Delay von **100ms auf 50ms** reduzieren
+- Element-Retry-Interval von **150ms auf 100ms** reduzieren
+
+## Visuelle Verbesserungen
 
 ```text
-                  +------------------+
-                  |  Menue-Klick     |
-                  +--------+---------+
-                           |
-                           v
-                  +--------+---------+
-                  |   forceTour()    |
-                  +--------+---------+
-                           |
-          +----------------+----------------+
-          |                                 |
-          v                                 v
-+-------------------+             +-------------------+
-| setTourCompleted  |             | startTour() ->    |
-| (false)           |             | setShowTour(true) |
-+--------+----------+             +-------------------+
-         |
-         v (triggert useEffect)
-+-------------------+
-| Auto-Start Effect |
-| setShowTour(true) |
-+-------------------+
-         |
-         v
-+-------------------+
-| DOPPELTE ANZEIGE  |
-+-------------------+
+Vorher:                          Nachher:
+┌─────────────────────┐         ┌─────────────────────┐
+│ Start: ~2-3 Sek.    │         │ Start: ~0.8-1 Sek.  │
+│ Spotlight: träge    │   →     │ Spotlight: fliessend│
+│ Tooltip: abgehackt  │         │ Tooltip: butterweich│
+└─────────────────────┘         └─────────────────────┘
 ```
 
----
+## Technische Details
 
-## Loesung
+### OnboardingTourContext.tsx
+- Zeile 70: `maxAttempts = isManualStart ? 4 : 15` (von 30)
+- Zeile 130: `setTimeout(..., 200)` (von 500)
+- Zeile 229: `setTimeout(checkTourConditions, 800)` (von 2000)
 
-Eine **Sperre (Lock)** einbauen, die verhindert, dass der automatische Start-Effect die Tour startet, wenn sie manuell gestartet wurde.
-
----
-
-## Technische Umsetzung
-
-### Schritt 1: Flag fuer manuelle Aktivierung hinzufuegen
-
-In `OnboardingTourContext.tsx`:
-
-- Neuen State `isManualStart` hinzufuegen
-- Wenn `forceTour()` aufgerufen wird, dieses Flag auf `true` setzen
-- Im Auto-Start `useEffect`: Pruefen, ob `isManualStart === true` - wenn ja, nicht automatisch starten
-- Nach erfolgreichem Tour-Start das Flag zuruecksetzen
-
-### Schritt 2: Aenderung in OnboardingTourContext.tsx
-
-```typescript
-// Neuer State
-const [isManualStart, setIsManualStart] = useState(false);
-
-// Im Auto-Start useEffect (Zeile 178):
-useEffect(() => {
-  const checkTourConditions = async () => {
-    // NEUE PRUEFUNG: Abbrechen wenn manuell gestartet
-    if (isManualStart) {
-      debug.log('Tour: Manual start active, skipping auto-check');
-      return;
-    }
-    // ... rest des codes
-  };
-  // ...
-}, [isValid, userId, isLoading, location.pathname, tourCompleted, isManualStart]);
-
-// In forceTour():
-const forceTour = async () => {
-  setIsManualStart(true); // NEU: Flag setzen BEVOR tourCompleted geaendert wird
-  
-  // ... bestehender Code ...
-  
-  // Am Ende von startTour():
-  setIsReady(true);
-  setShowTour(true);
-  setIsManualStart(false); // Flag zuruecksetzen
-};
-```
-
----
+### OnboardingTour.tsx
+- Zeile 216-219: Delay von 100ms auf 50ms
+- Zeile 198: Element-Retry von 150ms auf 100ms
+- Zeile 436: Overlay fade von 600ms auf 400ms
+- Zeilen 453-456, 475-478: Spotlight von 700ms auf 500ms
+- Zeilen 514-518: Spring `damping: 28`, `stiffness: 200`
+- Zeile 525: Layout-Transition von 400ms auf 300ms
+- Zeilen 551-554: Content-Wechsel auf 250ms mit `ease: [0.4, 0, 0.2, 1]`
 
 ## Erwartetes Ergebnis
-
-| Vorher | Nachher |
-|--------|---------|
-| Tour erscheint 2-3x | Tour erscheint genau 1x |
-| Race Condition | Saubere Sequenz |
-
----
-
-## Betroffene Dateien
-
-| Datei | Aenderung |
-|-------|-----------|
-| `src/contexts/OnboardingTourContext.tsx` | Neuer `isManualStart` State + Logik |
-
----
-
-## Alternative Betrachtung
-
-Eine weitere Ursache koennte sein, dass der User auf `/auth` navigiert wird, wenn er die Tour startet (laut Session-Replay). Falls dies der Fall ist, muesste auch geprueft werden, ob der Navigation-Flow korrekt ist. Die primaere Ursache ist jedoch die Race Condition.
-
+- **~60% schnellerer Tour-Start** (von ~2-3 Sek. auf ~0.8-1 Sek.)
+- **Fliessendere Spotlight-Bewegung** zwischen Steps
+- **Weichere Tooltip-Animationen** ohne abrupte Stops
+- **Natürlicherer Content-Übergang** beim Step-Wechsel
