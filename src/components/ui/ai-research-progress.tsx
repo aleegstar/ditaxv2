@@ -45,16 +45,16 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
     <div className="flex flex-col items-center gap-6 w-full">
       {/* Animated Header Icon */}
       <motion.div 
-        className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center"
+        className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
-        <Search className="w-7 h-7 text-blue-600" />
+        <Search className="w-7 h-7 text-primary" />
       </motion.div>
 
       {/* Shimmer Title */}
       <div className="text-center space-y-1">
-        <h3 className="font-semibold text-slate-800 text-lg">
+        <h3 className="font-semibold text-foreground text-lg">
           Dokument wird analysiert
         </h3>
         <p className="text-sm animate-shimmer font-medium">
@@ -63,7 +63,7 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
       </div>
 
       {/* Divider */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Steps List */}
       <div className="w-full space-y-2.5">
@@ -81,7 +81,7 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center"
+                  className="w-5 h-5 rounded-full bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center"
                 >
                   <Check className="w-3 h-3 text-white" strokeWidth={3} />
                 </motion.div>
@@ -89,10 +89,10 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent"
+                  className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent"
                 />
               ) : (
-                <Circle className="w-4 h-4 text-slate-300" strokeWidth={2} />
+                <Circle className="w-4 h-4 text-muted-foreground/40" strokeWidth={2} />
               )}
             </div>
 
@@ -100,10 +100,10 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
             <span 
               className={`text-sm transition-colors ${
                 step.status === 'complete' 
-                  ? 'text-slate-600' 
+                  ? 'text-muted-foreground' 
                   : step.status === 'active' 
-                    ? 'text-slate-800 font-medium animate-shimmer' 
-                    : 'text-slate-400'
+                    ? 'text-foreground font-medium animate-shimmer' 
+                    : 'text-muted-foreground/50'
               }`}
             >
               {step.status === 'complete' ? '✓ ' : ''}{step.label}
@@ -122,7 +122,7 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
             exit={{ opacity: 0, height: 0 }}
             className="w-full space-y-2"
           >
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Keywords gefunden
             </p>
             <div className="flex flex-wrap gap-2">
@@ -132,10 +132,10 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1, duration: 0.2 }}
-                  className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-lg"
+                  className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-lg"
                 >
-                  <FileText className="w-3 h-3 text-emerald-600" />
-                  <span className="text-xs font-medium text-emerald-700">{keyword}</span>
+                  <FileText className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">{keyword}</span>
                 </motion.div>
               ))}
             </div>
@@ -149,7 +149,7 @@ const AIResearchProgress: React.FC<AIResearchProgressProps> = ({
           value={progress.percent} 
           className="w-full h-1.5"
         />
-        <p className="text-xs text-slate-400 text-center">
+        <p className="text-xs text-muted-foreground text-center">
           {progress.percent}% abgeschlossen
         </p>
       </div>
