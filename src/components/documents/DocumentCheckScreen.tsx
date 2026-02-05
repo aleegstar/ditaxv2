@@ -172,7 +172,7 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
             size="lg"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Richtigen {documentLabel} hochladen
+            Anderes Dokument hochladen
           </Button>
         ) : (
           <Button 
