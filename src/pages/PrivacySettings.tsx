@@ -407,7 +407,7 @@ const PrivacySettings = () => {
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleFeedbackNext}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-500 hover:bg-red-600 text-white font-medium"
             >
               {t.privacySettingsPage.next}
             </AlertDialogAction>
@@ -460,7 +460,7 @@ const PrivacySettings = () => {
             <AlertDialogAction 
               onClick={deleteAllUserData}
               disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
-              className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+              className="bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-50"
             >
               {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
