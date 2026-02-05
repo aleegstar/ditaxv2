@@ -22,48 +22,27 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
   const { isValid, userId, isLoading } = useAuthValidation();
   const location = useLocation();
 
-  // Check tour completion status in database
-  const checkTourCompletionStatus = async (userId: string): Promise<{ documents: boolean; onboarding: boolean }> => {
+  // Check tour completion status in user metadata
+  const checkTourCompletionStatus = async (): Promise<{ documents: boolean; onboarding: boolean }> => {
     try {
-      debug.log('🎯 Documents Tour: Checking database for tour completion status...');
+      debug.log('🎯 Documents Tour: Checking user metadata for tour completion status...');
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('documents_tour_completed, onboarding_tour_completed')
-        .eq('id', userId)
-        .single();
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (error) {
-        debug.error('❌ Documents Tour: Error checking tour completion:', error);
-        // Fallback to localStorage
-        const localTourCompleted = localStorage.getItem('documents-tour-completed');
-        const localOnboardingCompleted = localStorage.getItem('onboarding-tour-completed');
-        return { 
-          documents: !!localTourCompleted, 
-          onboarding: !!localOnboardingCompleted 
-        };
+      if (error || !user) {
+        debug.error('❌ Documents Tour: Error getting user:', error);
+        return { documents: false, onboarding: false };
       }
 
-      const documentsCompleted = data?.documents_tour_completed || false;
-      const onboardingCompleted = data?.onboarding_tour_completed || false;
+      const documentsCompleted = user.user_metadata?.documents_tour_completed === true;
+      const onboardingCompleted = user.user_metadata?.onboarding_tour_completed === true;
       
-      debug.log(`🎯 Documents Tour: Database status for user ${userId}:`, { documentsCompleted, onboardingCompleted });
-      
-      // Sync with localStorage for backup
-      if (documentsCompleted) {
-        localStorage.setItem('documents-tour-completed', 'true');
-      }
+      debug.log(`🎯 Documents Tour: User metadata status:`, { documentsCompleted, onboardingCompleted });
       
       return { documents: documentsCompleted, onboarding: onboardingCompleted };
     } catch (error) {
       debug.error('❌ Documents Tour: Exception checking tour completion:', error);
-      // Fallback to localStorage
-      const localTourCompleted = localStorage.getItem('documents-tour-completed');
-      const localOnboardingCompleted = localStorage.getItem('onboarding-tour-completed');
-      return { 
-        documents: !!localTourCompleted, 
-        onboarding: !!localOnboardingCompleted 
-      };
+      return { documents: false, onboarding: false };
     }
   };
 
@@ -91,7 +70,7 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
       debug.log('🎯 Documents Tour: User authenticated, checking tour status...');
       
-      const { documents: documentsCompleted, onboarding: onboardingCompleted } = await checkTourCompletionStatus(userId);
+      const { documents: documentsCompleted, onboarding: onboardingCompleted } = await checkTourCompletionStatus();
       setTourCompleted(documentsCompleted);
       
       // CRITICAL: Only show documents tour if onboarding tour is already completed
@@ -121,27 +100,23 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
     debug.log('✅ Documents Tour: Completing tour...');
     
     try {
-      if (userId) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ documents_tour_completed: true })
-          .eq('id', userId);
-
-        if (error) {
-          debug.error('❌ Documents Tour: Error updating database:', error);
-        } else {
-          debug.log('✅ Documents Tour: Database updated successfully');
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          documents_tour_completed: true,
+          documents_tour_completed_at: new Date().toISOString()
         }
+      });
+
+      if (error) {
+        debug.error('❌ Documents Tour: Error updating user metadata:', error);
+      } else {
+        debug.log('✅ Documents Tour: User metadata updated successfully');
       }
       
-      // Always update localStorage as backup
-      localStorage.setItem('documents-tour-completed', 'true');
       setTourCompleted(true);
       setShowTour(false);
     } catch (error) {
       debug.error('❌ Documents Tour: Error completing tour:', error);
-      // Still update localStorage on error
-      localStorage.setItem('documents-tour-completed', 'true');
       setTourCompleted(true);
       setShowTour(false);
     }
