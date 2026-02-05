@@ -605,7 +605,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
               className="w-full relative group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {/* Button */}
-              <div className="relative w-full h-14 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 text-white rounded-2xl flex items-center justify-center gap-2.5 font-semibold text-[15px] shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
+              <div className="relative w-full h-14 bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 text-white rounded-2xl flex items-center justify-center gap-2.5 font-semibold text-[15px] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
                 {uploading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-5 h-5 animate-spin" />
