@@ -20,6 +20,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   const [showTour, setShowTour] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [tourCompleted, setTourCompleted] = useState<boolean | null>(null);
+  const [isManualStart, setIsManualStart] = useState(false);
   const { isValid, userId, isLoading } = useAuthValidation();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -177,6 +178,12 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   // Check if tour should be shown automatically
   useEffect(() => {
     const checkTourConditions = async () => {
+      // Skip auto-check if manual start is in progress (prevents race condition)
+      if (isManualStart) {
+        debug.log('🎯 Tour: Manual start active, skipping auto-check');
+        return;
+      }
+
       debug.log('🎯 Tour: Checking automatic tour conditions...', {
         isValid,
         userId,
@@ -235,7 +242,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
     const timer = setTimeout(checkTourConditions, 2000);
 
     return () => clearTimeout(timer);
-  }, [isValid, userId, isLoading, location.pathname, tourCompleted]);
+  }, [isValid, userId, isLoading, location.pathname, tourCompleted, isManualStart]);
 
   const completeTour = async () => {
     debug.log('✅ Tour: Completed');
@@ -302,7 +309,10 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   // Force show tour (for manual starts)
   const forceTour = async () => {
     debug.log('🔄 Tour: Force restart requested');
-    
+
+    // Set manual start flag FIRST to prevent auto-start effect from triggering
+    setIsManualStart(true);
+
     if (userId) {
       try {
         // Reset database status
@@ -337,6 +347,8 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       
       setIsReady(true);
       setShowTour(true);
+      // Reset manual start flag after tour is started
+      setIsManualStart(false);
     };
     
     // Start immediately
