@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ditaxLogo from '@/assets/ditax-symbol.svg';
 import { ValidationProgress } from '@/types/documentProfile';
@@ -258,21 +258,25 @@ const RotatingStatusText: React.FC<RotatingStatusTextProps> = ({
   }
 
   return (
-    <div className="h-5 flex items-center justify-center overflow-hidden">
+    <div className="h-6 flex items-center justify-center overflow-hidden">
       <AnimatePresence mode="wait">
-        <motion.p
+        <motion.span
           key={currentIndex}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className={cn(
-            "text-sm text-center",
+            "inline-flex items-center gap-1.5 text-[15px] text-center font-medium",
             !prefersReducedMotion && "shimmer-text"
           )}
         >
+          <Sparkles className={cn(
+            "w-3.5 h-3.5",
+            !prefersReducedMotion && "animate-pulse"
+          )} />
           {messages[currentIndex]}
-        </motion.p>
+        </motion.span>
       </AnimatePresence>
     </div>
   );
