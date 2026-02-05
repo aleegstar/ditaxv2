@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +21,10 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tourCompleted, setTourCompleted] = useState<boolean | null>(null);
   const { isValid, userId, isLoading } = useAuthValidation();
   const location = useLocation();
+  
+  // Track if user has navigated - prevents tour from starting after navigation
+  const initialRouteRef = useRef<string | null>(null);
+  const hasNavigatedRef = useRef(false);
 
   // Check tour completion status in user metadata
   const checkTourCompletionStatus = async (): Promise<{ documents: boolean; onboarding: boolean }> => {
@@ -46,6 +50,17 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Track navigation - if user navigates away, don't show tour on return
+  useEffect(() => {
+    if (initialRouteRef.current === null) {
+      initialRouteRef.current = location.pathname;
+      debug.log('🎯 Documents Tour: Initial route set:', location.pathname);
+    } else if (location.pathname !== initialRouteRef.current) {
+      hasNavigatedRef.current = true;
+      debug.log('🎯 Documents Tour: User navigated, tour will not auto-start');
+    }
+  }, [location.pathname]);
+
   // Initialize tour state
   useEffect(() => {
     const initializeTour = async () => {
@@ -65,6 +80,14 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
       if (location.pathname !== '/documents') {
         setShowTour(false);
         setIsReady(false);
+        return;
+      }
+      
+      // Don't show tour if user navigated here from another page
+      if (hasNavigatedRef.current && initialRouteRef.current !== '/documents') {
+        debug.log('❌ Documents Tour: User navigated here, skipping tour');
+        setShowTour(false);
+        setIsReady(true);
         return;
       }
 
