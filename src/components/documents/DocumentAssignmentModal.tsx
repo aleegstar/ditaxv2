@@ -337,6 +337,7 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
             <AIDocumentValidation 
               progress={validationProgress}
               documentType={checklistItemTitle}
+              documentTypeId={checklistItemId}
               foundKeywords={validationProgress.foundKeywords}
             />
           </div>

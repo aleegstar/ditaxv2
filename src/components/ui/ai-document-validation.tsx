@@ -29,8 +29,67 @@ interface ExtractedField {
 interface AIDocumentValidationProps {
   progress: ValidationProgress;
   documentType?: string;
+  documentTypeId?: string;
   foundKeywords?: string[];
 }
+
+// ============================================================================
+// Status Messages by Document Type
+// ============================================================================
+
+const STATUS_MESSAGES_BY_DOCTYPE: Record<string, string[]> = {
+  'employment-income': [
+    'Arbeitgeber wird erkannt…',
+    'Bruttolohn wird geprüft…',
+    'AHV-Beiträge werden validiert…',
+    'Quellensteuer wird analysiert…',
+    'Lohnausweis wird verifiziert…'
+  ],
+  'pillar3a-certificate': [
+    'Anbieter wird erkannt…',
+    'Einzahlung wird geprüft…',
+    'Steuerjahr wird validiert…',
+    'Kontodaten werden analysiert…',
+    'Säule 3a wird verifiziert…'
+  ],
+  'pillar2-statement': [
+    'Vorsorgeeinrichtung wird erkannt…',
+    'Altersguthaben wird geprüft…',
+    'Beiträge werden validiert…',
+    'Pensionskasse wird verifiziert…'
+  ],
+  'rental-income': [
+    'Liegenschaft wird erkannt…',
+    'Mietzins wird geprüft…',
+    'Nebenkosten werden validiert…',
+    'Mieteinnahmen werden verifiziert…'
+  ],
+  'insurance-premium': [
+    'Versicherung wird erkannt…',
+    'Prämie wird geprüft…',
+    'Police wird validiert…',
+    'Versicherungsnachweis wird verifiziert…'
+  ],
+  'bank-statement': [
+    'Bank wird erkannt…',
+    'Kontostand wird geprüft…',
+    'Transaktionen werden validiert…',
+    'Bankauszug wird verifiziert…'
+  ],
+  'tax-assessment': [
+    'Steuerbehörde wird erkannt…',
+    'Veranlagung wird geprüft…',
+    'Steuerbetrag wird validiert…',
+    'Steuerrechnung wird verifiziert…'
+  ],
+  'default': [
+    'Text wird erkannt…',
+    'Daten werden analysiert…',
+    'Inhalte werden geprüft…',
+    'Dokument wird validiert…',
+    'Informationen werden verifiziert…'
+  ]
+};
 
 // ============================================================================
 // Field Configuration
@@ -160,17 +219,86 @@ const FieldRow: React.FC<FieldRowProps> = ({ field, isBeingValidated }) => {
 };
 
 // ============================================================================
+// Rotating Status Text Component
+// ============================================================================
+
+interface RotatingStatusTextProps {
+  messages: string[];
+  isComplete: boolean;
+  prefersReducedMotion: boolean;
+}
+
+const RotatingStatusText: React.FC<RotatingStatusTextProps> = ({ 
+  messages, 
+  isComplete, 
+  prefersReducedMotion 
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (isComplete || prefersReducedMotion) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % messages.length);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isComplete, messages.length, prefersReducedMotion]);
+
+  if (isComplete) {
+    return (
+      <motion.p 
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-sm text-emerald-600 dark:text-emerald-400 font-medium"
+      >
+        Dokument erfolgreich geprüft
+      </motion.p>
+    );
+  }
+
+  return (
+    <div className="h-5 flex items-center justify-center overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={currentIndex}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className={cn(
+            "text-sm text-center",
+            !prefersReducedMotion && "shimmer-text"
+          )}
+        >
+          {messages[currentIndex]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
 const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
   progress,
   documentType = 'Dokument',
+  documentTypeId,
   foundKeywords = []
 }) => {
   const prefersReducedMotion = typeof window !== 'undefined' 
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
     : false;
+
+  // Get status messages based on document type ID
+  const statusMessages = useMemo(() => {
+    if (documentTypeId && STATUS_MESSAGES_BY_DOCTYPE[documentTypeId]) {
+      return STATUS_MESSAGES_BY_DOCTYPE[documentTypeId];
+    }
+    return STATUS_MESSAGES_BY_DOCTYPE['default'];
+  }, [documentTypeId]);
 
   // Initialize fields
   const initialFields = useMemo((): ExtractedField[] => {
@@ -187,7 +315,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
 
   const [fields, setFields] = useState<ExtractedField[]>(initialFields);
   const [currentFieldIndex, setCurrentFieldIndex] = useState(-1);
-  const [statusMessage, setStatusMessage] = useState('Text wird erkannt…');
   const [isComplete, setIsComplete] = useState(false);
 
   // Calculate confidence based on found keywords
@@ -214,11 +341,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
       const nextIndex = currentFieldIndex + 1;
       const delay = 400 + Math.random() * 400; // 400-800ms
 
-      // Update status message for next field
-      if (nextIndex < FIELD_CONFIG.length) {
-        setStatusMessage(FIELD_CONFIG[nextIndex].statusMessage);
-      }
-
       const timer = setTimeout(() => {
         setFields(prev => prev.map((field, idx) => {
           if (idx === nextIndex) {
@@ -235,7 +357,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         // Check if all fields are validated
         if (nextIndex === fields.length - 1) {
           setTimeout(() => {
-            setStatusMessage('Dokument erfolgreich geprüft');
             setIsComplete(true);
           }, 300);
         }
@@ -250,7 +371,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
     if (progress.percent < 15 && progress.step === 'preparing') {
       setFields(initialFields);
       setCurrentFieldIndex(-1);
-      setStatusMessage('Text wird erkannt…');
       setIsComplete(false);
     }
   }, [progress.percent, progress.step, initialFields]);
@@ -313,22 +433,17 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
           )}
         </div>
 
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <h3 className="font-semibold text-foreground text-lg">
             {isComplete ? 'Analyse abgeschlossen' : `Ditax prüft ${documentType}`}
           </h3>
-          <motion.p 
-            key={statusMessage}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className={cn(
-              "text-sm mt-1",
-              isComplete ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-muted-foreground"
-            )}
-          >
-            {statusMessage}
-          </motion.p>
+          
+          {/* Rotating Status Text with Shimmer */}
+          <RotatingStatusText 
+            messages={statusMessages}
+            isComplete={isComplete}
+            prefersReducedMotion={prefersReducedMotion}
+          />
         </div>
       </div>
 
