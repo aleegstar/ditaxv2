@@ -73,8 +73,30 @@ class TesseractWasmOcrService {
         userAgent: navigator?.userAgent?.substring(0, 50) || 'unknown'
       });
 
+      // Pre-initialization check: verify required files are accessible
+      console.log('[TesseractWasm] Checking required files...');
+      const requiredFiles = [
+        '/ocr/tesseract-worker.js',
+        '/ocr/tesseract-core.wasm',
+        '/ocr/deu.traineddata'
+      ];
+
+      for (const file of requiredFiles) {
+        try {
+          const response = await fetch(file, { method: 'HEAD' });
+          if (!response.ok) {
+            console.error(`[TesseractWasm] Required file not found: ${file} (status: ${response.status})`);
+            return false;
+          }
+          console.log(`[TesseractWasm] ✓ File accessible: ${file}`);
+        } catch (fetchError) {
+          console.error(`[TesseractWasm] Failed to check file: ${file}`, fetchError);
+          return false;
+        }
+      }
+
       // Create OCR client with worker URL
-      // The WASM files are copied to /ocr/ by vite-plugin-static-copy in vite.config.ts
+      // The WASM files are now stored in public/ocr/
       this.client = new OCRClient({
         workerURL: '/ocr/tesseract-worker.js'
       });
