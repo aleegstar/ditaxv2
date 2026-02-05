@@ -648,6 +648,7 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
             <AIDocumentValidation 
               progress={validationProgress}
               documentType={checklistItem?.title || 'Dokument'}
+              documentTypeId={checklistItem?.id}
               foundKeywords={validationProgress.foundKeywords}
             />
           </div>
