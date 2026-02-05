@@ -10,6 +10,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeFileName } from '@/utils/fileValidation';
 import { toast } from 'sonner';
 import type { MissingItemRequest, MissingItemResponse } from '@/hooks/useMissingItemRequests';
 
@@ -49,7 +50,9 @@ export const MissingItemCard: React.FC<MissingItemCardProps> = ({
       if (!user) throw new Error('Nicht authentifiziert');
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${request.id}/${Date.now()}.${fileExt}`;
+      // SECURITY: Sanitize file extension to prevent path traversal
+      const safeExt = sanitizeFileName(fileExt || 'file');
+      const fileName = `${user.id}/${request.id}/${Date.now()}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('missing-items')

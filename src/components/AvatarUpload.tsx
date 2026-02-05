@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
+import { sanitizeFileName } from '@/utils/fileValidation';
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string;
@@ -61,7 +62,9 @@ const AvatarUpload = ({ currentAvatarUrl, onAvatarUpdate, loading = false, onLoa
       }
 
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      // SECURITY: Sanitize file extension to prevent path traversal
+      const safeExt = sanitizeFileName(fileExt || 'jpg');
+      const fileName = `${user.id}/${Date.now()}.${safeExt}`;
 
       debug.log('Uploading avatar to public bucket:', fileName);
 

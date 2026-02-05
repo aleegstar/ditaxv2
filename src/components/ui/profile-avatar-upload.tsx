@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, UserRound, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sanitizeFileName } from '@/utils/fileValidation';
 
 interface ProfileAvatarUploadProps {
   currentAvatarUrl?: string;
@@ -58,7 +59,9 @@ export const ProfileAvatarUpload = ({
         }
 
         const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+        // SECURITY: Sanitize file extension to prevent path traversal
+        const safeExt = sanitizeFileName(fileExt || 'jpg');
+        const fileName = `${user.id}/avatar-${Date.now()}.${safeExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from('avatars')
@@ -121,7 +124,9 @@ export const ProfileAvatarUpload = ({
       }
 
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${user.id}/avatar.${fileExt}`;
+      // SECURITY: Sanitize file extension to prevent path traversal
+      const safeExt = sanitizeFileName(fileExt || 'jpg');
+      const fileName = `${user.id}/avatar.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')

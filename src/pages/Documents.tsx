@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 
@@ -358,7 +359,9 @@ const DocumentsContent: React.FC<{
           errorCount++;
           continue;
         }
-        const fileName = `${Date.now()}-${file.name}`;
+        // SECURITY: Sanitize file name to prevent path traversal attacks
+        const safeFileName = sanitizeFileName(file.name);
+        const fileName = `${Date.now()}-${safeFileName}`;
         const filePath = `${user.id}/unassigned/${fileName}`;
 
         // Upload to storage

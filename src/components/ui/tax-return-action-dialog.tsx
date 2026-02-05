@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader, ModernUploadDialogTitle } from "@/components/ui/modern-upload-dialog";
 import { Download, Eye, AlertTriangle, Upload, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeFileName, validateFilePath } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,7 +296,19 @@ export const TaxReturnActionDialog = ({
     setUploadLoading(true);
 
     try {
-      const filePath = `${userId}/${taxYear}/${selectedFile.name}`;
+      // SECURITY: Sanitize file name to prevent path traversal attacks
+      const safeFileName = sanitizeFileName(selectedFile.name);
+      const filePath = `${userId}/${taxYear}/${safeFileName}`;
+      
+      // SECURITY: Validate complete file path
+      if (!validateFilePath(filePath)) {
+        toast({
+          title: "Fehler",
+          description: "Ungültiger Dateipfad erkannt.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       const { error: uploadError } = await supabase.storage
         .from('definitive-tax-bills')

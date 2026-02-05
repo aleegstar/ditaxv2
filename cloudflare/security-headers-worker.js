@@ -26,7 +26,7 @@ async function handleRequest(request) {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
     "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
-    "img-src 'self' data: https: blob: https://*.supabase.co; " +
+    "img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com; " +
     "media-src 'self' https://ditax.ch; " +
     "connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co https://api.openai.com; " +
     "frame-src 'self' https://ditax.productlift.dev; " +
