@@ -207,44 +207,71 @@ export const WelcomeFlow = () => {
               </div>
             </div>
 
-            <Button onClick={handleNext} disabled={isLoading || !canProceed()} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>{t.onboarding.next}</span>
-              <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
+             <Button 
+               onClick={handleNext} 
+               disabled={isLoading || !canProceed()} 
+               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+             >
+               {t.onboarding.next}
+               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>;
       case 1:
-        return <div className="w-full space-y-5">
-            <Input type="text" placeholder={t.onboarding.firstName} value={firstName} onChange={e => setFirstName(e.target.value)} className="text-xl h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-[#1D64FF] focus-visible:ring-2 focus-visible:ring-blue-600/20 shadow-sm" onKeyDown={e => e.key === 'Enter' && handleNext()} autoFocus />
-            <Button onClick={handleNext} disabled={isLoading || !canProceed()} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>{t.onboarding.next}</span>
-              <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
-            </Button>
-          </div>;
+         return (
+           <div className="w-full space-y-5">
+             <Input 
+               type="text" 
+               placeholder={t.onboarding.firstName} 
+               value={firstName} 
+               onChange={e => setFirstName(e.target.value)} 
+               className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
+               onKeyDown={e => e.key === 'Enter' && handleNext()} 
+               autoFocus 
+             />
+             <Button 
+               onClick={handleNext} 
+               disabled={isLoading || !canProceed()} 
+               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+             >
+               {t.onboarding.next}
+               <ArrowRight className="w-5 h-5 ml-2" />
+             </Button>
+           </div>
+         );
       case 2:
-        return <div className="w-full space-y-5">
+         return (
+           <div className="w-full space-y-5">
             <Select value={taxYear} onValueChange={setTaxYear}>
-              <SelectTrigger className="text-xl h-auto py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-blue-600/20 focus:border-[#1D64FF] hover:border-slate-300 transition-all">
+               <SelectTrigger className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 rounded-xl">
-                {TAX_YEARS.map(year => <SelectItem key={year} value={year} className="text-slate-900 text-xl hover:bg-slate-50 focus:bg-slate-50 py-3">
+               <SelectContent className="bg-white border border-slate-200 rounded-2xl">
+                 {TAX_YEARS.map(year => (
+                   <SelectItem key={year} value={year} className="text-slate-900 text-lg hover:bg-slate-50 focus:bg-slate-50 py-3">
                     {year}
-                  </SelectItem>)}
+                   </SelectItem>
+                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleNext} disabled={isLoading} className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-xl font-medium transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 group">
-              <span>{t.onboarding.next}</span>
-              <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-2 transition-all duration-300" />
+             <Button 
+               onClick={handleNext} 
+               disabled={isLoading} 
+               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+             >
+               {t.onboarding.next}
+               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </div>;
+           </div>
+         );
       case 3:
         // Family hint step - integrated as step 4
-        return <div className="w-full space-y-5">
-            <div className="bg-white rounded-2xl p-6 w-full space-y-4 border border-slate-200 shadow-sm">
+         return (
+           <div className="w-full space-y-5">
+             <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
               {/* Icon & Description */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-[#1D64FF]" />
+                 <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                   <Users className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-slate-500 text-sm leading-relaxed">
@@ -259,21 +286,22 @@ export const WelcomeFlow = () => {
               <Button
                 onClick={handleFamilyLater}
                 disabled={isLoading}
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-2xl py-5 h-auto text-lg font-medium group"
+                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
               >
-                <span>{t.onboarding.familyHintLater}</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                 {t.onboarding.familyHintLater}
+                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button
                 onClick={handleFamilyNow}
                 disabled={isLoading}
                 variant="ghost"
-                className="w-full rounded-2xl py-4 h-auto text-base font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                 className="w-full rounded-2xl py-4 h-auto text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               >
                 {t.onboarding.familyHintNow}
               </Button>
             </div>
-          </div>;
+           </div>
+         );
       default:
         return null;
     }
