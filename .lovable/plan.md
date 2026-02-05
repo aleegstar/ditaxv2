@@ -1,74 +1,118 @@
 
-# Plan: Schnellerer Tour-Start mit weicherem Übergang
+# Plan: OCR-Check auf Mobile reparieren
 
-## Übersicht
-Die Onboarding-Tour wird optimiert, um schneller zu starten und fliessendere Übergänge zu haben. Die Änderungen betreffen sowohl den Context (Timing) als auch die UI-Komponente (Animationen).
+## Problemanalyse
 
-## Änderungen
+Der OCR-Check für Dokumente auf Mobile funktioniert nicht, weil:
 
-### 1. Schnellerer Start (OnboardingTourContext.tsx)
+### Hauptursache: Fehlende WASM-Dateien
 
-**Aktuelle Verzögerungen:**
-- 2000ms initiale Wartezeit vor dem Check
-- 500ms pro Element-Such-Versuch (bis zu 30 Versuche = 15 Sekunden worst case)
+Die `tesseract-wasm` Bibliothek benötigt folgende Dateien in `/public/ocr/`:
 
-**Neue Werte:**
-- Initiale Wartezeit: **800ms** (von 2000ms)
-- Element-Such-Intervall: **200ms** (von 500ms)
-- Maximale Versuche: **15** (von 30) = max. 3 Sekunden statt 15 Sekunden
+| Datei | Status | Beschreibung |
+|-------|--------|--------------|
+| `deu.traineddata` | Vorhanden | Deutsches Sprachmodell |
+| `tesseract-core.wasm` | **FEHLT** | Haupt-WASM-Binary |
+| `tesseract-core-fallback.wasm` | **FEHLT** | Fallback für ältere Geräte ohne SIMD |
+| `tesseract-worker.js` | **FEHLT** | Web Worker für Hintergrundverarbeitung |
 
-### 2. Weichere Animationen (OnboardingTour.tsx)
+### Warum fehlen die Dateien?
 
-**Overlay-Einblendung:**
-- Aktuelle Duration: 600ms
-- Neue Duration: **400ms** mit sanfterem Ease
+Die `vite.config.ts` konfiguriert `viteStaticCopy`, um diese Dateien während des Builds zu kopieren:
 
-**Spotlight-Bewegung:**
-- Aktuelle Duration: 700ms
-- Neue Duration: **500ms** mit verbessertem Easing `[0.25, 0.1, 0.25, 1]`
-
-**Tooltip-Animation:**
-- Spring-Parameter optimieren: `damping: 28`, `stiffness: 200`
-- Schnellere, aber weichere Bewegung
-
-**Content-Übergänge:**
-- Aktuelle Duration für Text-Wechsel: 200ms
-- Neue Duration: **250ms** mit weicherem Ease für natürlicheren Flow
-
-### 3. Initiale Element-Suche optimieren
-
-- Spotlight-Update-Delay von **100ms auf 50ms** reduzieren
-- Element-Retry-Interval von **150ms auf 100ms** reduzieren
-
-## Visuelle Verbesserungen
-
-```text
-Vorher:                          Nachher:
-┌─────────────────────┐         ┌─────────────────────┐
-│ Start: ~2-3 Sek.    │         │ Start: ~0.8-1 Sek.  │
-│ Spotlight: träge    │   →     │ Spotlight: fliessend│
-│ Tooltip: abgehackt  │         │ Tooltip: butterweich│
-└─────────────────────┘         └─────────────────────┘
+```typescript
+viteStaticCopy({
+  targets: [
+    { src: 'node_modules/tesseract-wasm/dist/tesseract-core.wasm', dest: 'ocr' },
+    { src: 'node_modules/tesseract-wasm/dist/tesseract-core-fallback.wasm', dest: 'ocr' },
+    { src: 'node_modules/tesseract-wasm/dist/tesseract-worker.js', dest: 'ocr' }
+  ]
+})
 ```
+
+Dieses Plugin kopiert nur beim **lokalen Build** (`npm run build`), nicht automatisch im Lovable-Deployment.
+
+---
+
+## Lösung
+
+Die fehlenden WASM-Dateien müssen manuell in das `public/ocr/` Verzeichnis kopiert werden.
+
+### Schritt 1: WASM-Dateien hinzufügen
+
+Die Dateien werden aus dem `tesseract-wasm` npm-Paket extrahiert und in `public/ocr/` platziert:
+
+1. **`public/ocr/tesseract-worker.js`** - Web Worker Script
+2. **`public/ocr/tesseract-core.wasm`** - Haupt-WASM (mit SIMD-Unterstützung)
+3. **`public/ocr/tesseract-core-fallback.wasm`** - Fallback-WASM (ohne SIMD)
+
+### Schritt 2: Fehlerbehandlung verbessern
+
+In `TesseractWasmOcrService.ts` bessere Fehlermeldungen hinzufügen, falls die Dateien fehlen:
+
+```typescript
+// Vor der Initialisierung prüfen, ob Worker erreichbar ist
+const workerResponse = await fetch('/ocr/tesseract-worker.js', { method: 'HEAD' });
+if (!workerResponse.ok) {
+  console.error('[TesseractWasm] Worker file not found at /ocr/tesseract-worker.js');
+  return false;
+}
+```
+
+---
 
 ## Technische Details
 
-### OnboardingTourContext.tsx
-- Zeile 70: `maxAttempts = isManualStart ? 4 : 15` (von 30)
-- Zeile 130: `setTimeout(..., 200)` (von 500)
-- Zeile 229: `setTimeout(checkTourConditions, 800)` (von 2000)
+### Dateigrössen (geschätzt)
+- `tesseract-worker.js`: ~50 KB
+- `tesseract-core.wasm`: ~2 MB (mit SIMD)
+- `tesseract-core-fallback.wasm`: ~2 MB (ohne SIMD)
+- `deu.traineddata`: ~1.6 MB (bereits vorhanden)
 
-### OnboardingTour.tsx
-- Zeile 216-219: Delay von 100ms auf 50ms
-- Zeile 198: Element-Retry von 150ms auf 100ms
-- Zeile 436: Overlay fade von 600ms auf 400ms
-- Zeilen 453-456, 475-478: Spotlight von 700ms auf 500ms
-- Zeilen 514-518: Spring `damping: 28`, `stiffness: 200`
-- Zeile 525: Layout-Transition von 400ms auf 300ms
-- Zeilen 551-554: Content-Wechsel auf 250ms mit `ease: [0.4, 0, 0.2, 1]`
+### OCR-Routing auf Mobile
+
+```text
+Mobile Dokument-Upload
+         │
+         ▼
+┌─────────────────────────┐
+│ Native OCR verfügbar?   │
+│ (Despia v3.6+ nötig)    │
+└───────────┬─────────────┘
+            │ Nein (aktuell)
+            ▼
+┌─────────────────────────┐
+│ tesseract-wasm          │ ← HIER SCHEITERT ES
+│ (WebView-optimiert)     │   (WASM-Dateien fehlen)
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ Manuelle Bestätigung    │
+│ (Fallback)              │
+└─────────────────────────┘
+```
+
+---
+
+## Umsetzung
+
+### Zu erstellende Dateien
+
+1. `public/ocr/tesseract-worker.js`
+2. `public/ocr/tesseract-core.wasm`  
+3. `public/ocr/tesseract-core-fallback.wasm`
+
+### Zu ändernde Dateien
+
+1. `src/services/TesseractWasmOcrService.ts` - Bessere Fehlerbehandlung
+
+---
 
 ## Erwartetes Ergebnis
-- **~60% schnellerer Tour-Start** (von ~2-3 Sek. auf ~0.8-1 Sek.)
-- **Fliessendere Spotlight-Bewegung** zwischen Steps
-- **Weichere Tooltip-Animationen** ohne abrupte Stops
-- **Natürlicherer Content-Übergang** beim Step-Wechsel
+
+Nach der Implementierung:
+- Mobile OCR funktioniert mit tesseract-wasm
+- Dokumente werden lokal auf dem Gerät analysiert
+- Keywords werden erkannt und der Dokumenttyp automatisch bestimmt
+- 100% DSGVO-konform (keine Cloud-Übertragung)
