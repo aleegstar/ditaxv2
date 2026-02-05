@@ -141,6 +141,26 @@ export const WelcomeFlow = () => {
         throw taxReturnError;
       }
 
+      // Save first name to form_data (Kontaktangaben) for the primary tax filer
+      if (primaryTaxFilerId) {
+        const { error: formDataError } = await supabase
+          .from('form_data')
+          .upsert({
+            user_id: user.id,
+            tax_filer_id: primaryTaxFilerId,
+            tax_year: taxYear,
+            form_type: 'contact',
+            data: { firstName: firstName.trim() }
+          }, {
+            onConflict: 'user_id,tax_filer_id,tax_year,form_type'
+          });
+        
+        if (formDataError) {
+          console.error('Error saving contact form data:', formDataError);
+          // Continue anyway - this is not critical
+        }
+      }
+
       // Wait for DB transaction to commit
       await new Promise(resolve => setTimeout(resolve, 300));
 
