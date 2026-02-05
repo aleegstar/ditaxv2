@@ -338,6 +338,23 @@
   animation: shimmer 2s infinite linear;
 }
 
+/* Shimmer text effect for AI research UI */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.6) 25%,
+    hsl(var(--primary)) 50%,
+    hsl(var(--primary) / 0.6) 75%,
+    hsl(var(--primary)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.5s infinite linear;
+}
+
 /* Skeleton shimmer animation for loading states */
 @keyframes shimmer-skeleton {
   0% {
