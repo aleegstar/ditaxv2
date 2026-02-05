@@ -23,13 +23,13 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
 
   // Check tour completion status in database
-  const checkTourCompletionStatus = async (userId: string): Promise<boolean> => {
+  const checkTourCompletionStatus = async (userId: string): Promise<{ documents: boolean; onboarding: boolean }> => {
     try {
       debug.log('🎯 Documents Tour: Checking database for tour completion status...');
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('documents_tour_completed')
+        .select('documents_tour_completed, onboarding_tour_completed')
         .eq('id', userId)
         .single();
 
@@ -37,23 +37,33 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
         debug.error('❌ Documents Tour: Error checking tour completion:', error);
         // Fallback to localStorage
         const localTourCompleted = localStorage.getItem('documents-tour-completed');
-        return !!localTourCompleted;
+        const localOnboardingCompleted = localStorage.getItem('onboarding-tour-completed');
+        return { 
+          documents: !!localTourCompleted, 
+          onboarding: !!localOnboardingCompleted 
+        };
       }
 
-      const completed = data?.documents_tour_completed || false;
-      debug.log(`🎯 Documents Tour: Database tour status for user ${userId}:`, completed);
+      const documentsCompleted = data?.documents_tour_completed || false;
+      const onboardingCompleted = data?.onboarding_tour_completed || false;
+      
+      debug.log(`🎯 Documents Tour: Database status for user ${userId}:`, { documentsCompleted, onboardingCompleted });
       
       // Sync with localStorage for backup
-      if (completed) {
+      if (documentsCompleted) {
         localStorage.setItem('documents-tour-completed', 'true');
       }
       
-      return completed;
+      return { documents: documentsCompleted, onboarding: onboardingCompleted };
     } catch (error) {
       debug.error('❌ Documents Tour: Exception checking tour completion:', error);
       // Fallback to localStorage
       const localTourCompleted = localStorage.getItem('documents-tour-completed');
-      return !!localTourCompleted;
+      const localOnboardingCompleted = localStorage.getItem('onboarding-tour-completed');
+      return { 
+        documents: !!localTourCompleted, 
+        onboarding: !!localOnboardingCompleted 
+      };
     }
   };
 
@@ -81,10 +91,19 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
       debug.log('🎯 Documents Tour: User authenticated, checking tour status...');
       
-      const completed = await checkTourCompletionStatus(userId);
-      setTourCompleted(completed);
+      const { documents: documentsCompleted, onboarding: onboardingCompleted } = await checkTourCompletionStatus(userId);
+      setTourCompleted(documentsCompleted);
       
-      if (!completed) {
+      // CRITICAL: Only show documents tour if onboarding tour is already completed
+      // This prevents overlapping tours for new users
+      if (!onboardingCompleted) {
+        debug.log('❌ Documents Tour: Onboarding tour not completed yet, skipping documents tour');
+        setShowTour(false);
+        setIsReady(true);
+        return;
+      }
+      
+      if (!documentsCompleted) {
         debug.log('✅ Documents Tour: Tour not completed, will show tour');
         setShowTour(true);
         setIsReady(true);
