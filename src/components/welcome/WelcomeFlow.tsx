@@ -230,10 +230,10 @@ export const WelcomeFlow = () => {
              <Button 
                onClick={handleNext} 
                disabled={isLoading || !canProceed()} 
-               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+               className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
              >
                {t.onboarding.next}
-               <ArrowRight className="w-5 h-5 ml-2" />
+               <ArrowRight className="w-5 h-5 ml-2 text-white" />
             </Button>
           </div>;
       case 1:
@@ -248,14 +248,14 @@ export const WelcomeFlow = () => {
                onKeyDown={e => e.key === 'Enter' && handleNext()} 
                autoFocus 
              />
-             <Button 
-               onClick={handleNext} 
-               disabled={isLoading || !canProceed()} 
-               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
-             >
-               {t.onboarding.next}
-               <ArrowRight className="w-5 h-5 ml-2" />
-             </Button>
+              <Button 
+                onClick={handleNext} 
+                disabled={isLoading || !canProceed()} 
+                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+              >
+                {t.onboarding.next}
+                <ArrowRight className="w-5 h-5 ml-2 text-white" />
+              </Button>
            </div>
          );
       case 2:
@@ -273,14 +273,14 @@ export const WelcomeFlow = () => {
                  ))}
               </SelectContent>
             </Select>
-             <Button 
-               onClick={handleNext} 
-               disabled={isLoading} 
-               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
-             >
-               {t.onboarding.next}
-               <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+              <Button 
+                onClick={handleNext} 
+                disabled={isLoading} 
+                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+              >
+                {t.onboarding.next}
+                <ArrowRight className="w-5 h-5 ml-2 text-white" />
+             </Button>
            </div>
          );
       case 3:
@@ -303,14 +303,14 @@ export const WelcomeFlow = () => {
 
             {/* Buttons - Primary is "Continue", secondary is "Add people" */}
             <div className="flex flex-col gap-3">
-              <Button
-                onClick={handleFamilyLater}
-                disabled={isLoading}
-                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
-              >
-                 {t.onboarding.familyHintLater}
-                 <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+               <Button
+                 onClick={handleFamilyLater}
+                 disabled={isLoading}
+                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
+               >
+                  {t.onboarding.familyHintLater}
+                  <ArrowRight className="w-5 h-5 ml-2 text-white" />
+               </Button>
               <Button
                 onClick={handleFamilyNow}
                 disabled={isLoading}
