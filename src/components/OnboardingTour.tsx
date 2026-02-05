@@ -195,7 +195,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     } else {
       if (attempt < 10) {
         debug.warn('⚠️ No element found, retrying...', attempt + 1);
-        setTimeout(() => updateSpotlight(targetElement, attempt + 1), 150);
+        setTimeout(() => updateSpotlight(targetElement, attempt + 1), 100);
         return;
       }
       debug.warn('⚠️ Tour: Could not find element after retries, using center fallback');
@@ -215,7 +215,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
     if (currentStepData && currentStepData.targetElement) {
       const timer = setTimeout(() => {
         updateSpotlight(currentStepData.targetElement);
-      }, 100);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [currentStep, tourSteps]);
@@ -433,7 +433,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
         className="fixed inset-0 z-[10000] pointer-events-auto"
       >
         {/* Light overlay with transparent hole */}
@@ -443,7 +443,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               <defs>
                 <mask id="tour-spotlight-mask">
                   <rect width="100%" height="100%" fill="white" />
-                  <motion.rect 
+                <motion.rect 
                     animate={{
                       x: spotlightPosition.x - 10,
                       y: spotlightPosition.y - 10,
@@ -451,8 +451,8 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                       height: spotlightPosition.height + 20
                     }}
                     transition={{ 
-                      duration: 0.7, 
-                      ease: [0.4, 0, 0.2, 1]
+                      duration: 0.5, 
+                      ease: [0.25, 0.1, 0.25, 1]
                     }}
                     rx="12" 
                     ry="12"
@@ -473,8 +473,8 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
                 height: spotlightPosition.height + 12
               }}
               transition={{ 
-                duration: 0.7, 
-                ease: [0.4, 0, 0.2, 1]
+                duration: 0.5, 
+                ease: [0.25, 0.1, 0.25, 1]
               }}
             />
           </>
@@ -512,17 +512,16 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ 
             type: "spring", 
-            damping: 25, 
-            stiffness: 120,
-            mass: 0.8,
-            duration: 0.6
+            damping: 28, 
+            stiffness: 200,
+            mass: 0.7
           }}
           className="absolute z-[10001]"
           style={getTooltipPosition()}
         >
           <motion.div 
             layout
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             className={cn(
               "bg-white border border-slate-200 rounded-xl shadow-2xl relative",
               isMobile ? "p-4 mx-2 max-w-[280px]" : "p-6 mx-4 max-w-sm"
@@ -548,10 +547,10 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
-                  initial={{ opacity: 0, y: 5 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                 >
                   <h3 className={cn(
                     "font-semibold text-slate-900 mb-2 transition-all duration-300",

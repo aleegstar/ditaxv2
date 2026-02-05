@@ -67,7 +67,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       '.sidebar, nav[data-sidebar]', // Alternative sidebar
     ];
 
-    const maxAttempts = isManualStart ? 4 : 30; // Shorter timeout for manual starts (2 seconds vs 15 seconds)
+    const maxAttempts = isManualStart ? 4 : 15; // Shorter timeout for manual starts (0.8s vs 3s)
     let attempts = 0;
 
     while (attempts < maxAttempts) {
@@ -127,7 +127,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       }
 
       attempts++;
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     debug.warn('⚠️ Tour: Timeout waiting for mandatory elements. DOM state:', {
@@ -226,7 +226,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
     };
 
     // Add delay to ensure page is fully loaded
-    const timer = setTimeout(checkTourConditions, 2000);
+    const timer = setTimeout(checkTourConditions, 800);
 
     return () => clearTimeout(timer);
   }, [isValid, userId, isLoading, location.pathname, tourCompleted, isManualStart]);
