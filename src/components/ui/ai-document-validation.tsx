@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ditaxLogo from '@/assets/ditax-logo.svg';
+import ditaxLogo from '@/assets/ditax-symbol.svg';
 import { ValidationProgress } from '@/types/documentProfile';
 
 // ============================================================================
