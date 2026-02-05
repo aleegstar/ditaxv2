@@ -14,7 +14,7 @@ import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './documents/DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 import { isMobileAppContext } from '@/utils/platform';
-import { Progress } from './ui/progress';
+import AIResearchProgress from './ui/ai-research-progress';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -641,37 +641,14 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         </div>
       )}
 
-      {/* Validation Progress Modal */}
+      {/* AI Research Progress Modal */}
       {isVerifying && validationProgress && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-            <div className="flex flex-col items-center gap-5">
-              {/* Animated Icon */}
-              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-              </div>
-              
-              {/* Status Text */}
-              <div className="text-center space-y-1">
-                <h3 className="font-semibold text-slate-800 text-lg">
-                  Dokument wird geprüft
-                </h3>
-                <p className="text-sm text-slate-500">
-                  {validationProgress.message}
-                </p>
-              </div>
-              
-              {/* Progress Bar */}
-              <div className="w-full space-y-2">
-                <Progress 
-                  value={validationProgress.percent} 
-                  className="w-full h-2"
-                />
-                <p className="text-xs text-slate-400 text-center">
-                  {validationProgress.percent}% abgeschlossen
-                </p>
-              </div>
-            </div>
+            <AIResearchProgress 
+              progress={validationProgress}
+              foundKeywords={validationProgress.foundKeywords}
+            />
           </div>
         </div>
       )}

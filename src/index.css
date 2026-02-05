@@ -314,6 +314,30 @@
   animation: rainbow 6s linear infinite;
 }
 
+/* Shimmer animation for AI-research text effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted-foreground)) 0%,
+    hsl(var(--foreground)) 50%,
+    hsl(var(--muted-foreground)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2s infinite linear;
+}
+
 /* Custom override for text-white to use white color */
 .text-white {
   --tw-text-opacity: 1;

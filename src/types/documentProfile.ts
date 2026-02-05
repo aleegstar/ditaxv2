@@ -177,6 +177,8 @@ export interface ValidationProgress {
   step: 'preparing' | 'metadata' | 'layout' | 'compressing' | 'ocr' | 'analyzing' | 'complete';
   percent: number;
   message: string;
+  /** Keywords found during OCR analysis (for AI-research UI display) */
+  foundKeywords?: string[];
 }
 
 export type ValidationProgressCallback = (progress: ValidationProgress) => void;
