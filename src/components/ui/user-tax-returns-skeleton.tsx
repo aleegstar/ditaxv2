@@ -96,12 +96,25 @@ export function UserTaxReturnsSkeleton() {
         </div>
       </main>
 
-      {/* Bottom Navigation - Glassmorphism Style */}
+      {/* Bottom Navigation - Matching real dock */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white/90 backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
-          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
-          <Skeleton className="w-12 h-12 rounded-full bg-gray-200" />
+          {/* Scanner Button Skeleton */}
+          <div className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-slate-300 to-slate-400">
+            <Skeleton className="w-9 h-9 rounded-full bg-white/50" />
+            <div className="space-y-1">
+              <Skeleton className="h-3 w-16 bg-white/30" />
+              <Skeleton className="h-2 w-12 bg-white/20" />
+            </div>
+          </div>
+
+          <div className="w-px h-8 bg-gray-200"></div>
+
+          {/* Inbox */}
+          <Skeleton className="w-12 h-12 rounded-full bg-gray-100" />
+
+          {/* Menu */}
+          <Skeleton className="w-12 h-12 rounded-full bg-gray-100" />
         </div>
       </div>
     </div>
