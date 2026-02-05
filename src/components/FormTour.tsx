@@ -31,7 +31,7 @@ const formTourSteps: TourStep[] = [
     id: 'step-1-angaben',
     title: 'Schritt 1: Angaben',
     description: 'Fülle zuerst die 4 Formulare aus: Kontaktangaben, Abzüge, Einkommen und Vermögen. Klicke auf jede Karte, um das jeweilige Formular zu öffnen.',
-    targetElement: '[data-tour="kontaktangaben"]',
+    targetElement: '[data-tour="form-step-1"]',
     position: 'bottom'
   },
   {
