@@ -27,36 +27,22 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Check if on form page without section param (main dashboard)
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
 
-  // Check tour completion status
-  const checkTourCompletionStatus = async (uid: string): Promise<{ form: boolean; onboarding: boolean }> => {
+  // Check tour completion status in user metadata
+  const checkTourCompletionStatus = async (): Promise<{ form: boolean; onboarding: boolean }> => {
     try {
-      // Check localStorage first for form tour
-      const localCompleted = localStorage.getItem(`${FORM_TOUR_KEY}-${uid}`);
-      const localOnboardingCompleted = localStorage.getItem('onboarding-tour-completed');
+      debug.log('🎯 Form Tour: Checking user metadata for tour completion status...');
       
-      if (localCompleted === 'true') {
-        return { form: true, onboarding: !!localOnboardingCompleted };
-      }
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      // Check database
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('privacy_preferences, onboarding_tour_completed')
-        .eq('id', uid)
-        .single();
-
-      if (error) {
+      if (error || !user) {
         debug.error('Error checking form tour status:', error);
-        return { form: false, onboarding: !!localOnboardingCompleted };
+        return { form: false, onboarding: false };
       }
 
-      const prefs = data?.privacy_preferences as Record<string, unknown> | null;
-      const formCompleted = prefs?.form_tour_completed === true;
-      const onboardingCompleted = data?.onboarding_tour_completed === true;
+      const formCompleted = user.user_metadata?.form_tour_completed === true;
+      const onboardingCompleted = user.user_metadata?.onboarding_tour_completed === true;
       
-      if (formCompleted) {
-        localStorage.setItem(`${FORM_TOUR_KEY}-${uid}`, 'true');
-      }
+      debug.log('🎯 Form Tour: User metadata status:', { formCompleted, onboardingCompleted });
       
       return { form: formCompleted, onboarding: onboardingCompleted };
     } catch (error) {
@@ -72,7 +58,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
       
       if (user) {
         setUserId(user.id);
-        const { form, onboarding } = await checkTourCompletionStatus(user.id);
+        const { form, onboarding } = await checkTourCompletionStatus();
         setTourCompleted(form);
         setOnboardingCompleted(onboarding);
         setIsReady(true);
@@ -89,7 +75,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUserId(session.user.id);
-        const { form, onboarding } = await checkTourCompletionStatus(session.user.id);
+        const { form, onboarding } = await checkTourCompletionStatus();
         setTourCompleted(form);
         setOnboardingCompleted(onboarding);
       } else {
@@ -129,34 +115,21 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     setShowTour(false);
     setTourCompleted(true);
 
-    if (userId) {
-      localStorage.setItem(`${FORM_TOUR_KEY}-${userId}`, 'true');
-      
-      try {
-        // Get current privacy_preferences
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('privacy_preferences')
-          .eq('id', userId)
-          .single();
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          form_tour_completed: true,
+          form_tour_completed_at: new Date().toISOString()
+        }
+      });
 
-        const currentPrefs = (profile?.privacy_preferences as Record<string, unknown>) || {};
-        
-        // Update with form_tour_completed
-        await supabase
-          .from('profiles')
-          .update({
-            privacy_preferences: {
-              ...currentPrefs,
-              form_tour_completed: true
-            }
-          })
-          .eq('id', userId);
-
-        debug.log('✅ Form tour marked as completed');
-      } catch (error) {
+      if (error) {
         debug.error('Error saving form tour completion:', error);
+      } else {
+        debug.log('✅ Form tour marked as completed in user metadata');
       }
+    } catch (error) {
+      debug.error('Error saving form tour completion:', error);
     }
   };
 
@@ -164,9 +137,16 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     await completeTour();
   };
 
-  const forceTour = () => {
-    if (userId) {
-      localStorage.removeItem(`${FORM_TOUR_KEY}-${userId}`);
+  const forceTour = async () => {
+    try {
+      await supabase.auth.updateUser({
+        data: { 
+          form_tour_completed: false,
+          form_tour_completed_at: null
+        }
+      });
+    } catch (error) {
+      debug.error('Error resetting form tour:', error);
     }
     setTourCompleted(false);
     setShowTour(true);

@@ -25,38 +25,25 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // Check tour completion status in database
-  const checkTourCompletionStatus = async (userId: string): Promise<boolean> => {
+  // Check tour completion status in user metadata
+  const checkTourCompletionStatus = async (): Promise<boolean> => {
     try {
-      debug.log('🎯 Tour: Checking database for tour completion status...');
+      debug.log('🎯 Tour: Checking user metadata for tour completion status...');
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('onboarding_tour_completed')
-        .eq('id', userId)
-        .single();
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (error) {
-        debug.error('❌ Tour: Error checking tour completion:', error);
-        // Fallback to localStorage
-        const localTourCompleted = localStorage.getItem('onboarding-tour-completed');
-        return !!localTourCompleted;
+      if (error || !user) {
+        debug.error('❌ Tour: Error getting user:', error);
+        return false;
       }
 
-      const completed = data?.onboarding_tour_completed || false;
-      debug.log(`🎯 Tour: Database tour status for user ${userId}:`, completed);
-      
-      // Sync with localStorage for backup
-      if (completed) {
-        localStorage.setItem('onboarding-tour-completed', 'true');
-      }
+      const completed = user.user_metadata?.onboarding_tour_completed === true;
+      debug.log(`🎯 Tour: User metadata tour status:`, completed);
       
       return completed;
     } catch (error) {
       debug.error('❌ Tour: Exception checking tour completion:', error);
-      // Fallback to localStorage
-      const localTourCompleted = localStorage.getItem('onboarding-tour-completed');
-      return !!localTourCompleted;
+      return false;
     }
   };
 
@@ -168,7 +155,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       }
 
       debug.log('🎯 Tour: Loading tour completion status for user:', userId);
-      const completed = await checkTourCompletionStatus(userId);
+      const completed = await checkTourCompletionStatus();
       setTourCompleted(completed);
     };
 
@@ -247,29 +234,24 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   const completeTour = async () => {
     debug.log('✅ Tour: Completed');
     
-    if (userId) {
-      try {
-        // Update database
-        const { error } = await supabase
-          .from('profiles')
-          .update({ 
-            onboarding_tour_completed: true,
-            onboarding_tour_completed_at: new Date().toISOString()
-          })
-          .eq('id', userId);
-
-        if (error) {
-          debug.error('❌ Tour: Error updating tour completion in database:', error);
-        } else {
-          debug.log('✅ Tour: Successfully updated tour completion in database');
+    try {
+      // Update user metadata
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          onboarding_tour_completed: true,
+          onboarding_tour_completed_at: new Date().toISOString()
         }
-      } catch (error) {
-        debug.error('❌ Tour: Exception updating tour completion:', error);
+      });
+
+      if (error) {
+        debug.error('❌ Tour: Error updating tour completion in user metadata:', error);
+      } else {
+        debug.log('✅ Tour: Successfully updated tour completion in user metadata');
       }
+    } catch (error) {
+      debug.error('❌ Tour: Exception updating tour completion:', error);
     }
     
-    // Update local state and localStorage as backup
-    localStorage.setItem('onboarding-tour-completed', 'true');
     setTourCompleted(true);
     setShowTour(false);
     setIsReady(false);
@@ -278,29 +260,24 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   const skipTour = async () => {
     debug.log('⏭️ Tour: Skipped');
     
-    if (userId) {
-      try {
-        // Update database
-        const { error } = await supabase
-          .from('profiles')
-          .update({ 
-            onboarding_tour_completed: true,
-            onboarding_tour_completed_at: new Date().toISOString()
-          })
-          .eq('id', userId);
-
-        if (error) {
-          debug.error('❌ Tour: Error updating tour skip in database:', error);
-        } else {
-          debug.log('✅ Tour: Successfully updated tour skip in database');
+    try {
+      // Update user metadata
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          onboarding_tour_completed: true,
+          onboarding_tour_completed_at: new Date().toISOString()
         }
-      } catch (error) {
-        debug.error('❌ Tour: Exception updating tour skip:', error);
+      });
+
+      if (error) {
+        debug.error('❌ Tour: Error updating tour skip in user metadata:', error);
+      } else {
+        debug.log('✅ Tour: Successfully updated tour skip in user metadata');
       }
+    } catch (error) {
+      debug.error('❌ Tour: Exception updating tour skip:', error);
     }
     
-    // Update local state and localStorage as backup
-    localStorage.setItem('onboarding-tour-completed', 'true');
     setTourCompleted(true);
     setShowTour(false);
     setIsReady(false);
@@ -313,29 +290,25 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
     // Set manual start flag FIRST to prevent auto-start effect from triggering
     setIsManualStart(true);
 
-    if (userId) {
-      try {
-        // Reset database status
-        const { error } = await supabase
-          .from('profiles')
-          .update({ 
-            onboarding_tour_completed: false,
-            onboarding_tour_completed_at: null
-          })
-          .eq('id', userId);
-
-        if (error) {
-          debug.error('❌ Tour: Error resetting tour in database:', error);
-        } else {
-          debug.log('✅ Tour: Successfully reset tour in database');
+    try {
+      // Reset user metadata status
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          onboarding_tour_completed: false,
+          onboarding_tour_completed_at: null
         }
-      } catch (error) {
-        debug.error('❌ Tour: Exception resetting tour:', error);
+      });
+
+      if (error) {
+        debug.error('❌ Tour: Error resetting tour in user metadata:', error);
+      } else {
+        debug.log('✅ Tour: Successfully reset tour in user metadata');
       }
+    } catch (error) {
+      debug.error('❌ Tour: Exception resetting tour:', error);
     }
     
     // Reset local state
-    localStorage.removeItem('onboarding-tour-completed');
     setTourCompleted(false);
     setIsReady(false);
     setShowTour(false);
