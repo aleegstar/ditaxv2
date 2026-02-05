@@ -451,21 +451,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         </div>
       </div>
 
-      {/* Validation Card */}
-      <motion.div 
-        className="w-full bg-card border border-border rounded-xl p-4 shadow-sm"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        {fields.map((field, index) => (
-          <FieldRow 
-            key={field.id} 
-            field={field} 
-            isBeingValidated={index === currentFieldIndex + 1 && !field.isValidated}
-          />
-        ))}
-      </motion.div>
 
       {/* Keywords Found - Show after first field validates */}
       <AnimatePresence>
