@@ -93,11 +93,46 @@ export const WelcomeFlow = () => {
       }).eq('id', user.id);
       if (profileError) throw profileError;
 
+      // Get or create primary tax filer for the user
+      let primaryTaxFilerId: string | null = null;
+      
+      // First check if a primary tax filer already exists
+      const { data: existingFilers } = await supabase
+        .from('tax_filers')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_primary', true)
+        .single();
+      
+      if (existingFilers?.id) {
+        primaryTaxFilerId = existingFilers.id;
+      } else {
+        // Create primary tax filer using the user's name
+        const { data: newFiler, error: filerError } = await supabase
+          .from('tax_filers')
+          .insert({
+            user_id: user.id,
+            first_name: firstName,
+            last_name: '', // Will be updated later in profile
+            is_primary: true
+          })
+          .select('id')
+          .single();
+        
+        if (filerError) {
+          console.error('Error creating primary tax filer:', filerError);
+          // Continue without tax_filer_id as fallback
+        } else if (newFiler) {
+          primaryTaxFilerId = newFiler.id;
+        }
+      }
+
       // Create tax return for selected year
       const {
         error: taxReturnError
       } = await supabase.from('tax_returns').insert({
         user_id: user.id,
+        tax_filer_id: primaryTaxFilerId,
         tax_year: taxYear,
         status: 'pending',
         payment_status: 'pending'
