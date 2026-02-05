@@ -101,30 +101,6 @@ const UserTaxReturns = () => {
       return;
     }
   }, [userId, isValid, authLoading, navigate, hasMultipleFilers, selectionConfirmed]);
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
-  const [shouldRedirectToWelcome, setShouldRedirectToWelcome] = useState(false);
-  useEffect(() => {
-    if (!userId || authLoading) return;
-    const checkOnboarding = async () => {
-      const {
-        data: profile
-      } = await supabase.from('profiles').select('onboarding_tour_completed, first_name').eq('id', userId).single();
-      if (profile && !profile.onboarding_tour_completed && !profile.first_name) {
-        setShouldRedirectToWelcome(true);
-      }
-      setOnboardingChecked(true);
-    };
-    checkOnboarding();
-  }, [userId, authLoading]);
-
-  // Redirect to welcome after state is set (prevents flash)
-  useEffect(() => {
-    if (shouldRedirectToWelcome && onboardingChecked) {
-      navigate('/welcome', {
-        replace: true
-      });
-    }
-  }, [shouldRedirectToWelcome, onboardingChecked, navigate]);
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
@@ -266,7 +242,7 @@ const UserTaxReturns = () => {
   const getDocumentCount = (year: string): number => {
     return uploadedDocuments[year]?.length || 0;
   };
-  if (authLoading || loading || profileLoading || !isReady || !onboardingChecked || shouldRedirectToWelcome || taxFilerLoading) {
+  if (authLoading || loading || profileLoading || !isReady || taxFilerLoading) {
     return <UserTaxReturnsSkeleton />;
   }
 

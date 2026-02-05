@@ -114,10 +114,13 @@ const GlobalMobileMenuSheet = () => {
 
 const AuthenticatedApp = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const { idleState, extendSession } = useAuthValidation();
   const [user, setUser] = useState<any>(null);
   const [showMfaSetup, setShowMfaSetup] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const { shouldShow: shouldShowMfaPrompt, markMfaOffered } = useMfaPrompt(user?.id);
   const { shouldShow: shouldShowFeedback, dismissPrompt: dismissFeedbackPrompt } = useFeedbackPrompt(user?.id);
 
@@ -134,6 +137,45 @@ const AuthenticatedApp = () => {
     getUser();
     return () => { mounted = false; };
   }, []);
+
+  // Check if user needs onboarding (new user without first_name)
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    // Skip check if already on welcome page or auth pages
+    if (location.pathname === '/welcome' || location.pathname.startsWith('/auth')) {
+      setOnboardingChecked(true);
+      return;
+    }
+    
+    const checkOnboarding = async () => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_tour_completed, first_name')
+          .eq('id', user.id)
+          .single();
+        
+        // New user: no first_name and onboarding not completed
+        if (profile && !profile.onboarding_tour_completed && !profile.first_name) {
+          setNeedsOnboarding(true);
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      } finally {
+        setOnboardingChecked(true);
+      }
+    };
+    
+    checkOnboarding();
+  }, [user?.id, location.pathname]);
+
+  // Redirect to welcome if needed
+  useEffect(() => {
+    if (onboardingChecked && needsOnboarding && location.pathname !== '/welcome') {
+      navigate('/welcome', { replace: true });
+    }
+  }, [onboardingChecked, needsOnboarding, location.pathname, navigate]);
 
   const handleMfaSetupStart = async () => {
     await markMfaOffered();
@@ -168,6 +210,11 @@ const AuthenticatedApp = () => {
         </Suspense>
       </ErrorBoundary>
     );
+  }
+
+  // Show loading while checking onboarding status (prevents flash)
+  if (!onboardingChecked) {
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
