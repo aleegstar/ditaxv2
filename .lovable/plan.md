@@ -1,70 +1,118 @@
 
-# Fix: Google OAuth mit Supabase Custom Domain (auth.ditax.ch)
+
+# Plan: Behebung des doppelten Tour-Anzeige-Bugs
 
 ## Problem-Analyse
 
-Der Fehler **"redirect_uri_mismatch"** (HTTP 400) tritt auf, weil:
+Wenn die Anleitung aus dem Menue manuell gestartet wird, erscheint sie mehrfach. Die Ursache ist eine **Race Condition** im `OnboardingTourContext`:
 
-1. **Supabase Custom Domain aktiviert:** `auth.ditax.ch` statt `gqbhilftduwxjszznnzy.supabase.co`
-2. **Google Cloud Console:** Kennt nur die alte Redirect-URI
-3. **OAuth Callback:** Google erwartet `https://gqbhilftduwxjszznnzy.supabase.co/auth/v1/callback` aber Supabase sendet jetzt `https://auth.ditax.ch/auth/v1/callback`
+1. **Menue-Klick**: `forceTour()` wird aufgerufen
+2. **forceTour()** setzt `tourCompleted = false` und startet dann die Tour mit `setShowTour(true)`
+3. **Gleichzeitig**: Der `useEffect` (Zeile 178-238) erkennt, dass `tourCompleted` sich geaendert hat zu `false`
+4. **Auto-Start Logik**: Dieser Effect startet die Tour ebenfalls mit `setShowTour(true)`
+5. **Ergebnis**: Die Tour wird durch **zwei verschiedene Code-Pfade** gleichzeitig gestartet
+
+```text
+                  +------------------+
+                  |  Menue-Klick     |
+                  +--------+---------+
+                           |
+                           v
+                  +--------+---------+
+                  |   forceTour()    |
+                  +--------+---------+
+                           |
+          +----------------+----------------+
+          |                                 |
+          v                                 v
++-------------------+             +-------------------+
+| setTourCompleted  |             | startTour() ->    |
+| (false)           |             | setShowTour(true) |
++--------+----------+             +-------------------+
+         |
+         v (triggert useEffect)
++-------------------+
+| Auto-Start Effect |
+| setShowTour(true) |
++-------------------+
+         |
+         v
++-------------------+
+| DOPPELTE ANZEIGE  |
++-------------------+
+```
 
 ---
 
-## Erforderliche Schritte (Keine Code-Aenderungen noetig!)
+## Loesung
 
-### Schritt 1: Google Cloud Console aktualisieren
+Eine **Sperre (Lock)** einbauen, die verhindert, dass der automatische Start-Effect die Tour startet, wenn sie manuell gestartet wurde.
 
-Gehe zu: **https://console.cloud.google.com/apis/credentials**
+---
 
-1. Waehle dein Projekt aus
-2. Klicke auf die **OAuth 2.0 Client-ID** (Web-Client)
-3. Unter **Autorisierte Weiterleitungs-URIs**, fuege hinzu:
+## Technische Umsetzung
 
-```
-https://auth.ditax.ch/auth/v1/callback
-```
+### Schritt 1: Flag fuer manuelle Aktivierung hinzufuegen
 
-4. Die alte URI kann bleiben (fuer Fallback):
-```
-https://gqbhilftduwxjszznnzy.supabase.co/auth/v1/callback
-```
+In `OnboardingTourContext.tsx`:
 
-5. Speichern
+- Neuen State `isManualStart` hinzufuegen
+- Wenn `forceTour()` aufgerufen wird, dieses Flag auf `true` setzen
+- Im Auto-Start `useEffect`: Pruefen, ob `isManualStart === true` - wenn ja, nicht automatisch starten
+- Nach erfolgreichem Tour-Start das Flag zuruecksetzen
 
-### Schritt 2: Autorisierte JavaScript-Urspruenge pruefen
+### Schritt 2: Aenderung in OnboardingTourContext.tsx
 
-Stelle sicher, dass folgende Origins erlaubt sind:
+```typescript
+// Neuer State
+const [isManualStart, setIsManualStart] = useState(false);
 
-```
-https://app.ditax.ch
-https://auth.ditax.ch
-https://ditaxv2.lovable.app (optional fuer Preview)
+// Im Auto-Start useEffect (Zeile 178):
+useEffect(() => {
+  const checkTourConditions = async () => {
+    // NEUE PRUEFUNG: Abbrechen wenn manuell gestartet
+    if (isManualStart) {
+      debug.log('Tour: Manual start active, skipping auto-check');
+      return;
+    }
+    // ... rest des codes
+  };
+  // ...
+}, [isValid, userId, isLoading, location.pathname, tourCompleted, isManualStart]);
+
+// In forceTour():
+const forceTour = async () => {
+  setIsManualStart(true); // NEU: Flag setzen BEVOR tourCompleted geaendert wird
+  
+  // ... bestehender Code ...
+  
+  // Am Ende von startTour():
+  setIsReady(true);
+  setShowTour(true);
+  setIsManualStart(false); // Flag zuruecksetzen
+};
 ```
 
 ---
 
-## Zusammenfassung der Konfiguration
+## Erwartetes Ergebnis
 
-| Einstellung | Alter Wert | Neuer Wert |
-|-------------|-----------|------------|
-| Supabase Auth Domain | `gqbhilftduwxjszznnzy.supabase.co` | `auth.ditax.ch` |
-| Google OAuth Callback | `https://gqbhilftduwxjszznnzy.supabase.co/auth/v1/callback` | `https://auth.ditax.ch/auth/v1/callback` |
-
----
-
-## Keine Code-Aenderungen erforderlich
-
-Der Supabase Client verwendet automatisch die konfigurierte Auth-Domain. Das Problem liegt ausschliesslich in der Google Cloud Console Konfiguration.
-
-**Nach der Konfiguration:** Das Login sollte sofort funktionieren (keine Wartezeit fuer DNS-Propagation, da die Domain bereits aktiv ist).
+| Vorher | Nachher |
+|--------|---------|
+| Tour erscheint 2-3x | Tour erscheint genau 1x |
+| Race Condition | Saubere Sequenz |
 
 ---
 
-## Checkliste
+## Betroffene Dateien
 
-- [ ] Google Cloud Console oeffnen
-- [ ] OAuth 2.0 Client-ID bearbeiten
-- [ ] `https://auth.ditax.ch/auth/v1/callback` als Redirect URI hinzufuegen
-- [ ] Speichern
-- [ ] Google Login testen
+| Datei | Aenderung |
+|-------|-----------|
+| `src/contexts/OnboardingTourContext.tsx` | Neuer `isManualStart` State + Logik |
+
+---
+
+## Alternative Betrachtung
+
+Eine weitere Ursache koennte sein, dass der User auf `/auth` navigiert wird, wenn er die Tour startet (laut Session-Replay). Falls dies der Fall ist, muesste auch geprueft werden, ob der Navigation-Flow korrekt ist. Die primaere Ursache ist jedoch die Race Condition.
+
