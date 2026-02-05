@@ -2,12 +2,12 @@
  * AI Document Validation Component
  * 
  * A live AI analysis view that shows fields being detected and confirmed in real-time.
- * Replaces step-based progress with dynamic field validation.
+ * Fields resolve progressively with dynamic status messages.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check, Circle } from 'lucide-react';
+import { Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ValidationProgress } from '@/types/documentProfile';
 
@@ -19,20 +19,51 @@ interface ExtractedField {
   id: string;
   label: string;
   value: string | null;
+  displayValue: string;
   confidence: 'high' | 'medium' | 'low' | 'pending';
   isValidated: boolean;
+  statusMessage: string;
 }
 
 interface AIDocumentValidationProps {
   progress: ValidationProgress;
   documentType?: string;
   foundKeywords?: string[];
-  /** Custom fields to display (optional - will generate from keywords if not provided) */
-  fields?: ExtractedField[];
 }
 
 // ============================================================================
-// Field Skeleton Component
+// Field Configuration
+// ============================================================================
+
+const FIELD_CONFIG = [
+  { 
+    id: 'name', 
+    label: 'Name', 
+    placeholderValue: 'Max Mustermann',
+    statusMessage: 'Name wird erkannt…'
+  },
+  { 
+    id: 'employer', 
+    label: 'Arbeitgeber', 
+    placeholderValue: 'ACME AG',
+    statusMessage: 'Arbeitgeber wird geprüft…'
+  },
+  { 
+    id: 'amount', 
+    label: 'Bruttolohn', 
+    placeholderValue: "5'240 CHF",
+    statusMessage: 'Beträge werden validiert…'
+  },
+  { 
+    id: 'date', 
+    label: 'Datum', 
+    placeholderValue: '31.12.2024',
+    statusMessage: 'Dokument wird abgeschlossen…'
+  },
+];
+
+// ============================================================================
+// Field Row Component
 // ============================================================================
 
 interface FieldRowProps {
@@ -41,97 +72,86 @@ interface FieldRowProps {
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({ field, index }) => {
-  // Check for reduced motion preference
   const prefersReducedMotion = typeof window !== 'undefined' 
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
     : false;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: index * 0.1, duration: 0.3 }}
-      className="flex items-center justify-between py-3 border-b border-border/50 last:border-b-0"
-    >
+    <div className="flex items-center justify-between py-3.5 border-b border-border/40 last:border-b-0">
       {/* Label */}
-      <span className="text-sm text-muted-foreground">{field.label}</span>
+      <span className="text-sm text-muted-foreground font-medium">{field.label}</span>
       
       {/* Value + Badge */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-3">
         <AnimatePresence mode="wait">
           {!field.isValidated ? (
             // Skeleton placeholder
             <motion.div
-              key="skeleton"
-              initial={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              key={`skeleton-${field.id}`}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
               className={cn(
-                "h-5 rounded bg-muted",
+                "h-5 rounded-md bg-muted",
                 field.id === 'name' ? 'w-28' : 
-                field.id === 'amount' ? 'w-20' : 
-                field.id === 'date' ? 'w-24' : 'w-24',
+                field.id === 'employer' ? 'w-20' : 
+                field.id === 'amount' ? 'w-16' : 'w-20',
                 !prefersReducedMotion && "animate-shimmer-skeleton"
               )}
             />
           ) : (
-            // Validated value
+            // Validated value with animation
             <motion.span
-              key="value"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-sm font-medium text-foreground"
+              key={`value-${field.id}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="text-sm font-semibold text-foreground"
             >
-              {field.value || '—'}
+              {field.displayValue}
             </motion.span>
           )}
         </AnimatePresence>
 
-        {/* Confidence Badge */}
+        {/* Status Indicator */}
         <div className="w-5 h-5 flex items-center justify-center">
           <AnimatePresence mode="wait">
             {!field.isValidated ? (
-              // Empty placeholder
+              // Empty circle placeholder
               <motion.div
-                key="placeholder"
-                initial={{ opacity: 0.3 }}
-                animate={{ opacity: 0.3 }}
-                exit={{ opacity: 0 }}
-                className="w-4 h-4 rounded-full bg-muted"
+                key={`pending-${field.id}`}
+                exit={{ opacity: 0, scale: 0 }}
+                className="w-4 h-4 rounded-full bg-muted/60"
               />
             ) : field.confidence === 'high' ? (
               // Green check
               <motion.div
-                key="high"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="w-5 h-5 rounded-full bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center"
+                key={`check-${field.id}`}
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 500, 
+                  damping: 25,
+                  delay: 0.1 
+                }}
+                className="w-5 h-5 rounded-full bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center shadow-sm"
               >
                 <Check className="w-3 h-3 text-white" strokeWidth={3} />
               </motion.div>
-            ) : field.confidence === 'medium' ? (
-              // Yellow dot
+            ) : (
+              // Yellow/orange dot for medium confidence
               <motion.div
-                key="medium"
+                key={`medium-${field.id}`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
                 className="w-4 h-4 rounded-full bg-amber-400 dark:bg-amber-500"
               />
-            ) : (
-              // Low confidence - gray dot
-              <motion.div
-                key="low"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="w-4 h-4 rounded-full bg-muted-foreground/30"
-              />
             )}
           </AnimatePresence>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -142,132 +162,176 @@ const FieldRow: React.FC<FieldRowProps> = ({ field, index }) => {
 const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
   progress,
   documentType = 'Dokument',
-  foundKeywords = [],
-  fields: customFields
+  foundKeywords = []
 }) => {
-  // Generate fields from keywords or use defaults
-  const baseFields = useMemo((): ExtractedField[] => {
-    if (customFields) return customFields;
-    
-    // Default fields for document validation
-    const defaultFields: ExtractedField[] = [
-      { id: 'name', label: 'Name', value: null, confidence: 'pending', isValidated: false },
-      { id: 'employer', label: 'Arbeitgeber', value: null, confidence: 'pending', isValidated: false },
-      { id: 'amount', label: 'Bruttolohn', value: null, confidence: 'pending', isValidated: false },
-      { id: 'date', label: 'Datum', value: null, confidence: 'pending', isValidated: false },
-    ];
+  const prefersReducedMotion = typeof window !== 'undefined' 
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
+    : false;
 
-    return defaultFields;
-  }, [customFields]);
+  // Initialize fields
+  const initialFields = useMemo((): ExtractedField[] => {
+    return FIELD_CONFIG.map(config => ({
+      id: config.id,
+      label: config.label,
+      value: null,
+      displayValue: config.placeholderValue,
+      confidence: 'pending' as const,
+      isValidated: false,
+      statusMessage: config.statusMessage
+    }));
+  }, []);
 
-  const [fields, setFields] = useState<ExtractedField[]>(baseFields);
-  const [validatedCount, setValidatedCount] = useState(0);
+  const [fields, setFields] = useState<ExtractedField[]>(initialFields);
+  const [currentFieldIndex, setCurrentFieldIndex] = useState(-1);
+  const [statusMessage, setStatusMessage] = useState('Text wird erkannt…');
+  const [isComplete, setIsComplete] = useState(false);
 
-  // Progressive field validation based on progress
+  // Calculate confidence based on found keywords
+  const getConfidence = useCallback((fieldId: string): 'high' | 'medium' => {
+    if (foundKeywords.length >= 3) return 'high';
+    if (foundKeywords.length >= 1) return 'high';
+    return 'medium';
+  }, [foundKeywords]);
+
+  // Progressive field validation
   useEffect(() => {
     const progressPercent = progress.percent;
     
-    // Map progress to number of validated fields
-    let targetValidated = 0;
-    if (progressPercent >= 90) targetValidated = fields.length;
-    else if (progressPercent >= 70) targetValidated = Math.floor(fields.length * 0.75);
-    else if (progressPercent >= 50) targetValidated = Math.floor(fields.length * 0.5);
-    else if (progressPercent >= 30) targetValidated = Math.floor(fields.length * 0.25);
-    else if (progressPercent >= 15) targetValidated = 1;
+    // Determine how many fields should be validated based on progress
+    let targetFieldIndex = -1;
+    if (progressPercent >= 95) targetFieldIndex = 3; // All 4 fields
+    else if (progressPercent >= 75) targetFieldIndex = 2;
+    else if (progressPercent >= 55) targetFieldIndex = 1;
+    else if (progressPercent >= 35) targetFieldIndex = 0;
+    else if (progressPercent >= 20) targetFieldIndex = -1; // Still loading
 
-    // Animate field validation one by one
-    if (targetValidated > validatedCount) {
+    // Validate fields one by one with delay
+    if (targetFieldIndex > currentFieldIndex && currentFieldIndex < fields.length - 1) {
+      const nextIndex = currentFieldIndex + 1;
+      const delay = 400 + Math.random() * 400; // 400-800ms
+
+      // Update status message for next field
+      if (nextIndex < FIELD_CONFIG.length) {
+        setStatusMessage(FIELD_CONFIG[nextIndex].statusMessage);
+      }
+
       const timer = setTimeout(() => {
-        setFields(prev => prev.map((field, index) => {
-          if (index === validatedCount) {
-            // Check if this keyword was found
-            const hasKeyword = foundKeywords.some(kw => 
-              kw.toLowerCase().includes(field.label.toLowerCase()) ||
-              field.label.toLowerCase().includes(kw.toLowerCase())
-            );
-            
-            // Generate mock value based on field type
-            let mockValue = '—';
-            let confidence: 'high' | 'medium' | 'low' = hasKeyword ? 'high' : 'medium';
-            
-            if (field.id === 'name') {
-              mockValue = hasKeyword ? 'Erkannt' : '—';
-            } else if (field.id === 'employer') {
-              mockValue = hasKeyword ? 'Erkannt' : '—';
-            } else if (field.id === 'amount') {
-              mockValue = hasKeyword ? 'CHF ****' : '—';
-            } else if (field.id === 'date') {
-              mockValue = hasKeyword ? '**.**.****' : '—';
-            }
-
-            // If we have found keywords, show high confidence
-            if (foundKeywords.length >= 4) confidence = 'high';
-            else if (foundKeywords.length >= 2) confidence = 'medium';
-            else confidence = foundKeywords.length > 0 ? 'medium' : 'low';
-            
+        setFields(prev => prev.map((field, idx) => {
+          if (idx === nextIndex) {
             return {
               ...field,
-              value: mockValue,
-              confidence,
-              isValidated: true
+              isValidated: true,
+              confidence: getConfidence(field.id)
             };
           }
           return field;
         }));
-        setValidatedCount(prev => prev + 1);
-      }, 300 + Math.random() * 500); // 300-800ms delay
+        setCurrentFieldIndex(nextIndex);
+
+        // Check if all fields are validated
+        if (nextIndex === fields.length - 1) {
+          setTimeout(() => {
+            setStatusMessage('Dokument erfolgreich geprüft');
+            setIsComplete(true);
+          }, 300);
+        }
+      }, delay);
 
       return () => clearTimeout(timer);
     }
-  }, [progress.percent, validatedCount, fields.length, foundKeywords]);
+  }, [progress.percent, currentFieldIndex, fields.length, getConfidence]);
 
   // Reset when progress resets
   useEffect(() => {
-    if (progress.percent < 10) {
-      setFields(baseFields);
-      setValidatedCount(0);
+    if (progress.percent < 15 && progress.step === 'preparing') {
+      setFields(initialFields);
+      setCurrentFieldIndex(-1);
+      setStatusMessage('Text wird erkannt…');
+      setIsComplete(false);
     }
-  }, [progress.percent, baseFields]);
-
-  const allValidated = validatedCount >= fields.length && progress.step === 'complete';
+  }, [progress.percent, progress.step, initialFields]);
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
-      {/* Header */}
+      {/* Header with AI Icon */}
       <div className="flex flex-col items-center gap-3">
-        {/* AI Icon */}
-        <motion.div 
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center"
-          animate={!allValidated ? { 
-            scale: [1, 1.05, 1],
-          } : {}}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          {allValidated ? (
+        {/* Animated AI Icon with Pulse/Glow */}
+        <div className="relative">
+          <motion.div 
+            className={cn(
+              "w-16 h-16 rounded-full flex items-center justify-center",
+              "bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5"
+            )}
+            animate={!isComplete && !prefersReducedMotion ? { 
+              scale: [1, 1.08, 1],
+              boxShadow: [
+                '0 0 0 0 rgba(59, 130, 246, 0)',
+                '0 0 20px 4px rgba(59, 130, 246, 0.15)',
+                '0 0 0 0 rgba(59, 130, 246, 0)'
+              ]
+            } : {}}
+            transition={{ 
+              duration: 2, 
+              repeat: isComplete ? 0 : Infinity, 
+              ease: "easeInOut" 
+            }}
+          >
+            <AnimatePresence mode="wait">
+              {isComplete ? (
+                <motion.div
+                  key="complete"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="analyzing"
+                  animate={!prefersReducedMotion ? { 
+                    rotate: [0, 5, -5, 0] 
+                  } : {}}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                >
+                  <Sparkles className="w-8 h-8 text-primary" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Subtle orbiting particle */}
+          {!isComplete && !prefersReducedMotion && (
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="absolute inset-0 pointer-events-none"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
             >
-              <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
+              <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/50" />
             </motion.div>
-          ) : (
-            <Sparkles className="w-8 h-8 text-primary" />
           )}
-        </motion.div>
+        </div>
 
         {/* Title */}
         <div className="text-center">
           <h3 className="font-semibold text-foreground text-lg">
-            {allValidated ? 'Analyse abgeschlossen' : `AI prüft ${documentType}`}
+            {isComplete ? 'Analyse abgeschlossen' : `AI prüft ${documentType}`}
           </h3>
           <motion.p 
-            key={allValidated ? 'done' : 'loading'}
-            initial={{ opacity: 0, y: 5 }}
+            key={statusMessage}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-sm text-muted-foreground mt-1"
+            transition={{ duration: 0.2 }}
+            className={cn(
+              "text-sm mt-1",
+              isComplete ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-muted-foreground"
+            )}
           >
-            {allValidated ? 'Alle Felder erkannt' : 'Dokument wird analysiert'}
+            {statusMessage}
           </motion.p>
         </div>
       </div>
@@ -275,67 +339,59 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
       {/* Validation Card */}
       <motion.div 
         className="w-full bg-card border border-border rounded-xl p-4 shadow-sm"
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
       >
         {fields.map((field, index) => (
           <FieldRow key={field.id} field={field} index={index} />
         ))}
       </motion.div>
 
-      {/* Found Keywords Pills */}
+      {/* Keywords Found - Show after first field validates */}
       <AnimatePresence>
-        {foundKeywords.length > 0 && validatedCount > 0 && (
+        {foundKeywords.length > 0 && currentFieldIndex >= 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
             className="w-full"
           >
             <div className="flex flex-wrap gap-1.5 justify-center">
-              {foundKeywords.slice(0, 5).map((keyword, index) => (
+              {foundKeywords.slice(0, 4).map((keyword, index) => (
                 <motion.span
                   key={keyword}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1, duration: 0.2 }}
-                  className="px-2 py-0.5 text-xs bg-muted rounded-full text-muted-foreground"
+                  transition={{ delay: index * 0.08, duration: 0.2 }}
+                  className="px-2 py-0.5 text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800"
                 >
                   {keyword}
                 </motion.span>
               ))}
-              {foundKeywords.length > 5 && (
-                <span className="px-2 py-0.5 text-xs text-muted-foreground">
-                  +{foundKeywords.length - 5}
-                </span>
-              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Footer Status */}
-      <motion.div
-        key={allValidated ? 'complete' : 'loading'}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center gap-2"
-      >
-        {!allValidated && (
+      {/* Subtle loading indicator - only when not complete */}
+      {!isComplete && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-2"
+        >
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-3 h-3 rounded-full border-2 border-primary/30 border-t-primary"
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="w-3 h-3 rounded-full border-2 border-primary/20 border-t-primary"
           />
-        )}
-        <span className={cn(
-          "text-xs",
-          allValidated ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-muted-foreground"
-        )}>
-          {allValidated ? 'Dokument erfolgreich geprüft' : 'Analyse läuft…'}
-        </span>
-      </motion.div>
+          <span className="text-xs text-muted-foreground">
+            {progress.percent}% analysiert
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 };
