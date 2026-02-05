@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,6 +24,10 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   const { isValid, userId, isLoading } = useAuthValidation();
   const location = useLocation();
   const isMobile = useIsMobile();
+  
+  // Track if user has navigated away - prevents tour from starting after navigation
+  const initialRouteRef = useRef<string | null>(null);
+  const hasNavigatedRef = useRef(false);
 
   // Check tour completion status in user metadata
   const checkTourCompletionStatus = async (): Promise<boolean> => {
@@ -162,12 +166,29 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
     loadTourStatus();
   }, [isValid, userId, isLoading]);
 
+  // Track navigation - if user navigates away, don't show tour on return
+  useEffect(() => {
+    if (initialRouteRef.current === null) {
+      initialRouteRef.current = location.pathname;
+      debug.log('🎯 Tour: Initial route set:', location.pathname);
+    } else if (location.pathname !== initialRouteRef.current) {
+      hasNavigatedRef.current = true;
+      debug.log('🎯 Tour: User navigated, tour will not auto-start on return');
+    }
+  }, [location.pathname]);
+
   // Check if tour should be shown automatically
   useEffect(() => {
     const checkTourConditions = async () => {
       // Skip auto-check if manual start is in progress (prevents race condition)
       if (isManualStart) {
         debug.log('🎯 Tour: Manual start active, skipping auto-check');
+        return;
+      }
+
+      // Don't show tour if user has already navigated to other pages
+      if (hasNavigatedRef.current) {
+        debug.log('❌ Tour: User has navigated, skipping auto-start');
         return;
       }
 

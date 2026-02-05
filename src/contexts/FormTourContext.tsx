@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
 import { debug } from '@/utils/debug';
@@ -23,6 +23,10 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const location = useLocation();
+  
+  // Track if user has navigated - prevents tour from starting after navigation
+  const initialRouteRef = useRef<string | null>(null);
+  const hasNavigatedRef = useRef(false);
 
   // Check if on form page without section param (main dashboard)
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
@@ -88,6 +92,17 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     return () => subscription.unsubscribe();
   }, []);
 
+  // Track navigation - if user navigates away, don't show tour on return
+  useEffect(() => {
+    if (initialRouteRef.current === null) {
+      initialRouteRef.current = location.pathname;
+      debug.log('🎯 Form Tour: Initial route set:', location.pathname);
+    } else if (location.pathname !== initialRouteRef.current) {
+      hasNavigatedRef.current = true;
+      debug.log('🎯 Form Tour: User navigated, tour will not auto-start');
+    }
+  }, [location.pathname]);
+
   // Auto-show tour when on form dashboard and not completed
   // CRITICAL: Only show if onboarding tour is already completed (prevents overlapping tours)
   useEffect(() => {
@@ -96,6 +111,13 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     // Don't show form tour if onboarding tour hasn't been completed yet
     if (!onboardingCompleted) {
       debug.log('🎯 Form Tour: Onboarding tour not completed yet, skipping form tour');
+      setShowTour(false);
+      return;
+    }
+    
+    // Don't show tour if user navigated here from another page
+    if (hasNavigatedRef.current && !initialRouteRef.current?.startsWith('/form')) {
+      debug.log('🎯 Form Tour: User navigated here, skipping tour');
       setShowTour(false);
       return;
     }
