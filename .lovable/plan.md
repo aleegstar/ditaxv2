@@ -1,34 +1,37 @@
 
 
-# Dynamischer Status-Text mit Shimmer-Wechsel-Effekt
+# Premium AI-Research Shimmer-Effekt für Dokumentenvalidierung
 
 ## Zusammenfassung
-Der statische Status-Text ("Arbeitgeber wird geprüft...") wird durch eine dynamische, dokumenttyp-spezifische Animation ersetzt. Statt die Status-Texte untereinander anzuzeigen, werden sie auf einer Zeile mit einem Shimmer-Fade-Wechsel-Effekt dargestellt - ähnlich wie bei AI-Assistenten, die "überlegen".
+Die Dokumentenvalidierung soll visuell wie ein moderner AI-Chatbot wirken, der "nachdenkt" und "recherchiert". Der aktuelle Shimmer-Effekt ist zu subtil. Er wird durch einen auffälligeren, mehrfarbigen Gradient-Shimmer ersetzt - genau wie in den Referenzbildern zu sehen.
 
 ---
 
-## Was wird geändert
+## Was geändert wird
 
-### 1. Dokumenttyp-spezifische Status-Texte
-Jeder Dokumenttyp erhält eigene, kontextbezogene Status-Nachrichten:
+### 1. Neuer Premium Shimmer-Effekt (CSS)
 
-| Dokumenttyp | Status-Texte (Beispiele) |
-|-------------|-------------------------|
-| Lohnausweis | "Arbeitgeber wird erkannt...", "Bruttolohn wird geprüft...", "AHV-Nr. wird validiert..." |
-| Säule 3a | "Anbieter wird erkannt...", "Einzahlung wird geprüft...", "Steuerjahr wird validiert..." |
-| Pensionskassenausweis | "Vorsorgeeinrichtung wird erkannt...", "Altersguthaben wird geprüft..." |
-| Mieteinnahmen | "Liegenschaft wird erkannt...", "Mietzins wird geprüft..." |
-| Default | Generische Texte für unbekannte Dokumenttypen |
+Der aktuelle blaue Shimmer wird durch einen **Multi-Color-Gradient** ersetzt:
+- Farben: Blau → Violett → Rosa → Blau (wie bei AI-Assistenten)
+- Schnellere Animation (1.5s statt 2.5s)
+- Stärkerer Kontrast zwischen den Farben
+- Text erscheint "lebendig" und aktiv
 
-### 2. Animierter Text-Wechsel auf einer Linie
-- Texte erscheinen auf **einer einzigen Zeile**
-- Wechsel alle **2-3 Sekunden** mit sanftem Fade-Out/Fade-In
-- **Shimmer-Effekt** auf dem aktiven Text (wie bei "Ditax denkt nach")
-- Respektiert `prefers-reduced-motion`
+```text
+Vorher:  Blau → Hellblau → Blau (kaum sichtbar)
+Nachher: Blau → Violett → Rosa → Orange → Blau (deutlich sichtbar)
+```
 
----
+### 2. Verbesserter Animationsflow
 
-## Visuelle Darstellung
+| Eigenschaft | Vorher | Nachher |
+|-------------|--------|---------|
+| Farbpalette | Mono-Blau | Multi-Color-Gradient |
+| Animation-Dauer | 2.5s | 1.8s (schneller, dynamischer) |
+| Gradient-Stops | 5 | 7-8 (flüssiger) |
+| Background-Size | 200% | 300% (mehr "Laufweg") |
+
+### 3. Visuelle Darstellung
 
 ```text
 ┌─────────────────────────────────────────┐
@@ -37,14 +40,10 @@ Jeder Dokumenttyp erhält eigene, kontextbezogene Status-Nachrichten:
 │                                         │
 │     Ditax prüft Säule 3a Bescheinigung  │
 │                                         │
-│      ✨ Anbieter wird erkannt... ✨      │  ← Shimmer + Fade-Wechsel
-│                                         │
-│  ┌───────────────────────────────────┐  │
-│  │  Name           Max Mustermann ✓  │  │
-│  │  Anbieter       VIAC              │  │
-│  │  Einzahlung     ░░░░░░░░░░░       │  │
-│  │  Datum          ░░░░░░░░░░░       │  │
-│  └───────────────────────────────────┘  │
+│   ✨ Anbieter wird erkannt… ✨           │
+│      ↑                                  │
+│   Multi-Color-Gradient bewegt sich      │
+│   durch den Text (Blau→Violett→Rosa)    │
 │                                         │
 └─────────────────────────────────────────┘
 ```
@@ -53,109 +52,66 @@ Jeder Dokumenttyp erhält eigene, kontextbezogene Status-Nachrichten:
 
 ## Technische Umsetzung
 
-### Datei: `src/components/ui/ai-document-validation.tsx`
+### Datei: `src/index.css`
 
-#### A. Neue Dokumenttyp-Konfiguration
-```typescript
-const STATUS_MESSAGES_BY_DOCTYPE: Record<string, string[]> = {
-  'employment-income': [
-    'Arbeitgeber wird erkannt…',
-    'Bruttolohn wird geprüft…',
-    'AHV-Beiträge werden validiert…',
-    'Quellensteuer wird analysiert…'
-  ],
-  'pillar3a-certificate': [
-    'Anbieter wird erkannt…',
-    'Einzahlung wird geprüft…',
-    'Steuerjahr wird validiert…',
-    'Kontodaten werden analysiert…'
-  ],
-  'pillar2-statement': [
-    'Vorsorgeeinrichtung wird erkannt…',
-    'Altersguthaben wird geprüft…',
-    'Beiträge werden validiert…'
-  ],
-  // ... weitere Dokumenttypen
-  'default': [
-    'Text wird erkannt…',
-    'Daten werden analysiert…',
-    'Dokument wird validiert…'
-  ]
-};
-```
+Die bestehende `.shimmer-text` Klasse wird durch einen Premium-Gradient ersetzt:
 
-#### B. Rotierender Status-Text mit Shimmer
-
-**Neuer State:**
-```typescript
-const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-```
-
-**Timer für Text-Rotation:**
-```typescript
-useEffect(() => {
-  if (isComplete) return;
-  
-  const interval = setInterval(() => {
-    setCurrentMessageIndex(prev => 
-      (prev + 1) % statusMessages.length
-    );
-  }, 2500); // Wechsel alle 2.5 Sekunden
-  
-  return () => clearInterval(interval);
-}, [isComplete, statusMessages.length]);
-```
-
-**Animierte Darstellung:**
-```tsx
-<AnimatePresence mode="wait">
-  <motion.p
-    key={currentMessageIndex}
-    initial={{ opacity: 0, y: 8 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -8 }}
-    transition={{ duration: 0.3 }}
-    className="shimmer-text text-sm text-center"
-  >
-    {statusMessages[currentMessageIndex]}
-  </motion.p>
-</AnimatePresence>
-```
-
-#### C. Prop-Erweiterung
-```typescript
-interface AIDocumentValidationProps {
-  progress: ValidationProgress;
-  documentType?: string;
-  documentTypeId?: string;  // NEU: ID für Status-Lookup
-  foundKeywords?: string[];
+```css
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #6B7280 0%,      /* Neutral grau (Basis) */
+    #3B82F6 20%,     /* Blau */
+    #8B5CF6 40%,     /* Violett */
+    #EC4899 60%,     /* Pink */
+    #3B82F6 80%,     /* Blau */
+    #6B7280 100%     /* Neutral grau (Basis) */
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s infinite linear;
 }
 ```
 
-### Datei: `src/components/EnhancedDocumentUploader.tsx`
-- Übergibt `documentTypeId` an `AIDocumentValidation`
+**Alternativ (subtilere Variante für Light Mode):**
+```css
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted-foreground)) 0%,
+    hsl(var(--primary)) 25%,
+    hsl(280 70% 50%) 50%,  /* Violett */
+    hsl(var(--primary)) 75%,
+    hsl(var(--muted-foreground)) 100%
+  );
+  /* ... */
+}
+```
 
-### Datei: `src/components/documents/DocumentAssignmentModal.tsx`
-- Übergibt `documentTypeId` an `AIDocumentValidation`
+### Datei: `src/components/ui/ai-document-validation.tsx`
+
+Die `RotatingStatusText`-Komponente wird leicht angepasst für bessere Lesbarkeit:
+- Etwas größere Schrift (`text-sm` → `text-base` oder `text-[15px]`)
+- Mehr vertikaler Abstand
+- Optional: Emoji/Sparkle-Icon neben dem Text
 
 ---
 
-## Animation-Details
+## Optionale Erweiterungen
 
-| Eigenschaft | Wert |
-|-------------|------|
-| Wechsel-Intervall | 2500ms |
-| Fade-Dauer | 300ms |
-| Shimmer-Geschwindigkeit | 2.5s (bestehende CSS-Klasse) |
-| Y-Versatz beim Wechsel | ±8px |
+### A. Sparkle-Icon neben dem Text
+Wie in den Referenzbildern könnte ein kleines animiertes Icon (✨) den Text begleiten:
+```tsx
+<span className="inline-flex items-center gap-1.5">
+  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+  {messages[currentIndex]}
+</span>
+```
 
----
-
-## Accessibility
-
-- `prefers-reduced-motion`: Shimmer und Fade werden deaktiviert
-- Text bleibt lesbar ohne Animation
-- Keine Layout-Verschiebungen durch konstante Zeilenhöhe
+### B. Fallback für Dark Mode
+Hellere Gradient-Farben für bessere Sichtbarkeit im Dark Mode.
 
 ---
 
@@ -163,7 +119,14 @@ interface AIDocumentValidationProps {
 
 | Datei | Änderung |
 |-------|----------|
-| `src/components/ui/ai-document-validation.tsx` | Haupt-Implementation |
-| `src/components/EnhancedDocumentUploader.tsx` | Prop-Übergabe |
-| `src/components/documents/DocumentAssignmentModal.tsx` | Prop-Übergabe |
+| `src/index.css` | Neuer Premium-Shimmer-Gradient |
+| `src/components/ui/ai-document-validation.tsx` | Leichte Anpassungen an Typografie |
+
+---
+
+## Accessibility
+
+- `prefers-reduced-motion`: Animation wird deaktiviert, Text bleibt lesbar
+- Fallback-Farbe für Browser ohne Gradient-Unterstützung
+- Ausreichender Kontrast auch ohne Animation
 
