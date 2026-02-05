@@ -381,14 +381,10 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
       return;
     }
 
-    // MOBILE: Skip document validation entirely (temporarily disabled)
-    if (isMobileAppContext()) {
-      console.log('[Upload] Mobile detected - skipping document validation');
-      await performUpload(filesToUpload);
-      return;
-    }
+    // Document validation now works on mobile via tesseract-wasm
+    // All WASM files are present in /public/ocr/
 
-    // DESKTOP: New multi-signal document validation (replaces OCR)
+    // Multi-signal document validation (Desktop + Mobile)
     if (checklistItem && filesToUpload.length > 0 && !isVerifying) {
       setIsVerifying(true);
       setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
