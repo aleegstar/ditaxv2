@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, CheckCircle, FileText, Users, MessageCircle, TrendingUp, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle, FileText, Users, MessageCircle, TrendingUp, RefreshCw, UserPlus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,7 @@ import { StatsWidget } from '@/components/ui/stats-widget';
 
 interface DashboardStats {
   totalUsers: number;
+  newUsersLast30Days: number;
   pendingTaxReturns: number;
   expressTaxReturns: number;
   incompleteTaxReturns: number;
@@ -45,6 +46,7 @@ export const AdminDashboard: React.FC = () => {
   const { userId, isValid } = useAuthValidation();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
+    newUsersLast30Days: 0,
     pendingTaxReturns: 0,
     expressTaxReturns: 0,
     incompleteTaxReturns: 0,
@@ -94,6 +96,16 @@ export const AdminDashboard: React.FC = () => {
       const { count: usersCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
+
+      // Get new users in last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0);
+      
+      const { count: newUsersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gte('updated_at', thirtyDaysAgo.toISOString());
 
       // Get tax returns ready for creation (workflow_step = 'review' or 'processing')
       const { count: pendingCount } = await supabase
@@ -187,6 +199,7 @@ export const AdminDashboard: React.FC = () => {
 
       setStats({
         totalUsers: usersCount || 0,
+        newUsersLast30Days: newUsersCount || 0,
         pendingTaxReturns: pendingCount || 0,
         expressTaxReturns: expressCount || 0,
         incompleteTaxReturns: incompleteExpressCount || 0,
@@ -417,6 +430,28 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Neue User (30 Tage) */}
+        <Link to="/admin/users" className="group">
+          <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-xl bg-gray-50">
+                  <UserPlus className="h-6 w-6 text-gray-400" />
+                </div>
+                {stats.newUsersLast30Days > 0 && (
+                  <Badge className="bg-[#1D64FF] text-white text-xs px-2 py-1">
+                    +{stats.newUsersLast30Days}
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold text-gray-900">Neue User (30 Tage)</h3>
+                <p className="text-2xl font-bold text-gray-900">{stats.newUsersLast30Days}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );
