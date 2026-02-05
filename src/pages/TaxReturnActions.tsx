@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Download, Eye, AlertTriangle, Upload, Loader2, ArrowLeft, CheckCircle, PenTool } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeFileName, validateFilePath } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -303,7 +304,19 @@ export default function TaxReturnActions() {
     setUploadLoading(true);
 
     try {
-      const filePath = `${userId}/${taxYear}/${selectedFile.name}`;
+      // SECURITY: Sanitize file name to prevent path traversal attacks
+      const safeFileName = sanitizeFileName(selectedFile.name);
+      const filePath = `${userId}/${taxYear}/${safeFileName}`;
+      
+      // SECURITY: Validate complete file path
+      if (!validateFilePath(filePath)) {
+        toast({
+          variant: "destructive",
+          title: t.taxReturnActions.error,
+          description: "Ungültiger Dateipfad erkannt.",
+        });
+        return;
+      }
       
       const { error: uploadError } = await supabase.storage
         .from('definitive-tax-bills')

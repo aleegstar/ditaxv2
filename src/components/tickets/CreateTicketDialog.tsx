@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Paperclip, X, Loader2, MessageSquarePlus, CheckCircle } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeFileName } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
 interface CreateTicketDialogProps {
   isOpen: boolean;
@@ -77,7 +78,10 @@ export const CreateTicketDialog = ({
       // Upload attachments if any
       if (attachments.length > 0) {
         for (const file of attachments) {
-          const fileName = `${user.id}/${ticket.id}/${Date.now()}-${file.name}`;
+          // SECURITY: Sanitize file name to prevent path traversal attacks
+          const safeFileName = sanitizeFileName(file.name);
+          const fileName = `${user.id}/${ticket.id}/${Date.now()}-${safeFileName}`;
+          
           const {
             error: uploadError
           } = await supabase.storage.from('ticket-attachments').upload(fileName, file);

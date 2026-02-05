@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import { sanitizeFileName } from '@/utils/fileValidation';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from '@/contexts';
@@ -162,8 +163,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       } else {
         // Use regular upload (existing logic)
         const fileId = uuidv4();
-        const fileExt = fileWithPreview.file.name.split('.').pop();
-        const filePath = `${userId}/${checklistItem.id}_${fileId}.${fileExt}`;
+        // SECURITY: Sanitize file extension to prevent path traversal
+        const fileExt = fileWithPreview.file.name.split('.').pop() || 'file';
+        const safeExt = sanitizeFileName(fileExt);
+        const filePath = `${userId}/${checklistItem.id}_${fileId}.${safeExt}`;
 
         setFiles(prev => prev.map(f => 
           f.id === fileWithPreview.id 

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/unified-alert-dialog";
 import { Upload, FileText, Trash2, Download, Eye } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeFileName } from '@/utils/fileValidation';
 import { toast } from "@/components/ui/use-toast";
 import { SecurityService } from "@/services/SecurityService";
 
@@ -77,6 +78,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
 
     try {
       // Create file path with user ID folder structure
+      // SECURITY: No sanitization needed here as filename is programmatically generated (no user input)
       const fileName = `${userId}_${taxYear}_${Date.now()}.pdf`;
       const filePath = `${userId}/${fileName}`;
 

@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Paperclip, X, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeFileName } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
 
 const CreateTicket = () => {
@@ -122,7 +123,9 @@ const CreateTicket = () => {
       // Upload attachments if any
       if (attachments.length > 0) {
         for (const file of attachments) {
-          const fileName = `${user.id}/${ticket.id}/${Date.now()}-${file.name}`;
+          // SECURITY: Sanitize file name to prevent path traversal attacks
+          const safeFileName = sanitizeFileName(file.name);
+          const fileName = `${user.id}/${ticket.id}/${Date.now()}-${safeFileName}`;
           
           const { error: uploadError } = await supabase.storage
             .from('ticket-attachments')

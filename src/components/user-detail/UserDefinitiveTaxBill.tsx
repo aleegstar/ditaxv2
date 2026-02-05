@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeFileName, validateFilePath } from '@/utils/fileValidation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -119,7 +120,20 @@ export function UserDefinitiveTaxBill({ userId, isAdmin = false, selectedTaxFile
 
     try {
       const existingBill = bills.find(bill => bill.tax_year === selectedTaxYear);
-      const filePath = `${userId}/${selectedTaxYear}/${selectedFile.name}`;
+      
+      // SECURITY: Sanitize file name to prevent path traversal attacks
+      const safeFileName = sanitizeFileName(selectedFile.name);
+      const filePath = `${userId}/${selectedTaxYear}/${safeFileName}`;
+      
+      // SECURITY: Validate complete file path
+      if (!validateFilePath(filePath)) {
+        toast({
+          title: "Fehler",
+          description: "Ungültiger Dateipfad erkannt.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       // If file exists, delete old one first
       if (existingBill) {
