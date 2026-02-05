@@ -69,30 +69,30 @@ const FIELD_CONFIG = [
 
 interface FieldRowProps {
   field: ExtractedField;
-  index: number;
+  isBeingValidated: boolean;
 }
 
-const FieldRow: React.FC<FieldRowProps> = ({ field, index }) => {
+const FieldRow: React.FC<FieldRowProps> = ({ field, isBeingValidated }) => {
   const prefersReducedMotion = typeof window !== 'undefined' 
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
     : false;
 
   return (
-    <div className="flex items-center justify-between py-3.5 border-b border-border/40 last:border-b-0">
+    <div className="flex items-center justify-between py-3.5 border-b border-border/30 last:border-b-0">
       {/* Label */}
       <span className="text-sm text-muted-foreground font-medium">{field.label}</span>
       
-      {/* Value + Badge */}
+      {/* Value + Status */}
       <div className="flex items-center gap-3">
         <AnimatePresence mode="wait">
-          {!field.isValidated ? (
+          {!field.isValidated && !isBeingValidated ? (
             // Skeleton placeholder
             <motion.div
               key={`skeleton-${field.id}`}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
               className={cn(
-                "h-5 rounded-md bg-muted",
+                "h-5 rounded-md bg-muted/60",
                 field.id === 'name' ? 'w-28' : 
                 field.id === 'employer' ? 'w-20' : 
                 field.id === 'amount' ? 'w-16' : 'w-20',
@@ -100,12 +100,12 @@ const FieldRow: React.FC<FieldRowProps> = ({ field, index }) => {
               )}
             />
           ) : (
-            // Validated value with animation
+            // Value (being validated or confirmed)
             <motion.span
               key={`value-${field.id}`}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
               className="text-sm font-semibold text-foreground"
             >
               {field.displayValue}
@@ -116,38 +116,41 @@ const FieldRow: React.FC<FieldRowProps> = ({ field, index }) => {
         {/* Status Indicator */}
         <div className="w-5 h-5 flex items-center justify-center">
           <AnimatePresence mode="wait">
-            {!field.isValidated ? (
-              // Empty circle placeholder
+            {!field.isValidated && !isBeingValidated ? (
+              // Empty placeholder
               <motion.div
-                key={`pending-${field.id}`}
+                key={`empty-${field.id}`}
                 exit={{ opacity: 0, scale: 0 }}
-                className="w-4 h-4 rounded-full bg-muted/60"
+                className="w-2 h-2 rounded-full bg-muted/40"
               />
-            ) : field.confidence === 'high' ? (
-              // Green check
+            ) : isBeingValidated && !field.isValidated ? (
+              // Pulsing blue dot (being validated)
+              <motion.div
+                key={`validating-${field.id}`}
+                initial={{ scale: 0 }}
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ 
+                  duration: 1.2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(29,100,255,0.5)]"
+              />
+            ) : (
+              // Green check (confirmed)
               <motion.div
                 key={`check-${field.id}`}
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ 
                   type: "spring", 
-                  stiffness: 500, 
-                  damping: 25,
-                  delay: 0.1 
+                  stiffness: 400, 
+                  damping: 20 
                 }}
-                className="w-5 h-5 rounded-full bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center shadow-sm"
+                className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center"
               >
                 <Check className="w-3 h-3 text-white" strokeWidth={3} />
               </motion.div>
-            ) : (
-              // Yellow/orange dot for medium confidence
-              <motion.div
-                key={`medium-${field.id}`}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                className="w-4 h-4 rounded-full bg-amber-400 dark:bg-amber-500"
-              />
             )}
           </AnimatePresence>
         </div>
@@ -346,7 +349,11 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         transition={{ duration: 0.3, delay: 0.1 }}
       >
         {fields.map((field, index) => (
-          <FieldRow key={field.id} field={field} index={index} />
+          <FieldRow 
+            key={field.id} 
+            field={field} 
+            isBeingValidated={index === currentFieldIndex + 1 && !field.isValidated}
+          />
         ))}
       </motion.div>
 
@@ -377,23 +384,6 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Subtle loading indicator - only when not complete */}
-      {!isComplete && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center gap-2"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="w-3 h-3 rounded-full border-2 border-primary/20 border-t-primary"
-          />
-          <span className="text-xs text-muted-foreground">
-            {progress.percent}% analysiert
-          </span>
-        </motion.div>
-      )}
     </div>
   );
 };
