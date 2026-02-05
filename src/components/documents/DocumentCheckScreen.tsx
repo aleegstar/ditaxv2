@@ -1,18 +1,20 @@
 /**
- * Document Check Screen Component (Compact Version)
+ * Document Check Screen Component
  * 
- * Displays validation results after document upload.
- * Compact design for use in dialogs.
+ * Calm, helpful AI notification dialog for post-OCR validation results.
+ * Designed to feel like a friendly AI assistant, not a technical error.
  * 
  * PRIVACY: Shows only validation results, never document content.
  */
 
 import React from 'react';
-import { CheckCircle, AlertTriangle, XCircle, RefreshCw, X } from 'lucide-react';
+import { Info, Upload, FileCheck, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ValidationResult } from '@/types/documentProfile';
 import { getDocumentProfile } from '@/config/documentProfiles';
+import { cn } from '@/lib/utils';
+import ditaxSymbol from '@/assets/ditax-symbol.svg';
 
 interface DocumentCheckScreenProps {
   result: ValidationResult;
@@ -31,145 +33,183 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
   onClose,
   isConfirming = false
 }) => {
+  const prefersReducedMotion = typeof window !== 'undefined' 
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
+    : false;
+
   const profile = getDocumentProfile(result.best.docTypeId);
   const confidence = result.best.confidence;
-  const isImageWithoutOcr = result.signals.meta.mimeType?.startsWith('image/') && !result.signals.keywords?.available;
+  const isLowConfidence = confidence < 80;
+  const documentLabel = profile?.label || 'Dokument';
 
-  // Determine status
-  const getStatus = () => {
-    if (confidence >= 80) return { icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50 dark:bg-green-950/50', label: 'Erkannt' };
-    if (confidence >= 50) return { icon: AlertTriangle, color: 'text-amber-600', bgColor: 'bg-amber-50 dark:bg-amber-950/50', label: 'Prüfen' };
-    return { icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50 dark:bg-red-950/50', label: 'Unsicher' };
-  };
-
-  const status = getStatus();
-  const StatusIcon = status.icon;
-
-  // Get short status message
-  const getStatusMessage = () => {
-    if (isImageWithoutOcr) {
-      return 'Texterkennung nicht möglich – bitte bestätigen';
-    }
+  // Get notification content based on confidence
+  const getNotificationContent = () => {
     if (confidence >= 80) {
-      return 'Dokument wurde erkannt';
+      return {
+        title: `${documentLabel} erfolgreich erkannt`,
+        body: 'Das Dokument wurde erkannt und kann eingereicht werden.',
+        variant: 'success' as const
+      };
     }
     if (confidence >= 50) {
-      return 'Nicht eindeutig erkannt – bitte prüfen';
+      return {
+        title: `${documentLabel} nicht eindeutig erkannt`,
+        body: 'Wir konnten das Dokument nicht sicher zuordnen. Bitte prüfe, ob es sich um das richtige Dokument handelt.',
+        variant: 'warning' as const
+      };
     }
-    if (confidence >= 20) {
-      return 'Scheint nicht das richtige Dokument zu sein';
-    }
-    return 'Dokument wurde nicht erkannt';
+    return {
+      title: `${documentLabel} konnte nicht erkannt werden`,
+      body: 'Wir konnten den Text in diesem Dokument nicht sicher auslesen. Bitte prüfe, ob es sich um das richtige Dokument handelt.',
+      variant: 'info' as const
+    };
   };
 
-  // Get explanation text for low confidence
-  const getExplanationText = () => {
-    if (confidence >= 80) return null;
-    if (isImageWithoutOcr) {
-      return 'Wir konnten keinen Text aus dem Bild lesen. Bitte prüfe, ob dies das richtige Dokument ist.';
+  const notification = getNotificationContent();
+
+  // Variant styles for notification card
+  const variantStyles = {
+    success: {
+      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+      border: 'border-emerald-200 dark:border-emerald-800/50',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/50',
+      iconColor: 'text-emerald-600 dark:text-emerald-400'
+    },
+    warning: {
+      bg: 'bg-amber-50 dark:bg-amber-950/30',
+      border: 'border-amber-200 dark:border-amber-800/50',
+      iconBg: 'bg-amber-100 dark:bg-amber-900/50',
+      iconColor: 'text-amber-600 dark:text-amber-400'
+    },
+    info: {
+      bg: 'bg-blue-50 dark:bg-blue-950/30',
+      border: 'border-blue-200 dark:border-blue-800/50',
+      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
+      iconColor: 'text-blue-600 dark:text-blue-400'
     }
-    if (confidence >= 50) {
-      return 'Das Dokument entspricht möglicherweise nicht dem erwarteten Typ. Bitte überprüfe es.';
-    }
-    return `Das hochgeladene Dokument scheint kein "${profile?.label || 'erwartetes Dokument'}" zu sein. Bitte lade das richtige Dokument hoch.`;
   };
 
-  const explanationText = getExplanationText();
-
-  // Get main warning reason (most important one)
-  const getWarningReason = () => {
-    const reasons = result.best.reasons;
-    const warning = reasons.find(r => r.includes('⚠️') || r.includes('Keine passenden'));
-    return warning?.replace('⚠️ ', '') || null;
-  };
-
-  const warningReason = getWarningReason();
+  const styles = variantStyles[notification.variant];
 
   return (
-    <div className="space-y-4">
-      {/* Header with close button */}
-      {onClose && (
-        <div className="flex items-center justify-between -mt-2 -mx-2">
-          <span className="text-lg font-semibold text-foreground pl-2">Dokumentenprüfung</span>
+    <motion.div 
+      className="space-y-5"
+      initial={!prefersReducedMotion ? { opacity: 0, y: 20 } : undefined}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <span className="text-lg font-semibold text-foreground">Dokumentenprüfung</span>
+        {onClose && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-8 w-8 rounded-full"
+            className="h-9 w-9 rounded-full bg-muted/50 hover:bg-muted"
+            aria-label="Schliessen"
           >
             <X className="h-4 w-4" />
           </Button>
-        </div>
-      )}
-
-      {/* Compact Result Display */}
-      <div className={`p-4 rounded-xl ${status.bgColor} border border-border`}>
-        <div className="flex items-center gap-3">
-          <StatusIcon className={`w-8 h-8 ${status.color} flex-shrink-0`} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-foreground truncate">
-                {profile?.label || 'Unbekannt'}
-              </span>
-              {!isImageWithoutOcr && (
-                <Badge 
-                  variant={confidence >= 80 ? 'default' : confidence >= 50 ? 'secondary' : 'destructive'}
-                  className="flex-shrink-0"
-                >
-                  {confidence}%
-                </Badge>
-              )}
-            </div>
-            <p className={`text-sm ${status.color}`}>
-              {getStatusMessage()}
-            </p>
-          </div>
-        </div>
-
-        {/* Explanation text for low confidence */}
-        {explanationText && (
-          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-            {explanationText}
-          </p>
-        )}
-
-        {/* Warning reason if exists */}
-        {warningReason && confidence < 50 && !explanationText && (
-          <p className="text-sm text-muted-foreground mt-2 pl-11">
-            {warningReason}
-          </p>
         )}
       </div>
 
+      {/* Ditax Logo Header */}
+      <div className="flex flex-col items-center gap-2 py-2">
+        <div className="w-12 h-12 rounded-full bg-white border border-border/50 flex items-center justify-center">
+          <img 
+            src={ditaxSymbol} 
+            alt="Ditax" 
+            className="w-7 h-7 object-contain"
+          />
+        </div>
+      </div>
+
+      {/* Notification Card */}
+      <motion.div 
+        className={cn(
+          'p-4 rounded-2xl border',
+          styles.bg,
+          styles.border
+        )}
+        initial={!prefersReducedMotion ? { opacity: 0, scale: 0.98 } : undefined}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.2, delay: 0.1 }}
+      >
+        <div className="flex gap-3">
+          {/* Icon */}
+          <div className={cn(
+            'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
+            styles.iconBg
+          )}>
+            <Info className={cn('w-5 h-5', styles.iconColor)} />
+          </div>
+          
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-foreground text-[15px] leading-tight mb-1">
+              {notification.title}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {notification.body}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* File name - subtle */}
-      <p className="text-xs text-muted-foreground truncate px-1">
+      <p className="text-xs text-muted-foreground/70 truncate text-center">
         {fileName}
       </p>
 
       {/* Action Buttons */}
-      <div className="space-y-3 pt-2">
-        {/* Primary Action: Upload new file */}
-        <Button 
-          onClick={onReupload} 
-          className="w-full"
-          size="lg"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          {confidence < 50 ? 'Richtiges Dokument hochladen' : 'Andere Datei hochladen'}
-        </Button>
+      <div className="space-y-3 pt-1">
+        {/* Primary Action */}
+        {isLowConfidence ? (
+          <Button 
+            onClick={onReupload} 
+            className="w-full rounded-xl"
+            size="lg"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Richtigen {documentLabel} hochladen
+          </Button>
+        ) : (
+          <Button 
+            onClick={onConfirm}
+            disabled={isConfirming}
+            className="w-full rounded-xl"
+            size="lg"
+          >
+            <FileCheck className="w-4 h-4 mr-2" />
+            {isConfirming ? 'Wird verarbeitet...' : 'Dokument einreichen'}
+          </Button>
+        )}
         
-        {/* Secondary: Submit anyway */}
-        <Button 
-          variant="outline"
-          onClick={onConfirm}
-          disabled={isConfirming}
-          className="w-full"
-          size="default"
-        >
-          {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
-        </Button>
+        {/* Secondary Action */}
+        {isLowConfidence ? (
+          <Button 
+            variant="outline"
+            onClick={onConfirm}
+            disabled={isConfirming}
+            className="w-full rounded-xl border-border"
+            size="default"
+          >
+            {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
+          </Button>
+        ) : (
+          <Button 
+            variant="outline"
+            onClick={onReupload}
+            className="w-full rounded-xl border-border"
+            size="default"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Andere Datei hochladen
+          </Button>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
