@@ -10,7 +10,7 @@ import { DocumentMetadata } from '@/services/DocumentService';
 import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
-import AIResearchProgress from '@/components/ui/ai-research-progress';
+import AIDocumentValidation from '@/components/ui/ai-document-validation';
 import { isMobileAppContext } from '@/utils/platform';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import {
@@ -330,12 +330,13 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
 
   return (
     <>
-      {/* AI Research Progress Modal - Outside Dialog to ensure visibility */}
+      {/* AI Document Validation Modal - Outside Dialog to ensure visibility */}
       {isVerifying && validationProgress && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-            <AIResearchProgress 
+          <div className="bg-card dark:bg-card rounded-2xl w-full max-w-sm p-6 shadow-xl border border-border">
+            <AIDocumentValidation 
               progress={validationProgress}
+              documentType={checklistItemTitle}
               foundKeywords={validationProgress.foundKeywords}
             />
           </div>

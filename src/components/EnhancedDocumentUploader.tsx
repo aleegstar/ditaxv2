@@ -14,7 +14,7 @@ import DocumentValidator from '@/services/DocumentValidator';
 import DocumentCheckScreen from './documents/DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 import { isMobileAppContext } from '@/utils/platform';
-import AIResearchProgress from './ui/ai-research-progress';
+import AIDocumentValidation from './ui/ai-document-validation';
 
 // Component props interface
 export interface DocumentUploaderProps {
@@ -641,12 +641,13 @@ const EnhancedDocumentUploader: React.FC<DocumentUploaderProps> = ({
         </div>
       )}
 
-      {/* AI Research Progress Modal */}
+      {/* AI Document Validation Modal */}
       {isVerifying && validationProgress && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-            <AIResearchProgress 
+          <div className="bg-card dark:bg-card rounded-2xl w-full max-w-sm p-6 shadow-xl border border-border">
+            <AIDocumentValidation 
               progress={validationProgress}
+              documentType={checklistItem?.title || 'Dokument'}
               foundKeywords={validationProgress.foundKeywords}
             />
           </div>
