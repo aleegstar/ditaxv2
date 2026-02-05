@@ -1,109 +1,238 @@
 
-# Analyse: iPad Social Login funktioniert nicht
+# Plan: Behebung der Aikido Security Scan Findings
 
-## Befunde der Code-Analyse
+## Zusammenfassung der Probleme
 
-### 1. User Agent Erkennung - KORREKT
-Die `isDespiaNative()` Funktion prüft auf `despia` im User Agent:
+Aus den Screenshots wurden 6 Sicherheitsprobleme identifiziert:
+
+| Problem | Schweregrad | Typ | Betroffene Bereiche |
+|---------|-------------|-----|---------------------|
+| Path Traversal Attack | High (70) | SAST | 35 Stellen in src/components/admin/ und weitere |
+| glob Vulnerability | High (75) | Dependency | CVE in glob 10.4.5 |
+| react-router Vulnerability | Medium (65) | Dependency | CVE-2025-68470 |
+| lodash Vulnerability | Medium (65) | Dependency | CVE-2025-13465 |
+| rollup Vulnerability | Medium (64) | Dependency | DOM Clobbering XSS |
+| CSP nicht restriktiv genug | Medium (60) | Surface Monitoring | Wildcard sources in CSP |
+
+---
+
+## Teil 1: Path Traversal Angriffe (KRITISCH - 35 Stellen)
+
+### Aktueller Stand
+
+Einige Dateien verwenden bereits `sanitizeFileName()` und `validateFilePath()`:
+- `src/components/admin/DefinitiveTaxBillManager.tsx`
+- `src/components/admin/DocumentTemplateManager.tsx`
+- `src/components/admin/TaxReturnCreation.tsx`
+
+### Betroffene Dateien OHNE Schutz (18 Stellen mit .upload())
+
+| Datei | Problem |
+|-------|---------|
+| `src/components/user-detail/UserDefinitiveTaxBill.tsx` | `selectedFile.name` direkt verwendet |
+| `src/pages/TaxReturnActions.tsx` | `selectedFile.name` direkt verwendet |
+| `src/components/ui/tax-return-action-dialog.tsx` | Keine Validierung |
+| `src/components/chat/ModernChatWindow.tsx` | UUID statt Dateiname - OK |
+| `src/components/chat/ChatWindow.tsx` | UUID statt Dateiname - OK |
+| `src/components/chat/MissingItemCard.tsx` | Keine Validierung |
+| `src/components/DocumentUploader.tsx` | Prüfen ob Validierung existiert |
+| `src/pages/Documents.tsx` | Keine Validierung |
+| `src/pages/CreateTicket.tsx` | Keine Validierung |
+| `src/components/tickets/CreateTicketDialog.tsx` | Keine Validierung |
+| `src/components/AvatarUpload.tsx` | Extension direkt verwendet |
+| `src/components/ui/profile-avatar-upload.tsx` | Extension direkt verwendet |
+| `src/services/EncryptedChatService.ts` | Generierter Name - OK |
+| `src/services/EncryptedDocumentService.ts` | Prüfen |
+| `src/components/user-detail/CompletedTaxReturnManager.tsx` | Prüfen |
+
+### Loesung
+
+Fuer jede betroffene Datei:
+1. Import hinzufuegen: `import { sanitizeFileName, validateFilePath } from '@/utils/fileValidation';`
+2. Vor dem Upload: Dateinamen sanitisieren und Pfad validieren
+
+**Beispiel-Pattern:**
 ```typescript
-// src/lib/despia.ts Zeile 28-36
-export const isDespiaNative = (): boolean => {
-  const isDespia = typeof navigator !== 'undefined' && 
-         navigator.userAgent.toLowerCase().includes('despia');
-  return isDespia;
-};
+// SECURITY: Sanitize file name to prevent path traversal attacks
+const { sanitizeFileName, validateFilePath } = await import('@/utils/fileValidation');
+const safeName = sanitizeFileName(file.name);
+const filePath = `${userId}/${safeName}`;
+
+// SECURITY: Validate complete file path
+if (!validateFilePath(filePath)) {
+  toast({ title: "Fehler", description: "Ungueltiger Dateipfad erkannt.", variant: "destructive" });
+  return;
+}
 ```
 
-**`despia-ipad`** enthält **`despia`**, daher wird dies korrekt erkannt.
+---
 
-### 2. Das eigentliche Problem: Hardcodierter deeplink_scheme in Auth.tsx
+## Teil 2: CSP Konfiguration (Medium - Score 60)
 
-In `Auth.tsx` wird der `deeplink_scheme` **hardcodiert** statt die Konstante zu verwenden:
+### Problem
+Die CSP verwendet Wildcard-Sources und nicht-restriktive Direktiven:
+- `img-src 'self' data: https: blob:` - `https:` ist ein Wildcard
+- `'unsafe-inline'` und `'unsafe-eval'` in script-src (bekannte Einschraenkung)
 
-| Datei | Zeile | Problem |
-|-------|-------|---------|
-| `src/pages/Auth.tsx` | 195 | `deeplink_scheme: 'ditax'` (hardcodiert) |
-| `src/pages/Auth.tsx` | 275 | `deeplink_scheme: 'ditax'` (hardcodiert) |
+### Betroffene Dateien
+- `index.html` (Meta-Tag CSP)
+- `src/utils/securityHeaders.ts` (Runtime CSP)
+- `cloudflare/security-headers-worker.js` (HTTP Header CSP)
+- `public/_headers` (Referenz)
 
-Im Gegensatz dazu verwenden `GoogleAuth.tsx` und `AppleAuth.tsx` **korrekt** die Konstante:
-```typescript
-// GoogleAuth.tsx Zeile 33
-deeplink_scheme: DEEPLINK_SCHEME
+### Loesung
+1. `img-src` anpassen: `https:` durch explizite Domains ersetzen
+2. `https://*.supabase.co` bereits spezifisch - OK
+3. Hinzufuegen: `https://storage.googleapis.com` (fuer Social Images)
+
+**Vorgeschlagene img-src:**
+```
+img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://gqbhilftduwxjszznnzy.supabase.co
 ```
 
-### 3. Unterschied zwischen Android und iPad
+---
 
-**Android** funktioniert, weil:
-- Der hardcodierte Wert `'ditax'` zufällig mit `DEEPLINK_SCHEME` übereinstimmt
-- Chrome Custom Tabs auf Android verhalten sich anders
+## Teil 3: Dependency Vulnerabilities
 
-**iPad** funktioniert nicht, weil:
-- ASWebAuthenticationSession auf iOS strenger ist
-- Möglicherweise ist der DEEPLINK_SCHEME nicht importiert
+### 3.1 react-router-dom (CVE-2025-68470)
 
-### 4. Fehlender Import in Auth.tsx
+**Aktuell:** `^6.26.2`
+**Empfohlen:** `6.30.2` oder hoeher
 
-```typescript
-// Auth.tsx Zeile 14 - DEEPLINK_SCHEME fehlt im Import!
-import { isDespiaNative, triggerDespiaPasskeyAuth } from "@/lib/despia";
-// Sollte sein:
-import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+**Aenderung in package.json:**
+```json
+"react-router-dom": "^6.30.2"
 ```
 
-## Lösung
+### 3.2 lodash (CVE-2025-13465 - Prototype Pollution)
 
-### Änderung 1: DEEPLINK_SCHEME Import hinzufügen
-```typescript
-// Auth.tsx Zeile 14
-import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+**Aktuell:** Transitive Dependency (4.17.21)
+**Empfohlen:** 4.17.23
+
+**Hinweis:** lodash ist keine direkte Dependency. Die Aktualisierung erfolgt durch:
+1. Pruefung welches Package lodash als Dependency hat
+2. Update des Parent-Packages oder Override in package.json
+
+**Loesung:**
+```json
+"overrides": {
+  "lodash": "^4.17.23"
+}
 ```
 
-### Änderung 2: Hardcodierte Werte ersetzen
-```typescript
-// Zeile 195 (Google)
-deeplink_scheme: DEEPLINK_SCHEME
+### 3.3 rollup (DOM Clobbering XSS)
 
-// Zeile 275 (Apple)
-deeplink_scheme: DEEPLINK_SCHEME
+**Aktuell:** Transitive Dependency von Vite
+**Empfohlen:** Patch-Version
+
+**Aenderung in package.json:**
+```json
+"overrides": {
+  "rollup": "^4.29.0"
+}
 ```
 
-### Änderung 3: Debug-Logging für iPad hinzufügen
+### 3.4 glob (Command Injection CVE)
+
+**Aktuell:** 10.4.5 (transitive)
+**Empfohlen:** 10.5.0 oder 11.1.0
+
+**Aenderung in package.json:**
+```json
+"overrides": {
+  "glob": "^10.5.0"
+}
+```
+
+---
+
+## Implementierungsplan
+
+### Phase 1: Kritische Fixes (Path Traversal)
+
+**Zu bearbeitende Dateien:**
+
+1. `src/components/user-detail/UserDefinitiveTaxBill.tsx`
+2. `src/pages/TaxReturnActions.tsx`
+3. `src/components/ui/tax-return-action-dialog.tsx`
+4. `src/components/chat/MissingItemCard.tsx`
+5. `src/components/DocumentUploader.tsx`
+6. `src/pages/Documents.tsx`
+7. `src/pages/CreateTicket.tsx`
+8. `src/components/tickets/CreateTicketDialog.tsx`
+9. `src/components/AvatarUpload.tsx`
+10. `src/components/ui/profile-avatar-upload.tsx`
+11. `src/components/user-detail/CompletedTaxReturnManager.tsx`
+12. `src/services/EncryptedDocumentService.ts`
+
+### Phase 2: CSP Hardening
+
+**Zu bearbeitende Dateien:**
+
+1. `index.html` - img-src restriktiver gestalten
+2. `src/utils/securityHeaders.ts` - DEFAULT_CSP aktualisieren
+3. `cloudflare/security-headers-worker.js` - CSP aktualisieren
+
+### Phase 3: Dependency Updates
+
+**Zu bearbeitende Dateien:**
+
+1. `package.json` - Dependencies und Overrides aktualisieren
+
+---
+
+## Technische Details
+
+### fileValidation.ts Erweiterung
+
+Die bestehende Validierung ist gut, aber benoetigt eine zusaetzliche Funktion fuer File Extensions:
+
 ```typescript
-// In src/lib/despia.ts - isDespiaIOS verbessern
-export const isDespiaIOS = (): boolean => {
-  const ua = navigator.userAgent.toLowerCase();
-  const isIOS = isDespiaNative() && (
-    ua.includes('iphone') || 
-    ua.includes('ipad') || 
-    ua.includes('despia-ipad')  // Explizit für iPad
-  );
+/**
+ * Validate and sanitize file extension
+ * Prevents double extension attacks (e.g., file.pdf.exe)
+ */
+export function sanitizeFileExtension(fileName: string): string {
+  const parts = fileName.split('.');
+  if (parts.length === 1) return fileName;
   
-  if (isIOS) {
-    console.log('📱 Despia iOS detected:', { userAgent: ua });
+  // Only keep the last extension
+  const name = parts.slice(0, -1).join('_');
+  const ext = parts[parts.length - 1].toLowerCase();
+  
+  // Whitelist of allowed extensions
+  const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'docx', 'xlsx'];
+  
+  if (!allowedExtensions.includes(ext)) {
+    throw new Error('Nicht erlaubte Dateiendung');
   }
   
-  return isIOS;
-};
+  return `${sanitizeFileName(name)}.${ext}`;
+}
 ```
 
-## Betroffene Dateien
+### CSP img-src Optimierung
 
-| Datei | Änderung |
-|-------|----------|
-| `src/pages/Auth.tsx` | Import erweitern + hardcodierte Werte ersetzen |
-| `src/lib/despia.ts` | Debug-Logging für iPad |
+Ersetze:
+```
+img-src 'self' data: https: blob: https://*.supabase.co
+```
 
-## Warum Android nicht betroffen ist
+Mit:
+```
+img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com
+```
 
-Der Code in `Auth.tsx` verwendet bereits `'ditax'` als String, was mit der Konstante übereinstimmt. Das Problem ist nicht der Wert selbst, sondern die Konsistenz und Wartbarkeit.
+---
 
-**Hinweis**: Falls das Problem weiterhin besteht, könnte es an der iOS ASWebAuthenticationSession liegen, die möglicherweise andere Redirect-Handling-Logik benötigt. In diesem Fall müsste die NativeCallback-Logik für iOS angepasst werden.
+## Erwartete Ergebnisse
 
-## Test nach Implementierung
+Nach der Implementierung:
+- Path Traversal: 0 Findings (von 35)
+- CSP Score: 75-80 (von 60)
+- glob: Behoben durch Override
+- react-router: Behoben durch Update
+- lodash: Behoben durch Override
+- rollup: Behoben durch Override
 
-1. iPad öffnen mit User Agent `despia-ipad`
-2. Google oder Apple Login starten
-3. Console-Logs prüfen für `📱 Despia native detected`
-4. OAuth Flow sollte ASWebAuthenticationSession öffnen
-5. Nach erfolgreicher Auth: Deeplink `ditax://oauth/auth?success=true` wird ausgelöst
-6. App sollte Session erkennen und zur Startseite navigieren
+**Geschaetzter Aikido Score:** 85-90 (von 60-70)
