@@ -262,17 +262,9 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         {/* Animated AI Icon with Pulse/Glow */}
         <div className="relative">
           <motion.div 
-            className={cn(
-              "w-16 h-16 rounded-full flex items-center justify-center",
-              "bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5"
-            )}
+            className="w-16 h-16 rounded-full flex items-center justify-center bg-white border border-border/50"
             animate={!isComplete && !prefersReducedMotion ? { 
-              scale: [1, 1.08, 1],
-              boxShadow: [
-                '0 0 0 0 rgba(59, 130, 246, 0)',
-                '0 0 20px 4px rgba(59, 130, 246, 0.15)',
-                '0 0 0 0 rgba(59, 130, 246, 0)'
-              ]
+              scale: [1, 1.03, 1]
             } : {}}
             transition={{ 
               duration: 2, 
