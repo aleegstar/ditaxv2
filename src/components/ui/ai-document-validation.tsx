@@ -313,10 +313,9 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
           )}
         </div>
 
-        {/* Title */}
         <div className="text-center">
           <h3 className="font-semibold text-foreground text-lg">
-            {isComplete ? 'Analyse abgeschlossen' : `ditax prüft ${documentType}`}
+            {isComplete ? 'Analyse abgeschlossen' : `Ditax prüft ${documentType}`}
           </h3>
           <motion.p 
             key={statusMessage}
