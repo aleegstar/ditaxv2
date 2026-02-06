@@ -1,11 +1,21 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import DocumentValidator from '@/services/DocumentValidator';
 import { validateFile } from '@/utils/fileValidation';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+
+// Timeout constants
+const VALIDATION_TIMEOUT_MS = 20000; // 20 seconds
+const UPLOAD_TIMEOUT_MS = 45000; // 45 seconds
+
+// Helper to create timeout promise
+const createTimeoutPromise = <T>(ms: number, message: string): Promise<T> => {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(message)), ms);
+  });
+};
 
 export interface InlineUploadState {
   itemId: string;
@@ -62,12 +72,14 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
     });
   }, []);
   
-  // Upload a single file directly
+  // Upload a single file directly with timeout
   const uploadFile = useCallback(async (
     file: File, 
     checklistItemId: string, 
     checklistItemTitle?: string
   ): Promise<boolean> => {
+    console.log('[InlineUpload] Starting upload for:', file.name);
+    
     try {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData.session) {
@@ -81,7 +93,8 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         message: 'Wird hochgeladen...'
       });
       
-      await encryptedDocService.uploadEncryptedDocument(
+      // Upload with timeout
+      const uploadPromise = encryptedDocService.uploadEncryptedDocument(
         file,
         checklistItemId,
         userId,
@@ -89,6 +102,13 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         checklistItemTitle,
         taxFilerIdRef.current
       );
+      
+      await Promise.race([
+        uploadPromise,
+        createTimeoutPromise(UPLOAD_TIMEOUT_MS, 'Upload-Zeitüberschreitung. Bitte versuche es erneut.')
+      ]);
+      
+      console.log('[InlineUpload] Upload successful:', file.name);
       
       updateItemState(checklistItemId, {
         status: 'success',
@@ -104,24 +124,32 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       
       return true;
     } catch (err: any) {
-      console.error('Upload error:', err);
+      console.error('[InlineUpload] Upload error:', err);
+      
+      const errorMessage = err.message || 'Fehler beim Hochladen';
+      
       updateItemState(checklistItemId, {
         status: 'error',
         progress: 0,
-        message: err.message || 'Fehler beim Hochladen'
+        message: errorMessage
       });
       
       toast({
         title: "Upload fehlgeschlagen",
-        description: err.message || 'Fehler beim Hochladen',
+        description: errorMessage,
         variant: "destructive"
       });
+      
+      // Clear error state after 5 seconds
+      setTimeout(() => {
+        clearItemState(checklistItemId);
+      }, 5000);
       
       return false;
     }
   }, [taxYear, encryptedDocService, updateItemState, clearItemState, onUploadComplete, toast]);
   
-  // Main handler: process file selection
+  // Main handler: process file selection with timeouts
   const handleFileSelect = useCallback(async (
     files: FileList | File[],
     checklistItemId: string,
@@ -130,6 +158,7 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
     if (!files || files.length === 0) return;
     
     const file = files[0]; // Handle first file for now
+    console.log('[InlineUpload] File selected:', file.name, 'for item:', checklistItemId);
     
     // Initial state
     updateItemState(checklistItemId, {
@@ -141,9 +170,10 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       checklistItemTitle
     });
     
-    // Validate file
+    // Validate file format/size
     const validationResult = await validateFile(file, 10 * 1024 * 1024);
     if (!validationResult.isValid) {
+      console.log('[InlineUpload] File validation failed:', validationResult.error);
       updateItemState(checklistItemId, {
         status: 'error',
         progress: 0,
@@ -155,10 +185,12 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         description: validationResult.error,
         variant: "destructive"
       });
+      
+      setTimeout(() => clearItemState(checklistItemId), 5000);
       return;
     }
     
-    // Start document validation (OCR) - show AI validation popup
+    // Start document validation (OCR) with timeout
     updateItemState(checklistItemId, {
       status: 'validating',
       progress: 20,
@@ -167,7 +199,10 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
     });
     
     try {
-      const result = await documentValidator.validate(
+      console.log('[InlineUpload] Starting OCR validation...');
+      
+      // Validation with timeout - if it fails, we still proceed to upload
+      const validationPromise = documentValidator.validate(
         file,
         checklistItemId,
         (progress) => {
@@ -179,6 +214,20 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
           });
         }
       );
+      
+      let result: ValidationResult | null = null;
+      
+      try {
+        result = await Promise.race([
+          validationPromise,
+          createTimeoutPromise<ValidationResult>(VALIDATION_TIMEOUT_MS, 'Validierung übersprungen')
+        ]);
+      } catch (timeoutError: any) {
+        console.log('[InlineUpload] Validation timed out, proceeding to upload');
+        // Validation timed out - proceed directly to upload
+        await uploadFile(file, checklistItemId, checklistItemTitle);
+        return;
+      }
       
       console.log('[InlineUpload] Validation complete:', {
         fileName: file.name,
@@ -207,16 +256,9 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       
       // High confidence - proceed with upload immediately
       console.log('[InlineUpload] High confidence, proceeding with upload...');
-      updateItemState(checklistItemId, {
-        status: 'uploading',
-        progress: 50,
-        message: 'Wird hochgeladen...',
-        validationProgress: undefined
-      });
-      
       await uploadFile(file, checklistItemId, checklistItemTitle);
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('[InlineUpload] Validation error:', err);
       
       // On error, proceed with upload anyway
@@ -228,7 +270,7 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       
       await uploadFile(file, checklistItemId, checklistItemTitle);
     }
-  }, [documentValidator, updateItemState, uploadFile, onValidationNeeded, toast]);
+  }, [documentValidator, updateItemState, uploadFile, onValidationNeeded, toast, clearItemState]);
   
   // Confirm upload after user approves low-confidence document
   const confirmUpload = useCallback(async (itemId: string) => {
