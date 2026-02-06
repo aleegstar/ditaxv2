@@ -68,18 +68,25 @@ const DocumentChecklist: React.FC = () => {
     taxYear,
     taxFilerId: activeTaxFilerId,
     onUploadComplete: async (itemId) => {
-      // Refresh documents and mark as uploaded
-      await refreshDocuments();
+      // IMMEDIATELY mark as uploaded for instant UI feedback
       markUploaded(itemId, true);
+      console.log('[DocumentChecklist] Marked item as uploaded:', itemId);
+      
+      // Then refresh documents in background
+      try {
+        await refreshDocuments();
+      } catch (err) {
+        console.warn('[DocumentChecklist] Background refresh failed:', err);
+      }
       
       // Retry refresh if document doesn't appear (handles DB propagation delay)
-      const docs = getDocumentsForItem(itemId);
-      if (docs.length === 0) {
-        console.log('[DocumentChecklist] Document not visible yet, retrying refresh...');
-        setTimeout(async () => {
+      setTimeout(async () => {
+        try {
           await refreshDocuments();
-        }, 1000);
-      }
+        } catch (err) {
+          console.warn('[DocumentChecklist] Retry refresh failed:', err);
+        }
+      }, 1500);
     },
     onValidationNeeded: (state) => {
       // Show low confidence modal

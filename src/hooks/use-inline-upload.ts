@@ -7,8 +7,11 @@ import { validateFile } from '@/utils/fileValidation';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 
 // Timeout constants
-const VALIDATION_TIMEOUT_MS = 20000; // 20 seconds
+const VALIDATION_TIMEOUT_MS = 10000; // 10 seconds (reduced from 20)
 const UPLOAD_TIMEOUT_MS = 45000; // 45 seconds
+
+// Feature flag: Skip OCR validation entirely for reliability
+const SKIP_OCR_VALIDATION = true;
 
 // Helper to create timeout promise
 const createTimeoutPromise = <T>(ms: number, message: string): Promise<T> => {
@@ -204,7 +207,14 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       return;
     }
     
-    // Start document validation (OCR) with timeout
+    // FAST PATH: Skip OCR validation entirely for reliability
+    if (SKIP_OCR_VALIDATION) {
+      console.log('[InlineUpload] OCR disabled - uploading directly...');
+      await uploadFile(file, checklistItemId, checklistItemTitle);
+      return;
+    }
+    
+    // Start document validation (OCR) with timeout - only if not skipped
     updateItemState(checklistItemId, {
       status: 'validating',
       progress: 20,
