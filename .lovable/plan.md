@@ -1,167 +1,200 @@
 
-# Plan: Upload-Problem in der Dokumenten-Checkliste beheben
 
-## Ursache des Problems
+# Plan: Dokumenten-Checkliste Upload & Löschen reparieren
 
-Nach eingehender Analyse der Datenbank und des Codes wurde die Hauptursache identifiziert:
+## Identifizierte Probleme
 
-### Das Core-Problem
+Nach detaillierter Analyse des Codes und der Datenbank habe ich **drei kritische Probleme** identifiziert:
 
-Das neueste hochgeladene Dokument hat `tax_filer_id = NULL`:
-```
-id: 28f8bd8a-6e3f-48ee-855a-f162c8afa724
-tax_filer_id: <nil>  ← PROBLEM
-tax_year: 2029
-```
+### Problem 1: DocumentValidator blockiert den Upload
+Die OCR-Validierung (`documentValidator.validate()`) kann bei bestimmten Bedingungen hängen bleiben oder sehr lange dauern:
+- Tesseract-WASM muss initialisiert werden
+- Bei großen Dateien kann die Analyse lange dauern
+- Der aktuelle 20-Sekunden-Timeout kann immer noch zu lang sein
 
-Während die Document-Abfrage nach einer spezifischen `tax_filer_id` filtert, was bedeutet:
-- **Upload**: Dokument wird ohne TaxFilerId gespeichert
-- **Abruf**: Query sucht nach Dokumenten MIT einer spezifischen TaxFilerId
-- **Resultat**: Dokument wird nicht gefunden
+### Problem 2: Delete-Funktion scheitert still
+Die `deleteDocument`-Funktion im `DocumentService` hat keine ausreichende Fehlerbehandlung:
+- Zeile 99-103: Das Abrufen des Dokuments könnte aufgrund von RLS-Policies fehlschlagen
+- Zeile 109: Storage-Löschung gibt keinen Fehler zurück, aber könnte fehlschlagen
+- Zeile 111-116: Die Datenbank-Löschung wirft erst am Ende einen Fehler
 
-### Warum passiert das?
-
-1. Der TaxFilerContext nutzt `sessionStorage` für die Auswahl
-2. Bei der Initialisierung kann `activeTaxFilerId` noch `null` sein
-3. Der Upload-Hook speichert zu diesem Zeitpunkt das Dokument ohne TaxFilerId
-4. Beim Refresh ist die TaxFilerId dann gesetzt, aber das Dokument matcht nicht
+### Problem 3: Race Condition beim Document-Refresh
+Nach dem Upload wird `onUploadComplete` aufgerufen, das `refreshDocuments()` triggert. Aber:
+- Der FormContext muss die Dokumente erneut laden
+- Die Upload-Map wird nicht sofort aktualisiert
+- Die Checkliste zeigt das Dokument nicht an, obwohl es in der DB existiert
 
 ## Lösungsplan
 
-### Änderung 1: TaxFilerId-Prüfung vor Upload
+### Änderung 1: OCR-Validierung komplett optional machen
 **Datei:** `src/hooks/use-inline-upload.ts`
 
-Vor dem Start des Uploads prüfen, ob eine gültige TaxFilerId verfügbar ist. Wenn nicht, diese aus dem TaxFilerContext laden.
+Die Validierung soll NICHT blockierend sein. Bei jedem Fehler oder Timeout direkt zum Upload fortfahren:
 
 ```typescript
-// Vor dem Upload
-const { data: sessionData } = await supabase.auth.getSession();
-const userId = sessionData.session.user.id;
+// Timeout auf 10 Sekunden reduzieren
+const VALIDATION_TIMEOUT_MS = 10000; // 10 seconds (was 20)
 
-// Fallback: TaxFilerId aus sessionStorage oder DB laden wenn nicht vorhanden
-let effectiveTaxFilerId = taxFilerIdRef.current;
-if (!effectiveTaxFilerId) {
-  effectiveTaxFilerId = sessionStorage.getItem('ditax_selected_tax_filer');
+// Bei handleFileSelect: Wenn Session nicht vorhanden, sofort abbrechen
+const { data: sessionData } = await supabase.auth.getSession();
+if (!sessionData?.session) {
+  updateItemState(checklistItemId, {
+    status: 'error',
+    message: 'Bitte melde dich an'
+  });
+  return;
 }
 ```
 
-### Änderung 2: Document-Query toleranter machen
+### Änderung 2: Upload direkt ohne Validierung starten (Schneller Pfad)
+**Datei:** `src/hooks/use-inline-upload.ts`
+
+Option hinzufügen, die Validierung komplett zu überspringen und direkt hochzuladen:
+
+```typescript
+// Nach Datei-Validierung (Format/Größe), direkt zum Upload
+// Statt OCR-Validierung → Direct Upload
+console.log('[InlineUpload] Skipping OCR, direct upload...');
+await uploadFile(file, checklistItemId, checklistItemTitle);
+```
+
+### Änderung 3: Delete-Funktion robuster machen
 **Datei:** `src/services/DocumentService.ts`
 
-Die Query so anpassen, dass sie auch Dokumente ohne TaxFilerId findet (OR-Bedingung):
+Bessere Fehlerbehandlung beim Löschen:
 
 ```typescript
-// Wenn taxFilerId vorhanden, auch Dokumente ohne TaxFilerId einschliessen
-if (taxFilerId) {
-  query = query.or(`tax_filer_id.eq.${taxFilerId},tax_filer_id.is.null`);
+async deleteDocument(documentId: string): Promise<void> {
+  const userId = await this.checkAuth();
+
+  // Explizit User-ID prüfen für RLS
+  const { data: doc, error: fetchError } = await supabase
+    .from('uploaded_documents')
+    .select('file_path, tax_year, user_id')
+    .eq('id', documentId)
+    .eq('user_id', userId) // Explizite User-Prüfung
+    .single();
+
+  if (fetchError) {
+    console.error('[DocumentService] Error fetching document:', fetchError);
+    throw new Error('Dokument nicht gefunden oder keine Berechtigung');
+  }
+  
+  // Storage löschen (mit Fehlerbehandlung)
+  const { error: storageError } = await supabase.storage
+    .from('documents')
+    .remove([doc.file_path]);
+  
+  if (storageError) {
+    console.warn('[DocumentService] Storage delete warning:', storageError);
+    // Continue anyway - file might already be deleted
+  }
+
+  // DB löschen
+  const { error: dbError } = await supabase
+    .from('uploaded_documents')
+    .delete()
+    .eq('id', documentId)
+    .eq('user_id', userId); // Doppelte Sicherheit
+
+  if (dbError) {
+    console.error('[DocumentService] DB delete error:', dbError);
+    throw new Error('Dokument konnte nicht gelöscht werden');
+  }
+  
+  // Cache aktualisieren...
 }
 ```
 
-### Änderung 3: Migration für existierende Dokumente
-**SQL-Migration** (wird im Supabase Dashboard ausgeführt)
+### Änderung 4: Sofortige UI-Aktualisierung nach Upload
+**Datei:** `src/components/DocumentChecklist.tsx`
 
-Das betroffene Dokument nachträglich der korrekten TaxFilerId zuordnen:
-
-```sql
--- Dokumente ohne tax_filer_id dem primären Tax Filer zuweisen
-UPDATE uploaded_documents ud
-SET tax_filer_id = (
-  SELECT tf.id FROM tax_filers tf 
-  WHERE tf.user_id = ud.user_id AND tf.is_primary = true 
-  LIMIT 1
-)
-WHERE ud.tax_filer_id IS NULL 
-AND ud.status = 'active';
-```
-
-### Änderung 4: Logging verbessern
-**Datei:** `src/hooks/use-inline-upload.ts`
-
-Detailliertes Logging hinzufügen um zu sehen, welche TaxFilerId beim Upload verwendet wird:
+Nach erfolgreichem Upload sofort die lokale State aktualisieren, nicht auf Refresh warten:
 
 ```typescript
-console.log('[InlineUpload] Upload params:', {
-  fileName: file.name,
-  checklistItemId,
-  taxFilerId: effectiveTaxFilerId || 'NONE - will be null',
-  taxYear
-});
+onUploadComplete: async (itemId) => {
+  // SOFORT lokalen State aktualisieren
+  markUploaded(itemId, true);
+  
+  // Dann im Hintergrund refreshen
+  refreshDocuments().catch(console.error);
+}
+```
+
+### Änderung 5: Validierung temporär deaktivieren (Notfall-Fix)
+**Datei:** `src/hooks/use-inline-upload.ts`
+
+Als Notfall-Lösung die gesamte OCR-Validierung überspringen:
+
+```typescript
+// In handleFileSelect, nach Format-Validierung:
+// TEMPORARY: Skip OCR validation entirely
+console.log('[InlineUpload] Uploading directly (OCR disabled)...');
+await uploadFile(file, checklistItemId, checklistItemTitle);
+return;
 ```
 
 ## Technische Details
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│              AKTUELLER FLOW (FEHLERHAFT)                    │
+│           AKTUELLER FLOW (PROBLEMATISCH)                    │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  1. User öffnet Checkliste                                  │
+│  1. Datei auswählen                                         │
 │       ↓                                                     │
-│  2. TaxFilerContext lädt... activeTaxFilerId = null         │
+│  2. Format-Validierung ✓                                    │
 │       ↓                                                     │
-│  3. User wählt Datei aus                                    │
+│  3. OCR-Validierung (kann hängen!) ← PROBLEM                │
+│       ↓ (wartet bis zu 20 Sekunden)                         │
+│  4. Upload                                                  │
 │       ↓                                                     │
-│  4. Upload startet mit tax_filer_id = null ← PROBLEM        │
+│  5. Warte 2 Sekunden                                        │
 │       ↓                                                     │
-│  5. TaxFilerContext fertig: activeTaxFilerId = "abc123"     │
-│       ↓                                                     │
-│  6. Refresh: Query WHERE tax_filer_id = "abc123"            │
-│       ↓                                                     │
-│  7. Dokument nicht gefunden (hat tax_filer_id = null)       │
+│  6. refreshDocuments() → loadDocuments() → UI Update        │
+│       ↓ (kann fehlschlagen)                                 │
+│  7. Dokument nicht sichtbar ← PROBLEM                       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│              NEUER FLOW (KORRIGIERT)                        │
+│           NEUER FLOW (VEREINFACHT)                          │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  1. User öffnet Checkliste                                  │
+│  1. Datei auswählen                                         │
 │       ↓                                                     │
-│  2. TaxFilerContext lädt...                                 │
+│  2. Format-Validierung ✓                                    │
 │       ↓                                                     │
-│  3. User wählt Datei aus                                    │
+│  3. DIREKTER Upload (OCR übersprungen)                      │
 │       ↓                                                     │
-│  4a. Prüfe: Ist activeTaxFilerId vorhanden?                 │
-│       ↓ NEIN                                                │
-│  4b. Fallback: Lade aus sessionStorage                      │
+│  4. Sofort markUploaded(itemId, true) ← UI sofort grün      │
 │       ↓                                                     │
-│  5. Upload mit korrekter tax_filer_id                       │
-│       ↓                                                     │
-│  6. Refresh: Query findet das Dokument                      │
+│  5. refreshDocuments() im Hintergrund                       │
 │                                                             │
-│  ALTERNATIV:                                                │
-│  6. Query mit OR-Bedingung findet auch null-Dokumente       │
+│  RESULTAT: Schneller, zuverlässiger, sofortiges Feedback    │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## Zusammenfassung der Änderungen
 
-| Datei | Änderung |
-|-------|----------|
-| `src/hooks/use-inline-upload.ts` | SessionStorage-Fallback für TaxFilerId hinzufügen |
-| `src/services/DocumentService.ts` | Query um OR-Bedingung für null TaxFilerId erweitern |
-| `src/hooks/use-inline-upload.ts` | Besseres Logging der Upload-Parameter |
+| Datei | Änderung | Priorität |
+|-------|----------|-----------|
+| `src/hooks/use-inline-upload.ts` | OCR-Validierung überspringen, direkter Upload | HOCH |
+| `src/services/DocumentService.ts` | Delete-Funktion mit expliziter User-ID Prüfung | HOCH |
+| `src/components/DocumentChecklist.tsx` | Sofortige UI-Aktualisierung nach Upload | MITTEL |
+| `src/hooks/use-inline-upload.ts` | Timeout auf 10s reduzieren (falls OCR reaktiviert) | NIEDRIG |
 
-## Sofortige Daten-Reparatur
+## Erwartete Verbesserungen
 
-Nach der Code-Änderung muss eine SQL-Query ausgeführt werden um das bereits hochgeladene Dokument zu reparieren:
+1. **Upload funktioniert sofort** - Keine OCR-Blockierung mehr
+2. **Dokumente erscheinen sofort** - Lokale State-Aktualisierung
+3. **Löschen funktioniert zuverlässig** - Bessere Fehlerbehandlung
+4. **Schnellere User Experience** - Weniger Wartezeit
 
-```sql
-UPDATE uploaded_documents 
-SET tax_filer_id = (
-  SELECT id FROM tax_filers 
-  WHERE user_id = uploaded_documents.user_id 
-  AND is_primary = true 
-  LIMIT 1
-)
-WHERE tax_filer_id IS NULL 
-AND status = 'active';
-```
+## Risikobewertung
 
-## Erwartetes Ergebnis
+- **Niedrig**: OCR-Validierung ist nice-to-have, nicht kritisch
+- **OCR kann später reaktiviert werden** wenn stabil
+- **Delete-Änderungen sind rückwärtskompatibel**
 
-Nach diesen Änderungen:
-1. Uploads verwenden immer eine gültige TaxFilerId (aus Context oder SessionStorage)
-2. Document-Refresh findet auch Dokumente ohne TaxFilerId
-3. Existierende "verwaiste" Dokumente werden dem primären TaxFiler zugeordnet
