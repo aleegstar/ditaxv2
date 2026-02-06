@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
+import InlineDocumentUploader from '@/components/documents/InlineDocumentUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
@@ -94,9 +95,7 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
-  const handleUploadDocument = (itemId: string) => {
-    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
-  };
+  // handleUploadDocument removed - now using InlineDocumentUploader directly
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
       toast({
@@ -538,17 +537,19 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-3">
-                                    {/* Primary: Upload new document */}
-                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
-                                      <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                      {t.documentChecklist.upload}
-                                    </button>
+                                    {/* Primary: Inline Upload - no navigation, direct file picker */}
+                                    <InlineDocumentUploader
+                                      checklistItemId={item.id}
+                                      checklistItemTitle={item.title}
+                                      taxYear={taxYear}
+                                      onUploadComplete={refreshDocuments}
+                                    />
                                     
                                     {/* Secondary: Assign existing document - ghost/outline style */}
                                     {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
                           open: true,
                           item
-                        })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-transparent text-slate-600 font-medium text-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
+                        })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border bg-transparent text-muted-foreground font-medium text-sm transition-all hover:bg-muted hover:border-border active:scale-[0.98]">
                                         <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                                         {t.documentChecklist.assign}
                                       </button>}
