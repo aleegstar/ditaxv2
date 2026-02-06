@@ -479,21 +479,21 @@ const DocumentChecklist: React.FC = () => {
                     </CollapsibleTrigger> : (/* Expanded State */
             <div className="relative w-full bg-white rounded-xl ring-1 ring-slate-200 shadow-lg shadow-slate-200/50 overflow-hidden">
                       {/* Header */}
-                      <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between border-b border-slate-100 bg-white">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full text-white flex items-center justify-center bg-sidebar-primary">
-                            <Icon className="w-4 h-4" />
+                      <CollapsibleTrigger className="w-full px-4 py-4 flex items-center justify-between border-b border-slate-100 bg-white">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-10 h-10 rounded-xl text-white flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm shadow-blue-500/20">
+                            <Icon className="w-5 h-5" />
                           </div>
-                          <div>
-                            <span className="text-sm font-semibold text-slate-900">
+                          <div className="flex flex-col justify-center min-h-[40px]">
+                            <span className="text-[15px] font-semibold text-slate-900 leading-tight">
                               {categoryMap[category]}
                             </span>
-                            <span className="block text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 mt-0.5 leading-tight">
                               {items.filter(i => i.uploaded).length} {t.documentChecklist.completedOf} {items.length} {t.documentChecklist.uploaded}
                             </span>
                           </div>
                         </div>
-                        <ChevronUp className="w-4 h-4 text-slate-500" strokeWidth={1.5} />
+                        <ChevronUp className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
                       </CollapsibleTrigger>
 
                       {/* Content Area */}
