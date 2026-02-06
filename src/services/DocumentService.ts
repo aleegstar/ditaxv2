@@ -94,27 +94,49 @@ export class DocumentService {
   }
 
   async deleteDocument(documentId: string): Promise<void> {
-    await this.checkAuth();
+    const userId = await this.checkAuth();
 
+    // Fetch document with explicit user_id check for RLS
     const { data: doc, error: fetchError } = await supabase
       .from('uploaded_documents')
-      .select('file_path, tax_year')
+      .select('file_path, tax_year, user_id')
       .eq('id', documentId)
+      .eq('user_id', userId)
       .single();
 
-    if (fetchError || !doc?.file_path) {
-      throw new Error('Dokument nicht gefunden');
+    if (fetchError) {
+      console.error('[DocumentService] Error fetching document for delete:', fetchError);
+      throw new Error('Dokument nicht gefunden oder keine Berechtigung');
+    }
+    
+    if (!doc?.file_path) {
+      throw new Error('Dokument-Pfad nicht gefunden');
     }
 
-    await supabase.storage.from('documents').remove([doc.file_path]);
+    // Delete from storage (continue even if this fails - file might already be gone)
+    const { error: storageError } = await supabase.storage
+      .from('documents')
+      .remove([doc.file_path]);
+    
+    if (storageError) {
+      console.warn('[DocumentService] Storage delete warning (continuing):', storageError);
+    }
 
+    // Delete from database with explicit user_id check
     const { error: dbError } = await supabase
       .from('uploaded_documents')
       .delete()
-      .eq('id', documentId);
+      .eq('id', documentId)
+      .eq('user_id', userId);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('[DocumentService] DB delete error:', dbError);
+      throw new Error('Dokument konnte nicht aus der Datenbank gelöscht werden');
+    }
+    
+    console.log('[DocumentService] Document deleted successfully:', documentId);
 
+    // Update cache
     if (doc.tax_year) {
       const cacheKey = `documents:${doc.tax_year}`;
       const cached = this.documentCache.get(cacheKey) || [];
