@@ -10,17 +10,16 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { CloudUpload, Loader2, Check, AlertCircle, ScanLine, Image, FileText } from 'lucide-react';
+import { CloudUpload, Loader2, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { validateFile } from '@/utils/fileValidation';
 import DocumentValidator from '@/services/DocumentValidator';
-import { isMobileAppContext } from '@/utils/platform';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type UploadStatus = 'idle' | 'selecting' | 'validating' | 'uploading' | 'success' | 'error';
+type UploadStatus = 'idle' | 'validating' | 'uploading' | 'success' | 'error';
 
 interface InlineDocumentUploaderProps {
   checklistItemId: string;
@@ -42,39 +41,15 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   const { toast } = useToast();
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [statusMessage, setStatusMessage] = useState<string>('');
-  const [showActionSheet, setShowActionSheet] = useState(false);
   
-  // Hidden file inputs for different capture modes
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const scanInputRef = useRef<HTMLInputElement>(null);
+  // Single file input ref
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isMobile = isMobileAppContext();
   const documentValidator = DocumentValidator.getInstance();
   const encryptedDocService = new EncryptedDocumentService();
 
   const handleUploadClick = () => {
-    if (isMobile) {
-      // On mobile, show action sheet for scan/photo/file options
-      setShowActionSheet(true);
-    } else {
-      // On desktop, open file picker directly
-      fileInputRef.current?.click();
-    }
-  };
-
-  const handlePhotoSelect = () => {
-    setShowActionSheet(false);
-    photoInputRef.current?.click();
-  };
-
-  const handleScanSelect = () => {
-    setShowActionSheet(false);
-    scanInputRef.current?.click();
-  };
-
-  const handleFileSelect = () => {
-    setShowActionSheet(false);
+    // Always open file picker directly - no intermediate popup
     fileInputRef.current?.click();
   };
 
@@ -199,8 +174,10 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       case 'uploading':
         return (
           <motion.button
+            key="loading"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             disabled
             className="flex items-center justify-center gap-2 bg-muted text-muted-foreground font-medium h-9 px-4 rounded-lg text-sm"
           >
@@ -212,8 +189,10 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       case 'success':
         return (
           <motion.button
+            key="success"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
+            exit={{ opacity: 0 }}
             disabled
             className="flex items-center justify-center gap-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium h-9 px-4 rounded-lg text-sm"
           >
@@ -225,8 +204,10 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       case 'error':
         return (
           <motion.button
+            key="error"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
+            exit={{ opacity: 0 }}
             disabled
             className="flex items-center justify-center gap-2 bg-destructive/10 text-destructive font-medium h-9 px-4 rounded-lg text-sm"
           >
@@ -237,35 +218,24 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       
       default:
         return (
-          <button
+          <motion.button
+            key="idle"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={handleUploadClick}
-            className="flex items-center justify-center gap-2 bg-primary text-primary-foreground font-medium h-9 px-4 rounded-lg transition-all hover:bg-primary/90 active:scale-[0.98] text-sm shadow-sm"
+            className="flex items-center justify-center gap-2 bg-primary text-white font-medium h-9 px-4 rounded-lg transition-all hover:bg-primary/90 active:scale-[0.98] text-sm shadow-sm"
           >
             <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
             Hochladen
-          </button>
+          </motion.button>
         );
     }
   };
 
   return (
     <div className={cn("relative", className)}>
-      {/* Hidden file inputs */}
-      <input
-        ref={photoInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-      <input
-        ref={scanInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleFileChange}
-      />
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -277,87 +247,6 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       {/* Main Button */}
       <AnimatePresence mode="wait">
         {renderButton()}
-      </AnimatePresence>
-
-      {/* Mobile Action Sheet */}
-      <AnimatePresence>
-        {showActionSheet && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-black/30"
-              onClick={() => setShowActionSheet(false)}
-            />
-            
-            {/* Action Sheet */}
-            <motion.div
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-              className="fixed bottom-0 left-0 right-0 z-[101] p-4 pb-8"
-            >
-              <div className="bg-background rounded-2xl shadow-xl overflow-hidden border border-border">
-                <div className="py-2">
-                  {/* Scan - prioritized for mobile */}
-                  <button
-                    onClick={handleScanSelect}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors text-left"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <ScanLine className="w-5 h-5 text-primary" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-foreground">Dokument scannen</span>
-                      <p className="text-xs text-muted-foreground">Kamera öffnen</p>
-                    </div>
-                  </button>
-                  
-                  {/* Photo */}
-                  <button
-                    onClick={handlePhotoSelect}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors text-left"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Image className="w-5 h-5 text-green-600 dark:text-green-400" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-foreground">Foto auswählen</span>
-                      <p className="text-xs text-muted-foreground">Aus Galerie wählen</p>
-                    </div>
-                  </button>
-                  
-                  {/* Files */}
-                  <button
-                    onClick={handleFileSelect}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted transition-colors text-left"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-foreground">Datei hochladen</span>
-                      <p className="text-xs text-muted-foreground">PDF, Bilder...</p>
-                    </div>
-                  </button>
-                </div>
-                
-                {/* Cancel */}
-                <div className="border-t border-border p-2">
-                  <button
-                    onClick={() => setShowActionSheet(false)}
-                    className="w-full py-3 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors"
-                  >
-                    Abbrechen
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
       </AnimatePresence>
     </div>
   );
