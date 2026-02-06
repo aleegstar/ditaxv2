@@ -74,14 +74,14 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
           
           {/* Modal - Premium Fintech Style */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 400 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-2rem)] max-w-[360px]"
+            className="fixed inset-0 z-[101] flex items-center justify-center p-4"
           >
             <div 
-              className="relative bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
+              className="relative bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[360px]"
             >
               {/* Close Button */}
               <button
