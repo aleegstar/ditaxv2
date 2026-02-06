@@ -28,24 +28,27 @@ export const DOCUMENT_KEYWORDS: Record<string, DocumentKeywordConfig> = {
   // === EINKOMMEN ===
   'employment-income': {
     keywords: [
-      // Deutsche Begriffe
-      'lohnausweis', 'arbeitgeber', 'bruttolohn', 'nettolohn', 'ahv', 'sozialabzüge', 
-      'quellensteuer', 'lohnabrechnung', 'arbeitsvertrag', 'gehalt', 'monatslohn', 
-      'jahreslohn', 'bvg', 'pensionskasse',
-      // Formular 11 spezifische Begriffe
-      'gehaltsnebenleistungen', 'kapitalauszahlung', 'berufliche vorsorge',
-      'nettolohn/rente', 'beiträge', 'rentenbescheinigung', 'unentgeltliche beförderung',
-      'spesenerstattung', 'privatanteil', 'weitere gehaltsnebenleistungen',
-      'formular 11', 'form. 11', 'form 11', 'lohnbescheinigung',
-      // Mehrsprachige Begriffe (CH)
-      'certificat de salaire', 'salaire', 'salario', 'rente', 'rendita',
-      // Weitere häufige Begriffe
-      'arbeitnehmer', 'anstellung', 'lohn', 'einkommen', 'beschäftigung',
+      // Primäre Keywords (DE/FR/IT)
+      'lohnausweis', 'lohnbescheinigung', 'certificat de salaire', 'certificato di salario',
+      // Formular-Identifikatoren
+      'formular 11', 'form. 11', 'form 11', '605.040.18',
+      // Lohn-Begriffe (DE/FR/IT)
+      'bruttolohn', 'nettolohn', 'lohn', 'gehalt', 'salaire', 'salario', 'jahreslohn', 'monatslohn',
+      // Arbeitgeber (DE/FR/IT)
+      'arbeitgeber', 'employeur', 'datore di lavoro', 'anstellung', 'arbeitnehmer',
+      // Sozialabzüge (DE/FR/IT)
+      'ahv', 'ahv/iv/eo', 'avs', 'sozialabzüge', 'cotisations', 'contributi', 'beiträge',
+      // Spesen (DE/FR)
+      'spesenentschädigung', 'pauschalspesen', 'effektive spesen', 'frais effectifs', 'frais forfaitaires',
+      'spesenerstattung', 'privatanteil', 'unentgeltliche beförderung',
+      // Vorsorge im Lohnkontext
+      'berufliche vorsorge', 'bvg', 'pensionskasse', 'kapitalauszahlung',
+      // Weitere Formular-11-Felder
+      'quellensteuer', 'weiterbildung', 'nebenleistungen', 'gehaltsnebenleistungen',
+      'nettolohn/rente', 'weitere gehaltsnebenleistungen',
       // Generische Begriffe für Screenshot-OCR (häufig erkannt)
-      'chf', 'franken', 'total', 'betrag', 'jahr', 'monat', 'name', 'adresse',
-      'sozialversicherung', 'svnr', 'nr', 'datum', 'unterschrift', 'stempel',
-      '2023', '2024', '2025', '2026', 'januar', 'februar', 'dezember',
-      'abzug', 'abzüge', 'brutto', 'netto', 'auszahlung', 'konto'
+      'chf', 'franken', 'total', 'betrag', 'jahr', 'monat',
+      'sozialversicherung', 'svnr', 'abzug', 'abzüge', 'brutto', 'netto', 'auszahlung'
     ],
     minMatchCount: 2,
     confidence: 'high',

@@ -649,6 +649,46 @@ class DocumentValidator {
       let ocrScore = 0;   // Max 80 Punkte
       let otherScore = 0; // Max 20 Punkte
 
+      // === NEGATIVE KEYWORD PENALTY ===
+      // Prüfe ob negative Keywords gefunden wurden (disqualifiziert den Dokumenttyp)
+      let negativeMatchCount = 0;
+      if (profile.negativeKeywords && profile.negativeKeywords.length > 0) {
+        // Zähle wie viele negative Keywords im OCR-Text gefunden wurden
+        const allProfiles = getAllProfiles();
+        const allDetectedKeywords = signals.keywords.matchedLabels || [];
+        
+        // Prüfe jeden gefundenen Begriff gegen die negativen Keywords
+        for (const detectedKeyword of allDetectedKeywords) {
+          const normalizedDetected = detectedKeyword.toLowerCase();
+          for (const negKeyword of profile.negativeKeywords) {
+            if (normalizedDetected.includes(negKeyword.toLowerCase())) {
+              negativeMatchCount++;
+              break; // Zähle jeden gefundenen Begriff nur einmal
+            }
+          }
+        }
+        
+        // Alternative: Prüfe auch den OCR-Text direkt
+        // Sammle alle matched labels aller Profile
+        for (const [docTypeId, matchCount] of Object.entries(signals.keywords.matchCountsByDocType)) {
+          if (docTypeId !== profile.id && matchCount > 0) {
+            // Wenn ein anderes Profil viele Matches hat, könnte es das richtige sein
+            const otherProfile = allProfiles.find(p => p.id === docTypeId);
+            if (otherProfile?.keywordHints) {
+              // Prüfe ob dieses andere Profil Keywords hat, die für unser Profil negativ sind
+              for (const otherKeyword of otherProfile.keywordHints.slice(0, 10)) { // Nur Top-Keywords prüfen
+                if (profile.negativeKeywords.some(neg => 
+                  otherKeyword.toLowerCase().includes(neg.toLowerCase()) ||
+                  neg.toLowerCase().includes(otherKeyword.toLowerCase())
+                )) {
+                  negativeMatchCount++;
+                }
+              }
+            }
+          }
+        }
+      }
+
       // === OCR SCORING (80 Punkte max) ===
       // Angepasste Schwellenwerte für bessere Mobile-OCR-Erkennung
       if (ocrMatchCount >= 5) {
@@ -670,6 +710,14 @@ class DocumentValidator {
         // 0 Matches = 0 OCR Punkte
         ocrScore = 0;
         reasons.push('Keine passenden Begriffe erkannt');
+      }
+
+      // === NEGATIVE KEYWORD ABZUG ===
+      // Pro negativem Keyword 15 Punkte Abzug (max 45 Punkte Abzug)
+      if (negativeMatchCount > 0) {
+        const penalty = Math.min(negativeMatchCount * 15, 45);
+        ocrScore = Math.max(0, ocrScore - penalty);
+        reasons.push(`Unpassende Begriffe gefunden (-${penalty})`);
       }
 
       // === OTHER SCORING (20 Punkte max) ===

@@ -51,9 +51,24 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
     typicalOrientation: 'portrait',
     typicalFileSizeMB: { min: 0.05, max: 5 },
     keywordHints: [
-      'lohnausweis', 'arbeitgeber', 'bruttolohn', 'nettolohn', 'ahv', 'sozialabzüge',
-      'quellensteuer', 'gehalt', 'jahreslohn', 'bvg', 'pensionskasse',
-      'formular 11', 'form. 11', 'lohnbescheinigung', 'certificat de salaire'
+      // Primäre Keywords (DE/FR/IT)
+      'lohnausweis', 'lohnbescheinigung', 'certificat de salaire', 'certificato di salario',
+      // Formular-Identifikatoren
+      'formular 11', 'form. 11', 'form 11', '605.040.18',
+      // Lohn-Begriffe (DE/FR/IT)
+      'bruttolohn', 'nettolohn', 'lohn', 'gehalt', 'salaire', 'salario', 'jahreslohn', 'monatslohn',
+      // Arbeitgeber (DE/FR/IT)
+      'arbeitgeber', 'employeur', 'datore di lavoro', 'anstellung', 'arbeitnehmer',
+      // Sozialabzüge (DE/FR/IT)
+      'ahv', 'ahv/iv/eo', 'avs', 'sozialabzüge', 'cotisations', 'contributi', 'beiträge',
+      // Spesen (DE/FR)
+      'spesenentschädigung', 'pauschalspesen', 'effektive spesen', 'frais effectifs', 'frais forfaitaires',
+      'spesenerstattung', 'privatanteil', 'unentgeltliche beförderung',
+      // Vorsorge im Lohnkontext
+      'berufliche vorsorge', 'bvg', 'pensionskasse', 'kapitalauszahlung',
+      // Weitere Formular-11-Felder
+      'quellensteuer', 'weiterbildung', 'nebenleistungen', 'gehaltsnebenleistungen',
+      'nettolohn/rente', 'weitere gehaltsnebenleistungen'
     ],
     negativeKeywords: ['rechnung', 'mahnung', 'kündigung', 'bewerbung'],
     layoutHints: {
@@ -146,6 +161,12 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
       'ausgleichskasse', 'sva', 'sozialversicherungsanstalt', 'compenswiss', 'publica',
       'witwenrente', 'waisenrente', 'kinderrente', 'ergänzungsleistung', 'hilflosenentschädigung',
       'jahresrente', 'monatsrente', 'rentenbescheid', 'rentenausweis', 'rentner'
+    ],
+    // Negative Keywords: Diese Begriffe kommen auf einem Lohnausweis vor, aber NICHT auf einer reinen Rentenbescheinigung
+    negativeKeywords: [
+      'bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 'salario',
+      'spesen', 'spesenentschädigung', 'weiterbildung', 'nebenleistungen',
+      'formular 11', 'form. 11', 'lohnausweis', 'lohnbescheinigung'
     ],
     layoutHints: {
       expectsTable: true,
