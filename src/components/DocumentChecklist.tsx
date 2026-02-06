@@ -19,7 +19,6 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
-import UploadBottomSheet from '@/components/documents/UploadBottomSheet';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
@@ -84,13 +83,6 @@ const DocumentChecklist: React.FC = () => {
     open: false,
     item: null
   });
-  const [uploadSheet, setUploadSheet] = useState<{
-    open: boolean;
-    item: ChecklistItem | null;
-  }>({
-    open: false,
-    item: null
-  });
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const hasShownCompletionDialog = useRef(false);
@@ -102,8 +94,8 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
-  const handleUploadDocument = (item: ChecklistItem) => {
-    setUploadSheet({ open: true, item });
+  const handleUploadDocument = (itemId: string) => {
+    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -547,7 +539,7 @@ const DocumentChecklist: React.FC = () => {
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-3">
                                     {/* Primary: Upload new document */}
-                                    <button onClick={() => handleUploadDocument(item)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
+                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       {t.documentChecklist.upload}
                                     </button>
@@ -629,18 +621,6 @@ const DocumentChecklist: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Upload Bottom Sheet */}
-      <UploadBottomSheet
-        open={uploadSheet.open}
-        onClose={() => setUploadSheet({ open: false, item: null })}
-        checklistItem={uploadSheet.item}
-        onSuccess={() => {
-          refreshDocuments();
-          setUploadSheet({ open: false, item: null });
-        }}
-        autoTriggerUpload={true}
-      />
     </div>;
 };
 export default DocumentChecklist;
