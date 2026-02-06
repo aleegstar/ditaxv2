@@ -160,75 +160,34 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       validationProgress: { step: 'preparing', percent: 5, message: 'Dokument wird vorbereitet...' }
     });
     
-    // Timeout wrapper for validation (30 seconds max)
-    const validationTimeout = 30000;
-    let validationTimedOut = false;
-    
-    const timeoutPromise = new Promise<null>((resolve) => {
-      setTimeout(() => {
-        validationTimedOut = true;
-        resolve(null);
-      }, validationTimeout);
-    });
-    
     try {
-      const validationPromise = documentValidator.validate(
+      const result = await documentValidator.validate(
         file,
         checklistItemId,
         (progress) => {
-          if (!validationTimedOut) {
-            updateItemState(checklistItemId, {
-              status: 'validating',
-              progress: 20 + (progress.percent * 0.6), // Map 0-100 to 20-80
-              message: progress.message || 'Wird geprüft...',
-              validationProgress: progress
-            });
-          }
+          updateItemState(checklistItemId, {
+            status: 'validating',
+            progress: 20 + (progress.percent * 0.6),
+            message: progress.message || 'Wird geprüft...',
+            validationProgress: progress
+          });
         }
       );
       
-      // Race between validation and timeout
-      const result = await Promise.race([validationPromise, timeoutPromise]);
-      
-      // Handle timeout case
-      if (result === null || validationTimedOut) {
-        console.warn('[InlineUpload] Validation timed out after', validationTimeout, 'ms');
-        
-        // Clear validation state and proceed with upload
-        updateItemState(checklistItemId, {
-          status: 'uploading',
-          progress: 50,
-          message: 'Wird hochgeladen...',
-          validationProgress: undefined
-        });
-        
-        toast({
-          title: "Hinweis",
-          description: "Dokumentenprüfung hat zu lange gedauert. Dokument wird trotzdem hochgeladen.",
-          variant: "default"
-        });
-        
-        await uploadFile(file, checklistItemId, checklistItemTitle);
-        return;
-      }
-      
-      console.log('[InlineUpload] Validation result:', {
+      console.log('[InlineUpload] Validation complete:', {
         fileName: file.name,
         bestMatch: result.best.docTypeId,
         confidence: result.best.confidence,
         needsConfirmation: result.needsUserConfirmation
       });
       
-      // Clear validation progress after completion - briefly before next action
+      // Clear validation progress
       updateItemState(checklistItemId, {
-        status: 'validating',
+        status: 'processing',
         progress: 85,
         message: 'Validierung abgeschlossen',
         validationProgress: undefined
       });
-      
-      // Small delay to let UI update before proceeding
-      await new Promise(resolve => setTimeout(resolve, 300));
       
       // If needs confirmation (confidence < 70%), show modal
       if (result.needsUserConfirmation) {
@@ -247,28 +206,19 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         return;
       }
       
-      // High confidence - proceed with upload automatically
+      // High confidence - proceed with upload
       await uploadFile(file, checklistItemId, checklistItemTitle);
       
     } catch (err) {
-      console.error('Document validation error:', err);
+      console.error('[InlineUpload] Validation error:', err);
       
-      // Clear validation UI immediately
-      updateItemState(checklistItemId, {
-        status: 'uploading',
-        progress: 50,
-        message: 'Wird hochgeladen...',
-        validationProgress: undefined
-      });
-      
-      // On validation error, still allow upload but show warning
+      // On error, proceed with upload anyway
       toast({
         title: "Hinweis",
-        description: "Dokumentenprüfung übersprungen. Bitte stelle sicher, dass du das richtige Dokument hochlädst.",
+        description: "Dokumentenprüfung übersprungen.",
         variant: "default"
       });
       
-      // Proceed with upload anyway
       await uploadFile(file, checklistItemId, checklistItemTitle);
     }
   }, [documentValidator, updateItemState, uploadFile, onValidationNeeded, toast]);
@@ -276,9 +226,12 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
   // Confirm upload after user approves low-confidence document
   const confirmUpload = useCallback(async (itemId: string) => {
     const state = uploadStates[itemId];
-    if (!state?.file) return false;
+    if (!state?.file) {
+      console.error('[InlineUpload] No file found for confirmUpload:', itemId);
+      return false;
+    }
     
-    return await uploadFile(state.file, itemId);
+    return await uploadFile(state.file, itemId, state.checklistItemTitle);
   }, [uploadStates, uploadFile]);
   
   // Cancel pending upload
