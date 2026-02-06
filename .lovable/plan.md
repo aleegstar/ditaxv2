@@ -1,117 +1,97 @@
 
+# OCR-Zuteilung verbessern: Lohnausweis vs. Rentenbescheinigung
 
-# Premium AI-Research Shimmer-Effekt für Dokumentenvalidierung
+## Problem-Analyse
 
-## Zusammenfassung
-Die Dokumentenvalidierung soll visuell wie ein moderner AI-Chatbot wirken, der "nachdenkt" und "recherchiert". Der aktuelle Shimmer-Effekt ist zu subtil. Er wird durch einen auffälligeren, mehrfarbigen Gradient-Shimmer ersetzt - genau wie in den Referenzbildern zu sehen.
+Das offizielle Schweizer Lohnausweis-Formular (Formular 11) enthält den zweisprachigen Titel:
+- "Lohnausweis - Certificat de salaire - Certificato di salario"
+- "Rentenbescheinigung - Attestation de rentes - Attestazione delle rendite"
+
+Dies führt dazu, dass Keywords wie "Rente" und "Rentenbescheinigung" fälschlicherweise das `pension-income` Profil matchen.
 
 ---
 
-## Was geändert wird
+## Lösungsansatz
 
-### 1. Neuer Premium Shimmer-Effekt (CSS)
+### 1. Erweiterte Keywords für Lohnausweis
 
-Der aktuelle blaue Shimmer wird durch einen **Multi-Color-Gradient** ersetzt:
-- Farben: Blau → Violett → Rosa → Blau (wie bei AI-Assistenten)
-- Schnellere Animation (1.5s statt 2.5s)
-- Stärkerer Kontrast zwischen den Farben
-- Text erscheint "lebendig" und aktiv
+Neue spezifische Keywords hinzufügen, die auf dem Formular 11 prominent vorkommen:
 
-```text
-Vorher:  Blau → Hellblau → Blau (kaum sichtbar)
-Nachher: Blau → Violett → Rosa → Orange → Blau (deutlich sichtbar)
+| Neue Keywords | Begründung |
+|--------------|------------|
+| `salaire`, `salario` | Französisch/Italienisch für Lohn |
+| `berufliche vorsorge` | Feld 10 auf dem Formular |
+| `lohn`, `gehalt` | Allgemeine Synonyme |
+| `cotisations avs`, `contributi avs` | Mehrsprachige AHV-Beiträge |
+| `spesenentschädigung`, `pauschalspesen` | Spezifische Felder |
+| `frais effectifs`, `frais forfaitaires` | Französische Spesenbezeichnungen |
+| `form. 11`, `605.040.18` | Formularnummern |
+| `weiterbildung`, `perfectionement` | Feld 13.3 |
+
+### 2. Negative Keywords für pension-income
+
+Keywords hinzufügen, die bei einer Rentenbescheinigung NICHT vorkommen sollten:
+
+```typescript
+negativeKeywords: ['bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 'spesen']
 ```
 
-### 2. Verbesserter Animationsflow
+### 3. Stärkere Priorisierung bei Dokument-Spezifität
 
-| Eigenschaft | Vorher | Nachher |
-|-------------|--------|---------|
-| Farbpalette | Mono-Blau | Multi-Color-Gradient |
-| Animation-Dauer | 2.5s | 1.8s (schneller, dynamischer) |
-| Gradient-Stops | 5 | 7-8 (flüssiger) |
-| Background-Size | 200% | 300% (mehr "Laufweg") |
-
-### 3. Visuelle Darstellung
-
-```text
-┌─────────────────────────────────────────┐
-│                                         │
-│              [Ditax Logo]               │
-│                                         │
-│     Ditax prüft Säule 3a Bescheinigung  │
-│                                         │
-│   ✨ Anbieter wird erkannt… ✨           │
-│      ↑                                  │
-│   Multi-Color-Gradient bewegt sich      │
-│   durch den Text (Blau→Violett→Rosa)    │
-│                                         │
-└─────────────────────────────────────────┘
-```
+Die Scoring-Logik anpassen: Wenn ein Dokument sowohl Lohnausweis- als auch Renten-Keywords enthält, aber die Lohnausweis-spezifischen überwiegen, sollte der Lohnausweis priorisiert werden.
 
 ---
 
 ## Technische Umsetzung
 
-### Datei: `src/index.css`
+### Datei: `src/config/documentProfiles.ts`
 
-Die bestehende `.shimmer-text` Klasse wird durch einen Premium-Gradient ersetzt:
+**A. Employment-Income Keywords erweitern:**
 
-```css
-.shimmer-text {
-  background: linear-gradient(
-    90deg,
-    #6B7280 0%,      /* Neutral grau (Basis) */
-    #3B82F6 20%,     /* Blau */
-    #8B5CF6 40%,     /* Violett */
-    #EC4899 60%,     /* Pink */
-    #3B82F6 80%,     /* Blau */
-    #6B7280 100%     /* Neutral grau (Basis) */
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 1.8s infinite linear;
+```typescript
+keywordHints: [
+  // Primäre Keywords
+  'lohnausweis', 'lohnbescheinigung', 'certificat de salaire', 'certificato di salario',
+  // Formular-Identifikatoren  
+  'formular 11', 'form. 11', '605.040.18',
+  // Lohn-Begriffe (DE/FR/IT)
+  'bruttolohn', 'nettolohn', 'lohn', 'gehalt', 'salaire', 'salario', 'jahreslohn',
+  // Arbeitgeber
+  'arbeitgeber', 'employeur', 'datore di lavoro',
+  // Sozialabzüge
+  'ahv', 'ahv/iv/eo', 'avs', 'sozialabzüge', 'cotisations', 'contributi',
+  // Spesen
+  'spesenentschädigung', 'pauschalspesen', 'effektive spesen', 'frais effectifs',
+  // Vorsorge im Lohnkontext
+  'berufliche vorsorge', 'bvg', 'pensionskasse',
+  // Weitere Felder
+  'quellensteuer', 'weiterbildung', 'nebenleistungen'
+]
+```
+
+**B. Pension-Income negativeKeywords ergänzen:**
+
+```typescript
+negativeKeywords: [
+  'bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 
+  'spesen', 'weiterbildung', 'nebenleistungen'
+]
+```
+
+### Datei: `src/services/DocumentValidator.ts`
+
+**C. Negative Keywords in Scoring berücksichtigen:**
+
+Die `calculateScore`-Funktion anpassen, um negativeKeywords abzuziehen:
+
+```typescript
+// Bei OCR-Scoring: Negative Keywords prüfen
+const negativeMatchCount = signals.keywords?.matchCountsByDocType[`${profile.id}:negative`] || 0;
+if (negativeMatchCount > 0) {
+  ocrScore -= (negativeMatchCount * 15); // Pro negativem Match 15 Punkte Abzug
+  reasons.push(`Unpassende Begriffe gefunden (-${negativeMatchCount * 15})`);
 }
 ```
-
-**Alternativ (subtilere Variante für Light Mode):**
-```css
-.shimmer-text {
-  background: linear-gradient(
-    90deg,
-    hsl(var(--muted-foreground)) 0%,
-    hsl(var(--primary)) 25%,
-    hsl(280 70% 50%) 50%,  /* Violett */
-    hsl(var(--primary)) 75%,
-    hsl(var(--muted-foreground)) 100%
-  );
-  /* ... */
-}
-```
-
-### Datei: `src/components/ui/ai-document-validation.tsx`
-
-Die `RotatingStatusText`-Komponente wird leicht angepasst für bessere Lesbarkeit:
-- Etwas größere Schrift (`text-sm` → `text-base` oder `text-[15px]`)
-- Mehr vertikaler Abstand
-- Optional: Emoji/Sparkle-Icon neben dem Text
-
----
-
-## Optionale Erweiterungen
-
-### A. Sparkle-Icon neben dem Text
-Wie in den Referenzbildern könnte ein kleines animiertes Icon (✨) den Text begleiten:
-```tsx
-<span className="inline-flex items-center gap-1.5">
-  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-  {messages[currentIndex]}
-</span>
-```
-
-### B. Fallback für Dark Mode
-Hellere Gradient-Farben für bessere Sichtbarkeit im Dark Mode.
 
 ---
 
@@ -119,14 +99,16 @@ Hellere Gradient-Farben für bessere Sichtbarkeit im Dark Mode.
 
 | Datei | Änderung |
 |-------|----------|
-| `src/index.css` | Neuer Premium-Shimmer-Gradient |
-| `src/components/ui/ai-document-validation.tsx` | Leichte Anpassungen an Typografie |
+| `src/config/documentProfiles.ts` | Keywords erweitern, negativeKeywords hinzufügen |
+| `src/services/DocumentValidator.ts` | Negative Keyword Matching implementieren |
+| `src/services/TesseractWasmOcrService.ts` | Negative Keyword Support (optional) |
 
 ---
 
-## Accessibility
+## Erwartetes Ergebnis
 
-- `prefers-reduced-motion`: Animation wird deaktiviert, Text bleibt lesbar
-- Fallback-Farbe für Browser ohne Gradient-Unterstützung
-- Ausreichender Kontrast auch ohne Animation
+Nach der Änderung sollte das Formular 11 (Lohnausweis):
+- 8-12 Keyword-Matches für `employment-income` erzielen
+- 2-3 Negative-Matches für `pension-income` haben
+- Eindeutig mit >80% Konfidenz als Lohnausweis erkannt werden
 
