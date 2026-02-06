@@ -67,10 +67,19 @@ const DocumentChecklist: React.FC = () => {
   } = useInlineUpload({
     taxYear,
     taxFilerId: activeTaxFilerId,
-    onUploadComplete: (itemId) => {
+    onUploadComplete: async (itemId) => {
       // Refresh documents and mark as uploaded
-      refreshDocuments();
+      await refreshDocuments();
       markUploaded(itemId, true);
+      
+      // Retry refresh if document doesn't appear (handles DB propagation delay)
+      const docs = getDocumentsForItem(itemId);
+      if (docs.length === 0) {
+        console.log('[DocumentChecklist] Document not visible yet, retrying refresh...');
+        setTimeout(async () => {
+          await refreshDocuments();
+        }, 1000);
+      }
     },
     onValidationNeeded: (state) => {
       // Show low confidence modal
