@@ -160,19 +160,57 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       validationProgress: { step: 'preparing', percent: 5, message: 'Dokument wird vorbereitet...' }
     });
     
+    // Timeout wrapper for validation (30 seconds max)
+    const validationTimeout = 30000;
+    let validationTimedOut = false;
+    
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => {
+        validationTimedOut = true;
+        resolve(null);
+      }, validationTimeout);
+    });
+    
     try {
-      const result = await documentValidator.validate(
+      const validationPromise = documentValidator.validate(
         file,
         checklistItemId,
         (progress) => {
-          updateItemState(checklistItemId, {
-            status: 'validating',
-            progress: 20 + (progress.percent * 0.6), // Map 0-100 to 20-80
-            message: progress.message || 'Wird geprüft...',
-            validationProgress: progress
-          });
+          if (!validationTimedOut) {
+            updateItemState(checklistItemId, {
+              status: 'validating',
+              progress: 20 + (progress.percent * 0.6), // Map 0-100 to 20-80
+              message: progress.message || 'Wird geprüft...',
+              validationProgress: progress
+            });
+          }
         }
       );
+      
+      // Race between validation and timeout
+      const result = await Promise.race([validationPromise, timeoutPromise]);
+      
+      // Handle timeout case
+      if (result === null || validationTimedOut) {
+        console.warn('[InlineUpload] Validation timed out after', validationTimeout, 'ms');
+        
+        // Clear validation state and proceed with upload
+        updateItemState(checklistItemId, {
+          status: 'uploading',
+          progress: 50,
+          message: 'Wird hochgeladen...',
+          validationProgress: undefined
+        });
+        
+        toast({
+          title: "Hinweis",
+          description: "Dokumentenprüfung hat zu lange gedauert. Dokument wird trotzdem hochgeladen.",
+          variant: "default"
+        });
+        
+        await uploadFile(file, checklistItemId, checklistItemTitle);
+        return;
+      }
       
       console.log('[InlineUpload] Validation result:', {
         fileName: file.name,
@@ -181,13 +219,16 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         needsConfirmation: result.needsUserConfirmation
       });
       
-      // Clear validation progress after completion
+      // Clear validation progress after completion - briefly before next action
       updateItemState(checklistItemId, {
         status: 'validating',
         progress: 85,
         message: 'Validierung abgeschlossen',
         validationProgress: undefined
       });
+      
+      // Small delay to let UI update before proceeding
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // If needs confirmation (confidence < 70%), show modal
       if (result.needsUserConfirmation) {
@@ -198,7 +239,8 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
           message: 'Bestätigung erforderlich',
           validationResult: result,
           fileName: file.name,
-          file
+          file,
+          checklistItemTitle
         };
         updateItemState(checklistItemId, state);
         onValidationNeeded?.(state);
@@ -210,6 +252,14 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       
     } catch (err) {
       console.error('Document validation error:', err);
+      
+      // Clear validation UI immediately
+      updateItemState(checklistItemId, {
+        status: 'uploading',
+        progress: 50,
+        message: 'Wird hochgeladen...',
+        validationProgress: undefined
+      });
       
       // On validation error, still allow upload but show warning
       toast({
