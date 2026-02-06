@@ -187,16 +187,9 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         needsConfirmation: result.needsUserConfirmation
       });
       
-      // Clear validation progress
-      updateItemState(checklistItemId, {
-        status: 'processing',
-        progress: 85,
-        message: 'Validierung abgeschlossen',
-        validationProgress: undefined
-      });
-      
       // If needs confirmation (confidence < 70%), show modal
       if (result.needsUserConfirmation) {
+        console.log('[InlineUpload] Needs user confirmation, showing modal');
         const state: InlineUploadState = {
           itemId: checklistItemId,
           status: 'needs_confirmation',
@@ -212,7 +205,15 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         return;
       }
       
-      // High confidence - proceed with upload
+      // High confidence - proceed with upload immediately
+      console.log('[InlineUpload] High confidence, proceeding with upload...');
+      updateItemState(checklistItemId, {
+        status: 'uploading',
+        progress: 50,
+        message: 'Wird hochgeladen...',
+        validationProgress: undefined
+      });
+      
       await uploadFile(file, checklistItemId, checklistItemTitle);
       
     } catch (err) {
