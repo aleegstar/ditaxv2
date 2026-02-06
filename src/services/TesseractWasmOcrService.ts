@@ -302,7 +302,14 @@ class TesseractWasmOcrService {
       .replace(/ü/g, 'ue')
       .replace(/ß/g, 'ss');
 
+    // DEBUG: Log raw and normalized text
+    console.log('[TesseractWasm] === OCR DEBUG ===');
+    console.log('[TesseractWasm] Raw text lines:', detectedTexts.slice(0, 20)); // First 20 lines
+    console.log('[TesseractWasm] Normalized text (first 500 chars):', normalizedText.substring(0, 500));
+    console.log('[TesseractWasm] Keywords to match:', keywords);
+
     const matchedLabels: string[] = [];
+    const unmatchedKeywords: string[] = [];
 
     for (const keyword of keywords) {
       const normalizedKeyword = keyword
@@ -314,8 +321,16 @@ class TesseractWasmOcrService {
 
       if (normalizedText.includes(normalizedKeyword)) {
         matchedLabels.push(keyword);
+      } else {
+        unmatchedKeywords.push(keyword);
       }
     }
+
+    // DEBUG: Log results
+    console.log('[TesseractWasm] ✅ MATCHED keywords:', matchedLabels);
+    console.log('[TesseractWasm] ❌ UNMATCHED keywords:', unmatchedKeywords);
+    console.log('[TesseractWasm] Match rate:', `${matchedLabels.length}/${keywords.length} (${Math.round(matchedLabels.length/keywords.length*100)}%)`);
+    console.log('[TesseractWasm] === END DEBUG ===');
 
     return {
       matchCount: matchedLabels.length,
