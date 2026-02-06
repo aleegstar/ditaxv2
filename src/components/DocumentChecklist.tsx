@@ -458,7 +458,7 @@ const DocumentChecklist: React.FC = () => {
       </div>;
   }
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-2xl mx-auto" />
 
