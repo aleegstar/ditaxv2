@@ -772,20 +772,26 @@ const DocumentChecklist: React.FC = () => {
               {/* Backdrop */}
               <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
               />
               
-              {/* Modal */}
+              {/* Bottom Sheet Modal */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ type: "spring", damping: 25, stiffness: 400 }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-2rem)] max-w-[360px]"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="fixed bottom-0 left-0 right-0 z-[101]"
               >
-                <div className="bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
+                {/* Handle bar */}
+                <div className="flex justify-center pt-3 pb-2 bg-white rounded-t-[28px]">
+                  <div className="w-10 h-1 bg-slate-300 rounded-full" />
+                </div>
+                
+                {/* Content */}
+                <div className="bg-white px-6 pb-8 pt-2 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)]">
                   <AIDocumentValidation 
                     progress={validatingState.validationProgress}
                     documentType={validatingState.checklistItemTitle || 'Dokument'}
