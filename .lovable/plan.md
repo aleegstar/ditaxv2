@@ -1,105 +1,263 @@
 
 
-# Plan: OCR-Erkennung verbessern für Lohnausweis
+# Plan: Inline-Upload in Dokumenten-Checkliste (Aktualisiert)
 
-## Problem-Analyse
+## Kritische Parameter-Prüfung ✅
 
-Das Dokument zeigt "Lohnausweis nicht eindeutig erkannt" - das bedeutet die Konfidenz ist unter 80%. Die möglichen Ursachen:
+Der Upload benötigt diese Parameter - alle werden korrekt übergeben:
 
-1. **tesseract-wasm erkennt zu wenig Text** - Die mobile OCR-Engine ist weniger leistungsfähig
-2. **Keyword-Matching findet nicht genug Treffer** - Trotz der erweiterten Keywords
-3. **Scoring-Schwellen zu hoch** - Bereits angepasst, aber möglicherweise noch zu streng
-
----
-
-## Lösungsansatz: Dreifache Optimierung
-
-### 1. Noch aggressivere Mobile-Schwellenwerte
-
-Das OCR-Scoring für mobile Geräte noch weiter senken:
-
-| Matches | Bisheriger Score | Neuer Score |
-|---------|------------------|-------------|
-| 3+ Keywords | 70-80 | **80** (Maximum) |
-| 2 Keywords | 55 | **70** |
-| 1 Keyword | 30 | **50** |
-
-### 2. Toleranteres Keyword-Matching
-
-Aktuell: Exakte Substring-Suche (`normalizedText.includes(normalizedKeyword)`)
-
-Problem: OCR kann Wörter falsch trennen oder Zeichen falsch erkennen (z.B. "Lohn ausweis" statt "Lohnausweis")
-
-Lösung: **Fuzzy-Matching** einführen:
-- Wort-für-Wort-Suche statt nur zusammenhängend
-- Kürzere Keyword-Varianten erlauben (z.B. "lohnausw" matcht auch)
-- Levenshtein-Distanz für ähnliche Wörter (optional)
-
-### 3. Besseres Debug-Logging
-
-Statt pro Profil zu loggen, **einmalig** nach allen Matches loggen:
-- Erkannter Text (erste 1000 Zeichen)
-- Alle gematchten Keywords über alle Profile
-- Spezifisch: employment-income Matches
+| Parameter | Quelle | Status |
+|-----------|--------|--------|
+| `file` | Ausgewählte Datei | ✅ |
+| `checklistItemId` | `item.id` aus Checkliste | ✅ |
+| `userId` | `supabase.auth.getSession()` | ✅ |
+| `taxYear` | `useFormContext().taxYear` | ✅ Bereits verfügbar |
+| `checklistItemTitle` | `item.title` aus Checkliste | ✅ |
+| `taxFilerId` | `useTaxFiler().activeTaxFilerId` | ⚠️ **Muss hinzugefügt werden** |
 
 ---
 
 ## Technische Umsetzung
 
-### Datei: `src/services/TesseractWasmOcrService.ts`
+### Datei: `src/components/DocumentChecklist.tsx`
 
-**A. Toleranteres Matching einführen:**
-
+**1. Neue Imports:**
 ```typescript
-matchKeywords(detectedTexts: string[], keywords: string[]) {
-  // Normalisieren
-  const normalizedText = detectedTexts.join(' ').toLowerCase()
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue').replace(/ß/g, 'ss');
-  
-  // Wort-Array für Wort-basiertes Matching
-  const words = normalizedText.split(/\s+/);
-  
-  for (const keyword of keywords) {
-    const normalizedKeyword = keyword.toLowerCase()...;
-    
-    // Methode 1: Direkter Substring (wie bisher)
-    if (normalizedText.includes(normalizedKeyword)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-    
-    // Methode 2: Wort-Präfix-Match (für OCR-Fehler)
-    // "lohnausw" matcht auch wenn OCR "lohnausweis" nicht vollständig erkennt
-    const keywordPrefix = normalizedKeyword.substring(0, Math.min(6, normalizedKeyword.length));
-    if (words.some(word => word.startsWith(keywordPrefix) && word.length >= keywordPrefix.length)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-  }
-}
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import DocumentValidator from '@/services/DocumentValidator';
+import AIDocumentValidation from '@/components/ui/ai-document-validation';
+import DocumentCheckScreen from '@/components/documents/DocumentCheckScreen';
+import { validateFile } from '@/utils/fileValidation';
+import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 ```
 
-**B. Debug-Logging optimieren:**
-
-Nur einmal loggen (im DocumentValidator, nicht pro Profil), mit Fokus auf das relevante Profil.
-
-### Datei: `src/services/DocumentValidator.ts`
-
-**C. Mobile-Schwellenwerte weiter senken:**
-
+**2. Context-Hook hinzufügen:**
 ```typescript
-if (isMobileOcr) {
-  // Ultra-mobile-optimierte Schwellenwerte
-  if (ocrMatchCount >= 3) {
-    ocrScore = 80;  // War: 4 für 80, 3 für 70
-  } else if (ocrMatchCount >= 2) {
-    ocrScore = 70;  // War: 55
-  } else if (ocrMatchCount >= 1) {
-    ocrScore = 50;  // War: 30
-  }
-}
+const { activeTaxFilerId } = useTaxFiler();
 ```
+
+**3. Neue State-Variablen:**
+```typescript
+// Inline-Upload State
+const [processingItemId, setProcessingItemId] = useState<string | null>(null);
+const [processingFile, setProcessingFile] = useState<File | null>(null);
+const [isValidating, setIsValidating] = useState(false);
+const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
+const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+const [showCheckScreen, setShowCheckScreen] = useState(false);
+const [isUploading, setIsUploading] = useState(false);
+const fileInputRef = useRef<HTMLInputElement>(null);
+const encryptedDocService = EncryptedDocumentService.getInstance();
+const documentValidator = DocumentValidator.getInstance();
+```
+
+**4. File-Input-Handler:**
+```typescript
+const handleInlineUploadClick = (itemId: string) => {
+  setProcessingItemId(itemId);
+  fileInputRef.current?.click();
+};
+
+const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file || !processingItemId) {
+    resetUploadState();
+    return;
+  }
+  e.target.value = ''; // Reset input
+
+  // Datei validieren (Typ, Grösse)
+  const fileValidation = await validateFile(file, 10 * 1024 * 1024);
+  if (!fileValidation.isValid) {
+    toast({ title: "Fehler", description: fileValidation.error, variant: "destructive" });
+    resetUploadState();
+    return;
+  }
+
+  setProcessingFile(file);
+  await performValidationAndUpload(file, processingItemId);
+};
+```
+
+**5. Validation + Upload-Logik (KRITISCH - mit korrekten Parametern):**
+```typescript
+const performValidationAndUpload = async (file: File, itemId: string) => {
+  setIsValidating(true);
+  setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
+
+  try {
+    // OCR-Validierung durchführen
+    const result = await documentValidator.validate(
+      file,
+      itemId,
+      (progress) => setValidationProgress(progress)
+    );
+
+    setValidationResult(result);
+    setValidationProgress(null);
+
+    // Bei niedriger Konfidenz: Check-Screen anzeigen
+    if (result.needsUserConfirmation) {
+      setShowCheckScreen(true);
+      setIsValidating(false);
+      return;
+    }
+
+    // Hohe Konfidenz: Direkt hochladen
+    await performUpload(file, itemId);
+
+  } catch (error) {
+    console.error('Validation error:', error);
+    setValidationProgress(null);
+    // Bei Fehler: Trotzdem Upload erlauben
+    toast({
+      title: "Hinweis",
+      description: "Dokumentenprüfung übersprungen.",
+      variant: "default"
+    });
+    await performUpload(file, itemId);
+  } finally {
+    setIsValidating(false);
+  }
+};
+
+const performUpload = async (file: File, itemId: string) => {
+  setIsUploading(true);
+
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      throw new Error('Nicht angemeldet');
+    }
+
+    const currentUserId = sessionData.session.user.id;
+    
+    // KRITISCH: taxFilerId mit Fallback auf sessionStorage
+    const taxFilerId = activeTaxFilerId || sessionStorage.getItem('ditax_selected_tax_filer');
+    
+    // Checklist-Item für Titel holen
+    const item = checklistItems.find(i => i.id === itemId);
+
+    // Upload mit ALLEN korrekten Parametern
+    await encryptedDocService.uploadEncryptedDocument(
+      file,                    // File
+      itemId,                  // checklistItemId
+      currentUserId,           // userId
+      taxYear,                 // taxYear (aus useFormContext)
+      item?.title,             // checklistItemTitle
+      taxFilerId               // taxFilerId (aus useTaxFiler + Fallback)
+    );
+
+    // Erfolg
+    toast({
+      title: "Dokument hochgeladen",
+      description: `${item?.title || 'Dokument'} wurde erfolgreich hochgeladen.`
+    });
+
+    // Checkliste aktualisieren
+    markUploaded(itemId, true);
+    refreshDocuments();
+
+  } catch (error: any) {
+    console.error('Upload error:', error);
+    toast({
+      title: "Upload fehlgeschlagen",
+      description: error.message || "Dokument konnte nicht hochgeladen werden.",
+      variant: "destructive"
+    });
+  } finally {
+    resetUploadState();
+  }
+};
+
+const resetUploadState = () => {
+  setProcessingItemId(null);
+  setProcessingFile(null);
+  setIsValidating(false);
+  setValidationProgress(null);
+  setValidationResult(null);
+  setShowCheckScreen(false);
+  setIsUploading(false);
+};
+```
+
+**6. CheckScreen-Handler:**
+```typescript
+const handleCheckConfirm = () => {
+  if (processingFile && processingItemId) {
+    performUpload(processingFile, processingItemId);
+  }
+  setShowCheckScreen(false);
+};
+
+const handleCheckReupload = () => {
+  resetUploadState();
+};
+```
+
+**7. Hidden File-Input + Modals im JSX:**
+```tsx
+{/* Hidden File Input */}
+<input
+  ref={fileInputRef}
+  type="file"
+  accept="image/*,application/pdf"
+  className="hidden"
+  onChange={handleFileSelected}
+/>
+
+{/* AI Validation Modal */}
+{isValidating && validationProgress && (
+  <AIDocumentValidation
+    progress={validationProgress}
+    isOpen={isValidating}
+  />
+)}
+
+{/* Check Screen Modal */}
+{showCheckScreen && validationResult && processingItemId && (
+  <DocumentCheckScreen
+    isOpen={showCheckScreen}
+    onClose={handleCheckReupload}
+    result={validationResult}
+    expectedDocType={processingItemId}
+    onConfirm={handleCheckConfirm}
+    onReupload={handleCheckReupload}
+    onChangeType={() => {
+      resetUploadState();
+      navigate('/form?section=unterlagen');
+    }}
+  />
+)}
+```
+
+**8. Upload-Button ändern (Zeile 542):**
+```tsx
+// VON:
+<button onClick={() => handleUploadDocument(item.id)} ...>
+
+// ZU:
+<button 
+  onClick={() => handleInlineUploadClick(item.id)} 
+  disabled={isValidating || isUploading}
+  ...
+>
+```
+
+---
+
+## Sicherheitsgarantien
+
+| Garantie | Status |
+|----------|--------|
+| `EncryptedDocumentService` unverändert | ✅ |
+| `DocumentValidator` unverändert | ✅ |
+| `taxFilerId` korrekt übergeben | ✅ (mit Fallback) |
+| `taxYear` korrekt übergeben | ✅ (aus FormContext) |
+| `checklistItemId` korrekt übergeben | ✅ |
+| `userId` korrekt übergeben | ✅ (aus Supabase Auth) |
+| OCR-Validierung bleibt erhalten | ✅ |
 
 ---
 
@@ -107,15 +265,20 @@ if (isMobileOcr) {
 
 | Datei | Änderung |
 |-------|----------|
-| `src/services/TesseractWasmOcrService.ts` | Toleranteres Matching, besseres Logging |
-| `src/services/DocumentValidator.ts` | Niedrigere Mobile-Schwellenwerte |
+| `src/components/DocumentChecklist.tsx` | Inline-Upload-Logik hinzufügen |
+
+**Keine anderen Dateien werden verändert.**
 
 ---
 
-## Erwartetes Ergebnis
+## Resultat
 
-Nach diesen Änderungen sollte der Lohnausweis:
-- Mit 2-3 erkannten Keywords bereits 70-80% Konfidenz erreichen
-- Durch toleranteres Matching mehr Keywords finden
-- Zuverlässig als "erkannt" klassifiziert werden
+**Vorher:** Klick → Navigation → Klick → Datei → Klick → OCR → Upload  
+**Nachher:** Klick → Datei → OCR → Upload
+
+Der Benutzer:
+1. Klickt auf "Hochladen" in der Checkliste
+2. Wählt eine Datei (File-Picker öffnet sich sofort)
+3. Sieht das OCR-Modal (automatisch)
+4. Dokument wird hochgeladen (automatisch bei hoher Konfidenz)
 
