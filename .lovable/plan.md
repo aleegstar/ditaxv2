@@ -1,109 +1,79 @@
 
-# Plan: Upload-Flow von Checkliste optimieren
 
-## Ziel
-Den Upload-Vorgang von 4+ Klicks und 2 Seitenwechseln auf 2 Klicks ohne Seitenwechsel reduzieren.
+# Plan: Upload-Problem beheben
 
----
+## Problem-Analyse
 
-## Aktueller Flow (Problem)
+Nach eingehender Untersuchung des Codes habe ich folgende Probleme identifiziert:
 
-| Schritt | Aktion | Typ |
-|---------|--------|-----|
-| 1 | "Hochladen" Button klicken | Klick |
-| 2 | Seite `/form/documents/upload/{itemId}` lädt | Wartezeit |
-| 3 | "Dokumente hochladen" Button klicken | Klick |
-| 4 | Datei im Picker auswählen | Klick |
-| 5 | "Hochladen" Button am unteren Rand klicken | Klick |
-| 6 | Zurück zur Checkliste navigieren | Wartezeit |
+### 1. Fehlende Fehlerbehandlung in der Upload-Kette
+Der Upload-Flow besteht aus mehreren Schritten:
+1. File-Auswahl -> 2. Validierung (OCR) -> 3. Upload -> 4. Erfolg
 
-**Ergebnis**: 4 Klicks + 2 Seitenwechsel
+Das Problem: **Wenn der Upload im Schritt 3 hängt oder fehlschlägt, gibt es keine Recovery-Logik.** Der Status bleibt auf "Wird hochgeladen..." ohne Timeout.
 
----
+### 2. Potenzielle Ursachen
+- **Tesseract-WASM Initialisierung**: Kann bei fehlenden WASM-Dateien hängen bleiben
+- **Kein Upload-Timeout**: Wenn der Storage-Upload fehlschlägt, gibt es keine automatische Wiederherstellung
+- **Status-Update Race Condition**: Doppelte Status-Updates zwischen `handleFileSelect` und `uploadFile`
 
-## Optimierter Flow (Lösung)
+## Lösungsplan
 
-| Schritt | Aktion | Typ |
-|---------|--------|-----|
-| 1 | "Hochladen" Button klickt direkt den Datei-Picker | Klick |
-| 2 | Datei auswählen | Klick |
-| 3 | Validierung + Upload startet automatisch | Automatisch |
-| 4 | Inline-Status zeigt Fortschritt | Visuell |
+### Änderung 1: Upload-Timeout mit automatischer Fehlerbehandlung
+**Datei:** `src/hooks/use-inline-upload.ts`
 
-**Ergebnis**: 2 Klicks, kein Seitenwechsel
+- Timeout von 45 Sekunden für den gesamten Upload-Prozess hinzufügen
+- Bei Timeout: Fehlerstatus setzen und Benutzer informieren
+- Fehler-Recovery: Clear-Funktion für abgestürzten Upload-State
 
----
+### Änderung 2: Robuste Status-Übergänge
+**Datei:** `src/hooks/use-inline-upload.ts`
 
-## Technische Umsetzung
+- Status-Updates konsolidieren (keine doppelten Updates)
+- Sicherstellen, dass bei jedem Fehler der Status korrekt auf 'error' gesetzt wird
+- Try-catch-Block um den gesamten Upload-Flow
 
-### 1. Versteckten File-Input pro Checklist-Item
+### Änderung 3: Validierungs-Timeout
+**Datei:** `src/hooks/use-inline-upload.ts`
 
-In `DocumentChecklist.tsx`:
-- Für jedes Checklist-Item einen versteckten `<input type="file">` hinzufügen
-- Der "Hochladen" Button triggert direkt `fileInputRef.current?.click()`
+- Separates Timeout für die OCR-Validierung (20 Sekunden)
+- Bei Timeout: Validierung überspringen und direkt zum Upload übergehen
+- Keine Blockierung der Upload-Funktionalität durch fehlgeschlagene OCR
 
-### 2. Inline-Upload-Logik
+## Technische Details
 
-Neue Funktion `handleDirectUpload(itemId, files)`:
-- Datei-Validierung (Grösse, Typ)
-- OCR-Validierung im Hintergrund
-- Verschlüsselter Upload mit Fortschritts-Anzeige
-- Bei niedriger Konfidenz: Kompaktes Modal statt voller Seitennavigation
-
-### 3. Inline-Status-Anzeige
-
-Status direkt im Checklist-Item anzeigen:
-- "Wird geprüft..." (während OCR)
-- "Wird hochgeladen..." (während Upload)
-- Fortschrittsbalken inline
-
-### 4. Kompaktes Bestätigungs-Modal (nur bei niedriger Konfidenz)
-
-Statt separater Seite: Schlankes Modal für Bestätigung wenn Konfidenz < 70%
-
----
-
-## Betroffene Dateien
-
-| Datei | Änderungen |
-|-------|------------|
-| `src/components/DocumentChecklist.tsx` | Versteckte File-Inputs, `handleDirectUpload`, Inline-Status |
-| `src/components/documents/InlineUploadHandler.tsx` | **Neu**: Kompakte Upload-Logik ohne Seitennavigation |
-| `src/components/ui/modern-upload-dialog.tsx` | Optional: Minimales Modal für niedrige Konfidenz |
-
----
-
-## UI-Änderungen im Detail
-
-### Vorher (Button in Checkliste)
-```
-[CloudUpload Icon] Hochladen → navigiert zu /form/documents/upload/{id}
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    Verbesserter Upload-Flow                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Datei-Auswahl                                              │
+│       ↓                                                     │
+│  ┌─────────────────┐                                        │
+│  │  Validierung    │ ◄── 20s Timeout                        │
+│  │  (OCR/AI)       │     Bei Timeout: Skip & Upload         │
+│  └────────┬────────┘                                        │
+│           ↓                                                 │
+│  ┌─────────────────┐                                        │
+│  │  Upload         │ ◄── 45s Timeout                        │
+│  │  (Storage + DB) │     Bei Timeout: Error + Toast         │
+│  └────────┬────────┘                                        │
+│           ↓                                                 │
+│  ┌─────────────────┐                                        │
+│  │  Erfolg         │                                        │
+│  │  State cleared  │                                        │
+│  └─────────────────┘                                        │
+│                                                             │
+│  ⚠ Bei jedem Fehler: Status → 'error' + Toast               │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Nachher (Button in Checkliste)
-```
-[CloudUpload Icon] Hochladen → öffnet direkt nativen Datei-Picker
-```
+## Zusammenfassung der Änderungen
 
-### Inline-Status während Upload
-```
-[Spinner] Wird hochgeladen... 45%
-```
+| Datei | Änderung |
+|-------|----------|
+| `src/hooks/use-inline-upload.ts` | Timeout-Logik für Validierung (20s) und Upload (45s) hinzufügen |
+| `src/hooks/use-inline-upload.ts` | Robuste Fehlerbehandlung mit garantiertem Status-Reset |
+| `src/hooks/use-inline-upload.ts` | Logging für bessere Diagnose hinzufügen |
 
-### Bei niedriger Konfidenz (Modal)
-```
-┌──────────────────────────────────────┐
-│ Dokument nicht eindeutig erkannt     │
-│                                      │
-│ [Trotzdem einreichen] [Andere Datei] │
-└──────────────────────────────────────┘
-```
-
----
-
-## Erwartetes Ergebnis
-
-- Upload in **2 Klicks** statt 4+
-- **Kein Seitenwechsel** - alles inline in der Checkliste
-- Schnelleres Gefühl durch sofortige Reaktion
-- Gleiche Sicherheit: OCR-Validierung + Verschlüsselung bleibt erhalten
