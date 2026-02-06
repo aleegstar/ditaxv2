@@ -18,6 +18,7 @@ import { validateFile } from '@/utils/fileValidation';
 import DocumentValidator from '@/services/DocumentValidator';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 type UploadStatus = 'idle' | 'validating' | 'uploading' | 'success' | 'error';
 
@@ -25,7 +26,6 @@ interface InlineDocumentUploaderProps {
   checklistItemId: string;
   checklistItemTitle: string;
   taxYear: string;
-  taxFilerId?: string | null;
   onUploadComplete: () => void;
   className?: string;
 }
@@ -34,11 +34,11 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   checklistItemId,
   checklistItemTitle,
   taxYear,
-  taxFilerId,
   onUploadComplete,
   className,
 }) => {
   const { toast } = useToast();
+  const { activeTaxFilerId } = useTaxFiler();
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [statusMessage, setStatusMessage] = useState<string>('');
   
@@ -48,12 +48,15 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   const documentValidator = DocumentValidator.getInstance();
   const encryptedDocService = new EncryptedDocumentService();
 
+  console.log('[InlineUploader] Initialized with:', { checklistItemId, taxYear, activeTaxFilerId });
+
   const handleUploadClick = () => {
     // Always open file picker directly - no intermediate popup
     fileInputRef.current?.click();
   };
 
   const processFile = async (file: File) => {
+    console.log('[InlineUploader] Processing file:', file.name);
     try {
       // Validate file (async)
       const validation = await validateFile(file);
@@ -113,14 +116,16 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
       setStatus('uploading');
       setStatusMessage('Wird hochgeladen...');
 
+      console.log('[InlineUploader] Starting encrypted upload...');
       await encryptedDocService.uploadEncryptedDocument(
         file,
         checklistItemId,
         userId,
         taxYear,
         checklistItemTitle,
-        taxFilerId
+        activeTaxFilerId
       );
+      console.log('[InlineUploader] Upload complete!');
 
       // Success
       setStatus('success');
@@ -157,8 +162,13 @@ const InlineDocumentUploader: React.FC<InlineDocumentUploaderProps> = ({
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[InlineUploader] File change event triggered');
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      console.log('[InlineUploader] No files selected');
+      return;
+    }
+    console.log('[InlineUploader] File selected:', files[0].name);
 
     // Process first file
     await processFile(files[0]);
