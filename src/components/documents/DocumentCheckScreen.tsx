@@ -39,12 +39,12 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
 
   const profile = getDocumentProfile(result.best.docTypeId);
   const confidence = result.best.confidence;
-  const isLowConfidence = confidence < 80;
+  const isLowConfidence = confidence < 70;
   const documentLabel = profile?.label || 'Dokument';
 
   // Get notification content based on confidence
   const getNotificationContent = () => {
-    if (confidence >= 80) {
+    if (confidence >= 70) {
       return {
         title: `${documentLabel} erfolgreich erkannt`,
         body: 'Das Dokument wurde erkannt und kann eingereicht werden.',
