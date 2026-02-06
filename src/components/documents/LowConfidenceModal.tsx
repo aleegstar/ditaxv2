@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, Upload, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ValidationResult } from '@/types/documentProfile';
@@ -58,7 +59,7 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
   
   const message = getMessage();
   
-  return (
+  const modalContent = (
     <AnimatePresence>
       {open && (
         <>
@@ -68,20 +69,19 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           
-          {/* Modal - Premium Fintech Style */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 400 }}
-            className="fixed inset-0 z-[101] flex items-center justify-center p-4"
-          >
-            <div 
-              className="relative bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[360px]"
+          {/* Modal Container - Flexbox centering */}
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 400 }}
+              className="pointer-events-auto bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[360px]"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
@@ -134,12 +134,15 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
                   {isConfirming ? 'Wird hochgeladen...' : 'Trotzdem einreichen'}
                 </button>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
   );
+  
+  // Use portal to render at document.body level
+  return createPortal(modalContent, document.body);
 };
 
 export default LowConfidenceModal;
