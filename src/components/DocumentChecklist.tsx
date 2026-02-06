@@ -20,11 +20,13 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
 import LowConfidenceModal from '@/components/documents/LowConfidenceModal';
+import AIDocumentValidation from '@/components/ui/ai-document-validation';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
 import { useInlineUpload, InlineUploadState } from '@/hooks/use-inline-upload';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -600,8 +602,8 @@ const DocumentChecklist: React.FC = () => {
                                     {item.description}
                                   </p>}
                                 
-                                {/* Inline Upload Status */}
-                                {isUploading && uploadState && (
+                                {/* Inline Upload Status - Simple progress for non-validating states */}
+                                {isUploading && uploadState && uploadState.status !== 'validating' && (
                                   <div className="mt-3 space-y-2">
                                     <div className="flex items-center gap-2">
                                       <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -620,6 +622,16 @@ const DocumentChecklist: React.FC = () => {
                                         {uploadState.fileName}
                                       </p>
                                     )}
+                                  </div>
+                                )}
+                                
+                                {/* Validating State - Show compact message */}
+                                {isUploading && uploadState?.status === 'validating' && (
+                                  <div className="mt-3 flex items-center gap-2">
+                                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                    <span className="text-xs font-medium text-slate-600">
+                                      Wird geprüft...
+                                    </span>
                                   </div>
                                 )}
                                 
@@ -654,7 +666,7 @@ const DocumentChecklist: React.FC = () => {
                                     {/* Primary: Upload new document - triggers file picker directly */}
                                     <button 
                                       onClick={() => handleUploadDocument(item.id)} 
-                                      className="flex items-center justify-center gap-2 bg-gradient-to-b from-primary to-primary/90 text-primary-foreground font-medium h-9 px-4 rounded-lg transition-all hover:from-primary/90 hover:to-primary/80 active:scale-[0.98] text-sm"
+                                      className="flex items-center justify-center gap-2 bg-gradient-to-b from-primary to-primary/90 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-primary/90 hover:to-primary/80 active:scale-[0.98] text-sm"
                                     >
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       {t.documentChecklist.upload}
@@ -748,6 +760,43 @@ const DocumentChecklist: React.FC = () => {
         fileName={lowConfidenceState?.fileName || ''}
         expectedDocType={lowConfidenceState?.itemId}
       />
+      
+      {/* AI Document Validation Modal - During OCR */}
+      <AnimatePresence>
+        {Object.values(uploadStates).some(s => s.status === 'validating' && s.validationProgress) && (() => {
+          const validatingState = Object.values(uploadStates).find(s => s.status === 'validating' && s.validationProgress);
+          if (!validatingState?.validationProgress) return null;
+          
+          return (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+              />
+              
+              {/* Modal */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ type: "spring", damping: 25, stiffness: 400 }}
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-2rem)] max-w-[360px]"
+              >
+                <div className="bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
+                  <AIDocumentValidation 
+                    progress={validatingState.validationProgress}
+                    documentType={validatingState.checklistItemTitle || 'Dokument'}
+                    documentTypeId={validatingState.itemId}
+                  />
+                </div>
+              </motion.div>
+            </>
+          );
+        })()}
+      </AnimatePresence>
     </div>;
 };
 export default DocumentChecklist;

@@ -13,8 +13,10 @@ export interface InlineUploadState {
   progress: number;
   message: string;
   validationResult?: ValidationResult;
+  validationProgress?: ValidationProgress;
   fileName?: string;
   file?: File;
+  checklistItemTitle?: string;
 }
 
 interface UseInlineUploadOptions {
@@ -129,7 +131,8 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       progress: 10,
       message: 'Wird verarbeitet...',
       fileName: file.name,
-      file
+      file,
+      checklistItemTitle
     });
     
     // Validate file
@@ -149,11 +152,12 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       return;
     }
     
-    // Start document validation (OCR)
+    // Start document validation (OCR) - show AI validation popup
     updateItemState(checklistItemId, {
       status: 'validating',
       progress: 20,
-      message: 'Wird geprüft...'
+      message: 'Wird geprüft...',
+      validationProgress: { step: 'preparing', percent: 5, message: 'Dokument wird vorbereitet...' }
     });
     
     try {
@@ -164,7 +168,8 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
           updateItemState(checklistItemId, {
             status: 'validating',
             progress: 20 + (progress.percent * 0.6), // Map 0-100 to 20-80
-            message: progress.message || 'Wird geprüft...'
+            message: progress.message || 'Wird geprüft...',
+            validationProgress: progress
           });
         }
       );
@@ -174,6 +179,14 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         bestMatch: result.best.docTypeId,
         confidence: result.best.confidence,
         needsConfirmation: result.needsUserConfirmation
+      });
+      
+      // Clear validation progress after completion
+      updateItemState(checklistItemId, {
+        status: 'validating',
+        progress: 85,
+        message: 'Validierung abgeschlossen',
+        validationProgress: undefined
       });
       
       // If needs confirmation (confidence < 70%), show modal
