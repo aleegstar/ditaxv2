@@ -1,104 +1,74 @@
 
+# Plan: Dokumenten-Upload in der Checkliste vereinfachen
 
-# Plan: OCR-Erkennung verbessern für Lohnausweis
+## Analyse des Problems
 
-## Problem-Analyse
+Der aktuelle Upload-Flow benötigt zu viele Klicks:
 
-Das Dokument zeigt "Lohnausweis nicht eindeutig erkannt" - das bedeutet die Konfidenz ist unter 80%. Die möglichen Ursachen:
-
-1. **tesseract-wasm erkennt zu wenig Text** - Die mobile OCR-Engine ist weniger leistungsfähig
-2. **Keyword-Matching findet nicht genug Treffer** - Trotz der erweiterten Keywords
-3. **Scoring-Schwellen zu hoch** - Bereits angepasst, aber möglicherweise noch zu streng
+| Aktueller Flow | Klicks |
+|----------------|--------|
+| 1. "Hochladen" Button klicken | 1 |
+| 2. Seite lädt, auf Upload-Button klicken | 2 |
+| 3. Datei auswählen | 3 |
+| 4. "Dokument einreichen" klicken | 4 |
+| 5. Automatische Rückleitung | - |
+| **Gesamt** | **4 Klicks** |
 
 ---
 
-## Lösungsansatz: Dreifache Optimierung
+## Lösungsvorschlag: Direkter Inline-Upload
 
-### 1. Noch aggressivere Mobile-Schwellenwerte
+Statt zu einer separaten Seite zu navigieren, soll der "Hochladen"-Button **sofort die Dateiauswahl öffnen** und der Upload **direkt in der Checkliste** stattfinden.
 
-Das OCR-Scoring für mobile Geräte noch weiter senken:
-
-| Matches | Bisheriger Score | Neuer Score |
-|---------|------------------|-------------|
-| 3+ Keywords | 70-80 | **80** (Maximum) |
-| 2 Keywords | 55 | **70** |
-| 1 Keyword | 30 | **50** |
-
-### 2. Toleranteres Keyword-Matching
-
-Aktuell: Exakte Substring-Suche (`normalizedText.includes(normalizedKeyword)`)
-
-Problem: OCR kann Wörter falsch trennen oder Zeichen falsch erkennen (z.B. "Lohn ausweis" statt "Lohnausweis")
-
-Lösung: **Fuzzy-Matching** einführen:
-- Wort-für-Wort-Suche statt nur zusammenhängend
-- Kürzere Keyword-Varianten erlauben (z.B. "lohnausw" matcht auch)
-- Levenshtein-Distanz für ähnliche Wörter (optional)
-
-### 3. Besseres Debug-Logging
-
-Statt pro Profil zu loggen, **einmalig** nach allen Matches loggen:
-- Erkannter Text (erste 1000 Zeichen)
-- Alle gematchten Keywords über alle Profile
-- Spezifisch: employment-income Matches
+| Neuer Flow | Klicks |
+|------------|--------|
+| 1. "Hochladen" Button klicken → Dateiauswahl öffnet sich | 1 |
+| 2. Datei auswählen → Upload startet automatisch | - |
+| **Gesamt** | **1 Klick** |
 
 ---
 
 ## Technische Umsetzung
 
-### Datei: `src/services/TesseractWasmOcrService.ts`
+### Datei: `src/components/DocumentChecklist.tsx`
 
-**A. Toleranteres Matching einführen:**
+1. **Hidden File Input pro Item hinzufügen**
+   - Statt Navigation zur Upload-Seite wird ein verstecktes `<input type="file">` getriggert
 
-```typescript
-matchKeywords(detectedTexts: string[], keywords: string[]) {
-  // Normalisieren
-  const normalizedText = detectedTexts.join(' ').toLowerCase()
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue').replace(/ß/g, 'ss');
-  
-  // Wort-Array für Wort-basiertes Matching
-  const words = normalizedText.split(/\s+/);
-  
-  for (const keyword of keywords) {
-    const normalizedKeyword = keyword.toLowerCase()...;
-    
-    // Methode 1: Direkter Substring (wie bisher)
-    if (normalizedText.includes(normalizedKeyword)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-    
-    // Methode 2: Wort-Präfix-Match (für OCR-Fehler)
-    // "lohnausw" matcht auch wenn OCR "lohnausweis" nicht vollständig erkennt
-    const keywordPrefix = normalizedKeyword.substring(0, Math.min(6, normalizedKeyword.length));
-    if (words.some(word => word.startsWith(keywordPrefix) && word.length >= keywordPrefix.length)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-  }
-}
-```
+2. **Neuer Upload-Handler inline**
+   - Nutzt den bestehenden `EncryptedDocumentService` für den Upload
+   - Zeigt einen kleinen Spinner/Progress im jeweiligen Checklist-Item
+   - Bei Erfolg: Item wird als "uploaded" markiert, Dokumente werden refreshed
 
-**B. Debug-Logging optimieren:**
+3. **Bestehender InlineDocumentUploader als Fallback**
+   - Falls OCR-Validierung fehlschlägt (Konfidenz < 70%), kann optional ein Modal gezeigt werden
 
-Nur einmal loggen (im DocumentValidator, nicht pro Profil), mit Fokus auf das relevante Profil.
+### Ablauf im Code:
 
-### Datei: `src/services/DocumentValidator.ts`
-
-**C. Mobile-Schwellenwerte weiter senken:**
-
-```typescript
-if (isMobileOcr) {
-  // Ultra-mobile-optimierte Schwellenwerte
-  if (ocrMatchCount >= 3) {
-    ocrScore = 80;  // War: 4 für 80, 3 für 70
-  } else if (ocrMatchCount >= 2) {
-    ocrScore = 70;  // War: 55
-  } else if (ocrMatchCount >= 1) {
-    ocrScore = 50;  // War: 30
-  }
-}
+```text
+[Hochladen Button]
+       │
+       ▼
+[Hidden <input type="file">].click()
+       │
+       ▼
+[Datei ausgewählt]
+       │
+       ▼
+[Spinner im Item anzeigen]
+       │
+       ▼
+[OCR-Validierung (optional)]
+       │
+       ├── Konfidenz >= 70% ──▶ [Upload via EncryptedDocumentService]
+       │                              │
+       │                              ▼
+       │                        [Erfolg → refresh + markUploaded]
+       │
+       └── Konfidenz < 70% ──▶ [Upload trotzdem durchführen]
+                                      │
+                                      ▼
+                                [Erfolg → refresh + markUploaded]
 ```
 
 ---
@@ -107,15 +77,22 @@ if (isMobileOcr) {
 
 | Datei | Änderung |
 |-------|----------|
-| `src/services/TesseractWasmOcrService.ts` | Toleranteres Matching, besseres Logging |
-| `src/services/DocumentValidator.ts` | Niedrigere Mobile-Schwellenwerte |
+| `src/components/DocumentChecklist.tsx` | Hidden file inputs, inline Upload-Handler, Progress-States |
+
+---
+
+## Was NICHT geändert wird
+
+- Upload-Logik (funktioniert einwandfrei laut Anforderung)
+- `EncryptedDocumentService` bleibt unverändert
+- `EnhancedDocumentUploader` bleibt als Fallback für komplexe Szenarien
+- OCR-Validierung bleibt wie sie ist
 
 ---
 
 ## Erwartetes Ergebnis
 
-Nach diesen Änderungen sollte der Lohnausweis:
-- Mit 2-3 erkannten Keywords bereits 70-80% Konfidenz erreichen
-- Durch toleranteres Matching mehr Keywords finden
-- Zuverlässig als "erkannt" klassifiziert werden
-
+- **1-Klick-Upload**: Benutzer klickt "Hochladen" → Dateiauswahl öffnet sich sofort
+- **Kein Seitenwechsel**: Alles passiert inline in der Checkliste
+- **Visuelles Feedback**: Spinner/Progress während des Uploads direkt im Item
+- **Nahtlose Experience**: Nach erfolgreichem Upload aktualisiert sich die Checkliste automatisch
