@@ -704,18 +704,16 @@ class DocumentValidator {
       const isMobileOcr = signals.keywords?.source === 'tesseract-wasm' || signals.keywords?.source === 'native-ocr';
       
       if (isMobileOcr) {
-        // Mobile-optimierte Schwellenwerte
-        if (ocrMatchCount >= 4) {
-          ocrScore = 80;
+        // Ultra-mobile-optimierte Schwellenwerte
+        // tesseract-wasm erkennt oft nur wenige Keywords - daher sehr niedrige Schwellen
+        if (ocrMatchCount >= 3) {
+          ocrScore = 80;  // 3 Keywords = Maximum (war: 4)
           reasons.push(`Passende Begriffe erkannt (${ocrMatchCount})`);
-        } else if (ocrMatchCount >= 3) {
-          ocrScore = 70;
-          reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
         } else if (ocrMatchCount >= 2) {
-          ocrScore = 55;
-          reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
+          ocrScore = 70;  // 2 Keywords = sehr gut (war: 55)
+          reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
         } else if (ocrMatchCount >= 1) {
-          ocrScore = 30;
+          ocrScore = 50;  // 1 Keyword = akzeptabel (war: 30)
           reasons.push(`Ein Begriff gefunden (${ocrMatchCount})`);
         } else {
           ocrScore = 0;

@@ -302,14 +302,17 @@ class TesseractWasmOcrService {
       .replace(/ü/g, 'ue')
       .replace(/ß/g, 'ss');
 
+    // Split into words for tolerant matching (OCR often splits words incorrectly)
+    const words = normalizedText.split(/\s+/);
+
     // DEBUG: Log raw and normalized text
     console.log('[TesseractWasm] === OCR DEBUG ===');
-    console.log('[TesseractWasm] Raw text lines:', detectedTexts.slice(0, 20)); // First 20 lines
-    console.log('[TesseractWasm] Normalized text (first 500 chars):', normalizedText.substring(0, 500));
-    console.log('[TesseractWasm] Keywords to match:', keywords);
+    console.log('[TesseractWasm] Raw text lines:', detectedTexts.slice(0, 20));
+    console.log('[TesseractWasm] Normalized text (first 800 chars):', normalizedText.substring(0, 800));
+    console.log('[TesseractWasm] Word count:', words.length);
 
     const matchedLabels: string[] = [];
-    const unmatchedKeywords: string[] = [];
+    const matchedBy: Record<string, string> = {}; // keyword -> match method
 
     for (const keyword of keywords) {
       const normalizedKeyword = keyword
@@ -319,16 +322,57 @@ class TesseractWasmOcrService {
         .replace(/ü/g, 'ue')
         .replace(/ß/g, 'ss');
 
+      // Method 1: Direct substring match (original method)
       if (normalizedText.includes(normalizedKeyword)) {
         matchedLabels.push(keyword);
-      } else {
-        unmatchedKeywords.push(keyword);
+        matchedBy[keyword] = 'substring';
+        continue;
+      }
+
+      // Method 2: Word-prefix matching (tolerant for OCR errors)
+      // If keyword is 6+ chars, check if any word starts with the first 5-6 chars
+      // This catches cases like "Lohnausw" matching when OCR cuts off the word
+      if (normalizedKeyword.length >= 5) {
+        const prefixLen = Math.min(5, normalizedKeyword.length);
+        const keywordPrefix = normalizedKeyword.substring(0, prefixLen);
+        
+        // Find words that start with this prefix and are at least as long
+        const prefixMatch = words.some(word => 
+          word.length >= prefixLen && 
+          word.startsWith(keywordPrefix)
+        );
+        
+        if (prefixMatch) {
+          matchedLabels.push(keyword);
+          matchedBy[keyword] = `prefix-${prefixLen}`;
+          continue;
+        }
+      }
+
+      // Method 3: Check for split words (e.g., "Lohn ausweis" instead of "Lohnausweis")
+      // Only for compound keywords (8+ chars)
+      if (normalizedKeyword.length >= 8) {
+        // Check if first half and second half are both present
+        const midPoint = Math.floor(normalizedKeyword.length / 2);
+        const firstHalf = normalizedKeyword.substring(0, midPoint);
+        const secondHalf = normalizedKeyword.substring(midPoint);
+        
+        if (firstHalf.length >= 3 && secondHalf.length >= 3) {
+          const hasFirstHalf = normalizedText.includes(firstHalf);
+          const hasSecondHalf = normalizedText.includes(secondHalf);
+          
+          if (hasFirstHalf && hasSecondHalf) {
+            matchedLabels.push(keyword);
+            matchedBy[keyword] = 'split-word';
+            continue;
+          }
+        }
       }
     }
 
     // DEBUG: Log results
-    console.log('[TesseractWasm] ✅ MATCHED keywords:', matchedLabels);
-    console.log('[TesseractWasm] ❌ UNMATCHED keywords:', unmatchedKeywords);
+    console.log('[TesseractWasm] ✅ MATCHED keywords:', matchedLabels.length, matchedLabels);
+    console.log('[TesseractWasm] Match methods:', matchedBy);
     console.log('[TesseractWasm] Match rate:', `${matchedLabels.length}/${keywords.length} (${Math.round(matchedLabels.length/keywords.length*100)}%)`);
     console.log('[TesseractWasm] === END DEBUG ===');
 
