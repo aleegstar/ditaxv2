@@ -378,6 +378,15 @@ class DocumentValidator {
       }
 
       console.log('[DocumentValidator] tesseract-wasm: Keywords matched', matchCountsByDocType);
+      console.log('[DocumentValidator] === WASM OCR DEBUG ===');
+      console.log('[DocumentValidator] Matched labels:', [...new Set(allMatchedLabels)]);
+      console.log('[DocumentValidator] Top profiles:', Object.entries(matchCountsByDocType)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 3)
+        .map(([id, count]) => `${id}: ${count}`)
+        .join(', ')
+      );
+      console.log('[DocumentValidator] === END DEBUG ===');
 
       return {
         available: true,
@@ -690,26 +699,49 @@ class DocumentValidator {
       }
 
       // === OCR SCORING (80 Punkte max) ===
-      // Angepasste Schwellenwerte für bessere Mobile-OCR-Erkennung
-      if (ocrMatchCount >= 5) {
-        ocrScore = 80;
-        reasons.push(`Viele passende Begriffe gefunden (${ocrMatchCount})`);
-      } else if (ocrMatchCount >= 4) {
-        ocrScore = 70;
-        reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
-      } else if (ocrMatchCount >= 3) {
-        ocrScore = 60;
-        reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
-      } else if (ocrMatchCount >= 2) {
-        ocrScore = 40;
-        reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
-      } else if (ocrMatchCount >= 1) {
-        ocrScore = 20;
-        reasons.push(`Ein Begriff gefunden (${ocrMatchCount})`);
+      // Angepasste Schwellenwerte für Mobile-OCR - tesseract-wasm erkennt oft weniger Keywords
+      // als Desktop Tesseract, daher niedrigere Schwellen für hohe Scores
+      const isMobileOcr = signals.keywords?.source === 'tesseract-wasm' || signals.keywords?.source === 'native-ocr';
+      
+      if (isMobileOcr) {
+        // Mobile-optimierte Schwellenwerte
+        if (ocrMatchCount >= 4) {
+          ocrScore = 80;
+          reasons.push(`Passende Begriffe erkannt (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 3) {
+          ocrScore = 70;
+          reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 2) {
+          ocrScore = 55;
+          reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 1) {
+          ocrScore = 30;
+          reasons.push(`Ein Begriff gefunden (${ocrMatchCount})`);
+        } else {
+          ocrScore = 0;
+          reasons.push('Keine passenden Begriffe erkannt');
+        }
       } else {
-        // 0 Matches = 0 OCR Punkte
-        ocrScore = 0;
-        reasons.push('Keine passenden Begriffe erkannt');
+        // Desktop-Schwellenwerte (Tesseract.js erkennt mehr)
+        if (ocrMatchCount >= 5) {
+          ocrScore = 80;
+          reasons.push(`Viele passende Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 4) {
+          ocrScore = 70;
+          reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 3) {
+          ocrScore = 60;
+          reasons.push(`Passende Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 2) {
+          ocrScore = 40;
+          reasons.push(`Einige Begriffe gefunden (${ocrMatchCount})`);
+        } else if (ocrMatchCount >= 1) {
+          ocrScore = 20;
+          reasons.push(`Ein Begriff gefunden (${ocrMatchCount})`);
+        } else {
+          ocrScore = 0;
+          reasons.push('Keine passenden Begriffe erkannt');
+        }
       }
 
       // === NEGATIVE KEYWORD ABZUG ===
