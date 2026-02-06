@@ -116,11 +116,11 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         message: 'Hochgeladen'
       });
       
-      // Clear state after short delay
+      // Clear state after delay to allow DB propagation
       setTimeout(() => {
         clearItemState(checklistItemId);
         onUploadComplete?.(checklistItemId);
-      }, 1500);
+      }, 2000);
       
       return true;
     } catch (err: any) {

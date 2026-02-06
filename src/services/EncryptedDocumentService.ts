@@ -142,6 +142,14 @@ class EncryptedDocumentService {
           }
         });
       
+      console.log('✅ Document metadata stored in database:', {
+        fileId,
+        checklistItemId,
+        taxFilerId: taxFilerId || 'none',
+        taxYear,
+        fileName: displayFileName
+      });
+      
       if (dbError) {
         // Clean up uploaded file if database insert fails
         await supabase.storage.from('documents').remove([filePath]);
