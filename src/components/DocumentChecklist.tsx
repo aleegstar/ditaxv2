@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X, Loader2 } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,9 +19,12 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
+import LowConfidenceModal from '@/components/documents/LowConfidenceModal';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
+import { useInlineUpload, InlineUploadState } from '@/hooks/use-inline-upload';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -45,6 +48,33 @@ const DocumentChecklist: React.FC = () => {
     getDocumentsForItem,
     hasDocuments
   } = useDocuments();
+  
+  const { activeTaxFilerId } = useTaxFiler();
+  
+  // Inline upload state and refs for file inputs
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [lowConfidenceState, setLowConfidenceState] = useState<InlineUploadState | null>(null);
+  
+  const {
+    uploadStates,
+    handleFileSelect,
+    confirmUpload,
+    cancelUpload,
+    getItemState,
+    clearItemState
+  } = useInlineUpload({
+    taxYear,
+    taxFilerId: activeTaxFilerId,
+    onUploadComplete: (itemId) => {
+      // Refresh documents and mark as uploaded
+      refreshDocuments();
+      markUploaded(itemId, true);
+    },
+    onValidationNeeded: (state) => {
+      // Show low confidence modal
+      setLowConfidenceState(state);
+    }
+  });
 
   // Memoized calculations to prevent unnecessary re-renders
   const categorizedItemsMemo = useMemo(() => {
@@ -94,8 +124,46 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
+  
+  // NEW: Direct file input trigger (replaces navigation)
   const handleUploadDocument = (itemId: string) => {
-    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
+    const input = fileInputRefs.current[itemId];
+    if (input) {
+      input.click();
+    }
+  };
+  
+  // Handle file input change
+  const handleFileInputChange = (itemId: string, itemTitle: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files, itemId, itemTitle);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+  
+  // Low confidence modal handlers
+  const handleLowConfidenceConfirm = async () => {
+    if (!lowConfidenceState) return;
+    const itemId = lowConfidenceState.itemId;
+    setLowConfidenceState(null);
+    await confirmUpload(itemId);
+  };
+  
+  const handleLowConfidenceReupload = () => {
+    if (!lowConfidenceState) return;
+    const itemId = lowConfidenceState.itemId;
+    clearItemState(itemId);
+    setLowConfidenceState(null);
+    // Trigger file picker again
+    setTimeout(() => handleUploadDocument(itemId), 100);
+  };
+  
+  const handleLowConfidenceClose = () => {
+    if (!lowConfidenceState) return;
+    clearItemState(lowConfidenceState.itemId);
+    setLowConfidenceState(null);
   };
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -502,24 +570,69 @@ const DocumentChecklist: React.FC = () => {
                           {items.map(item => {
                     const itemFiles = getUserDocumentsForItem(item.id);
                     const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
+                    const uploadState = getItemState(item.id);
+                    const isUploading = uploadState && ['processing', 'validating', 'uploading'].includes(uploadState.status);
+                    const isSuccess = uploadState?.status === 'success';
+                    
                     return <div key={item.id} className="bg-white rounded-lg p-4 ring-1 ring-slate-100">
+                                {/* Hidden file input for direct upload */}
+                                <input
+                                  type="file"
+                                  ref={el => { fileInputRefs.current[item.id] = el; }}
+                                  onChange={handleFileInputChange(item.id, item.title)}
+                                  accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf"
+                                  className="hidden"
+                                  capture={undefined}
+                                />
+                                
                                 {/* Document Header */}
                                 <div className="flex items-start justify-between gap-3">
                                   <h3 className="text-sm font-medium text-slate-800">
                                     {item.title}
                                   </h3>
-                                  {!item.uploaded && item.required && <span className="shrink-0 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                                  {!item.uploaded && item.required && !isUploading && <span className="shrink-0 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
                                       {t.documentChecklist.required}
                                     </span>}
                                 </div>
                                 
-                                {/* Description - only when not uploaded */}
-                                {!item.uploaded && item.description && <p className="text-xs text-slate-400 leading-relaxed mt-1 mb-4">
+                                {/* Description - only when not uploaded and not uploading */}
+                                {!item.uploaded && !isUploading && item.description && <p className="text-xs text-slate-400 leading-relaxed mt-1 mb-4">
                                     {item.description}
                                   </p>}
                                 
+                                {/* Inline Upload Status */}
+                                {isUploading && uploadState && (
+                                  <div className="mt-3 space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                      <span className="text-xs font-medium text-slate-600">
+                                        {uploadState.message}
+                                      </span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                      <div 
+                                        className="h-1.5 rounded-full bg-primary transition-all duration-300"
+                                        style={{ width: `${uploadState.progress}%` }}
+                                      />
+                                    </div>
+                                    {uploadState.fileName && (
+                                      <p className="text-xs text-slate-400 truncate">
+                                        {uploadState.fileName}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Success State (brief) */}
+                                {isSuccess && (
+                                  <div className="mt-3 flex items-center gap-2 text-green-600">
+                                    <Check className="w-4 h-4" strokeWidth={2.5} />
+                                    <span className="text-xs font-medium">Hochgeladen</span>
+                                  </div>
+                                )}
+                                
                                 {/* Uploaded State */}
-                                {item.uploaded && itemFiles.length > 0 && <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                                {item.uploaded && itemFiles.length > 0 && !isSuccess && <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
                                     <div className="flex items-center gap-1.5 text-green-600">
                                       <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                                       <span className="text-xs font-medium">
@@ -536,10 +649,13 @@ const DocumentChecklist: React.FC = () => {
                                     </div>
                                   </div>}
                                 
-                                {/* Action Buttons */}
-                                {!item.uploaded && <div className="flex items-center gap-3">
-                                    {/* Primary: Upload new document */}
-                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
+                                {/* Action Buttons - show when not uploaded and not uploading */}
+                                {!item.uploaded && !isUploading && !isSuccess && <div className="flex items-center gap-3">
+                                    {/* Primary: Upload new document - triggers file picker directly */}
+                                    <button 
+                                      onClick={() => handleUploadDocument(item.id)} 
+                                      className="flex items-center justify-center gap-2 bg-gradient-to-b from-primary to-primary/90 text-primary-foreground font-medium h-9 px-4 rounded-lg transition-all hover:from-primary/90 hover:to-primary/80 active:scale-[0.98] text-sm"
+                                    >
                                       <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
                                       {t.documentChecklist.upload}
                                     </button>
@@ -548,7 +664,7 @@ const DocumentChecklist: React.FC = () => {
                                     {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
                           open: true,
                           item
-                        })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-transparent text-slate-600 font-medium text-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
+                        })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border bg-transparent text-foreground font-medium text-sm transition-all hover:bg-muted active:scale-[0.98]">
                                         <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                                         {t.documentChecklist.assign}
                                       </button>}
@@ -621,6 +737,17 @@ const DocumentChecklist: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Low Confidence Modal */}
+      <LowConfidenceModal
+        open={!!lowConfidenceState}
+        onClose={handleLowConfidenceClose}
+        onConfirm={handleLowConfidenceConfirm}
+        onReupload={handleLowConfidenceReupload}
+        validationResult={lowConfidenceState?.validationResult || null}
+        fileName={lowConfidenceState?.fileName || ''}
+        expectedDocType={lowConfidenceState?.itemId}
+      />
     </div>;
 };
 export default DocumentChecklist;
