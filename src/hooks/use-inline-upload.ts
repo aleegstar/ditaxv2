@@ -87,6 +87,20 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       }
       const userId = sessionData.session.user.id;
       
+      // Fallback: Get TaxFilerId from sessionStorage if not available in context
+      let effectiveTaxFilerId = taxFilerIdRef.current;
+      if (!effectiveTaxFilerId) {
+        effectiveTaxFilerId = sessionStorage.getItem('ditax_selected_tax_filer');
+        console.log('[InlineUpload] Using sessionStorage fallback for taxFilerId:', effectiveTaxFilerId);
+      }
+      
+      console.log('[InlineUpload] Upload params:', {
+        fileName: file.name,
+        checklistItemId,
+        taxFilerId: effectiveTaxFilerId || 'NONE - will be null',
+        taxYear
+      });
+      
       updateItemState(checklistItemId, {
         status: 'uploading',
         progress: 50,
@@ -100,7 +114,7 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         userId,
         taxYear,
         checklistItemTitle,
-        taxFilerIdRef.current
+        effectiveTaxFilerId
       );
       
       await Promise.race([
