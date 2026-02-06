@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X, Loader2 } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,7 +22,6 @@ import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentMo
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
-import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -87,8 +86,6 @@ const DocumentChecklist: React.FC = () => {
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const hasShownCompletionDialog = useRef(false);
-  const [uploadingItemId, setUploadingItemId] = useState<string | null>(null);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const handleNext = () => {
@@ -97,64 +94,8 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
-  
-  // Inline upload handler - triggers file picker directly
   const handleUploadDocument = (itemId: string) => {
-    const input = fileInputRefs.current[itemId];
-    if (input) {
-      input.click();
-    }
-  };
-  
-  // Handle file selection and upload
-  const handleFileSelected = async (itemId: string, file: File, itemTitle: string) => {
-    if (!userId || !taxYear) {
-      toast({
-        title: "Fehler",
-        description: "Benutzer oder Steuerjahr nicht verfügbar",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setUploadingItemId(itemId);
-    
-    try {
-      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
-      
-      const encryptedDocService = EncryptedDocumentService.getInstance();
-      await encryptedDocService.uploadEncryptedDocument(
-        file,
-        itemId,
-        userId,
-        taxYear,
-        itemTitle,
-        activeTaxFilerId
-      );
-      
-      // Refresh documents to update the UI
-      await refreshDocuments();
-      markUploaded(itemId, true);
-      
-      toast({
-        title: "Dokument hochgeladen",
-        description: `${file.name} wurde erfolgreich hochgeladen.`
-      });
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast({
-        title: "Upload fehlgeschlagen",
-        description: error.message || "Das Dokument konnte nicht hochgeladen werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setUploadingItemId(null);
-      // Reset the file input
-      const input = fileInputRefs.current[itemId];
-      if (input) {
-        input.value = '';
-      }
-    }
+    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -597,46 +538,14 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-3">
-                                    {/* Hidden file input for inline upload */}
-                                    <input
-                                      type="file"
-                                      ref={el => fileInputRefs.current[item.id] = el}
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                          handleFileSelected(item.id, file, item.title);
-                                        }
-                                      }}
-                                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                                      className="hidden"
-                                    />
-                                    
                                     {/* Primary: Upload new document */}
-                                    <button 
-                                      onClick={() => handleUploadDocument(item.id)} 
-                                      disabled={uploadingItemId === item.id}
-                                      className={cn(
-                                        "flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all text-sm shadow-sm shadow-blue-500/25",
-                                        uploadingItemId === item.id 
-                                          ? "opacity-70 cursor-not-allowed" 
-                                          : "hover:from-blue-600 hover:to-blue-700 active:scale-[0.98]"
-                                      )}
-                                    >
-                                      {uploadingItemId === item.id ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
-                                          Wird hochgeladen...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                          {t.documentChecklist.upload}
-                                        </>
-                                      )}
+                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
+                                      <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
+                                      {t.documentChecklist.upload}
                                     </button>
                                     
                                     {/* Secondary: Assign existing document - ghost/outline style */}
-                                    {hasUnassignedDocs && !uploadingItemId && <button onClick={() => setAssignmentModal({
+                                    {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
                           open: true,
                           item
                         })} className="flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-slate-200 bg-transparent text-slate-600 font-medium text-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
