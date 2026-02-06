@@ -160,13 +160,9 @@ export const DOCUMENT_PROFILES: Record<string, DocumentTypeProfile> = {
       'rente', 'pension', 'altersrente', 'ahv-rente', 'iv-rente', 'pensionskasse', 'bvg', 'vorsorge', 'altersleistung', 'ruhegehalt',
       'ausgleichskasse', 'sva', 'sozialversicherungsanstalt', 'compenswiss', 'publica',
       'witwenrente', 'waisenrente', 'kinderrente', 'ergänzungsleistung', 'hilflosenentschädigung',
-      'jahresrente', 'monatsrente', 'rentenbescheid', 'rentenausweis', 'rentner'
-    ],
-    // Negative Keywords: Diese Begriffe kommen auf einem Lohnausweis vor, aber NICHT auf einer reinen Rentenbescheinigung
-    negativeKeywords: [
-      'bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 'salario',
-      'spesen', 'spesenentschädigung', 'weiterbildung', 'nebenleistungen',
-      'formular 11', 'form. 11', 'lohnausweis', 'lohnbescheinigung'
+      'jahresrente', 'monatsrente', 'rentenbescheid', 'rentenausweis', 'rentner',
+      // Formular 11 enthält auch "Rentenbescheinigung" - daher keine negativen Keywords
+      'rentenbescheinigung', 'attestation de rentes', 'attestazione delle rendite'
     ],
     layoutHints: {
       expectsTable: true,
