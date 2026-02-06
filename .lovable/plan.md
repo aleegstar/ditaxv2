@@ -1,95 +1,103 @@
 
-# OCR-Zuteilung verbessern: Lohnausweis vs. Rentenbescheinigung
+
+# Plan: OCR-Erkennung verbessern für Lohnausweis
 
 ## Problem-Analyse
 
-Das offizielle Schweizer Lohnausweis-Formular (Formular 11) enthält den zweisprachigen Titel:
-- "Lohnausweis - Certificat de salaire - Certificato di salario"
-- "Rentenbescheinigung - Attestation de rentes - Attestazione delle rendite"
+Das Dokument zeigt "Lohnausweis nicht eindeutig erkannt" - das bedeutet die Konfidenz ist unter 80%. Die möglichen Ursachen:
 
-Dies führt dazu, dass Keywords wie "Rente" und "Rentenbescheinigung" fälschlicherweise das `pension-income` Profil matchen.
+1. **tesseract-wasm erkennt zu wenig Text** - Die mobile OCR-Engine ist weniger leistungsfähig
+2. **Keyword-Matching findet nicht genug Treffer** - Trotz der erweiterten Keywords
+3. **Scoring-Schwellen zu hoch** - Bereits angepasst, aber möglicherweise noch zu streng
 
 ---
 
-## Lösungsansatz
+## Lösungsansatz: Dreifache Optimierung
 
-### 1. Erweiterte Keywords für Lohnausweis
+### 1. Noch aggressivere Mobile-Schwellenwerte
 
-Neue spezifische Keywords hinzufügen, die auf dem Formular 11 prominent vorkommen:
+Das OCR-Scoring für mobile Geräte noch weiter senken:
 
-| Neue Keywords | Begründung |
-|--------------|------------|
-| `salaire`, `salario` | Französisch/Italienisch für Lohn |
-| `berufliche vorsorge` | Feld 10 auf dem Formular |
-| `lohn`, `gehalt` | Allgemeine Synonyme |
-| `cotisations avs`, `contributi avs` | Mehrsprachige AHV-Beiträge |
-| `spesenentschädigung`, `pauschalspesen` | Spezifische Felder |
-| `frais effectifs`, `frais forfaitaires` | Französische Spesenbezeichnungen |
-| `form. 11`, `605.040.18` | Formularnummern |
-| `weiterbildung`, `perfectionement` | Feld 13.3 |
+| Matches | Bisheriger Score | Neuer Score |
+|---------|------------------|-------------|
+| 3+ Keywords | 70-80 | **80** (Maximum) |
+| 2 Keywords | 55 | **70** |
+| 1 Keyword | 30 | **50** |
 
-### 2. Negative Keywords für pension-income
+### 2. Toleranteres Keyword-Matching
 
-Keywords hinzufügen, die bei einer Rentenbescheinigung NICHT vorkommen sollten:
+Aktuell: Exakte Substring-Suche (`normalizedText.includes(normalizedKeyword)`)
 
-```typescript
-negativeKeywords: ['bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 'spesen']
-```
+Problem: OCR kann Wörter falsch trennen oder Zeichen falsch erkennen (z.B. "Lohn ausweis" statt "Lohnausweis")
 
-### 3. Stärkere Priorisierung bei Dokument-Spezifität
+Lösung: **Fuzzy-Matching** einführen:
+- Wort-für-Wort-Suche statt nur zusammenhängend
+- Kürzere Keyword-Varianten erlauben (z.B. "lohnausw" matcht auch)
+- Levenshtein-Distanz für ähnliche Wörter (optional)
 
-Die Scoring-Logik anpassen: Wenn ein Dokument sowohl Lohnausweis- als auch Renten-Keywords enthält, aber die Lohnausweis-spezifischen überwiegen, sollte der Lohnausweis priorisiert werden.
+### 3. Besseres Debug-Logging
+
+Statt pro Profil zu loggen, **einmalig** nach allen Matches loggen:
+- Erkannter Text (erste 1000 Zeichen)
+- Alle gematchten Keywords über alle Profile
+- Spezifisch: employment-income Matches
 
 ---
 
 ## Technische Umsetzung
 
-### Datei: `src/config/documentProfiles.ts`
+### Datei: `src/services/TesseractWasmOcrService.ts`
 
-**A. Employment-Income Keywords erweitern:**
-
-```typescript
-keywordHints: [
-  // Primäre Keywords
-  'lohnausweis', 'lohnbescheinigung', 'certificat de salaire', 'certificato di salario',
-  // Formular-Identifikatoren  
-  'formular 11', 'form. 11', '605.040.18',
-  // Lohn-Begriffe (DE/FR/IT)
-  'bruttolohn', 'nettolohn', 'lohn', 'gehalt', 'salaire', 'salario', 'jahreslohn',
-  // Arbeitgeber
-  'arbeitgeber', 'employeur', 'datore di lavoro',
-  // Sozialabzüge
-  'ahv', 'ahv/iv/eo', 'avs', 'sozialabzüge', 'cotisations', 'contributi',
-  // Spesen
-  'spesenentschädigung', 'pauschalspesen', 'effektive spesen', 'frais effectifs',
-  // Vorsorge im Lohnkontext
-  'berufliche vorsorge', 'bvg', 'pensionskasse',
-  // Weitere Felder
-  'quellensteuer', 'weiterbildung', 'nebenleistungen'
-]
-```
-
-**B. Pension-Income negativeKeywords ergänzen:**
+**A. Toleranteres Matching einführen:**
 
 ```typescript
-negativeKeywords: [
-  'bruttolohn', 'nettolohn', 'arbeitgeber', 'salaire', 'gehalt', 
-  'spesen', 'weiterbildung', 'nebenleistungen'
-]
+matchKeywords(detectedTexts: string[], keywords: string[]) {
+  // Normalisieren
+  const normalizedText = detectedTexts.join(' ').toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+  
+  // Wort-Array für Wort-basiertes Matching
+  const words = normalizedText.split(/\s+/);
+  
+  for (const keyword of keywords) {
+    const normalizedKeyword = keyword.toLowerCase()...;
+    
+    // Methode 1: Direkter Substring (wie bisher)
+    if (normalizedText.includes(normalizedKeyword)) {
+      matchedLabels.push(keyword);
+      continue;
+    }
+    
+    // Methode 2: Wort-Präfix-Match (für OCR-Fehler)
+    // "lohnausw" matcht auch wenn OCR "lohnausweis" nicht vollständig erkennt
+    const keywordPrefix = normalizedKeyword.substring(0, Math.min(6, normalizedKeyword.length));
+    if (words.some(word => word.startsWith(keywordPrefix) && word.length >= keywordPrefix.length)) {
+      matchedLabels.push(keyword);
+      continue;
+    }
+  }
+}
 ```
+
+**B. Debug-Logging optimieren:**
+
+Nur einmal loggen (im DocumentValidator, nicht pro Profil), mit Fokus auf das relevante Profil.
 
 ### Datei: `src/services/DocumentValidator.ts`
 
-**C. Negative Keywords in Scoring berücksichtigen:**
-
-Die `calculateScore`-Funktion anpassen, um negativeKeywords abzuziehen:
+**C. Mobile-Schwellenwerte weiter senken:**
 
 ```typescript
-// Bei OCR-Scoring: Negative Keywords prüfen
-const negativeMatchCount = signals.keywords?.matchCountsByDocType[`${profile.id}:negative`] || 0;
-if (negativeMatchCount > 0) {
-  ocrScore -= (negativeMatchCount * 15); // Pro negativem Match 15 Punkte Abzug
-  reasons.push(`Unpassende Begriffe gefunden (-${negativeMatchCount * 15})`);
+if (isMobileOcr) {
+  // Ultra-mobile-optimierte Schwellenwerte
+  if (ocrMatchCount >= 3) {
+    ocrScore = 80;  // War: 4 für 80, 3 für 70
+  } else if (ocrMatchCount >= 2) {
+    ocrScore = 70;  // War: 55
+  } else if (ocrMatchCount >= 1) {
+    ocrScore = 50;  // War: 30
+  }
 }
 ```
 
@@ -99,16 +107,15 @@ if (negativeMatchCount > 0) {
 
 | Datei | Änderung |
 |-------|----------|
-| `src/config/documentProfiles.ts` | Keywords erweitern, negativeKeywords hinzufügen |
-| `src/services/DocumentValidator.ts` | Negative Keyword Matching implementieren |
-| `src/services/TesseractWasmOcrService.ts` | Negative Keyword Support (optional) |
+| `src/services/TesseractWasmOcrService.ts` | Toleranteres Matching, besseres Logging |
+| `src/services/DocumentValidator.ts` | Niedrigere Mobile-Schwellenwerte |
 
 ---
 
 ## Erwartetes Ergebnis
 
-Nach der Änderung sollte das Formular 11 (Lohnausweis):
-- 8-12 Keyword-Matches für `employment-income` erzielen
-- 2-3 Negative-Matches für `pension-income` haben
-- Eindeutig mit >80% Konfidenz als Lohnausweis erkannt werden
+Nach diesen Änderungen sollte der Lohnausweis:
+- Mit 2-3 erkannten Keywords bereits 70-80% Konfidenz erreichen
+- Durch toleranteres Matching mehr Keywords finden
+- Zuverlässig als "erkannt" klassifiziert werden
 
