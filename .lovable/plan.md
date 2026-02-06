@@ -1,121 +1,109 @@
 
+# Plan: Upload-Flow von Checkliste optimieren
 
-# Plan: OCR-Erkennung verbessern für Lohnausweis
-
-## Problem-Analyse
-
-Das Dokument zeigt "Lohnausweis nicht eindeutig erkannt" - das bedeutet die Konfidenz ist unter 80%. Die möglichen Ursachen:
-
-1. **tesseract-wasm erkennt zu wenig Text** - Die mobile OCR-Engine ist weniger leistungsfähig
-2. **Keyword-Matching findet nicht genug Treffer** - Trotz der erweiterten Keywords
-3. **Scoring-Schwellen zu hoch** - Bereits angepasst, aber möglicherweise noch zu streng
+## Ziel
+Den Upload-Vorgang von 4+ Klicks und 2 Seitenwechseln auf 2 Klicks ohne Seitenwechsel reduzieren.
 
 ---
 
-## Lösungsansatz: Dreifache Optimierung
+## Aktueller Flow (Problem)
 
-### 1. Noch aggressivere Mobile-Schwellenwerte
+| Schritt | Aktion | Typ |
+|---------|--------|-----|
+| 1 | "Hochladen" Button klicken | Klick |
+| 2 | Seite `/form/documents/upload/{itemId}` lädt | Wartezeit |
+| 3 | "Dokumente hochladen" Button klicken | Klick |
+| 4 | Datei im Picker auswählen | Klick |
+| 5 | "Hochladen" Button am unteren Rand klicken | Klick |
+| 6 | Zurück zur Checkliste navigieren | Wartezeit |
 
-Das OCR-Scoring für mobile Geräte noch weiter senken:
+**Ergebnis**: 4 Klicks + 2 Seitenwechsel
 
-| Matches | Bisheriger Score | Neuer Score |
-|---------|------------------|-------------|
-| 3+ Keywords | 70-80 | **80** (Maximum) |
-| 2 Keywords | 55 | **70** |
-| 1 Keyword | 30 | **50** |
+---
 
-### 2. Toleranteres Keyword-Matching
+## Optimierter Flow (Lösung)
 
-Aktuell: Exakte Substring-Suche (`normalizedText.includes(normalizedKeyword)`)
+| Schritt | Aktion | Typ |
+|---------|--------|-----|
+| 1 | "Hochladen" Button klickt direkt den Datei-Picker | Klick |
+| 2 | Datei auswählen | Klick |
+| 3 | Validierung + Upload startet automatisch | Automatisch |
+| 4 | Inline-Status zeigt Fortschritt | Visuell |
 
-Problem: OCR kann Wörter falsch trennen oder Zeichen falsch erkennen (z.B. "Lohn ausweis" statt "Lohnausweis")
-
-Lösung: **Fuzzy-Matching** einführen:
-- Wort-für-Wort-Suche statt nur zusammenhängend
-- Kürzere Keyword-Varianten erlauben (z.B. "lohnausw" matcht auch)
-- Levenshtein-Distanz für ähnliche Wörter (optional)
-
-### 3. Besseres Debug-Logging
-
-Statt pro Profil zu loggen, **einmalig** nach allen Matches loggen:
-- Erkannter Text (erste 1000 Zeichen)
-- Alle gematchten Keywords über alle Profile
-- Spezifisch: employment-income Matches
+**Ergebnis**: 2 Klicks, kein Seitenwechsel
 
 ---
 
 ## Technische Umsetzung
 
-### Datei: `src/services/TesseractWasmOcrService.ts`
+### 1. Versteckten File-Input pro Checklist-Item
 
-**A. Toleranteres Matching einführen:**
+In `DocumentChecklist.tsx`:
+- Für jedes Checklist-Item einen versteckten `<input type="file">` hinzufügen
+- Der "Hochladen" Button triggert direkt `fileInputRef.current?.click()`
 
-```typescript
-matchKeywords(detectedTexts: string[], keywords: string[]) {
-  // Normalisieren
-  const normalizedText = detectedTexts.join(' ').toLowerCase()
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue').replace(/ß/g, 'ss');
-  
-  // Wort-Array für Wort-basiertes Matching
-  const words = normalizedText.split(/\s+/);
-  
-  for (const keyword of keywords) {
-    const normalizedKeyword = keyword.toLowerCase()...;
-    
-    // Methode 1: Direkter Substring (wie bisher)
-    if (normalizedText.includes(normalizedKeyword)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-    
-    // Methode 2: Wort-Präfix-Match (für OCR-Fehler)
-    // "lohnausw" matcht auch wenn OCR "lohnausweis" nicht vollständig erkennt
-    const keywordPrefix = normalizedKeyword.substring(0, Math.min(6, normalizedKeyword.length));
-    if (words.some(word => word.startsWith(keywordPrefix) && word.length >= keywordPrefix.length)) {
-      matchedLabels.push(keyword);
-      continue;
-    }
-  }
-}
-```
+### 2. Inline-Upload-Logik
 
-**B. Debug-Logging optimieren:**
+Neue Funktion `handleDirectUpload(itemId, files)`:
+- Datei-Validierung (Grösse, Typ)
+- OCR-Validierung im Hintergrund
+- Verschlüsselter Upload mit Fortschritts-Anzeige
+- Bei niedriger Konfidenz: Kompaktes Modal statt voller Seitennavigation
 
-Nur einmal loggen (im DocumentValidator, nicht pro Profil), mit Fokus auf das relevante Profil.
+### 3. Inline-Status-Anzeige
 
-### Datei: `src/services/DocumentValidator.ts`
+Status direkt im Checklist-Item anzeigen:
+- "Wird geprüft..." (während OCR)
+- "Wird hochgeladen..." (während Upload)
+- Fortschrittsbalken inline
 
-**C. Mobile-Schwellenwerte weiter senken:**
+### 4. Kompaktes Bestätigungs-Modal (nur bei niedriger Konfidenz)
 
-```typescript
-if (isMobileOcr) {
-  // Ultra-mobile-optimierte Schwellenwerte
-  if (ocrMatchCount >= 3) {
-    ocrScore = 80;  // War: 4 für 80, 3 für 70
-  } else if (ocrMatchCount >= 2) {
-    ocrScore = 70;  // War: 55
-  } else if (ocrMatchCount >= 1) {
-    ocrScore = 50;  // War: 30
-  }
-}
-```
+Statt separater Seite: Schlankes Modal für Bestätigung wenn Konfidenz < 70%
 
 ---
 
 ## Betroffene Dateien
 
-| Datei | Änderung |
-|-------|----------|
-| `src/services/TesseractWasmOcrService.ts` | Toleranteres Matching, besseres Logging |
-| `src/services/DocumentValidator.ts` | Niedrigere Mobile-Schwellenwerte |
+| Datei | Änderungen |
+|-------|------------|
+| `src/components/DocumentChecklist.tsx` | Versteckte File-Inputs, `handleDirectUpload`, Inline-Status |
+| `src/components/documents/InlineUploadHandler.tsx` | **Neu**: Kompakte Upload-Logik ohne Seitennavigation |
+| `src/components/ui/modern-upload-dialog.tsx` | Optional: Minimales Modal für niedrige Konfidenz |
+
+---
+
+## UI-Änderungen im Detail
+
+### Vorher (Button in Checkliste)
+```
+[CloudUpload Icon] Hochladen → navigiert zu /form/documents/upload/{id}
+```
+
+### Nachher (Button in Checkliste)
+```
+[CloudUpload Icon] Hochladen → öffnet direkt nativen Datei-Picker
+```
+
+### Inline-Status während Upload
+```
+[Spinner] Wird hochgeladen... 45%
+```
+
+### Bei niedriger Konfidenz (Modal)
+```
+┌──────────────────────────────────────┐
+│ Dokument nicht eindeutig erkannt     │
+│                                      │
+│ [Trotzdem einreichen] [Andere Datei] │
+└──────────────────────────────────────┘
+```
 
 ---
 
 ## Erwartetes Ergebnis
 
-Nach diesen Änderungen sollte der Lohnausweis:
-- Mit 2-3 erkannten Keywords bereits 70-80% Konfidenz erreichen
-- Durch toleranteres Matching mehr Keywords finden
-- Zuverlässig als "erkannt" klassifiziert werden
-
+- Upload in **2 Klicks** statt 4+
+- **Kein Seitenwechsel** - alles inline in der Checkliste
+- Schnelleres Gefühl durch sofortige Reaktion
+- Gleiche Sicherheit: OCR-Validierung + Verschlüsselung bleibt erhalten
