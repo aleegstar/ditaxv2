@@ -63,9 +63,10 @@ export class DocumentService {
       .eq('status', 'active')
       .eq('tax_year', taxYear);
     
-    // Filter by tax_filer_id if provided
+    // Filter by tax_filer_id if provided, but also include documents without tax_filer_id
+    // This ensures we find documents that were uploaded before tax_filer_id was set
     if (taxFilerId) {
-      query = query.eq('tax_filer_id', taxFilerId);
+      query = query.or(`tax_filer_id.eq.${taxFilerId},tax_filer_id.is.null`);
     }
     
     const { data, error } = await query.order('upload_date', { ascending: false });
