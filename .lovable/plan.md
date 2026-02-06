@@ -1,70 +1,130 @@
 
-
-# Plan: Upload-Problem beheben
+# Plan: Upload-Problem in der Dokumenten-Checkliste beheben
 
 ## Problem-Analyse
 
-Nach eingehender Untersuchung des Codes habe ich folgende Probleme identifiziert:
+Nach eingehender Untersuchung des Codes habe ich folgende Ursachen für das Upload-Problem identifiziert:
 
-### 1. Fehlende Fehlerbehandlung in der Upload-Kette
-Der Upload-Flow besteht aus mehreren Schritten:
-1. File-Auswahl -> 2. Validierung (OCR) -> 3. Upload -> 4. Erfolg
+### Hauptprobleme
 
-Das Problem: **Wenn der Upload im Schritt 3 hängt oder fehlschlägt, gibt es keine Recovery-Logik.** Der Status bleibt auf "Wird hochgeladen..." ohne Timeout.
+1. **Race Condition beim Upload-Complete**: Der `onUploadComplete` Callback wird aufgerufen, bevor die Datenbank-Insert-Operation garantiert sichtbar ist. Das führt dazu, dass `refreshDocuments()` die neuen Dokumente noch nicht findet.
 
-### 2. Potenzielle Ursachen
-- **Tesseract-WASM Initialisierung**: Kann bei fehlenden WASM-Dateien hängen bleiben
-- **Kein Upload-Timeout**: Wenn der Storage-Upload fehlschlägt, gibt es keine automatische Wiederherstellung
-- **Status-Update Race Condition**: Doppelte Status-Updates zwischen `handleFileSelect` und `uploadFile`
+2. **TaxFilerId-Abhängigkeit**: Die `loadDocuments`-Funktion im FormContext bricht ab, wenn `activeTaxFilerId` nicht gesetzt ist:
+   ```javascript
+   if (!activeTaxFilerId) {
+     console.log('No active tax filer for loading documents');
+     return;
+   }
+   ```
+   Dies verhindert das Laden der Dokumente, wenn der TaxFiler noch nicht initialisiert wurde.
+
+3. **Fehlende Wartezeit nach Upload**: Der Upload-Service gibt `true` zurück, sobald der Supabase-Insert abgeschlossen ist, aber die RLS-Policies und Replikation können einen kurzen Delay haben.
 
 ## Lösungsplan
 
-### Änderung 1: Upload-Timeout mit automatischer Fehlerbehandlung
+### Änderung 1: Verzögertes Refresh nach Upload
 **Datei:** `src/hooks/use-inline-upload.ts`
 
-- Timeout von 45 Sekunden für den gesamten Upload-Prozess hinzufügen
-- Bei Timeout: Fehlerstatus setzen und Benutzer informieren
-- Fehler-Recovery: Clear-Funktion für abgestürzten Upload-State
+Füge eine kleine Verzögerung vor dem `onUploadComplete`-Callback ein, um sicherzustellen, dass die Datenbank-Operation vollständig propagiert ist:
 
-### Änderung 2: Robuste Status-Übergänge
-**Datei:** `src/hooks/use-inline-upload.ts`
+```typescript
+// Nach erfolgreichem Upload
+updateItemState(checklistItemId, {
+  status: 'success',
+  progress: 100,
+  message: 'Hochgeladen'
+});
 
-- Status-Updates konsolidieren (keine doppelten Updates)
-- Sicherstellen, dass bei jedem Fehler der Status korrekt auf 'error' gesetzt wird
-- Try-catch-Block um den gesamten Upload-Flow
+// Verzögerung für Datenbank-Propagation
+setTimeout(() => {
+  clearItemState(checklistItemId);
+  onUploadComplete?.(checklistItemId);
+}, 2000); // Erhöht von 1500ms auf 2000ms
+```
 
-### Änderung 3: Validierungs-Timeout
-**Datei:** `src/hooks/use-inline-upload.ts`
+### Änderung 2: Robusteres Document-Loading im FormContext
+**Datei:** `src/contexts/form/FormContext.tsx`
 
-- Separates Timeout für die OCR-Validierung (20 Sekunden)
-- Bei Timeout: Validierung überspringen und direkt zum Upload übergehen
-- Keine Blockierung der Upload-Funktionalität durch fehlgeschlagene OCR
+Entferne die strikte `activeTaxFilerId`-Prüfung oder mache sie optionaler:
+
+```typescript
+const loadDocuments = useCallback(async () => {
+  if (!session?.user?.id) {
+    console.log('No session available for loading documents');
+    return;
+  }
+  
+  // Lade Dokumente auch ohne activeTaxFilerId (zeigt alle Dokumente des Users)
+  try {
+    console.log(`Loading documents for tax year: ${taxYear}`);
+    const docs = await documentService.fetchDocuments(
+      true, 
+      taxYear, 
+      activeTaxFilerId || undefined // Optional statt required
+    );
+    // ...
+  }
+}, [taxYear, session, activeTaxFilerId, updateDocumentProgress]);
+```
+
+### Änderung 3: Retry-Mechanismus für Document-Refresh
+**Datei:** `src/components/DocumentChecklist.tsx`
+
+Implementiere einen Retry-Mechanismus wenn das erste Refresh keine neuen Dokumente findet:
+
+```typescript
+onUploadComplete: async (itemId) => {
+  // Erstes Refresh
+  await refreshDocuments();
+  markUploaded(itemId, true);
+  
+  // Prüfe ob Dokument erschienen ist, sonst retry nach 1 Sekunde
+  const docs = getDocumentsForItem(itemId);
+  if (docs.length === 0) {
+    setTimeout(async () => {
+      await refreshDocuments();
+    }, 1000);
+  }
+}
+```
+
+### Änderung 4: Besseres Error-Logging im Upload-Service
+**Datei:** `src/services/EncryptedDocumentService.ts`
+
+Füge detaillierteres Logging hinzu um zukünftige Probleme schneller zu diagnostizieren:
+
+```typescript
+// Nach erfolgreichem DB-Insert
+console.log('✅ Document metadata stored in database:', {
+  fileId,
+  checklistItemId,
+  taxFilerId: taxFilerId || 'none',
+  taxYear
+});
+```
 
 ## Technische Details
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    Verbesserter Upload-Flow                  │
+│                  Verbesserter Upload-Flow                   │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  Datei-Auswahl                                              │
+│  1. Datei auswählen                                         │
 │       ↓                                                     │
-│  ┌─────────────────┐                                        │
-│  │  Validierung    │ ◄── 20s Timeout                        │
-│  │  (OCR/AI)       │     Bei Timeout: Skip & Upload         │
-│  └────────┬────────┘                                        │
-│           ↓                                                 │
-│  ┌─────────────────┐                                        │
-│  │  Upload         │ ◄── 45s Timeout                        │
-│  │  (Storage + DB) │     Bei Timeout: Error + Toast         │
-│  └────────┬────────┘                                        │
-│           ↓                                                 │
-│  ┌─────────────────┐                                        │
-│  │  Erfolg         │                                        │
-│  │  State cleared  │                                        │
-│  └─────────────────┘                                        │
-│                                                             │
-│  ⚠ Bei jedem Fehler: Status → 'error' + Toast               │
+│  2. Validierung (OCR) ← 20s Timeout                         │
+│       ↓                                                     │
+│  3. Upload zu Storage + DB ← 45s Timeout                    │
+│       ↓                                                     │
+│  4. Status: "Hochgeladen" (Success-Anzeige)                 │
+│       ↓                                                     │
+│  5. 2 Sekunden warten (DB-Propagation)     ← NEU            │
+│       ↓                                                     │
+│  6. refreshDocuments() aufrufen                             │
+│       ↓                                                     │
+│  7. Prüfen ob Dokument in Liste erscheint  ← NEU            │
+│       ↓ (falls nicht)                                       │
+│  8. Retry nach 1 Sekunde                   ← NEU            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -73,7 +133,21 @@ Das Problem: **Wenn der Upload im Schritt 3 hängt oder fehlschlägt, gibt es ke
 
 | Datei | Änderung |
 |-------|----------|
-| `src/hooks/use-inline-upload.ts` | Timeout-Logik für Validierung (20s) und Upload (45s) hinzufügen |
-| `src/hooks/use-inline-upload.ts` | Robuste Fehlerbehandlung mit garantiertem Status-Reset |
-| `src/hooks/use-inline-upload.ts` | Logging für bessere Diagnose hinzufügen |
+| `src/hooks/use-inline-upload.ts` | Timeout vor `onUploadComplete` auf 2s erhöhen |
+| `src/contexts/form/FormContext.tsx` | `activeTaxFilerId` optional machen in `loadDocuments` |
+| `src/components/DocumentChecklist.tsx` | Retry-Mechanismus wenn Dokument nicht erscheint |
+| `src/services/EncryptedDocumentService.ts` | Besseres Logging nach DB-Insert |
 
+## Risikobewertung
+
+- **Niedrig**: Die Änderungen sind minimal und betreffen nur den Timing-Aspekt
+- **Keine Breaking Changes**: Bestehende Funktionalität bleibt erhalten
+- **Bessere User Experience**: Upload-Feedback wird zuverlässiger
+
+## Test-Empfehlung
+
+Nach der Implementierung sollte der komplette Upload-Flow getestet werden:
+1. Dokument in der Checkliste hochladen
+2. Prüfen ob die Success-Anzeige erscheint
+3. Prüfen ob das Dokument in der Liste angezeigt wird
+4. Seite neu laden und prüfen ob das Dokument persistiert wurde
