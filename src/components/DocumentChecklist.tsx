@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X, Loader2 } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,14 +22,6 @@ import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentMo
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
-// Inline upload imports
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-import EncryptedDocumentService from '@/services/EncryptedDocumentService';
-import DocumentValidator from '@/services/DocumentValidator';
-import AIDocumentValidation from '@/components/ui/ai-document-validation';
-import DocumentCheckScreen from '@/components/documents/DocumentCheckScreen';
-import { validateFile } from '@/utils/fileValidation';
-import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -53,9 +45,6 @@ const DocumentChecklist: React.FC = () => {
     getDocumentsForItem,
     hasDocuments
   } = useDocuments();
-  
-  // TaxFiler context for inline upload
-  const { activeTaxFilerId } = useTaxFiler();
 
   // Memoized calculations to prevent unnecessary re-renders
   const categorizedItemsMemo = useMemo(() => {
@@ -97,19 +86,6 @@ const DocumentChecklist: React.FC = () => {
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const hasShownCompletionDialog = useRef(false);
-  
-  // Inline Upload State
-  const [processingItemId, setProcessingItemId] = useState<string | null>(null);
-  const [processingFile, setProcessingFile] = useState<File | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
-  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
-  const [showCheckScreen, setShowCheckScreen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const encryptedDocService = useRef(EncryptedDocumentService.getInstance());
-  const documentValidator = useRef(DocumentValidator.getInstance());
-  
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const handleNext = () => {
@@ -118,157 +94,9 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => {
     navigate('/form?section=deductions');
   };
-  
-  // Legacy handler - no longer used for inline upload
   const handleUploadDocument = (itemId: string) => {
     navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
-  
-  // ============================================
-  // INLINE UPLOAD HANDLERS
-  // ============================================
-  
-  const resetUploadState = useCallback(() => {
-    setProcessingItemId(null);
-    setProcessingFile(null);
-    setIsValidating(false);
-    setValidationProgress(null);
-    setValidationResult(null);
-    setShowCheckScreen(false);
-    setIsUploading(false);
-  }, []);
-  
-  const performUpload = useCallback(async (file: File, itemId: string) => {
-    setIsUploading(true);
-
-    try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !sessionData.session) {
-        throw new Error('Nicht angemeldet');
-      }
-
-      const currentUserId = sessionData.session.user.id;
-      
-      // KRITISCH: taxFilerId mit Fallback auf sessionStorage
-      const taxFilerId = activeTaxFilerId || sessionStorage.getItem('ditax_selected_tax_filer');
-      
-      // Checklist-Item für Titel holen
-      const item = checklistItems.find(i => i.id === itemId);
-
-      // Upload mit ALLEN korrekten Parametern
-      await encryptedDocService.current.uploadEncryptedDocument(
-        file,                    // File
-        itemId,                  // checklistItemId
-        currentUserId,           // userId
-        taxYear,                 // taxYear (aus useFormContext)
-        item?.title,             // checklistItemTitle
-        taxFilerId               // taxFilerId (aus useTaxFiler + Fallback)
-      );
-
-      // Erfolg
-      toast({
-        title: "Dokument hochgeladen",
-        description: `${item?.title || 'Dokument'} wurde erfolgreich hochgeladen.`
-      });
-
-      // Checkliste aktualisieren
-      markUploaded(itemId, true);
-      
-      // Verzögerung für Datenbank-Propagation
-      setTimeout(() => {
-        refreshDocuments();
-      }, 2000);
-
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      toast({
-        title: "Upload fehlgeschlagen",
-        description: error.message || "Dokument konnte nicht hochgeladen werden.",
-        variant: "destructive"
-      });
-    } finally {
-      resetUploadState();
-    }
-  }, [activeTaxFilerId, checklistItems, taxYear, markUploaded, refreshDocuments, resetUploadState]);
-  
-  const performValidationAndUpload = useCallback(async (file: File, itemId: string) => {
-    setIsValidating(true);
-    setValidationProgress({ step: 'preparing', percent: 0, message: 'Starte Prüfung...' });
-
-    try {
-      // OCR-Validierung durchführen
-      const result = await documentValidator.current.validate(
-        file,
-        itemId,
-        (progress) => setValidationProgress(progress)
-      );
-
-      setValidationResult(result);
-      setValidationProgress(null);
-
-      // Bei niedriger Konfidenz: Check-Screen anzeigen
-      if (result.needsUserConfirmation) {
-        setShowCheckScreen(true);
-        setIsValidating(false);
-        return;
-      }
-
-      // Hohe Konfidenz: Direkt hochladen
-      await performUpload(file, itemId);
-
-    } catch (error) {
-      console.error('Validation error:', error);
-      setValidationProgress(null);
-      // Bei Fehler: Trotzdem Upload erlauben
-      toast({
-        title: "Hinweis",
-        description: "Dokumentenprüfung übersprungen.",
-        variant: "default"
-      });
-      await performUpload(file, itemId);
-    } finally {
-      setIsValidating(false);
-    }
-  }, [performUpload]);
-  
-  const handleFileSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !processingItemId) {
-      resetUploadState();
-      return;
-    }
-    e.target.value = ''; // Reset input
-
-    // Datei validieren (Typ, Grösse)
-    const fileValidation = await validateFile(file, 10 * 1024 * 1024);
-    if (!fileValidation.isValid) {
-      toast({ title: "Fehler", description: fileValidation.error, variant: "destructive" });
-      resetUploadState();
-      return;
-    }
-
-    setProcessingFile(file);
-    await performValidationAndUpload(file, processingItemId);
-  }, [processingItemId, resetUploadState, performValidationAndUpload]);
-  
-  const handleInlineUploadClick = useCallback((itemId: string) => {
-    setProcessingItemId(itemId);
-    // Kleine Verzögerung um State-Update zu garantieren
-    setTimeout(() => {
-      fileInputRef.current?.click();
-    }, 50);
-  }, []);
-  
-  const handleCheckConfirm = useCallback(() => {
-    if (processingFile && processingItemId) {
-      performUpload(processingFile, processingItemId);
-    }
-    setShowCheckScreen(false);
-  }, [processingFile, processingItemId, performUpload]);
-  
-  const handleCheckReupload = useCallback(() => {
-    resetUploadState();
-  }, [resetUploadState]);
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
       toast({
@@ -710,23 +538,10 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-3">
-                                    {/* Primary: Inline Upload - triggert File-Picker direkt */}
-                                    <button 
-                                      onClick={() => handleInlineUploadClick(item.id)} 
-                                      disabled={isValidating || isUploading}
-                                      className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                      {(isValidating || isUploading) && processingItemId === item.id ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
-                                          {isValidating ? 'Prüfe...' : 'Lade...'}
-                                        </>
-                                      ) : (
-                                        <>
-                                          <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                          {t.documentChecklist.upload}
-                                        </>
-                                      )}
+                                    {/* Primary: Upload new document */}
+                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
+                                      <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
+                                      {t.documentChecklist.upload}
                                     </button>
                                     
                                     {/* Secondary: Assign existing document - ghost/outline style */}
@@ -804,43 +619,6 @@ const DocumentChecklist: React.FC = () => {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Hidden File Input for Inline Upload */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*,application/pdf"
-        className="hidden"
-        onChange={handleFileSelected}
-      />
-
-      {/* AI Validation Modal */}
-      <Dialog open={isValidating && !!validationProgress} onOpenChange={(open) => !open && resetUploadState()}>
-        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-sm bg-white border-0 p-6 overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
-          {validationProgress && (
-            <AIDocumentValidation
-              progress={validationProgress}
-              documentType={checklistItems.find(i => i.id === processingItemId)?.title || 'Dokument'}
-              documentTypeId={processingItemId || undefined}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Check Screen Modal */}
-      <Dialog open={showCheckScreen && !!validationResult} onOpenChange={(open) => !open && resetUploadState()}>
-        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-sm bg-white border-0 p-6 overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] rounded-3xl gap-0">
-          {validationResult && processingFile && (
-            <DocumentCheckScreen
-              result={validationResult}
-              fileName={processingFile.name}
-              onConfirm={handleCheckConfirm}
-              onReupload={handleCheckReupload}
-              onClose={handleCheckReupload}
-            />
-          )}
         </DialogContent>
       </Dialog>
     </div>;

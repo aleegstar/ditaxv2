@@ -263,7 +263,7 @@ class DocumentValidator {
 
     // Determine confidence bucket and need for confirmation
     const confidenceBucket = this.getConfidenceBucket(best.confidence);
-    const needsUserConfirmation = best.confidence < 70;
+    const needsUserConfirmation = best.confidence < 80;
 
     // Generate status message
     const isImage = metaSignals.mimeType?.startsWith('image/') || false;
