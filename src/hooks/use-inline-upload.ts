@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,6 +31,12 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
   const { toast } = useToast();
   
   const [uploadStates, setUploadStates] = useState<Record<string, InlineUploadState>>({});
+  
+  // Use ref to always get the latest taxFilerId value in async callbacks
+  const taxFilerIdRef = useRef(taxFilerId);
+  useEffect(() => {
+    taxFilerIdRef.current = taxFilerId;
+  }, [taxFilerId]);
   
   const encryptedDocService = EncryptedDocumentService.getInstance();
   const documentValidator = DocumentValidator.getInstance();
@@ -81,7 +87,7 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
         userId,
         taxYear,
         checklistItemTitle,
-        taxFilerId
+        taxFilerIdRef.current
       );
       
       updateItemState(checklistItemId, {
@@ -113,7 +119,7 @@ export function useInlineUpload(options: UseInlineUploadOptions) {
       
       return false;
     }
-  }, [taxYear, taxFilerId, encryptedDocService, updateItemState, clearItemState, onUploadComplete, toast]);
+  }, [taxYear, encryptedDocService, updateItemState, clearItemState, onUploadComplete, toast]);
   
   // Main handler: process file selection
   const handleFileSelect = useCallback(async (
