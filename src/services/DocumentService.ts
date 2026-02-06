@@ -63,10 +63,9 @@ export class DocumentService {
       .eq('status', 'active')
       .eq('tax_year', taxYear);
     
-    // Filter by tax_filer_id if provided, but also include documents without tax_filer_id
-    // This ensures we find documents that were uploaded before tax_filer_id was set
+    // Filter by tax_filer_id if provided
     if (taxFilerId) {
-      query = query.or(`tax_filer_id.eq.${taxFilerId},tax_filer_id.is.null`);
+      query = query.eq('tax_filer_id', taxFilerId);
     }
     
     const { data, error } = await query.order('upload_date', { ascending: false });
@@ -94,49 +93,27 @@ export class DocumentService {
   }
 
   async deleteDocument(documentId: string): Promise<void> {
-    const userId = await this.checkAuth();
+    await this.checkAuth();
 
-    // Fetch document with explicit user_id check for RLS
     const { data: doc, error: fetchError } = await supabase
       .from('uploaded_documents')
-      .select('file_path, tax_year, user_id')
+      .select('file_path, tax_year')
       .eq('id', documentId)
-      .eq('user_id', userId)
       .single();
 
-    if (fetchError) {
-      console.error('[DocumentService] Error fetching document for delete:', fetchError);
-      throw new Error('Dokument nicht gefunden oder keine Berechtigung');
-    }
-    
-    if (!doc?.file_path) {
-      throw new Error('Dokument-Pfad nicht gefunden');
+    if (fetchError || !doc?.file_path) {
+      throw new Error('Dokument nicht gefunden');
     }
 
-    // Delete from storage (continue even if this fails - file might already be gone)
-    const { error: storageError } = await supabase.storage
-      .from('documents')
-      .remove([doc.file_path]);
-    
-    if (storageError) {
-      console.warn('[DocumentService] Storage delete warning (continuing):', storageError);
-    }
+    await supabase.storage.from('documents').remove([doc.file_path]);
 
-    // Delete from database with explicit user_id check
     const { error: dbError } = await supabase
       .from('uploaded_documents')
       .delete()
-      .eq('id', documentId)
-      .eq('user_id', userId);
+      .eq('id', documentId);
 
-    if (dbError) {
-      console.error('[DocumentService] DB delete error:', dbError);
-      throw new Error('Dokument konnte nicht aus der Datenbank gelöscht werden');
-    }
-    
-    console.log('[DocumentService] Document deleted successfully:', documentId);
+    if (dbError) throw dbError;
 
-    // Update cache
     if (doc.tax_year) {
       const cacheKey = `documents:${doc.tax_year}`;
       const cached = this.documentCache.get(cacheKey) || [];

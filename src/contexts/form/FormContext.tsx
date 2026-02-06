@@ -924,15 +924,16 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       return;
     }
     
-    // Allow loading documents even without activeTaxFilerId (will show all user docs)
-    // This prevents blocking when TaxFiler hasn't been initialized yet
-    const taxFilerFilter = activeTaxFilerId || undefined;
+    if (!activeTaxFilerId) {
+      console.log('No active tax filer for loading documents');
+      return;
+    }
     
     try {
-      console.log(`Loading documents for tax year: ${taxYear}, tax filer: ${taxFilerFilter || 'all'}`);
-      const docs = await documentService.fetchDocuments(true, taxYear, taxFilerFilter);
+      console.log(`Loading documents for tax year: ${taxYear}, tax filer: ${activeTaxFilerId}`);
+      const docs = await documentService.fetchDocuments(true, taxYear, activeTaxFilerId);
       
-      console.log(`📄 Documents loaded in FormContext for year ${taxYear}, tax filer ${taxFilerFilter || 'all'}:`, docs.length);
+      console.log(`📄 Documents loaded in FormContext for year ${taxYear}, tax filer ${activeTaxFilerId}:`, docs.length);
       
       // Update document status in FormContext
       const newUploadedMap: Record<string, boolean> = {};

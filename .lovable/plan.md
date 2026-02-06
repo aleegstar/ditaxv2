@@ -1,200 +1,121 @@
 
 
-# Plan: Dokumenten-Checkliste Upload & Löschen reparieren
+# Plan: OCR-Erkennung verbessern für Lohnausweis
 
-## Identifizierte Probleme
+## Problem-Analyse
 
-Nach detaillierter Analyse des Codes und der Datenbank habe ich **drei kritische Probleme** identifiziert:
+Das Dokument zeigt "Lohnausweis nicht eindeutig erkannt" - das bedeutet die Konfidenz ist unter 80%. Die möglichen Ursachen:
 
-### Problem 1: DocumentValidator blockiert den Upload
-Die OCR-Validierung (`documentValidator.validate()`) kann bei bestimmten Bedingungen hängen bleiben oder sehr lange dauern:
-- Tesseract-WASM muss initialisiert werden
-- Bei großen Dateien kann die Analyse lange dauern
-- Der aktuelle 20-Sekunden-Timeout kann immer noch zu lang sein
+1. **tesseract-wasm erkennt zu wenig Text** - Die mobile OCR-Engine ist weniger leistungsfähig
+2. **Keyword-Matching findet nicht genug Treffer** - Trotz der erweiterten Keywords
+3. **Scoring-Schwellen zu hoch** - Bereits angepasst, aber möglicherweise noch zu streng
 
-### Problem 2: Delete-Funktion scheitert still
-Die `deleteDocument`-Funktion im `DocumentService` hat keine ausreichende Fehlerbehandlung:
-- Zeile 99-103: Das Abrufen des Dokuments könnte aufgrund von RLS-Policies fehlschlagen
-- Zeile 109: Storage-Löschung gibt keinen Fehler zurück, aber könnte fehlschlagen
-- Zeile 111-116: Die Datenbank-Löschung wirft erst am Ende einen Fehler
+---
 
-### Problem 3: Race Condition beim Document-Refresh
-Nach dem Upload wird `onUploadComplete` aufgerufen, das `refreshDocuments()` triggert. Aber:
-- Der FormContext muss die Dokumente erneut laden
-- Die Upload-Map wird nicht sofort aktualisiert
-- Die Checkliste zeigt das Dokument nicht an, obwohl es in der DB existiert
+## Lösungsansatz: Dreifache Optimierung
 
-## Lösungsplan
+### 1. Noch aggressivere Mobile-Schwellenwerte
 
-### Änderung 1: OCR-Validierung komplett optional machen
-**Datei:** `src/hooks/use-inline-upload.ts`
+Das OCR-Scoring für mobile Geräte noch weiter senken:
 
-Die Validierung soll NICHT blockierend sein. Bei jedem Fehler oder Timeout direkt zum Upload fortfahren:
+| Matches | Bisheriger Score | Neuer Score |
+|---------|------------------|-------------|
+| 3+ Keywords | 70-80 | **80** (Maximum) |
+| 2 Keywords | 55 | **70** |
+| 1 Keyword | 30 | **50** |
+
+### 2. Toleranteres Keyword-Matching
+
+Aktuell: Exakte Substring-Suche (`normalizedText.includes(normalizedKeyword)`)
+
+Problem: OCR kann Wörter falsch trennen oder Zeichen falsch erkennen (z.B. "Lohn ausweis" statt "Lohnausweis")
+
+Lösung: **Fuzzy-Matching** einführen:
+- Wort-für-Wort-Suche statt nur zusammenhängend
+- Kürzere Keyword-Varianten erlauben (z.B. "lohnausw" matcht auch)
+- Levenshtein-Distanz für ähnliche Wörter (optional)
+
+### 3. Besseres Debug-Logging
+
+Statt pro Profil zu loggen, **einmalig** nach allen Matches loggen:
+- Erkannter Text (erste 1000 Zeichen)
+- Alle gematchten Keywords über alle Profile
+- Spezifisch: employment-income Matches
+
+---
+
+## Technische Umsetzung
+
+### Datei: `src/services/TesseractWasmOcrService.ts`
+
+**A. Toleranteres Matching einführen:**
 
 ```typescript
-// Timeout auf 10 Sekunden reduzieren
-const VALIDATION_TIMEOUT_MS = 10000; // 10 seconds (was 20)
-
-// Bei handleFileSelect: Wenn Session nicht vorhanden, sofort abbrechen
-const { data: sessionData } = await supabase.auth.getSession();
-if (!sessionData?.session) {
-  updateItemState(checklistItemId, {
-    status: 'error',
-    message: 'Bitte melde dich an'
-  });
-  return;
+matchKeywords(detectedTexts: string[], keywords: string[]) {
+  // Normalisieren
+  const normalizedText = detectedTexts.join(' ').toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+  
+  // Wort-Array für Wort-basiertes Matching
+  const words = normalizedText.split(/\s+/);
+  
+  for (const keyword of keywords) {
+    const normalizedKeyword = keyword.toLowerCase()...;
+    
+    // Methode 1: Direkter Substring (wie bisher)
+    if (normalizedText.includes(normalizedKeyword)) {
+      matchedLabels.push(keyword);
+      continue;
+    }
+    
+    // Methode 2: Wort-Präfix-Match (für OCR-Fehler)
+    // "lohnausw" matcht auch wenn OCR "lohnausweis" nicht vollständig erkennt
+    const keywordPrefix = normalizedKeyword.substring(0, Math.min(6, normalizedKeyword.length));
+    if (words.some(word => word.startsWith(keywordPrefix) && word.length >= keywordPrefix.length)) {
+      matchedLabels.push(keyword);
+      continue;
+    }
+  }
 }
 ```
 
-### Änderung 2: Upload direkt ohne Validierung starten (Schneller Pfad)
-**Datei:** `src/hooks/use-inline-upload.ts`
+**B. Debug-Logging optimieren:**
 
-Option hinzufügen, die Validierung komplett zu überspringen und direkt hochzuladen:
+Nur einmal loggen (im DocumentValidator, nicht pro Profil), mit Fokus auf das relevante Profil.
 
-```typescript
-// Nach Datei-Validierung (Format/Größe), direkt zum Upload
-// Statt OCR-Validierung → Direct Upload
-console.log('[InlineUpload] Skipping OCR, direct upload...');
-await uploadFile(file, checklistItemId, checklistItemTitle);
-```
+### Datei: `src/services/DocumentValidator.ts`
 
-### Änderung 3: Delete-Funktion robuster machen
-**Datei:** `src/services/DocumentService.ts`
-
-Bessere Fehlerbehandlung beim Löschen:
+**C. Mobile-Schwellenwerte weiter senken:**
 
 ```typescript
-async deleteDocument(documentId: string): Promise<void> {
-  const userId = await this.checkAuth();
-
-  // Explizit User-ID prüfen für RLS
-  const { data: doc, error: fetchError } = await supabase
-    .from('uploaded_documents')
-    .select('file_path, tax_year, user_id')
-    .eq('id', documentId)
-    .eq('user_id', userId) // Explizite User-Prüfung
-    .single();
-
-  if (fetchError) {
-    console.error('[DocumentService] Error fetching document:', fetchError);
-    throw new Error('Dokument nicht gefunden oder keine Berechtigung');
+if (isMobileOcr) {
+  // Ultra-mobile-optimierte Schwellenwerte
+  if (ocrMatchCount >= 3) {
+    ocrScore = 80;  // War: 4 für 80, 3 für 70
+  } else if (ocrMatchCount >= 2) {
+    ocrScore = 70;  // War: 55
+  } else if (ocrMatchCount >= 1) {
+    ocrScore = 50;  // War: 30
   }
-  
-  // Storage löschen (mit Fehlerbehandlung)
-  const { error: storageError } = await supabase.storage
-    .from('documents')
-    .remove([doc.file_path]);
-  
-  if (storageError) {
-    console.warn('[DocumentService] Storage delete warning:', storageError);
-    // Continue anyway - file might already be deleted
-  }
-
-  // DB löschen
-  const { error: dbError } = await supabase
-    .from('uploaded_documents')
-    .delete()
-    .eq('id', documentId)
-    .eq('user_id', userId); // Doppelte Sicherheit
-
-  if (dbError) {
-    console.error('[DocumentService] DB delete error:', dbError);
-    throw new Error('Dokument konnte nicht gelöscht werden');
-  }
-  
-  // Cache aktualisieren...
 }
 ```
 
-### Änderung 4: Sofortige UI-Aktualisierung nach Upload
-**Datei:** `src/components/DocumentChecklist.tsx`
+---
 
-Nach erfolgreichem Upload sofort die lokale State aktualisieren, nicht auf Refresh warten:
+## Betroffene Dateien
 
-```typescript
-onUploadComplete: async (itemId) => {
-  // SOFORT lokalen State aktualisieren
-  markUploaded(itemId, true);
-  
-  // Dann im Hintergrund refreshen
-  refreshDocuments().catch(console.error);
-}
-```
+| Datei | Änderung |
+|-------|----------|
+| `src/services/TesseractWasmOcrService.ts` | Toleranteres Matching, besseres Logging |
+| `src/services/DocumentValidator.ts` | Niedrigere Mobile-Schwellenwerte |
 
-### Änderung 5: Validierung temporär deaktivieren (Notfall-Fix)
-**Datei:** `src/hooks/use-inline-upload.ts`
+---
 
-Als Notfall-Lösung die gesamte OCR-Validierung überspringen:
+## Erwartetes Ergebnis
 
-```typescript
-// In handleFileSelect, nach Format-Validierung:
-// TEMPORARY: Skip OCR validation entirely
-console.log('[InlineUpload] Uploading directly (OCR disabled)...');
-await uploadFile(file, checklistItemId, checklistItemTitle);
-return;
-```
-
-## Technische Details
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│           AKTUELLER FLOW (PROBLEMATISCH)                    │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. Datei auswählen                                         │
-│       ↓                                                     │
-│  2. Format-Validierung ✓                                    │
-│       ↓                                                     │
-│  3. OCR-Validierung (kann hängen!) ← PROBLEM                │
-│       ↓ (wartet bis zu 20 Sekunden)                         │
-│  4. Upload                                                  │
-│       ↓                                                     │
-│  5. Warte 2 Sekunden                                        │
-│       ↓                                                     │
-│  6. refreshDocuments() → loadDocuments() → UI Update        │
-│       ↓ (kann fehlschlagen)                                 │
-│  7. Dokument nicht sichtbar ← PROBLEM                       │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│           NEUER FLOW (VEREINFACHT)                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. Datei auswählen                                         │
-│       ↓                                                     │
-│  2. Format-Validierung ✓                                    │
-│       ↓                                                     │
-│  3. DIREKTER Upload (OCR übersprungen)                      │
-│       ↓                                                     │
-│  4. Sofort markUploaded(itemId, true) ← UI sofort grün      │
-│       ↓                                                     │
-│  5. refreshDocuments() im Hintergrund                       │
-│                                                             │
-│  RESULTAT: Schneller, zuverlässiger, sofortiges Feedback    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Zusammenfassung der Änderungen
-
-| Datei | Änderung | Priorität |
-|-------|----------|-----------|
-| `src/hooks/use-inline-upload.ts` | OCR-Validierung überspringen, direkter Upload | HOCH |
-| `src/services/DocumentService.ts` | Delete-Funktion mit expliziter User-ID Prüfung | HOCH |
-| `src/components/DocumentChecklist.tsx` | Sofortige UI-Aktualisierung nach Upload | MITTEL |
-| `src/hooks/use-inline-upload.ts` | Timeout auf 10s reduzieren (falls OCR reaktiviert) | NIEDRIG |
-
-## Erwartete Verbesserungen
-
-1. **Upload funktioniert sofort** - Keine OCR-Blockierung mehr
-2. **Dokumente erscheinen sofort** - Lokale State-Aktualisierung
-3. **Löschen funktioniert zuverlässig** - Bessere Fehlerbehandlung
-4. **Schnellere User Experience** - Weniger Wartezeit
-
-## Risikobewertung
-
-- **Niedrig**: OCR-Validierung ist nice-to-have, nicht kritisch
-- **OCR kann später reaktiviert werden** wenn stabil
-- **Delete-Änderungen sind rückwärtskompatibel**
+Nach diesen Änderungen sollte der Lohnausweis:
+- Mit 2-3 erkannten Keywords bereits 70-80% Konfidenz erreichen
+- Durch toleranteres Matching mehr Keywords finden
+- Zuverlässig als "erkannt" klassifiziert werden
 
