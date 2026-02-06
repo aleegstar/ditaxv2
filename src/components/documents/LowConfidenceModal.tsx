@@ -73,24 +73,22 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
             onClick={onClose}
           />
           
-          {/* Modal Container - Flexbox centering */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", damping: 25, stiffness: 400 }}
-              className="pointer-events-auto bg-white rounded-[28px] p-6 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[360px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
-              <button
-                onClick={onClose}
-                className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
-              >
-                <X className="h-4 w-4 text-slate-500" />
-              </button>
-              
+          {/* Bottom Sheet Modal */}
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-[9999]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-2 bg-white rounded-t-[28px]">
+              <div className="w-10 h-1 bg-slate-300 rounded-full" />
+            </div>
+            
+            {/* Content */}
+            <div className="bg-white px-6 pb-8 pt-2 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)]">
               {/* Warning Icon - Soft amber gradient */}
               <div className="flex justify-center mb-5">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center">
@@ -134,8 +132,8 @@ const LowConfidenceModal: React.FC<LowConfidenceModalProps> = ({
                   {isConfirming ? 'Wird hochgeladen...' : 'Trotzdem einreichen'}
                 </button>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </>
       )}
     </AnimatePresence>
