@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, User, Briefcase, Home, Calculator, FolderOpen, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -14,11 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
-import { BorderBeam } from '@/components/ui/border-beam';
-import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
 import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentModal';
+import QuickUploadButton from '@/components/documents/QuickUploadButton';
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
@@ -93,9 +92,6 @@ const DocumentChecklist: React.FC = () => {
   };
   const handleBack = () => {
     navigate('/form?section=deductions');
-  };
-  const handleUploadDocument = (itemId: string) => {
-    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -538,11 +534,18 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && <div className="flex items-center gap-3">
-                                    {/* Primary: Upload new document */}
-                                    <button onClick={() => handleUploadDocument(item.id)} className="flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 text-white font-medium h-9 px-4 rounded-lg transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] text-sm shadow-sm shadow-blue-500/25">
-                                      <CloudUpload className="w-4 h-4" strokeWidth={1.5} />
-                                      {t.documentChecklist.upload}
-                                    </button>
+                                    {/* Primary: Quick upload with hidden file input */}
+                                    <QuickUploadButton
+                                      itemId={item.id}
+                                      itemTitle={item.title}
+                                      userId={userId!}
+                                      taxYear={taxYear}
+                                      taxFilerId={localStorage.getItem('activeTaxFilerId')}
+                                      onUploadComplete={() => {
+                                        refreshDocuments();
+                                        markUploaded(item.id, true);
+                                      }}
+                                    />
                                     
                                     {/* Secondary: Assign existing document - ghost/outline style */}
                                     {hasUnassignedDocs && <button onClick={() => setAssignmentModal({
