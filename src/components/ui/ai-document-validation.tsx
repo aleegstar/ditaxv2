@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ditaxLogo from '@/assets/ditax-symbol.svg';
+import { Sphere } from '@/components/ui/sphere';
 import { ValidationProgress } from '@/types/documentProfile';
 
 // ============================================================================
@@ -381,61 +381,35 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-5 w-full">
-      {/* Header with AI Icon */}
+      {/* Header with AI Sphere */}
       <div className="flex flex-col items-center gap-3">
-        {/* Animated AI Icon with Pulse/Glow */}
-        <div className="relative">
-          <motion.div 
-            className="w-16 h-16 rounded-full flex items-center justify-center bg-white border border-border/50"
-            animate={!isComplete && !prefersReducedMotion ? { 
-              scale: [1, 1.03, 1]
-            } : {}}
-            transition={{ 
-              duration: 2, 
-              repeat: isComplete ? 0 : Infinity, 
-              ease: "easeInOut" 
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {isComplete ? (
-                <motion.div
-                  key="complete"
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
-                </motion.div>
-              ) : (
-                <motion.img
-                  key="analyzing"
-                  src={ditaxLogo}
-                  alt="ditax"
-                  className="w-10 h-10 object-contain"
-                  animate={!prefersReducedMotion ? { 
-                    scale: [1, 1.05, 1] 
-                  } : {}}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  }}
-                />
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Subtle orbiting particle */}
-          {!isComplete && !prefersReducedMotion && (
+        {/* AI Sphere or Completion Checkmark */}
+        <AnimatePresence mode="wait">
+          {isComplete ? (
             <motion.div
-              className="absolute inset-0 pointer-events-none"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+              key="complete"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="w-24 h-24 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"
             >
-              <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/50" />
+              <Check className="w-10 h-10 text-white" strokeWidth={2.5} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sphere"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sphere 
+                size="medium" 
+                className="shadow-lg shadow-primary/20"
+              />
             </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
         <div className="text-center space-y-2">
           <h3 className="font-semibold text-foreground text-lg">
