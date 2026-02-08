@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Sphere } from '@/components/ui/sphere';
+import { AISphere } from '@/components/ui/ai-sphere';
 import { ValidationProgress } from '@/types/documentProfile';
 
 // ============================================================================
@@ -403,9 +403,8 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
             >
-              <Sphere 
+              <AISphere 
                 size="medium" 
-                className="shadow-lg shadow-primary/20"
               />
             </motion.div>
           )}
