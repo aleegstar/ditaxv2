@@ -72,7 +72,9 @@ export const Sphere: React.FC<SphereProps> = ({
       <video
         ref={videoRef}
         className={cn(
-          'w-full h-full object-cover rounded-full transition-opacity',
+          'rounded-full transition-opacity',
+          // Scale up video to crop out grey edges, object-cover centers it
+          'w-[140%] h-[140%] object-cover',
           isLoading || hasError ? 'opacity-0' : 'opacity-100'
         )}
         autoPlay
