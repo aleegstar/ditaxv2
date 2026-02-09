@@ -1,105 +1,47 @@
 
 
-# Plan: AI Sphere + Shimmer Text für OCR-Animation
+# Dokumenten-Checkliste modernisieren
 
-## Überblick
+## Ziel
+Die Dokumenten-Checkliste visuell an das bestehende App-Design angleichen: cleaner weisser Hintergrund, subtile Karten mit Borders statt farbigen Backgrounds, einheitliche Typografie und bessere visuelle Hierarchie -- analog zur Profilseite und anderen Subpages.
 
-Die aktuelle OCR-Validierungs-Animation in `ai-document-validation.tsx` zeigt das Ditax-Logo in einem weissen Kreis. Dieses soll durch die animierte **AI Sphere** ersetzt werden, mit dem **Shimmer-Text** darunter für die rotierenden Statusmeldungen.
+## Aenderungen
 
----
+### 1. Progress-Sektion neu gestalten
+- Aktuell: `bg-slate-50/80 ring-1 ring-slate-200/50` -- wirkt flach
+- Neu: `bg-white border border-slate-200 shadow-sm rounded-2xl` -- passend zum Card-Stil der App
+- Fortschrittsbalken: schlankere `h-1` Hoehe mit abgerundeten Enden
+- Abgeschlossen-Zustand: dezentes `border-emerald-200 bg-emerald-50/50` statt vollem `bg-emerald-50/80`
 
-## Visuelle Änderung
+### 2. Kategorie-Collapsibles ueberarbeiten
+- Aktuell: `bg-slate-50/80 rounded-2xl` -- zu wenig Kontrast
+- Neu: `bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow`
+- Expanded Header: statt `bg-slate-100/50` ein subtileres `border-b border-slate-100`
+- Icon-Badges: konsistente `w-9 h-9 rounded-xl` mit `bg-slate-100` (offen) bzw. Farbcodes (abgeschlossen)
 
-```text
-┌──────────────────────────────────────────┐
-│             VORHER                       │
-│                                          │
-│         ┌────────────┐                   │
-│         │  Ditax     │  ← Statisches     │
-│         │   Logo     │    Logo           │
-│         └────────────┘                   │
-│                                          │
-│     Ditax prüft Lohnausweis              │
-│     ✨ Arbeitgeber wird erkannt...       │
-└──────────────────────────────────────────┘
+### 3. Einzel-Dokumenten-Items verfeinern
+- Aktuell: `ring-1 ring-slate-200/60` -- ring statt border
+- Neu: `bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors`
+- Upload-Button: `bg-primary` bleibt, aber mit `shadow-sm` und feinerer Hoehe (`h-9`)
+- Erforderlich-Badge: dezentere Gestaltung mit `bg-amber-50 text-amber-600 border border-amber-200`
+- Hochgeladene Dokumente: Trennlinie `border-slate-100` bleibt, aber Actions erhalten `rounded-lg hover:bg-slate-50`
 
-┌──────────────────────────────────────────┐
-│             NACHHER                      │
-│                                          │
-│         ┌────────────┐                   │
-│         │    🔮      │  ← AI Sphere      │
-│         │  (video)   │    Animation      │
-│         └────────────┘                   │
-│                                          │
-│     Ditax prüft Lohnausweis              │
-│     ✨ Arbeitgeber wird erkannt...       │  ← Shimmer-Text
-└──────────────────────────────────────────┘
-```
+### 4. Completion-Dialog anpassen
+- Buttons-Reihenfolge tauschen: primaerer CTA-Button oben, sekundaerer unten (konsistent mit dem Rest der App)
 
----
+### 5. Leerzustand verbessern
+- Zentrierter Text mit Icon und klarerem Spacing
+- Button im Primary-Stil mit `rounded-xl` statt default
 
-## Technische Umsetzung
+## Technische Details
 
-### Datei: `src/components/ui/ai-document-validation.tsx`
+Nur eine Datei wird bearbeitet: `src/components/DocumentChecklist.tsx`
 
-**Änderungen:**
+Hauptaenderungen sind CSS-Klassen-Swaps:
+- `bg-slate-50/80` wird zu `bg-white border border-slate-200 shadow-sm`
+- `ring-1 ring-*` wird zu `border border-*`
+- Konsistente `rounded-2xl` fuer Karten, `rounded-xl` fuer innere Elemente
+- Hover-States mit `transition-all` oder `transition-colors`
 
-1. **Sphere-Komponente importieren:**
-   ```typescript
-   import { Sphere } from '@/components/ui/sphere';
-   ```
-
-2. **Icon-Container ersetzen:**
-   Das aktuelle Ditax-Logo-Icon wird durch die `Sphere`-Komponente ersetzt:
-
-   ```typescript
-   // VORHER: Ditax Logo in weissem Kreis
-   <motion.div className="w-16 h-16 rounded-full...">
-     <motion.img src={ditaxLogo} ... />
-   </motion.div>
-
-   // NACHHER: AI Sphere
-   <Sphere 
-     size="medium" 
-     triggerPulse={isComplete}
-     className="shadow-lg shadow-primary/20"
-   />
-   ```
-
-3. **Shimmer-Text wird beibehalten:**
-   Der bestehende `RotatingStatusText` nutzt bereits die `shimmer-text` CSS-Klasse - das bleibt unverändert.
-
-4. **Completion-State anpassen:**
-   Bei Abschluss zeigt die Sphere einen Pulse-Effekt, dann wird zum grünen Checkmark gewechselt:
-
-   ```typescript
-   <AnimatePresence mode="wait">
-     {isComplete ? (
-       // Grüner Checkmark wie bisher
-       <motion.div className="w-16 h-16 rounded-full bg-emerald-500...">
-         <Check />
-       </motion.div>
-     ) : (
-       // AI Sphere während der Validierung
-       <Sphere size="medium" />
-     )}
-   </AnimatePresence>
-   ```
-
----
-
-## Betroffene Datei
-
-| Datei | Änderung |
-|-------|----------|
-| `src/components/ui/ai-document-validation.tsx` | Ditax-Logo durch Sphere-Komponente ersetzen |
-
----
-
-## Erwartetes Ergebnis
-
-- Während der OCR-Validierung wird die animierte **AI Sphere** (Video) angezeigt
-- Darunter rotiert der **Shimmer-Text** mit den mehrfarbigen Gradient-Statusmeldungen (Blau → Violett → Pink)
-- Bei Abschluss wechselt die Sphere zum grünen Checkmark
-- Die Sphere zeigt einen Pulse-Effekt beim Übergang zu "Analyse abgeschlossen"
+Keine neuen Abhaengigkeiten oder Komponenten noetig.
 
