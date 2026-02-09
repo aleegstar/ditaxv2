@@ -418,10 +418,25 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen bg-white text-slate-900 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+  return <div className="min-h-screen bg-liquid-gradient text-slate-900 antialiased flex justify-center selection:bg-[#1D64FF]/30 relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div 
+        className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full opacity-30 blur-3xl pointer-events-none animate-float-slow"
+        style={{
+          background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)"
+        }}
+      />
+      <div 
+        className="absolute bottom-[-10%] left-[-15%] w-[50%] h-[50%] rounded-full opacity-25 blur-3xl pointer-events-none animate-float-slow"
+        style={{
+          background: "radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)",
+          animationDirection: "reverse",
+          animationDelay: "-10s"
+        }}
+      />
 
       {/* Mobile Container */}
-      <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72">
+      <div className="min-h-screen md:max-w-2xl w-full max-w-[430px] mr-auto ml-auto relative flex flex-col justify-center px-6 md:px-8 py-12 pb-72 z-10">
 
         {/* Main Login Content */}
         <div className="relative z-20 w-full">
@@ -453,14 +468,14 @@ const Auth = () => {
                   </p>
                 </div>
 
-                {/* Email Form */}
+                {/* Email Form - Glass Card */}
                 <form onSubmit={handleEmailSubmit} className="space-y-3.5">
                   <div>
                     <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20 focus:outline-none w-full font-jakarta" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                    <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="min-h-[52px] px-5 py-3.5 text-base rounded-2xl glass-input text-slate-800 placeholder:text-slate-400 focus:outline-none w-full font-jakarta transition-all duration-200" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-[15px] font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none">
+                  <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-full py-4 px-6 text-[15px] font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-jakarta disabled:opacity-50 disabled:pointer-events-none shadow-blue hover:shadow-blue-lg">
                     {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
                   
@@ -474,7 +489,7 @@ const Auth = () => {
 
                 {/* Oder Divider - hidden when input is focused */}
                 {!isInputFocused && <div className="flex items-center gap-4 w-full mt-14">
-                    <div className="flex-1 h-px bg-slate-300" />
+                    <div className="flex-1 h-px bg-slate-200/80" />
                     <span className="text-sm text-slate-600 font-medium font-jakarta">{t.authFlow.or}</span>
                     <div className="flex-1 h-px bg-slate-300" />
                   </div>}
@@ -508,27 +523,27 @@ const Auth = () => {
                   </p>
                 </div>
 
-                {/* OTP Form */}
-                <div className="space-y-8">
-                  {/* Code Inputs */}
-                  <div className="flex justify-between gap-2">
-                    <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
-                      <InputOTPGroup className="flex justify-between gap-2 w-full">
-                        <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                        <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                        <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                        <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                        <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                        <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 focus:bg-[#1D64FF]/5 transition-all text-slate-900" />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
+                  {/* OTP Form - Glass styled */}
+                  <div className="space-y-8">
+                    {/* Code Inputs */}
+                    <div className="flex justify-between gap-2">
+                      <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
+                        <InputOTPGroup className="flex justify-between gap-2 w-full">
+                          <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                          <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                          <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                          <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                          <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                          <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold glass-input rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#1D64FF]/50 focus:border-[#1D64FF]/50 transition-all text-slate-900" />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
 
-                  {/* Verify Button */}
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-xl py-3.5 px-4 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50 disabled:pointer-events-none">
-                    {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
-                  </button>
-                </div>
+                    {/* Verify Button */}
+                    <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="w-full bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 rounded-full py-4 px-6 text-sm font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group font-jakarta disabled:opacity-50 disabled:pointer-events-none shadow-blue hover:shadow-blue-lg">
+                      {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
+                    </button>
+                  </div>
 
                 {/* Footer Actions */}
                 <div className="mt-8 flex flex-col items-center gap-4 text-center">
@@ -553,12 +568,12 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Floating Bottom Social Login Island - Only show on main step */}
+      {/* Floating Bottom Social Login Island - Glass styled */}
       {step === "main" && !isInputFocused && <div className="fixed bottom-0 left-0 right-0 w-full pointer-events-none z-50">
           {/* Gradient Fade Background */}
-          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-[#f5f0ff] via-[#f5f0ff]/90 to-transparent pointer-events-none" />
 
-          {/* The Domed Button Container - positioned higher on mobile */}
+          {/* The Domed Button Container */}
           <motion.div className="relative w-full flex justify-center items-end pb-0 pointer-events-auto" initial={{
         opacity: 0,
         y: 50
@@ -570,13 +585,13 @@ const Auth = () => {
         delay: 0.2
       }}>
             <div className="relative w-full">
-              {/* Social Login Container - Light Design */}
-              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl bg-gradient-to-b from-white to-slate-50/80 border-t border-slate-200/80">
+              {/* Social Login Container - Glass Design */}
+              <div className="flex flex-col items-center w-full pt-3 px-6 pb-6 md:pb-8 relative rounded-t-3xl glass-frost-solid">
               {/* Pill Handle Divider */}
-              <div className="w-9 h-1 rounded-full bg-slate-200 mb-4" />
+              <div className="w-9 h-1 rounded-full bg-slate-200/80 mb-4" />
               <div className="relative z-10 flex flex-col gap-2.5 w-full max-w-[430px] md:max-w-2xl mx-auto px-0 md:px-2">
                 {/* Google Login */}
-                <button onClick={handleGoogleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
+                <button onClick={handleGoogleAuth} disabled={isLoading} className="glass-frost bg-white/90 text-slate-700 rounded-full py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:shadow-glass active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none shadow-liquid">
                   <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -587,7 +602,7 @@ const Auth = () => {
                 </button>
 
                 {/* Apple Login */}
-                <button onClick={handleAppleAuth} disabled={isLoading} className="bg-white text-slate-700 border border-slate-200 rounded-xl py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none">
+                <button onClick={handleAppleAuth} disabled={isLoading} className="glass-frost bg-white/90 text-slate-700 rounded-full py-3.5 px-4 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:shadow-glass active:scale-[0.98] transition-all duration-200 w-full group disabled:opacity-50 disabled:pointer-events-none shadow-liquid">
                   <svg className="w-5 h-5 shrink-0 fill-current text-slate-800 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                   </svg>
@@ -599,9 +614,9 @@ const Auth = () => {
               {/* Footer Links */}
               <div className="mt-6 flex justify-center items-center gap-3 text-[13px] text-slate-500 font-medium font-jakarta">
                 <a href="/impressum" className="hover:text-slate-700 transition-colors">Impressum</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <span className="w-1 h-1 bg-slate-300/80 rounded-full"></span>
                 <a className="hover:text-slate-700 transition-colors" href="/datenschutzrichtlinie">Datenschutz</a>
-                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <span className="w-1 h-1 bg-slate-300/80 rounded-full"></span>
                 <LanguageDropdown variant="compact" />
               </div>
             </div>
