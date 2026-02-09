@@ -1,105 +1,227 @@
 
+# Liquid Glass Frost Design Modernisierung
 
-# Plan: AI Sphere + Shimmer Text für OCR-Animation
+## Zusammenfassung
 
-## Überblick
+Modernisierung des gesamten App-Designs mit einem Apple-inspirierten "Liquid Glass Frost" Effekt, basierend auf dem Referenzbild. Das neue Design umfasst weiche, halbtransparente UI-Elemente mit Blur-Effekt, sanfte Farbverlaeufe und glasartige Komponenten.
 
-Die aktuelle OCR-Validierungs-Animation in `ai-document-validation.tsx` zeigt das Ditax-Logo in einem weissen Kreis. Dieses soll durch die animierte **AI Sphere** ersetzt werden, mit dem **Shimmer-Text** darunter für die rotierenden Statusmeldungen.
+## Visuelle Zielsetzung
+
+Das Referenzbild zeigt folgende Design-Elemente:
+- **Hintergrund**: Weicher blau-violetter Gradient (nicht reines Weiss)
+- **UI-Elemente**: Halbtransparente, glasartige Oberflaechen mit Frost-Blur
+- **Buttons**: Pill-foermige Buttons mit weissem Hintergrund und subtilen Schatten
+- **Toggle-Buttons**: Geteilte, abgerundete Container mit selektierbaren Optionen
+- **Sphere**: Animierte AI-Sphere als zentrales visuelles Element
+- **Typografie**: Klare, dunkle Schrift auf hellem Glas-Hintergrund
 
 ---
 
-## Visuelle Änderung
+## Implementierungsschritte
+
+### Schritt 1: Neue CSS-Variablen und Utility-Klassen
+
+Erweiterung der `tailwind.config.ts` und `src/index.css` um Liquid Glass Utilities:
+
+**Neue Tailwind-Erweiterungen:**
+- `glass-frost`: Backdrop-blur mit halbtransparentem Weiss
+- `glass-frost-subtle`: Subtilere Glass-Variante
+- `glass-border`: Feine weisse Rand-Highlights
+- `liquid-gradient`: Der charakteristische blau-violette Hintergrund-Gradient
+
+**CSS Custom Properties:**
+```css
+--glass-bg: rgba(255, 255, 255, 0.7);
+--glass-border: rgba(255, 255, 255, 0.5);
+--glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+--liquid-gradient: linear-gradient(180deg, #f0f4ff 0%, #e8eeff 50%, #f5f0ff 100%);
+```
+
+### Schritt 2: Neue GlassCard Komponente
+
+Neue wiederverwendbare Komponente `src/components/ui/glass-card.tsx`:
 
 ```text
-┌──────────────────────────────────────────┐
-│             VORHER                       │
-│                                          │
-│         ┌────────────┐                   │
-│         │  Ditax     │  ← Statisches     │
-│         │   Logo     │    Logo           │
-│         └────────────┘                   │
-│                                          │
-│     Ditax prüft Lohnausweis              │
-│     ✨ Arbeitgeber wird erkannt...       │
-└──────────────────────────────────────────┘
++------------------------------------------+
+|  GlassCard Component                      |
+|  - background: rgba(255,255,255,0.7)     |
+|  - backdrop-filter: blur(20px)           |
+|  - border: 1px solid rgba(255,255,255,0.5)|
+|  - border-radius: 24px                   |
+|  - box-shadow: soft diffuse shadow       |
++------------------------------------------+
+```
 
-┌──────────────────────────────────────────┐
-│             NACHHER                      │
-│                                          │
-│         ┌────────────┐                   │
-│         │    🔮      │  ← AI Sphere      │
-│         │  (video)   │    Animation      │
-│         └────────────┘                   │
-│                                          │
-│     Ditax prüft Lohnausweis              │
-│     ✨ Arbeitgeber wird erkannt...       │  ← Shimmer-Text
-└──────────────────────────────────────────┘
+**Varianten:**
+- `default`: Standard Glass-Effekt
+- `solid`: Weniger transparent, mehr Weiss
+- `subtle`: Sehr subtiler Frost-Effekt
+
+### Schritt 3: Neue LiquidButton Komponente
+
+Neue Button-Komponente `src/components/ui/liquid-button.tsx`:
+
+**Eigenschaften:**
+- Pill-Form (`rounded-full`)
+- Weisser Hintergrund mit subtilen Schatten
+- Hover: Leichte Anhebung und Schatten-Verstaerkung
+- Active: Sanftes Eindrucken
+
+**Varianten:**
+- `primary`: Weisser Hintergrund, dunkler Text
+- `ghost`: Transparent mit Glasrand
+- `split`: Zweigeteilter Toggle-Button (wie im Bild: "Nein | Ja")
+
+### Schritt 4: LiquidBackground Komponente
+
+Neue Hintergrund-Komponente `src/components/ui/liquid-background.tsx`:
+
+**Aufbau:**
+```text
++------------------------------------------------+
+| Layer 1: Base Gradient (blau -> violett)        |
+| Layer 2: Animierte Blob-Shapes (optional)       |
+| Layer 3: Subtle Noise/Grain Texture             |
++------------------------------------------------+
+```
+
+### Schritt 5: Auth-Seite Modernisierung
+
+Anpassung von `src/pages/Auth.tsx`:
+
+**Aenderungen:**
+- Hintergrund: `LiquidBackground` statt weiss
+- Input-Felder: Glass-Styling mit Blur
+- Buttons: `LiquidButton` Komponenten
+- Social-Login-Island: Glaseffekt mit erhoehtem Blur
+- OTP-Eingabefelder: Glasartige Slots
+
+```text
++------------------------------------------+
+|      [  Ditax Logo  ]                    |
+|                                          |
+|     "Anmelden"                           |
+|     "Waehle eine Methode"                |
+|                                          |
+|  +------------------------------------+  |
+|  |  [E-Mail eingeben]         Glass  |  |
+|  +------------------------------------+  |
+|                                          |
+|  +------------------------------------+  |
+|  |     Code senden              Pill |  |
+|  +------------------------------------+  |
+|                                          |
+|  - - - - - Oder - - - - -               |
+|                                          |
+|  +----------------------------------+    |
+|  |   [G] Mit Google fortfahren     |    |
+|  +----------------------------------+    |
+|  |   [A] Mit Apple fortfahren      |    |
+|  +----------------------------------+    |
++------------------------------------------+
+```
+
+### Schritt 6: WelcomeFlow Modernisierung
+
+Anpassung von `src/components/welcome/WelcomeFlow.tsx`:
+
+**Aenderungen:**
+- Main-Card: GlassCard mit Frost-Effekt
+- Progress-Bar: Glasartige Segmente
+- Inputs: Glass-Styling
+- Checkbox-Container: Glasartige Boxes
+- Hintergrund: LiquidBackground
+
+### Schritt 7: Button-Komponente erweitern
+
+Erweiterung von `src/components/ui/button.tsx`:
+
+**Neue Varianten:**
+- `liquid`: Pill-Button mit Glass-Aesthetik
+- `liquid-outline`: Transparenter Glass-Button mit Rand
+- `liquid-split`: Geteilter Toggle-Style
+
+### Schritt 8: Input-Komponente erweitern
+
+Erweiterung von `src/components/ui/input.tsx`:
+
+**Neue Variante:**
+- `glass`: Halbtransparenter Hintergrund mit Blur, subtiler Rand
+
+---
+
+## Technische Details
+
+### Tailwind Config Erweiterungen
+
+```typescript
+// In tailwind.config.ts extend:
+backdropBlur: {
+  'glass': '20px',
+  'glass-lg': '40px',
+},
+backgroundImage: {
+  'liquid-gradient': 'linear-gradient(180deg, #f0f4ff 0%, #e8eeff 50%, #f5f0ff 100%)',
+  'liquid-radial': 'radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)',
+},
+boxShadow: {
+  'glass': '0 8px 32px rgba(31, 38, 135, 0.15)',
+  'glass-sm': '0 4px 16px rgba(31, 38, 135, 0.1)',
+  'liquid': '0 4px 24px rgba(0, 0, 0, 0.06)',
+}
+```
+
+### CSS Utilities
+
+```css
+/* Glass Effect Utilities */
+.glass-frost {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.glass-frost-subtle {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Liquid Background */
+.liquid-bg {
+  background: linear-gradient(180deg, #f0f4ff 0%, #e8eeff 50%, #f5f0ff 100%);
+}
 ```
 
 ---
 
-## Technische Umsetzung
+## Betroffene Dateien
 
-### Datei: `src/components/ui/ai-document-validation.tsx`
+### Neue Dateien
+| Datei | Beschreibung |
+|-------|--------------|
+| `src/components/ui/glass-card.tsx` | Wiederverwendbare Glass-Card Komponente |
+| `src/components/ui/liquid-button.tsx` | Pill-Button mit Glass-Aesthetik |
+| `src/components/ui/liquid-background.tsx` | Animierter Gradient-Hintergrund |
 
-**Änderungen:**
-
-1. **Sphere-Komponente importieren:**
-   ```typescript
-   import { Sphere } from '@/components/ui/sphere';
-   ```
-
-2. **Icon-Container ersetzen:**
-   Das aktuelle Ditax-Logo-Icon wird durch die `Sphere`-Komponente ersetzt:
-
-   ```typescript
-   // VORHER: Ditax Logo in weissem Kreis
-   <motion.div className="w-16 h-16 rounded-full...">
-     <motion.img src={ditaxLogo} ... />
-   </motion.div>
-
-   // NACHHER: AI Sphere
-   <Sphere 
-     size="medium" 
-     triggerPulse={isComplete}
-     className="shadow-lg shadow-primary/20"
-   />
-   ```
-
-3. **Shimmer-Text wird beibehalten:**
-   Der bestehende `RotatingStatusText` nutzt bereits die `shimmer-text` CSS-Klasse - das bleibt unverändert.
-
-4. **Completion-State anpassen:**
-   Bei Abschluss zeigt die Sphere einen Pulse-Effekt, dann wird zum grünen Checkmark gewechselt:
-
-   ```typescript
-   <AnimatePresence mode="wait">
-     {isComplete ? (
-       // Grüner Checkmark wie bisher
-       <motion.div className="w-16 h-16 rounded-full bg-emerald-500...">
-         <Check />
-       </motion.div>
-     ) : (
-       // AI Sphere während der Validierung
-       <Sphere size="medium" />
-     )}
-   </AnimatePresence>
-   ```
+### Zu modifizierende Dateien
+| Datei | Aenderungen |
+|-------|-------------|
+| `tailwind.config.ts` | Neue backdrop-blur, shadows, gradients |
+| `src/index.css` | Neue CSS Utility-Klassen fuer Glass-Effekte |
+| `src/pages/Auth.tsx` | Komplettes Redesign mit Liquid Glass |
+| `src/components/welcome/WelcomeFlow.tsx` | Glass-Card und Liquid-Hintergrund |
+| `src/components/ui/button.tsx` | Neue liquid-Varianten |
+| `src/components/ui/input.tsx` | Neue glass-Variante |
+| `src/components/ui/card.tsx` | Erweiterte glass-Varianten |
 
 ---
 
-## Betroffene Datei
+## Vorteile
 
-| Datei | Änderung |
-|-------|----------|
-| `src/components/ui/ai-document-validation.tsx` | Ditax-Logo durch Sphere-Komponente ersetzen |
-
----
-
-## Erwartetes Ergebnis
-
-- Während der OCR-Validierung wird die animierte **AI Sphere** (Video) angezeigt
-- Darunter rotiert der **Shimmer-Text** mit den mehrfarbigen Gradient-Statusmeldungen (Blau → Violett → Pink)
-- Bei Abschluss wechselt die Sphere zum grünen Checkmark
-- Die Sphere zeigt einen Pulse-Effekt beim Übergang zu "Analyse abgeschlossen"
-
+- **Modernes Apple-aehnliches Design**: Aktueller Trend in UI/UX
+- **Konsistente Design-Sprache**: Wiederverwendbare Komponenten
+- **Performance-optimiert**: CSS backdrop-filter ist GPU-beschleunigt
+- **Zugaenglichkeit**: Ausreichender Kontrast durch halbtransparente Hintergruende
+- **Schrittweise Migration**: Neue Komponenten koennen parallel existieren
