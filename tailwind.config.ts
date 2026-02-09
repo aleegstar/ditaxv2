@@ -116,42 +116,30 @@ export default {
     			'color-2': 'hsl(var(--color-2))',
     			'color-3': 'hsl(var(--color-3))',
     			'color-4': 'hsl(var(--color-4))',
-			'color-5': 'hsl(var(--color-5))'
-		},
-		backgroundImage: {
-			'book-bind-bg': 'linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)',
-			'book-pages': 'linear-gradient(90deg, #f1f1f1 0%, #fff 100%)',
-			ali: 'url("/texture.png")',
-			'liquid-gradient': 'linear-gradient(180deg, #f0f4ff 0%, #e8eeff 50%, #f5f0ff 100%)',
-			'liquid-radial': 'radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)'
-		},
-		backdropBlur: {
-			'glass': '20px',
-			'glass-lg': '40px'
-		},
-		zIndex: {
-			'100': '100',
-			'101': '101',
-			'102': '102'
-		},
-		borderRadius: {
-			lg: 'var(--radius)',
-			md: 'calc(var(--radius) - 2px)',
-			sm: 'calc(var(--radius) - 4px)'
-		},
-		boxShadow: {
-			neo: '5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff',
-			'neo-sm': '3px 3px 6px #d9d9d9, -3px -3px 6px #ffffff',
-			'glass': '0 8px 32px rgba(31, 38, 135, 0.15)',
-			'glass-sm': '0 4px 16px rgba(31, 38, 135, 0.1)',
-			'glass-lg': '0 12px 40px rgba(31, 38, 135, 0.2)',
-			'glass-xl': '0 16px 48px rgba(31, 38, 135, 0.25)',
-			'liquid': '0 4px 24px rgba(0, 0, 0, 0.06)',
-			'liquid-sm': '0 2px 12px rgba(0, 0, 0, 0.04)',
-			'liquid-lg': '0 8px 32px rgba(0, 0, 0, 0.08)',
-			'blue': '0 4px 14px rgba(29, 100, 255, 0.25)',
-			'blue-lg': '0 6px 20px rgba(29, 100, 255, 0.35)'
-		},
+    			'color-5': 'hsl(var(--color-5))',
+    			backgroundImage: {
+    				'book-bind-bg': 'linear-gradient(90deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)',
+    				'book-pages': 'linear-gradient(90deg, #f1f1f1 0%, #fff 100%)',
+    				ali: 'url("/texture.png")'
+    			},
+    			boxShadow: {
+    				book: '5px 5px 20px rgba(0, 0, 0, 0.2)'
+    			}
+    		},
+    		zIndex: {
+    			'100': '100',
+    			'101': '101',
+    			'102': '102'
+    		},
+    		borderRadius: {
+    			lg: 'var(--radius)',
+    			md: 'calc(var(--radius) - 2px)',
+    			sm: 'calc(var(--radius) - 4px)'
+    		},
+    		boxShadow: {
+    			neo: '5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff',
+    			'neo-sm': '3px 3px 6px #d9d9d9, -3px -3px 6px #ffffff'
+    		},
     		keyframes: {
     			'accordion-down': {
     				from: {
@@ -282,14 +270,6 @@ export default {
 					transform: 'translateX(-33.333%)'
 				}
 			},
-			'float-slow': {
-				'0%, 100%': {
-					transform: 'translate(0, 0) scale(1)'
-				},
-				'50%': {
-					transform: 'translate(10px, -15px) scale(1.05)'
-				}
-			},
 			'pulse-glow': {
 				'0%, 100%': {
 					boxShadow: '0 0 25px -5px rgba(29, 100, 255, 0.4)',
@@ -317,8 +297,7 @@ export default {
     			'spin-circle': 'spin-circle 3s infinite linear',
     			'gentle-pulse': 'gentle-pulse 2s ease-in-out infinite',
 			'scroll-left': 'scroll-left 15s linear infinite',
-			'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-			'float-slow': 'float-slow 20s ease-in-out infinite'
+			'pulse-glow': 'pulse-glow 3s ease-in-out infinite'
     		},
     		backgroundSize: {
     			'shine-size': '200% 200%'

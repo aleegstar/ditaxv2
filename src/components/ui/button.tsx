@@ -21,15 +21,11 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         login: "bg-white text-black rounded-full hover:bg-gray-100 transition-colors shadow-sm",
         dark: "bg-[#111] text-white border border-white/10 rounded-full hover:bg-white/20 transition-colors shadow-sm",
-        liquid: "bg-white text-slate-900 rounded-full shadow-liquid hover:shadow-liquid-lg hover:-translate-y-0.5 active:scale-[0.98]",
-        "liquid-outline": "bg-transparent rounded-full border border-slate-200/80 text-slate-700 hover:bg-white/50 hover:border-slate-300 active:scale-[0.98]",
-        "liquid-blue": "bg-gradient-to-b from-blue-500 to-blue-600 text-white rounded-full border-t border-blue-400 shadow-blue hover:shadow-blue-lg hover:-translate-y-0.5 active:scale-[0.98]"
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-lg px-3 text-xs",
         lg: "h-10 rounded-lg px-8",
-        xl: "h-14 px-8 py-4 text-base",
         icon: "h-9 w-9",
       },
     },

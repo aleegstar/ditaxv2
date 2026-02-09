@@ -197,7 +197,7 @@ export const WelcomeFlow = () => {
     switch (currentStep) {
       case 0:
         return <div className="w-full space-y-5">
-            <div className="glass-frost rounded-2xl p-6 w-full space-y-5 shadow-glass">
+            <div className="bg-white rounded-2xl p-6 w-full space-y-5 border border-slate-200 shadow-sm">
               <label className="flex items-start gap-4 cursor-pointer group">
                 <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
                 <div className="flex-1 text-slate-700 text-sm leading-relaxed text-left">
@@ -212,7 +212,7 @@ export const WelcomeFlow = () => {
                 </div>
               </label>
 
-              <div className="pt-4 border-t border-slate-200/50">
+              <div className="pt-4 border-t border-slate-200">
                 <label className="flex items-start gap-4 cursor-pointer group">
                   <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
                   <div className="flex-1 text-slate-700 leading-relaxed text-left">
@@ -230,9 +230,7 @@ export const WelcomeFlow = () => {
              <Button 
                onClick={handleNext} 
                disabled={isLoading || !canProceed()} 
-               variant="liquid-blue"
-               size="xl"
-               className="w-full rounded-full py-5 h-auto text-lg font-semibold"
+               className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
              >
                {t.onboarding.next}
                <ArrowRight className="w-5 h-5 ml-2 text-white" />
@@ -246,17 +244,14 @@ export const WelcomeFlow = () => {
                placeholder={t.onboarding.firstName} 
                value={firstName} 
                onChange={e => setFirstName(e.target.value)} 
-               variant="glass"
-               className="text-lg h-auto py-5 rounded-2xl px-5" 
+               className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
                onKeyDown={e => e.key === 'Enter' && handleNext()} 
                autoFocus 
              />
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading || !canProceed()} 
-                variant="liquid-blue"
-                size="xl"
-                className="w-full rounded-full py-5 h-auto text-lg font-semibold"
+                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
               >
                 {t.onboarding.next}
                 <ArrowRight className="w-5 h-5 ml-2 text-white" />
@@ -267,12 +262,12 @@ export const WelcomeFlow = () => {
          return (
            <div className="w-full space-y-5">
             <Select value={taxYear} onValueChange={setTaxYear}>
-               <SelectTrigger className="text-lg h-auto py-5 glass-input text-slate-900 rounded-2xl px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all">
+               <SelectTrigger className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all">
                 <SelectValue />
               </SelectTrigger>
-               <SelectContent className="glass-frost rounded-2xl border-0 shadow-glass">
+               <SelectContent className="bg-white border border-slate-200 rounded-2xl">
                  {TAX_YEARS.map(year => (
-                   <SelectItem key={year} value={year} className="text-slate-900 text-lg hover:bg-white/50 focus:bg-white/50 py-3 rounded-xl">
+                   <SelectItem key={year} value={year} className="text-slate-900 text-lg hover:bg-slate-50 focus:bg-slate-50 py-3">
                     {year}
                    </SelectItem>
                  ))}
@@ -281,9 +276,7 @@ export const WelcomeFlow = () => {
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading} 
-                variant="liquid-blue"
-                size="xl"
-                className="w-full rounded-full py-5 h-auto text-lg font-semibold"
+                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
               >
                 {t.onboarding.next}
                 <ArrowRight className="w-5 h-5 ml-2 text-white" />
@@ -294,7 +287,7 @@ export const WelcomeFlow = () => {
         // Family hint step - integrated as step 4
          return (
            <div className="w-full space-y-5">
-             <div className="glass-frost-subtle rounded-2xl p-6 w-full shadow-glass-sm">
+             <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
               {/* Icon & Description */}
               <div className="flex items-start gap-4">
                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -308,14 +301,12 @@ export const WelcomeFlow = () => {
               </div>
             </div>
 
-            {/* Buttons */}
+            {/* Buttons - Primary is "Continue", secondary is "Add people" */}
             <div className="flex flex-col gap-3">
                <Button
                  onClick={handleFamilyLater}
                  disabled={isLoading}
-                 variant="liquid-blue"
-                 size="xl"
-                 className="w-full rounded-full py-5 h-auto text-lg font-semibold"
+                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
                >
                   {t.onboarding.familyHintLater}
                   <ArrowRight className="w-5 h-5 ml-2 text-white" />
@@ -324,7 +315,7 @@ export const WelcomeFlow = () => {
                 onClick={handleFamilyNow}
                 disabled={isLoading}
                 variant="ghost"
-                 className="w-full rounded-full py-4 h-auto text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                 className="w-full rounded-2xl py-4 h-auto text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               >
                 {t.onboarding.familyHintNow}
               </Button>
@@ -343,24 +334,9 @@ export const WelcomeFlow = () => {
     return steps[currentStep].title;
   };
 
-  return <div className="min-h-screen w-full bg-liquid-gradient flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative overflow-hidden">
-      {/* Animated background orbs */}
-      <div 
-        className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full opacity-30 blur-3xl pointer-events-none animate-float-slow"
-        style={{
-          background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)"
-        }}
-      />
-      <div 
-        className="absolute bottom-[-10%] left-[-15%] w-[50%] h-[50%] rounded-full opacity-25 blur-3xl pointer-events-none animate-float-slow"
-        style={{
-          background: "radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)",
-          animationDirection: "reverse"
-        }}
-      />
-
+  return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
       {/* Logo above card */}
-      <motion.div className="mb-8 flex items-center justify-center relative z-10" initial={{
+      <motion.div className="mb-8 flex items-center justify-center" initial={{
       opacity: 0,
       y: -10
     }} animate={{
@@ -372,8 +348,8 @@ export const WelcomeFlow = () => {
         <img alt="ditax" src="/lovable-uploads/e9306e57-1198-4333-abcf-b510c9713e63.png" className="h-10 w-auto object-contain" />
       </motion.div>
 
-      {/* Main Card Container - Glass styled */}
-      <motion.main className="w-full max-w-lg glass-frost rounded-3xl shadow-glass overflow-hidden relative z-10" initial={{
+      {/* Main Card Container */}
+      <motion.main className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5" initial={{
       opacity: 0,
       y: 20
     }} animate={{
@@ -382,9 +358,9 @@ export const WelcomeFlow = () => {
     }} transition={{
       duration: 0.4
     }}>
-        {/* Progress Bar - Glass styled */}
+        {/* Progress Bar */}
         <div className="flex gap-2 px-6 pt-6 sm:px-10 sm:pt-10">
-          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${index <= currentStep ? 'bg-[#1D64FF]' : 'bg-slate-200/50'}`} />)}
+          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 bg-[#1D64FF] rounded-full transition-opacity duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-30'}`} />)}
         </div>
 
         {/* Content */}
@@ -432,7 +408,7 @@ export const WelcomeFlow = () => {
       <AnimatePresence>
         {showTransition && (
           <motion.div 
-            className="fixed inset-0 z-[51] bg-liquid-gradient flex items-center justify-center"
+            className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
