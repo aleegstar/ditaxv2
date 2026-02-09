@@ -403,10 +403,10 @@ const DocumentChecklist: React.FC = () => {
         const progressPercent = allOptional ? totalCompleted / checklistItems.length * 100 : completedRequired / totalRequired * 100;
         const isComplete = progressPercent === 100;
         return <div className={cn(
-          "relative rounded-2xl p-5 transition-all duration-300",
+          "relative rounded-2xl p-5 transition-all duration-300 bg-white border shadow-sm",
           isComplete 
-            ? "bg-emerald-50/80 ring-1 ring-emerald-200/50" 
-            : "bg-slate-50/80 ring-1 ring-slate-200/50"
+            ? "border-emerald-200 bg-emerald-50/50" 
+            : "border-slate-200"
         )}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -447,7 +447,7 @@ const DocumentChecklist: React.FC = () => {
               </div>
               
               {/* Progress bar */}
-              <div className="relative w-full h-1.5 bg-slate-200/60 rounded-full overflow-hidden">
+              <div className="relative w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                 <div 
                   className={cn(
                     "h-full rounded-full transition-all duration-700 ease-out",
@@ -486,7 +486,7 @@ const DocumentChecklist: React.FC = () => {
                 Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.
                 {!formDataLoaded && " Bitte warte, während deine Daten geladen werden."}
               </p>
-              <Button onClick={handleForceGeneration} className="bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white" disabled={isLoading}>
+              <Button onClick={handleForceGeneration} className="bg-primary hover:bg-primary/90 text-white rounded-xl" disabled={isLoading}>
                 {isLoading ? "Wird geladen..." : "Checkliste jetzt generieren"}
               </Button>
         </div> : Object.entries(categorizedItems).map(([category, items]) => {
@@ -502,14 +502,14 @@ const DocumentChecklist: React.FC = () => {
             }));
           }}>
                   {/* Collapsed State - Ultra clean */}
-                  {!isOpen ? <CollapsibleTrigger className="group w-full bg-slate-50/80 rounded-2xl hover:bg-slate-100/80 transition-colors">
+                  {!isOpen ? <CollapsibleTrigger className="group w-full bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                       <div className="w-full py-4 px-5 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center",
+                             "w-9 h-9 rounded-xl flex items-center justify-center",
                             isComplete 
                               ? "bg-emerald-100 text-emerald-600" 
-                              : "bg-white text-slate-500 ring-1 ring-slate-200/80"
+                              : "bg-slate-100 text-slate-500"
                           )}>
                             {isComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
                           </div>
@@ -528,12 +528,12 @@ const DocumentChecklist: React.FC = () => {
                         <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" strokeWidth={1.5} />
                       </div>
                     </CollapsibleTrigger> : (/* Expanded State */
-            <div className="w-full bg-slate-50/80 rounded-2xl overflow-hidden">
+            <div className="w-full bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                       {/* Header */}
-                      <CollapsibleTrigger className="w-full px-5 py-4 flex items-center justify-between bg-slate-100/50">
+                      <CollapsibleTrigger className="w-full px-5 py-4 flex items-center justify-between border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center",
+                           <div className={cn(
+                            "w-9 h-9 rounded-xl flex items-center justify-center",
                             isComplete 
                               ? "bg-emerald-500 text-white" 
                               : "bg-primary text-white"
@@ -572,8 +572,8 @@ const DocumentChecklist: React.FC = () => {
                       className={cn(
                         "bg-white rounded-xl p-4 transition-all",
                         item.uploaded 
-                          ? "ring-1 ring-emerald-200/60" 
-                          : "ring-1 ring-slate-200/60"
+                          ? "border border-emerald-200 hover:border-emerald-300" 
+                          : "border border-slate-200 hover:border-slate-300"
                       )}
                     >
                                 {/* Document Header */}
@@ -605,7 +605,7 @@ const DocumentChecklist: React.FC = () => {
                                     </div>
                                   </div>
                                   {!item.uploaded && item.required && (
-                                    <span className="shrink-0 text-[10px] font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                                    <span className="shrink-0 text-[10px] font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
                                       {t.documentChecklist.required}
                                     </span>
                                   )}
@@ -623,9 +623,9 @@ const DocumentChecklist: React.FC = () => {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <button 
+                                     <button 
                                         onClick={() => handleViewDocuments(item.id, 0)} 
-                                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                                       >
                                         <Eye className="w-3.5 h-3.5" />
                                         {t.documentChecklist.viewDocs}
@@ -647,7 +647,7 @@ const DocumentChecklist: React.FC = () => {
                                     {/* Primary: Upload new document */}
                                     <button 
                                       onClick={() => handleUploadDocument(item.id)} 
-                                      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium h-10 px-5 rounded-xl transition-all active:scale-[0.98] text-sm"
+                                      className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium h-9 px-5 rounded-xl shadow-sm transition-all active:scale-[0.98] text-sm"
                                     >
                                       <CloudUpload className="w-4 h-4" strokeWidth={2} />
                                       {t.documentChecklist.upload}
@@ -720,17 +720,17 @@ const DocumentChecklist: React.FC = () => {
 
             <div className="flex flex-col gap-3">
               <Button
-                variant="ghost"
-                onClick={() => setShowCompletionDialog(false)}
-                className="w-full h-12 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
-              >
-                {t.documentChecklist.later}
-              </Button>
-              <Button
                 onClick={() => navigate('/payment')}
-                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)]"
+                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_20px_rgba(29,100,255,0.3)]"
               >
                 {t.documentChecklist.createNow}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowCompletionDialog(false)}
+                className="w-full h-12 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200"
+              >
+                {t.documentChecklist.later}
               </Button>
             </div>
           </div>
