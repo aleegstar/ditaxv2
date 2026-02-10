@@ -149,36 +149,48 @@ const DocumentChecklist: React.FC = () => {
   };
 
   const executeUpload = async (file: File, item: ChecklistItem) => {
+    const timeoutMs = 30000;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    
     try {
       setUploadingItems(prev => [...prev, item.id]);
       setIsConfirming(true);
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentUserId = sessionData?.session?.user?.id;
-      if (!currentUserId) {
-        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-        return;
-      }
+      const uploadPromise = (async () => {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentUserId = sessionData?.session?.user?.id;
+        if (!currentUserId) {
+          toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
+          return;
+        }
 
-      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
+        const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
 
-      const encryptedDocService = EncryptedDocumentService.getInstance();
-      await encryptedDocService.uploadEncryptedDocument(
-        file,
-        item.id,
-        currentUserId,
-        taxYear,
-        item.title,
-        activeTaxFilerId
-      );
+        const encryptedDocService = EncryptedDocumentService.getInstance();
+        await encryptedDocService.uploadEncryptedDocument(
+          file,
+          item.id,
+          currentUserId,
+          taxYear,
+          item.title,
+          activeTaxFilerId
+        );
 
-      toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
-      markUploaded(item.id, true);
-      refreshDocuments();
+        toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
+        markUploaded(item.id, true);
+        refreshDocuments();
+      })();
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Upload-Timeout: Der Upload hat zu lange gedauert.')), timeoutMs);
+      });
+
+      await Promise.race([uploadPromise, timeoutPromise]);
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
     } finally {
+      if (timeoutId) clearTimeout(timeoutId);
       setUploadingItems(prev => prev.filter(id => id !== item.id));
       setIsConfirming(false);
     }
