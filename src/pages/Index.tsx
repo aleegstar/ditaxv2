@@ -143,7 +143,7 @@ const Index = () => {
   const year = searchParams.get('year') || new Date().getFullYear().toString();
 
   // Get tax filer context for redirect logic
-  const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  const { hasMultipleFilers, selectionConfirmed, isLoading: taxFilerLoading } = useTaxFiler();
 
   // Handle auth tokens from deep link
   useEffect(() => {
@@ -197,7 +197,7 @@ const Index = () => {
   }, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed]);
 
   // Show nothing while auth is being checked or redirecting
-  if (isLoading || !authChecked) {
+  if (isLoading || !authChecked || taxFilerLoading) {
     return null;
   }
 
