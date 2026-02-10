@@ -1,37 +1,42 @@
 
+## Fixes for Payment Success Page
 
-# Verschwommener Overlay-Effekt ohne CSS Blur
+### Issue 1: Buttons use wrong design
+The buttons currently use `variant="login"` (white with no fill). They should use the primary blue `default` variant to match the main button design standard (blue gradient).
 
-## Problem
-Auf Android WebView funktioniert `backdrop-filter: blur()` nicht. Der Hintergrund braucht trotzdem einen "verschwommenen" Effekt wenn das OCR Bottom Sheet offen ist.
+**Fix:** Change both buttons in `PaymentSuccess.tsx` from `variant="login"` to `variant="default"` (or remove the variant prop entirely since `default` is the default). Same for the error state buttons.
 
-## Loesung: Halbtransparentes Overlay mit Noise-Textur
+---
 
-Statt echtem Blur verwenden wir eine Kombination aus:
-1. **Dunkles halbtransparentes Overlay** (`rgba(0,0,0,0.45)`) -- verdeckt den Hintergrund visuell
-2. **CSS Noise-Pattern** via SVG-Filter (`feTurbulence`) -- erzeugt eine subtile Koernung die den Eindruck von Unschaerfe verstaerkt
-3. **Sanfte Einblend-Animation** fuer einen fluessigen Uebergang
+### Issue 2: "Steuererklarung anzeigen" navigates to wrong route
+Currently the button navigates to `/tax-return-tracking?year=2025` (query param), but the route is defined as `/tax-return-tracking/:id` (path param). This causes a route mismatch.
 
-Das Ergebnis sieht auf allen Geraeten gleich aus, da kein `backdrop-filter` verwendet wird.
+**Fix:** The `taxReturnId` is available from the URL search params. Store it in state alongside `taxYear`, then navigate to `/tax-return-tracking/${taxReturnId}`.
 
-## Technische Umsetzung
+---
 
-### Datei: `src/components/ui/drawer.tsx`
+### Issue 3: Payment status doesn't update after payment
+The `success_url` in the edge function is:
+```
+/payment-success?session_id=...&tax_year=2025&tax_return_id=
+```
+When `taxReturnId` is null/undefined, it becomes an empty string `""`. In `PaymentSuccess.tsx`, `searchParams.get('tax_return_id')` returns `""` which is truthy in JavaScript, so the code enters the `if (taxReturnId)` branch and runs `.eq('id', '')` -- which matches nothing and silently fails (no error, but no rows updated either).
 
-Die `DrawerOverlay`-Komponente erhaelt ein neues Styling:
+**Fix:**
+- In `PaymentSuccess.tsx`: Add a check for empty string: `if (taxReturnId && taxReturnId.length > 0)`
+- In the edge function: Change `tax_return_id=${taxReturnId || ''}` to only include the param when a real ID exists
 
-- Hintergrundfarbe von `#ffffff2e` (fast unsichtbar) auf `rgba(0, 0, 0, 0.45)` aendern
-- Ein `::after` Pseudo-Element mit einem inline SVG `feTurbulence`-Filter als `background-image` hinzufuegen -- das erzeugt ein feines Rauschen ueber dem Overlay
-- Alternativ einfach nur das dunkle Overlay ohne Noise, falls die Noise-Textur zu komplex ist
+---
 
-### Datei: `src/index.css`
+### Technical Summary
 
-Eine neue CSS-Klasse `.drawer-overlay-frosted` mit:
-- `background-color: rgba(0, 0, 0, 0.4)`
-- `transition: opacity 0.3s ease`
-- Ein `::after` mit einem wiederholenden SVG-Noise-Pattern (`opacity: 0.03`) fuer den subtilen Frosted-Effekt
+**Files to modify:**
 
-### Ergebnis
-- Kein `backdrop-filter` oder `-webkit-backdrop-filter` noetig
-- Funktioniert identisch auf Android WebView und iOS
-- Visuell aehnlich wie ein Frosted-Glass-Effekt durch die Kombination aus Abdunklung + Rauschen
+1. **`src/pages/PaymentSuccess.tsx`**
+   - Change all `variant="login"` to `variant="default"` (4 buttons total across success and error states)
+   - Store `taxReturnId` in component state
+   - Fix empty string check: `if (taxReturnId && taxReturnId.trim().length > 0)`
+   - Update navigation: `navigate('/tax-return-tracking/${storedTaxReturnId}')` when ID is available, fallback to home if not
+
+2. **`supabase/functions/create-payment/index.ts`**
+   - Fix the success URL to only include `tax_return_id` param when it actually has a value
