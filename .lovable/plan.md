@@ -1,42 +1,50 @@
 
-## Fixes for Payment Success Page
 
-### Issue 1: Buttons use wrong design
-The buttons currently use `variant="login"` (white with no fill). They should use the primary blue `default` variant to match the main button design standard (blue gradient).
+## Problem: Steuerjahr-Status wird nach Zahlung nicht aktualisiert
 
-**Fix:** Change both buttons in `PaymentSuccess.tsx` from `variant="login"` to `variant="default"` (or remove the variant prop entirely since `default` is the default). Same for the error state buttons.
+Nach der Analyse gibt es **drei Ursachen**, warum der Status nicht geändert wird:
 
----
-
-### Issue 2: "Steuererklarung anzeigen" navigates to wrong route
-Currently the button navigates to `/tax-return-tracking?year=2025` (query param), but the route is defined as `/tax-return-tracking/:id` (path param). This causes a route mismatch.
-
-**Fix:** The `taxReturnId` is available from the URL search params. Store it in state alongside `taxYear`, then navigate to `/tax-return-tracking/${taxReturnId}`.
-
----
-
-### Issue 3: Payment status doesn't update after payment
-The `success_url` in the edge function is:
+### Ursache 1: Edge Function Upsert fehlerhaft
+In `create-payment/index.ts` versucht die Edge Function nach der Session-Erstellung ein Upsert:
 ```
-/payment-success?session_id=...&tax_year=2025&tax_return_id=
+onConflict: 'user_id,tax_year'
 ```
-When `taxReturnId` is null/undefined, it becomes an empty string `""`. In `PaymentSuccess.tsx`, `searchParams.get('tax_return_id')` returns `""` which is truthy in JavaScript, so the code enters the `if (taxReturnId)` branch and runs `.eq('id', '')` -- which matches nothing and silently fails (no error, but no rows updated either).
+Aber die Datenbank hat einen Unique-Constraint auf `(user_id, tax_filer_id, tax_year)`. Das Upsert schlägt deshalb fehl und der `checkout_session_id` wird nie gespeichert.
 
-**Fix:**
-- In `PaymentSuccess.tsx`: Add a check for empty string: `if (taxReturnId && taxReturnId.length > 0)`
-- In the edge function: Change `tax_return_id=${taxReturnId || ''}` to only include the param when a real ID exists
+**Fix:** Das Upsert entfernen oder den Conflict korrekt auf `user_id,tax_filer_id,tax_year` setzen. Da wir den `tax_filer_id` im Edge Function nicht haben, ist es besser, stattdessen ein einfaches `UPDATE` mit der `taxReturnId` zu machen.
+
+### Ursache 2: PaymentSuccess prüft nicht, ob Zeilen aktualisiert wurden
+Der Update-Aufruf in `PaymentSuccess.tsx` gibt keinen Fehler zurück, auch wenn 0 Zeilen betroffen sind. Die Seite zeigt "Erfolgreich", obwohl nichts passiert ist.
+
+**Fix:** `.select()` zum Update hinzufügen und prüfen, ob tatsächlich eine Zeile aktualisiert wurde.
+
+### Ursache 3: Auth-Session nach Stripe-Redirect möglicherweise nicht bereit
+Nach dem Redirect von Stripe zurück zur App kann es sein, dass die Supabase-Session noch nicht geladen ist. `getUser()` gibt dann `null` zurück und der User wird zu `/auth` weitergeleitet, bevor das Update passiert.
+
+**Fix:** Einen Retry-Mechanismus einbauen, der kurz wartet und es erneut versucht.
 
 ---
 
-### Technical Summary
+### Technische Änderungen
 
-**Files to modify:**
+**1. `supabase/functions/create-payment/index.ts`**
+- Zeile ~530: Das Upsert durch ein einfaches `UPDATE` ersetzen, das die `taxReturnId` nutzt:
+```typescript
+if (taxReturnId) {
+  await supabaseService
+    .from('tax_returns')
+    .update({
+      payment_status: 'pending',
+      checkout_session_id: session.id,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', taxReturnId);
+}
+```
 
-1. **`src/pages/PaymentSuccess.tsx`**
-   - Change all `variant="login"` to `variant="default"` (4 buttons total across success and error states)
-   - Store `taxReturnId` in component state
-   - Fix empty string check: `if (taxReturnId && taxReturnId.trim().length > 0)`
-   - Update navigation: `navigate('/tax-return-tracking/${storedTaxReturnId}')` when ID is available, fallback to home if not
+**2. `src/pages/PaymentSuccess.tsx`**
+- Update mit `.select()` erweitern, um zu prüfen ob Zeilen betroffen sind
+- Retry-Logik für Auth-Session hinzufügen (3 Versuche mit 1s Pause)
+- Fallback: Falls kein `tax_return_id` in URL und Update via `user_id + tax_year` auch 0 Zeilen liefert, trotzdem Erfolg zeigen aber Warnung loggen
+- `.eq('user_id', user.id)` zum ID-basierten Update hinzufügen (doppelte Sicherheit)
 
-2. **`supabase/functions/create-payment/index.ts`**
-   - Fix the success URL to only include `tax_return_id` param when it actually has a value
