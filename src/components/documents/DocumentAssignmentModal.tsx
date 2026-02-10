@@ -352,12 +352,6 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
         >
           {/* Header mit Zurück-Button und Titel auf einer Linie */}
           <header className="flex z-30 pt-8 px-6 pb-6 items-center gap-4 shrink-0">
-            <button 
-              onClick={onClose}
-              className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center bg-slate-50 hover:bg-slate-100 transition-all shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
-            </button>
             
             {/* Titel und Dokumentanzahl */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
