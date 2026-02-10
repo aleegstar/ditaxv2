@@ -658,24 +658,24 @@ const DocumentChecklist: React.FC = () => {
                       
                       return <div key={item.id}>
                         {idx > 0 && <div className="mx-3 border-t border-dashed border-slate-100 my-1" />}
-                        <div className="flex items-start justify-between p-4 sm:items-center hover:bg-slate-50 rounded-2xl transition-colors">
-                          <div className="flex items-start gap-3.5 sm:items-center">
-                            <div className="mt-1 sm:mt-0 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
+                        <div className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors">
+                          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                            <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
                               <Check className="w-3 h-3" strokeWidth={3} />
                             </div>
-                            <div>
-                              <span className="block text-base font-medium text-slate-400 line-through decoration-slate-300 decoration-2">
+                            <div className="min-w-0 flex-1">
+                              <span className="block text-base font-medium text-slate-400 line-through decoration-slate-300 decoration-2 truncate">
                                 {item.title}
                               </span>
                               {itemFiles.length > 0 && (
                                 <span className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                                  <FileCheck className="w-3.5 h-3.5" />
+                                  <FileCheck className="w-3.5 h-3.5 flex-shrink-0" />
                                   {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
                                 </span>
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-1 flex-shrink-0 ml-2 opacity-60 hover:opacity-100 transition-opacity">
                             <button onClick={() => handleViewDocuments(item.id, 0)} className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white hover:shadow-sm hover:text-slate-700">
                               <Eye className="w-5 h-5" />
                             </button>
