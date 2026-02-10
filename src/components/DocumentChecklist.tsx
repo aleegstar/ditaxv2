@@ -731,26 +731,39 @@ const DocumentChecklist: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* OCR Validation Drawer */}
+      {/* OCR Validation Bottom Sheet */}
       <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
-        <DrawerContent className="p-6 pt-8 max-h-[90vh] overflow-y-auto">
+        <DrawerContent variant="bottom-sheet" className="overflow-y-auto">
+          <div className="px-6 pt-4 pb-2">
+            {ocrPhase === 'validating' && (
+              <AIDocumentValidation
+                progress={validationProgress}
+                documentType={pendingUploadItem?.title || 'Dokument'}
+                documentTypeId={pendingUploadItem?.id}
+                foundKeywords={validationProgress.foundKeywords}
+              />
+            )}
+            {ocrPhase === 'result' && validationResult && pendingUploadFile && (
+              <DocumentCheckScreen
+                result={validationResult}
+                fileName={pendingUploadFile.name}
+                onConfirm={handleOcrConfirm}
+                onReupload={handleOcrReupload}
+                onClose={handleOcrClose}
+                isConfirming={isConfirming}
+              />
+            )}
+          </div>
+          {/* Footer with cancel */}
           {ocrPhase === 'validating' && (
-            <AIDocumentValidation
-              progress={validationProgress}
-              documentType={pendingUploadItem?.title || 'Dokument'}
-              documentTypeId={pendingUploadItem?.id}
-              foundKeywords={validationProgress.foundKeywords}
-            />
-          )}
-          {ocrPhase === 'result' && validationResult && pendingUploadFile && (
-            <DocumentCheckScreen
-              result={validationResult}
-              fileName={pendingUploadFile.name}
-              onConfirm={handleOcrConfirm}
-              onReupload={handleOcrReupload}
-              onClose={handleOcrClose}
-              isConfirming={isConfirming}
-            />
+            <div className="border-t border-border/50 p-4 flex justify-center">
+              <button 
+                onClick={handleOcrClose}
+                className="text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+              >
+                Abbrechen
+              </button>
+            </div>
           )}
         </DrawerContent>
       </Drawer>
