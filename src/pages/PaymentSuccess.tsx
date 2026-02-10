@@ -132,12 +132,20 @@ const PaymentSuccess = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-[40px]">
-        <div className="w-full max-w-md space-y-6 text-center">
-          <div className="flex justify-center">
-            <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-10 w-auto" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-12">
+            <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
           </div>
-          
+          <div className="space-y-6">
+            <div className="relative mx-auto w-20 h-20">
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse" />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm font-medium">Zahlung wird verarbeitet...</p>
+          </div>
         </div>
       </div>
     );
@@ -145,36 +153,33 @@ const PaymentSuccess = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-[40px]">
-        <div className="w-full max-w-md space-y-6 text-center">
-          <div className="flex justify-center mb-8">
-            <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-10 w-auto" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-12">
+            <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
           </div>
           
-          <div className="space-y-6">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertCircle className="h-8 w-8 text-red-600" />
+          <div className="space-y-8">
+            <div className="relative mx-auto w-20 h-20">
+              <div className="absolute inset-0 rounded-full bg-red-500/10 blur-xl" />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center shadow-lg shadow-red-500/10">
+                <AlertCircle className="h-10 w-10 text-red-500" />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <h1 className="font-bold leading-[1.1] tracking-tight text-black text-2xl">Zahlungsverarbeitung fehlgeschlagen</h1>
-              <p className="text-black/70 font-light text-xl">{error}</p>
+            <div className="space-y-3">
+              <h1 className="text-xl font-semibold text-[#111827] tracking-tight">Zahlungsverarbeitung fehlgeschlagen</h1>
+              <p className="text-sm text-[#6B7280] break-words max-w-xs mx-auto">{error}</p>
             </div>
             
-            <Button 
-              onClick={() => navigate('/payment')}
-              className="w-full"
-            >
-              Erneut versuchen
-            </Button>
-            
-            <Button 
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="w-full"
-            >
-              Zurück zur Startseite
-            </Button>
+            <div className="space-y-3">
+              <Button onClick={() => navigate('/payment')} className="w-full h-12 rounded-xl">
+                Erneut versuchen
+              </Button>
+              <Button onClick={() => navigate('/')} variant="outline" className="w-full h-12 rounded-xl">
+                Zurück zur Startseite
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -182,54 +187,66 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-[40px] relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative">
       <Confetti
         ref={confettiRef}
         className="absolute left-0 top-0 z-0 size-full pointer-events-none"
         manualstart
       />
       
-      <div className="w-full max-w-md space-y-6 text-center relative z-10">
-        <div className="flex justify-center mb-8">
-          <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-10 w-auto" />
+      <div className="w-full max-w-sm text-center relative z-10">
+        <div className="mb-12">
+          <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
         </div>
         
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="font-bold leading-[1.1] tracking-tight text-black text-2xl">Zahlung erfolgreich!</h1>
-              <p className="text-black/70 font-light text-xl">
-                Vielen Dank für deine Zahlung. Deine Steuererklärung für {taxYear} wurde erfolgreich bezahlt.
-              </p>
+        <div className="space-y-8">
+          {/* Success icon with gradient glow */}
+          <div className="relative mx-auto w-24 h-24">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400/30 to-green-500/20 blur-2xl animate-pulse" />
+            <div className="absolute inset-2 rounded-full bg-emerald-500/10 blur-xl" />
+            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 animate-in zoom-in-50 duration-500">
+              <CheckCircle className="w-12 h-12 text-white stroke-[2.5]" />
             </div>
           </div>
-
-          <div className="pt-4 pb-4 px-6 bg-blue-50 rounded-2xl border border-blue-100">
-            <p className="text-sm text-blue-900">
-              <span className="font-semibold">Status:</span> In Bearbeitung
+          
+          {/* Title & description */}
+          <div className="space-y-3">
+            <h1 className="text-2xl font-semibold text-[#111827] tracking-tight">
+              Zahlung erfolgreich!
+            </h1>
+            <p className="text-sm text-[#6B7280] leading-relaxed">
+              Vielen Dank für deine Zahlung. Deine Steuererklärung für {taxYear} wurde erfolgreich bezahlt.
             </p>
-            <p className="text-xs text-blue-700 mt-2">
+          </div>
+
+          {/* Status card */}
+          <div className="bg-white/75 backdrop-blur-lg rounded-2xl border border-slate-200/60 p-5 shadow-sm">
+            <div className="flex items-center justify-center gap-2 mb-1.5">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <p className="text-sm font-semibold text-[#111827]">In Bearbeitung</p>
+            </div>
+            <p className="text-xs text-[#6B7280]">
               Du erhältst in Kürze eine Bestätigung per E-Mail.
             </p>
           </div>
           
-          <Button 
-            onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
-            className="w-full"
-          >
-            Steuererklärung anzeigen
-          </Button>
-          
-          <Button 
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="w-full"
-          >
-            Zurück zur Übersicht
-          </Button>
+          {/* Actions */}
+          <div className="space-y-3 pt-2">
+            <Button 
+              onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
+              className="w-full h-12 rounded-xl"
+            >
+              Steuererklärung anzeigen
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="w-full h-12 rounded-xl"
+            >
+              Zurück zur Übersicht
+            </Button>
+          </div>
         </div>
       </div>
     </div>
