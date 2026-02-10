@@ -211,7 +211,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     return <div className="min-h-screen bg-white" />;
   }
 
-  const finalPrice = isUpgrade ? priceBreakdown.totalPrice : expressService ? priceBreakdown.totalPrice + 10000 : priceBreakdown.totalPrice;
+  const finalPrice = priceBreakdown.totalPrice;
   const priceAfterDiscount = Math.max(0, finalPrice - promoDiscount);
 
   return (
