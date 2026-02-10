@@ -74,6 +74,7 @@ import { FeedbackPrompt } from "@/components/feedback/FeedbackPrompt";
 import { setStatusBarDark } from "@/utils/despiaStatusBar";
 import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import TaxFilerGate from "@/components/guards/TaxFilerGate";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -233,6 +234,7 @@ const AuthenticatedApp = () => {
             <SidebarProvider>
             <div className="min-h-screen w-full bg-background flex flex-col">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
+              <TaxFilerGate>
               <Routes>
                 <Route path="/" element={<UserTaxReturns />} />
                 <Route path="/select-person" element={<SelectPerson />} />
@@ -308,6 +310,7 @@ const AuthenticatedApp = () => {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </TaxFilerGate>
             </Suspense>
               
               {/* Floating Debug Button for Android */}
