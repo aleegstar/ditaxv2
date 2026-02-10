@@ -69,30 +69,34 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
 
   return (
     <div className={cn("px-6 py-4 relative", className)}>
-      {/* Vertical Connecting Line */}
-      <div className="absolute left-[39px] top-6 bottom-12 w-[2px] bg-zinc-800/50" />
-
       <div className="space-y-8 relative z-10">
-        {steps.map((step) => (
-          <div key={step.id} className="flex gap-4 group">
-            <div className="flex-shrink-0 relative">
+        {steps.map((step, index) => (
+          <div key={step.id} className="flex gap-4 group relative">
+            {/* Connector line to next step's circle center */}
+            {index < steps.length - 1 && (
+              <div
+                className="absolute left-[15px] top-4 w-[2px] bg-blue-500/25 z-0"
+                style={{ height: 'calc(100% + 2rem)' }}
+              />
+            )}
+
+            <div className="flex-shrink-0 relative z-10">
               {step.status === 'completed' ? (
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-[0_0_15px_-3px_rgba(37,99,235,0.4)] border border-blue-500 transition-transform group-hover:scale-105">
                   <Check className="w-4 h-4 text-white" strokeWidth={3} />
                 </div>
               ) : step.status === 'in_progress' ? (
                 <div className="relative">
-                  {/* Pulsing Ring Effect */}
                   <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
                   <div 
-                    className="w-8 h-8 rounded-full bg-[#020408] border-[2.5px] border-blue-500 flex items-center justify-center shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] z-10"
+                    className="w-8 h-8 rounded-full bg-white border-[2.5px] border-blue-500 flex items-center justify-center shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] z-10"
                   >
                     <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                   </div>
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-full bg-zinc-800/50 border border-zinc-700 flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 bg-zinc-600 rounded-full" />
+                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 bg-slate-300 rounded-full" />
                 </div>
               )}
             </div>
@@ -103,8 +107,8 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
                   className={cn(
                     "text-sm font-semibold leading-none",
                     step.status === 'completed' || step.status === 'in_progress'
-                      ? "text-white"
-                      : "text-zinc-500"
+                      ? "text-slate-800"
+                      : "text-slate-400"
                   )}
                 >
                   {step.title}
@@ -120,10 +124,10 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
                   className={cn(
                     "text-xs leading-relaxed max-w-[280px]",
                     step.status === 'in_progress'
-                      ? "text-zinc-400"
+                      ? "text-slate-500"
                       : step.status === 'completed'
-                      ? "text-zinc-500"
-                      : "text-zinc-600"
+                      ? "text-slate-400"
+                      : "text-slate-300"
                   )}
                 >
                   {step.description}
