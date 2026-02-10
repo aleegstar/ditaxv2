@@ -185,8 +185,25 @@ const DocumentChecklist: React.FC = () => {
   };
 
   const handleOcrConfirm = async () => {
+    console.log('[handleOcrConfirm] called', { 
+      hasPendingFile: !!pendingUploadFile, 
+      hasPendingItem: !!pendingUploadItem,
+      isConfirming 
+    });
     if (pendingUploadFile && pendingUploadItem) {
-      await executeUpload(pendingUploadFile, pendingUploadItem);
+      try {
+        await executeUpload(pendingUploadFile, pendingUploadItem);
+      } catch (error) {
+        console.error('[handleOcrConfirm] executeUpload failed:', error);
+      } finally {
+        setOcrDrawerOpen(false);
+        setPendingUploadFile(null);
+        setPendingUploadItem(null);
+        setValidationResult(null);
+        setOcrPhase('validating');
+      }
+    } else {
+      console.warn('[handleOcrConfirm] Missing pending data, closing drawer');
       setOcrDrawerOpen(false);
       setPendingUploadFile(null);
       setPendingUploadItem(null);
