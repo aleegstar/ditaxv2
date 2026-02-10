@@ -17,6 +17,16 @@ const PaymentSuccess = () => {
   const confettiRef = useRef<ConfettiRef>(null);
 
   useEffect(() => {
+    const waitForAuth = async (maxRetries = 3): Promise<any> => {
+      for (let i = 0; i < maxRetries; i++) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) return user;
+        console.log(`Auth retry ${i + 1}/${maxRetries}, waiting 1s...`);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      return null;
+    };
+
     const updatePaymentStatus = async () => {
       try {
         const sessionId = searchParams.get('session_id');
@@ -31,39 +41,59 @@ const PaymentSuccess = () => {
           throw new Error("Steuerjahr nicht gefunden");
         }
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await waitForAuth();
         
         if (!user) {
           navigate('/auth');
           return;
         }
 
+        const updatePayload = {
+          payment_status: 'paid',
+          payment_date: new Date().toISOString(),
+          status: 'processing',
+          workflow_step: 'in_creation'
+        };
+
         // Update the specific tax return by ID if available
         if (taxReturnId && taxReturnId.trim().length > 0) {
           setStoredTaxReturnId(taxReturnId);
-          const { error: updateError } = await supabase
+          const { data: updateData, error: updateError } = await supabase
             .from('tax_returns')
-            .update({
-              payment_status: 'paid',
-              payment_date: new Date().toISOString(),
-              status: 'processing',
-              workflow_step: 'in_creation'
-            })
-            .eq('id', taxReturnId);
+            .update(updatePayload)
+            .eq('id', taxReturnId)
+            .eq('user_id', user.id)
+            .select('id');
 
           if (updateError) {
             throw new Error(`Fehler beim Aktualisieren: ${updateError.message}`);
+          }
+
+          if (!updateData || updateData.length === 0) {
+            console.warn('Update by taxReturnId matched 0 rows, trying fallback by user_id + tax_year');
+            // Fallback to user_id + tax_year
+            const { data: fallbackData, error: fallbackError } = await supabase
+              .from('tax_returns')
+              .update(updatePayload)
+              .eq('user_id', user.id)
+              .eq('tax_year', year)
+              .select('id');
+
+            if (fallbackError) {
+              throw new Error(`Fehler beim Aktualisieren: ${fallbackError.message}`);
+            }
+
+            if (fallbackData && fallbackData.length > 0) {
+              setStoredTaxReturnId(fallbackData[0].id);
+            } else {
+              console.warn('Fallback update also matched 0 rows');
+            }
           }
         } else {
           // Fallback: Update by user_id + tax_year
           const { data: updateData, error: updateError } = await supabase
             .from('tax_returns')
-            .update({
-              payment_status: 'paid',
-              payment_date: new Date().toISOString(),
-              status: 'processing',
-              workflow_step: 'in_creation'
-            })
+            .update(updatePayload)
             .eq('user_id', user.id)
             .eq('tax_year', year)
             .select('id');
@@ -72,22 +102,10 @@ const PaymentSuccess = () => {
             throw new Error(`Fehler beim Aktualisieren: ${updateError.message}`);
           }
 
-          // Create if doesn't exist
-          if (!updateData || updateData.length === 0) {
-            const { error: insertError } = await supabase
-              .from('tax_returns')
-              .insert({
-                user_id: user.id,
-                tax_year: year,
-                payment_status: 'paid',
-                payment_date: new Date().toISOString(),
-                status: 'processing',
-                workflow_step: 'in_creation'
-              });
-            
-            if (insertError) {
-              throw new Error(`Fehler beim Erstellen: ${insertError.message}`);
-            }
+          if (updateData && updateData.length > 0) {
+            setStoredTaxReturnId(updateData[0].id);
+          } else {
+            console.warn('No tax return found to update for user_id + tax_year');
           }
         }
         

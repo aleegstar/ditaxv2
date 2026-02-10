@@ -525,21 +525,27 @@ serve(async (req) => {
           requestId 
         });
 
-        // Update tax return record with session ID
+        // Update tax return record with session ID using direct UPDATE
         try {
-          await supabaseService
-            .from('tax_returns')
-            .upsert({
-              user_id: user.id,
-              tax_year: taxYear,
-              payment_status: 'pending',
-              express_service: expressService,
-              checkout_session_id: session.id,
-              updated_at: new Date().toISOString()
-            }, {
-              onConflict: 'user_id,tax_year'
-            });
-          logStep("Tax return record updated with session ID", { sessionId: session.id, requestId });
+          if (taxReturnId) {
+            const { error: updateError } = await supabaseService
+              .from('tax_returns')
+              .update({
+                payment_status: 'pending',
+                express_service: expressService,
+                checkout_session_id: session.id,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', taxReturnId);
+            
+            if (updateError) {
+              logStep("Tax return update by ID failed", { error: updateError.message, taxReturnId, requestId });
+            } else {
+              logStep("Tax return record updated with session ID", { sessionId: session.id, taxReturnId, requestId });
+            }
+          } else {
+            logStep("No taxReturnId provided, skipping DB update", { requestId });
+          }
         } catch (dbError) {
           logStep("Database update failed", { error: dbError instanceof Error ? dbError.message : 'Unknown error', requestId });
           // Continue anyway
