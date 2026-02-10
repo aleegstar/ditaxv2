@@ -13,6 +13,7 @@ const PaymentSuccess = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [taxYear, setTaxYear] = useState<number | null>(null);
+  const [storedTaxReturnId, setStoredTaxReturnId] = useState<string | null>(null);
   const confettiRef = useRef<ConfettiRef>(null);
 
   useEffect(() => {
@@ -38,7 +39,8 @@ const PaymentSuccess = () => {
         }
 
         // Update the specific tax return by ID if available
-        if (taxReturnId) {
+        if (taxReturnId && taxReturnId.trim().length > 0) {
+          setStoredTaxReturnId(taxReturnId);
           const { error: updateError } = await supabase
             .from('tax_returns')
             .update({
@@ -143,7 +145,6 @@ const PaymentSuccess = () => {
             
             <Button 
               onClick={() => navigate('/payment')}
-              variant="login"
               className="w-full"
             >
               Erneut versuchen
@@ -151,7 +152,7 @@ const PaymentSuccess = () => {
             
             <Button 
               onClick={() => navigate('/')}
-              variant="login"
+              variant="outline"
               className="w-full"
             >
               Zurück zur Startseite
@@ -198,8 +199,7 @@ const PaymentSuccess = () => {
           </div>
           
           <Button 
-            onClick={() => navigate(`/tax-return-tracking?year=${taxYear}`)}
-            variant="login"
+            onClick={() => storedTaxReturnId ? navigate(`/tax-return-tracking/${storedTaxReturnId}`) : navigate('/')}
             className="w-full"
           >
             Steuererklärung anzeigen
@@ -207,7 +207,7 @@ const PaymentSuccess = () => {
           
           <Button 
             onClick={() => navigate('/')}
-            variant="login"
+            variant="outline"
             className="w-full"
           >
             Zurück zur Übersicht
