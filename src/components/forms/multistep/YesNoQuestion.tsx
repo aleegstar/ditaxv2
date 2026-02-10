@@ -69,15 +69,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 bg-white border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === true
-              ? "border-emerald-600 ring-1 ring-emerald-600 bg-emerald-50/30"
-              : "border-emerald-100 hover:shadow-md hover:border-emerald-400"
+              ? "border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50/30"
+              : "border-slate-200 hover:shadow-md hover:border-slate-300"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === true
-              ? "bg-emerald-600 border-emerald-600 text-white"
-              : "border-emerald-100 bg-emerald-50 text-emerald-600 group-hover:border-emerald-200 group-hover:text-emerald-700"
+              ? "bg-emerald-500 border-emerald-500 text-white"
+              : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
           )}>
             <Check className="w-5 h-5" />
           </div>
@@ -98,15 +98,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 bg-white border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-red-600 ring-1 ring-red-600 bg-red-50/30"
-              : "border-red-100 hover:shadow-md hover:border-red-400"
+              ? "border-red-500 ring-1 ring-red-500 bg-red-50/30"
+              : "border-slate-200 hover:shadow-md hover:border-slate-300"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === false
-              ? "bg-red-600 border-red-600 text-white"
-              : "border-red-100 bg-red-50 text-red-600 group-hover:border-red-200 group-hover:text-red-700"
+              ? "bg-red-500 border-red-500 text-white"
+              : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500"
           )}>
             <X className="w-5 h-5" />
           </div>
