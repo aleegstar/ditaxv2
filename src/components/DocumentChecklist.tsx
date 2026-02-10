@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X, Loader2 } from 'lucide-react';
+import EncryptedDocumentService from '@/services/EncryptedDocumentService';
+import { validateFile } from '@/utils/fileValidation';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -79,14 +81,62 @@ const DocumentChecklist: React.FC = () => {
   }>({ open: false, item: null });
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [uploadingItems, setUploadingItems] = useState<string[]>([]);
   const hasShownCompletionDialog = useRef(false);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleNext = () => { navigate('/payment'); };
   const handleBack = () => { navigate('/form?section=deductions'); };
   const handleUploadDocument = (itemId: string) => {
-    navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
+    const input = fileInputRefs.current[itemId];
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  };
+
+  const handleQuickUpload = async (file: File, item: ChecklistItem) => {
+    try {
+      // Validate file
+      const validation = await validateFile(file);
+      if (!validation.isValid) {
+        toast({ title: 'Ungültige Datei', description: validation.error, variant: 'destructive' });
+        return;
+      }
+
+      setUploadingItems(prev => [...prev, item.id]);
+      toast({ title: 'Upload gestartet', description: `${file.name} wird hochgeladen…` });
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentUserId = sessionData?.session?.user?.id;
+      if (!currentUserId) {
+        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
+        return;
+      }
+
+      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
+
+      const encryptedDocService = EncryptedDocumentService.getInstance();
+      await encryptedDocService.uploadEncryptedDocument(
+        file,
+        item.id,
+        currentUserId,
+        taxYear,
+        item.title,
+        activeTaxFilerId
+      );
+
+      toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
+      markUploaded(item.id, true);
+      refreshDocuments();
+    } catch (error: any) {
+      console.error('Quick upload error:', error);
+      toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
+    } finally {
+      setUploadingItems(prev => prev.filter(id => id !== item.id));
+    }
   };
 
   useEffect(() => {
@@ -494,7 +544,18 @@ const DocumentChecklist: React.FC = () => {
                       const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                       
                       if (!item.uploaded) {
+                        const isUploading = uploadingItems.includes(item.id);
                         return <div key={item.id}>
+                          <input
+                            type="file"
+                            ref={el => { fileInputRefs.current[item.id] = el; }}
+                            className="hidden"
+                            accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleQuickUpload(file, item);
+                            }}
+                          />
                           {idx > 0 && <div className="mx-3 border-t border-dashed border-slate-100 my-1" />}
                           <div className="flex flex-col gap-4 rounded-2xl bg-slate-50/80 p-5 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3.5">
@@ -513,10 +574,11 @@ const DocumentChecklist: React.FC = () => {
                               )}
                               <button 
                                 onClick={(e) => { e.stopPropagation(); handleUploadDocument(item.id); }}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95"
+                                disabled={isUploading}
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                               >
-                                <Plus className="w-4 h-4" />
-                                Hochladen
+                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                {isUploading ? 'Lädt…' : 'Hochladen'}
                               </button>
                             </div>
                           </div>
