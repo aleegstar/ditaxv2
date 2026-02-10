@@ -1,50 +1,34 @@
 
 
-## Problem: Steuerjahr-Status wird nach Zahlung nicht aktualisiert
+## Problem: Steuerjahr wird nicht an die Zahlungsseite übergeben
 
-Nach der Analyse gibt es **drei Ursachen**, warum der Status nicht geändert wird:
+### Ursache
 
-### Ursache 1: Edge Function Upsert fehlerhaft
-In `create-payment/index.ts` versucht die Edge Function nach der Session-Erstellung ein Upsert:
-```
-onConflict: 'user_id,tax_year'
-```
-Aber die Datenbank hat einen Unique-Constraint auf `(user_id, tax_filer_id, tax_year)`. Das Upsert schlägt deshalb fehl und der `checkout_session_id` wird nie gespeichert.
+Alle Navigationen zur `/payment`-Seite übergeben den `year`-Parameter **nicht** in der URL. Die Payment-Seite hat als Fallback `(new Date().getFullYear() - 1)` = **2025**. Wenn du also für 2029 bezahlst, wird trotzdem 2025 verwendet.
 
-**Fix:** Das Upsert entfernen oder den Conflict korrekt auf `user_id,tax_filer_id,tax_year` setzen. Da wir den `tax_filer_id` im Edge Function nicht haben, ist es besser, stattdessen ein einfaches `UPDATE` mit der `taxReturnId` zu machen.
+Betroffene Stellen:
 
-### Ursache 2: PaymentSuccess prüft nicht, ob Zeilen aktualisiert wurden
-Der Update-Aufruf in `PaymentSuccess.tsx` gibt keinen Fehler zurück, auch wenn 0 Zeilen betroffen sind. Die Seite zeigt "Erfolgreich", obwohl nichts passiert ist.
+| Datei | Zeile | Aktuell | Problem |
+|-------|-------|---------|---------|
+| `DocumentChecklist.tsx` | 102 | `navigate('/payment')` | Kein year |
+| `DocumentChecklist.tsx` | 721 | `navigate('/payment')` | Kein year |
+| `TaxYearDashboard.tsx` | 183 | `navigate('/payment')` | Kein year |
+| `OrderHeader.tsx` | 37 | `navigate('/payment')` | Kein year |
 
-**Fix:** `.select()` zum Update hinzufügen und prüfen, ob tatsächlich eine Zeile aktualisiert wurde.
+Alle diese Komponenten haben `taxYear` bereits verfügbar.
 
-### Ursache 3: Auth-Session nach Stripe-Redirect möglicherweise nicht bereit
-Nach dem Redirect von Stripe zurück zur App kann es sein, dass die Supabase-Session noch nicht geladen ist. `getUser()` gibt dann `null` zurück und der User wird zu `/auth` weitergeleitet, bevor das Update passiert.
+### Lösung
 
-**Fix:** Einen Retry-Mechanismus einbauen, der kurz wartet und es erneut versucht.
+Jede Navigation zur Payment-Seite mit `?year=${taxYear}` ergänzen:
 
----
+**1. `src/components/DocumentChecklist.tsx`**
+- Zeile 102: `navigate('/payment')` -> `navigate(`/payment?year=${taxYear}`)`
+- Zeile 721: `navigate('/payment')` -> `navigate(`/payment?year=${taxYear}`)`
 
-### Technische Änderungen
+**2. `src/components/TaxYearDashboard.tsx`**
+- Zeile 183: `navigate('/payment')` -> `navigate(`/payment?year=${taxYear}`)`
 
-**1. `supabase/functions/create-payment/index.ts`**
-- Zeile ~530: Das Upsert durch ein einfaches `UPDATE` ersetzen, das die `taxReturnId` nutzt:
-```typescript
-if (taxReturnId) {
-  await supabaseService
-    .from('tax_returns')
-    .update({
-      payment_status: 'pending',
-      checkout_session_id: session.id,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', taxReturnId);
-}
-```
+**3. `src/components/tax-tracking/OrderHeader.tsx`**
+- Zeile 37: `navigate('/payment')` -> mit dem korrekten `taxYear` aus Props oder Context ergänzen
 
-**2. `src/pages/PaymentSuccess.tsx`**
-- Update mit `.select()` erweitern, um zu prüfen ob Zeilen betroffen sind
-- Retry-Logik für Auth-Session hinzufügen (3 Versuche mit 1s Pause)
-- Fallback: Falls kein `tax_return_id` in URL und Update via `user_id + tax_year` auch 0 Zeilen liefert, trotzdem Erfolg zeigen aber Warnung loggen
-- `.eq('user_id', user.id)` zum ID-basierten Update hinzufügen (doppelte Sicherheit)
-
+Damit wird das korrekte Steuerjahr durch den gesamten Zahlungsfluss weitergegeben: Navigation -> Payment-Seite -> Edge Function -> Success-URL.
