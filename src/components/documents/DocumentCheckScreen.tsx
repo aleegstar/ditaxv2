@@ -94,11 +94,8 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
     ease: 'easeOut'
   }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="text-center">
         <span className="text-lg font-semibold text-foreground">Dokumentenprüfung</span>
-        {onClose && <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 rounded-full bg-muted/50 hover:bg-muted" aria-label="Schliessen">
-            <X className="h-4 w-4" />
-          </Button>}
       </div>
 
       {/* Ditax Logo Header */}
