@@ -1,62 +1,62 @@
 
+# OCR-Validierung als Bottom Sheet in der Dokumentencheckliste
 
-# Weniger Klicks beim Dokument-Upload
+## Uebersicht
+Nach dem Datei-Upload in der Checkliste wird die OCR-Validierung in einem Bottom Sheet (Drawer) angezeigt, statt nur Toast-Benachrichtigungen zu verwenden. Der User sieht die "AI prueft"-Animation und danach das Validierungsergebnis (DocumentCheckScreen) -- alles innerhalb des Drawers.
 
-## Problem
-Aktuell muss der User auf "Hochladen" klicken, wird auf eine separate Upload-Seite navigiert, dort eine Datei auswaehlen und dann nochmals "Hochladen" klicken. Das sind mindestens 3-4 Klicks.
-
-## Loesung: Direkter Upload aus der Checkliste (2 Klicks)
-
-Der "Hochladen"-Button oeffnet direkt den nativen Datei-Picker. Nach Auswahl wird die Datei sofort im Hintergrund hochgeladen. Status-Updates kommen als Toast-Benachrichtigungen.
-
-## Ablauf vorher vs. nachher
+## Ablauf
 
 ```text
-VORHER:                          NACHHER:
-1. "Hochladen" klicken           1. "Hochladen" klicken
-2. Upload-Seite laedt            2. Datei auswaehlen
-3. Datei auswaehlen              -> Upload startet automatisch
-4. "Hochladen" klicken           -> Toast zeigt Erfolg/Fehler
-5. Warten auf Upload
-6. Zurueck zur Checkliste
+1. User klickt "Hochladen" -> Datei-Picker oeffnet sich
+2. User waehlt Datei -> Bottom Sheet faehrt hoch
+3. Phase 1: AIDocumentValidation-Animation (Sphere + rotierende Status-Texte)
+4. Phase 2: DocumentCheckScreen (Ergebnis mit Confirm/Reupload Buttons)
+5. Bei "Einreichen" -> Upload im Hintergrund, Sheet schliesst sich
+6. Bei "Anderes Dokument" -> Sheet schliesst sich, Datei verworfen
 ```
 
 ## Technische Umsetzung
 
 ### Datei: `src/components/DocumentChecklist.tsx`
 
-1. **Hidden File Inputs hinzufuegen**: Pro Checklist-Item ein verstecktes `<input type="file">` Element mit den korrekten Akzeptanz-Attributen (image/jpeg, image/png, application/pdf, etc.)
+**Neue Imports:**
+- `DocumentValidator` aus `@/services/DocumentValidator`
+- `AIDocumentValidation` aus `@/components/ui/ai-document-validation`
+- `DocumentCheckScreen` aus `@/components/documents/DocumentCheckScreen`
+- `Drawer, DrawerContent` aus `@/components/ui/drawer`
+- `ValidationResult, ValidationProgress` aus `@/types/documentProfile`
 
-2. **`handleUploadDocument` aendern**: Statt `navigate()` aufzurufen, wird der versteckte File-Input getriggert (`fileInputRef.current?.click()`)
+**Neue State-Variablen:**
+- `ocrDrawerOpen: boolean` -- steuert das Bottom Sheet
+- `ocrPhase: 'validating' | 'result'` -- welche Phase im Drawer
+- `validationResult: ValidationResult | null` -- OCR-Ergebnis
+- `validationProgress: ValidationProgress | null` -- Fortschritt waehrend OCR
+- `pendingUploadFile: File | null` -- die ausgewaehlte Datei
+- `pendingUploadItem: ChecklistItem | null` -- das zugehoerige Item
 
-3. **Neue `handleQuickUpload` Funktion**: 
-   - Nimmt die ausgewaehlte Datei entgegen
-   - Validiert via `validateFile()` aus `@/utils/fileValidation`
-   - Laedt ueber `EncryptedDocumentService.uploadEncryptedDocument()` hoch mit allen korrekten Parametern:
-     - `checklistItemId` (aus dem jeweiligen Item)
-     - `userId` (aus Auth Session)
-     - `taxYear` (aus FormContext)
-     - `checklistItemTitle` (fuer Dateinamen-Prefix)
-     - `activeTaxFilerId` (aus TaxFilerContext)
-   - Zeigt Erfolg/Fehler als Toast
-   - Aktualisiert die Dokumentenliste via `refreshDocuments()`
+**Aenderung an `handleQuickUpload`:**
+1. Datei wird validiert (Typ/Groesse) wie bisher
+2. Statt sofortigem Upload wird das Bottom Sheet geoeffnet (`ocrDrawerOpen = true`)
+3. `DocumentValidator.validate()` wird aufgerufen mit Progress-Callback
+4. Waehrend der Validierung: Phase `'validating'` zeigt `AIDocumentValidation`
+5. Nach Abschluss: Phase wechselt zu `'result'` und zeigt `DocumentCheckScreen`
+6. Bei hoher Konfidenz (>= 80, kein `needsUserConfirmation`): Upload startet automatisch, Drawer schliesst sich
 
-4. **Upload-Status pro Item**: Ein State `uploadingItems` trackt welche Items gerade hochladen, um einen Spinner im Button anzuzeigen
+**Drawer-Inhalt (im JSX):**
+- Phase `validating`: `AIDocumentValidation` mit `progress`, `documentType` und `documentTypeId`
+- Phase `result`: `DocumentCheckScreen` mit `result`, `fileName`, `onConfirm`, `onReupload`
 
-5. **Wichtige Parameter-Uebergaben** (damit Upload weiterhin korrekt funktioniert):
-   - `activeTaxFilerId` wird aus `useTaxFiler()` geholt
-   - `taxYear` kommt aus `useFormContext()`
-   - `userId` wird aus `supabase.auth.getSession()` gelesen
-   - `checklistItemId` und `checklistItemTitle` kommen direkt vom jeweiligen ChecklistItem
+**Callbacks im Drawer:**
+- `onConfirm`: Upload ausfuehren (bestehende Upload-Logik), Drawer schliessen, Toast zeigen
+- `onReupload`: Drawer schliessen, Datei verwerfen, File-Input erneut triggern
+- `onClose`: Drawer schliessen, Datei verwerfen
 
-### Imports hinzufuegen
-- `EncryptedDocumentService` aus `@/services/EncryptedDocumentService`
-- `validateFile` aus `@/utils/fileValidation`
-- `useTaxFiler` aus `@/contexts/TaxFilerContext`
-- `Loader2` Icon (bereits importiert)
+### Datei: `src/components/ui/drawer.tsx`
 
-### Bestehende Funktionalitaet bleibt erhalten
-- Die separate Upload-Seite (`DocumentUploadPage`) bleibt bestehen fuer Faelle mit Dokumenten-Validierung/OCR
-- Die `UploadActionSheet` (Foto/Scan/Datei) wird nicht beruehrt
-- Alle bestehenden RLS-Policies und Verschluesselung bleiben aktiv
+Keine Aenderung noetig -- der bestehende Drawer wird als Fullscreen-Overlay verwendet, was fuer das Bottom-Sheet-Erlebnis auf Mobile gut funktioniert.
 
+### Bestehende Logik bleibt erhalten
+- Alle Upload-Parameter (userId, taxYear, activeTaxFilerId, checklistItemId) bleiben identisch
+- `EncryptedDocumentService.uploadEncryptedDocument()` wird weiterhin verwendet
+- `markUploaded()` und `refreshDocuments()` werden nach erfolgreichem Upload aufgerufen
+- Fehlerbehandlung mit Toast-Benachrichtigungen bleibt bestehen
