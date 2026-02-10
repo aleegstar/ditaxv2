@@ -111,7 +111,11 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
-    setIsLoading(true);
+    // Only show full-screen loading on initial load (no filers yet)
+    // On subsequent refreshes (e.g., token refresh on mobile resume), don't block UI
+    if (taxFilers.length === 0) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -149,7 +153,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } finally {
       setIsLoading(false);
     }
-  }, [session, activeTaxFilerId]);
+  }, [session, activeTaxFilerId, taxFilers.length]);
 
   // Load tax filers when session becomes available
   useEffect(() => {
