@@ -15,9 +15,10 @@ const UnifiedAlertDialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-[101] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
+    style={{ backgroundColor: '#ffffff2e' }}
     {...props}
     ref={ref}
   />
@@ -40,10 +41,9 @@ const UnifiedAlertDialogContent = React.forwardRef<
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
-          "w-[90vw] max-w-md bg-white rounded-3xl",
+          "fixed left-[50%] top-[50%] z-[101] translate-x-[-50%] translate-y-[-50%]",
+          "w-[90vw] max-w-md rounded-3xl border border-white/20",
           "p-6 pt-10",
-          "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -51,6 +51,11 @@ const UnifiedAlertDialogContent = React.forwardRef<
           "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
           className
         )}
+        style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          boxShadow: 'inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}
         {...props}
       >
         {showCloseButton && (
@@ -168,7 +173,7 @@ const UnifiedAlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      "w-full py-3 rounded-full font-medium transition-colors",
+      "w-full py-3.5 rounded-xl font-medium transition-colors",
       "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
       actionVariantStyles[variant],
       className
@@ -185,9 +190,9 @@ const UnifiedAlertDialogCancel = React.forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      "w-full py-4 rounded-full font-medium transition-colors",
-      "bg-white text-slate-700 border border-slate-200",
-      "hover:bg-slate-50",
+      "w-full py-3.5 rounded-xl font-medium transition-colors",
+      "bg-slate-50 text-slate-700 border border-slate-200",
+      "hover:bg-slate-100",
       "focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2",
       className
     )}
