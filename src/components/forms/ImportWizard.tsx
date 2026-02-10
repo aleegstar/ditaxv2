@@ -174,7 +174,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       {/* Changes dialog */}
       <UnifiedAlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <UnifiedAlertDialogContent showCloseButton onClose={() => setShowChangesDialog(false)}>
+        <UnifiedAlertDialogContent showCloseButton onClose={() => setShowChangesDialog(false)} className="p-6">
           <UnifiedAlertDialogHeader>
             <UnifiedAlertDialogTitle>
               Gibt es Änderungen?
