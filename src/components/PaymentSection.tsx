@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck, Gift } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { Capacitor } from '@capacitor/core';
@@ -39,6 +39,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [expressService, setExpressService] = useState(isUpgrade);
   const [user, setUser] = useState<any>(null);
   const { promoCodes, getActivePromoCode } = usePromoCodes();
+  const [manualPromoCode, setManualPromoCode] = useState('');
+  const [manualPromoValidating, setManualPromoValidating] = useState(false);
+  const [manualPromoResult, setManualPromoResult] = useState<{
+    valid: boolean;
+    promoCodeId: string;
+    percentOff?: number;
+    amountOff?: number;
+    name?: string;
+  } | null>(null);
+  const [manualPromoError, setManualPromoError] = useState<string | null>(null);
   
   const activePromo = getActivePromoCode();
   const promoDiscount = activePromo ? activePromo.amount : 0;
@@ -107,6 +117,35 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     fetchUser();
   }, []);
 
+  const handleValidatePromoCode = async () => {
+    if (!manualPromoCode.trim()) return;
+    setManualPromoValidating(true);
+    setManualPromoError(null);
+    setManualPromoResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-promo-code', {
+        body: { code: manualPromoCode.trim() }
+      });
+      if (error) throw error;
+      if (data.valid) {
+        setManualPromoResult(data);
+        toast.success('Aktionscode angewendet!');
+      } else {
+        setManualPromoError(data.error || 'Ungültiger Code');
+      }
+    } catch (err: any) {
+      setManualPromoError('Fehler bei der Validierung');
+    } finally {
+      setManualPromoValidating(false);
+    }
+  };
+
+  const clearManualPromo = () => {
+    setManualPromoCode('');
+    setManualPromoResult(null);
+    setManualPromoError(null);
+  };
+
   const handlePayment = async () => {
     if (!isLoggedIn) {
       toast.error("Bitte melde dich an, um die Zahlung abzuschließen.");
@@ -163,7 +202,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         expressService,
         taxReturnId: taxReturnId,
         origin: window.location.origin,
-        promoCodeId: activePromo?.promoId // Pass promo code ID to backend
+        promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId // Pass promo code ID to backend
       };
       console.log('💳 Creating payment session:', requestPayload);
       const {
@@ -212,7 +251,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   }
 
   const finalPrice = priceBreakdown.totalPrice;
-  const priceAfterDiscount = Math.max(0, finalPrice - promoDiscount);
+  const manualPercentOff = manualPromoResult?.percentOff || 0;
+  const manualAmountOff = manualPromoResult?.amountOff || 0;
+  const manualDiscount = manualPercentOff > 0 ? Math.round(finalPrice * manualPercentOff / 100) : manualAmountOff;
+  const totalDiscount = promoDiscount + manualDiscount;
+  const priceAfterDiscount = Math.max(0, finalPrice - totalDiscount);
+  const hasAnyPromo = !!activePromo || !!manualPromoResult;
 
   return (
     <div className="min-h-screen bg-white flex flex-col text-slate-800">
@@ -257,7 +301,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
               )}
 
-              {/* Promo Code Display */}
+              {/* Promo Code Display (referral) */}
               {activePromo && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                   <div className="flex items-center justify-between">
@@ -266,17 +310,59 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                         <Gift className="w-4 h-4 text-green-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-green-700 text-sm">
-                          Rabattcode aktiv
-                        </p>
+                        <p className="font-medium text-green-700 text-sm">Rabattcode aktiv</p>
+                        <p className="text-xs text-green-600">Code <span className="font-mono">{activePromo.code}</span></p>
+                      </div>
+                    </div>
+                    <span className="text-lg font-bold text-green-600">-{formatPrice(promoDiscount)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Manual Promo Code Input */}
+              {!manualPromoResult ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Aktionscode eingeben"
+                        value={manualPromoCode}
+                        onChange={(e) => { setManualPromoCode(e.target.value); setManualPromoError(null); }}
+                        onKeyDown={(e) => e.key === 'Enter' && handleValidatePromoCode()}
+                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1D64FF]/20 focus:border-[#1D64FF] font-jakarta"
+                      />
+                    </div>
+                    <button
+                      onClick={handleValidatePromoCode}
+                      disabled={!manualPromoCode.trim() || manualPromoValidating}
+                      className="px-4 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors disabled:opacity-50 font-jakarta"
+                    >
+                      {manualPromoValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Anwenden'}
+                    </button>
+                  </div>
+                  {manualPromoError && (
+                    <p className="text-xs text-red-500 font-jakarta">{manualPromoError}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <Tag className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-green-700 text-sm">Aktionscode aktiv</p>
                         <p className="text-xs text-green-600">
-                          Code <span className="font-mono">{activePromo.code}</span>
+                          {manualPromoResult.percentOff ? `${manualPromoResult.percentOff}% Rabatt` : `CHF ${formatPrice(manualPromoResult.amountOff || 0)} Rabatt`}
                         </p>
                       </div>
                     </div>
-                    <span className="text-lg font-bold text-green-600">
-                      -{formatPrice(promoDiscount)}
-                    </span>
+                    <button onClick={clearManualPromo} className="p-1 hover:bg-green-100 rounded-full transition-colors">
+                      <X className="w-4 h-4 text-green-600" />
+                    </button>
                   </div>
                 </div>
               )}
@@ -298,7 +384,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
                 {/* Total */}
                 <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
-                  {activePromo && (
+                  {hasAnyPromo && (
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs text-slate-500 font-jakarta">Zwischensumme</span>
                       <span className="text-xs text-slate-400 line-through font-jakarta tabular-nums">CHF {formatPrice(finalPrice)}</span>
@@ -306,7 +392,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   )}
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-semibold text-slate-800 font-jakarta">
-                      {activePromo ? 'Nach Rabatt' : 'Total'}
+                      {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
                     </span>
                     <span className="text-lg font-bold text-slate-900 font-jakarta tabular-nums">
                       CHF {formatPrice(priceAfterDiscount)}
