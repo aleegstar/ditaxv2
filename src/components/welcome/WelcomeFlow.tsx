@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { ArrowRight, Users } from 'lucide-react';
+import { ArrowRight, Users, Ticket, CheckCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -29,6 +29,9 @@ export const WelcomeFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
   const [dataSaved, setDataSaved] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [referralApplied, setReferralApplied] = useState(false);
+  const [referralLoading, setReferralLoading] = useState(false);
 
   // 4 steps: consent, name, year, family
   const steps = [{
@@ -175,6 +178,35 @@ export const WelcomeFlow = () => {
     }
   };
 
+  const handleApplyReferral = async () => {
+    const code = referralCode.trim();
+    if (!code) return;
+    
+    setReferralLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error: invokeError } = await supabase.functions.invoke('apply-referral-code', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { referralCode: code },
+      });
+
+      if (invokeError || data?.error) {
+        toast.error(data?.error || 'Code konnte nicht eingelöst werden');
+        return;
+      }
+
+      setReferralApplied(true);
+      toast.success('Einladungscode eingelöst – CHF 20 Rabatt!');
+    } catch (err) {
+      console.error('Error applying referral code:', err);
+      toast.error('Fehler beim Einlösen des Codes');
+    } finally {
+      setReferralLoading(false);
+    }
+  };
+
   const handleFamilyLater = async () => {
     setShowTransition(true);
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -284,7 +316,7 @@ export const WelcomeFlow = () => {
            </div>
          );
       case 3:
-        // Family hint step - integrated as step 4
+        // Family hint + referral code step
          return (
            <div className="w-full space-y-5">
              <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
@@ -301,7 +333,51 @@ export const WelcomeFlow = () => {
               </div>
             </div>
 
-            {/* Buttons - Primary is "Continue", secondary is "Add people" */}
+            {/* Referral Code Input */}
+            <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  {referralApplied ? (
+                    <CheckCircle className="w-6 h-6 text-emerald-600" />
+                  ) : (
+                    <Ticket className="w-6 h-6 text-emerald-600" />
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="font-medium text-slate-800 text-sm mb-1">Einladungscode</p>
+                  <p className="text-slate-500 text-xs leading-relaxed">
+                    Hast du einen Einladungscode? Erhalte CHF 20 Rabatt.
+                  </p>
+                </div>
+              </div>
+              {!referralApplied ? (
+                <div className="flex gap-2 mt-4">
+                  <Input
+                    type="text"
+                    placeholder="Code eingeben"
+                    value={referralCode}
+                    onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === 'Enter' && handleApplyReferral()}
+                    className="flex-1 h-11 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl px-4 text-sm focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 uppercase tracking-wider font-medium"
+                    disabled={referralLoading}
+                  />
+                  <Button
+                    onClick={handleApplyReferral}
+                    disabled={!referralCode.trim() || referralLoading}
+                    className="h-11 px-5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold disabled:opacity-50"
+                  >
+                    {referralLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einlösen'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-3 flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>CHF 20 Rabatt aktiviert!</span>
+                </div>
+              )}
+            </div>
+
+            {/* Buttons */}
             <div className="flex flex-col gap-3">
                <Button
                  onClick={handleFamilyLater}
