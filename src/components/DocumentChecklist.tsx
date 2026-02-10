@@ -369,7 +369,7 @@ const DocumentChecklist: React.FC = () => {
       </div>;
   }
 
-  return <div className="min-h-screen bg-[#fafafa] flex flex-col items-center">
+  return <div className="min-h-screen bg-white flex flex-col items-center">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-[880px]" />
 
       <main className="w-full max-w-[880px] space-y-4 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
