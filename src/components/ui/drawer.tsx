@@ -17,15 +17,25 @@ const DrawerOverlay = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.O
   backgroundColor: '#ffffff2e'
 }} {...props} />);
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
-const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>>(({
+const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { variant?: 'fullscreen' | 'bottom-sheet' }>(({
   className,
   children,
+  variant = 'fullscreen',
   ...props
 }, ref) => {
+  const isBottomSheet = variant === 'bottom-sheet';
   return <DrawerPortal>
       <DrawerOverlay />
-      <DrawerPrimitive.Content ref={ref} className={cn("fixed left-0 top-0 w-full h-full", "z-50 flex flex-col border bg-background", className)} {...props}>
-        
+      <DrawerPrimitive.Content ref={ref} className={cn(
+        "z-50 flex flex-col border bg-background",
+        isBottomSheet
+          ? "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
+          : "fixed left-0 top-0 w-full h-full",
+        className
+      )} {...props}>
+        {isBottomSheet && (
+          <div className="mx-auto mt-3 mb-1 h-1 w-10 rounded-full bg-muted-foreground/20" />
+        )}
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>;
