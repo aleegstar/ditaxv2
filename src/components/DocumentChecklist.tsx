@@ -387,12 +387,12 @@ const DocumentChecklist: React.FC = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-white flex flex-col items-center">
+  return <div className="min-h-screen bg-slate-50/50 flex flex-col items-center">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-[880px]" />
 
-      <main className="w-full max-w-[880px] space-y-4 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
+      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
         
-        {/* Progress */}
+        {/* Progress Card */}
         {checklistItems.length > 0 && (() => {
         const requiredItems = checklistItems.filter(item => item.required);
         const completedRequired = requiredItems.filter(item => item.uploaded).length;
@@ -405,21 +405,31 @@ const DocumentChecklist: React.FC = () => {
         const progressPercent = totalCount > 0 ? (currentCount / totalCount) * 100 : 0;
         const isComplete = progressPercent === 100;
         
-        return <div className="px-1">
-              <div className="flex items-baseline justify-between mb-3">
-                <p className="text-sm font-medium text-slate-500">
-                  {isComplete 
-                    ? t.documentChecklist.allMandatoryPresent
-                    : `${currentCount} von ${totalCount} erledigt`
-                  }
-                </p>
-                {remaining > 0 && (
-                  <p className="text-xs text-slate-400">
-                    Noch {remaining}
+        return <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-semibold text-slate-800">
+                    {currentCount} <span className="text-slate-400 font-normal text-lg">von {totalCount}</span>
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-0.5">
+                    {isComplete 
+                      ? t.documentChecklist.allMandatoryPresent
+                      : `Noch ${remaining} ${remaining === 1 ? 'Dokument fehlt' : 'Dokumente fehlen'}`
+                    }
                   </p>
+                </div>
+                {isComplete && (
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <Check className="w-5 h-5 text-emerald-500" strokeWidth={2.5} />
+                  </div>
                 )}
               </div>
-              <Progress value={progressPercent} className="h-1.5" />
+              <div className="w-full bg-slate-100 rounded-full h-1.5">
+                <div 
+                  className={cn("h-full rounded-full transition-all duration-500", isComplete ? "bg-emerald-500" : "bg-[#1D64FF]")}
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
             </div>;
       })()}
 
@@ -456,110 +466,99 @@ const DocumentChecklist: React.FC = () => {
           return <Collapsible key={category} open={isOpen} onOpenChange={open => {
             setOpenCategories(prev => ({ ...prev, [category]: open }));
           }}>
-                  {!isOpen ? <CollapsibleTrigger className="group w-full text-left rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors bg-white">
-                      <div className="w-full py-4 px-5 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-9 h-9 rounded-xl flex items-center justify-center",
-                            isComplete ? "bg-emerald-50 text-emerald-500" : "bg-slate-100 text-slate-400"
-                          )}>
-                            {isComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-slate-700 block">{categoryMap[category]}</span>
-                            <span className="text-xs text-slate-400">{uploadedCount} von {items.length}</span>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <CollapsibleTrigger className="group w-full text-left">
+                  <div className="w-full py-4 px-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3.5">
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center",
+                        isComplete ? "bg-emerald-50" : "bg-slate-50"
+                      )}>
+                        {isComplete 
+                          ? <Check className="w-4.5 h-4.5 text-emerald-500" strokeWidth={2.5} /> 
+                          : <Icon className="w-4.5 h-4.5 text-slate-400" />
+                        }
                       </div>
-                    </CollapsibleTrigger> : (
-            <div className="w-full rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                      <CollapsibleTrigger className="w-full px-5 py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-9 h-9 rounded-xl flex items-center justify-center",
-                            isComplete ? "bg-emerald-50 text-emerald-500" : "bg-slate-100 text-slate-400"
-                          )}>
-                            {isComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
-                          </div>
-                          <div className="text-left">
-                            <span className="text-sm font-medium text-slate-700 block">{categoryMap[category]}</span>
-                            <span className="text-xs text-slate-400">{uploadedCount} von {items.length}</span>
-                          </div>
-                        </div>
-                        <ChevronUp className="w-4 h-4 text-slate-300" />
-                      </CollapsibleTrigger>
+                      <div>
+                        <span className="text-[15px] font-medium text-slate-800 block">{categoryMap[category]}</span>
+                        <span className="text-xs text-slate-400 mt-0.5 block">
+                          {isComplete ? 'Vollständig' : `${uploadedCount} von ${items.length} erledigt`}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!isComplete && (
+                        <span className="text-xs font-medium text-[#1D64FF] bg-blue-50 px-2.5 py-1 rounded-full">
+                          {items.length - uploadedCount} offen
+                        </span>
+                      )}
+                      {isOpen 
+                        ? <ChevronUp className="w-4 h-4 text-slate-300" />
+                        : <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
+                      }
+                    </div>
+                  </div>
+                </CollapsibleTrigger>
 
-                      <CollapsibleContent className="px-5 pb-4">
-                        <div className="border-t border-slate-100 pt-3">
-                          {items.map((item, idx) => {
+                <CollapsibleContent>
+                  <div className="px-5 pb-4">
+                    <div className="space-y-0">
+                      {items.map((item, idx) => {
                     const itemFiles = getUserDocumentsForItem(item.id);
                     const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                     
-                    return <div key={item.id} className={cn(idx > 0 && "border-t border-slate-100")}>
-                      <div className="py-3.5">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex items-start gap-3">
-                                    <div className={cn(
-                                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
-                                      item.uploaded ? "bg-emerald-50 text-emerald-500" : "bg-slate-100 text-slate-400"
-                                    )}>
-                                      {item.uploaded 
-                                        ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                                        : <CloudUpload className="w-3.5 h-3.5" />
-                                      }
-                                    </div>
-                                    <div>
-                                      <h3 className="text-sm font-medium text-slate-700">{item.title}</h3>
-                                      {!item.uploaded && item.description && (
-                                        <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{item.description}</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                  {!item.uploaded && item.required && (
-                                    <span className="shrink-0 text-[11px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                                      Pflicht
-                                    </span>
-                                  )}
-                                </div>
-                                
-                                {item.uploaded && itemFiles.length > 0 && (
-                                  <div className="flex items-center justify-between mt-2 ml-11">
-                                    <span className="text-xs text-slate-400">
-                                      {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files}
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                      <button onClick={() => handleViewDocuments(item.id, 0)} className="text-xs text-slate-400 hover:text-primary px-2 py-1 rounded-lg transition-colors">
-                                        {t.documentChecklist.viewDocs}
-                                      </button>
-                                      <button onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} className="text-xs text-slate-300 hover:text-red-400 px-2 py-1 rounded-lg transition-colors">
-                                        {t.documentChecklist.remove}
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {!item.uploaded && (
-                                  <div className="flex items-center gap-2 mt-2.5 ml-11">
-                                    <Button size="sm" onClick={() => handleUploadDocument(item.id)} className="rounded-xl h-8 px-4 text-xs gap-1.5">
-                                      <CloudUpload className="w-3.5 h-3.5" />
-                                      Hochladen
-                                    </Button>
-                                    {hasUnassignedDocs && (
-                                      <Button variant="ghost" size="sm" onClick={() => setAssignmentModal({ open: true, item })} className="rounded-xl h-8 px-3 text-xs text-slate-400 gap-1.5">
-                                        <FolderOpen className="w-3.5 h-3.5" />
-                                        {t.documentChecklist.assign}
-                                      </Button>
-                                    )}
-                                  </div>
-                                )}
+                    return <div key={item.id} className={cn("py-3", idx > 0 && "border-t border-slate-100/80")}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {item.uploaded 
+                            ? <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
                               </div>
-                            </div>;
-                  })}
+                            : <div className="w-5 h-5 rounded-full border-2 border-slate-200 shrink-0" />
+                          }
+                          <div className="min-w-0">
+                            <h3 className={cn("text-sm leading-tight", item.uploaded ? "text-slate-400" : "text-slate-700 font-medium")}>{item.title}</h3>
+                          </div>
                         </div>
-                      </CollapsibleContent>
-                    </div>)}
-                </Collapsible>;
+                        
+                        <div className="shrink-0">
+                          {item.uploaded ? (
+                            <div className="flex items-center gap-0.5">
+                              <button onClick={() => handleViewDocuments(item.id, 0)} className="text-xs text-slate-400 hover:text-[#1D64FF] px-2 py-1 rounded-lg transition-colors">
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} className="text-xs text-slate-300 hover:text-red-400 px-2 py-1 rounded-lg transition-colors">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <Button size="sm" onClick={() => handleUploadDocument(item.id)} className="rounded-full h-8 px-4 text-xs font-medium gap-1.5 shadow-none">
+                              <Plus className="w-3.5 h-3.5" />
+                              Hochladen
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {item.uploaded && itemFiles.length > 0 && (
+                        <p className="text-xs text-emerald-500 ml-8 mt-1">
+                          {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
+                        </p>
+                      )}
+                      
+                      {!item.uploaded && hasUnassignedDocs && (
+                        <button onClick={() => setAssignmentModal({ open: true, item })} className="text-xs text-[#1D64FF] hover:underline ml-8 mt-1.5 flex items-center gap-1">
+                          <FolderOpen className="w-3 h-3" />
+                          {t.documentChecklist.assign}
+                        </button>
+                      )}
+                    </div>;
+                  })}
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>;
         })}
         </div>
       </main>
