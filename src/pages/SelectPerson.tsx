@@ -1,10 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Plus, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -24,26 +23,17 @@ const SelectPerson: React.FC = () => {
   const { t } = useI18n();
   const { taxFilers, setActiveTaxFilerId, confirmSelection, isLoading } = useTaxFiler();
   const { profile } = useProfile();
-  const hasAnimated = useRef(false);
 
-  // Get avatar URL - for primary user, use profile avatar if tax_filer avatar is not set
   const getAvatarUrl = (filer: TaxFiler): string | undefined => {
-    // If tax_filer has its own avatar, use it
-    if (filer.avatar_url) {
-      return filer.avatar_url;
-    }
-    // For primary user, fall back to profile avatar
-    if (filer.is_primary && profile?.avatar_url) {
-      return profile.avatar_url;
-    }
+    if (filer.avatar_url) return filer.avatar_url;
+    if (filer.is_primary && profile?.avatar_url) return profile.avatar_url;
     return undefined;
   };
 
   const handleSelectPerson = (filer: TaxFiler) => {
     console.log('🎯 SelectPerson: Selected filer:', filer.id, filer.first_name);
     setActiveTaxFilerId(filer.id);
-    confirmSelection(filer.id); // Pass ID directly to avoid stale closure
-    // Navigate with state to trigger data refresh
+    confirmSelection(filer.id);
     navigate('/', { state: { personSelected: true, filerId: filer.id } });
   };
 
@@ -59,12 +49,6 @@ const SelectPerson: React.FC = () => {
     );
   }
 
-  // After first successful render with data, mark as animated
-  const shouldAnimate = !hasAnimated.current;
-  if (taxFilers.length > 0) {
-    hasAnimated.current = true;
-  }
-
   return (
     <div className="min-h-screen bg-background antialiased">
       <div className="max-w-lg mx-auto px-5 pt-10 pb-12">
@@ -74,42 +58,34 @@ const SelectPerson: React.FC = () => {
         </div>
 
         {/* Header */}
-        <motion.div
-          initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-center mb-10"
-        >
-          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-slate-900 tracking-tight mb-3">
+        <div className="text-center mb-10 animate-fade-in">
+          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-tight mb-3">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
-          <p className="text-[1.1rem] leading-relaxed text-slate-500">
+          <p className="text-[1.1rem] leading-relaxed text-muted-foreground">
             {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
           </p>
-        </motion.div>
+        </div>
 
-        {/* Person Cards - Modern BlueTaxYearCard Style */}
+        {/* Person Cards */}
         <div className="space-y-4">
           {taxFilers.map((filer, index) => (
-            <motion.button
+            <button
               key={filer.id}
-              initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: shouldAnimate ? index * 0.1 : 0 }}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="w-full group relative overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 animate-fade-in"
+              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
             >
               <div className="flex items-center gap-5">
-                {/* Avatar */}
                 <Avatar className="w-16 h-16 ring-1 ring-primary/10 flex-shrink-0">
-                  <AvatarImage 
+                  <AvatarImage
                     src={getAvatarUrl(filer)}
                     alt={`${filer.first_name} ${filer.last_name}`}
                     className="object-cover"
                   />
-                  <AvatarFallback 
+                  <AvatarFallback
                     className="text-xl font-semibold"
-                    style={{ 
+                    style={{
                       background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 100%)',
                       color: 'hsl(var(--primary))'
                     }}
@@ -118,12 +94,11 @@ const SelectPerson: React.FC = () => {
                   </AvatarFallback>
                 </Avatar>
 
-                {/* Info */}
                 <div className="flex-1 text-left">
-                  <h3 className="text-[1.25rem] font-medium text-slate-900 tracking-tight mb-1">
+                  <h3 className="text-[1.25rem] font-medium text-foreground tracking-tight mb-1">
                     {filer.first_name} {filer.last_name}
                   </h3>
-                  <p className="text-[0.95rem] text-slate-400 font-medium tracking-wide">
+                  <p className="text-[0.95rem] text-muted-foreground font-medium tracking-wide">
                     {getRelationshipLabel(filer.relationship, t)}
                     {filer.is_primary && (
                       <span className="ml-2 text-primary">
@@ -133,42 +108,36 @@ const SelectPerson: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Arrow */}
                 <div className="bg-primary/5 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                  <ChevronRight 
-                    className="w-5 h-5 text-primary group-hover:translate-x-0.5 transition-transform" 
-                    strokeWidth={2} 
+                  <ChevronRight
+                    className="w-5 h-5 text-primary group-hover:translate-x-0.5 transition-transform"
+                    strokeWidth={2}
                   />
                 </div>
               </div>
-            </motion.button>
+            </button>
           ))}
 
-          {/* Add Person Button - Modern dashed style */}
-          <motion.button
-            initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: shouldAnimate ? taxFilers.length * 0.1 : 0 }}
+          {/* Add Person Button */}
+          <button
             onClick={handleAddPerson}
-            className="w-full overflow-hidden rounded-[2.2rem] p-7 border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-300"
+            className="w-full overflow-hidden rounded-[2.2rem] p-7 border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-300 animate-fade-in"
+            style={{ animationDelay: `${taxFilers.length * 100}ms`, animationFillMode: 'both' }}
           >
             <div className="flex items-center gap-5">
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                <Plus className="w-7 h-7 text-slate-400" strokeWidth={1.5} />
+              <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                <Plus className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
               </div>
-
-              {/* Text */}
               <div className="flex-1 text-left">
-                <h3 className="text-[1.1rem] font-medium text-slate-500 tracking-tight mb-1">
+                <h3 className="text-[1.1rem] font-medium text-muted-foreground tracking-tight mb-1">
                   {t.taxFilers?.addPerson || 'Person hinzufügen'}
                 </h3>
-                <p className="text-[0.9rem] text-slate-400">
+                <p className="text-[0.9rem] text-muted-foreground/70">
                   {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
                 </p>
               </div>
             </div>
-          </motion.button>
+          </button>
         </div>
       </div>
     </div>
