@@ -387,14 +387,14 @@ const DocumentChecklist: React.FC = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-white text-slate-800 antialiased flex flex-col items-center">
+  return <div className="min-h-screen bg-white text-slate-700 antialiased flex flex-col items-center">
       {/* Header */}
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-[880px]" />
 
       {/* Main Content */}
-      <main className="w-full max-w-[880px] space-y-6 sm:py-10 sm:px-6 pt-6 px-4 pb-24">
+      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
         
-        {/* Progress Section - Hero Card */}
+        {/* Progress Section - Dashboard-style Hero Card */}
         {checklistItems.length > 0 && (() => {
         const requiredItems = checklistItems.filter(item => item.required);
         const completedRequired = requiredItems.filter(item => item.uploaded).length;
@@ -407,70 +407,43 @@ const DocumentChecklist: React.FC = () => {
         const progressPercent = totalCount > 0 ? (currentCount / totalCount) * 100 : 0;
         const isComplete = progressPercent === 100;
         
-        // SVG circle progress
-        const radius = 38;
-        const circumference = 2 * Math.PI * radius;
-        const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
-        
-        return <div className={cn(
-          "relative rounded-2xl p-6 sm:p-8 transition-all duration-500 bg-white border shadow-sm",
-          isComplete 
-            ? "border-slate-200" 
-            : "border-slate-200"
-        )}>
-              <div className="flex items-center gap-6 sm:gap-8">
-                {/* Circular Progress */}
-                <div className="relative shrink-0">
-                  <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
-                    <circle cx="48" cy="48" r={radius} fill="none" stroke="#F1F5F9" strokeWidth="6" />
-                    <circle 
-                      cx="48" cy="48" r={radius} fill="none" 
-                      stroke={isComplete ? '#10B981' : '#94A3B8'} 
-                      strokeWidth="6" 
-                      strokeLinecap="round"
-                      strokeDasharray={circumference} 
-                      strokeDashoffset={strokeDashoffset}
-                      className="transition-all duration-700 ease-out"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold tabular-nums leading-none text-slate-800">
-                      {currentCount}/{totalCount}
-                    </span>
-                  </div>
-                </div>
+        return <div className="rounded-[20px] p-6 sm:p-8 bg-white shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] ring-1 ring-slate-100">
+              <div className="flex flex-col items-center text-center">
+                {/* Large friendly count */}
+                <span className="text-[42px] font-bold tabular-nums leading-none text-slate-800 tracking-tight">
+                  {currentCount} <span className="text-slate-300 font-normal">/</span> {totalCount}
+                </span>
+                <h2 className="text-base font-medium text-slate-600 mt-3">
+                  {isComplete 
+                    ? t.documentChecklist.allMandatoryPresent
+                    : allOptional ? t.documentChecklist.documents : t.documentChecklist.mandatoryDocuments
+                  }
+                </h2>
+                <p className="text-[13px] text-slate-400 mt-1">
+                  {isComplete 
+                    ? t.documentChecklist.dialogDescription
+                    : remaining > 0 
+                      ? `Noch ${remaining} ${remaining === 1 ? 'Dokument' : 'Dokumente'} erforderlich`
+                      : `${currentCount} ${t.documentChecklist.completedOf} ${totalCount} ${t.documentChecklist.uploaded}`
+                  }
+                </p>
                 
-                {/* Text Content */}
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-semibold leading-tight text-slate-800">
-                    {isComplete 
-                      ? t.documentChecklist.allMandatoryPresent
-                      : allOptional ? t.documentChecklist.documents : t.documentChecklist.mandatoryDocuments
-                    }
-                  </h2>
-                  <p className="text-sm mt-1.5 leading-relaxed text-slate-500">
-                    {isComplete 
-                      ? t.documentChecklist.dialogDescription
-                      : remaining > 0 
-                        ? `${t.documentChecklist.stillRequired}: ${remaining} ${remaining === 1 ? 'Dokument' : 'Dokumente'}`
-                        : `${currentCount} ${t.documentChecklist.completedOf} ${totalCount} ${t.documentChecklist.uploaded}`
-                    }
-                  </p>
-                  
-                  {/* Thin progress bar below text */}
-                  <div className="mt-4 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-700 ease-out bg-slate-400"
-                      style={{ width: `${Math.max(2, progressPercent)}%` }} 
-                    />
-                  </div>
+                {/* Thin progress bar */}
+                <div className="mt-5 w-full max-w-xs h-1 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ 
+                      width: `${Math.max(2, progressPercent)}%`,
+                      backgroundColor: isComplete ? '#10B981' : '#1D64FF'
+                    }} 
+                  />
                 </div>
               </div>
             </div>;
       })()}
 
         {/* Category Sections */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {error && <Alert variant="destructive" className="bg-red-50 border-red-200 rounded-2xl">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <AlertTitle className="text-red-700">Fehler beim Laden der Dokumente</AlertTitle>
@@ -488,9 +461,9 @@ const DocumentChecklist: React.FC = () => {
               </AlertDescription>
             </Alert>}
 
-          {Object.keys(categorizedItems).length === 0 ? <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-5">
-                <FolderSearch className="w-6 h-6 text-slate-400" />
+          {Object.keys(categorizedItems).length === 0 ? <div className="text-center py-16 bg-white rounded-[20px] shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] ring-1 ring-slate-100">
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-5">
+                <FolderSearch className="w-6 h-6 text-slate-300" />
               </div>
               <p className="text-slate-600 mb-2 font-medium">
                 Die Dokumenten-Checkliste wird erstellt
@@ -498,7 +471,7 @@ const DocumentChecklist: React.FC = () => {
               <p className="text-sm text-slate-400 mb-6 max-w-sm mx-auto">
                 {!formDataLoaded ? "Bitte warte, während deine Daten geladen werden." : "Basierend auf deinen Angaben wird die Checkliste generiert."}
               </p>
-              <Button onClick={handleForceGeneration} className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-10 px-6 font-medium shadow-sm" disabled={isLoading}>
+              <Button onClick={handleForceGeneration} className="bg-[#1D64FF] hover:bg-[#1554E0] text-white rounded-full h-11 px-7 font-medium shadow-none" disabled={isLoading}>
                 {isLoading ? "Wird geladen..." : "Checkliste generieren"}
               </Button>
         </div> : Object.entries(categorizedItems).map(([category, items]) => {
@@ -514,123 +487,111 @@ const DocumentChecklist: React.FC = () => {
             }));
           }}>
                   {/* Collapsed State */}
-                  {!isOpen ? <CollapsibleTrigger className="group w-full bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow transition-all duration-200">
-                      <div className="w-full py-4 sm:py-5 px-5 sm:px-6 flex items-center justify-between">
+                  {!isOpen ? <CollapsibleTrigger className="group w-full bg-white rounded-[20px] shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] ring-1 ring-slate-100 hover:ring-slate-200 transition-all duration-200">
+                      <div className="w-full py-5 px-6 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400">
-                            {isComplete ? <Check className="w-5 h-5 text-emerald-500" strokeWidth={2.5} /> : <Icon className="w-5 h-5" />}
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 text-slate-400">
+                            {isComplete ? <Check className="w-4.5 h-4.5 text-emerald-500" strokeWidth={2.5} /> : <Icon className="w-4.5 h-4.5" />}
                           </div>
                           <div className="text-left">
-                            <span className="text-[15px] font-semibold block text-slate-800">
+                            <span className="text-[15px] font-semibold block text-slate-700">
                               {categoryMap[category]}
                             </span>
                             <span className="text-xs text-slate-400 mt-0.5 block">
-                              {uploadedCount}/{items.length} {t.documentChecklist.uploaded}
+                              {uploadedCount} von {items.length}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           {isComplete ? (
-                            <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg">
-                              Fertig
+                            <span className="text-xs font-medium text-emerald-600 bg-emerald-50/80 px-3 py-1 rounded-full">
+                              ✓ Fertig
                             </span>
                           ) : (
-                            <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg">
+                            <span className="text-xs font-medium text-slate-400 bg-slate-50 px-3 py-1 rounded-full">
                               {items.length - uploadedCount} offen
                             </span>
                           )}
-                          <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" strokeWidth={1.5} />
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" strokeWidth={2} />
                         </div>
                       </div>
                     </CollapsibleTrigger> : (/* Expanded State */
-            <div className="w-full bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="w-full bg-white rounded-[20px] shadow-[0_2px_16px_-4px_rgba(0,0,0,0.08)] ring-1 ring-slate-100 overflow-hidden">
                       {/* Header */}
-                      <CollapsibleTrigger className="w-full px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between border-b border-slate-100">
+                      <CollapsibleTrigger className="w-full px-6 py-5 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-500">
-                            {isComplete ? <Check className="w-5 h-5 text-emerald-500" strokeWidth={2.5} /> : <Icon className="w-5 h-5" />}
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 text-slate-400">
+                            {isComplete ? <Check className="w-4.5 h-4.5 text-emerald-500" strokeWidth={2.5} /> : <Icon className="w-4.5 h-4.5" />}
                           </div>
                           <div className="text-left">
-                            <span className="text-[15px] font-semibold text-slate-800 block">
+                            <span className="text-[15px] font-semibold text-slate-700 block">
                               {categoryMap[category]}
                             </span>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs text-slate-400">
-                                {uploadedCount} {t.documentChecklist.completedOf} {items.length}
-                              </span>
-                              {isComplete && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded-md">
-                                  <Check className="w-2.5 h-2.5" />
-                                  Fertig
-                                </span>
-                              )}
-                            </div>
+                            <span className="text-xs text-slate-400 mt-0.5 block">
+                              {uploadedCount} von {items.length}
+                              {isComplete && <span className="text-emerald-500 ml-2">✓ Fertig</span>}
+                            </span>
                           </div>
                         </div>
-                        <ChevronUp className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+                        <ChevronUp className="w-4 h-4 text-slate-300" strokeWidth={2} />
                       </CollapsibleTrigger>
 
                       {/* Content Area */}
-                      <CollapsibleContent className="px-4 sm:px-5 py-4 sm:py-5">
-                        <div className="space-y-2">
+                      <CollapsibleContent className="px-6 pb-5">
+                        <div className="border-t border-slate-100 pt-4 space-y-0">
                           {items.map((item, idx) => {
                     const itemFiles = getUserDocumentsForItem(item.id);
                     const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                     
                     return <div key={item.id}>
-                      <div 
-                        className="rounded-2xl p-4 sm:p-5 transition-all duration-200 hover:bg-slate-50/50"
-                      >
-                                {/* Document Header */}
+                      <div className="py-4">
+                                {/* Document Row */}
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex items-start gap-3.5">
                                     {/* Round status icon */}
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-slate-100 text-slate-400">
+                                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-slate-50 text-slate-300">
                                       {item.uploaded 
-                                        ? <Check className="w-4.5 h-4.5 text-emerald-500" strokeWidth={2.5} />
-                                        : <CloudUpload className="w-4.5 h-4.5" />
+                                        ? <Check className="w-4 h-4 text-emerald-500" strokeWidth={2.5} />
+                                        : <CloudUpload className="w-4 h-4" />
                                       }
                                     </div>
                                     <div className="pt-0.5">
-                                      <h3 className="text-sm font-medium leading-tight text-slate-800">
+                                      <h3 className="text-sm font-medium leading-tight text-slate-700">
                                         {item.title}
                                       </h3>
                                       {!item.uploaded && item.description && (
-                                        <p className="text-[13px] text-slate-400 leading-relaxed mt-1 max-w-md">
+                                        <p className="text-[13px] text-slate-400 leading-relaxed mt-0.5 max-w-md">
                                           {item.description}
                                         </p>
                                       )}
                                     </div>
                                   </div>
                                   {!item.uploaded && item.required && (
-                                    <span className="shrink-0 text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg mt-0.5">
-                                      {t.documentChecklist.required}
+                                    <span className="shrink-0 text-[11px] font-medium text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full mt-0.5">
+                                      Pflicht
                                     </span>
                                   )}
                                 </div>
                                 
                                 {/* Uploaded State */}
                                 {item.uploaded && itemFiles.length > 0 && (
-                                  <div className="flex items-center justify-between mt-3 ml-[54px]">
-                                    <div className="flex items-center gap-1.5 text-slate-500">
-                                      <Check className="w-3.5 h-3.5 text-emerald-500" strokeWidth={2.5} />
-                                      <span className="text-xs font-medium">
+                                  <div className="flex items-center justify-between mt-2 ml-[48px]">
+                                    <div className="flex items-center gap-1.5 text-slate-400">
+                                      <span className="text-xs">
                                         {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-0.5">
+                                    <div className="flex items-center gap-1">
                                      <button 
                                         onClick={() => handleViewDocuments(item.id, 0)} 
-                                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 px-2.5 py-1.5 rounded-lg hover:bg-white transition-colors"
+                                        className="text-xs text-slate-400 hover:text-[#1D64FF] px-2 py-1 rounded-lg transition-colors"
                                       >
-                                        <Eye className="w-3.5 h-3.5" />
                                         {t.documentChecklist.viewDocs}
                                       </button>
                                       <button 
                                         onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} 
-                                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-white transition-colors"
+                                        className="text-xs text-slate-300 hover:text-red-400 px-2 py-1 rounded-lg transition-colors"
                                       >
-                                        <Trash2 className="w-3.5 h-3.5" />
                                         {t.documentChecklist.remove}
                                       </button>
                                     </div>
@@ -639,13 +600,13 @@ const DocumentChecklist: React.FC = () => {
                                 
                                 {/* Action Buttons */}
                                 {!item.uploaded && (
-                                  <div className="flex items-center gap-2.5 mt-4 ml-[54px]">
+                                  <div className="flex items-center gap-2.5 mt-3 ml-[48px]">
                                     <button 
                                       onClick={() => handleUploadDocument(item.id)} 
-                                      className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium h-10 px-5 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98] text-sm"
+                                      className="flex items-center justify-center gap-2 bg-[#1D64FF] hover:bg-[#1554E0] text-white font-medium h-9 px-5 rounded-full shadow-none transition-all duration-200 active:scale-[0.98] text-[13px]"
                                     >
-                                      <CloudUpload className="w-4 h-4" strokeWidth={2} />
-                                      {t.documentChecklist.upload}
+                                      <CloudUpload className="w-3.5 h-3.5" strokeWidth={2} />
+                                      Datei hochladen
                                     </button>
                                     
                                     {hasUnassignedDocs && (
@@ -654,9 +615,9 @@ const DocumentChecklist: React.FC = () => {
                                           open: true,
                                           item
                                         })} 
-                                        className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl text-slate-500 font-medium text-sm transition-all hover:bg-slate-100 active:scale-[0.98]"
+                                        className="flex items-center justify-center gap-2 h-9 px-4 rounded-full text-slate-400 font-medium text-[13px] transition-all hover:bg-slate-50 active:scale-[0.98]"
                                       >
-                                        <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+                                        <FolderOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
                                         {t.documentChecklist.assign}
                                       </button>
                                     )}
@@ -665,7 +626,7 @@ const DocumentChecklist: React.FC = () => {
                               </div>
                               {/* Subtle divider between items */}
                               {idx < items.length - 1 && (
-                                <div className="mx-5 my-1 border-b border-slate-100" />
+                                <div className="border-b border-slate-50" />
                               )}
                             </div>;
                   })}
@@ -693,25 +654,25 @@ const DocumentChecklist: React.FC = () => {
 
       {/* Completion Dialog */}
       <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md bg-white border-0 p-8 overflow-hidden shadow-[0_25px_60px_-12px_rgba(0,0,0,0.2)] rounded-[24px] gap-0">
+        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md bg-white border-0 p-8 overflow-hidden shadow-[0_25px_60px_-12px_rgba(0,0,0,0.15)] rounded-[24px] gap-0">
           {/* Close Button */}
           <button
             onClick={() => setShowCompletionDialog(false)}
-            className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors z-10"
+            className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-100 transition-colors z-10"
           >
-            <X className="h-4 w-4 text-slate-500" />
+            <X className="h-4 w-4 text-slate-400" />
           </button>
 
           <div className="pt-2">
             {/* Success icon */}
             <div className="flex justify-center mb-5">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Check className="w-7 h-7 text-emerald-600" strokeWidth={2.5} />
+              <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+                <Check className="w-7 h-7 text-emerald-500" strokeWidth={2.5} />
               </div>
             </div>
             
             <div className="flex flex-col items-center mb-5">
-              <DialogTitle className="text-xl font-semibold text-slate-900 text-center">
+              <DialogTitle className="text-xl font-semibold text-slate-800 text-center">
                 {t.documentChecklist.dialogTitle}
               </DialogTitle>
               <p className="text-sm text-slate-400 mt-1.5 text-center">
@@ -719,21 +680,21 @@ const DocumentChecklist: React.FC = () => {
               </p>
             </div>
 
-            <p className="text-slate-500 text-sm leading-relaxed text-center mb-8">
+            <p className="text-slate-400 text-sm leading-relaxed text-center mb-8">
               {t.documentChecklist.dialogDescription}
             </p>
 
             <div className="flex flex-col gap-3">
               <Button
                 onClick={() => navigate('/payment')}
-                className="w-full h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium shadow-sm transition-all duration-200"
+                className="w-full h-12 rounded-full bg-[#1D64FF] hover:bg-[#1554E0] text-white font-medium shadow-none transition-all duration-200"
               >
                 {t.documentChecklist.createNow}
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => setShowCompletionDialog(false)}
-                className="w-full h-11 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium"
+                className="w-full h-11 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 font-medium"
               >
                 {t.documentChecklist.later}
               </Button>
