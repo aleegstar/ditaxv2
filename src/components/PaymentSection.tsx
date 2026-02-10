@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import paymentVisa from '@/assets/payment-visa.png';
+import paymentMastercard from '@/assets/payment-mastercard.png';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -279,27 +281,56 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
               )}
 
-              {/* Total Price */}
-              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                <div className="space-y-2">
+              {/* Cost Breakdown */}
+              <div className="rounded-xl border border-slate-200 overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-jakarta">Kostenaufstellung</span>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {priceBreakdown.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center px-4 py-2.5">
+                      <span className="text-sm text-slate-600 font-jakarta">{item.label}</span>
+                      <span className="text-sm font-medium text-slate-800 font-jakarta tabular-nums">
+                        CHF {formatPrice(item.amount)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {/* Total */}
+                <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
                   {activePromo && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-500">Zwischensumme</span>
-                      <span className="text-slate-500 line-through">CHF {formatPrice(finalPrice)}</span>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-slate-500 font-jakarta">Zwischensumme</span>
+                      <span className="text-xs text-slate-400 line-through font-jakarta tabular-nums">CHF {formatPrice(finalPrice)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-semibold text-slate-800 font-jakarta">
-                      {activePromo ? 'Nach Rabatt' : 'Gesamtpreis'}
+                      {activePromo ? 'Nach Rabatt' : 'Total'}
                     </span>
-                    <div className="text-right">
-                      <span className="block text-2xl font-semibold text-slate-800 tracking-tight font-jakarta">
-                        CHF {formatPrice(priceAfterDiscount)}
-                      </span>
-                      <span className="block text-[10px] text-slate-500 font-medium mt-0.5 font-jakarta">
-                        inkl. MwSt.
-                      </span>
-                    </div>
+                    <span className="text-lg font-bold text-slate-900 font-jakarta tabular-nums">
+                      CHF {formatPrice(priceAfterDiscount)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-jakarta">inkl. MwSt.</span>
+                </div>
+              </div>
+
+              {/* Payment Methods */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-jakarta">Zahlungsmethoden</span>
+                <div className="flex items-center gap-3">
+                  {/* TWINT */}
+                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
+                    <span className="text-sm font-bold text-black font-jakarta tracking-tight">TWINT</span>
+                  </div>
+                  {/* Visa */}
+                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
+                    <img src={paymentVisa} alt="Visa" className="h-4 object-contain" />
+                  </div>
+                  {/* Mastercard */}
+                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
+                    <img src={paymentMastercard} alt="Mastercard" className="h-6 object-contain" />
                   </div>
                 </div>
               </div>
