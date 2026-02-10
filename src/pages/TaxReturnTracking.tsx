@@ -122,7 +122,7 @@ export default function TaxReturnTracking() {
       <div className="w-full max-w-[480px] md:max-w-2xl lg:max-w-3xl min-h-screen bg-white relative flex flex-col overflow-hidden">
 
         {/* Sticky Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 px-6 py-4 flex items-center justify-between">
           <button onClick={() => navigate('/')} className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors group bg-slate-50 border border-slate-200">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           </button>
