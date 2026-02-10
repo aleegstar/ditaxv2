@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft, Loader2 } from 'lucide-react';
+import { FileText, Search, Eye, Image as ImageIcon, Folder, ArrowLeft, Loader2, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
@@ -369,6 +369,14 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
                 <p className="text-xs text-slate-500">{documents.length} Dokumente</p>
               </div>
             </div>
+
+            {/* Close button */}
+            <button 
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors shrink-0"
+            >
+              <X className="w-4 h-4 text-slate-500" />
+            </button>
           </header>
 
           {/* Scrollable Content */}
