@@ -8,7 +8,8 @@ export function Toaster() {
       <SonnerToaster 
         position="bottom-center" 
         visibleToasts={3}
-        gap={12}
+        expand={true}
+        gap={8}
         toastOptions={{
           unstyled: true,
           classNames: {
