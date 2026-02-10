@@ -46,7 +46,6 @@ const DocumentChecklist: React.FC = () => {
     hasDocuments
   } = useDocuments();
 
-  // Memoized calculations to prevent unnecessary re-renders
   const categorizedItemsMemo = useMemo(() => {
     const categories = {
       general: checklistItems.filter(item => item.category === 'general'),
@@ -57,9 +56,7 @@ const DocumentChecklist: React.FC = () => {
     return categories;
   }, [checklistItems]);
   const documentsByItem = useMemo(() => {
-    const map: {
-      [key: string]: any[];
-    } = {};
+    const map: { [key: string]: any[] } = {};
     checklistItems.forEach(item => {
       map[item.id] = getDocumentsForItem(item.id);
     });
@@ -79,24 +76,19 @@ const DocumentChecklist: React.FC = () => {
   const [assignmentModal, setAssignmentModal] = useState<{
     open: boolean;
     item: ChecklistItem | null;
-  }>({
-    open: false,
-    item: null
-  });
+  }>({ open: false, item: null });
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const hasShownCompletionDialog = useRef(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const handleNext = () => {
-    navigate('/payment');
-  };
-  const handleBack = () => {
-    navigate('/form?section=deductions');
-  };
+
+  const handleNext = () => { navigate('/payment'); };
+  const handleBack = () => { navigate('/form?section=deductions'); };
   const handleUploadDocument = (itemId: string) => {
     navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
   };
+
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
       toast({
@@ -106,12 +98,12 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   }, [isAuthLoading, isAuthValid]);
+
   const userDocuments = documents.filter(doc => {
     if (!userId) return false;
     return true;
   });
 
-  // Optimized document status tracking using memoized values
   const documentStatus = useMemo(() => {
     const itemsWithDocs = new Set<string>();
     userDocuments.forEach(doc => {
@@ -121,6 +113,7 @@ const DocumentChecklist: React.FC = () => {
     });
     return itemsWithDocs;
   }, [userDocuments]);
+
   useEffect(() => {
     if (checklistItems.length > 0) {
       checklistItems.forEach(item => {
@@ -131,33 +124,26 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   }, [documentStatus, checklistItems, markUploaded]);
+
   useEffect(() => {
     if (!initialLoadComplete && !isLoading) {
       setInitialLoadComplete(true);
     }
   }, [isLoading, initialLoadComplete]);
 
-  // Load unassigned documents count for current year and tax filer
   const loadUnassignedDocsCount = useCallback(async () => {
     if (!userId || !taxYear) return;
-    
-    // Get activeTaxFilerId from localStorage as fallback
     const activeTaxFilerId = localStorage.getItem('activeTaxFilerId');
-    
     try {
       let query = supabase.from('uploaded_documents').select('id, checklist_item_id').eq('user_id', userId).eq('status', 'active').eq('is_assigned_to_checklist', false).eq('tax_year', taxYear);
-      
       if (activeTaxFilerId) {
         query = query.eq('tax_filer_id', activeTaxFilerId);
       }
-      
       const { data, error } = await query;
       if (error) {
         debug.error('Error loading unassigned documents:', error);
         return;
       }
-
-      // Count documents by what they could be assigned to
       const counts: Record<string, number> = {};
       checklistItems.forEach(item => {
         counts[item.id] = data?.length || 0;
@@ -167,6 +153,7 @@ const DocumentChecklist: React.FC = () => {
       debug.error('Error in loadUnassignedDocsCount:', error);
     }
   }, [userId, taxYear, checklistItems]);
+
   const hasLoadedCountsRef = useRef(false);
   useEffect(() => {
     if (userId && taxYear && checklistItems.length > 0 && !hasLoadedCountsRef.current) {
@@ -175,7 +162,6 @@ const DocumentChecklist: React.FC = () => {
     }
   }, [userId, taxYear, checklistItems.length, loadUnassignedDocsCount]);
 
-  // Optimized checklist generation with ref to prevent loops
   const hasGeneratedRef = useRef(false);
   const lastFormDataHashRef = useRef('');
   const shouldGenerateChecklist = useMemo(() => {
@@ -183,17 +169,17 @@ const DocumentChecklist: React.FC = () => {
     const hasChanged = formDataHash !== lastFormDataHashRef.current;
     return formDataLoaded && checklistItems.length === 0 && !isLoading && hasChanged && !hasGeneratedRef.current;
   }, [formDataLoaded, checklistItems.length, isLoading, formData]);
+
   useEffect(() => {
     if (shouldGenerateChecklist) {
       console.log('Generating checklist based on form data...');
       hasGeneratedRef.current = true;
       lastFormDataHashRef.current = JSON.stringify(formData);
       generateChecklist();
-      setTimeout(() => {
-        hasGeneratedRef.current = false;
-      }, 2000);
+      setTimeout(() => { hasGeneratedRef.current = false; }, 2000);
     }
   }, [shouldGenerateChecklist, generateChecklist, formData]);
+
   const handleDocumentDeleted = async (docId: string, checklistItemId: string) => {
     const success = await deleteDocument(docId, checklistItemId);
     if (success) {
@@ -203,24 +189,20 @@ const DocumentChecklist: React.FC = () => {
       }
     }
   };
-  const handleDocumentRefresh = useCallback(() => {
-    refreshDocuments();
-  }, [refreshDocuments]);
+
+  const handleDocumentRefresh = useCallback(() => { refreshDocuments(); }, [refreshDocuments]);
+
   const toggleCategory = (category: string) => {
-    setOpenCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+    setOpenCategories(prev => ({ ...prev, [category]: !prev[category] }));
   };
+
   const categoryMap: Record<string, string> = {
     'general': t.documentChecklist.categories.general,
     'income': t.documentChecklist.categories.income,
     'assets': t.documentChecklist.categories.assets,
     'deductions': t.documentChecklist.categories.deductions
   };
-  const categoryIcons: Record<string, React.ComponentType<{
-    className?: string;
-  }>> = {
+  const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     'general': User,
     'income': Briefcase,
     'assets': Home,
@@ -228,13 +210,11 @@ const DocumentChecklist: React.FC = () => {
   };
   const categorizedItems = categorizedItemsMemo;
 
-  // Get description for category based on items
   const getCategoryDescription = (category: string, items: ChecklistItem[]) => {
     const titles = items.slice(0, 2).map(item => item.title);
     return titles.join(', ');
   };
 
-  // Calculate initial category status based on completion
   const calculateInitialCategoryStatus = useCallback(() => {
     const status: Record<string, boolean> = {};
     Object.keys(categorizedItems).forEach(category => {
@@ -250,16 +230,17 @@ const DocumentChecklist: React.FC = () => {
     return status;
   }, [categorizedItems]);
 
-  // Initialize categories based on completion status, but only once
   useEffect(() => {
     if (checklistItems.length > 0 && userDocuments.length >= 0 && initialLoadComplete && Object.keys(openCategories).length === 0) {
       const initialStatus = calculateInitialCategoryStatus();
       setOpenCategories(initialStatus);
     }
   }, [checklistItems.length, userDocuments.length, initialLoadComplete, openCategories, calculateInitialCategoryStatus]);
+
   const getUserDocumentsForItem = useCallback((itemId: string) => {
     return userDocuments.filter(doc => doc.checklistItemId === itemId);
   }, [userDocuments]);
+
   const handleViewDocuments = (itemId: string, initialIndex = 0) => {
     const itemDocuments = getUserDocumentsForItem(itemId);
     if (itemDocuments.length > 0) {
@@ -274,22 +255,26 @@ const DocumentChecklist: React.FC = () => {
       });
     }
   };
+
   const handleCloseViewer = () => {
     setViewerOpen(false);
     setViewerDocuments([]);
     setViewerInitialIndex(0);
   };
+
   const getCategoryProgress = (category: string) => {
     const items = categorizedItems[category] || [];
     if (items.length === 0) return "0/0";
     const uploadedCount = items.filter(item => item.uploaded).length;
     return `${uploadedCount}/${items.length}`;
   };
+
   const isCategoryComplete = (category: string) => {
     const items = categorizedItems[category] || [];
     if (items.length === 0) return false;
     return items.every(item => item.uploaded);
   };
+
   const handleForceGeneration = () => {
     generateChecklist();
     refreshDocuments();
@@ -298,21 +283,19 @@ const DocumentChecklist: React.FC = () => {
       description: "Die Dokumentenliste wird aktualisiert."
     });
   };
+
   const areRequiredDocumentsUploaded = () => {
     const requiredItems = checklistItems.filter(item => item.required);
     return requiredItems.length > 0 && requiredItems.every(item => item.uploaded);
   };
 
-  // Check if all documents are uploaded and show completion dialog
   const allDocumentsUploaded = useMemo(() => {
     if (checklistItems.length === 0) return false;
     return checklistItems.every(item => item.uploaded);
   }, [checklistItems]);
 
-  // Show completion dialog when all documents are uploaded
   useEffect(() => {
     if (allDocumentsUploaded && !hasShownCompletionDialog.current && !isLoading && initialLoadComplete) {
-      // Small delay to ensure the UI has updated
       const timer = setTimeout(() => {
         setShowCompletionDialog(true);
         hasShownCompletionDialog.current = true;
@@ -321,14 +304,12 @@ const DocumentChecklist: React.FC = () => {
     }
   }, [allDocumentsUploaded, isLoading, initialLoadComplete]);
 
-  // Reset the dialog flag when documents change (user deletes a document)
   useEffect(() => {
     if (!allDocumentsUploaded) {
       hasShownCompletionDialog.current = false;
     }
   }, [allDocumentsUploaded]);
 
-  // Auto-update documents progress when all required documents are uploaded
   useEffect(() => {
     if (checklistItems.length > 0 && !isLoading) {
       const allRequiredUploaded = areRequiredDocumentsUploaded();
@@ -339,12 +320,14 @@ const DocumentChecklist: React.FC = () => {
       }
     }
   }, [checklistItems, documents, updateFormProgress, formProgress.documents, isLoading]);
+
   const handleAuthRefresh = async () => {
     await validateSession();
     refreshDocuments();
   };
+
   if (isAuthLoading) {
-    return <div className="min-h-screen bg-white">
+    return <div className="min-h-screen bg-[#fafafa]">
         <div className="p-6 pt-24">
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
@@ -352,8 +335,9 @@ const DocumentChecklist: React.FC = () => {
         </div>
       </div>;
   }
+
   if (!isAuthValid) {
-    return <div className="min-h-screen bg-white">
+    return <div className="min-h-screen bg-[#fafafa]">
         <div className="p-6 pt-24">
           <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -361,11 +345,7 @@ const DocumentChecklist: React.FC = () => {
             <AlertDescription className="text-red-600">
               Du musst angemeldet sein, um deine Dokumente zu verwalten.
               <div className="mt-2 flex gap-2">
-                <Button size="sm" onClick={() => navigate('/auth', {
-                state: {
-                  from: '/form'
-                }
-              })} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                <Button size="sm" onClick={() => navigate('/auth', { state: { from: '/form' } })} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
                   Zur Anmeldung
                 </Button>
                 <Button size="sm" onClick={handleAuthRefresh} variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
@@ -378,8 +358,9 @@ const DocumentChecklist: React.FC = () => {
         </div>
       </div>;
   }
+
   if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-    return <div className="min-h-screen bg-white">
+    return <div className="min-h-screen bg-[#fafafa]">
         <div className="p-6 pt-24">
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
@@ -387,12 +368,13 @@ const DocumentChecklist: React.FC = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-slate-50/50 flex flex-col items-center">
+
+  return <div className="min-h-screen bg-[#fafafa] flex flex-col items-center">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full max-w-[880px]" />
 
-      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
+      <main className="w-full max-w-[880px] space-y-4 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
         
-        {/* Progress Card */}
+        {/* Stacked Progress Header */}
         {checklistItems.length > 0 && (() => {
         const requiredItems = checklistItems.filter(item => item.required);
         const completedRequired = requiredItems.filter(item => item.uploaded).length;
@@ -401,41 +383,45 @@ const DocumentChecklist: React.FC = () => {
         const totalCompleted = checklistItems.filter(item => item.uploaded).length;
         const currentCount = allOptional ? totalCompleted : completedRequired;
         const totalCount = allOptional ? checklistItems.length : totalRequired;
-        const remaining = totalCount - currentCount;
-        const progressPercent = totalCount > 0 ? (currentCount / totalCount) * 100 : 0;
+        const progressPercent = totalCount > 0 ? Math.round((currentCount / totalCount) * 100) : 0;
         const isComplete = progressPercent === 100;
         
-        return <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-semibold text-slate-800">
-                    {currentCount} <span className="text-slate-400 font-normal text-lg">von {totalCount}</span>
-                  </h2>
-                  <p className="text-sm text-slate-400 mt-0.5">
+        return <div className="relative mb-6">
+              {/* Background blue layer */}
+              <div className={cn(
+                "rounded-[2rem] p-7 pb-24 text-white shadow-xl relative z-0",
+                isComplete ? "bg-emerald-400 shadow-emerald-500/10" : "bg-[#7ca5fc] shadow-blue-500/10"
+              )}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {!isComplete && (
+                      <div className="h-5 w-5 rounded-full border-[1.5px] border-white/20 border-t-white animate-spin" style={{ animationDuration: '3s' }} />
+                    )}
+                    {isComplete && <Check className="w-5 h-5 text-white" strokeWidth={2} />}
+                    <span className="text-[15px] font-medium tracking-tight opacity-90">Fortschritt</span>
+                  </div>
+                  <span className="font-semibold tracking-tight">{progressPercent}%</span>
+                </div>
+              </div>
+
+              {/* Foreground white card */}
+              <div className="relative -mt-16 mx-0 bg-white rounded-[2rem] p-8 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] z-10">
+                <div className="mt-4 mb-2">
+                  <h1 className="text-[2.75rem] leading-none font-medium text-slate-900 tracking-tighter">{taxYear}</h1>
+                  <p className="text-[15px] leading-relaxed font-medium text-slate-400 mt-3">
                     {isComplete 
                       ? t.documentChecklist.allMandatoryPresent
-                      : `Noch ${remaining} ${remaining === 1 ? 'Dokument fehlt' : 'Dokumente fehlen'}`
+                      : 'Lade hier deine Unterlagen hoch'
                     }
                   </p>
                 </div>
-                {isComplete && (
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                    <Check className="w-5 h-5 text-emerald-500" strokeWidth={2.5} />
-                  </div>
-                )}
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-1.5">
-                <div 
-                  className={cn("h-full rounded-full transition-all duration-500", isComplete ? "bg-emerald-500" : "bg-[#1D64FF]")}
-                  style={{ width: `${progressPercent}%` }}
-                />
               </div>
             </div>;
       })()}
 
         {/* Categories */}
         <div className="space-y-3">
-          {error && <Alert variant="destructive" className="rounded-2xl">
+          {error && <Alert variant="destructive" className="rounded-3xl">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Fehler beim Laden</AlertTitle>
               <AlertDescription>
@@ -462,99 +448,111 @@ const DocumentChecklist: React.FC = () => {
           const isOpen = openCategories[category];
           const Icon = categoryIcons[category];
           const uploadedCount = items.filter(i => i.uploaded).length;
+          const openCount = items.length - uploadedCount;
           
           return <Collapsible key={category} open={isOpen} onOpenChange={open => {
             setOpenCategories(prev => ({ ...prev, [category]: open }));
           }}>
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="rounded-3xl bg-white shadow-[0_2px_20px_rgb(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
                 <CollapsibleTrigger className="group w-full text-left">
-                  <div className="w-full py-4 px-5 flex items-center justify-between">
-                    <div className="flex items-center gap-3.5">
+                  <div className={cn("w-full p-6 flex items-center justify-between", isOpen && "border-b border-slate-50 pb-5")}>
+                    <div className="flex items-center gap-5">
                       <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center",
-                        isComplete ? "bg-emerald-50" : "bg-slate-50"
+                        "flex h-12 w-12 items-center justify-center rounded-2xl",
+                        isComplete ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-500"
                       )}>
                         {isComplete 
-                          ? <Check className="w-4.5 h-4.5 text-emerald-500" strokeWidth={2.5} /> 
-                          : <Icon className="w-4.5 h-4.5 text-slate-400" />
+                          ? <Check className="w-6 h-6" strokeWidth={1.5} /> 
+                          : <Icon className="w-6 h-6" />
                         }
                       </div>
                       <div>
-                        <span className="text-[15px] font-medium text-slate-800 block">{categoryMap[category]}</span>
-                        <span className="text-xs text-slate-400 mt-0.5 block">
+                        <h3 className="text-lg font-medium text-slate-900 tracking-tight">{categoryMap[category]}</h3>
+                        <p className={cn("text-sm mt-0.5", isComplete ? "text-emerald-600 font-medium" : "text-slate-400")}>
                           {isComplete ? 'Vollständig' : `${uploadedCount} von ${items.length} erledigt`}
-                        </span>
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {!isComplete && (
-                        <span className="text-xs font-medium text-[#1D64FF] bg-blue-50 px-2.5 py-1 rounded-full">
-                          {items.length - uploadedCount} offen
+                        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600 tracking-wide uppercase">
+                          {openCount} offen
                         </span>
                       )}
                       {isOpen 
-                        ? <ChevronUp className="w-4 h-4 text-slate-300" />
-                        : <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-400 transition-colors" />
+                        ? <ChevronUp className="w-5 h-5 text-slate-300" />
+                        : <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" />
                       }
                     </div>
                   </div>
                 </CollapsibleTrigger>
 
                 <CollapsibleContent>
-                  <div className="px-5 pb-4">
-                    <div className="space-y-0">
-                      {items.map((item, idx) => {
-                    const itemFiles = getUserDocumentsForItem(item.id);
-                    const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
-                    
-                    return <div key={item.id} className={cn("py-3", idx > 0 && "border-t border-slate-100/80")}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {item.uploaded 
-                            ? <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
-                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                              </div>
-                            : <div className="w-5 h-5 rounded-full border-2 border-slate-200 shrink-0" />
-                          }
-                          <div className="min-w-0">
-                            <h3 className={cn("text-sm leading-tight", item.uploaded ? "text-slate-400" : "text-slate-700 font-medium")}>{item.title}</h3>
-                          </div>
-                        </div>
-                        
-                        <div className="shrink-0">
-                          {item.uploaded ? (
-                            <div className="flex items-center gap-0.5">
-                              <button onClick={() => handleViewDocuments(item.id, 0)} className="text-xs text-slate-400 hover:text-[#1D64FF] px-2 py-1 rounded-lg transition-colors">
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
-                              <button onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} className="text-xs text-slate-300 hover:text-red-400 px-2 py-1 rounded-lg transition-colors">
-                                <Trash2 className="w-3.5 h-3.5" />
+                  <div className="flex flex-col p-3 space-y-1">
+                    {items.map((item, idx) => {
+                      const itemFiles = getUserDocumentsForItem(item.id);
+                      const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
+                      
+                      if (!item.uploaded) {
+                        return <div key={item.id}>
+                          {idx > 0 && <div className="mx-3 border-t border-dashed border-slate-100 my-1" />}
+                          <div className="flex flex-col gap-4 rounded-2xl bg-slate-50/80 p-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-3.5">
+                              <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-slate-300 bg-white shadow-sm" />
+                              <span className="text-base font-medium text-slate-900 tracking-tight">{item.title}</span>
+                            </div>
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                              {hasUnassignedDocs && (
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
+                                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:bg-slate-50 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] active:scale-95"
+                                >
+                                  <FolderOpen className="w-4 h-4" />
+                                  {t.documentChecklist.assign}
+                                </button>
+                              )}
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleUploadDocument(item.id); }}
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Hochladen
                               </button>
                             </div>
-                          ) : (
-                            <Button size="sm" onClick={() => handleUploadDocument(item.id)} className="rounded-full h-8 px-4 text-xs font-medium gap-1.5 shadow-none">
-                              <Plus className="w-3.5 h-3.5" />
-                              Hochladen
-                            </Button>
-                          )}
+                          </div>
+                        </div>;
+                      }
+                      
+                      return <div key={item.id}>
+                        {idx > 0 && <div className="mx-3 border-t border-dashed border-slate-100 my-1" />}
+                        <div className="flex items-start justify-between p-4 sm:items-center hover:bg-slate-50 rounded-2xl transition-colors">
+                          <div className="flex items-start gap-3.5 sm:items-center">
+                            <div className="mt-1 sm:mt-0 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
+                              <Check className="w-3 h-3" strokeWidth={3} />
+                            </div>
+                            <div>
+                              <span className="block text-base font-medium text-slate-400 line-through decoration-slate-300 decoration-2">
+                                {item.title}
+                              </span>
+                              {itemFiles.length > 0 && (
+                                <span className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                                  <FileCheck className="w-3.5 h-3.5" />
+                                  {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleViewDocuments(item.id, 0)} className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white hover:shadow-sm hover:text-slate-700">
+                              <Eye className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500">
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      
-                      {item.uploaded && itemFiles.length > 0 && (
-                        <p className="text-xs text-emerald-500 ml-8 mt-1">
-                          {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
-                        </p>
-                      )}
-                      
-                      {!item.uploaded && hasUnassignedDocs && (
-                        <button onClick={() => setAssignmentModal({ open: true, item })} className="text-xs text-[#1D64FF] hover:underline ml-8 mt-1.5 flex items-center gap-1">
-                          <FolderOpen className="w-3 h-3" />
-                          {t.documentChecklist.assign}
-                        </button>
-                      )}
-                    </div>;
-                  })}
-                    </div>
+                      </div>;
+                    })}
                   </div>
                 </CollapsibleContent>
               </div>
