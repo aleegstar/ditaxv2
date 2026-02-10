@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -24,6 +24,7 @@ const SelectPerson: React.FC = () => {
   const { t } = useI18n();
   const { taxFilers, setActiveTaxFilerId, confirmSelection, isLoading } = useTaxFiler();
   const { profile } = useProfile();
+  const hasAnimated = useRef(false);
 
   // Get avatar URL - for primary user, use profile avatar if tax_filer avatar is not set
   const getAvatarUrl = (filer: TaxFiler): string | undefined => {
@@ -58,6 +59,12 @@ const SelectPerson: React.FC = () => {
     );
   }
 
+  // After first successful render with data, mark as animated
+  const shouldAnimate = !hasAnimated.current;
+  if (taxFilers.length > 0) {
+    hasAnimated.current = true;
+  }
+
   return (
     <div className="min-h-screen bg-background antialiased">
       <div className="max-w-lg mx-auto px-5 pt-10 pb-12">
@@ -68,7 +75,7 @@ const SelectPerson: React.FC = () => {
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           className="text-center mb-10"
@@ -86,9 +93,9 @@ const SelectPerson: React.FC = () => {
           {taxFilers.map((filer, index) => (
             <motion.button
               key={filer.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: shouldAnimate ? index * 0.1 : 0 }}
               onClick={() => handleSelectPerson(filer)}
               className="w-full group relative overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
             >
@@ -139,9 +146,9 @@ const SelectPerson: React.FC = () => {
 
           {/* Add Person Button - Modern dashed style */}
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
+            initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: taxFilers.length * 0.1 }}
+            transition={{ duration: 0.4, delay: shouldAnimate ? taxFilers.length * 0.1 : 0 }}
             onClick={handleAddPerson}
             className="w-full overflow-hidden rounded-[2.2rem] p-7 border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-300"
           >
