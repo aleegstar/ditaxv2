@@ -24,6 +24,11 @@ import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentMo
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import DocumentValidator from '@/services/DocumentValidator';
+import AIDocumentValidation from '@/components/ui/ai-document-validation';
+import { DocumentCheckScreen } from '@/components/documents/DocumentCheckScreen';
+import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -82,6 +87,13 @@ const DocumentChecklist: React.FC = () => {
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [uploadingItems, setUploadingItems] = useState<string[]>([]);
+  const [ocrDrawerOpen, setOcrDrawerOpen] = useState(false);
+  const [ocrPhase, setOcrPhase] = useState<'validating' | 'result'>('validating');
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [validationProgress, setValidationProgress] = useState<ValidationProgress>({ step: 'preparing', percent: 0, message: '' });
+  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
+  const [pendingUploadItem, setPendingUploadItem] = useState<ChecklistItem | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
   const hasShownCompletionDialog = useRef(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const isMobile = useIsMobile();
@@ -106,8 +118,40 @@ const DocumentChecklist: React.FC = () => {
         return;
       }
 
+      // Store pending upload data and open drawer
+      setPendingUploadFile(file);
+      setPendingUploadItem(item);
+      setOcrPhase('validating');
+      setValidationResult(null);
+      setValidationProgress({ step: 'preparing', percent: 0, message: '' });
+      setOcrDrawerOpen(true);
+
+      // Run OCR validation
+      const validator = DocumentValidator.getInstance();
+      const result = await validator.validate(file, item.id, (progress) => {
+        setValidationProgress(progress);
+      });
+
+      setValidationResult(result);
+
+      // If high confidence and no confirmation needed, auto-submit
+      if (result.best.confidence >= 80 && !result.needsUserConfirmation) {
+        await executeUpload(file, item);
+        setOcrDrawerOpen(false);
+      } else {
+        setOcrPhase('result');
+      }
+    } catch (error: any) {
+      console.error('OCR validation error:', error);
+      setOcrDrawerOpen(false);
+      toast({ title: 'Validierung fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
+    }
+  };
+
+  const executeUpload = async (file: File, item: ChecklistItem) => {
+    try {
       setUploadingItems(prev => [...prev, item.id]);
-      toast({ title: 'Upload gestartet', description: `${file.name} wird hochgeladen…` });
+      setIsConfirming(true);
 
       const { data: sessionData } = await supabase.auth.getSession();
       const currentUserId = sessionData?.session?.user?.id;
@@ -132,11 +176,40 @@ const DocumentChecklist: React.FC = () => {
       markUploaded(item.id, true);
       refreshDocuments();
     } catch (error: any) {
-      console.error('Quick upload error:', error);
+      console.error('Upload error:', error);
       toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
     } finally {
       setUploadingItems(prev => prev.filter(id => id !== item.id));
+      setIsConfirming(false);
     }
+  };
+
+  const handleOcrConfirm = async () => {
+    if (pendingUploadFile && pendingUploadItem) {
+      await executeUpload(pendingUploadFile, pendingUploadItem);
+      setOcrDrawerOpen(false);
+      setPendingUploadFile(null);
+      setPendingUploadItem(null);
+    }
+  };
+
+  const handleOcrReupload = () => {
+    setOcrDrawerOpen(false);
+    setPendingUploadFile(null);
+    // Re-trigger file input for the same item
+    if (pendingUploadItem) {
+      const itemId = pendingUploadItem.id;
+      setPendingUploadItem(null);
+      setTimeout(() => {
+        handleUploadDocument(itemId);
+      }, 300);
+    }
+  };
+
+  const handleOcrClose = () => {
+    setOcrDrawerOpen(false);
+    setPendingUploadFile(null);
+    setPendingUploadItem(null);
   };
 
   useEffect(() => {
@@ -657,6 +730,30 @@ const DocumentChecklist: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* OCR Validation Drawer */}
+      <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
+        <DrawerContent className="p-6 pt-8 max-h-[90vh] overflow-y-auto">
+          {ocrPhase === 'validating' && (
+            <AIDocumentValidation
+              progress={validationProgress}
+              documentType={pendingUploadItem?.title || 'Dokument'}
+              documentTypeId={pendingUploadItem?.id}
+              foundKeywords={validationProgress.foundKeywords}
+            />
+          )}
+          {ocrPhase === 'result' && validationResult && pendingUploadFile && (
+            <DocumentCheckScreen
+              result={validationResult}
+              fileName={pendingUploadFile.name}
+              onConfirm={handleOcrConfirm}
+              onReupload={handleOcrReupload}
+              onClose={handleOcrClose}
+              isConfirming={isConfirming}
+            />
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>;
 };
 export default DocumentChecklist;
