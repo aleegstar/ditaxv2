@@ -180,7 +180,7 @@ export const TaxYearDashboard: React.FC = () => {
     const allAngabenComplete = angabenSections.every(s => isCompleted(s.id));
     const documentsComplete = isCompleted('documents');
     if (allAngabenComplete && documentsComplete) {
-      navigate('/payment');
+      navigate(`/payment?year=${taxYear}`);
     }
   };
   const angabenProgress = getAngabenProgress();

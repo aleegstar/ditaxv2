@@ -34,7 +34,7 @@ export const OrderHeader: React.FC<OrderHeaderProps> = ({ orderId, placedDate, t
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/payment')}
+              onClick={() => navigate(`/payment?year=${taxYear}`)}
               className="flex items-center gap-2"
             >
               <FileText className="w-4 h-4" />
