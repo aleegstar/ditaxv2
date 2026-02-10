@@ -469,7 +469,7 @@ serve(async (req) => {
           payment_method_types: paymentMethodTypes,
           line_items,
           mode: "payment",
-          success_url: `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}&tax_return_id=${taxReturnId || ''}`,
+          success_url: `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}`,
           cancel_url: `${appOrigin}/form?year=${taxYear}`,
           locale: "de",
           client_reference_id: taxReturnId || `${user.id}-${taxYear}`,
