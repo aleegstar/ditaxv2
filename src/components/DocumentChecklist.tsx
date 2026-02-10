@@ -134,8 +134,8 @@ const DocumentChecklist: React.FC = () => {
 
       setValidationResult(result);
 
-      // If high confidence and no confirmation needed, auto-submit
-      if (result.best.confidence >= 80 && !result.needsUserConfirmation) {
+      // If high confidence, auto-submit without showing result screen
+      if (result.best.confidence >= 80) {
         await executeUpload(file, item);
         setOcrDrawerOpen(false);
       } else {
