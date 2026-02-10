@@ -731,7 +731,7 @@ const DocumentChecklist: React.FC = () => {
 
       {/* OCR Validation Bottom Sheet */}
       <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
-        <DrawerContent variant="bottom-sheet" className="overflow-y-auto">
+        <DrawerContent variant="bottom-sheet" className="overflow-hidden">
           <div className="px-6 pt-4 pb-2">
             {ocrPhase === 'validating' && (
               <AIDocumentValidation
