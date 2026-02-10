@@ -1,62 +1,37 @@
 
-# OCR-Validierung als Bottom Sheet in der Dokumentencheckliste
 
-## Uebersicht
-Nach dem Datei-Upload in der Checkliste wird die OCR-Validierung in einem Bottom Sheet (Drawer) angezeigt, statt nur Toast-Benachrichtigungen zu verwenden. Der User sieht die "AI prueft"-Animation und danach das Validierungsergebnis (DocumentCheckScreen) -- alles innerhalb des Drawers.
+# Verschwommener Overlay-Effekt ohne CSS Blur
 
-## Ablauf
+## Problem
+Auf Android WebView funktioniert `backdrop-filter: blur()` nicht. Der Hintergrund braucht trotzdem einen "verschwommenen" Effekt wenn das OCR Bottom Sheet offen ist.
 
-```text
-1. User klickt "Hochladen" -> Datei-Picker oeffnet sich
-2. User waehlt Datei -> Bottom Sheet faehrt hoch
-3. Phase 1: AIDocumentValidation-Animation (Sphere + rotierende Status-Texte)
-4. Phase 2: DocumentCheckScreen (Ergebnis mit Confirm/Reupload Buttons)
-5. Bei "Einreichen" -> Upload im Hintergrund, Sheet schliesst sich
-6. Bei "Anderes Dokument" -> Sheet schliesst sich, Datei verworfen
-```
+## Loesung: Halbtransparentes Overlay mit Noise-Textur
+
+Statt echtem Blur verwenden wir eine Kombination aus:
+1. **Dunkles halbtransparentes Overlay** (`rgba(0,0,0,0.45)`) -- verdeckt den Hintergrund visuell
+2. **CSS Noise-Pattern** via SVG-Filter (`feTurbulence`) -- erzeugt eine subtile Koernung die den Eindruck von Unschaerfe verstaerkt
+3. **Sanfte Einblend-Animation** fuer einen fluessigen Uebergang
+
+Das Ergebnis sieht auf allen Geraeten gleich aus, da kein `backdrop-filter` verwendet wird.
 
 ## Technische Umsetzung
 
-### Datei: `src/components/DocumentChecklist.tsx`
-
-**Neue Imports:**
-- `DocumentValidator` aus `@/services/DocumentValidator`
-- `AIDocumentValidation` aus `@/components/ui/ai-document-validation`
-- `DocumentCheckScreen` aus `@/components/documents/DocumentCheckScreen`
-- `Drawer, DrawerContent` aus `@/components/ui/drawer`
-- `ValidationResult, ValidationProgress` aus `@/types/documentProfile`
-
-**Neue State-Variablen:**
-- `ocrDrawerOpen: boolean` -- steuert das Bottom Sheet
-- `ocrPhase: 'validating' | 'result'` -- welche Phase im Drawer
-- `validationResult: ValidationResult | null` -- OCR-Ergebnis
-- `validationProgress: ValidationProgress | null` -- Fortschritt waehrend OCR
-- `pendingUploadFile: File | null` -- die ausgewaehlte Datei
-- `pendingUploadItem: ChecklistItem | null` -- das zugehoerige Item
-
-**Aenderung an `handleQuickUpload`:**
-1. Datei wird validiert (Typ/Groesse) wie bisher
-2. Statt sofortigem Upload wird das Bottom Sheet geoeffnet (`ocrDrawerOpen = true`)
-3. `DocumentValidator.validate()` wird aufgerufen mit Progress-Callback
-4. Waehrend der Validierung: Phase `'validating'` zeigt `AIDocumentValidation`
-5. Nach Abschluss: Phase wechselt zu `'result'` und zeigt `DocumentCheckScreen`
-6. Bei hoher Konfidenz (>= 80, kein `needsUserConfirmation`): Upload startet automatisch, Drawer schliesst sich
-
-**Drawer-Inhalt (im JSX):**
-- Phase `validating`: `AIDocumentValidation` mit `progress`, `documentType` und `documentTypeId`
-- Phase `result`: `DocumentCheckScreen` mit `result`, `fileName`, `onConfirm`, `onReupload`
-
-**Callbacks im Drawer:**
-- `onConfirm`: Upload ausfuehren (bestehende Upload-Logik), Drawer schliessen, Toast zeigen
-- `onReupload`: Drawer schliessen, Datei verwerfen, File-Input erneut triggern
-- `onClose`: Drawer schliessen, Datei verwerfen
-
 ### Datei: `src/components/ui/drawer.tsx`
 
-Keine Aenderung noetig -- der bestehende Drawer wird als Fullscreen-Overlay verwendet, was fuer das Bottom-Sheet-Erlebnis auf Mobile gut funktioniert.
+Die `DrawerOverlay`-Komponente erhaelt ein neues Styling:
 
-### Bestehende Logik bleibt erhalten
-- Alle Upload-Parameter (userId, taxYear, activeTaxFilerId, checklistItemId) bleiben identisch
-- `EncryptedDocumentService.uploadEncryptedDocument()` wird weiterhin verwendet
-- `markUploaded()` und `refreshDocuments()` werden nach erfolgreichem Upload aufgerufen
-- Fehlerbehandlung mit Toast-Benachrichtigungen bleibt bestehen
+- Hintergrundfarbe von `#ffffff2e` (fast unsichtbar) auf `rgba(0, 0, 0, 0.45)` aendern
+- Ein `::after` Pseudo-Element mit einem inline SVG `feTurbulence`-Filter als `background-image` hinzufuegen -- das erzeugt ein feines Rauschen ueber dem Overlay
+- Alternativ einfach nur das dunkle Overlay ohne Noise, falls die Noise-Textur zu komplex ist
+
+### Datei: `src/index.css`
+
+Eine neue CSS-Klasse `.drawer-overlay-frosted` mit:
+- `background-color: rgba(0, 0, 0, 0.4)`
+- `transition: opacity 0.3s ease`
+- Ein `::after` mit einem wiederholenden SVG-Noise-Pattern (`opacity: 0.03`) fuer den subtilen Frosted-Effekt
+
+### Ergebnis
+- Kein `backdrop-filter` oder `-webkit-backdrop-filter` noetig
+- Funktioniert identisch auf Android WebView und iOS
+- Visuell aehnlich wie ein Frosted-Glass-Effekt durch die Kombination aus Abdunklung + Rauschen
