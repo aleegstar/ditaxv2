@@ -509,34 +509,32 @@ const DocumentChecklist: React.FC = () => {
         const progressPercent = totalCount > 0 ? Math.round((currentCount / totalCount) * 100) : 0;
         const isComplete = progressPercent === 100;
         
-        return <div className="relative mb-6">
-              {/* Background blue layer */}
+        return <div className="mb-4">
               <div className={cn(
-                "rounded-[2rem] p-7 pb-24 text-white shadow-xl relative z-0",
-                isComplete ? "bg-emerald-400 shadow-emerald-500/10" : "bg-[#7ca5fc] shadow-blue-500/10"
+                "rounded-2xl px-5 py-4 text-white shadow-md",
+                isComplete ? "bg-emerald-500" : "bg-[#7ca5fc]"
               )}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2.5">
                     {!isComplete && (
-                      <div className="h-5 w-5 rounded-full border-[1.5px] border-white/20 border-t-white animate-spin" style={{ animationDuration: '3s' }} />
+                      <div className="h-4 w-4 rounded-full border-[1.5px] border-white/30 border-t-white animate-spin" style={{ animationDuration: '3s' }} />
                     )}
-                    {isComplete && <Check className="w-5 h-5 text-white" strokeWidth={2} />}
-                    <span className="text-[15px] font-medium tracking-tight opacity-90">Fortschritt</span>
+                    {isComplete && <Check className="w-4 h-4 text-white" strokeWidth={2.5} />}
+                    <span className="text-sm font-medium opacity-90">
+                      {isComplete 
+                        ? t.documentChecklist.allMandatoryPresent
+                        : `${currentCount} von ${totalCount} hochgeladen`
+                      }
+                    </span>
                   </div>
-                  <span className="font-semibold tracking-tight">{progressPercent}%</span>
+                  <span className="text-sm font-semibold">{progressPercent}%</span>
                 </div>
-              </div>
-
-              {/* Foreground white card */}
-              <div className="relative -mt-16 mx-0 bg-white rounded-[2rem] p-8 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] z-10">
-                <div className="mt-4 mb-2">
-                  <h1 className="text-[2.75rem] leading-none font-medium text-slate-900 tracking-tighter">{taxYear}</h1>
-                  <p className="text-[15px] leading-relaxed font-medium text-slate-400 mt-3">
-                    {isComplete 
-                      ? t.documentChecklist.allMandatoryPresent
-                      : 'Lade hier deine Unterlagen hoch'
-                    }
-                  </p>
+                {/* Progress bar */}
+                <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-white rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
                 </div>
               </div>
             </div>;
