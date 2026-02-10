@@ -171,22 +171,20 @@ export const AdminDashboard: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .in('status', ['pending', 'under_review']);
 
-      // Calculate revenue (assuming each paid tax return is worth 199 CHF)
-      const { count: paidThisMonth } = await supabase
-        .from('tax_returns')
-        .select('*', { count: 'exact', head: true })
-        .eq('payment_status', 'paid')
-        .gte('payment_date', startOfMonth.toISOString());
-
-      const { count: paidLastMonth } = await supabase
-        .from('tax_returns')
-        .select('*', { count: 'exact', head: true })
-        .eq('payment_status', 'paid')
-        .gte('payment_date', startOfLastMonth.toISOString())
-        .lte('payment_date', endOfLastMonth.toISOString());
-
-      const revenueThisMonth = (paidThisMonth || 0) * 199;
-      const revenueLastMonth = (paidLastMonth || 0) * 199;
+      // Fetch real revenue from Stripe API
+      let revenueThisMonth = 0;
+      let revenueLastMonth = 0;
+      try {
+        const { data: revenueData, error: revenueError } = await supabase.functions.invoke('get-stripe-revenue');
+        if (!revenueError && revenueData) {
+          revenueThisMonth = revenueData.revenueThisMonth || 0;
+          revenueLastMonth = revenueData.revenueLastMonth || 0;
+        } else {
+          console.warn('Failed to fetch Stripe revenue, using fallback:', revenueError);
+        }
+      } catch (e) {
+        console.warn('Stripe revenue fetch failed:', e);
+      }
 
       // Generate mock chart data (in production, this would come from daily/weekly aggregates)
       const generateChartData = (current: number, previous: number) => {
