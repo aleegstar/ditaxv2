@@ -184,12 +184,13 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
             </UnifiedAlertDialogDescription>
           </UnifiedAlertDialogHeader>
           <UnifiedAlertDialogFooter>
-            <UnifiedAlertDialogCancel
+            <UnifiedAlertDialogAction
               onClick={handleWithChanges}
               disabled={isImporting}
+              variant="secondary"
             >
               Ja, ich möchte Änderungen vornehmen
-            </UnifiedAlertDialogCancel>
+            </UnifiedAlertDialogAction>
             <UnifiedAlertDialogAction
               onClick={handleNoChanges}
               disabled={isImporting}
