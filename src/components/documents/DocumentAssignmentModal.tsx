@@ -376,11 +376,11 @@ const DocumentAssignmentModal: React.FC<DocumentAssignmentModalProps> = ({
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 pb-32 relative z-20">
 
-            {/* Context Text */}
+            {/* Context Pill */}
             <div className="mb-6">
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Zuordnen zu: <span className="text-slate-900 font-medium">{checklistItemTitle}</span>
-              </p>
+              <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                Zuordnen zu: {checklistItemTitle}
+              </span>
             </div>
 
             {/* Search Bar */}
