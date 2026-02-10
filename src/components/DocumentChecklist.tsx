@@ -99,7 +99,7 @@ const DocumentChecklist: React.FC = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  const handleNext = () => { navigate('/payment'); };
+  const handleNext = () => { navigate(`/payment?year=${taxYear}`); };
   const handleBack = () => { navigate('/form?section=deductions'); };
   const handleUploadDocument = (itemId: string) => {
     const input = fileInputRefs.current[itemId];
@@ -718,7 +718,7 @@ const DocumentChecklist: React.FC = () => {
             </div>
             <p className="text-slate-400 text-sm leading-relaxed text-center mb-8">{t.documentChecklist.dialogDescription}</p>
             <div className="flex flex-col gap-3">
-              <Button onClick={() => navigate('/payment')} className="w-full h-12 rounded-xl">
+              <Button onClick={() => navigate(`/payment?year=${taxYear}`)} className="w-full h-12 rounded-xl">
                 {t.documentChecklist.createNow}
               </Button>
               <Button variant="ghost" onClick={() => setShowCompletionDialog(false)} className="w-full h-11 rounded-xl text-slate-400 hover:text-slate-600">
