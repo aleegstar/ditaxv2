@@ -174,7 +174,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       {/* Changes dialog */}
       <UnifiedAlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <UnifiedAlertDialogContent showCloseButton onClose={() => setShowChangesDialog(false)} className="p-6">
+        <UnifiedAlertDialogContent showCloseButton={false} className="p-6">
           <UnifiedAlertDialogHeader>
             <UnifiedAlertDialogTitle>
               Gibt es Änderungen?
@@ -184,18 +184,18 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
             </UnifiedAlertDialogDescription>
           </UnifiedAlertDialogHeader>
           <UnifiedAlertDialogFooter>
-            <UnifiedAlertDialogAction
-              onClick={handleNoChanges}
-              disabled={isImporting}
-            >
-              Nein, keine Änderungen
-            </UnifiedAlertDialogAction>
             <UnifiedAlertDialogCancel
               onClick={handleWithChanges}
               disabled={isImporting}
             >
               Ja, ich möchte Änderungen vornehmen
             </UnifiedAlertDialogCancel>
+            <UnifiedAlertDialogAction
+              onClick={handleNoChanges}
+              disabled={isImporting}
+            >
+              Nein, keine Änderungen
+            </UnifiedAlertDialogAction>
           </UnifiedAlertDialogFooter>
         </UnifiedAlertDialogContent>
       </UnifiedAlertDialog>
