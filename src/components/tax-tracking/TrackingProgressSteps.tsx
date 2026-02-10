@@ -56,8 +56,8 @@ export const TrackingProgressSteps: React.FC<TrackingProgressStepsProps> = ({
       },
       {
         id: 'completed',
-        title: 'Versand per Post',
-        description: 'Du erhältst deine fertige Steuererklärung per Post.',
+        title: 'Zustellung',
+        description: 'Deine fertige Steuererklärung wird dir zugestellt.',
         status: 'pending'
       }
     ];
