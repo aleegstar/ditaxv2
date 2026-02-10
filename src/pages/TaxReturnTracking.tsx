@@ -118,8 +118,8 @@ export default function TaxReturnTracking() {
     return null;
   }
   return <div className="min-h-screen bg-white text-slate-700 antialiased flex justify-center">
-      {/* Main Container */}
-      <div className="w-full max-w-[480px] min-h-screen bg-white relative flex flex-col overflow-hidden border-x border-[#e1e7ef]/0 border-0">
+      {/* Main Container - wider on desktop */}
+      <div className="w-full max-w-[480px] md:max-w-2xl lg:max-w-3xl min-h-screen bg-white relative flex flex-col overflow-hidden">
 
         {/* Sticky Header */}
         <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
