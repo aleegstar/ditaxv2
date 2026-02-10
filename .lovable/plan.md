@@ -1,47 +1,62 @@
 
 
-# Dokumenten-Checkliste modernisieren
+# Weniger Klicks beim Dokument-Upload
 
-## Ziel
-Die Dokumenten-Checkliste visuell an das bestehende App-Design angleichen: cleaner weisser Hintergrund, subtile Karten mit Borders statt farbigen Backgrounds, einheitliche Typografie und bessere visuelle Hierarchie -- analog zur Profilseite und anderen Subpages.
+## Problem
+Aktuell muss der User auf "Hochladen" klicken, wird auf eine separate Upload-Seite navigiert, dort eine Datei auswaehlen und dann nochmals "Hochladen" klicken. Das sind mindestens 3-4 Klicks.
 
-## Aenderungen
+## Loesung: Direkter Upload aus der Checkliste (2 Klicks)
 
-### 1. Progress-Sektion neu gestalten
-- Aktuell: `bg-slate-50/80 ring-1 ring-slate-200/50` -- wirkt flach
-- Neu: `bg-white border border-slate-200 shadow-sm rounded-2xl` -- passend zum Card-Stil der App
-- Fortschrittsbalken: schlankere `h-1` Hoehe mit abgerundeten Enden
-- Abgeschlossen-Zustand: dezentes `border-emerald-200 bg-emerald-50/50` statt vollem `bg-emerald-50/80`
+Der "Hochladen"-Button oeffnet direkt den nativen Datei-Picker. Nach Auswahl wird die Datei sofort im Hintergrund hochgeladen. Status-Updates kommen als Toast-Benachrichtigungen.
 
-### 2. Kategorie-Collapsibles ueberarbeiten
-- Aktuell: `bg-slate-50/80 rounded-2xl` -- zu wenig Kontrast
-- Neu: `bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow`
-- Expanded Header: statt `bg-slate-100/50` ein subtileres `border-b border-slate-100`
-- Icon-Badges: konsistente `w-9 h-9 rounded-xl` mit `bg-slate-100` (offen) bzw. Farbcodes (abgeschlossen)
+## Ablauf vorher vs. nachher
 
-### 3. Einzel-Dokumenten-Items verfeinern
-- Aktuell: `ring-1 ring-slate-200/60` -- ring statt border
-- Neu: `bg-white border border-slate-200 rounded-xl hover:border-slate-300 transition-colors`
-- Upload-Button: `bg-primary` bleibt, aber mit `shadow-sm` und feinerer Hoehe (`h-9`)
-- Erforderlich-Badge: dezentere Gestaltung mit `bg-amber-50 text-amber-600 border border-amber-200`
-- Hochgeladene Dokumente: Trennlinie `border-slate-100` bleibt, aber Actions erhalten `rounded-lg hover:bg-slate-50`
+```text
+VORHER:                          NACHHER:
+1. "Hochladen" klicken           1. "Hochladen" klicken
+2. Upload-Seite laedt            2. Datei auswaehlen
+3. Datei auswaehlen              -> Upload startet automatisch
+4. "Hochladen" klicken           -> Toast zeigt Erfolg/Fehler
+5. Warten auf Upload
+6. Zurueck zur Checkliste
+```
 
-### 4. Completion-Dialog anpassen
-- Buttons-Reihenfolge tauschen: primaerer CTA-Button oben, sekundaerer unten (konsistent mit dem Rest der App)
+## Technische Umsetzung
 
-### 5. Leerzustand verbessern
-- Zentrierter Text mit Icon und klarerem Spacing
-- Button im Primary-Stil mit `rounded-xl` statt default
+### Datei: `src/components/DocumentChecklist.tsx`
 
-## Technische Details
+1. **Hidden File Inputs hinzufuegen**: Pro Checklist-Item ein verstecktes `<input type="file">` Element mit den korrekten Akzeptanz-Attributen (image/jpeg, image/png, application/pdf, etc.)
 
-Nur eine Datei wird bearbeitet: `src/components/DocumentChecklist.tsx`
+2. **`handleUploadDocument` aendern**: Statt `navigate()` aufzurufen, wird der versteckte File-Input getriggert (`fileInputRef.current?.click()`)
 
-Hauptaenderungen sind CSS-Klassen-Swaps:
-- `bg-slate-50/80` wird zu `bg-white border border-slate-200 shadow-sm`
-- `ring-1 ring-*` wird zu `border border-*`
-- Konsistente `rounded-2xl` fuer Karten, `rounded-xl` fuer innere Elemente
-- Hover-States mit `transition-all` oder `transition-colors`
+3. **Neue `handleQuickUpload` Funktion**: 
+   - Nimmt die ausgewaehlte Datei entgegen
+   - Validiert via `validateFile()` aus `@/utils/fileValidation`
+   - Laedt ueber `EncryptedDocumentService.uploadEncryptedDocument()` hoch mit allen korrekten Parametern:
+     - `checklistItemId` (aus dem jeweiligen Item)
+     - `userId` (aus Auth Session)
+     - `taxYear` (aus FormContext)
+     - `checklistItemTitle` (fuer Dateinamen-Prefix)
+     - `activeTaxFilerId` (aus TaxFilerContext)
+   - Zeigt Erfolg/Fehler als Toast
+   - Aktualisiert die Dokumentenliste via `refreshDocuments()`
 
-Keine neuen Abhaengigkeiten oder Komponenten noetig.
+4. **Upload-Status pro Item**: Ein State `uploadingItems` trackt welche Items gerade hochladen, um einen Spinner im Button anzuzeigen
+
+5. **Wichtige Parameter-Uebergaben** (damit Upload weiterhin korrekt funktioniert):
+   - `activeTaxFilerId` wird aus `useTaxFiler()` geholt
+   - `taxYear` kommt aus `useFormContext()`
+   - `userId` wird aus `supabase.auth.getSession()` gelesen
+   - `checklistItemId` und `checklistItemTitle` kommen direkt vom jeweiligen ChecklistItem
+
+### Imports hinzufuegen
+- `EncryptedDocumentService` aus `@/services/EncryptedDocumentService`
+- `validateFile` aus `@/utils/fileValidation`
+- `useTaxFiler` aus `@/contexts/TaxFilerContext`
+- `Loader2` Icon (bereits importiert)
+
+### Bestehende Funktionalitaet bleibt erhalten
+- Die separate Upload-Seite (`DocumentUploadPage`) bleibt bestehen fuer Faelle mit Dokumenten-Validierung/OCR
+- Die `UploadActionSheet` (Foto/Scan/Datei) wird nicht beruehrt
+- Alle bestehenden RLS-Policies und Verschluesselung bleiben aktiv
 
