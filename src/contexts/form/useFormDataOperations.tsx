@@ -192,21 +192,21 @@ export const useFormDataOperations = (
               ...newFormData.income, 
               ...item.data 
             };
-            newFormProgress.income = true;
+            newFormProgress.income = item.data._completed === true;
           }
           else if (item.form_type === 'assets') {
             newFormData.assets = { 
               ...newFormData.assets, 
               ...item.data 
             };
-            newFormProgress.assets = true;
+            newFormProgress.assets = item.data._completed === true;
           }
           else if (item.form_type === 'deductions') {
             newFormData.deductions = { 
               ...newFormData.deductions, 
               ...item.data 
             };
-            newFormProgress.deductions = true;
+            newFormProgress.deductions = item.data._completed === true;
           }
         });
         

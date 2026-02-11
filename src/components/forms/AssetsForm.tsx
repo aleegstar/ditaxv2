@@ -101,12 +101,13 @@ const AssetsForm = ({
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     try {
+      const dataWithCompleted = { ...currentAssetsData, _completed: true };
       // Save to database first
-      await saveSection('assets', currentAssetsData);
+      await saveSection('assets', dataWithCompleted);
       // Update form progress
       updateFormProgress('assets', true);
       // Update local state
-      updateFormData('assets', currentAssetsData);
+      updateFormData('assets', dataWithCompleted);
       
       toast({
         title: t.forms.savedSuccessfully,

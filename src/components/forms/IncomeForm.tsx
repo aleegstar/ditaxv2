@@ -100,9 +100,10 @@ const IncomeForm = ({
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     try {
-      await saveSection('income', currentIncomeData);
+      const dataWithCompleted = { ...currentIncomeData, _completed: true };
+      await saveSection('income', dataWithCompleted);
       updateFormProgress('income', true);
-      updateFormData('income', currentIncomeData);
+      updateFormData('income', dataWithCompleted);
       toast({
         title: t.forms.savedSuccessfully,
         description: t.forms.savedSuccessfullyDescription
