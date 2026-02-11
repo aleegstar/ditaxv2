@@ -93,6 +93,7 @@ const DocumentChecklist: React.FC = () => {
   const [validationProgress, setValidationProgress] = useState<ValidationProgress>({ step: 'preparing', percent: 0, message: '' });
   const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
   const [pendingUploadItem, setPendingUploadItem] = useState<ChecklistItem | null>(null);
+  const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const hasShownCompletionDialog = useRef(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -118,13 +119,13 @@ const DocumentChecklist: React.FC = () => {
         return;
       }
 
-      // Clone file for upload: Mobile WebViews can only read a File object once.
-      // OCR consumes the original, so we clone it for the upload step.
-      // Use file.slice() instead of arrayBuffer() - slice() is lazy and doesn't trigger I/O.
-      const uploadFile = new File([file.slice()], file.name, { type: file.type, lastModified: file.lastModified });
+      // Read file bytes ONCE before OCR consumes the File object.
+      // Mobile WebViews cannot re-read a File after it's been consumed by OCR.
+      const fileBuffer = await file.arrayBuffer();
+      setPendingUploadBuffer(fileBuffer);
 
-      // Store cloned file for upload, original goes to OCR
-      setPendingUploadFile(uploadFile);
+      // Keep original file ref for display purposes only
+      setPendingUploadFile(file);
       setPendingUploadItem(item);
       setOcrPhase('validating');
       setValidationResult(null);
@@ -169,10 +170,11 @@ const DocumentChecklist: React.FC = () => {
         setOcrDrawerOpen(false);
         setPendingUploadFile(null);
         setPendingUploadItem(null);
+        setPendingUploadBuffer(null);
         setValidationResult(null);
         setOcrPhase('validating');
-        // Fire-and-forget: executeUpload uses cloned file
-        executeUpload(uploadFile, item);
+        // Fire-and-forget: upload uses pre-read buffer
+        executeUpload(fileBuffer, file.name, file.type, item);
       } else {
         setOcrPhase('result');
       }
@@ -183,14 +185,14 @@ const DocumentChecklist: React.FC = () => {
     }
   };
 
-  const executeUpload = async (file: File, item: ChecklistItem) => {
-    const timeoutMs = 90000; // 90s for mobile encryption + upload
+  const executeUpload = async (fileBuffer: ArrayBuffer, fileName: string, fileType: string, item: ChecklistItem) => {
+    const timeoutMs = 90000;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
     try {
       setUploadingItems(prev => [...prev, item.id]);
       setIsConfirming(true);
-      console.log('[executeUpload] Starting upload for:', item.id, item.title);
+      console.log('[executeUpload] Starting buffer upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
         console.log('[executeUpload] Getting session...');
@@ -200,13 +202,15 @@ const DocumentChecklist: React.FC = () => {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
           return;
         }
-        console.log('[executeUpload] Session OK, starting encryption...');
+        console.log('[executeUpload] Session OK, starting encryption from buffer...');
 
         const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
 
         const encryptedDocService = EncryptedDocumentService.getInstance();
-        await encryptedDocService.uploadEncryptedDocument(
-          file,
+        await encryptedDocService.uploadFromBuffer(
+          fileBuffer,
+          fileName,
+          fileType,
           item.id,
           currentUserId,
           taxYear,
@@ -241,24 +245,28 @@ const DocumentChecklist: React.FC = () => {
 
   const handleOcrConfirm = () => {
     console.log('[handleOcrConfirm] called', { 
+      hasPendingBuffer: !!pendingUploadBuffer, 
       hasPendingFile: !!pendingUploadFile, 
       hasPendingItem: !!pendingUploadItem,
       isConfirming 
     });
-    if (pendingUploadFile && pendingUploadItem) {
+    if (pendingUploadBuffer && pendingUploadFile && pendingUploadItem) {
       // Capture refs before clearing state
-      const file = pendingUploadFile;
+      const buffer = pendingUploadBuffer;
+      const fileName = pendingUploadFile.name;
+      const fileType = pendingUploadFile.type;
       const item = pendingUploadItem;
       
       // Close drawer immediately - upload runs in background
       setOcrDrawerOpen(false);
       setPendingUploadFile(null);
       setPendingUploadItem(null);
+      setPendingUploadBuffer(null);
       setValidationResult(null);
       setOcrPhase('validating');
       
       // Fire-and-forget: executeUpload handles its own errors/toasts/loading state
-      executeUpload(file, item);
+      executeUpload(buffer, fileName, fileType, item);
     } else {
       console.warn('[handleOcrConfirm] Missing pending data');
       toast({
@@ -289,6 +297,7 @@ const DocumentChecklist: React.FC = () => {
     setOcrDrawerOpen(false);
     setPendingUploadFile(null);
     setPendingUploadItem(null);
+    setPendingUploadBuffer(null);
   };
 
   useEffect(() => {

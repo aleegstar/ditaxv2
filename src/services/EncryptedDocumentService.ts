@@ -474,6 +474,94 @@ class EncryptedDocumentService {
   }
   
   /**
+   * Upload from a pre-read ArrayBuffer (avoids file.arrayBuffer() which hangs on mobile WebViews)
+   */
+  async uploadFromBuffer(
+    buffer: ArrayBuffer,
+    fileName: string,
+    fileType: string,
+    checklistItemId: string | null,
+    userId: string,
+    taxYear: string,
+    checklistItemTitle?: string,
+    taxFilerId?: string | null
+  ): Promise<void> {
+    try {
+      console.log('🔐 Starting buffer-based encrypted upload for user:', userId);
+      
+      const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
+      
+      const integrityHash = await this.cryptoService.generateIntegrityHash(buffer);
+      const { encryptedData, iv } = await this.cryptoService.encryptBuffer(buffer, encryptionKey);
+      console.log('🔐 File encrypted successfully');
+      
+      const metadata = {
+        original_name: fileName,
+        original_type: fileType,
+        original_size: buffer.byteLength,
+        upload_timestamp: new Date().toISOString()
+      };
+      
+      const { encryptedMetadata, iv: metadataIv } = await this.cryptoService.encryptMetadata(
+        metadata,
+        encryptionKey
+      );
+      
+      const fileId = uuidv4();
+      const filePath = `${userId}/${checklistItemId}/${fileId}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, new Blob([encryptedData]), {
+          contentType: 'application/octet-stream'
+        });
+      
+      if (uploadError) throw uploadError;
+      
+      console.log('📁 File uploaded to storage');
+      
+      const displayFileName = checklistItemTitle 
+        ? `${checklistItemTitle} - ${fileName}`
+        : fileName;
+      
+      const { error: dbError } = await supabase
+        .from('uploaded_documents')
+        .insert({
+          id: fileId,
+          user_id: userId,
+          tax_filer_id: taxFilerId || null,
+          checklist_item_id: checklistItemId,
+          file_name: displayFileName,
+          file_type: fileType,
+          file_path: filePath,
+          tax_year: taxYear,
+          is_assigned_to_checklist: !!checklistItemId,
+          assigned_date: checklistItemId ? new Date().toISOString() : null,
+          metadata: {
+            encrypted: true,
+            iv: iv,
+            encryptedMetadata: encryptedMetadata,
+            metadataIv: metadataIv,
+            integrity_hash: integrityHash,
+            original_size: buffer.byteLength,
+            encrypted_size: encryptedData.byteLength,
+            encryption_version: 1
+          }
+        });
+      
+      if (dbError) {
+        await supabase.storage.from('documents').remove([filePath]);
+        throw dbError;
+      }
+      
+      console.log('✅ Document metadata stored in database');
+    } catch (error) {
+      console.error('❌ Error uploading from buffer:', error);
+      throw new Error(`Fehler beim Hochladen des Dokuments: ${error.message}`);
+    }
+  }
+
+  /**
    * Get user's documents
    */
   async getUserDocuments(userId: string): Promise<DocumentMetadata[]> {
