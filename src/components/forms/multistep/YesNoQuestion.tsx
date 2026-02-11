@@ -69,15 +69,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === true
-              ? "border-emerald-300/70 ring-1 ring-emerald-300/70 bg-emerald-50/20"
-              : "border-emerald-200/40 bg-emerald-50/10 hover:shadow-md hover:border-emerald-200/60"
+              ? "border-slate-300 ring-1 ring-slate-300 bg-slate-50/50"
+              : "border-slate-200/60 bg-white hover:shadow-md hover:border-slate-300/70"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === true
               ? "bg-emerald-400 border-emerald-400 text-white"
-              : "border-emerald-200/60 bg-emerald-50/50 text-emerald-300 group-hover:border-emerald-300 group-hover:text-emerald-400"
+              : "border-slate-200 bg-slate-50 text-slate-300 group-hover:border-slate-300 group-hover:text-slate-400"
           )}>
             <Check className="w-5 h-5" />
           </div>
@@ -98,15 +98,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-rose-200 ring-1 ring-rose-200 bg-rose-50/15"
-              : "border-rose-200/30 bg-rose-50/5 hover:shadow-md hover:border-rose-200/50"
+              ? "border-slate-300 ring-1 ring-slate-300 bg-slate-50/50"
+              : "border-slate-200/60 bg-white hover:shadow-md hover:border-slate-300/70"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === false
-              ? "bg-rose-300 border-rose-300 text-white"
-              : "border-rose-200/40 bg-rose-50/30 text-rose-200 group-hover:border-rose-200 group-hover:text-rose-300"
+              ? "bg-rose-400 border-rose-400 text-white"
+              : "border-slate-200 bg-slate-50 text-slate-300 group-hover:border-slate-300 group-hover:text-slate-400"
           )}>
             <X className="w-5 h-5" />
           </div>
