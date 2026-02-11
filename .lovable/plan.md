@@ -1,101 +1,136 @@
 
 
-# Fix: file.arrayBuffer() haengt auf Mobile -- uploadFromBuffer nutzen
+# Fix: Upload auf Mobile direkt ausfuehren -- OCR ueberspringen
 
-## Das eigentliche Problem
+## Das Problem
 
-Der Button zeigt "Hochladen..." und haengt -- das bedeutet, `uploadEncryptedDocument()` wird aufgerufen aber kommt nie zurueck. Innerhalb dieser Funktion ist der **erste await** nach dem Key-Cache: `file.arrayBuffer()` (Zeile 78 in EncryptedDocumentService.ts).
+Wir drehen uns im Kreis, weil jeder Versuch, OCR VOR dem Upload auszufuehren, auf Mobile scheitert. Der OCR-Prozess verursacht Speicherdruck im WebView, der nachfolgende Operationen (file.arrayBuffer, Supabase-Aufrufe, etc.) zum Haengen bringt.
 
-Es gibt sogar schon einen Kommentar im Code (Zeile 476):
-```text
-Upload from a pre-read ArrayBuffer (avoids file.arrayBuffer() which hangs on mobile WebViews)
-```
-
-Die Methode `uploadFromBuffer()` existiert bereits -- sie wurde genau fuer dieses Problem gebaut. Aber `executeUpload` nutzt stattdessen `uploadEncryptedDocument()`, das `file.arrayBuffer()` intern aufruft. Nach 15 Sekunden OCR-Verarbeitung (Speicherdruck, WebView-GC) haengt dieser Aufruf im mobilen WebView.
-
-**Warum der Multi-Click-Flow funktionierte:** Dort wurde sofort hochgeladen, ohne OCR-Wartezeit. Die Datei war "frisch" und `file.arrayBuffer()` funktionierte noch.
+**Die funktionierenden Flows** (EnhancedDocumentUploader, InlineDocumentUploader, DocumentUploader) haben ALLE eines gemeinsam: Sie rufen `uploadEncryptedDocument` sofort mit der frischen Datei auf -- ohne OCR dazwischen.
 
 ## Die Loesung
 
-1. Den File-Buffer **vor** der OCR-Validierung lesen (solange die Datei frisch ist)
-2. Den Buffer zwischenspeichern
-3. In `executeUpload` die vorhandene Methode `uploadFromBuffer()` statt `uploadEncryptedDocument()` nutzen
+Auf Mobile: OCR komplett ueberspringen und direkt hochladen -- genau wie die funktionierenden Flows. Auf Desktop: OCR beibehalten (funktioniert dort problemlos).
+
+## Ablauf
+
+```text
+MOBILE:                          DESKTOP:
+Datei waehlen                    Datei waehlen
+    |                                |
+Datei validieren                 Datei validieren
+    |                                |
+Sofort hochladen                 OCR-Drawer oeffnen
+(uploadEncryptedDocument)            |
+    |                            OCR-Validierung
+Toast: "Erfolgreich"                 |
+                                 Ergebnis anzeigen
+                                     |
+                                 Upload starten
+```
 
 ## Technische Aenderungen
 
 ### Datei: `src/components/DocumentChecklist.tsx`
 
-**1. Neuen State fuer den vorgelesenen Buffer (bei den anderen useState-Deklarationen):**
+**In `handleQuickUpload`** -- Mobile-Erkennung hinzufuegen:
 
 ```typescript
-const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
-```
+const handleQuickUpload = async (file: File, item: ChecklistItem) => {
+  try {
+    const capturedUserId = userId;
+    if (!capturedUserId) {
+      toast({ title: 'Nicht angemeldet', ... });
+      return;
+    }
 
-**2. In `handleQuickUpload` -- Buffer VOR OCR lesen (nach Datei-Validierung, vor OCR-Start):**
+    const validation = await validateFile(file);
+    if (!validation.isValid) {
+      toast({ title: 'Ungueltige Datei', ... });
+      return;
+    }
 
-```typescript
-// Read file buffer NOW while file reference is fresh
-// (file.arrayBuffer() hangs in mobile WebViews after OCR processing)
-const fileBuffer = await file.arrayBuffer();
+    // MOBILE: Skip OCR, upload directly (like multi-click flow)
+    if (isMobile) {
+      executeDirectUpload(file, item, capturedUserId);
+      return;
+    }
 
-// ... dann OCR starten ...
-```
-
-**3. In `executeUpload` -- `uploadFromBuffer` statt `uploadEncryptedDocument` nutzen:**
-
-```typescript
-const executeUpload = async (
-  file: File,
-  item: ChecklistItem,
-  capturedUserId: string,
-  preReadBuffer: ArrayBuffer  // NEU
-) => {
-  // ...
-  // VORHER:
-  // await encryptedDocService.uploadEncryptedDocument(file, ...);
-
-  // NACHHER:
-  await encryptedDocService.uploadFromBuffer(
-    preReadBuffer,        // Schon vor OCR gelesen
-    file.name,
-    file.type,
-    item.id,
-    currentUserId,
-    taxYear,
-    item.title,
-    activeTaxFilerId
-  );
-};
-```
-
-**4. Alle Aufrufe von `executeUpload` aktualisieren:**
-
-- In `handleQuickUpload` (confidence >= 50): `executeUpload(file, item, capturedUserId, fileBuffer)`
-- In `handleOcrConfirm`: Buffer aus State lesen und uebergeben
-
-**5. `handleOcrConfirm` -- pendingUploadBuffer nutzen:**
-
-```typescript
-const handleOcrConfirm = () => {
-  if (pendingUploadFile && pendingUploadItem && pendingUploadBuffer) {
-    // ...
-    executeUpload(file, item, capturedUserId, pendingUploadBuffer);
+    // DESKTOP: OCR validation flow (unchanged)
+    const fileBuffer = await file.arrayBuffer();
+    setPendingUploadFile(file);
+    setPendingUploadItem(item);
+    setPendingUploadBuffer(fileBuffer);
+    // ... rest of OCR flow unchanged ...
   }
 };
 ```
 
-**6. Cleanup -- pendingUploadBuffer bei Reset zuruecksetzen:**
+**Neue Funktion `executeDirectUpload`** -- identisch mit den funktionierenden Flows:
 
-An allen Stellen, wo `setPendingUploadFile(null)` steht, auch `setPendingUploadBuffer(null)` aufrufen.
+```typescript
+const executeDirectUpload = async (
+  file: File,
+  item: ChecklistItem,
+  capturedUserId: string
+) => {
+  const timeoutMs = 90000;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  try {
+    setUploadingItems(prev => [...prev, item.id]);
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
+
+    const uploadPromise = (async () => {
+      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId')
+        || sessionStorage.getItem('ditax_selected_tax_filer');
+      const encryptedDocService = EncryptedDocumentService.getInstance();
+
+      // Direct upload with fresh file -- proven to work
+      await encryptedDocService.uploadEncryptedDocument(
+        file,          // Fresh file, no OCR delay
+        item.id,
+        capturedUserId,
+        taxYear,
+        item.title,
+        activeTaxFilerId
+      );
+
+      setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
+      toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
+      markUploaded(item.id, true);
+      refreshDocuments();
+    })();
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Upload-Timeout')), timeoutMs);
+    });
+
+    await Promise.race([uploadPromise, timeoutPromise]);
+  } catch (error: any) {
+    console.error('[executeDirectUpload] Error:', error);
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
+    toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+    setUploadingItems(prev => prev.filter(id => id !== item.id));
+    setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
+  }
+};
+```
+
+**`executeUpload` (fuer Desktop-OCR-Flow)** bleibt wie bisher mit `uploadFromBuffer`.
 
 ## Warum das funktioniert
 
-- `file.arrayBuffer()` wird aufgerufen, solange die Datei-Referenz frisch ist (vor OCR)
-- Nach der OCR wird nur noch der bereits gelesene Buffer verwendet
-- `uploadFromBuffer` existiert genau fuer diesen Zweck und ist bewaehrt
-- Kein `file.arrayBuffer()` mehr nach der OCR-Phase
-- Keine Session-Manipulation noetig -- der Supabase-Client behaelt seinen Token
+- Auf Mobile: exakt derselbe Code-Pfad wie die funktionierenden Multi-Click-Flows
+- `uploadEncryptedDocument` wird sofort mit der frischen Datei aufgerufen
+- Kein OCR, kein Buffer-Pre-Read, kein Session-Management
+- Auf Desktop: OCR bleibt erhalten (funktioniert dort)
 
-## Betroffene Dateien
+## Zusammenfassung
 
-- `src/components/DocumentChecklist.tsx` (einzige Datei)
+- 1 Datei geaendert: `src/components/DocumentChecklist.tsx`
+- Neue Funktion `executeDirectUpload` (kopiert den bewaehrten Upload-Pfad)
+- `handleQuickUpload` prueft `isMobile` und umgeht OCR komplett
+- Desktop-OCR-Flow bleibt unveraendert
