@@ -93,6 +93,7 @@ const DocumentChecklist: React.FC = () => {
   const [validationProgress, setValidationProgress] = useState<ValidationProgress>({ step: 'preparing', percent: 0, message: '' });
   const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
   const [pendingUploadItem, setPendingUploadItem] = useState<ChecklistItem | null>(null);
+  const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
   
   const [isConfirming, setIsConfirming] = useState(false);
   const [uploadStepInfo, setUploadStepInfo] = useState<Record<string, string>>({});
@@ -128,8 +129,13 @@ const DocumentChecklist: React.FC = () => {
         return;
       }
 
+      // Read file buffer NOW while file reference is fresh
+      // (file.arrayBuffer() hangs in mobile WebViews after OCR processing)
+      const fileBuffer = await file.arrayBuffer();
+
       setPendingUploadFile(file);
       setPendingUploadItem(item);
+      setPendingUploadBuffer(fileBuffer);
       setOcrPhase('validating');
       setValidationResult(null);
       setValidationProgress({ step: 'preparing', percent: 0, message: '' });
@@ -173,10 +179,11 @@ const DocumentChecklist: React.FC = () => {
         setOcrDrawerOpen(false);
         setPendingUploadFile(null);
         setPendingUploadItem(null);
+        setPendingUploadBuffer(null);
         setValidationResult(null);
         setOcrPhase('validating');
-        // Fire-and-forget: upload uses File object directly (proven to work on mobile)
-        executeUpload(file, item, capturedUserId);
+        // Fire-and-forget: use pre-read buffer (file.arrayBuffer() hangs after OCR on mobile)
+        executeUpload(file, item, capturedUserId, fileBuffer);
       } else {
         setOcrPhase('result');
       }
@@ -187,7 +194,7 @@ const DocumentChecklist: React.FC = () => {
     }
   };
 
-  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
+  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string, preReadBuffer: ArrayBuffer) => {
     const timeoutMs = 90000;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
@@ -209,10 +216,12 @@ const DocumentChecklist: React.FC = () => {
         const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
         const encryptedDocService = EncryptedDocumentService.getInstance();
 
-        // Step 3: Upload (includes file read, encrypt, storage)
+        // Step 3: Upload using pre-read buffer (avoids file.arrayBuffer() hang on mobile)
         setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
-        await encryptedDocService.uploadEncryptedDocument(
-          file,
+        await encryptedDocService.uploadFromBuffer(
+          preReadBuffer,
+          file.name,
+          file.type,
           item.id,
           currentUserId,
           taxYear,
@@ -254,9 +263,10 @@ const DocumentChecklist: React.FC = () => {
       hasPendingItem: !!pendingUploadItem,
       isConfirming 
     });
-    if (pendingUploadFile && pendingUploadItem) {
+    if (pendingUploadFile && pendingUploadItem && pendingUploadBuffer) {
       const file = pendingUploadFile;
       const item = pendingUploadItem;
+      const buffer = pendingUploadBuffer;
       const capturedUserId = userId;
       if (!capturedUserId) {
         toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
@@ -268,11 +278,12 @@ const DocumentChecklist: React.FC = () => {
       setOcrDrawerOpen(false);
       setPendingUploadFile(null);
       setPendingUploadItem(null);
+      setPendingUploadBuffer(null);
       setValidationResult(null);
       setOcrPhase('validating');
       
-      // Fire-and-forget: executeUpload handles its own errors/toasts/loading state
-      executeUpload(file, item, capturedUserId);
+      // Fire-and-forget: use pre-read buffer (file.arrayBuffer() hangs after OCR on mobile)
+      executeUpload(file, item, capturedUserId, buffer);
     } else {
       console.warn('[handleOcrConfirm] Missing pending data');
       toast({
@@ -289,6 +300,7 @@ const DocumentChecklist: React.FC = () => {
   const handleOcrReupload = () => {
     setOcrDrawerOpen(false);
     setPendingUploadFile(null);
+    setPendingUploadBuffer(null);
     // Re-trigger file input for the same item
     if (pendingUploadItem) {
       const itemId = pendingUploadItem.id;
@@ -303,6 +315,7 @@ const DocumentChecklist: React.FC = () => {
     setOcrDrawerOpen(false);
     setPendingUploadFile(null);
     setPendingUploadItem(null);
+    setPendingUploadBuffer(null);
   };
 
   useEffect(() => {
