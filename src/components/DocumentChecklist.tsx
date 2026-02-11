@@ -2,21 +2,18 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, CloudUpload, FileCheck, FolderOpen, Plus, X, Loader2 } from 'lucide-react';
-import EncryptedDocumentService from '@/services/EncryptedDocumentService';
-import { validateFile } from '@/utils/fileValidation';
+import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from '@/hooks/use-toast';
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from 'react-router-dom';
 import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { DocumentMetadata } from '@/services/DocumentService';
-import { BorderBeam } from '@/components/ui/border-beam';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
@@ -24,11 +21,7 @@ import DocumentAssignmentModal from '@/components/documents/DocumentAssignmentMo
 import { supabase } from '@/integrations/supabase/client';
 import { debug } from '@/utils/debug';
 import { useI18n } from '@/contexts/I18nContext';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import DocumentValidator from '@/services/DocumentValidator';
-import AIDocumentValidation from '@/components/ui/ai-document-validation';
-import { DocumentCheckScreen } from '@/components/documents/DocumentCheckScreen';
-import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+import DocumentUploadSheet from '@/components/documents/DocumentUploadSheet';
 
 const DocumentChecklist: React.FC = () => {
   const { t } = useI18n();
@@ -86,235 +79,21 @@ const DocumentChecklist: React.FC = () => {
   }>({ open: false, item: null });
   const [unassignedDocsCounts, setUnassignedDocsCounts] = useState<Record<string, number>>({});
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
-  const [uploadingItems, setUploadingItems] = useState<string[]>([]);
-  const [ocrDrawerOpen, setOcrDrawerOpen] = useState(false);
-  const [ocrPhase, setOcrPhase] = useState<'validating' | 'result'>('validating');
-  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
-  const [validationProgress, setValidationProgress] = useState<ValidationProgress>({ step: 'preparing', percent: 0, message: '' });
-  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
-  const [pendingUploadItem, setPendingUploadItem] = useState<ChecklistItem | null>(null);
-  const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
+  const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
+  const [uploadSheetItem, setUploadSheetItem] = useState<ChecklistItem | null>(null);
   
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [uploadStepInfo, setUploadStepInfo] = useState<Record<string, string>>({});
   const hasShownCompletionDialog = useRef(false);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const handleNext = () => { navigate(`/payment?year=${taxYear}`); };
   const handleBack = () => { navigate('/form?section=deductions'); };
-  const handleUploadDocument = (itemId: string) => {
-    // On mobile: navigate to the proven multi-step upload page (EnhancedDocumentUploader)
-    if (isMobile) {
-      navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
-      return;
-    }
-    // Desktop: inline file picker + OCR flow
-    const input = fileInputRefs.current[itemId];
-    if (input) {
-      input.value = '';
-      input.click();
-    }
-  };
 
-  const handleQuickUpload = async (file: File, item: ChecklistItem) => {
-    try {
-      const capturedUserId = userId;
-      if (!capturedUserId) {
-        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-        return;
-      }
-
-      const validation = await validateFile(file);
-      if (!validation.isValid) {
-        toast({ title: 'Ungültige Datei', description: validation.error, variant: 'destructive' });
-        return;
-      }
-
-      // Read file buffer NOW while file reference is fresh
-      const fileBuffer = await file.arrayBuffer();
-
-      setPendingUploadFile(file);
-      setPendingUploadItem(item);
-      setPendingUploadBuffer(fileBuffer);
-      setOcrPhase('validating');
-      setValidationResult(null);
-      setValidationProgress({ step: 'preparing', percent: 0, message: '' });
-      setOcrDrawerOpen(true);
-
-      const OCR_TIMEOUT_MS = 15000;
-      const validator = DocumentValidator.getInstance();
-      
-      let result: ValidationResult;
-      try {
-        result = await Promise.race([
-          validator.validate(file, item.id, (progress) => {
-            setValidationProgress(progress);
-          }),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
-          )
-        ]);
-      } catch (timeoutError: any) {
-        if (timeoutError.message === 'OCR_TIMEOUT') {
-          console.warn('[handleQuickUpload] OCR timeout after 15s - skipping validation');
-          result = {
-            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] },
-            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] }],
-            signals: { meta: undefined, layout: undefined, keywords: undefined },
-            needsUserConfirmation: true,
-            confidenceBucket: 'low' as const,
-            statusMessage: 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
-          };
-        } else {
-          throw timeoutError;
-        }
-      }
-
-      setValidationResult(result);
-
-      if (result.best.confidence >= 50) {
-        setOcrDrawerOpen(false);
-        setPendingUploadFile(null);
-        setPendingUploadItem(null);
-        setPendingUploadBuffer(null);
-        setValidationResult(null);
-        setOcrPhase('validating');
-        executeUpload(file, item, capturedUserId, fileBuffer);
-      } else {
-        setOcrPhase('result');
-      }
-    } catch (error: any) {
-      console.error('OCR validation error:', error);
-      setOcrDrawerOpen(false);
-      toast({ title: 'Validierung fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
-    }
-  };
-
-  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string, preReadBuffer: ArrayBuffer) => {
-    const timeoutMs = 90000;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    
-    try {
-      setUploadingItems(prev => [...prev, item.id]);
-      setIsConfirming(true);
-      console.log('[executeUpload] Starting file upload for:', item.id, item.title);
-
-      const uploadPromise = (async () => {
-        const currentUserId = capturedUserId;
-        if (!currentUserId) {
-          toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-          return;
-        }
-        console.log('[executeUpload] Using existing userId:', currentUserId);
-
-        // Step 2: Preparing encryption
-        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Schlüssel...' }));
-        const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
-        const encryptedDocService = EncryptedDocumentService.getInstance();
-
-        // Step 3: Upload using pre-read buffer (avoids file.arrayBuffer() hang on mobile)
-        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
-        await encryptedDocService.uploadFromBuffer(
-          preReadBuffer,
-          file.name,
-          file.type,
-          item.id,
-          currentUserId,
-          taxYear,
-          item.title,
-          activeTaxFilerId
-        );
-
-        console.log('[executeUpload] Upload complete for:', item.id);
-        setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
-        toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
-        markUploaded(item.id, true);
-        refreshDocuments();
-      })();
-
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => {
-          console.error('[executeUpload] TIMEOUT after', timeoutMs, 'ms for:', item.id);
-          reject(new Error('Upload-Timeout: Der Upload hat zu lange gedauert.'));
-        }, timeoutMs);
-      });
-
-      await Promise.race([uploadPromise, timeoutPromise]);
-    } catch (error: any) {
-      console.error('[executeUpload] Error:', error?.message || error);
-      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
-      toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
-    } finally {
-      console.log('[executeUpload] Cleanup for:', item.id);
-      if (timeoutId) clearTimeout(timeoutId);
-      setUploadingItems(prev => prev.filter(id => id !== item.id));
-      setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
-      setIsConfirming(false);
-    }
-  };
-
-  const handleOcrConfirm = () => {
-    console.log('[handleOcrConfirm] called', { 
-      hasPendingFile: !!pendingUploadFile, 
-      hasPendingItem: !!pendingUploadItem,
-      isConfirming 
-    });
-    if (pendingUploadFile && pendingUploadItem && pendingUploadBuffer) {
-      const file = pendingUploadFile;
-      const item = pendingUploadItem;
-      const buffer = pendingUploadBuffer;
-      const capturedUserId = userId;
-      if (!capturedUserId) {
-        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-        setOcrDrawerOpen(false);
-        return;
-      }
-      
-      // Close drawer immediately - upload runs in background
-      setOcrDrawerOpen(false);
-      setPendingUploadFile(null);
-      setPendingUploadItem(null);
-      setPendingUploadBuffer(null);
-      setValidationResult(null);
-      setOcrPhase('validating');
-      
-      // Fire-and-forget: use pre-read buffer (file.arrayBuffer() hangs after OCR on mobile)
-      executeUpload(file, item, capturedUserId, buffer);
-    } else {
-      console.warn('[handleOcrConfirm] Missing pending data');
-      toast({
-        title: 'Upload fehlgeschlagen',
-        description: 'Bitte versuche es erneut.',
-        variant: 'destructive'
-      });
-      setOcrDrawerOpen(false);
-      setPendingUploadFile(null);
-      setPendingUploadItem(null);
-    }
-  };
-
-  const handleOcrReupload = () => {
-    setOcrDrawerOpen(false);
-    setPendingUploadFile(null);
-    setPendingUploadBuffer(null);
-    // Re-trigger file input for the same item
-    if (pendingUploadItem) {
-      const itemId = pendingUploadItem.id;
-      setPendingUploadItem(null);
-      setTimeout(() => {
-        handleUploadDocument(itemId);
-      }, 300);
-    }
-  };
-
-  const handleOcrClose = () => {
-    setOcrDrawerOpen(false);
-    setPendingUploadFile(null);
-    setPendingUploadItem(null);
-    setPendingUploadBuffer(null);
-  };
+  const handleSheetUploaded = useCallback((itemId: string) => {
+    markUploaded(itemId, true);
+    refreshDocuments();
+    toast({ title: 'Erfolgreich hochgeladen', description: 'Dokument wurde hochgeladen.' });
+  }, [markUploaded, refreshDocuments, toast]);
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -719,18 +498,7 @@ const DocumentChecklist: React.FC = () => {
                       const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                       
                       if (!item.uploaded) {
-                        const isUploading = uploadingItems.includes(item.id);
                         return <div key={item.id}>
-                          <input
-                            type="file"
-                            ref={el => { fileInputRefs.current[item.id] = el; }}
-                            className="hidden"
-                            accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,application/pdf"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleQuickUpload(file, item);
-                            }}
-                          />
                           {idx > 0 && <div className="mx-3 border-t border-dashed border-slate-100 my-1" />}
                           <div className="flex flex-col gap-4 rounded-2xl bg-slate-50/80 p-5 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3.5">
@@ -748,12 +516,11 @@ const DocumentChecklist: React.FC = () => {
                                 </button>
                               )}
                               <button 
-                                onClick={(e) => { e.stopPropagation(); handleUploadDocument(item.id); }}
-                                disabled={isUploading}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
+                                onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95"
                               >
-                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                {isUploading ? (uploadStepInfo[item.id] || 'Lädt…') : 'Hochladen'}
+                                <Plus className="w-4 h-4" />
+                                Hochladen
                               </button>
                             </div>
                           </div>
@@ -833,42 +600,15 @@ const DocumentChecklist: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* OCR Validation Bottom Sheet */}
-      <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }} dismissible={ocrPhase !== 'result'}>
-        <DrawerContent variant="bottom-sheet">
-          <div className="px-6 pt-4 pb-6">
-            {ocrPhase === 'validating' && (
-              <AIDocumentValidation
-                progress={validationProgress}
-                documentType={pendingUploadItem?.title || 'Dokument'}
-                documentTypeId={pendingUploadItem?.id}
-                foundKeywords={validationProgress.foundKeywords}
-              />
-            )}
-            {ocrPhase === 'result' && validationResult && pendingUploadFile && (
-              <DocumentCheckScreen
-                result={validationResult}
-                fileName={pendingUploadFile.name}
-                onConfirm={handleOcrConfirm}
-                onReupload={handleOcrReupload}
-                onClose={handleOcrClose}
-                isConfirming={isConfirming}
-              />
-            )}
-          </div>
-          {/* Footer with cancel */}
-          {ocrPhase === 'validating' && (
-            <div className="border-t border-border/50 p-4 flex justify-center">
-              <button 
-                onClick={handleOcrClose}
-                className="text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
-              >
-                Abbrechen
-              </button>
-            </div>
-          )}
-        </DrawerContent>
-      </Drawer>
+      {/* Unified Upload Bottom Sheet */}
+      <DocumentUploadSheet
+        open={uploadSheetOpen}
+        onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); }}
+        item={uploadSheetItem}
+        taxYear={taxYear}
+        onUploaded={handleSheetUploaded}
+      />
     </div>;
+
 };
 export default DocumentChecklist;
