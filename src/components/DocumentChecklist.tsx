@@ -189,16 +189,13 @@ const DocumentChecklist: React.FC = () => {
       console.log('[executeUpload] Starting file upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
-        // Step 1: Session
-        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Session...' }));
-        console.log('[executeUpload] Getting session...');
-        const { data: sessionData } = await supabase.auth.getSession();
-        const currentUserId = sessionData?.session?.user?.id;
+        // userId from useAuthValidation() hook - no getSession() needed
+        const currentUserId = userId;
         if (!currentUserId) {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
           return;
         }
-        console.log('[executeUpload] Session OK');
+        console.log('[executeUpload] Using existing userId:', currentUserId);
 
         // Step 2: Preparing encryption
         setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Schlüssel...' }));
