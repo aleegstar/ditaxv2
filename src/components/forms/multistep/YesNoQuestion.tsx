@@ -69,8 +69,8 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === true
-              ? "border-slate-300 ring-1 ring-slate-300 bg-slate-50/50"
-              : "border-slate-200/60 bg-white hover:shadow-md hover:border-slate-300/70"
+              ? "border-emerald-200 ring-1 ring-emerald-200 bg-emerald-50/30"
+              : "border-slate-200 bg-white hover:shadow-md hover:border-slate-300"
           )}
         >
           <div className={cn(
@@ -98,8 +98,8 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-slate-300 ring-1 ring-slate-300 bg-slate-50/50"
-              : "border-slate-200/60 bg-white hover:shadow-md hover:border-slate-300/70"
+              ? "border-rose-200 ring-1 ring-rose-200 bg-rose-50/30"
+              : "border-slate-200 bg-white hover:shadow-md hover:border-slate-300"
           )}
         >
           <div className={cn(
