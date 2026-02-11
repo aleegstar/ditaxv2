@@ -123,12 +123,16 @@ const NativeCallback = () => {
         console.log('🔗 Is Despia native:', inDespiaNative);
 
         if (inDespiaNative) {
-          // Send short deeplink to close Chrome Custom Tab
-          const shortDeeplinkUrl = `${deeplinkScheme}://oauth/auth?success=true`;
-          console.log('🔗 Triggering deeplink:', shortDeeplinkUrl);
+          // Pass tokens directly in deeplink so the WebView can set the session
+          // (ASWebAuthenticationSession on iOS has isolated storage)
+          const deeplinkParams = new URLSearchParams();
+          deeplinkParams.set('access_token', accessToken);
+          if (refreshToken) deeplinkParams.set('refresh_token', refreshToken);
+          const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
+          console.log('🔗 Triggering deeplink with tokens:', deeplinkUrl);
           
           // Trigger immediately
-          window.location.href = shortDeeplinkUrl;
+          window.location.href = deeplinkUrl;
           
           // Fallback: If deeplink doesn't work after 1.5 seconds, navigate directly
           setTimeout(() => {
