@@ -1,84 +1,73 @@
 
-# Fix: userId vor OCR sichern statt aus reaktivem State lesen
+
+# Fix: ALLE getSession()-Aufrufe entfernen
 
 ## Das Problem
 
-Waehrend der OCR-Validierung (5-15 Sekunden) kann der `onAuthStateChange`-Listener im Despia WebView den `userId`-State auf `null` setzen. Wenn `executeUpload` danach laeuft, liest es `userId` aus dem Hook-State -- der ist aber schon `null`. Die Funktion gibt sofort zurueck, und der Button zeigt wieder "Hochladen".
-
-Beweis: Du bist jetzt auf `/auth` -- die App hat dich ausgeloggt, weil die Session als ungueltig erkannt wurde.
+Der letzte Fix hat `supabase.auth.getSession()` an 2 neuen Stellen eingefuegt (Zeile 119 und 276). Genau dieser Aufruf haengt im Despia WebView. Jetzt blockiert er bereits vor der OCR-Validierung -- nichts funktioniert mehr.
 
 ## Die Loesung
 
-`userId` wird **vor** dem Start der OCR-Validierung in eine lokale Variable gesichert und explizit an `executeUpload` uebergeben. So ist der Upload unabhaengig vom reaktiven Auth-State.
+**Alle `getSession()`- und `setSession()`-Aufrufe komplett entfernen.** Der Supabase-Client behalt intern seinen Auth-Token. `supabase.storage.upload()` nutzt diesen automatisch. Es ist nicht noetig, die Session manuell zu lesen oder wiederherzustellen.
 
-## Technische Aenderung
+Nur `userId` aus dem `useAuthValidation()` Hook wird benoetigt (als lokale Kopie gesichert).
 
-### Datei: `src/components/DocumentChecklist.tsx`
+## Aenderungen in `src/components/DocumentChecklist.tsx`
 
-**1. `executeUpload` bekommt `userId` als Parameter (Zeile 182):**
+### 1. handleQuickUpload (Zeile 114-189) -- getSession() entfernen
 
 ```typescript
-// Vorher:
-const executeUpload = async (file: File, item: ChecklistItem) => {
+// VORHER (Zeile 118-123):
+const capturedUserId = userId;
+const { data: { session: capturedSession } } = await supabase.auth.getSession();  // HAENGT!
+if (!capturedUserId || !capturedSession) { ... }
 
-// Nachher:
+// NACHHER:
+const capturedUserId = userId;
+if (!capturedUserId) {
+  toast({ title: 'Nicht angemeldet', ... });
+  return;
+}
+```
+
+`executeUpload`-Aufruf (Zeile 180): capturedSession-Parameter entfernen.
+
+### 2. executeUpload (Zeile 191-263) -- setSession() und capturedSession entfernen
+
+```typescript
+// VORHER:
+const executeUpload = async (file, item, capturedUserId, capturedSession) => {
+  // 12 Zeilen setSession()-Code...
+
+// NACHHER:
 const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
+  // Direkt zum Upload, kein Session-Management
 ```
 
-Innerhalb der Funktion wird `capturedUserId` statt `userId` verwendet:
+### 3. handleOcrConfirm (Zeile 265-303) -- getSession() entfernen
 
 ```typescript
-// Vorher (Zeile 193):
-const currentUserId = userId;
+// VORHER (Zeile 275-277):
+const capturedUserId = userId;
+const { data: { session: capturedSession } } = await supabase.auth.getSession();  // HAENGT!
+if (!capturedUserId || !capturedSession) { ... }
 
-// Nachher:
-const currentUserId = capturedUserId;
+// NACHHER:
+const capturedUserId = userId;
+if (!capturedUserId) {
+  toast({ title: 'Nicht angemeldet', ... });
+  setOcrDrawerOpen(false);
+  return;
+}
 ```
 
-**2. `handleQuickUpload` sichert `userId` am Anfang (Zeile 114-171):**
+`handleOcrConfirm` kann wieder synchron sein (kein `async` noetig).
+`executeUpload`-Aufruf: capturedSession-Parameter entfernen.
 
-```typescript
-const handleQuickUpload = async (file: File, item: ChecklistItem) => {
-  try {
-    // Capture userId BEFORE OCR starts (reactive state may change during OCR)
-    const capturedUserId = userId;
-    if (!capturedUserId) {
-      toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-      return;
-    }
+## Zusammenfassung
 
-    // ... rest of OCR validation ...
+- 3 Stellen geaendert, alle in `DocumentChecklist.tsx`
+- Kein einziger `getSession()`- oder `setSession()`-Aufruf bleibt uebrig
+- Der Supabase-Client verwendet seinen internen Token automatisch
+- Upload-Flow: Datei waehlen -> OCR -> Upload -- ohne Session-Management
 
-    // Pass captured userId to executeUpload
-    if (result.best.confidence >= 50) {
-      // ...close drawer...
-      executeUpload(file, item, capturedUserId);  // userId als Parameter
-    }
-  }
-};
-```
-
-**3. `handleOcrConfirm` ebenfalls (Zeile 244+):**
-
-Auch hier muss der `userId` vor dem Aufruf gesichert und uebergeben werden:
-
-```typescript
-const handleOcrConfirm = () => {
-  if (pendingUploadFile && pendingUploadItem) {
-    const capturedUserId = userId;
-    if (!capturedUserId) {
-      toast({ title: 'Nicht angemeldet', ... });
-      return;
-    }
-    executeUpload(pendingUploadFile, pendingUploadItem, capturedUserId);
-    // ...cleanup...
-  }
-};
-```
-
-## Warum das funktioniert
-
-- `userId` wird als lokale Variable gesichert, BEVOR der asynchrone OCR-Prozess startet
-- Selbst wenn der Auth-Listener waehrend der OCR den State aendert, bleibt die lokale Kopie gueltig
-- Der Supabase-Token ist serverseitig noch gueltig (nur der Client-State geht verloren)
-- Minimale Aenderung: nur 3 Stellen im Code betroffen
