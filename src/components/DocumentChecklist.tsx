@@ -118,8 +118,13 @@ const DocumentChecklist: React.FC = () => {
         return;
       }
 
-      // Store pending upload data and open drawer
-      setPendingUploadFile(file);
+      // Clone file for upload: Mobile WebViews can only read a File object once.
+      // OCR consumes the original, so we clone it for the upload step.
+      const fileBuffer = await file.arrayBuffer();
+      const uploadFile = new File([fileBuffer], file.name, { type: file.type });
+
+      // Store cloned file for upload, original goes to OCR
+      setPendingUploadFile(uploadFile);
       setPendingUploadItem(item);
       setOcrPhase('validating');
       setValidationResult(null);
@@ -166,8 +171,8 @@ const DocumentChecklist: React.FC = () => {
         setPendingUploadItem(null);
         setValidationResult(null);
         setOcrPhase('validating');
-        // Fire-and-forget: executeUpload handles its own errors/toasts
-        executeUpload(file, item);
+        // Fire-and-forget: executeUpload uses cloned file
+        executeUpload(uploadFile, item);
       } else {
         setOcrPhase('result');
       }
