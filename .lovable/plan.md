@@ -1,23 +1,16 @@
 
-# Fix: Upload nutzt bereits vorhandene userId statt erneuten getSession()-Aufruf
+
+# Fix: getSession() durch bereits vorhandene userId ersetzen
 
 ## Problem
 
-Die `DocumentChecklist`-Komponente hat bereits die authentifizierte `userId` aus dem `useAuthValidation()` Hook (Zeile 72-77). Trotzdem ruft `executeUpload` nochmals `supabase.auth.getSession()` auf -- und genau dieser redundante Aufruf haengt im Despia WebView.
+Der Upload-Button bleibt bei "Session..." haengen, weil `executeUpload` den Aufruf `supabase.auth.getSession()` macht, der im Despia WebView blockiert. Die Komponente hat aber bereits `userId` aus dem `useAuthValidation()` Hook (Zeile 72-77) -- der Session-Aufruf ist komplett ueberfluessig.
 
-## Warum nur auf Mobile?
+## Aenderung
 
-Der Despia WebView hat vermutlich Einschraenkungen beim wiederholten Zugriff auf `getSession()` waehrend eines laufenden Prozesses. Der erste Aufruf (beim Seitenload via `useAuthValidation`) funktioniert, aber ein zweiter, spaeterer Aufruf blockiert.
+### Datei: `src/components/DocumentChecklist.tsx` (Zeilen 191-201)
 
-## Loesung
-
-`executeUpload` soll die **bereits vorhandene** `userId` aus dem Hook verwenden. Kein erneuter `getSession()`-Aufruf noetig.
-
-## Technische Aenderung
-
-### Datei: `src/components/DocumentChecklist.tsx`
-
-Nur eine kleine Aenderung in `executeUpload` (Zeilen 191-201):
+Die 10 Zeilen mit `getSession()` werden durch 5 Zeilen ersetzt, die die vorhandene `userId` nutzen:
 
 **Vorher:**
 ```typescript
@@ -31,30 +24,24 @@ const uploadPromise = (async () => {
     return;
   }
   console.log('[executeUpload] Session OK');
-  // ...rest uses currentUserId...
 ```
 
 **Nachher:**
 ```typescript
 const uploadPromise = (async () => {
-  // Use userId from useAuthValidation() hook - already validated
-  // No need to call getSession() again (hangs on mobile WebViews)
+  // userId comes from useAuthValidation() hook - no need for getSession()
   const currentUserId = userId;
   if (!currentUserId) {
     toast({ title: 'Nicht angemeldet', ... });
     return;
   }
   console.log('[executeUpload] Using existing userId:', currentUserId);
-  // ...rest uses currentUserId...
 ```
 
-Die `uploadStepInfo` "Session..." Zeile und der `getSession()`-Aufruf werden komplett entfernt. Der Upload springt direkt zu "Schluessel...".
-
-Auch `handleOcrConfirm` muss geprueft werden -- falls dort ebenfalls `getSession()` aufgerufen wird, wird es gleich behandelt.
+Keine weiteren Dateien betroffen. Rest der Funktion bleibt identisch.
 
 ## Erwartetes Ergebnis
 
-- Kein haengender `getSession()`-Aufruf mehr auf Mobile
-- Upload startet sofort mit der bereits validierten userId
-- Desktop bleibt unberuehrt
-- Minimale, gezielte Aenderung statt grossem Refactoring
+- Upload springt direkt zu "Schluessel..." statt bei "Session..." haengen zu bleiben
+- Desktop-Verhalten aendert sich nicht (userId ist dort auch schon vorhanden)
+
