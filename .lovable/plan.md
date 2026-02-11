@@ -1,73 +1,101 @@
 
 
-# Fix: ALLE getSession()-Aufrufe entfernen
+# Fix: file.arrayBuffer() haengt auf Mobile -- uploadFromBuffer nutzen
 
-## Das Problem
+## Das eigentliche Problem
 
-Der letzte Fix hat `supabase.auth.getSession()` an 2 neuen Stellen eingefuegt (Zeile 119 und 276). Genau dieser Aufruf haengt im Despia WebView. Jetzt blockiert er bereits vor der OCR-Validierung -- nichts funktioniert mehr.
+Der Button zeigt "Hochladen..." und haengt -- das bedeutet, `uploadEncryptedDocument()` wird aufgerufen aber kommt nie zurueck. Innerhalb dieser Funktion ist der **erste await** nach dem Key-Cache: `file.arrayBuffer()` (Zeile 78 in EncryptedDocumentService.ts).
+
+Es gibt sogar schon einen Kommentar im Code (Zeile 476):
+```text
+Upload from a pre-read ArrayBuffer (avoids file.arrayBuffer() which hangs on mobile WebViews)
+```
+
+Die Methode `uploadFromBuffer()` existiert bereits -- sie wurde genau fuer dieses Problem gebaut. Aber `executeUpload` nutzt stattdessen `uploadEncryptedDocument()`, das `file.arrayBuffer()` intern aufruft. Nach 15 Sekunden OCR-Verarbeitung (Speicherdruck, WebView-GC) haengt dieser Aufruf im mobilen WebView.
+
+**Warum der Multi-Click-Flow funktionierte:** Dort wurde sofort hochgeladen, ohne OCR-Wartezeit. Die Datei war "frisch" und `file.arrayBuffer()` funktionierte noch.
 
 ## Die Loesung
 
-**Alle `getSession()`- und `setSession()`-Aufrufe komplett entfernen.** Der Supabase-Client behalt intern seinen Auth-Token. `supabase.storage.upload()` nutzt diesen automatisch. Es ist nicht noetig, die Session manuell zu lesen oder wiederherzustellen.
+1. Den File-Buffer **vor** der OCR-Validierung lesen (solange die Datei frisch ist)
+2. Den Buffer zwischenspeichern
+3. In `executeUpload` die vorhandene Methode `uploadFromBuffer()` statt `uploadEncryptedDocument()` nutzen
 
-Nur `userId` aus dem `useAuthValidation()` Hook wird benoetigt (als lokale Kopie gesichert).
+## Technische Aenderungen
 
-## Aenderungen in `src/components/DocumentChecklist.tsx`
+### Datei: `src/components/DocumentChecklist.tsx`
 
-### 1. handleQuickUpload (Zeile 114-189) -- getSession() entfernen
-
-```typescript
-// VORHER (Zeile 118-123):
-const capturedUserId = userId;
-const { data: { session: capturedSession } } = await supabase.auth.getSession();  // HAENGT!
-if (!capturedUserId || !capturedSession) { ... }
-
-// NACHHER:
-const capturedUserId = userId;
-if (!capturedUserId) {
-  toast({ title: 'Nicht angemeldet', ... });
-  return;
-}
-```
-
-`executeUpload`-Aufruf (Zeile 180): capturedSession-Parameter entfernen.
-
-### 2. executeUpload (Zeile 191-263) -- setSession() und capturedSession entfernen
+**1. Neuen State fuer den vorgelesenen Buffer (bei den anderen useState-Deklarationen):**
 
 ```typescript
-// VORHER:
-const executeUpload = async (file, item, capturedUserId, capturedSession) => {
-  // 12 Zeilen setSession()-Code...
-
-// NACHHER:
-const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
-  // Direkt zum Upload, kein Session-Management
+const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
 ```
 
-### 3. handleOcrConfirm (Zeile 265-303) -- getSession() entfernen
+**2. In `handleQuickUpload` -- Buffer VOR OCR lesen (nach Datei-Validierung, vor OCR-Start):**
 
 ```typescript
-// VORHER (Zeile 275-277):
-const capturedUserId = userId;
-const { data: { session: capturedSession } } = await supabase.auth.getSession();  // HAENGT!
-if (!capturedUserId || !capturedSession) { ... }
+// Read file buffer NOW while file reference is fresh
+// (file.arrayBuffer() hangs in mobile WebViews after OCR processing)
+const fileBuffer = await file.arrayBuffer();
 
-// NACHHER:
-const capturedUserId = userId;
-if (!capturedUserId) {
-  toast({ title: 'Nicht angemeldet', ... });
-  setOcrDrawerOpen(false);
-  return;
-}
+// ... dann OCR starten ...
 ```
 
-`handleOcrConfirm` kann wieder synchron sein (kein `async` noetig).
-`executeUpload`-Aufruf: capturedSession-Parameter entfernen.
+**3. In `executeUpload` -- `uploadFromBuffer` statt `uploadEncryptedDocument` nutzen:**
 
-## Zusammenfassung
+```typescript
+const executeUpload = async (
+  file: File,
+  item: ChecklistItem,
+  capturedUserId: string,
+  preReadBuffer: ArrayBuffer  // NEU
+) => {
+  // ...
+  // VORHER:
+  // await encryptedDocService.uploadEncryptedDocument(file, ...);
 
-- 3 Stellen geaendert, alle in `DocumentChecklist.tsx`
-- Kein einziger `getSession()`- oder `setSession()`-Aufruf bleibt uebrig
-- Der Supabase-Client verwendet seinen internen Token automatisch
-- Upload-Flow: Datei waehlen -> OCR -> Upload -- ohne Session-Management
+  // NACHHER:
+  await encryptedDocService.uploadFromBuffer(
+    preReadBuffer,        // Schon vor OCR gelesen
+    file.name,
+    file.type,
+    item.id,
+    currentUserId,
+    taxYear,
+    item.title,
+    activeTaxFilerId
+  );
+};
+```
 
+**4. Alle Aufrufe von `executeUpload` aktualisieren:**
+
+- In `handleQuickUpload` (confidence >= 50): `executeUpload(file, item, capturedUserId, fileBuffer)`
+- In `handleOcrConfirm`: Buffer aus State lesen und uebergeben
+
+**5. `handleOcrConfirm` -- pendingUploadBuffer nutzen:**
+
+```typescript
+const handleOcrConfirm = () => {
+  if (pendingUploadFile && pendingUploadItem && pendingUploadBuffer) {
+    // ...
+    executeUpload(file, item, capturedUserId, pendingUploadBuffer);
+  }
+};
+```
+
+**6. Cleanup -- pendingUploadBuffer bei Reset zuruecksetzen:**
+
+An allen Stellen, wo `setPendingUploadFile(null)` steht, auch `setPendingUploadBuffer(null)` aufrufen.
+
+## Warum das funktioniert
+
+- `file.arrayBuffer()` wird aufgerufen, solange die Datei-Referenz frisch ist (vor OCR)
+- Nach der OCR wird nur noch der bereits gelesene Buffer verwendet
+- `uploadFromBuffer` existiert genau fuer diesen Zweck und ist bewaehrt
+- Kein `file.arrayBuffer()` mehr nach der OCR-Phase
+- Keine Session-Manipulation noetig -- der Supabase-Client behaelt seinen Token
+
+## Betroffene Dateien
+
+- `src/components/DocumentChecklist.tsx` (einzige Datei)
