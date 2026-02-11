@@ -1,85 +1,118 @@
 
-# Fix: Datei wird auf Mobile doppelt gelesen und haengt
+# Fix: Upload haengt auf Mobile - ArrayBuffer direkt durchreichen
 
 ## Ursache
 
-Das Problem liegt daran, dass die Datei **zweimal** gelesen wird:
+Das Problem ist tiefgreifender als nur "File doppelt lesen". Auf mobilen WebViews passiert Folgendes:
 
-1. **OCR-Phase**: `TesseractWasmOcrService` liest die Datei via `FileReader.readAsDataURL()` und `file.arrayBuffer()`
-2. **Upload-Phase**: `EncryptedDocumentService` liest dieselbe Datei nochmal mit `file.arrayBuffer()`
-
-Auf mobilen WebViews (Android Despia/Appelix) kann ein `File`-Objekt aus einem `<input type="file">` oft nur **einmal** gelesen werden. Der zweite Leseversuch haengt dann endlos -- genau das beobachtete Verhalten.
-
-Auf Desktop-Browsern ist das kein Problem, weil Chrome/Firefox File-Objekte beliebig oft lesen koennen.
+1. `file.slice()` erstellt keine echte Kopie der Daten - es referenziert denselben Blob
+2. Nach dem OCR-Verbrauch ist der zugrunde liegende Blob auf manchen mobilen WebViews nicht mehr lesbar
+3. `EncryptedDocumentService.uploadEncryptedDocument()` ruft dann `file.arrayBuffer()` auf (Zeile 78) - das haengt endlos
+4. Der Drawer schliesst nicht, weil `executeUpload` sofort `setIsConfirming(true)` setzt und der Main Thread durch den haengenden `arrayBuffer()`-Aufruf blockiert wird
 
 ## Loesung
 
-Die Datei wird **einmal** zu Beginn von `handleQuickUpload` in einen ArrayBuffer gelesen. Aus diesem Buffer wird ein neuer `Blob` erstellt, der dann als frische, unverbrauchte Datei an den Upload weitergegeben wird.
+Die Datei-Bytes werden **einmal** ganz am Anfang in `handleQuickUpload` gelesen (BEVOR OCR startet). Der resultierende `ArrayBuffer` wird direkt an `executeUpload` weitergereicht. `executeUpload` uebergibt den Buffer an `EncryptedDocumentService` ueber eine neue Methode, die keinen erneuten `file.arrayBuffer()`-Aufruf benoetigt.
 
 ## Technische Aenderungen
 
-### Datei: `src/components/DocumentChecklist.tsx`
+### 1. `src/components/DocumentChecklist.tsx`
 
-**In `handleQuickUpload`:**
-
-Vor dem OCR-Aufruf die Datei-Daten klonen:
+**`handleQuickUpload`**: Datei sofort in ArrayBuffer lesen, bevor OCR startet:
 
 ```typescript
 const handleQuickUpload = async (file: File, item: ChecklistItem) => {
-  try {
-    const validation = await validateFile(file);
-    if (!validation.isValid) { ... }
+  // Validate file
+  const validation = await validateFile(file);
+  if (!validation.isValid) { ... }
 
-    // *** NEU: Datei vorab in Speicher lesen und klonen ***
-    // Mobile WebViews koennen File-Objekte nur einmal lesen.
-    // OCR verbraucht das Original, daher klonen wir fuer den Upload.
-    const fileBuffer = await file.arrayBuffer();
-    const uploadFile = new File([fileBuffer], file.name, { type: file.type });
+  // Read file bytes ONCE before OCR consumes the File object.
+  // Mobile WebViews cannot re-read a File after it's been consumed.
+  const fileBuffer = await file.arrayBuffer();
+  
+  // Store buffer + metadata for upload
+  setPendingUploadFile(file);       // only for display (name, type)
+  setPendingUploadItem(item);
+  // ... open drawer, run OCR with original file ...
 
-    // Store cloned file for upload
-    setPendingUploadFile(uploadFile);  // <-- geklonte Datei statt Original
-    setPendingUploadItem(item);
-    ...
-
-    // OCR laeuft mit dem Original-File (wird verbraucht)
-    result = await Promise.race([
-      validator.validate(file, item.id, ...),  // Original-File fuer OCR
-      ...
-    ]);
-
-    // Upload nutzt die geklonte Datei
-    if (result.best.confidence >= 50) {
-      ...
-      executeUpload(uploadFile, item);  // <-- geklonte Datei
-    }
+  if (result.best.confidence >= 50) {
+    executeUpload(fileBuffer, file.name, file.type, item);  // pass buffer directly
   }
 };
 ```
 
-**In `handleOcrConfirm`:**
+**`executeUpload`**: Signatur aendern - nimmt jetzt `ArrayBuffer` + Metadaten statt `File`:
 
-Keine Aenderung noetig -- `pendingUploadFile` enthaelt bereits die geklonte Datei.
+```typescript
+const executeUpload = async (
+  fileBuffer: ArrayBuffer,
+  fileName: string,
+  fileType: string,
+  item: ChecklistItem
+) => {
+  // ... same timeout/error handling ...
+  await encryptedDocService.uploadFromBuffer(
+    fileBuffer, fileName, fileType,
+    item.id, currentUserId, taxYear, item.title, activeTaxFilerId
+  );
+};
+```
 
-### Keine weiteren Dateien betroffen
+**`handleOcrConfirm`**: Ebenfalls Buffer durchreichen (aus einer neuen State-Variable `pendingUploadBuffer`).
 
-`EncryptedDocumentService`, `CryptoService` und `TesseractWasmOcrService` bleiben unveraendert.
+### 2. `src/services/EncryptedDocumentService.ts`
 
-## Warum das funktioniert
+Neue Methode `uploadFromBuffer()` hinzufuegen, die einen bereits gelesenen `ArrayBuffer` akzeptiert:
+
+```typescript
+async uploadFromBuffer(
+  buffer: ArrayBuffer,
+  fileName: string,
+  fileType: string,
+  checklistItemId: string | null,
+  userId: string,
+  taxYear: string,
+  checklistItemTitle?: string,
+  taxFilerId?: string | null
+): Promise<void> {
+  // Get encryption key
+  const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
+  
+  // Hash + encrypt from buffer directly - NO file.arrayBuffer() call
+  const integrityHash = await this.cryptoService.generateIntegrityHash(buffer);
+  const { encryptedData, iv } = await this.cryptoService.encryptBuffer(buffer, encryptionKey);
+  
+  // ... rest of upload logic (metadata encryption, storage upload, DB insert)
+}
+```
+
+### 3. Neuer State: `pendingUploadBuffer`
+
+Ein neuer State `pendingUploadBuffer` speichert den vorab gelesenen ArrayBuffer fuer den Fall, dass der User manuell bestaetigt ("trotzdem einreichen"):
+
+```typescript
+const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
+```
+
+## Datenfluss nach dem Fix
 
 ```text
-VORHER (kaputt auf Mobile):
-  File-Input --> [file] --> OCR liest file --> Upload liest file (HAENGT!)
-
-NACHHER (fix):
-  File-Input --> [file] --> arrayBuffer() --> new File([buffer])
-                    |                              |
-                    v                              v
-              OCR liest Original            Upload liest Klon (OK!)
+File-Input --> [file]
+                |
+          arrayBuffer() (EINMAL, sofort)
+                |
+          [fileBuffer] wird gespeichert
+                |
+         +------+------+
+         |             |
+    OCR (file)    Upload (fileBuffer)
+    verbraucht    frischer Buffer
+    den File      kein File.read noetig
 ```
 
 ## Erwartetes Ergebnis
 
-- Upload funktioniert auf Mobile wieder zuverlaessig
-- Kein Timeout mehr nach OCR-Abschluss
-- Desktop bleibt unberuehrt (funktioniert weiterhin)
-- Minimale Aenderung: nur ~4 Zeilen in einer Datei
+- Kein `file.arrayBuffer()`-Aufruf mehr in EncryptedDocumentService fuer diesen Flow
+- Upload kann nicht mehr haengen wegen verbrauchtem File-Objekt
+- Desktop bleibt unberuehrt
+- Drawer schliesst sofort, Upload laeuft im Hintergrund
