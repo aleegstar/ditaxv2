@@ -1,107 +1,117 @@
 
 
-# Fix: Upload auf Mobile reparieren - zurueck zum bewaehrten Ansatz
+# Diagnose: Upload-Problem auf Mobile finden
 
-## Ursache
+## Das eigentliche Problem
 
-Der `uploadFromBuffer()`-Ansatz, den wir eingefuehrt haben, funktioniert nicht auf Mobile. Die Annahme "Datei kann nach OCR nicht mehr gelesen werden" war falsch: Der bestehende `EnhancedDocumentUploader` beweist, dass `uploadEncryptedDocument(file)` NACH OCR problemlos auf Mobile funktioniert.
+Wir haben 3 Versuche gemacht, das Problem zu loesen -- aber wir wissen gar nicht, WO genau der Upload haengt. Wir haben nur geraten. Die Loesung: Wir machen den aktuellen Schritt auf dem Button sichtbar, damit du auf dem Handy SOFORT siehst, wo es stoppt.
 
-Das Problem liegt im `uploadFromBuffer`/ArrayBuffer-Ansatz selbst - moeglicherweise wird der Buffer waehrend der OCR invalidiert oder es gibt ein WebView-spezifisches Problem mit vorab gelesenen ArrayBuffers.
-
-## Loesung
-
-Zurueck zum bewaehrten `uploadEncryptedDocument(file)` - exakt der gleiche Ansatz, der in `EnhancedDocumentUploader` seit Monaten zuverlaessig auf Mobile funktioniert.
-
-## Technische Aenderungen
+## Was geaendert wird
 
 ### Datei: `src/components/DocumentChecklist.tsx`
 
-1. **State `pendingUploadBuffer` entfernen** - wird nicht mehr benoetigt
-2. **`handleQuickUpload`**: `file.arrayBuffer()` Aufruf entfernen. Datei direkt an `executeUpload` uebergeben
-3. **`executeUpload`**: Signatur zurueck auf `File` aendern. `uploadEncryptedDocument(file, ...)` statt `uploadFromBuffer(buffer, ...)` aufrufen
-4. **`handleOcrConfirm`**: `pendingUploadFile` direkt an `executeUpload` uebergeben
+**1. Neuer State fuer Upload-Schritt-Anzeige:**
 
-### Aenderungen im Detail
-
-**State-Bereinigung:**
 ```typescript
-// ENTFERNEN:
-const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
+const [uploadStepInfo, setUploadStepInfo] = useState<Record<string, string>>({});
 ```
 
-**`handleQuickUpload` vereinfachen:**
-```typescript
-const handleQuickUpload = async (file: File, item: ChecklistItem) => {
-  // Validate file
-  const validation = await validateFile(file);
-  if (!validation.isValid) { ... }
+**2. `executeUpload` - Schritt-fuer-Schritt Fortschritt anzeigen:**
 
-  // KEIN file.arrayBuffer() mehr!
-  setPendingUploadFile(file);
-  setPendingUploadItem(item);
-  // ... OCR drawer oeffnen, OCR laufen lassen ...
+Statt nur "Laedt..." zeigt der Button den aktuellen Schritt:
 
-  if (result.best.confidence >= 50) {
-    executeUpload(file, item);  // File direkt uebergeben
-  }
-};
-```
-
-**`executeUpload` zurueck auf File-basiert:**
 ```typescript
 const executeUpload = async (file: File, item: ChecklistItem) => {
-  // ... timeout/error handling bleibt gleich ...
-  await encryptedDocService.uploadEncryptedDocument(
-    file, item.id, currentUserId, taxYear, item.title, activeTaxFilerId
-  );
-};
-```
+  try {
+    setUploadingItems(prev => [...prev, item.id]);
+    
+    // Schritt 1: Session
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Session...' }));
+    const { data: sessionData } = await supabase.auth.getSession();
+    const currentUserId = sessionData?.session?.user?.id;
+    if (!currentUserId) { /* error handling */ return; }
 
-**`handleOcrConfirm` vereinfachen:**
-```typescript
-const handleOcrConfirm = () => {
-  if (pendingUploadFile && pendingUploadItem) {
-    const file = pendingUploadFile;
-    const item = pendingUploadItem;
-    // Close drawer, clear state
-    setOcrDrawerOpen(false);
-    setPendingUploadFile(null);
-    setPendingUploadItem(null);
-    // Upload mit File-Objekt
-    executeUpload(file, item);
+    // Schritt 2: Encryption Key
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Schlüssel...' }));
+    const encryptedDocService = EncryptedDocumentService.getInstance();
+
+    // Schritt 3: Upload (beinhaltet file.arrayBuffer + encrypt + storage)
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
+    await encryptedDocService.uploadEncryptedDocument(file, ...);
+
+    // Fertig
+    setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
+    toast({ title: 'Erfolgreich hochgeladen' });
+  } catch (error) {
+    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
+    // ... error handling
+  } finally {
+    setUploadingItems(prev => prev.filter(id => id !== item.id));
+    setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
   }
 };
 ```
 
-**`handleOcrClose` vereinfachen:**
+**3. Button zeigt Schritt statt "Laedt...":**
+
 ```typescript
-const handleOcrClose = () => {
-  setOcrDrawerOpen(false);
-  setPendingUploadFile(null);
-  setPendingUploadItem(null);
-  // KEIN pendingUploadBuffer mehr
-};
+// Vorher:
+{isUploading ? 'Lädt…' : 'Hochladen'}
+
+// Nachher:
+{isUploading ? (uploadStepInfo[item.id] || 'Lädt…') : 'Hochladen'}
 ```
 
-### Keine weiteren Dateien betroffen
+### Datei: `src/services/EncryptedDocumentService.ts`
 
-`EncryptedDocumentService.ts` bleibt unveraendert - die bestehende `uploadEncryptedDocument()` Methode wird wieder genutzt (die `uploadFromBuffer`-Methode bleibt fuer zukuenftige Verwendung bestehen).
+**4. Detailliertes Logging in `uploadEncryptedDocument`:**
 
-## Warum das funktioniert
+Jeder Schritt bekommt eine Console-Log-Nachricht mit Zeitstempel:
 
-```text
-AKTUELL (kaputt):
-  File --> arrayBuffer() --> [buffer in State] --> OCR(file) --> uploadFromBuffer(buffer) HAENGT
+```typescript
+async uploadEncryptedDocument(file, ...) {
+  const t0 = Date.now();
+  const log = (msg: string) => console.log(`[Upload +${Date.now()-t0}ms] ${msg}`);
 
-NEU (bewaehrt - gleicher Ansatz wie EnhancedDocumentUploader):
-  File --> [file in State] --> OCR(file) --> uploadEncryptedDocument(file) --> OK!
+  log('START - Getting encryption key');
+  const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
+  
+  log('KEY OK - Reading file into memory');
+  const originalBuffer = await file.arrayBuffer();
+  
+  log('FILE READ OK - Generating hash');
+  const integrityHash = await this.cryptoService.generateIntegrityHash(originalBuffer);
+  
+  log('HASH OK - Encrypting file');
+  const { encryptedData, iv } = await this.cryptoService.encryptBuffer(originalBuffer, encryptionKey);
+  
+  log('ENCRYPT OK - Uploading to storage');
+  const { error: uploadError } = await supabase.storage.from('documents').upload(...);
+  
+  log('STORAGE OK - Saving metadata to DB');
+  const { error: dbError } = await supabase.from('uploaded_documents').insert(...);
+  
+  log('DB OK - DONE');
+}
 ```
 
-Der `EnhancedDocumentUploader` nutzt exakt diesen Ansatz und funktioniert seit Monaten zuverlaessig auf Mobile. Wir uebernehmen das gleiche Muster.
+## Naechster Schritt
 
-## Erwartetes Ergebnis
+Nachdem du diese Version auf dem Handy testest, sehen wir auf dem Button einen der folgenden Texte:
+- **"Session..."** -- Problem mit der Anmeldung auf Mobile
+- **"Schlüssel..."** -- Problem mit der Verschluesselungs-Key-Generierung
+- **"Hochladen..."** -- Problem innerhalb des Upload-Prozesses (dann zeigen die Console-Logs genau wo)
+- **"FEHLER!"** -- Ein Fehler tritt auf (Toast zeigt Details)
 
-- Upload funktioniert auf Mobile wieder (wie im alten Flow)
-- Desktop bleibt unberuehrt
-- Weniger Code, weniger Komplexitaet
-- Bewaehrtes Muster statt experimentellem Buffer-Ansatz
+Das erspart uns weiteres Raten und zeigt uns das echte Problem.
+
+## Warum nur auf Mobile?
+
+Moegliche Gruende (die wir mit der Diagnose herausfinden):
+- WebView hat eingeschraenkte Web Crypto API (Verschluesselung)
+- WebView hat strengere CORS-Regeln (Storage Upload)
+- Despia WebView verliert die Auth-Session beim Wechsel
+- Mobile Netzwerk-Timeouts sind kuerzer
+- `file.arrayBuffer()` verhaelt sich in WebViews anders
+
+Mit dem sichtbaren Schritt auf dem Button werden wir es endlich genau wissen.
