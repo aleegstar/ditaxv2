@@ -1,118 +1,107 @@
 
-# Fix: Upload haengt auf Mobile - ArrayBuffer direkt durchreichen
+
+# Fix: Upload auf Mobile reparieren - zurueck zum bewaehrten Ansatz
 
 ## Ursache
 
-Das Problem ist tiefgreifender als nur "File doppelt lesen". Auf mobilen WebViews passiert Folgendes:
+Der `uploadFromBuffer()`-Ansatz, den wir eingefuehrt haben, funktioniert nicht auf Mobile. Die Annahme "Datei kann nach OCR nicht mehr gelesen werden" war falsch: Der bestehende `EnhancedDocumentUploader` beweist, dass `uploadEncryptedDocument(file)` NACH OCR problemlos auf Mobile funktioniert.
 
-1. `file.slice()` erstellt keine echte Kopie der Daten - es referenziert denselben Blob
-2. Nach dem OCR-Verbrauch ist der zugrunde liegende Blob auf manchen mobilen WebViews nicht mehr lesbar
-3. `EncryptedDocumentService.uploadEncryptedDocument()` ruft dann `file.arrayBuffer()` auf (Zeile 78) - das haengt endlos
-4. Der Drawer schliesst nicht, weil `executeUpload` sofort `setIsConfirming(true)` setzt und der Main Thread durch den haengenden `arrayBuffer()`-Aufruf blockiert wird
+Das Problem liegt im `uploadFromBuffer`/ArrayBuffer-Ansatz selbst - moeglicherweise wird der Buffer waehrend der OCR invalidiert oder es gibt ein WebView-spezifisches Problem mit vorab gelesenen ArrayBuffers.
 
 ## Loesung
 
-Die Datei-Bytes werden **einmal** ganz am Anfang in `handleQuickUpload` gelesen (BEVOR OCR startet). Der resultierende `ArrayBuffer` wird direkt an `executeUpload` weitergereicht. `executeUpload` uebergibt den Buffer an `EncryptedDocumentService` ueber eine neue Methode, die keinen erneuten `file.arrayBuffer()`-Aufruf benoetigt.
+Zurueck zum bewaehrten `uploadEncryptedDocument(file)` - exakt der gleiche Ansatz, der in `EnhancedDocumentUploader` seit Monaten zuverlaessig auf Mobile funktioniert.
 
 ## Technische Aenderungen
 
-### 1. `src/components/DocumentChecklist.tsx`
+### Datei: `src/components/DocumentChecklist.tsx`
 
-**`handleQuickUpload`**: Datei sofort in ArrayBuffer lesen, bevor OCR startet:
+1. **State `pendingUploadBuffer` entfernen** - wird nicht mehr benoetigt
+2. **`handleQuickUpload`**: `file.arrayBuffer()` Aufruf entfernen. Datei direkt an `executeUpload` uebergeben
+3. **`executeUpload`**: Signatur zurueck auf `File` aendern. `uploadEncryptedDocument(file, ...)` statt `uploadFromBuffer(buffer, ...)` aufrufen
+4. **`handleOcrConfirm`**: `pendingUploadFile` direkt an `executeUpload` uebergeben
 
+### Aenderungen im Detail
+
+**State-Bereinigung:**
+```typescript
+// ENTFERNEN:
+const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
+```
+
+**`handleQuickUpload` vereinfachen:**
 ```typescript
 const handleQuickUpload = async (file: File, item: ChecklistItem) => {
   // Validate file
   const validation = await validateFile(file);
   if (!validation.isValid) { ... }
 
-  // Read file bytes ONCE before OCR consumes the File object.
-  // Mobile WebViews cannot re-read a File after it's been consumed.
-  const fileBuffer = await file.arrayBuffer();
-  
-  // Store buffer + metadata for upload
-  setPendingUploadFile(file);       // only for display (name, type)
+  // KEIN file.arrayBuffer() mehr!
+  setPendingUploadFile(file);
   setPendingUploadItem(item);
-  // ... open drawer, run OCR with original file ...
+  // ... OCR drawer oeffnen, OCR laufen lassen ...
 
   if (result.best.confidence >= 50) {
-    executeUpload(fileBuffer, file.name, file.type, item);  // pass buffer directly
+    executeUpload(file, item);  // File direkt uebergeben
   }
 };
 ```
 
-**`executeUpload`**: Signatur aendern - nimmt jetzt `ArrayBuffer` + Metadaten statt `File`:
-
+**`executeUpload` zurueck auf File-basiert:**
 ```typescript
-const executeUpload = async (
-  fileBuffer: ArrayBuffer,
-  fileName: string,
-  fileType: string,
-  item: ChecklistItem
-) => {
-  // ... same timeout/error handling ...
-  await encryptedDocService.uploadFromBuffer(
-    fileBuffer, fileName, fileType,
-    item.id, currentUserId, taxYear, item.title, activeTaxFilerId
+const executeUpload = async (file: File, item: ChecklistItem) => {
+  // ... timeout/error handling bleibt gleich ...
+  await encryptedDocService.uploadEncryptedDocument(
+    file, item.id, currentUserId, taxYear, item.title, activeTaxFilerId
   );
 };
 ```
 
-**`handleOcrConfirm`**: Ebenfalls Buffer durchreichen (aus einer neuen State-Variable `pendingUploadBuffer`).
-
-### 2. `src/services/EncryptedDocumentService.ts`
-
-Neue Methode `uploadFromBuffer()` hinzufuegen, die einen bereits gelesenen `ArrayBuffer` akzeptiert:
-
+**`handleOcrConfirm` vereinfachen:**
 ```typescript
-async uploadFromBuffer(
-  buffer: ArrayBuffer,
-  fileName: string,
-  fileType: string,
-  checklistItemId: string | null,
-  userId: string,
-  taxYear: string,
-  checklistItemTitle?: string,
-  taxFilerId?: string | null
-): Promise<void> {
-  // Get encryption key
-  const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
-  
-  // Hash + encrypt from buffer directly - NO file.arrayBuffer() call
-  const integrityHash = await this.cryptoService.generateIntegrityHash(buffer);
-  const { encryptedData, iv } = await this.cryptoService.encryptBuffer(buffer, encryptionKey);
-  
-  // ... rest of upload logic (metadata encryption, storage upload, DB insert)
-}
+const handleOcrConfirm = () => {
+  if (pendingUploadFile && pendingUploadItem) {
+    const file = pendingUploadFile;
+    const item = pendingUploadItem;
+    // Close drawer, clear state
+    setOcrDrawerOpen(false);
+    setPendingUploadFile(null);
+    setPendingUploadItem(null);
+    // Upload mit File-Objekt
+    executeUpload(file, item);
+  }
+};
 ```
 
-### 3. Neuer State: `pendingUploadBuffer`
-
-Ein neuer State `pendingUploadBuffer` speichert den vorab gelesenen ArrayBuffer fuer den Fall, dass der User manuell bestaetigt ("trotzdem einreichen"):
-
+**`handleOcrClose` vereinfachen:**
 ```typescript
-const [pendingUploadBuffer, setPendingUploadBuffer] = useState<ArrayBuffer | null>(null);
+const handleOcrClose = () => {
+  setOcrDrawerOpen(false);
+  setPendingUploadFile(null);
+  setPendingUploadItem(null);
+  // KEIN pendingUploadBuffer mehr
+};
 ```
 
-## Datenfluss nach dem Fix
+### Keine weiteren Dateien betroffen
+
+`EncryptedDocumentService.ts` bleibt unveraendert - die bestehende `uploadEncryptedDocument()` Methode wird wieder genutzt (die `uploadFromBuffer`-Methode bleibt fuer zukuenftige Verwendung bestehen).
+
+## Warum das funktioniert
 
 ```text
-File-Input --> [file]
-                |
-          arrayBuffer() (EINMAL, sofort)
-                |
-          [fileBuffer] wird gespeichert
-                |
-         +------+------+
-         |             |
-    OCR (file)    Upload (fileBuffer)
-    verbraucht    frischer Buffer
-    den File      kein File.read noetig
+AKTUELL (kaputt):
+  File --> arrayBuffer() --> [buffer in State] --> OCR(file) --> uploadFromBuffer(buffer) HAENGT
+
+NEU (bewaehrt - gleicher Ansatz wie EnhancedDocumentUploader):
+  File --> [file in State] --> OCR(file) --> uploadEncryptedDocument(file) --> OK!
 ```
+
+Der `EnhancedDocumentUploader` nutzt exakt diesen Ansatz und funktioniert seit Monaten zuverlaessig auf Mobile. Wir uebernehmen das gleiche Muster.
 
 ## Erwartetes Ergebnis
 
-- Kein `file.arrayBuffer()`-Aufruf mehr in EncryptedDocumentService fuer diesen Flow
-- Upload kann nicht mehr haengen wegen verbrauchtem File-Objekt
+- Upload funktioniert auf Mobile wieder (wie im alten Flow)
 - Desktop bleibt unberuehrt
-- Drawer schliesst sofort, Upload laeuft im Hintergrund
+- Weniger Code, weniger Komplexitaet
+- Bewaehrtes Muster statt experimentellem Buffer-Ansatz
