@@ -105,6 +105,12 @@ const DocumentChecklist: React.FC = () => {
   const handleNext = () => { navigate(`/payment?year=${taxYear}`); };
   const handleBack = () => { navigate('/form?section=deductions'); };
   const handleUploadDocument = (itemId: string) => {
+    // On mobile: navigate to the proven multi-step upload page (EnhancedDocumentUploader)
+    if (isMobile) {
+      navigate(`/form/documents/upload/${itemId}?year=${taxYear}`);
+      return;
+    }
+    // Desktop: inline file picker + OCR flow
     const input = fileInputRefs.current[itemId];
     if (input) {
       input.value = '';
@@ -126,13 +132,7 @@ const DocumentChecklist: React.FC = () => {
         return;
       }
 
-      // MOBILE: Skip OCR entirely, upload directly (same path as working multi-click flows)
-      if (isMobile) {
-        executeDirectUpload(file, item, capturedUserId);
-        return;
-      }
-
-      // DESKTOP: OCR validation flow
+      // Read file buffer NOW while file reference is fresh
       const fileBuffer = await file.arrayBuffer();
 
       setPendingUploadFile(file);
@@ -189,60 +189,6 @@ const DocumentChecklist: React.FC = () => {
       console.error('OCR validation error:', error);
       setOcrDrawerOpen(false);
       toast({ title: 'Validierung fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
-    }
-  };
-
-  // Direct upload for mobile - no OCR, no buffer pre-read, identical to working multi-click flows
-  const executeDirectUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
-    const timeoutMs = 90000;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    try {
-      setUploadingItems(prev => [...prev, item.id]);
-      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Lese Datei...' }));
-
-      // Read buffer IMMEDIATELY while file ref is fresh (this is the critical step)
-      const fileBuffer = await file.arrayBuffer();
-      console.log('[executeDirectUpload] Buffer read OK, bytes:', fileBuffer.byteLength);
-
-      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
-
-      const uploadPromise = (async () => {
-        const activeTaxFilerId = localStorage.getItem('activeTaxFilerId')
-          || sessionStorage.getItem('ditax_selected_tax_filer');
-        const encryptedDocService = EncryptedDocumentService.getInstance();
-
-        // Use uploadFromBuffer - avoids internal file.arrayBuffer() call
-        await encryptedDocService.uploadFromBuffer(
-          fileBuffer,
-          file.name,
-          file.type,
-          item.id,
-          capturedUserId,
-          taxYear,
-          item.title,
-          activeTaxFilerId
-        );
-
-        setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
-        toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
-        markUploaded(item.id, true);
-        refreshDocuments();
-      })();
-
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Upload-Timeout')), timeoutMs);
-      });
-
-      await Promise.race([uploadPromise, timeoutPromise]);
-    } catch (error: any) {
-      console.error('[executeDirectUpload] Error:', error);
-      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
-      toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
-      setUploadingItems(prev => prev.filter(id => id !== item.id));
-      setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
     }
   };
 
