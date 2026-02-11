@@ -160,8 +160,14 @@ const DocumentChecklist: React.FC = () => {
 
       // If document was recognized (any confidence), auto-submit and close
       if (result.best.confidence >= 50) {
-        await executeUpload(file, item);
+        // Close drawer immediately - upload runs in background
         setOcrDrawerOpen(false);
+        setPendingUploadFile(null);
+        setPendingUploadItem(null);
+        setValidationResult(null);
+        setOcrPhase('validating');
+        // Fire-and-forget: executeUpload handles its own errors/toasts
+        executeUpload(file, item);
       } else {
         setOcrPhase('result');
       }
