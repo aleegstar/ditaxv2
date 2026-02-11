@@ -185,14 +185,17 @@ const DocumentChecklist: React.FC = () => {
     try {
       setUploadingItems(prev => [...prev, item.id]);
       setIsConfirming(true);
+      console.log('[executeUpload] Starting upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
+        console.log('[executeUpload] Getting session...');
         const { data: sessionData } = await supabase.auth.getSession();
         const currentUserId = sessionData?.session?.user?.id;
         if (!currentUserId) {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
           return;
         }
+        console.log('[executeUpload] Session OK, starting encryption...');
 
         const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
 
@@ -206,44 +209,51 @@ const DocumentChecklist: React.FC = () => {
           activeTaxFilerId
         );
 
+        console.log('[executeUpload] Upload complete for:', item.id);
         toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
         markUploaded(item.id, true);
         refreshDocuments();
       })();
 
       const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Upload-Timeout: Der Upload hat zu lange gedauert.')), timeoutMs);
+        timeoutId = setTimeout(() => {
+          console.error('[executeUpload] TIMEOUT after', timeoutMs, 'ms for:', item.id);
+          reject(new Error('Upload-Timeout: Der Upload hat zu lange gedauert.'));
+        }, timeoutMs);
       });
 
       await Promise.race([uploadPromise, timeoutPromise]);
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error('[executeUpload] Error:', error?.message || error);
       toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
     } finally {
+      console.log('[executeUpload] Cleanup for:', item.id);
       if (timeoutId) clearTimeout(timeoutId);
       setUploadingItems(prev => prev.filter(id => id !== item.id));
       setIsConfirming(false);
     }
   };
 
-  const handleOcrConfirm = async () => {
+  const handleOcrConfirm = () => {
     console.log('[handleOcrConfirm] called', { 
       hasPendingFile: !!pendingUploadFile, 
       hasPendingItem: !!pendingUploadItem,
       isConfirming 
     });
     if (pendingUploadFile && pendingUploadItem) {
-      try {
-        await executeUpload(pendingUploadFile, pendingUploadItem);
-      } catch (error) {
-        console.error('[handleOcrConfirm] executeUpload failed:', error);
-      } finally {
-        setOcrDrawerOpen(false);
-        setPendingUploadFile(null);
-        setPendingUploadItem(null);
-        setValidationResult(null);
-        setOcrPhase('validating');
-      }
+      // Capture refs before clearing state
+      const file = pendingUploadFile;
+      const item = pendingUploadItem;
+      
+      // Close drawer immediately - upload runs in background
+      setOcrDrawerOpen(false);
+      setPendingUploadFile(null);
+      setPendingUploadItem(null);
+      setValidationResult(null);
+      setOcrPhase('validating');
+      
+      // Fire-and-forget: executeUpload handles its own errors/toasts/loading state
+      executeUpload(file, item);
     } else {
       console.warn('[handleOcrConfirm] Missing pending data');
       toast({
