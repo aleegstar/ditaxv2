@@ -98,15 +98,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-rose-300/70 ring-1 ring-rose-300/70 bg-rose-50/20"
-              : "border-rose-200/40 bg-rose-50/10 hover:shadow-md hover:border-rose-200/60"
+              ? "border-rose-200 ring-1 ring-rose-200 bg-rose-50/15"
+              : "border-rose-200/30 bg-rose-50/5 hover:shadow-md hover:border-rose-200/50"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === false
-              ? "bg-rose-400 border-rose-400 text-white"
-              : "border-rose-200/60 bg-rose-50/50 text-rose-300 group-hover:border-rose-200 group-hover:text-rose-400"
+              ? "bg-rose-300 border-rose-300 text-white"
+              : "border-rose-200/40 bg-rose-50/30 text-rose-200 group-hover:border-rose-200 group-hover:text-rose-300"
           )}>
             <X className="w-5 h-5" />
           </div>
