@@ -126,11 +126,35 @@ const DocumentChecklist: React.FC = () => {
       setValidationProgress({ step: 'preparing', percent: 0, message: '' });
       setOcrDrawerOpen(true);
 
-      // Run OCR validation
+      // Run OCR validation with timeout (mobile WebViews can hang)
+      const OCR_TIMEOUT_MS = 15000;
       const validator = DocumentValidator.getInstance();
-      const result = await validator.validate(file, item.id, (progress) => {
-        setValidationProgress(progress);
-      });
+      
+      let result: ValidationResult;
+      try {
+        result = await Promise.race([
+          validator.validate(file, item.id, (progress) => {
+            setValidationProgress(progress);
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
+          )
+        ]);
+      } catch (timeoutError: any) {
+        if (timeoutError.message === 'OCR_TIMEOUT') {
+          console.warn('[handleQuickUpload] OCR timeout after 15s - skipping validation');
+          result = {
+            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] },
+            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] }],
+            signals: { meta: undefined, layout: undefined, keywords: undefined },
+            needsUserConfirmation: true,
+            confidenceBucket: 'low' as const,
+            statusMessage: 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
+          };
+        } else {
+          throw timeoutError;
+        }
+      }
 
       setValidationResult(result);
 
