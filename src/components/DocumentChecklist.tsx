@@ -113,6 +113,13 @@ const DocumentChecklist: React.FC = () => {
 
   const handleQuickUpload = async (file: File, item: ChecklistItem) => {
     try {
+      // Capture userId BEFORE OCR starts (reactive state may change during OCR)
+      const capturedUserId = userId;
+      if (!capturedUserId) {
+        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
+        return;
+      }
+
       // Validate file
       const validation = await validateFile(file);
       if (!validation.isValid) {
@@ -168,7 +175,7 @@ const DocumentChecklist: React.FC = () => {
         setValidationResult(null);
         setOcrPhase('validating');
         // Fire-and-forget: upload uses File object directly (proven to work on mobile)
-        executeUpload(file, item);
+        executeUpload(file, item, capturedUserId);
       } else {
         setOcrPhase('result');
       }
@@ -179,7 +186,7 @@ const DocumentChecklist: React.FC = () => {
     }
   };
 
-  const executeUpload = async (file: File, item: ChecklistItem) => {
+  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
     const timeoutMs = 90000;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
@@ -189,8 +196,8 @@ const DocumentChecklist: React.FC = () => {
       console.log('[executeUpload] Starting file upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
-        // userId from useAuthValidation() hook - no getSession() needed
-        const currentUserId = userId;
+        // Use captured userId passed as parameter (immune to reactive state changes)
+        const currentUserId = capturedUserId;
         if (!currentUserId) {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
           return;
@@ -248,9 +255,15 @@ const DocumentChecklist: React.FC = () => {
       isConfirming 
     });
     if (pendingUploadFile && pendingUploadItem) {
-      // Capture refs before clearing state
+      // Capture refs and userId before clearing state
       const file = pendingUploadFile;
       const item = pendingUploadItem;
+      const capturedUserId = userId;
+      if (!capturedUserId) {
+        toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
+        setOcrDrawerOpen(false);
+        return;
+      }
       
       // Close drawer immediately - upload runs in background
       setOcrDrawerOpen(false);
@@ -260,7 +273,7 @@ const DocumentChecklist: React.FC = () => {
       setOcrPhase('validating');
       
       // Fire-and-forget: executeUpload handles its own errors/toasts/loading state
-      executeUpload(file, item);
+      executeUpload(file, item, capturedUserId);
     } else {
       console.warn('[handleOcrConfirm] Missing pending data');
       toast({
