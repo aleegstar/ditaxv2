@@ -69,15 +69,15 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === true
-              ? "border-emerald-400 ring-2 ring-emerald-400 bg-emerald-50/40"
-              : "border-emerald-200 bg-emerald-50/20 hover:shadow-md hover:border-emerald-300"
+              ? "border-emerald-300/70 ring-1 ring-emerald-300/70 bg-emerald-50/20"
+              : "border-emerald-200/40 bg-emerald-50/10 hover:shadow-md hover:border-emerald-200/60"
           )}
         >
           <div className={cn(
             "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
             answer === true
-              ? "bg-emerald-500 border-emerald-500 text-white"
-              : "border-emerald-200 bg-emerald-50 text-emerald-400 group-hover:border-emerald-300 group-hover:text-emerald-500"
+              ? "bg-emerald-400 border-emerald-400 text-white"
+              : "border-emerald-200/60 bg-emerald-50/50 text-emerald-300 group-hover:border-emerald-300 group-hover:text-emerald-400"
           )}>
             <Check className="w-5 h-5" />
           </div>
@@ -98,8 +98,8 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "relative group cursor-pointer text-left",
             "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-rose-300 ring-2 ring-rose-300 bg-rose-50/30"
-              : "border-rose-200/60 bg-rose-50/10 hover:shadow-md hover:border-rose-200"
+              ? "border-rose-300/70 ring-1 ring-rose-300/70 bg-rose-50/20"
+              : "border-rose-200/40 bg-rose-50/10 hover:shadow-md hover:border-rose-200/60"
           )}
         >
           <div className={cn(
