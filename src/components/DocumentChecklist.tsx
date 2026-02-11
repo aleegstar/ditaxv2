@@ -120,8 +120,8 @@ const DocumentChecklist: React.FC = () => {
 
       // Clone file for upload: Mobile WebViews can only read a File object once.
       // OCR consumes the original, so we clone it for the upload step.
-      const fileBuffer = await file.arrayBuffer();
-      const uploadFile = new File([fileBuffer], file.name, { type: file.type });
+      // Use file.slice() instead of arrayBuffer() - slice() is lazy and doesn't trigger I/O.
+      const uploadFile = new File([file.slice()], file.name, { type: file.type, lastModified: file.lastModified });
 
       // Store cloned file for upload, original goes to OCR
       setPendingUploadFile(uploadFile);
