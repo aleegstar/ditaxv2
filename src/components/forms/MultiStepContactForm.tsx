@@ -197,7 +197,6 @@ const MultiStepContactForm = ({
 
     try {
       await saveSection('contactInfo', currentContactData);
-      updateFormProgress('contactInfo', true);
       
       const checkboxFields = ['firefighterService', 'hasChildren'];
       const hasCheckboxChanges = checkboxFields.some(field => 
@@ -208,19 +207,19 @@ const MultiStepContactForm = ({
         generateChecklist();
       }
 
-      toast({
-        title: t.forms.savedSuccessfully,
-        description: t.forms.savedSuccessfullyDescription
-      });
-
       if (currentStep < steps.length) {
+        // Intermediate step - just advance, don't mark as complete
         setCurrentFormStep(currentStep + 1);
       } else {
-        // Final step completed - redirect to tax year overview
+        // Final step completed - NOW mark as complete
+        updateFormProgress('contactInfo', true);
+        toast({
+          title: t.forms.savedSuccessfully,
+          description: t.forms.savedSuccessfullyDescription
+        });
         if (embedded) {
-          setCurrentStep(1); // Move to income section
+          setCurrentStep(1);
         } else {
-          // Navigate back to tax year overview
           window.location.href = `/form?year=${taxYear}`;
         }
       }
