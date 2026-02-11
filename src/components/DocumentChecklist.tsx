@@ -116,8 +116,7 @@ const DocumentChecklist: React.FC = () => {
       // Capture userId AND session BEFORE OCR starts
       // (reactive auth state AND supabase client session may be lost during OCR in mobile WebViews)
       const capturedUserId = userId;
-      const { data: { session: capturedSession } } = await supabase.auth.getSession();
-      if (!capturedUserId || !capturedSession) {
+      if (!capturedUserId) {
         toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
         return;
       }
@@ -177,7 +176,7 @@ const DocumentChecklist: React.FC = () => {
         setValidationResult(null);
         setOcrPhase('validating');
         // Fire-and-forget: upload uses File object directly (proven to work on mobile)
-        executeUpload(file, item, capturedUserId, capturedSession);
+        executeUpload(file, item, capturedUserId);
       } else {
         setOcrPhase('result');
       }
@@ -188,7 +187,7 @@ const DocumentChecklist: React.FC = () => {
     }
   };
 
-  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string, capturedSession: { access_token: string; refresh_token: string }) => {
+  const executeUpload = async (file: File, item: ChecklistItem, capturedUserId: string) => {
     const timeoutMs = 90000;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
@@ -198,19 +197,6 @@ const DocumentChecklist: React.FC = () => {
       console.log('[executeUpload] Starting file upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
-        // Restore supabase session before upload (may have been lost during OCR in mobile WebViews)
-        console.log('[executeUpload] Restoring captured session before upload...');
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: capturedSession.access_token,
-          refresh_token: capturedSession.refresh_token
-        });
-        if (sessionError) {
-          console.error('[executeUpload] Failed to restore session:', sessionError.message);
-          toast({ title: 'Sitzung abgelaufen', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
-          return;
-        }
-        console.log('[executeUpload] Session restored successfully');
-
         const currentUserId = capturedUserId;
         if (!currentUserId) {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
@@ -262,19 +248,17 @@ const DocumentChecklist: React.FC = () => {
     }
   };
 
-  const handleOcrConfirm = async () => {
+  const handleOcrConfirm = () => {
     console.log('[handleOcrConfirm] called', { 
       hasPendingFile: !!pendingUploadFile, 
       hasPendingItem: !!pendingUploadItem,
       isConfirming 
     });
     if (pendingUploadFile && pendingUploadItem) {
-      // Capture refs, userId and session before clearing state
       const file = pendingUploadFile;
       const item = pendingUploadItem;
       const capturedUserId = userId;
-      const { data: { session: capturedSession } } = await supabase.auth.getSession();
-      if (!capturedUserId || !capturedSession) {
+      if (!capturedUserId) {
         toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
         setOcrDrawerOpen(false);
         return;
@@ -288,7 +272,7 @@ const DocumentChecklist: React.FC = () => {
       setOcrPhase('validating');
       
       // Fire-and-forget: executeUpload handles its own errors/toasts/loading state
-      executeUpload(file, item, capturedUserId, capturedSession);
+      executeUpload(file, item, capturedUserId);
     } else {
       console.warn('[handleOcrConfirm] Missing pending data');
       toast({
