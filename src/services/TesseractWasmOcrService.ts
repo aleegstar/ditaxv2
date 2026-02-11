@@ -65,6 +65,39 @@ class TesseractWasmOcrService {
   }
 
   private async doInitialize(): Promise<boolean> {
+    const INIT_TIMEOUT = 10000;
+    try {
+      const initResult = await Promise.race([
+        this.doInitializeInternal(),
+        new Promise<boolean>((resolve) =>
+          setTimeout(() => {
+            console.warn('[TesseractWasm] Initialization timeout (10s)');
+            resolve(false);
+          }, INIT_TIMEOUT)
+        )
+      ]);
+      if (!initResult) {
+        this.initialized = false;
+        this.initializing = null;
+        this.client = null;
+      }
+      return initResult;
+    } catch (error: unknown) {
+      const errorInfo = {
+        error,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        errorType: error instanceof Error ? error.constructor.name : typeof error
+      };
+      console.error('[TesseractWasm] Failed to initialize:', errorInfo);
+      this.initialized = false;
+      this.initializing = null;
+      this.client = null;
+      return false;
+    }
+  }
+
+  private async doInitializeInternal(): Promise<boolean> {
     try {
       console.log('[TesseractWasm] Initializing OCR client...');
       console.log('[TesseractWasm] Environment check:', {
@@ -96,14 +129,11 @@ class TesseractWasmOcrService {
       }
 
       // Create OCR client with worker URL
-      // The WASM files are now stored in public/ocr/
       this.client = new OCRClient({
         workerURL: '/ocr/tesseract-worker.js'
       });
 
       console.log('[TesseractWasm] Loading German language model...');
-      
-      // Load German language model from public/ocr/
       await this.client.loadModel('/ocr/deu.traineddata');
 
       this.initialized = true;
@@ -113,7 +143,6 @@ class TesseractWasmOcrService {
       console.log('[TesseractWasm] OCR client initialized successfully');
       return true;
     } catch (error: unknown) {
-      // Detailed error logging for diagnosis
       const errorInfo = {
         error,
         errorMessage: error instanceof Error ? error.message : String(error),
@@ -121,7 +150,6 @@ class TesseractWasmOcrService {
         errorType: error instanceof Error ? error.constructor.name : typeof error
       };
       console.error('[TesseractWasm] Failed to initialize:', errorInfo);
-
       this.initialized = false;
       this.initializing = null;
       this.client = null;
