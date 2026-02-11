@@ -1,136 +1,35 @@
 
 
-# Fix: Upload auf Mobile direkt ausfuehren -- OCR ueberspringen
+# Fix: Apple OAuth Token-Übergabe auf iOS (Despia)
 
-## Das Problem
+## Problem
+Auf dem iPhone mit Despia wird nach erfolgreicher Apple-Anmeldung der Token nicht an die App übergeben. Der Benutzer bleibt auf der Anmeldeseite.
 
-Wir drehen uns im Kreis, weil jeder Versuch, OCR VOR dem Upload auszufuehren, auf Mobile scheitert. Der OCR-Prozess verursacht Speicherdruck im WebView, der nachfolgende Operationen (file.arrayBuffer, Supabase-Aufrufe, etc.) zum Haengen bringt.
+## Ursache
+iOS verwendet **ASWebAuthenticationSession** für den OAuth-Browserflow. Dieser Browser läuft in einem **isolierten Prozess mit eigenem Speicher**. Das bedeutet:
 
-**Die funktionierenden Flows** (EnhancedDocumentUploader, InlineDocumentUploader, DocumentUploader) haben ALLE eines gemeinsam: Sie rufen `uploadEncryptedDocument` sofort mit der frischen Datei auf -- ohne OCR dazwischen.
+1. Der Benutzer meldet sich erfolgreich bei Apple an
+2. Supabase leitet zu `/native-callback/ditax/` weiter (mit Tokens)
+3. `NativeCallback.tsx` speichert die Session im Browser-Speicher -- aber dieser gehört **nicht** zur App
+4. Der Deeplink `ditax://oauth/auth?success=true` schliesst den Browser
+5. Die App versucht die Session zu laden, findet aber **nichts** im eigenen Speicher
 
-## Die Loesung
+Auf Android funktioniert es zufällig, weil Chrome Custom Tabs den Speicher oft teilen.
 
-Auf Mobile: OCR komplett ueberspringen und direkt hochladen -- genau wie die funktionierenden Flows. Auf Desktop: OCR beibehalten (funktioniert dort problemlos).
+## Lösung
+Die Tokens direkt im Deeplink-URL mitgeben, damit `Auth.tsx` die Session **im eigenen WebView-Kontext** setzen kann.
 
-## Ablauf
+## Technische Änderungen
 
-```text
-MOBILE:                          DESKTOP:
-Datei waehlen                    Datei waehlen
-    |                                |
-Datei validieren                 Datei validieren
-    |                                |
-Sofort hochladen                 OCR-Drawer oeffnen
-(uploadEncryptedDocument)            |
-    |                            OCR-Validierung
-Toast: "Erfolgreich"                 |
-                                 Ergebnis anzeigen
-                                     |
-                                 Upload starten
-```
+### 1. `src/pages/NativeCallback.tsx`
+- Statt nur `success=true` im Deeplink zu senden, die Tokens `access_token` und `refresh_token` mitgeben
+- Format: `ditax://oauth/auth?access_token=xxx&refresh_token=xxx`
+- Die Session muss nicht mehr in NativeCallback gesetzt werden (auf iOS bringt es nichts), aber wir behalten es als Fallback für Android
 
-## Technische Aenderungen
+### 2. `src/pages/Auth.tsx`
+- Bereits vorbereitet: Der "LEGACY"-Block (Zeile 120-140) verarbeitet Tokens aus URL-Parametern und ruft `setSession()` auf
+- Keine Änderung nötig -- der bestehende Code erkennt `access_token` in den Query-Parametern und setzt die Session korrekt
 
-### Datei: `src/components/DocumentChecklist.tsx`
+### Zusammenfassung
+Eine Änderung in einer Datei (`NativeCallback.tsx`): Tokens im Deeplink übergeben statt nur `success=true`. Der Rest der Infrastruktur ist bereits vorhanden.
 
-**In `handleQuickUpload`** -- Mobile-Erkennung hinzufuegen:
-
-```typescript
-const handleQuickUpload = async (file: File, item: ChecklistItem) => {
-  try {
-    const capturedUserId = userId;
-    if (!capturedUserId) {
-      toast({ title: 'Nicht angemeldet', ... });
-      return;
-    }
-
-    const validation = await validateFile(file);
-    if (!validation.isValid) {
-      toast({ title: 'Ungueltige Datei', ... });
-      return;
-    }
-
-    // MOBILE: Skip OCR, upload directly (like multi-click flow)
-    if (isMobile) {
-      executeDirectUpload(file, item, capturedUserId);
-      return;
-    }
-
-    // DESKTOP: OCR validation flow (unchanged)
-    const fileBuffer = await file.arrayBuffer();
-    setPendingUploadFile(file);
-    setPendingUploadItem(item);
-    setPendingUploadBuffer(fileBuffer);
-    // ... rest of OCR flow unchanged ...
-  }
-};
-```
-
-**Neue Funktion `executeDirectUpload`** -- identisch mit den funktionierenden Flows:
-
-```typescript
-const executeDirectUpload = async (
-  file: File,
-  item: ChecklistItem,
-  capturedUserId: string
-) => {
-  const timeoutMs = 90000;
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-  try {
-    setUploadingItems(prev => [...prev, item.id]);
-    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
-
-    const uploadPromise = (async () => {
-      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId')
-        || sessionStorage.getItem('ditax_selected_tax_filer');
-      const encryptedDocService = EncryptedDocumentService.getInstance();
-
-      // Direct upload with fresh file -- proven to work
-      await encryptedDocService.uploadEncryptedDocument(
-        file,          // Fresh file, no OCR delay
-        item.id,
-        capturedUserId,
-        taxYear,
-        item.title,
-        activeTaxFilerId
-      );
-
-      setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
-      toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
-      markUploaded(item.id, true);
-      refreshDocuments();
-    })();
-
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => reject(new Error('Upload-Timeout')), timeoutMs);
-    });
-
-    await Promise.race([uploadPromise, timeoutPromise]);
-  } catch (error: any) {
-    console.error('[executeDirectUpload] Error:', error);
-    setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
-    toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
-  } finally {
-    if (timeoutId) clearTimeout(timeoutId);
-    setUploadingItems(prev => prev.filter(id => id !== item.id));
-    setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
-  }
-};
-```
-
-**`executeUpload` (fuer Desktop-OCR-Flow)** bleibt wie bisher mit `uploadFromBuffer`.
-
-## Warum das funktioniert
-
-- Auf Mobile: exakt derselbe Code-Pfad wie die funktionierenden Multi-Click-Flows
-- `uploadEncryptedDocument` wird sofort mit der frischen Datei aufgerufen
-- Kein OCR, kein Buffer-Pre-Read, kein Session-Management
-- Auf Desktop: OCR bleibt erhalten (funktioniert dort)
-
-## Zusammenfassung
-
-- 1 Datei geaendert: `src/components/DocumentChecklist.tsx`
-- Neue Funktion `executeDirectUpload` (kopiert den bewaehrten Upload-Pfad)
-- `handleQuickUpload` prueft `isMobile` und umgeht OCR komplett
-- Desktop-OCR-Flow bleibt unveraendert
