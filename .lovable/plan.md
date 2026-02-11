@@ -1,104 +1,81 @@
 
 
-# Dokument-Upload auf Mobile: OCR-Timeout-Problem beheben
+# Fix: "Dokument trotzdem einreichen" funktioniert nicht auf Mobile
 
-## Problem-Analyse
+## Problem
 
-Der Upload-Flow auf Mobile funktioniert so:
-1. Nutzer wahlt Datei aus
-2. OCR-Drawer offnet sich, `DocumentValidator.validate()` startet
-3. Auf Mobile wird **tesseract-wasm** verwendet, das folgende Schritte ausfuhrt:
-   - 3 HEAD-Requests um Dateien zu prufen (`tesseract-worker.js`, `tesseract-core.wasm`, `deu.traineddata`)
-   - Web Worker erstellen und WASM laden
-   - Deutsches Sprachmodell laden (~1.6MB Download)
-   - Bild komprimieren und OCR ausfuhren
+Das Vaul-Drawer-Komponente auf Mobile erlaubt standardmassig das Schliessen durch Wisch-Gesten (drag-to-dismiss). Wenn der Nutzer auf den Button "Dokument trotzdem einreichen" tippt, kann Folgendes passieren:
 
-**Das Kernproblem:** Die OCR-Validierung selbst hat **keinen Timeout**. Auf mobilen WebViews kann tesseract-wasm hangen (WASM-Kompatibilitat, langsames Netzwerk, Worker-Probleme). Erst danach wird `executeUpload` aufgerufen, das zwar einen 30s-Timeout hat -- aber zu diesem Zeitpunkt hat der Nutzer bereits lange gewartet.
+1. Eine minimale Fingerbewegung beim Tippen wird als Wisch-Geste interpretiert
+2. Die `onOpenChange(false)` wird ausgelost, welche `handleOcrClose` aufruft
+3. `handleOcrClose` setzt `pendingUploadFile` und `pendingUploadItem` auf `null`
+4. Wenn der Button-Click danach feuert, findet `handleOcrConfirm` keine Daten mehr und bricht ab
 
-Auf Desktop funktioniert es, weil Tesseract.js dort schneller und zuverlassiger lauft.
+Zusatzlich kann auf mobilen Geraten die Overlay-Ebene des Drawers Touch-Events abfangen, bevor sie den Button erreichen.
 
 ## Losung
 
-### 1. OCR-Validation-Timeout hinzufugen (15 Sekunden)
+### 1. Drawer nicht durch Wischen schliessbar machen in der "result"-Phase
 
-In `handleQuickUpload` in `DocumentChecklist.tsx` wird die `validator.validate()`-Aufruf mit einem `Promise.race` gegen einen 15-Sekunden-Timeout gewrappt. Wenn der Timeout eintritt:
-- OCR wird ubersprungen
-- Ein Fallback-Ergebnis mit niedriger Konfidenz (0%) wird erzeugt
-- Der Nutzer sieht den "result"-Screen und kann trotzdem einreichen
+Wenn `ocrPhase === 'result'` ist, soll der Drawer nicht durch Wischen oder Overlay-Klick geschlossen werden konnen. Nur die expliziten Buttons sollen den Drawer schliessen.
 
-### 2. tesseract-wasm Initialisierung mit Timeout absichern
+In `DocumentChecklist.tsx`:
+- `dismissible={false}` zum Drawer hinzufugen wenn `ocrPhase === 'result'`
+- Das verhindert, dass Touch-Gesten die pending Daten loschen
 
-In `TesseractWasmOcrService.ts` wird die `doInitialize()`-Methode mit einem 10-Sekunden-Timeout versehen. Wenn die WASM-Dateien nicht rechtzeitig laden, gibt die Initialisierung `false` zuruck, anstatt ewig zu hangen.
+### 2. handleOcrConfirm robuster machen
 
-### 3. executeUpload-Timeout auf Gesamtflow abstimmen
-
-Der bestehende 30s-Timeout in `executeUpload` bleibt, ist aber jetzt effektiver, weil die OCR-Phase nicht mehr endlos laufen kann.
+Falls `pendingUploadFile` oder `pendingUploadItem` trotzdem `null` sein sollten, eine Fehlermeldung anzeigen statt stillschweigend abzubrechen.
 
 ## Technische Details
 
-### Datei 1: `src/components/DocumentChecklist.tsx`
+### Datei: `src/components/DocumentChecklist.tsx`
 
-In `handleQuickUpload`: `validator.validate()` mit Promise.race und 15s Timeout wrappen:
-
+**Aenderung 1 - Drawer Props:**
 ```typescript
-const OCR_TIMEOUT_MS = 15000;
+// Vorher:
+<Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
 
-// Race OCR validation against timeout
-let result: ValidationResult;
-try {
-  result = await Promise.race([
-    validator.validate(file, item.id, (progress) => {
-      setValidationProgress(progress);
-    }),
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
-    )
-  ]);
-} catch (timeoutError: any) {
-  if (timeoutError.message === 'OCR_TIMEOUT') {
-    console.warn('[handleQuickUpload] OCR timeout - skipping validation');
-    // Create fallback result with low confidence -> shows manual confirm screen
-    result = {
-      best: { docTypeId: item.id, confidence: 0 },
-      candidates: [{ docTypeId: item.id, confidence: 0 }],
-      signals: { meta: undefined, layout: undefined, keywords: undefined },
-      needsUserConfirmation: true
-    };
-  } else {
-    throw timeoutError;
-  }
-}
+// Nachher:
+<Drawer 
+  open={ocrDrawerOpen} 
+  onOpenChange={(open) => { if (!open) handleOcrClose(); }}
+  dismissible={ocrPhase !== 'result'}
+>
 ```
 
-### Datei 2: `src/services/TesseractWasmOcrService.ts`
-
-In `doInitialize()`: 10-Sekunden-Timeout fur die gesamte Initialisierung:
-
+**Aenderung 2 - handleOcrConfirm mit Fehlermeldung:**
 ```typescript
-private async doInitialize(): Promise<boolean> {
-  const INIT_TIMEOUT = 10000;
-  try {
-    const initResult = await Promise.race([
-      this.doInitializeInternal(),
-      new Promise<boolean>((resolve) =>
-        setTimeout(() => {
-          console.warn('[TesseractWasm] Initialization timeout (10s)');
-          resolve(false);
-        }, INIT_TIMEOUT)
-      )
-    ]);
-    return initResult;
-  } catch (error) {
-    // ... existing error handling
-    return false;
+const handleOcrConfirm = async () => {
+  if (pendingUploadFile && pendingUploadItem) {
+    try {
+      await executeUpload(pendingUploadFile, pendingUploadItem);
+    } catch (error) {
+      console.error('[handleOcrConfirm] executeUpload failed:', error);
+    } finally {
+      setOcrDrawerOpen(false);
+      setPendingUploadFile(null);
+      setPendingUploadItem(null);
+      setValidationResult(null);
+      setOcrPhase('validating');
+    }
+  } else {
+    console.warn('[handleOcrConfirm] Missing pending data');
+    toast({
+      title: 'Upload fehlgeschlagen',
+      description: 'Bitte versuche es erneut.',
+      variant: 'destructive'
+    });
+    setOcrDrawerOpen(false);
+    setPendingUploadFile(null);
+    setPendingUploadItem(null);
   }
-}
+};
 ```
 
 ## Erwartetes Ergebnis
 
-- Auf Mobile wird der Upload nie langer als ~15s im OCR-Schritt stecken bleiben
-- Bei Timeout sieht der Nutzer den manuellen Bestatigungsscreen ("Dokument trotzdem einreichen")
-- Auf Desktop andert sich nichts (Tesseract.js ist schnell genug)
-- Kein Datenverlust -- der Nutzer kann immer noch hochladen
+- In der Ergebnis-Phase kann der Drawer nicht versehentlich per Wisch-Geste geschlossen werden
+- Der Button "Dokument trotzdem einreichen" funktioniert zuverlassig auf Mobile
+- Falls Daten dennoch fehlen, sieht der Nutzer eine klare Fehlermeldung
 
