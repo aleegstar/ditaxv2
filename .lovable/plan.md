@@ -1,45 +1,104 @@
 
 
-## Optimierung: Nahtlose Weiterleitung nach Login
+# Dokument-Upload auf Mobile: OCR-Timeout-Problem beheben
 
-### Problem
-Nach dem Login sieht der Nutzer mit mehreren Personen alle Zwischenschritte:
-1. `/auth` (Login)
-2. `/auth-success` (Erfolgsseite mit Spinner + Checkmark)
-3. `/` (Dashboard blitzt kurz auf)
-4. `/select-person` (finale Zielseite)
+## Problem-Analyse
 
-### Loesung
-Die Weiterleitung wird an zwei Stellen optimiert, damit der Nutzer nur den Login und dann direkt die Personenauswahl sieht -- ohne sichtbare Zwischenschritte.
+Der Upload-Flow auf Mobile funktioniert so:
+1. Nutzer wahlt Datei aus
+2. OCR-Drawer offnet sich, `DocumentValidator.validate()` startet
+3. Auf Mobile wird **tesseract-wasm** verwendet, das folgende Schritte ausfuhrt:
+   - 3 HEAD-Requests um Dateien zu prufen (`tesseract-worker.js`, `tesseract-core.wasm`, `deu.traineddata`)
+   - Web Worker erstellen und WASM laden
+   - Deutsches Sprachmodell laden (~1.6MB Download)
+   - Bild komprimieren und OCR ausfuhren
 
-### Aenderungen
+**Das Kernproblem:** Die OCR-Validierung selbst hat **keinen Timeout**. Auf mobilen WebViews kann tesseract-wasm hangen (WASM-Kompatibilitat, langsames Netzwerk, Worker-Probleme). Erst danach wird `executeUpload` aufgerufen, das zwar einen 30s-Timeout hat -- aber zu diesem Zeitpunkt hat der Nutzer bereits lange gewartet.
 
-**1. `src/pages/AuthSuccess.tsx`**
-- Nach erfolgreichem Session-Setzen (Web-Flow, Zeile 82): Statt `window.location.href = '/'` wird zu `/` navigiert, aber die AuthSuccess-Seite bleibt als visueller "Screen" stehen, bis die Navigation abgeschlossen ist.
-- Kein visueller Unterschied fuer den Nutzer -- die Erfolgsanzeige bleibt bis zum naechsten Screen sichtbar.
+Auf Desktop funktioniert es, weil Tesseract.js dort schneller und zuverlassiger lauft.
 
-**2. `src/pages/UserTaxReturns.tsx`**
-- Die Komponente zeigt bereits ein Skeleton/nichts waehrend `authLoading` oder `taxFilerLoading`. Das Problem ist, dass der kurze Moment zwischen "auth fertig" und "taxFilerLoading fertig" einen Flash verursacht.
-- Loesung: Die `isReady`-Logik wird erweitert, sodass der Skeleton-Screen laenger angezeigt wird, bis auch die Tax-Filer-Daten geladen sind und die Redirect-Entscheidung getroffen wurde. Damit sieht der Nutzer keinen Dashboard-Inhalt vor dem Redirect.
+## Losung
 
-**3. `src/App.tsx` - AuthenticatedApp**
-- Die `AuthenticatedApp`-Komponente wird so angepasst, dass waehrend `TaxFilerProvider` noch laedt, weiterhin der `LoadingSpinner` angezeigt wird -- nicht der Route-Inhalt.
-- Dazu wird ein neuer innerer Wrapper eingefuehrt, der den `isLoading`-State aus `useTaxFiler()` prueft und bei Bedarf den LoadingSpinner zeigt, bevor Routes gerendert werden.
+### 1. OCR-Validation-Timeout hinzufugen (15 Sekunden)
 
-### Technische Details
+In `handleQuickUpload` in `DocumentChecklist.tsx` wird die `validator.validate()`-Aufruf mit einem `Promise.race` gegen einen 15-Sekunden-Timeout gewrappt. Wenn der Timeout eintritt:
+- OCR wird ubersprungen
+- Ein Fallback-Ergebnis mit niedriger Konfidenz (0%) wird erzeugt
+- Der Nutzer sieht den "result"-Screen und kann trotzdem einreichen
 
-```text
-Vorher:
-Auth --> AuthSuccess (1-2s sichtbar) --> / (Flash) --> /select-person
+### 2. tesseract-wasm Initialisierung mit Timeout absichern
 
-Nachher:
-Auth --> AuthSuccess (bleibt sichtbar) --> /select-person (direkt)
+In `TesseractWasmOcrService.ts` wird die `doInitialize()`-Methode mit einem 10-Sekunden-Timeout versehen. Wenn die WASM-Dateien nicht rechtzeitig laden, gibt die Initialisierung `false` zuruck, anstatt ewig zu hangen.
+
+### 3. executeUpload-Timeout auf Gesamtflow abstimmen
+
+Der bestehende 30s-Timeout in `executeUpload` bleibt, ist aber jetzt effektiver, weil die OCR-Phase nicht mehr endlos laufen kann.
+
+## Technische Details
+
+### Datei 1: `src/components/DocumentChecklist.tsx`
+
+In `handleQuickUpload`: `validator.validate()` mit Promise.race und 15s Timeout wrappen:
+
+```typescript
+const OCR_TIMEOUT_MS = 15000;
+
+// Race OCR validation against timeout
+let result: ValidationResult;
+try {
+  result = await Promise.race([
+    validator.validate(file, item.id, (progress) => {
+      setValidationProgress(progress);
+    }),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
+    )
+  ]);
+} catch (timeoutError: any) {
+  if (timeoutError.message === 'OCR_TIMEOUT') {
+    console.warn('[handleQuickUpload] OCR timeout - skipping validation');
+    // Create fallback result with low confidence -> shows manual confirm screen
+    result = {
+      best: { docTypeId: item.id, confidence: 0 },
+      candidates: [{ docTypeId: item.id, confidence: 0 }],
+      signals: { meta: undefined, layout: undefined, keywords: undefined },
+      needsUserConfirmation: true
+    };
+  } else {
+    throw timeoutError;
+  }
+}
 ```
 
-Der Kern der Loesung ist ein neuer `TaxFilerGate`-Wrapper innerhalb von `AuthenticatedApp`, der:
-- Waehrend TaxFiler-Daten laden: LoadingSpinner zeigt (oder AuthSuccess bleibt sichtbar)
-- Wenn Multiple Filers + keine Auswahl: Sofort zu `/select-person` redirected, BEVOR irgendein Route-Inhalt gerendert wird
-- Sonst: Normal die Routes rendert
+### Datei 2: `src/services/TesseractWasmOcrService.ts`
 
-So wird die Redirect-Entscheidung VOR dem Route-Rendering getroffen, nicht danach.
+In `doInitialize()`: 10-Sekunden-Timeout fur die gesamte Initialisierung:
+
+```typescript
+private async doInitialize(): Promise<boolean> {
+  const INIT_TIMEOUT = 10000;
+  try {
+    const initResult = await Promise.race([
+      this.doInitializeInternal(),
+      new Promise<boolean>((resolve) =>
+        setTimeout(() => {
+          console.warn('[TesseractWasm] Initialization timeout (10s)');
+          resolve(false);
+        }, INIT_TIMEOUT)
+      )
+    ]);
+    return initResult;
+  } catch (error) {
+    // ... existing error handling
+    return false;
+  }
+}
+```
+
+## Erwartetes Ergebnis
+
+- Auf Mobile wird der Upload nie langer als ~15s im OCR-Schritt stecken bleiben
+- Bei Timeout sieht der Nutzer den manuellen Bestatigungsscreen ("Dokument trotzdem einreichen")
+- Auf Desktop andert sich nichts (Tesseract.js ist schnell genug)
+- Kein Datenverlust -- der Nutzer kann immer noch hochladen
 
