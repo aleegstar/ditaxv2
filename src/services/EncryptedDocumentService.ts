@@ -73,12 +73,16 @@ class EncryptedDocumentService {
       const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
       console.log('🔑 Got user encryption key');
       
-      // Generate integrity hash of original file
+      // Read file ONCE into memory to avoid double-read issues on mobile
+      console.log('📄 Reading file into memory, size:', file.size);
       const originalBuffer = await file.arrayBuffer();
+      console.log('📄 File read complete');
+      
+      // Generate integrity hash of original file
       const integrityHash = await this.cryptoService.generateIntegrityHash(originalBuffer);
       
-      // Encrypt the file
-      const { encryptedData, iv } = await this.cryptoService.encryptFile(file, encryptionKey);
+      // Encrypt the file using the already-read buffer
+      const { encryptedData, iv } = await this.cryptoService.encryptBuffer(originalBuffer, encryptionKey);
       console.log('🔐 File encrypted successfully');
       
       // Encrypt metadata

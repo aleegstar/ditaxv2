@@ -106,9 +106,9 @@ export class CryptoService {
   }
   
   /**
-   * Encrypt file content
+   * Encrypt a pre-read ArrayBuffer (avoids double file.arrayBuffer() calls on mobile)
    */
-  async encryptFile(file: File, encryptionKey: string): Promise<{
+  async encryptBuffer(buffer: ArrayBuffer, encryptionKey: string): Promise<{
     encryptedData: ArrayBuffer;
     iv: string;
     authTag: string;
@@ -123,7 +123,6 @@ export class CryptoService {
     );
     
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const fileBuffer = await file.arrayBuffer();
     
     const encrypted = await crypto.subtle.encrypt(
       {
@@ -131,7 +130,7 @@ export class CryptoService {
         iv: iv
       },
       key,
-      fileBuffer
+      buffer
     );
     
     return {
@@ -139,6 +138,18 @@ export class CryptoService {
       iv: this.arrayBufferToBase64(iv.buffer),
       authTag: '' // GCM includes auth tag in encrypted data
     };
+  }
+
+  /**
+   * Encrypt file content
+   */
+  async encryptFile(file: File, encryptionKey: string): Promise<{
+    encryptedData: ArrayBuffer;
+    iv: string;
+    authTag: string;
+  }> {
+    const fileBuffer = await file.arrayBuffer();
+    return this.encryptBuffer(fileBuffer, encryptionKey);
   }
   
   /**

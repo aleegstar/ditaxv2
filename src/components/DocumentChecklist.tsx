@@ -179,7 +179,7 @@ const DocumentChecklist: React.FC = () => {
   };
 
   const executeUpload = async (file: File, item: ChecklistItem) => {
-    const timeoutMs = 30000;
+    const timeoutMs = 90000; // 90s for mobile encryption + upload
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
     try {
