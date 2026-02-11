@@ -239,7 +239,12 @@ const DocumentChecklist: React.FC = () => {
         setOcrPhase('validating');
       }
     } else {
-      console.warn('[handleOcrConfirm] Missing pending data, closing drawer');
+      console.warn('[handleOcrConfirm] Missing pending data');
+      toast({
+        title: 'Upload fehlgeschlagen',
+        description: 'Bitte versuche es erneut.',
+        variant: 'destructive'
+      });
       setOcrDrawerOpen(false);
       setPendingUploadFile(null);
       setPendingUploadItem(null);
@@ -783,7 +788,7 @@ const DocumentChecklist: React.FC = () => {
       </Dialog>
 
       {/* OCR Validation Bottom Sheet */}
-      <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
+      <Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }} dismissible={ocrPhase !== 'result'}>
         <DrawerContent variant="bottom-sheet">
           <div className="px-6 pt-4 pb-6">
             {ocrPhase === 'validating' && (
