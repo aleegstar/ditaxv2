@@ -199,6 +199,12 @@ const DocumentChecklist: React.FC = () => {
 
     try {
       setUploadingItems(prev => [...prev, item.id]);
+      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Lese Datei...' }));
+
+      // Read buffer IMMEDIATELY while file ref is fresh (this is the critical step)
+      const fileBuffer = await file.arrayBuffer();
+      console.log('[executeDirectUpload] Buffer read OK, bytes:', fileBuffer.byteLength);
+
       setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
 
       const uploadPromise = (async () => {
@@ -206,9 +212,11 @@ const DocumentChecklist: React.FC = () => {
           || sessionStorage.getItem('ditax_selected_tax_filer');
         const encryptedDocService = EncryptedDocumentService.getInstance();
 
-        // Direct upload with fresh file - proven to work in multi-click flows
-        await encryptedDocService.uploadEncryptedDocument(
-          file,
+        // Use uploadFromBuffer - avoids internal file.arrayBuffer() call
+        await encryptedDocService.uploadFromBuffer(
+          fileBuffer,
+          file.name,
+          file.type,
           item.id,
           capturedUserId,
           taxYear,
