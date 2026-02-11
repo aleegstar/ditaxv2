@@ -1,81 +1,85 @@
 
+# Fix: Datei wird auf Mobile doppelt gelesen und haengt
 
-# Fix: "Dokument trotzdem einreichen" funktioniert nicht auf Mobile
+## Ursache
 
-## Problem
+Das Problem liegt daran, dass die Datei **zweimal** gelesen wird:
 
-Das Vaul-Drawer-Komponente auf Mobile erlaubt standardmassig das Schliessen durch Wisch-Gesten (drag-to-dismiss). Wenn der Nutzer auf den Button "Dokument trotzdem einreichen" tippt, kann Folgendes passieren:
+1. **OCR-Phase**: `TesseractWasmOcrService` liest die Datei via `FileReader.readAsDataURL()` und `file.arrayBuffer()`
+2. **Upload-Phase**: `EncryptedDocumentService` liest dieselbe Datei nochmal mit `file.arrayBuffer()`
 
-1. Eine minimale Fingerbewegung beim Tippen wird als Wisch-Geste interpretiert
-2. Die `onOpenChange(false)` wird ausgelost, welche `handleOcrClose` aufruft
-3. `handleOcrClose` setzt `pendingUploadFile` und `pendingUploadItem` auf `null`
-4. Wenn der Button-Click danach feuert, findet `handleOcrConfirm` keine Daten mehr und bricht ab
+Auf mobilen WebViews (Android Despia/Appelix) kann ein `File`-Objekt aus einem `<input type="file">` oft nur **einmal** gelesen werden. Der zweite Leseversuch haengt dann endlos -- genau das beobachtete Verhalten.
 
-Zusatzlich kann auf mobilen Geraten die Overlay-Ebene des Drawers Touch-Events abfangen, bevor sie den Button erreichen.
+Auf Desktop-Browsern ist das kein Problem, weil Chrome/Firefox File-Objekte beliebig oft lesen koennen.
 
-## Losung
+## Loesung
 
-### 1. Drawer nicht durch Wischen schliessbar machen in der "result"-Phase
+Die Datei wird **einmal** zu Beginn von `handleQuickUpload` in einen ArrayBuffer gelesen. Aus diesem Buffer wird ein neuer `Blob` erstellt, der dann als frische, unverbrauchte Datei an den Upload weitergegeben wird.
 
-Wenn `ocrPhase === 'result'` ist, soll der Drawer nicht durch Wischen oder Overlay-Klick geschlossen werden konnen. Nur die expliziten Buttons sollen den Drawer schliessen.
-
-In `DocumentChecklist.tsx`:
-- `dismissible={false}` zum Drawer hinzufugen wenn `ocrPhase === 'result'`
-- Das verhindert, dass Touch-Gesten die pending Daten loschen
-
-### 2. handleOcrConfirm robuster machen
-
-Falls `pendingUploadFile` oder `pendingUploadItem` trotzdem `null` sein sollten, eine Fehlermeldung anzeigen statt stillschweigend abzubrechen.
-
-## Technische Details
+## Technische Aenderungen
 
 ### Datei: `src/components/DocumentChecklist.tsx`
 
-**Aenderung 1 - Drawer Props:**
-```typescript
-// Vorher:
-<Drawer open={ocrDrawerOpen} onOpenChange={(open) => { if (!open) handleOcrClose(); }}>
+**In `handleQuickUpload`:**
 
-// Nachher:
-<Drawer 
-  open={ocrDrawerOpen} 
-  onOpenChange={(open) => { if (!open) handleOcrClose(); }}
-  dismissible={ocrPhase !== 'result'}
->
-```
+Vor dem OCR-Aufruf die Datei-Daten klonen:
 
-**Aenderung 2 - handleOcrConfirm mit Fehlermeldung:**
 ```typescript
-const handleOcrConfirm = async () => {
-  if (pendingUploadFile && pendingUploadItem) {
-    try {
-      await executeUpload(pendingUploadFile, pendingUploadItem);
-    } catch (error) {
-      console.error('[handleOcrConfirm] executeUpload failed:', error);
-    } finally {
-      setOcrDrawerOpen(false);
-      setPendingUploadFile(null);
-      setPendingUploadItem(null);
-      setValidationResult(null);
-      setOcrPhase('validating');
+const handleQuickUpload = async (file: File, item: ChecklistItem) => {
+  try {
+    const validation = await validateFile(file);
+    if (!validation.isValid) { ... }
+
+    // *** NEU: Datei vorab in Speicher lesen und klonen ***
+    // Mobile WebViews koennen File-Objekte nur einmal lesen.
+    // OCR verbraucht das Original, daher klonen wir fuer den Upload.
+    const fileBuffer = await file.arrayBuffer();
+    const uploadFile = new File([fileBuffer], file.name, { type: file.type });
+
+    // Store cloned file for upload
+    setPendingUploadFile(uploadFile);  // <-- geklonte Datei statt Original
+    setPendingUploadItem(item);
+    ...
+
+    // OCR laeuft mit dem Original-File (wird verbraucht)
+    result = await Promise.race([
+      validator.validate(file, item.id, ...),  // Original-File fuer OCR
+      ...
+    ]);
+
+    // Upload nutzt die geklonte Datei
+    if (result.best.confidence >= 50) {
+      ...
+      executeUpload(uploadFile, item);  // <-- geklonte Datei
     }
-  } else {
-    console.warn('[handleOcrConfirm] Missing pending data');
-    toast({
-      title: 'Upload fehlgeschlagen',
-      description: 'Bitte versuche es erneut.',
-      variant: 'destructive'
-    });
-    setOcrDrawerOpen(false);
-    setPendingUploadFile(null);
-    setPendingUploadItem(null);
   }
 };
 ```
 
+**In `handleOcrConfirm`:**
+
+Keine Aenderung noetig -- `pendingUploadFile` enthaelt bereits die geklonte Datei.
+
+### Keine weiteren Dateien betroffen
+
+`EncryptedDocumentService`, `CryptoService` und `TesseractWasmOcrService` bleiben unveraendert.
+
+## Warum das funktioniert
+
+```text
+VORHER (kaputt auf Mobile):
+  File-Input --> [file] --> OCR liest file --> Upload liest file (HAENGT!)
+
+NACHHER (fix):
+  File-Input --> [file] --> arrayBuffer() --> new File([buffer])
+                    |                              |
+                    v                              v
+              OCR liest Original            Upload liest Klon (OK!)
+```
+
 ## Erwartetes Ergebnis
 
-- In der Ergebnis-Phase kann der Drawer nicht versehentlich per Wisch-Geste geschlossen werden
-- Der Button "Dokument trotzdem einreichen" funktioniert zuverlassig auf Mobile
-- Falls Daten dennoch fehlen, sieht der Nutzer eine klare Fehlermeldung
-
+- Upload funktioniert auf Mobile wieder zuverlaessig
+- Kein Timeout mehr nach OCR-Abschluss
+- Desktop bleibt unberuehrt (funktioniert weiterhin)
+- Minimale Aenderung: nur ~4 Zeilen in einer Datei
