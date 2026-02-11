@@ -67,10 +67,10 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(true)}
           className={cn(
             "relative group cursor-pointer text-left",
-            "h-full p-6 bg-white border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
+            "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === true
-              ? "border-emerald-500 ring-2 ring-emerald-500 bg-emerald-50/30"
-              : "border-emerald-300 hover:shadow-md hover:border-emerald-400"
+              ? "border-emerald-400 ring-2 ring-emerald-400 bg-emerald-50/40"
+              : "border-emerald-200 bg-emerald-50/20 hover:shadow-md hover:border-emerald-300"
           )}
         >
           <div className={cn(
@@ -96,10 +96,10 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(false)}
           className={cn(
             "relative group cursor-pointer text-left",
-            "h-full p-6 bg-white border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
+            "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
             answer === false
-              ? "border-red-500 ring-2 ring-red-500 bg-red-50/30"
-              : "border-red-300 hover:shadow-md hover:border-red-400"
+              ? "border-red-400 ring-2 ring-red-400 bg-red-50/40"
+              : "border-red-200 bg-red-50/20 hover:shadow-md hover:border-red-300"
           )}
         >
           <div className={cn(
