@@ -420,7 +420,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         
         try {
           // Prepare and save all section data
-          const sectionData: Record<string, any> = {};
+          const sectionData: Record<string, any> = {
+            _completed: true // Mark section as fully completed
+          };
           
           questions.forEach((question) => {
             if (!question || !question.id) return;
@@ -440,6 +442,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           
           // Save to database
           await saveSection(section, sectionData);
+          
+          // Mark section as complete in progress
+          updateFormProgress(section, true);
 
           // Navigate back to form overview (card selection)
           navigate('/form');

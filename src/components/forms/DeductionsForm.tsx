@@ -82,9 +82,10 @@ const DeductionsForm = ({
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     try {
-      await saveSection('deductions', currentDeductionsData);
+      const dataWithCompleted = { ...currentDeductionsData, _completed: true };
+      await saveSection('deductions', dataWithCompleted);
       updateFormProgress('deductions', true);
-      updateFormData('deductions', currentDeductionsData);
+      updateFormData('deductions', dataWithCompleted);
       toast({
         title: t.forms.savedSuccessfully,
         description: t.forms.savedSuccessfullyDescription

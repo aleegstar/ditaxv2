@@ -250,7 +250,13 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
                   };
                 }
                 
-                newFormProgress[item.form_type as keyof FormProgressType] = true;
+                // For multi-step yes/no sections, only mark complete if _completed flag is set
+                const multiStepSections = ['income', 'assets', 'deductions'];
+                if (multiStepSections.includes(item.form_type)) {
+                  newFormProgress[item.form_type as keyof FormProgressType] = item.data._completed === true;
+                } else {
+                  newFormProgress[item.form_type as keyof FormProgressType] = true;
+                }
                 
                 // Sync contact and contactInfo
                 if (item.form_type === 'contactInfo') {
