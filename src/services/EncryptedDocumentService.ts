@@ -67,25 +67,26 @@ class EncryptedDocumentService {
     taxFilerId?: string | null
   ): Promise<void> {
     try {
-      console.log('🔐 Starting encrypted document upload for user:', userId);
+      const t0 = Date.now();
+      const log = (msg: string) => console.log(`[Upload +${Date.now()-t0}ms] ${msg}`);
       
-      // Get user's local encryption key (no master key needed)
+      log('START - Getting encryption key for user: ' + userId);
       const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
-      console.log('🔑 Got user encryption key');
+      log('KEY OK');
       
-      // Read file ONCE into memory to avoid double-read issues on mobile
-      console.log('📄 Reading file into memory, size:', file.size);
+      log('Reading file into memory, size: ' + file.size);
       const originalBuffer = await file.arrayBuffer();
-      console.log('📄 File read complete');
+      log('FILE READ OK, bytes: ' + originalBuffer.byteLength);
       
-      // Generate integrity hash of original file
+      log('Generating integrity hash');
       const integrityHash = await this.cryptoService.generateIntegrityHash(originalBuffer);
+      log('HASH OK');
       
-      // Encrypt the file using the already-read buffer
+      log('Encrypting file');
       const { encryptedData, iv } = await this.cryptoService.encryptBuffer(originalBuffer, encryptionKey);
-      console.log('🔐 File encrypted successfully');
+      log('ENCRYPT OK, encrypted size: ' + encryptedData.byteLength);
       
-      // Encrypt metadata
+      log('Encrypting metadata');
       const metadata = {
         original_name: file.name,
         original_type: file.type,
@@ -97,12 +98,12 @@ class EncryptedDocumentService {
         metadata,
         encryptionKey
       );
+      log('METADATA ENCRYPT OK');
       
-      // Create unique file path
       const fileId = uuidv4();
       const filePath = `${userId}/${checklistItemId}/${fileId}`;
       
-      // Upload encrypted file to storage
+      log('Uploading to storage: ' + filePath);
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, new Blob([encryptedData]), {
@@ -113,14 +114,13 @@ class EncryptedDocumentService {
         throw uploadError;
       }
       
-      console.log('📁 File uploaded to storage');
+      log('STORAGE OK');
       
-      // Create display filename with checklist item prefix if provided
       const displayFileName = checklistItemTitle 
         ? `${checklistItemTitle} - ${file.name}`
         : file.name;
       
-      // Store document metadata in database
+      log('Saving metadata to DB');
       const { error: dbError } = await supabase
         .from('uploaded_documents')
         .insert({
@@ -147,12 +147,11 @@ class EncryptedDocumentService {
         });
       
       if (dbError) {
-        // Clean up uploaded file if database insert fails
         await supabase.storage.from('documents').remove([filePath]);
         throw dbError;
       }
       
-      console.log('✅ Document metadata stored in database');
+      log('DB OK - DONE');
       
     } catch (error) {
       console.error('❌ Error uploading encrypted document:', error);

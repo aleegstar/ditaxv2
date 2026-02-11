@@ -95,6 +95,7 @@ const DocumentChecklist: React.FC = () => {
   const [pendingUploadItem, setPendingUploadItem] = useState<ChecklistItem | null>(null);
   
   const [isConfirming, setIsConfirming] = useState(false);
+  const [uploadStepInfo, setUploadStepInfo] = useState<Record<string, string>>({});
   const hasShownCompletionDialog = useRef(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const isMobile = useIsMobile();
@@ -188,6 +189,8 @@ const DocumentChecklist: React.FC = () => {
       console.log('[executeUpload] Starting file upload for:', item.id, item.title);
 
       const uploadPromise = (async () => {
+        // Step 1: Session
+        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Session...' }));
         console.log('[executeUpload] Getting session...');
         const { data: sessionData } = await supabase.auth.getSession();
         const currentUserId = sessionData?.session?.user?.id;
@@ -195,11 +198,15 @@ const DocumentChecklist: React.FC = () => {
           toast({ title: 'Nicht angemeldet', description: 'Bitte melde dich erneut an.', variant: 'destructive' });
           return;
         }
-        console.log('[executeUpload] Session OK, starting encrypted upload...');
+        console.log('[executeUpload] Session OK');
 
+        // Step 2: Preparing encryption
+        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Schlüssel...' }));
         const activeTaxFilerId = localStorage.getItem('activeTaxFilerId') || sessionStorage.getItem('ditax_selected_tax_filer');
-
         const encryptedDocService = EncryptedDocumentService.getInstance();
+
+        // Step 3: Upload (includes file read, encrypt, storage)
+        setUploadStepInfo(prev => ({ ...prev, [item.id]: 'Hochladen...' }));
         await encryptedDocService.uploadEncryptedDocument(
           file,
           item.id,
@@ -210,6 +217,7 @@ const DocumentChecklist: React.FC = () => {
         );
 
         console.log('[executeUpload] Upload complete for:', item.id);
+        setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
         toast({ title: 'Erfolgreich hochgeladen', description: `${item.title} wurde hochgeladen.` });
         markUploaded(item.id, true);
         refreshDocuments();
@@ -225,11 +233,13 @@ const DocumentChecklist: React.FC = () => {
       await Promise.race([uploadPromise, timeoutPromise]);
     } catch (error: any) {
       console.error('[executeUpload] Error:', error?.message || error);
+      setUploadStepInfo(prev => ({ ...prev, [item.id]: 'FEHLER!' }));
       toast({ title: 'Upload fehlgeschlagen', description: error.message || 'Bitte versuche es erneut.', variant: 'destructive' });
     } finally {
       console.log('[executeUpload] Cleanup for:', item.id);
       if (timeoutId) clearTimeout(timeoutId);
       setUploadingItems(prev => prev.filter(id => id !== item.id));
+      setUploadStepInfo(prev => { const n = {...prev}; delete n[item.id]; return n; });
       setIsConfirming(false);
     }
   };
@@ -723,7 +733,7 @@ const DocumentChecklist: React.FC = () => {
                                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-700 hover:shadow-[0_4px_16px_rgba(37,99,235,0.3)] active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                               >
                                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                {isUploading ? 'Lädt…' : 'Hochladen'}
+                                {isUploading ? (uploadStepInfo[item.id] || 'Lädt…') : 'Hochladen'}
                               </button>
                             </div>
                           </div>
