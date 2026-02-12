@@ -552,7 +552,7 @@ const App = () => {
   }, []);
 
   if (isLoading) {
-    return null;
+    return <LoadingSpinner fullScreen />;
   }
 
   const handleAppError = (error: Error, errorInfo: any) => {
