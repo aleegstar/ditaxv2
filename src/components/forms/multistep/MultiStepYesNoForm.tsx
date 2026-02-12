@@ -133,26 +133,27 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     editingQuestionId: null
   });
 
-  // Ref to track local updates and prevent useEffect from re-triggering
-  const isLocalUpdateRef = useRef(false);
+  // Ref to track that initial data has been loaded for this section
+  const dataLoadedForSectionRef = useRef<string | null>(null);
   
   // Ref to ensure initial check only runs once per section
   const initialCheckDoneRef = useRef(false);
   
-  // Reset initialCheckDoneRef when section changes
+  // Reset refs when section changes
   useEffect(() => {
     initialCheckDoneRef.current = false;
+    dataLoadedForSectionRef.current = null;
   }, [section]);
 
-  // Load existing data and answers - only on section changes, skip local updates and summary view
+  // Load existing data and answers - ONLY on initial mount or section change, never on formData updates
   useEffect(() => {
-    // Skip if this is a local update (from button click) or showing summary
-    if (isLocalUpdateRef.current || viewState.showSummary) {
-      isLocalUpdateRef.current = false;
+    // Only load once per section
+    if (dataLoadedForSectionRef.current === section) {
       return;
     }
 
     console.log('Loading existing data for section:', section);
+    dataLoadedForSectionRef.current = section;
     
     try {
       const existingData = formData[section] || {};
@@ -184,9 +185,6 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         }
       });
 
-      console.log('Loaded answers:', answers);
-      console.log('Loaded repeater data:', repeaterData);
-
       setFormState(prev => ({
         ...prev,
         answers,
@@ -195,7 +193,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     } catch (error) {
       console.error('Error loading existing data:', error);
     }
-  }, [section, formData, questions, viewState.showSummary]);
+  }, [section, formData, questions]);
 
   // Handle initial position - only run once per section mount
   useEffect(() => {
@@ -291,8 +289,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         answers: newAnswers
       }));
 
-      // Mark as local update to prevent useEffect from re-triggering
-      isLocalUpdateRef.current = true;
+      // No need to guard useEffect - it only runs once per section now
 
       // Save the answer (async, non-blocking for UI)
       try {
@@ -392,8 +389,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       
       dispatchViewState({ type: 'SET_REPEATER', show: false });
       
-      // Mark as local update to prevent useEffect from re-triggering
-      isLocalUpdateRef.current = true;
+      // No need to guard useEffect - it only runs once per section now
       
       // Save current repeater data if we have it
       if (currentQuestion?.requiresRepeater) {
