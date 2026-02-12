@@ -67,25 +67,27 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(true)}
           className={cn(
             "relative group cursor-pointer text-left",
-            "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
+            "h-full p-6 rounded-2xl border-2 shadow-sm transition-all duration-200",
+            "hover:shadow-md hover:-translate-y-0.5",
+            "flex flex-col items-start gap-4",
             answer === true
-              ? "border-slate-300 ring-1 ring-slate-200 bg-white shadow-md"
-              : "border-slate-200 bg-white hover:shadow-md hover:border-slate-300"
+              ? "border-emerald-500 bg-gradient-to-br from-emerald-50 to-emerald-100"
+              : "border-emerald-100 bg-emerald-50 hover:border-emerald-200"
           )}
         >
           <div className={cn(
-            "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
+            "shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all",
             answer === true
-              ? "bg-emerald-400 border-emerald-400 text-white"
-              : "border-slate-200 bg-slate-50 text-slate-300 group-hover:border-slate-300 group-hover:text-slate-400"
+              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-200"
+              : "bg-emerald-100 text-emerald-600"
           )}>
-            <Check className="w-5 h-5" />
+            <Check className="w-6 h-6" />
           </div>
           <div>
-            <span className="block text-lg font-semibold text-slate-900 mb-1">
+            <span className="block text-xl font-semibold text-slate-900 mb-1 tracking-tight">
               {t.yesNoForm.yes}
             </span>
-            <span className="block text-sm text-slate-500 group-hover:text-slate-600">
+            <span className="block text-base text-slate-500 font-medium">
               {t.yesNoForm.yesDescription}
             </span>
           </div>
@@ -96,25 +98,27 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(false)}
           className={cn(
             "relative group cursor-pointer text-left",
-            "h-full p-6 border rounded-2xl shadow-sm transition-all duration-200 flex items-start gap-4",
+            "h-full p-6 rounded-2xl border-2 shadow-sm transition-all duration-200",
+            "hover:shadow-md hover:-translate-y-0.5",
+            "flex flex-col items-start gap-4",
             answer === false
-              ? "border-slate-300 ring-1 ring-slate-200 bg-white shadow-md"
-              : "border-slate-200 bg-white hover:shadow-md hover:border-slate-300"
+              ? "border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100"
+              : "border-rose-100 bg-rose-50 hover:border-rose-200"
           )}
         >
           <div className={cn(
-            "shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition-colors",
+            "shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all",
             answer === false
-              ? "bg-rose-400 border-rose-400 text-white"
-              : "border-slate-200 bg-slate-50 text-slate-300 group-hover:border-slate-300 group-hover:text-slate-400"
+              ? "bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg shadow-rose-200"
+              : "bg-rose-100 text-rose-600"
           )}>
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </div>
           <div>
-            <span className="block text-lg font-semibold text-slate-900 mb-1">
+            <span className="block text-xl font-semibold text-slate-900 mb-1 tracking-tight">
               {t.yesNoForm.no}
             </span>
-            <span className="block text-sm text-slate-500 group-hover:text-slate-600">
+            <span className="block text-base text-slate-500 font-medium">
               {t.yesNoForm.noDescription}
             </span>
           </div>
