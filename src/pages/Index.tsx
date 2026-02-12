@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { FormProvider, useFormContext } from '../contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
@@ -93,7 +94,7 @@ const IndexContent = () => {
 
     // Show loading state while checking
     if (checkingImport) {
-      return null;
+      return <LoadingSpinner fullScreen />;
     }
 
     // Normal flow
@@ -198,12 +199,12 @@ const Index = () => {
 
   // Show nothing while auth is being checked or redirecting
   if (isLoading || !authChecked || taxFilerLoading) {
-    return null;
+    return <LoadingSpinner fullScreen />;
   }
 
   // If not authenticated or needs person selection, don't render content
   if (!isValid || !userId || (hasMultipleFilers && !selectionConfirmed)) {
-    return null;
+    return <LoadingSpinner fullScreen />;
   }
   return <FormProvider taxYear={year}>
       <FormTourProvider>
