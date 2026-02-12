@@ -141,10 +141,28 @@ const Index = () => {
     isLoading
   } = useAuthValidation();
   const [authChecked, setAuthChecked] = useState(false);
+  const [safetyTimeout, setSafetyTimeout] = useState(false);
   const year = searchParams.get('year') || new Date().getFullYear().toString();
 
   // Get tax filer context for redirect logic
   const { hasMultipleFilers, selectionConfirmed, isLoading: taxFilerLoading } = useTaxFiler();
+
+  // Safety timeout to prevent infinite loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.warn('⚠️ Safety timeout triggered - forcing loading state to resolve after 8s');
+      setSafetyTimeout(true);
+    }, 8000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Clear safety timeout when loading resolves normally
+  useEffect(() => {
+    if (!isLoading && !taxFilerLoading) {
+      setSafetyTimeout(false);
+    }
+  }, [isLoading, taxFilerLoading]);
 
   // Handle auth tokens from deep link
   useEffect(() => {
@@ -177,8 +195,8 @@ const Index = () => {
 
   // Handle auth state changes with better logic
   useEffect(() => {
-    if (isLoading) {
-      return; // Still checking auth, wait
+    if (isLoading && !safetyTimeout) {
+      return; // Still checking auth, wait (unless safety timeout hit)
     }
     setAuthChecked(true);
     if (!isValid || !userId) {
@@ -195,10 +213,13 @@ const Index = () => {
     } else {
       console.log('✅ User authenticated, showing content');
     }
-  }, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed]);
+  }, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed, safetyTimeout]);
+
+  // Determine if we're still in a loading state
+  const stillLoading = (isLoading || !authChecked || taxFilerLoading) && !safetyTimeout;
 
   // Show nothing while auth is being checked or redirecting
-  if (isLoading || !authChecked || taxFilerLoading) {
+  if (stillLoading) {
     return <LoadingSpinner fullScreen />;
   }
 

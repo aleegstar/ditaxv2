@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import type { Session } from '@supabase/supabase-js';
@@ -104,6 +104,14 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
+  // Refs to avoid dependency loop in loadTaxFilers
+  const activeTaxFilerIdRef = useRef(activeTaxFilerId);
+  const taxFilersRef = useRef(taxFilers);
+
+  // Keep refs in sync
+  useEffect(() => { activeTaxFilerIdRef.current = activeTaxFilerId; }, [activeTaxFilerId]);
+  useEffect(() => { taxFilersRef.current = taxFilers; }, [taxFilers]);
+
   // Load tax filers when session is available
   const loadTaxFilers = useCallback(async () => {
     if (!session) {
@@ -113,7 +121,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Only show full-screen loading on initial load (no filers yet)
     // On subsequent refreshes (e.g., token refresh on mobile resume), don't block UI
-    if (taxFilers.length === 0) {
+    if (taxFilersRef.current.length === 0) {
       setIsLoading(true);
     }
     setError(null);
@@ -137,7 +145,8 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       // Set active tax filer to primary if not set and no stored selection
       const storedFilerId = sessionStorage.getItem(SESSION_KEY);
-      if (!activeTaxFilerId && !storedFilerId && filers.length > 0) {
+      const currentActiveId = activeTaxFilerIdRef.current;
+      if (!currentActiveId && !storedFilerId && filers.length > 0) {
         const primary = filers.find(f => f.is_primary);
         setActiveTaxFilerId(primary?.id || filers[0].id);
       } else if (storedFilerId && filers.some(f => f.id === storedFilerId)) {
@@ -153,7 +162,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } finally {
       setIsLoading(false);
     }
-  }, [session, activeTaxFilerId, taxFilers.length]);
+  }, [session]);
 
   // Load tax filers when session becomes available
   useEffect(() => {
