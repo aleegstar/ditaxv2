@@ -50,6 +50,7 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
           size="sm"
           className="border-slate-200 text-slate-600 hover:bg-slate-100"
           variant="outline"
+          style={{ touchAction: 'manipulation' }}
         >
           <Plus className="w-4 h-4 mr-2" />
           Immobilie hinzufügen
@@ -205,6 +206,7 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
             onClick={addProperty}
             className="mt-2 border-slate-200 text-slate-600 hover:bg-slate-100"
             variant="outline"
+            style={{ touchAction: 'manipulation' }}
           >
             Erste Immobilie hinzufügen
           </Button>
