@@ -40,7 +40,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
       "sticky top-0 z-30 bg-white",
       className
     )}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
         {/* Back Button - fixed width */}
         <button 
           onClick={onBack}
