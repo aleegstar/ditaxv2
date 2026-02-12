@@ -1,32 +1,66 @@
 
-# Weisser Bildschirm beheben - Loading States vereinheitlichen
 
-## Problem
+# Ladeloop beheben auf /form
 
-Die App zeigt an mehreren Stellen `null` (= komplett weisser Bildschirm) statt eines Loading-Spinners an. Das passiert bei folgenden Stellen:
+## Ursachenanalyse
 
-1. **`App.tsx` Zeile 554-556**: Gibt `null` zurueck waehrend `isLoading` aktiv ist - kein visuelles Feedback
-2. **`Index.tsx` Zeile 200-202**: Gibt `null` zurueck waehrend Auth-Check, `authChecked` und `taxFilerLoading` laufen
-3. **`Index.tsx` Zeile 205-207**: Gibt `null` zurueck bei fehlender Auth oder Person-Auswahl (statt sofort weiterzuleiten)
-4. **`IndexContent` Zeile 95-97**: Gibt `null` zurueck waehrend `checkingImport` aktiv ist
+Nach Analyse des Codes gibt es zwei Hauptprobleme:
 
-Wenn diese Ladezustaende zusammentreffen (z.B. bei Seitenwechsel, Token-Erneuerung, oder langsamer Verbindung), sieht der Nutzer einen weissen Bildschirm.
+### 1. TaxFilerContext: Endlos-Lade-Schleife durch Dependency-Loop
+
+In `TaxFilerContext.tsx` hat die `loadTaxFilers` Funktion (Zeile 108-156) die Dependencies `[session, activeTaxFilerId, taxFilers.length]`. Der Effect (Zeile 159-168) haengt von `loadTaxFilers` ab. Das Problem:
+
+- `loadTaxFilers` laeuft, setzt `taxFilers` (length aendert sich 0 -> 2) und `activeTaxFilerId`
+- Dadurch wird `loadTaxFilers` neu erstellt (weil Dependencies sich geaendert haben)
+- Der Effect feuert erneut und ruft `loadTaxFilers` nochmal auf
+- Dies erklaert die 3 identischen `tax_filers` API-Aufrufe in den Netzwerk-Logs
+- Bei langsamer Verbindung koennen sich diese Aufrufe ueberlagern und den Ladezustand verlaengern
+
+### 2. Kein Sicherheits-Timeout
+
+Wenn eine der vielen Ladebedingungen in `Index.tsx` oder `FormContext.tsx` nicht rechtzeitig aufloest (z.B. durch Netzwerkproblem, Race Condition bei Auth-Token-Erneuerung), bleibt der Spinner unendlich stehen. Es gibt keinen Fallback-Mechanismus.
+
+### 3. Nebenproblem: `should_show_mfa_prompt` 404-Fehler
+
+Der RPC-Aufruf `should_show_mfa_prompt` gibt einen 404-Fehler zurueck (`relation "profiles" does not exist`). Dies ist ein Fehler in der Test-Datenbank-Migration, blockiert aber nicht direkt das Laden.
 
 ## Loesung
 
-Alle `return null` Stellen durch `<LoadingSpinner fullScreen />` ersetzen, damit immer visuelles Feedback erscheint.
+### 1. `TaxFilerContext.tsx` - Dependency-Loop beheben
+
+Die `loadTaxFilers`-Funktion soll `activeTaxFilerId` und `taxFilers.length` ueber Refs statt als Callback-Dependencies verwenden. So wird die Funktion nicht bei jedem Statechange neu erstellt und der Effect feuert nicht mehrfach.
+
+Konkret:
+- `activeTaxFilerId` ueber einen Ref (`activeTaxFilerIdRef`) lesen statt direkt aus dem State
+- `taxFilers.length` ueber einen Ref (`taxFilersRef`) lesen
+- `loadTaxFilers` Dependencies reduzieren auf `[session]`
+- Damit wird der Effect nur bei Session-Aenderungen neu ausgefuehrt, nicht bei jedem State-Update
+
+### 2. `Index.tsx` - Sicherheits-Timeout hinzufuegen
+
+Ein Timeout (z.B. 8 Sekunden) einfuegen, das den Ladezustand beendet, falls die Bedingungen nicht rechtzeitig aufloesen. Damit wird ein unendlicher Spinner verhindert.
+
+Konkret:
+- Ein `useEffect` mit `setTimeout` hinzufuegen, der nach 8 Sekunden den Ladezustand erzwingt
+- Falls der Timeout ausloest, wird ein Warn-Log geschrieben zur Fehleranalyse
+- Der Timeout wird aufgeraeumt wenn die Seite regulaer laedt
+
+### 3. `useMfaPrompt.ts` - 404-Fehler abfangen
+
+Den `should_show_mfa_prompt` Aufruf in einen Try-Catch mit sicherem Fallback wrappen, damit der 404-Fehler keine Seiteneffekte hat.
 
 ## Technische Aenderungen
 
-### 1. `src/App.tsx`
-- Zeile 554-556: `return null` durch `return <LoadingSpinner fullScreen />` ersetzen
+### Datei 1: `src/contexts/TaxFilerContext.tsx`
+- Refs hinzufuegen fuer `activeTaxFilerId` und `taxFilers`
+- `loadTaxFilers` Dependencies auf `[session]` reduzieren
+- Refs in `loadTaxFilers` statt State-Werte verwenden
 
-### 2. `src/pages/Index.tsx`
-- Zeile 200-202: `return null` durch `return <LoadingSpinner fullScreen />` ersetzen
-- Zeile 205-207: `return null` durch `return <LoadingSpinner fullScreen />` ersetzen
-- Zeile 96-97: `return null` durch `return <LoadingSpinner fullScreen />` ersetzen (waehrend Import-Check)
+### Datei 2: `src/pages/Index.tsx`
+- Safety-Timeout State und Effect hinzufuegen
+- Nach 8 Sekunden Ladezustand forciert beenden
+- Warnung in Console loggen wenn Timeout ausloest
 
-### Ergebnis
-- Kein weisser Bildschirm mehr bei Ladezustaenden
-- Konsistenter Loading-Spinner ueberall in der App
-- Bessere Nutzererfahrung, besonders auf langsameren Verbindungen oder mobilen Geraeten
+### Datei 3: `src/hooks/useMfaPrompt.ts`
+- `should_show_mfa_prompt` Fehler sicher abfangen mit `shouldShow: false` Fallback statt throw
+
