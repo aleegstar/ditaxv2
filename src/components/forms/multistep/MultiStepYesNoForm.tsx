@@ -256,18 +256,30 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
   const handleAnswer = useCallback(async (answer: boolean) => {
     try {
+      const question = questions[formState.currentQuestionIndex];
+      
       if (Capacitor.isNativePlatform()) {
-        androidDebug.log('handleAnswer called', { questionId: currentQuestion?.id, answer, currentIndex: formState.currentQuestionIndex });
-        NativeErrorMonitor.addBreadcrumb('user-action', `Answer question: ${currentQuestion?.id} = ${answer}`);
+        androidDebug.log('handleAnswer called', { questionId: question?.id, answer, currentIndex: formState.currentQuestionIndex });
+        NativeErrorMonitor.addBreadcrumb('user-action', `Answer question: ${question?.id} = ${answer}`);
       }
       
-      if (!currentQuestion) {
+      if (!question) {
+        console.error('handleAnswer: question is null at index', formState.currentQuestionIndex);
         if (Capacitor.isNativePlatform()) {
-          androidDebug.criticalError('handleAnswer: currentQuestion is null', { formState, questions });
+          androidDebug.criticalError('handleAnswer: question is null', { formState, questions });
         }
         return;
       }
-      const qid = currentQuestion.id;
+      const qid = question.id;
+      const hasRepeater = !!question.requiresRepeater;
+
+      // Determine view change FIRST (synchronously) before async operations
+      if (answer && hasRepeater) {
+        if (Capacitor.isNativePlatform()) {
+          NativeErrorMonitor.addBreadcrumb('navigation', `Open repeater for ${qid}`);
+        }
+        dispatchViewState({ type: 'SET_REPEATER', show: true });
+      }
 
       const newAnswers = {
         ...formState.answers,
@@ -282,7 +294,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       // Mark as local update to prevent useEffect from re-triggering
       isLocalUpdateRef.current = true;
 
-      // Immediately save the answer
+      // Save the answer (async, non-blocking for UI)
       try {
         const sectionData = { ...formData[section], [qid]: answer };
         updateFormData(section, sectionData);
@@ -291,34 +303,27 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         console.error('Error saving answer:', saveError);
       }
 
-      // If answer is "Yes" and requires repeater, show repeater
-      if (answer && currentQuestion.requiresRepeater) {
-        if (Capacitor.isNativePlatform()) {
-          NativeErrorMonitor.addBreadcrumb('navigation', `Open repeater for ${qid}`);
-        }
-        dispatchViewState({ type: 'SET_REPEATER', show: true });
-      } else {
-        // If in editing mode, complete editing
+      // If NOT showing repeater, handle navigation
+      if (!(answer && hasRepeater)) {
         if (viewState.isEditing) {
           handleEditingComplete();
         } else {
-          // Move to next question or summary
           handleContinue();
         }
       }
     } catch (error) {
+      console.error('Error in handleAnswer:', error);
       if (Capacitor.isNativePlatform()) {
-        androidDebug.criticalError('Error in handleAnswer', { error, currentQuestion, answer, formState });
+        androidDebug.criticalError('Error in handleAnswer', { error, formState });
       }
       
-      // Graceful fallback - don't let the app crash
       toast({
         title: t.toasts.answerError,
         description: t.toasts.answerErrorDescription,
         variant: 'destructive'
       });
     }
-  }, [formState.currentQuestionIndex, formState.answers, viewState.isEditing, section, formData, updateFormData, saveSection, t]);
+  }, [formState.currentQuestionIndex, formState.answers, questions, viewState.isEditing, section, formData, updateFormData, saveSection, t]);
 
   const handleRepeaterDataChange = (data: any[]) => {
     if (!currentQuestion) return;
