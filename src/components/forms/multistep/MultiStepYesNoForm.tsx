@@ -729,30 +729,56 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
             </motion.div>
           )}
 
-          {/* Question Content */}
-          <AnimatePresence mode="wait">
-            {!currentQuestion ? (
-              <div className="flex-1 flex items-center justify-center text-slate-500">
-                Keine Frage verfügbar. Bitte versuche es erneut.
-              </div>
-            ) : viewState.showRepeater ? (
-              <RepeaterStep
-                key="repeater"
-                question={currentQuestion}
-                data={formState.repeaterData[currentQuestion.id] || []}
-                onDataChange={handleRepeaterDataChange}
-                onContinue={handleContinue}
-                canContinue={canContinueFromRepeater()}
-              />
-            ) : (
-              <YesNoQuestion
-                key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
-                question={currentQuestion}
-                answer={formState.answers[currentQuestion.id]}
-                onAnswer={handleAnswer}
-              />
-            )}
-          </AnimatePresence>
+          {/* Question Content - skip AnimatePresence on Android to prevent invisible overlay blocking touches */}
+          {isAndroid ? (
+            <>
+              {!currentQuestion ? (
+                <div className="flex-1 flex items-center justify-center text-slate-500">
+                  Keine Frage verfügbar. Bitte versuche es erneut.
+                </div>
+              ) : viewState.showRepeater ? (
+                <RepeaterStep
+                  key="repeater"
+                  question={currentQuestion}
+                  data={formState.repeaterData[currentQuestion.id] || []}
+                  onDataChange={handleRepeaterDataChange}
+                  onContinue={handleContinue}
+                  canContinue={canContinueFromRepeater()}
+                />
+              ) : (
+                <YesNoQuestion
+                  key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
+                  question={currentQuestion}
+                  answer={formState.answers[currentQuestion.id]}
+                  onAnswer={handleAnswer}
+                />
+              )}
+            </>
+          ) : (
+            <AnimatePresence mode="wait">
+              {!currentQuestion ? (
+                <div className="flex-1 flex items-center justify-center text-slate-500">
+                  Keine Frage verfügbar. Bitte versuche es erneut.
+                </div>
+              ) : viewState.showRepeater ? (
+                <RepeaterStep
+                  key="repeater"
+                  question={currentQuestion}
+                  data={formState.repeaterData[currentQuestion.id] || []}
+                  onDataChange={handleRepeaterDataChange}
+                  onContinue={handleContinue}
+                  canContinue={canContinueFromRepeater()}
+                />
+              ) : (
+                <YesNoQuestion
+                  key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
+                  question={currentQuestion}
+                  answer={formState.answers[currentQuestion.id]}
+                  onAnswer={handleAnswer}
+                />
+              )}
+            </AnimatePresence>
+          )}
         </div>
 
         {/* Footer Info */}
