@@ -582,7 +582,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
         <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between border-b border-slate-200">
+          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
             <motion.button 
               onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
               whileHover={{ scale: 1.05 }}
@@ -643,7 +643,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       {/* Mobile Container */}
       <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between border-b border-slate-200">
+        <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
           {/* Back Button */}
           <motion.button 
             onClick={handleHeaderBack}
