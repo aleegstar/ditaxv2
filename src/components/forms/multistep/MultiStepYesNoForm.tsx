@@ -99,7 +99,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     updateQuestionProgress,
     generateChecklist,
     setCurrentStep,
-    handleBack: contextHandleBack
+    handleBack: contextHandleBack,
+    taxYear
   } = useFormContext();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -447,7 +448,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           updateFormProgress(section, true);
 
           // Navigate back to form overview (card selection)
-          navigate('/form');
+          navigate(`/form?year=${taxYear}`);
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
@@ -511,7 +512,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
   const handleHeaderBack = () => {
     // Navigate back to the main form (remove section parameter)
-    navigate('/form');
+    navigate(`/form?year=${taxYear}`);
   };
 
   const getSectionTitle = () => {
