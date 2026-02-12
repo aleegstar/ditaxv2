@@ -1640,7 +1640,7 @@ export const translations: Record<'de' | 'en', Translation> = {
     deductions: {
       title: 'Abzüge',
       hasPillar3a: 'Ich habe in die Säule 3a einbezahlt',
-      hasPillar3aExplanation: 'Einzahlungen in die Säule 3a können bis zu einem bestimmten Maximalbetrag vom steuerbaren Einkommen abgezogen werden. Dies gilt sowohl für unselbstständig als auch für selbstständig Erwerbende.',
+      hasPillar3aExplanation: 'Einzahlungen in die Säule 3a können bis zum gesetzlichen Maximum (aktuell 7258 CHF für Angestellte mit Pensionskasse, 36\'288 CHF für Selbständige ohne Pensionskasse) vom steuerbaren Einkommen abgezogen werden.',
       hasBVGPurchase: 'Ich habe mich in die Pensionskasse (BVG) eingekauft',
       hasBVGPurchaseExplanation: 'Einkäufe in die Pensionskasse sind unter bestimmten Voraussetzungen steuerlich abzugsfähig. Dies betrifft sowohl freiwillige Einkäufe zur Verbesserung der Altersvorsorge als auch den Nachkauf von Beitragsjahren.',
       hasEducationExpenses: 'Ich habe Aus- und Weiterbildungskosten bezahlt',
@@ -2345,7 +2345,7 @@ export const translations: Record<'de' | 'en', Translation> = {
         deductions: {
           hasPillar3a: {
             text: 'Zahlst du in die Säule 3a ein?',
-            explanation: 'Die Säule 3a ist die steuerlich begünstigte, gebundene Selbstvorsorge. Einzahlungen können bis zum gesetzlichen Maximum (aktuell 7056 CHF für Angestellte, 35280 CHF für Selbständige ohne Pensionskasse) vollständig vom steuerbaren Einkommen abgezogen werden. Die Einzahlungen müssen bis zum 31. Dezember erfolgen.'
+            explanation: 'Die Säule 3a ist die steuerlich begünstigte, gebundene Selbstvorsorge. Einzahlungen können bis zum gesetzlichen Maximum (aktuell 7258 CHF für Angestellte mit Pensionskasse, 36\'288 CHF für Selbständige ohne Pensionskasse) vollständig vom steuerbaren Einkommen abgezogen werden. Die Einzahlungen müssen bis zum 31. Dezember erfolgen.'
           },
           hasBVGPurchase: {
             text: 'Hast du Einkäufe in die Pensionskasse getätigt?',
@@ -3065,7 +3065,7 @@ export const translations: Record<'de' | 'en', Translation> = {
     deductions: {
       title: 'Deductions',
       hasPillar3a: 'I have paid into pillar 3a',
-      hasPillar3aExplanation: 'Contributions to pillar 3a can be deducted from taxable income up to a certain maximum amount. This applies to both employed and self-employed individuals.',
+      hasPillar3aExplanation: 'Contributions to pillar 3a can be deducted from taxable income up to the legal maximum (currently CHF 7,258 for employees with pension fund, CHF 36,288 for self-employed without pension fund).',
       hasBVGPurchase: 'I have made pension fund (BVG) purchases',
       hasBVGPurchaseExplanation: 'Pension fund purchases are tax-deductible under certain conditions. This applies to both voluntary purchases to improve retirement benefits and the purchase of contribution years.',
       hasEducationExpenses: 'I have paid education and training costs',
@@ -3815,7 +3815,7 @@ export const translations: Record<'de' | 'en', Translation> = {
         deductions: {
           hasPillar3a: {
             text: 'Do you pay into Pillar 3a?',
-            explanation: 'Pillar 3a is the tax-advantaged, tied private pension. Contributions can be fully deducted from taxable income up to the legal maximum (currently CHF 7,056 for employees, CHF 35,280 for self-employed without pension fund). Contributions must be made by December 31.'
+            explanation: 'Pillar 3a is the tax-advantaged, tied private pension. Contributions can be fully deducted from taxable income up to the legal maximum (currently CHF 7,258 for employees with pension fund, CHF 36,288 for self-employed without pension fund). Contributions must be made by December 31.'
           },
           hasBVGPurchase: {
             text: 'Have you made pension fund purchases?',
