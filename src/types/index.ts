@@ -261,10 +261,12 @@ export interface Property {
   address: string;
   value: number; // Keep for compatibility
   type: string;
+  usage?: 'self' | 'rented'; // Selbstgenutzt oder Vermietet
   
   // Primary fields for new implementation
   taxValue?: number; // Steuerwert (obligatorisch in UI)
-  rentalValue?: number; // Eigenmietwert (obligatorisch in UI)
+  rentalValue?: number; // Eigenmietwert (bei Selbstnutzung)
+  rentalIncome?: number; // Mieteinnahmen (bei Vermietung)
   
   // Legacy/compatibility fields for UserDetail view
   location?: string;

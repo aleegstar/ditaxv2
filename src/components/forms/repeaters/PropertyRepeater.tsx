@@ -20,8 +20,10 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
       id: crypto.randomUUID(),
       address: '',
       type: 'house',
+      usage: 'self',
       taxValue: 0,
       rentalValue: 0,
+      rentalIncome: 0,
       isOutsideCanton: false,
       isOlderThanFiveYears: false,
       purchasedThisYear: false,
@@ -110,6 +112,24 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
                 </div>
 
                 <div>
+                  <Label htmlFor={`usage-${property.id}`} className="text-black">
+                    Nutzung *
+                  </Label>
+                  <Select
+                    value={property.usage || 'self'}
+                    onValueChange={(value) => updateProperty(property.id, 'usage', value)}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-800">
+                      <SelectValue placeholder="Nutzung wählen" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 z-50">
+                      <SelectItem value="self">Selbstgenutzt</SelectItem>
+                      <SelectItem value="rented">Vermietet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label htmlFor={`taxValue-${property.id}`} className="text-black">
                     Steuerwert (CHF) *
                   </Label>
@@ -124,20 +144,37 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor={`rentalValue-${property.id}`} className="text-black">
-                    Eigenmietwert (CHF) *
-                  </Label>
-                  <Input
-                    id={`rentalValue-${property.id}`}
-                    type="number"
-                    value={property.rentalValue || ''}
-                    onChange={(e) => updateProperty(property.id, 'rentalValue', parseFloat(e.target.value) || 0)}
-                    className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
-                    placeholder="z.B. 18000"
-                    required
-                  />
-                </div>
+                {(property.usage || 'self') === 'self' ? (
+                  <div>
+                    <Label htmlFor={`rentalValue-${property.id}`} className="text-black">
+                      Eigenmietwert (CHF) *
+                    </Label>
+                    <Input
+                      id={`rentalValue-${property.id}`}
+                      type="number"
+                      value={property.rentalValue || ''}
+                      onChange={(e) => updateProperty(property.id, 'rentalValue', parseFloat(e.target.value) || 0)}
+                      className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                      placeholder="z.B. 18000"
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor={`rentalIncome-${property.id}`} className="text-black">
+                      Mieteinnahmen (CHF) *
+                    </Label>
+                    <Input
+                      id={`rentalIncome-${property.id}`}
+                      type="number"
+                      value={property.rentalIncome || ''}
+                      onChange={(e) => updateProperty(property.id, 'rentalIncome', parseFloat(e.target.value) || 0)}
+                      className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                      placeholder="z.B. 24000"
+                      required
+                    />
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor={`isOutsideCanton-${property.id}`} className="text-black">
