@@ -26,11 +26,19 @@ export const useMfaPrompt = (userId?: string) => {
       await supabase.rpc('increment_login_count', { p_user_id: userId });
       
       // Check if we should show MFA prompt
-      const { data: shouldShow, error } = await supabase.rpc('should_show_mfa_prompt', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
+      let shouldShow = false;
+      try {
+        const { data, error } = await supabase.rpc('should_show_mfa_prompt', {
+          p_user_id: userId
+        });
+        if (!error) {
+          shouldShow = !!data;
+        } else {
+          console.warn('MFA prompt check failed (non-critical):', error.message);
+        }
+      } catch (rpcErr) {
+        console.warn('MFA prompt RPC unavailable:', rpcErr);
+      }
 
       // Get current login count
       const { data: sessions } = await supabase
@@ -43,7 +51,7 @@ export const useMfaPrompt = (userId?: string) => {
       const loginCount = sessions?.[0]?.login_count || 0;
 
       setState({
-        shouldShow: !!shouldShow,
+        shouldShow,
         isLoading: false,
         loginCount
       });
