@@ -28,7 +28,8 @@ const AssetsForm = ({
     saveSection,
     updateFormProgress,
     setCurrentStep,
-    currentStep
+    currentStep,
+    taxYear
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -115,7 +116,7 @@ const AssetsForm = ({
       });
       
       if (!embedded) {
-        setSearchParams({});
+        setSearchParams({ year: taxYear });
       } else {
         onSave();
       }
@@ -156,7 +157,7 @@ const AssetsForm = ({
   const renderAssetsForm = () => (
     <ExpertFormContainer
       title={t.assets.title}
-      onBack={() => setSearchParams({})}
+      onBack={() => setSearchParams({ year: taxYear })}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}

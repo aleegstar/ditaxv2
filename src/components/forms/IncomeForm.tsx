@@ -25,7 +25,8 @@ const IncomeForm = ({
     saveSection,
     updateFormProgress,
     setCurrentStep,
-    currentStep
+    currentStep,
+    taxYear
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -110,7 +111,7 @@ const IncomeForm = ({
       });
       
       if (!embedded) {
-        setSearchParams({});
+        setSearchParams({ year: taxYear });
       } else {
         onSave();
       }
@@ -150,7 +151,7 @@ const IncomeForm = ({
   const renderIncomeForm = () => (
     <ExpertFormContainer
       title={t.taxReturn.dashboard.sections.income}
-      onBack={() => setSearchParams({})}
+      onBack={() => setSearchParams({ year: taxYear })}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}
