@@ -149,9 +149,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           {/* Import button */}
           <Button
             className="w-full mb-4 bg-primary hover:bg-primary/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{
-              boxShadow: '0 0 20px rgba(29, 100, 255, 0.3)'
-            }}
+            style={{ boxShadow: 'none' }}
             onClick={handleImportClick}
             disabled={isImporting}
           >
