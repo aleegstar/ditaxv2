@@ -25,7 +25,7 @@ export const QuestionsStep: React.FC<QuestionsStepProps> = ({
   return (
     <div className="space-y-6">
       {questions.map((question) => (
-        <div key={question.id} className="border border-[#E2E8F0] rounded-xl p-6 bg-white">
+        <div key={question.id}>
           <YesNoQuestion
             question={question}
             answer={answers[question.id]}
@@ -34,7 +34,7 @@ export const QuestionsStep: React.FC<QuestionsStepProps> = ({
           
           {/* Show repeater count input if question is answered "yes" and has repeater */}
           {answers[question.id] && question.requiresRepeater && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-slate-100">
               <RepeaterCountInput
                 label={`Anzahl ${question.requiresRepeater.title}`}
                 value={repeaterCounts[question.id] || question.requiresRepeater.minimumEntries}
