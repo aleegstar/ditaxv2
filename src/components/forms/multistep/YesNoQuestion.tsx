@@ -102,8 +102,8 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             "hover:shadow-md hover:-translate-y-0.5",
             "flex flex-col items-start gap-4",
             answer === false
-              ? "border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100"
-              : "border-rose-100 bg-rose-50 hover:border-rose-200"
+              ? "border-transparent bg-gradient-to-br from-rose-50 to-rose-100"
+              : "border-transparent bg-rose-50"
           )}
         >
           <div className={cn(
