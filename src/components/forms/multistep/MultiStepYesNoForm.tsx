@@ -644,6 +644,122 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     );
   }
 
+  // Android-safe rendering without any framer-motion elements that could block touch events
+  if (isAndroid) {
+    return (
+      <div className="min-h-screen bg-white text-slate-800 flex justify-center">
+        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto flex flex-col">
+          {/* Header */}
+          <div className="flex shrink-0 w-full pt-8 pr-6 pb-4 pl-6 items-center justify-between relative">
+            <button 
+              onClick={handleHeaderBack}
+              className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 active:bg-slate-100"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+              {getSectionTitle()}
+            </h1>
+            <div className="w-10 h-10" />
+          </div>
+
+          {/* Main Content */}
+          <div 
+            className="flex-1 flex flex-col px-6 pb-8 overflow-y-auto pt-4"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          >
+            <MultiStepProgress
+              currentStep={formState.currentQuestionIndex}
+              totalSteps={questions.length}
+              sectionTitle={getSectionTitle()}
+            />
+
+            {/* Resume Message */}
+            {questionProgress[section] !== undefined && 
+             questionProgress[section]! > 0 && 
+             !viewState.showSummary && 
+             formState.currentQuestionIndex !== questionProgress[section] && (
+              <div className="mb-8">
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-[#1D64FF] rounded-full" />
+                    <div className="text-sm text-slate-600">
+                      Du warst bei Frage {(questionProgress[section]! + 1)} von {questions.length}.
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={async () => {
+                        await updateQuestionProgress(section, 0);
+                        setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
+                        dispatchViewState({ type: 'RESET_VIEW' });
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 active:bg-slate-50"
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      Neu beginnen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Editing Mode Indicator */}
+            {viewState.isEditing && (
+              <div className="mb-4">
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                    <div className="text-sm text-slate-600">
+                      <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Question Content - no AnimatePresence, no motion */}
+            {!currentQuestion ? (
+              <div className="flex-1 flex items-center justify-center text-slate-500">
+                Keine Frage verfügbar. Bitte versuche es erneut.
+              </div>
+            ) : viewState.showRepeater ? (
+              <RepeaterStep
+                key="repeater"
+                question={currentQuestion}
+                data={formState.repeaterData[currentQuestion.id] || []}
+                onDataChange={handleRepeaterDataChange}
+                onContinue={handleContinue}
+                canContinue={canContinueFromRepeater()}
+              />
+            ) : (
+              <YesNoQuestion
+                key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
+                question={currentQuestion}
+                answer={formState.answers[currentQuestion.id]}
+                onAnswer={handleAnswer}
+              />
+            )}
+          </div>
+
+          {/* Footer Info - NOT absolute, just at the bottom */}
+          <div className="py-4 text-center shrink-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+                Verschlüsselt &amp; Sicher
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
@@ -729,56 +845,30 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
             </motion.div>
           )}
 
-          {/* Question Content - skip AnimatePresence on Android to prevent invisible overlay blocking touches */}
-          {isAndroid ? (
-            <>
-              {!currentQuestion ? (
-                <div className="flex-1 flex items-center justify-center text-slate-500">
-                  Keine Frage verfügbar. Bitte versuche es erneut.
-                </div>
-              ) : viewState.showRepeater ? (
-                <RepeaterStep
-                  key="repeater"
-                  question={currentQuestion}
-                  data={formState.repeaterData[currentQuestion.id] || []}
-                  onDataChange={handleRepeaterDataChange}
-                  onContinue={handleContinue}
-                  canContinue={canContinueFromRepeater()}
-                />
-              ) : (
-                <YesNoQuestion
-                  key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
-                  question={currentQuestion}
-                  answer={formState.answers[currentQuestion.id]}
-                  onAnswer={handleAnswer}
-                />
-              )}
-            </>
-          ) : (
-            <AnimatePresence mode="wait">
-              {!currentQuestion ? (
-                <div className="flex-1 flex items-center justify-center text-slate-500">
-                  Keine Frage verfügbar. Bitte versuche es erneut.
-                </div>
-              ) : viewState.showRepeater ? (
-                <RepeaterStep
-                  key="repeater"
-                  question={currentQuestion}
-                  data={formState.repeaterData[currentQuestion.id] || []}
-                  onDataChange={handleRepeaterDataChange}
-                  onContinue={handleContinue}
-                  canContinue={canContinueFromRepeater()}
-                />
-              ) : (
-                <YesNoQuestion
-                  key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
-                  question={currentQuestion}
-                  answer={formState.answers[currentQuestion.id]}
-                  onAnswer={handleAnswer}
-                />
-              )}
-            </AnimatePresence>
-          )}
+          {/* Question Content */}
+          <AnimatePresence mode="wait">
+            {!currentQuestion ? (
+              <div className="flex-1 flex items-center justify-center text-slate-500">
+                Keine Frage verfügbar. Bitte versuche es erneut.
+              </div>
+            ) : viewState.showRepeater ? (
+              <RepeaterStep
+                key="repeater"
+                question={currentQuestion}
+                data={formState.repeaterData[currentQuestion.id] || []}
+                onDataChange={handleRepeaterDataChange}
+                onContinue={handleContinue}
+                canContinue={canContinueFromRepeater()}
+              />
+            ) : (
+              <YesNoQuestion
+                key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
+                question={currentQuestion}
+                answer={formState.answers[currentQuestion.id]}
+                onAnswer={handleAnswer}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Footer Info */}
