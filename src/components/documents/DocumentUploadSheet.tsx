@@ -100,7 +100,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       }
       
       // Also check if token is about to expire (< 60s left) and proactively refresh
-      const expiresAt = sessionData.session.expires_at;
+      const expiresAt = sessionData.session?.expires_at;
       if (expiresAt && (expiresAt - Date.now() / 1000) < 60) {
         console.log('[DocumentUploadSheet] Token expiring soon, refreshing...');
         const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
