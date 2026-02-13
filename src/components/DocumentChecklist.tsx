@@ -34,7 +34,8 @@ const DocumentChecklist: React.FC = () => {
     formData,
     formDataLoaded,
     setCurrentStep,
-    taxYear
+    taxYear,
+    loadDocuments: formContextLoadDocuments
   } = useFormContext();
   const {
     documents,
@@ -45,6 +46,9 @@ const DocumentChecklist: React.FC = () => {
     getDocumentsForItem,
     hasDocuments
   } = useDocuments();
+  
+  // Ref to prevent useEffect from reverting optimistic upload status
+  const skipDocSyncRef = useRef(false);
 
   const categorizedItemsMemo = useMemo(() => {
     const categories = {
@@ -90,10 +94,23 @@ const DocumentChecklist: React.FC = () => {
   const handleBack = () => { navigate(`/form?section=deductions&year=${taxYear}`); };
 
   const handleSheetUploaded = useCallback((itemId: string) => {
+    // Pause document sync to prevent useEffect from reverting optimistic update
+    skipDocSyncRef.current = true;
     markUploaded(itemId, true);
-    refreshDocuments();
     toast({ title: 'Erfolgreich hochgeladen', description: 'Dokument wurde hochgeladen.' });
-  }, [markUploaded, refreshDocuments, toast]);
+    
+    // Reload documents directly from FormContext (bypasses debounce in use-documents)
+    // Short delay to let DB commit the new entry
+    setTimeout(async () => {
+      try {
+        await formContextLoadDocuments();
+      } catch (err) {
+        console.error('[DocumentChecklist] Error reloading documents after upload:', err);
+      } finally {
+        skipDocSyncRef.current = false;
+      }
+    }, 1000);
+  }, [markUploaded, formContextLoadDocuments, toast]);
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthValid) {
@@ -121,6 +138,9 @@ const DocumentChecklist: React.FC = () => {
   }, [userDocuments]);
 
   useEffect(() => {
+    // Skip sync while an upload is being processed to prevent reverting optimistic updates
+    if (skipDocSyncRef.current) return;
+    
     if (checklistItems.length > 0) {
       checklistItems.forEach(item => {
         const hasDocuments = documentStatus.has(item.id);
