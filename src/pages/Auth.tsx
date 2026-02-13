@@ -32,6 +32,12 @@ const Auth = () => {
   // Combined loading state for backward compatibility
   const isLoading = isEmailLoading || isOAuthLoading;
 
+  // Reset OAuth state on mount (fixes stuck button after cancelled/failed OAuth)
+  useEffect(() => {
+    isOAuthInProgress.current = false;
+    setIsOAuthLoading(false);
+  }, []);
+
   // Handle deeplink callback from Despia native app
   // NEW: Session is now set in NativeCallback (Chrome Custom Tab) 
   // We just need to check for success=true and retrieve the existing session
@@ -203,6 +209,11 @@ const Auth = () => {
           return;
         }
         despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        // Safety timeout - reset after 30s if OAuth doesn't complete
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 30000);
       } catch (err) {
         console.error('❌ Error starting native auth:', err);
         toast.error("Fehler bei der Google-Anmeldung");
@@ -285,6 +296,11 @@ const Auth = () => {
 
         // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
         despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        // Safety timeout - reset after 30s if OAuth doesn't complete
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 30000);
       } catch (err) {
         console.error('Error starting native Apple auth:', err);
         toast.error("Fehler bei der Apple-Anmeldung");
