@@ -188,7 +188,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
 
       // Don't show tour if user has already navigated to other pages
       // Exception: /welcome -> / is allowed (user just completed onboarding)
-      if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome') {
+      if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/auth') {
         debug.log('❌ Tour: User has navigated, skipping auto-start');
         return;
       }
