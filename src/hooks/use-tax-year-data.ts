@@ -54,7 +54,10 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
   }, [taxFilerId]);
 
   const loadTaxYearData = useCallback(async () => {
-    if (!userId || !taxFilerId) return;
+    if (!userId || !taxFilerId) {
+      setData(prev => ({ ...prev, loading: false }));
+      return;
+    }
     if (loadingRef.current) return; // Prevent concurrent loads
     
     loadingRef.current = true;

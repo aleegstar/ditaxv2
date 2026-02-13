@@ -117,6 +117,23 @@ const UserTaxReturns = () => {
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [signatureDialogOpen, setSignatureDialogOpen] = useState(false);
+  const [safetyTimeout, setSafetyTimeout] = useState(false);
+
+  // Safety timeout to prevent infinite skeleton loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.warn('UserTaxReturns: Safety timeout after 8s');
+      setSafetyTimeout(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Reset when loading resolves normally
+  useEffect(() => {
+    if (!authLoading && !loading && !profileLoading && !taxFilerLoading) {
+      setSafetyTimeout(false);
+    }
+  }, [authLoading, loading, profileLoading, taxFilerLoading]);
 
   // Find the first unsigned completed tax return
   const unsignedTaxReturn = useMemo(() => {
@@ -242,7 +259,7 @@ const UserTaxReturns = () => {
   const getDocumentCount = (year: string): number => {
     return uploadedDocuments[year]?.length || 0;
   };
-  if (authLoading || loading || profileLoading || !isReady || taxFilerLoading) {
+  if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
     return <UserTaxReturnsSkeleton />;
   }
 
