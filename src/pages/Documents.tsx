@@ -337,6 +337,7 @@ const DocumentsContent: React.FC<{
     }
     let successCount = 0;
     let errorCount = 0;
+    const encryptedDocService = EncryptedDocumentService.getInstance();
     for (const file of fileArray) {
       try {
         // Validate file
@@ -359,36 +360,16 @@ const DocumentsContent: React.FC<{
           errorCount++;
           continue;
         }
-        // SECURITY: Sanitize file name to prevent path traversal attacks
-        const safeFileName = sanitizeFileName(file.name);
-        const fileName = `${Date.now()}-${safeFileName}`;
-        const filePath = `${user.id}/unassigned/${fileName}`;
 
-        // Upload to storage
-        const {
-          error: uploadError
-        } = await supabase.storage.from('documents').upload(filePath, file);
-        if (uploadError) throw uploadError;
-
-        // Save to database
-        const {
-          error: dbError
-        } = await supabase.from('uploaded_documents').insert({
-          user_id: user.id,
-          tax_filer_id: activeTaxFilerId || null,
-          file_name: file.name,
-          file_type: file.type,
-          file_path: filePath,
-          tax_year: selectedYear,
-          status: 'active',
-          is_assigned_to_checklist: false,
-          document_category: 'upload'
-        });
-        if (dbError) {
-          // Clean up uploaded file
-          await supabase.storage.from('documents').remove([filePath]);
-          throw dbError;
-        }
+        // Use encrypted upload service (consistent with DocumentUploadSheet)
+        await encryptedDocService.uploadEncryptedDocument(
+          file,
+          null, // no checklist item
+          user.id,
+          selectedYear,
+          undefined, // no checklist item title
+          activeTaxFilerId || null
+        );
         successCount++;
       } catch (error) {
         console.error('Error uploading file:', error);
