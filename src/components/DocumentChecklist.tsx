@@ -110,7 +110,10 @@ const DocumentChecklist: React.FC = () => {
       } catch (err) {
         console.error('[DocumentChecklist] Error reloading documents after upload:', err);
       } finally {
-        skipDocSyncRef.current = false;
+        // Wait for React to process state updates from loadDocuments before re-enabling sync
+        setTimeout(() => {
+          skipDocSyncRef.current = false;
+        }, 0);
       }
     }, 1500);
   }, [markUploaded, formContextLoadDocuments, toast]);
