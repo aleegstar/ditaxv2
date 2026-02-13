@@ -1805,24 +1805,30 @@ export type Database = {
       }
       user_feedback: {
         Row: {
+          contact_consent: boolean | null
           created_at: string | null
           feature_request: string | null
+          feedback_category: string | null
           id: string
           rating: number
           user_email: string | null
           user_id: string | null
         }
         Insert: {
+          contact_consent?: boolean | null
           created_at?: string | null
           feature_request?: string | null
+          feedback_category?: string | null
           id?: string
           rating: number
           user_email?: string | null
           user_id?: string | null
         }
         Update: {
+          contact_consent?: boolean | null
           created_at?: string | null
           feature_request?: string | null
+          feedback_category?: string | null
           id?: string
           rating?: number
           user_email?: string | null

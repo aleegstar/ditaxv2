@@ -618,6 +618,18 @@ export interface Translation {
       satisfied: string;
       verySatisfied: string;
     };
+    ratingLabelLeft: string;
+    ratingLabelRight: string;
+    categoryBug: string;
+    categoryFeature: string;
+    categoryPraise: string;
+    improvementLabel: string;
+    improvementPlaceholder: string;
+    contactConsent: string;
+    laterButton: string;
+    sendButton: string;
+    promptTitle: string;
+    promptSubtitle: string;
   };
 
   // Privacy Settings Page
@@ -1983,6 +1995,18 @@ export const translations: Record<'de' | 'en', Translation> = {
         satisfied: 'Zufrieden',
         verySatisfied: 'Sehr zufrieden',
       },
+      ratingLabelLeft: 'Gar nicht',
+      ratingLabelRight: 'Sehr gut',
+      categoryBug: 'Fehler',
+      categoryFeature: 'Feature',
+      categoryPraise: 'Lob',
+      improvementLabel: 'Verbesserungsvorschläge',
+      improvementPlaceholder: 'Was können wir besser machen?',
+      contactConsent: 'Darf das Team mich bei Rückfragen zu diesem Feedback kontaktieren?',
+      laterButton: 'Später',
+      sendButton: 'Absenden',
+      promptTitle: 'Wie gefällt dir die App?',
+      promptSubtitle: 'Dein Feedback hilft uns, das Erlebnis zu verbessern.',
     },
 
     // Privacy Settings Page
@@ -3408,6 +3432,18 @@ export const translations: Record<'de' | 'en', Translation> = {
         satisfied: 'Satisfied',
         verySatisfied: 'Very satisfied',
       },
+      ratingLabelLeft: 'Not at all',
+      ratingLabelRight: 'Very good',
+      categoryBug: 'Bug',
+      categoryFeature: 'Feature',
+      categoryPraise: 'Praise',
+      improvementLabel: 'Improvement suggestions',
+      improvementPlaceholder: 'What can we do better?',
+      contactConsent: 'May the team contact me with questions about this feedback?',
+      laterButton: 'Later',
+      sendButton: 'Submit',
+      promptTitle: 'How do you like the app?',
+      promptSubtitle: 'Your feedback helps us improve the experience.',
     },
 
     // Privacy Settings Page
