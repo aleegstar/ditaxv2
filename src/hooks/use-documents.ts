@@ -37,8 +37,8 @@ export function useDocuments() {
     try {
       console.log('Loading documents via FormContext...', { forceRefresh });
       
-      // Use FormContext loadDocuments function
-      await formContextLoadDocuments();
+      // Use FormContext loadDocuments function with forceRefresh
+      await formContextLoadDocuments(forceRefresh);
       
       if (isMounted.current) {
         console.log('Documents loaded successfully via FormContext');
