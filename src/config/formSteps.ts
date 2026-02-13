@@ -267,7 +267,7 @@ export const FORM_STEPS: StepConfig[] = [
           { id: 'taxValue', label: 'Steuerwert (CHF)', type: 'number', required: false, placeholder: 'Falls bekannt' },
           { id: 'rentalValue', label: 'Eigenmietwert (CHF)', type: 'number', required: false, placeholder: 'Jährlicher Eigenmietwert' },
           { id: 'isOutsideCanton', label: 'Ausserhalb des Wohnkantons', type: 'select', required: true, options: ['ja', 'nein'] },
-          { id: 'isOlderThanFiveYears', label: 'Seit mehr als 5 Jahren im Besitz', type: 'select', required: true, options: ['ja', 'nein'] },
+          { id: 'isOlderThanFiveYears', label: 'Liegenschaft ist älter als 5 Jahre', type: 'select', required: true, options: ['ja', 'nein'] },
           { id: 'purchasedThisYear', label: 'Wurde im aktuellen Steuerjahr erworben', type: 'select', required: true, options: ['ja', 'nein'] }
         ]
       },
