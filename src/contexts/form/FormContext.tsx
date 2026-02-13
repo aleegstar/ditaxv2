@@ -1114,7 +1114,25 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         loadDocuments();
       }
     }
+
+    // Fallback: If session is loaded but no activeTaxFilerId after TaxFiler loading is done
+    if (sessionLoaded && !activeTaxFilerId && !isTaxFilerLoading && !formDataLoaded && !loading) {
+      console.warn('No activeTaxFilerId available, using defaults');
+      setFormDataLoaded(true);
+    }
   }, [sessionLoaded, taxYear, activeTaxFilerId, formDataLoaded, loading, session, isTaxFilerLoading]);
+
+  // Safety timeout: force formDataLoaded after 10s to prevent infinite loading
+  useEffect(() => {
+    if (formDataLoaded) return;
+    const timer = setTimeout(() => {
+      if (!formDataLoaded) {
+        console.warn('Safety timeout: formDataLoaded forced to true after 10s');
+        setFormDataLoaded(true);
+      }
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [formDataLoaded]);
 
   // Removed auto-generate checklist to prevent infinite loops
 
