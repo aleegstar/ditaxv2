@@ -107,6 +107,10 @@ export const useProfile = () => {
 
   useEffect(() => {
     fetchProfile();
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+    return () => clearTimeout(timer);
   }, []);
 
   return {
