@@ -217,8 +217,12 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const handleConfirm = useCallback(() => {
     if (fileBufferRef.current && fileInfoRef.current) {
       performUpload(fileBufferRef.current, fileInfoRef.current.name, fileInfoRef.current.type);
+    } else {
+      console.error('[DocumentUploadSheet] handleConfirm: buffer or fileInfo ref is null!');
+      toast({ title: 'Fehler', description: 'Datei konnte nicht gelesen werden. Bitte erneut auswählen.', variant: 'destructive' });
+      setPhase('select');
     }
-  }, [performUpload]);
+  }, [performUpload, toast]);
 
   const handleReupload = useCallback(() => {
     setSelectedFile(null);

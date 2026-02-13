@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from 'react-router-dom';
 import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
-import { DocumentMetadata } from '@/services/DocumentService';
+import { DocumentMetadata, documentService } from '@/services/DocumentService';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import DocumentViewer from './DocumentViewer';
@@ -99,7 +99,10 @@ const DocumentChecklist: React.FC = () => {
     markUploaded(itemId, true);
     toast({ title: 'Erfolgreich hochgeladen', description: 'Dokument wurde hochgeladen.' });
     
-    // Reload documents directly from FormContext (bypasses debounce in use-documents)
+    // Clear DocumentService cache immediately so any refresh gets fresh data
+    documentService.clearCache();
+    
+    // Reload documents directly from FormContext with forceRefresh
     // Short delay to let DB commit the new entry
     setTimeout(async () => {
       try {
@@ -109,7 +112,7 @@ const DocumentChecklist: React.FC = () => {
       } finally {
         skipDocSyncRef.current = false;
       }
-    }, 1000);
+    }, 1500);
   }, [markUploaded, formContextLoadDocuments, toast]);
 
   useEffect(() => {

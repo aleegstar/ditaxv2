@@ -942,6 +942,11 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     }
     
     try {
+      // Clear DocumentService cache when forced to ensure truly fresh data
+      if (forceRefresh) {
+        documentService.clearCache();
+        console.log(`🔄 [loadDocuments] Force refresh - cache cleared`);
+      }
       console.log(`Loading documents for tax year: ${taxYear}, tax filer: ${activeTaxFilerId}`);
       const docs = await documentService.fetchDocuments(true, taxYear, activeTaxFilerId);
       
