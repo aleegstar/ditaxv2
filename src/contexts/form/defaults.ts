@@ -26,6 +26,7 @@ export const defaultFormData: FormData = {
     endYearKanton: '' as any,
     spouseFirstName: '',
     spouseLastName: '',
+    spouseBirthDate: '',
     spouseReligion: '' as any
   },
   contact: {
@@ -52,6 +53,7 @@ export const defaultFormData: FormData = {
     endYearKanton: '' as any,
     spouseFirstName: '',
     spouseLastName: '',
+    spouseBirthDate: '',
     spouseReligion: '' as any
   },
   income: {

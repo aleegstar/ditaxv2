@@ -76,6 +76,7 @@ const ContactForm = ({
   const [endYearKanton, setEndYearKanton] = useState('');
   const [spouseFirstName, setSpouseFirstName] = useState('');
   const [spouseLastName, setSpouseLastName] = useState('');
+  const [spouseBirthDate, setSpouseBirthDate] = useState('');
   const [spouseReligion, setSpouseReligion] = useState('');
 
   const currentContactData = React.useMemo(() => ({
@@ -100,12 +101,13 @@ const ContactForm = ({
     endYearKanton,
     spouseFirstName,
     spouseLastName,
+    spouseBirthDate,
     spouseReligion
   }), [
     adressnummer, firstName, lastName, address, postalCode, city,
     kanton, birthDate, religion, maritalStatus, firefighterService, hasChildren,
     children, hadDifferentAddressEnd, endYearAddress, endYearAdressnummer,
-    endYearPostalCode, endYearCity, endYearKanton, spouseFirstName, spouseLastName, spouseReligion
+    endYearPostalCode, endYearCity, endYearKanton, spouseFirstName, spouseLastName, spouseBirthDate, spouseReligion
   ]);
 
   // Load existing data
@@ -132,6 +134,7 @@ const ContactForm = ({
       setEndYearKanton(formData.contactInfo.endYearKanton || '');
       setSpouseFirstName(formData.contactInfo.spouseFirstName || '');
       setSpouseLastName(formData.contactInfo.spouseLastName || '');
+      setSpouseBirthDate(formData.contactInfo.spouseBirthDate || '');
       setSpouseReligion(formData.contactInfo.spouseReligion || '');
     }
   }, [formData]);
@@ -246,24 +249,13 @@ const ContactForm = ({
 
             {/* Birth Date */}
             <div className="space-y-2">
-              <label className={lightLabelClass}>Geburtsdatum <span className="text-red-500">*</span></label>
-              <button
-                type="button"
-                className={lightButtonClass}
-                onClick={() => {
-                  const input = document.getElementById('birthDateInput');
-                  if (input) (input as HTMLInputElement).showPicker?.();
-                }}
-              >
-                <Calendar className="w-4 h-4 text-slate-400" />
-                <span className={birthDate ? "text-slate-800" : "text-slate-400"}>{birthDate ? new Date(birthDate).toLocaleDateString('de-CH') : 'Datum auswählen'}</span>
-              </button>
-              <input 
-                id="birthDateInput"
-                type="date" 
+              <MobileFriendlyDateInput
+                id="birthDate"
                 value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="sr-only"
+                onChange={setBirthDate}
+                label="Geburtsdatum"
+                defaultYear={1990}
+                required
               />
             </div>
 
@@ -358,6 +350,14 @@ const ContactForm = ({
                     </div>
                   </div>
                 </div>
+
+                <MobileFriendlyDateInput
+                  id="spouseBirthDate"
+                  value={spouseBirthDate}
+                  onChange={setSpouseBirthDate}
+                  label="Geburtsdatum"
+                  defaultYear={1990}
+                />
               </div>
             )}
 

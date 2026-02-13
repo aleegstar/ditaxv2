@@ -11,6 +11,7 @@ import { User, MapPin, FileText, Users } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChildrenRepeater } from './ChildrenRepeater';
+import { MobileFriendlyDateInput } from '@/components/ui/mobile-friendly-date-input';
 
 interface MultiStepContactFormProps {
   onSave: () => void;
@@ -77,6 +78,7 @@ const MultiStepContactForm = ({
   const [endYearKanton, setEndYearKanton] = useState('');
   const [spouseFirstName, setSpouseFirstName] = useState('');
   const [spouseLastName, setSpouseLastName] = useState('');
+  const [spouseBirthDate, setSpouseBirthDate] = useState('');
   const [spouseReligion, setSpouseReligion] = useState('');
 
   const currentContactData = React.useMemo(() => ({
@@ -101,12 +103,13 @@ const MultiStepContactForm = ({
     endYearKanton,
     spouseFirstName,
     spouseLastName,
+    spouseBirthDate,
     spouseReligion
   }), [
     adressnummer, firstName, lastName, address, postalCode, city,
     kanton, birthDate, religion, maritalStatus, firefighterService, hasChildren,
     children, hadDifferentAddressEnd, endYearAddress, endYearAdressnummer,
-    endYearPostalCode, endYearCity, endYearKanton, spouseFirstName, spouseLastName, spouseReligion
+    endYearPostalCode, endYearCity, endYearKanton, spouseFirstName, spouseLastName, spouseBirthDate, spouseReligion
   ]);
 
 
@@ -134,6 +137,7 @@ const MultiStepContactForm = ({
       setEndYearKanton(formData.contactInfo.endYearKanton || '');
       setSpouseFirstName(formData.contactInfo.spouseFirstName || '');
       setSpouseLastName(formData.contactInfo.spouseLastName || '');
+      setSpouseBirthDate(formData.contactInfo.spouseBirthDate || '');
       setSpouseReligion(formData.contactInfo.spouseReligion || '');
     }
   }, [formData]);
@@ -322,17 +326,14 @@ const MultiStepContactForm = ({
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="birthDate" className={lightLabelClass}>{t.contact.birthDate}</Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    className={lightInputClass}
-                    required
-                  />
-                </div>
+                <MobileFriendlyDateInput
+                  id="birthDate"
+                  value={birthDate}
+                  onChange={setBirthDate}
+                  label={t.contact.birthDate}
+                  defaultYear={1990}
+                  required
+                />
 
                 <div>
                   <Label htmlFor="religion" className={lightLabelClass}>Religion</Label>
@@ -589,6 +590,13 @@ const MultiStepContactForm = ({
                         </SelectContent>
                       </Select>
                     </div>
+                    <MobileFriendlyDateInput
+                      id="spouseBirthDate"
+                      value={spouseBirthDate}
+                      onChange={setSpouseBirthDate}
+                      label="Geburtsdatum"
+                      defaultYear={1990}
+                    />
                   </div>
                 )}
 

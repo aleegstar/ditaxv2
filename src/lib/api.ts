@@ -146,6 +146,7 @@ export const loadAllFormData = async (taxYear?: string): Promise<FormData> => {
         endYearKanton: '' as any,
         spouseFirstName: '',
         spouseLastName: '',
+        spouseBirthDate: '',
         spouseReligion: '' as any
       },
       income: {
@@ -275,6 +276,7 @@ export const getUsers = async (): Promise<User[]> => {
           endYearKanton: '' as any,
           spouseFirstName: '',
           spouseLastName: '',
+          spouseBirthDate: '',
           spouseReligion: '' as any
         },
         income: {
@@ -397,6 +399,7 @@ export const getUserById = async (userId: string): Promise<User | null> => {
           endYearKanton: '' as any,
           spouseFirstName: '',
           spouseLastName: '',
+          spouseBirthDate: '',
           spouseReligion: '' as any
         },
         income: {
@@ -627,6 +630,7 @@ export const createSampleUser = async (): Promise<User> => {
           endYearKanton: '' as any,
           spouseFirstName: '',
           spouseLastName: '',
+          spouseBirthDate: '',
           spouseReligion: 'andere/keine' as any
         },
         income: {

@@ -34,6 +34,7 @@ export interface ContactInfo {
   // Spouse information (conditional)
   spouseFirstName: string;
   spouseLastName: string;
+  spouseBirthDate: string;
   spouseReligion: 'römisch-katholisch' | 'reformiert' | 'christkatolisch' | 'andere/keine';
   
   // Children information (conditional)
