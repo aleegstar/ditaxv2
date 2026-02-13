@@ -1,123 +1,71 @@
 
+# Fix: tax_filer_id wird nicht an den Upload weitergegeben
 
-# Neuaufbau: DocumentUploadSheet -- einfach, robust, mobile-tauglich
+## Das Problem (bewiesen durch Netzwerk-Logs)
 
-## Warum es nicht funktioniert
-
-Das aktuelle `DocumentUploadSheet` hat drei fundamentale Probleme:
-
-1. **`AnimatePresence` blockiert Touch auf Android**: Wie bereits im Projekt dokumentiert, erzeugen `framer-motion` Transitionen unsichtbare Overlays, die Buttons in mobilen WebViews unklickbar machen. Das betrifft vor allem den "Trotzdem einreichen"-Button.
-
-2. **State-Sync-Chaos**: Nach dem Upload gibt es eine Kette aus `skipDocSyncRef`, `setTimeout(1500)`, `documentService.clearCache()`, `formContextLoadDocuments(true)`, und `setTimeout(0)` -- alles um zu verhindern, dass ein `useEffect` den Upload-Status zuruecksetzt. Das ist fragil und race-condition-anfaellig.
-
-3. **Sheet schliesst sich vor dem Reload**: Das Sheet ruft `onUploaded` auf und schliesst sich dann. Der Parent (`DocumentChecklist`) versucht danach Daten zu laden, aber Timing-Konflikte fuehren dazu, dass der alte Zustand wiederhergestellt wird.
-
-## Loesung: Komplett neu, ohne framer-motion, mit einfacher Sync
-
-### Prinzip
-
-- **Kein `AnimatePresence`/`framer-motion`** im Sheet -- nur CSS-Transitions (wie beim Android-Touch-Fix-Pattern im Projekt)
-- **`onUploaded` wird erst aufgerufen, wenn der Upload UND der Document-Reload abgeschlossen sind** -- kein Racing mehr
-- **Das Sheet uebernimmt den kompletten Reload selbst** statt den Parent darum zu bitten
-- **Buffer-Caching bleibt** (bewaeehrt fuer mobile WebViews)
-- **Verschluesselung bleibt** (`EncryptedDocumentService.uploadFromBuffer`)
-
-### Neuer Ablauf
+Die Netzwerk-Requests zeigen das Problem glasklar:
 
 ```text
-User klickt "Hochladen"
-  -> Sheet oeffnet sich (Phase: select)
-  -> User waehlt Datei
-  -> File wird sofort als ArrayBuffer gelesen (mobile-safe)
-  -> OCR-Validierung laeuft (Phase: validating)
-  -> Ergebnis:
-     A) Konfidenz >= 50%: Direkt hochladen (Phase: uploading -> success)
-     B) Konfidenz < 50%: Pruefscreen zeigen (Phase: result)
-        -> "Trotzdem einreichen": Hochladen (Phase: uploading -> success)
-        -> "Anderes Dokument": Zurueck zu select
-  -> Nach Upload-Erfolg:
-     1. documentService.clearCache()
-     2. formContextLoadDocuments(true) -- AWAIT
-     3. DANN erst onUploaded(itemId) aufrufen
-     4. Sheet schliesst sich
+INSERT uploaded_documents: "tax_filer_id": null     <-- Upload speichert NULL
+GET uploaded_documents:    tax_filer_id=eq.becd4bd4  <-- Reload sucht nach becd4bd4
 ```
 
-Der entscheidende Unterschied: **onUploaded wird erst NACH dem erfolgreichen Reload aufgerufen**, nicht vorher. Dadurch entfaellt die gesamte `skipDocSyncRef`-Logik.
+Das Dokument wird erfolgreich in die Datenbank geschrieben, aber mit `tax_filer_id = null`. Die anschliessende Abfrage filtert nach `tax_filer_id = becd4bd4-...` und findet das neue Dokument daher nicht. Deshalb wird die Checkliste nicht aktualisiert -- das Dokument ist "unsichtbar".
 
-### Aenderungen
+## Ursache
 
-**1. `src/components/documents/DocumentUploadSheet.tsx` -- Komplett neu schreiben**
+Obwohl `activeTaxFilerId` im letzten Fix als Prop an `DocumentUploadSheet` weitergegeben wird, kommt es dort als `undefined` an. Das liegt daran, dass `useTaxFiler()` in `DocumentChecklist.tsx` den Wert aus dem Context holt, aber der Wert zum Zeitpunkt des Renderns noch nicht gesetzt sein kann (Race Condition beim Context-Mount).
 
-- Kein `framer-motion` / `AnimatePresence` Import
-- Phasen-Wechsel via einfaches `{phase === 'x' && <div>...</div>}`
-- Buttons bekommen `touch-action: manipulation` fuer Android
-- `onUploaded` Callback bekommt neuen Typ: `(itemId: string) => Promise<void>` -- das Sheet wartet auf den Reload
-- Upload-Logik bleibt identisch (Buffer, EncryptedDocumentService, 90s Timeout)
-- OCR-Validierung bleibt identisch (DocumentValidator, 15s Timeout)
-- `DocumentCheckScreen` wird inline ersetzt durch einfache Buttons (kein separater motion-Component)
+Zusaetzlich gibt es ein zweites Problem: Die `taxFilerId`-Prop wird in `DocumentUploadSheet` nur in `performUpload` verwendet, aber `performUpload` ist ein `useCallback` mit einer Closure die den **initialen** Wert von `taxFilerId` einfaengt. Wenn sich `taxFilerId` spaeter aendert (z.B. weil der Context erst spaeter initialisiert), hat `performUpload` immer noch `null`.
 
-**2. `src/components/DocumentChecklist.tsx` -- `handleSheetUploaded` vereinfachen**
+## Loesung
 
-- Entfernt: `skipDocSyncRef`, alle `setTimeout`-Ketten, `documentService.clearCache()`
-- Neu: `handleSheetUploaded` wird zu einer async-Funktion die:
-  1. `documentService.clearCache()` aufruft
-  2. `await formContextLoadDocuments(true)` aufruft
-  3. Dann eine Toast-Nachricht zeigt
-- Der `useEffect` fuer Document-Sync (Zeile 146-158) bleibt, aber `skipDocSyncRef` wird entfernt -- nicht mehr noetig, weil `onUploaded` erst nach dem Reload aufgerufen wird und die Daten dann bereits korrekt sind.
+Zwei einfache Fixes:
 
-**3. `src/components/documents/DocumentCheckScreen.tsx` -- wird nicht mehr benoetigt**
+### 1. `DocumentUploadSheet.tsx` -- taxFilerId ueber useRef aktuell halten
 
-Die Pruef-UI wird direkt ins `DocumentUploadSheet` integriert (einfache Buttons ohne framer-motion). Die Datei kann bestehen bleiben falls sie anderswo verwendet wird, wird aber vom Sheet nicht mehr importiert.
+Statt den Prop direkt im `useCallback` zu verwenden, wird ein `useRef` genutzt, der immer den aktuellsten Wert hat:
 
-### Technische Details
+```typescript
+const taxFilerIdRef = useRef(taxFilerId);
+useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
 
-Das neue Sheet hat folgende Struktur (ohne motion):
-
-```text
-<Drawer>
-  <DrawerContent>
-    {phase === 'select' && (
-      <div>  // Keine Animation
-        <h3>Titel</h3>
-        <input type="file" hidden ... />
-        <button>Fotos</button>
-        <button>Scannen</button>
-        <button>Dateien</button>
-      </div>
-    )}
-    {phase === 'validating' && (
-      <div>
-        <AIDocumentValidation ... />
-      </div>
-    )}
-    {phase === 'result' && (
-      <div>
-        // Inline Pruef-UI (kein DocumentCheckScreen)
-        <div class="notification-card">Ergebnis</div>
-        <button style="touch-action:manipulation">Trotzdem einreichen</button>
-        <button style="touch-action:manipulation">Anderes Dokument</button>
-      </div>
-    )}
-    {phase === 'uploading' && <div>Spinner</div>}
-    {phase === 'success' && <div>Erfolg</div>}
-    {phase === 'error' && <div>Fehler + Retry</div>}
-  </DrawerContent>
-</Drawer>
+// In performUpload:
+const activeTaxFilerId = taxFilerIdRef.current || null;
 ```
 
-### Was gleich bleibt
+### 2. `DocumentChecklist.tsx` -- Fallback auf sessionStorage
 
-- Verschluesselung via `EncryptedDocumentService.uploadFromBuffer`
-- Buffer-Caching via `useRef<ArrayBuffer>` (mobile-safe)
-- OCR via `DocumentValidator` mit 15s Timeout
-- 90s Upload-Timeout
-- Session-Refresh vor Upload
-- `taxFilerId` Partitionierung
+Falls `activeTaxFilerId` aus dem Context undefined/null ist, wird ein Fallback auf `sessionStorage` verwendet (dort speichert der TaxFilerContext den Wert):
 
-### Zusammenfassung der Dateien
+```typescript
+const { activeTaxFilerId } = useTaxFiler();
+const effectiveTaxFilerId = activeTaxFilerId
+  || sessionStorage.getItem('ditax_selected_tax_filer')
+  || null;
+```
+
+## Aenderungen
 
 | Datei | Aenderung |
 |-------|-----------|
-| `src/components/documents/DocumentUploadSheet.tsx` | Komplett neu ohne framer-motion, onUploaded wird async nach Reload |
-| `src/components/DocumentChecklist.tsx` | handleSheetUploaded vereinfacht, skipDocSyncRef entfernt |
+| `src/components/documents/DocumentUploadSheet.tsx` | `taxFilerId` in useRef speichern, useRef in performUpload verwenden |
+| `src/components/DocumentChecklist.tsx` | Fallback auf sessionStorage fuer taxFilerId |
 
+## Warum das funktioniert
+
+```text
+VORHER:
+  1. DocumentChecklist rendert, activeTaxFilerId = undefined (Context laedt)
+  2. DocumentUploadSheet bekommt taxFilerId = undefined
+  3. performUpload Closure fängt undefined ein
+  4. Upload: tax_filer_id = null
+  5. Reload sucht nach becd4bd4 -> findet das neue Dokument NICHT
+
+NACHHER:
+  1. DocumentChecklist rendert, activeTaxFilerId = becd4bd4 (oder Fallback aus sessionStorage)
+  2. DocumentUploadSheet bekommt taxFilerId = becd4bd4
+  3. taxFilerIdRef.current = becd4bd4 (immer aktuell)
+  4. Upload: tax_filer_id = becd4bd4
+  5. Reload sucht nach becd4bd4 -> findet das neue Dokument
+```
