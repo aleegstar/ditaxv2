@@ -395,13 +395,10 @@ const DocumentChecklist: React.FC = () => {
         return <div className="mb-4">
               <div className={cn(
                 "rounded-2xl px-5 py-4 text-white shadow-md",
-                isComplete ? "bg-emerald-500" : "bg-[#7ca5fc]"
+                isComplete ? "bg-emerald-500" : "bg-primary"
               )}>
                 <div className="flex items-center justify-between mb-2.5">
                   <div className="flex items-center gap-2.5">
-                    {!isComplete && (
-                      <div className="h-4 w-4 rounded-full border-[1.5px] border-white/30 border-t-white animate-spin" style={{ animationDuration: '3s' }} />
-                    )}
                     {isComplete && <Check className="w-4 h-4 text-white" strokeWidth={2.5} />}
                     <span className="text-sm font-medium opacity-90">
                       {isComplete 
