@@ -1,31 +1,44 @@
 
 
-## Problem
+## Apple Login Fix auf iPhone (Despia/iOS)
 
-Nach dem Onboarding (`/welcome` -> `/`) startet die Tour nicht, weil das Navigations-Tracking den Start blockiert.
+### Identifizierte Probleme
 
-Die `OnboardingTourProvider` umschliesst die gesamte App. Wenn der User auf `/welcome` startet, wird `/welcome` als initiale Route gespeichert. Beim Navigieren zu `/` nach dem Onboarding wird `hasNavigatedRef = true` gesetzt, und die automatische Tour-Startlogik bricht ab mit "User has navigated, skipping auto-start".
+1. **`isOAuthInProgress` wird nie zurueckgesetzt im Despia-Flow**: Nach dem Aufruf von `despia('oauth://...')` gibt es keinen Code, der `isOAuthInProgress.current = false` und `setIsOAuthLoading(false)` setzt, wenn der User zurueckkommt (z.B. durch Abbrechen). Der Apple-Login-Button ist dann dauerhaft blockiert.
 
-## Loesung
+2. **Kein Reset bei erneutem Besuch der Auth-Seite**: Wenn der User nach einem fehlgeschlagenen OAuth-Versuch zurueck auf `/auth` kommt, bleibt `isOAuthInProgress` auf `true`.
 
-Die Navigation von `/welcome` nach `/` als erlaubte Transition behandeln. Die Tour soll trotzdem starten, wenn der User von `/welcome` kommt.
+### Loesung
 
-## Technische Details
+**Datei: `src/pages/Auth.tsx`**
 
-**Datei: `src/contexts/OnboardingTourContext.tsx`**
+1. `isOAuthInProgress` und `isOAuthLoading` zuruecksetzen, wenn die Auth-Seite geladen/erneut besucht wird:
+   - Im bestehenden `useEffect` fuer `handleDeeplinkAuth` am Anfang `isOAuthInProgress.current = false` setzen, wenn keine OAuth-Parameter vorhanden sind
+   - Alternativ: Einen separaten `useEffect` hinzufuegen, der beim Mount `isOAuthInProgress.current = false` setzt
 
-In der `checkTourConditions`-Funktion (Zeile 182) die Navigation-Pruefung anpassen:
+2. Timeout-basierter Reset nach dem `despia()` Aufruf im Apple-Flow (und Google-Flow):
+   - Nach 30 Sekunden `isOAuthInProgress.current = false` und `setIsOAuthLoading(false)` setzen
+   - Falls der User die OAuth-Seite schliesst oder der Flow fehlschlaegt, kann er es erneut versuchen
 
-- Wenn `initialRouteRef.current` gleich `/welcome` ist, soll `hasNavigatedRef` die Tour nicht blockieren
-- Dies ist der einzige Fall, wo eine Navigation zum Dashboard die Tour starten soll (der User hat gerade das Onboarding abgeschlossen)
+### Technische Details
 
 ```text
-// Aenderung in checkTourConditions:
-if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome') {
-  debug.log('Tour: User has navigated, skipping auto-start');
-  return;
-}
+// In Auth.tsx - Mount-Reset hinzufuegen:
+useEffect(() => {
+  isOAuthInProgress.current = false;
+  setIsOAuthLoading(false);
+}, []);
+
+// Im Despia Apple-Flow nach despia() Aufruf:
+despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+
+// Safety timeout - reset after 30s if OAuth doesn't complete
+setTimeout(() => {
+  isOAuthInProgress.current = false;
+  setIsOAuthLoading(false);
+}, 30000);
 ```
 
-Zusaetzlich in der Navigations-Tracking-Logik (`useEffect` fuer `location.pathname`): Die Route `/welcome` nicht als Navigation zaehlen, wenn der User danach auf `/` geht.
+### Betroffene Dateien
+- `src/pages/Auth.tsx` - Mount-Reset und Timeout-Reset fuer beide OAuth-Flows (Google + Apple)
 
