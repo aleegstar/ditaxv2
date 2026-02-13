@@ -62,7 +62,7 @@ serve(async (req) => {
     const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
     // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
-    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scope=${encodeURIComponent('openid email profile')}&flow_type=implicit&response_type=token`;
+    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
 
     console.log('✅ auth-start: Generated OAuth URL', { 
       oauthUrl, 
