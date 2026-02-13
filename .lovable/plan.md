@@ -1,43 +1,24 @@
 
+# Fix: Steuerjahr wechselt beim Zurücknavigieren von der Dokumentencheckliste
 
-## Fix: Onboarding-Tour startet nicht nach Neu-Registrierung
+## Problem
+In `DocumentChecklist.tsx` fehlt bei der "Zurück"-Navigation der `year`-Parameter in der URL. Dadurch landet man auf `/form?section=deductions` ohne Jahresangabe. Die Index-Seite fällt dann auf `new Date().getFullYear()` (= 2026) zurück, statt das gewählte Jahr 2025 beizubehalten.
 
-### Ursache
+## Lösung
+Eine einzeilige Korrektur in `src/components/DocumentChecklist.tsx`:
 
-Die Navigation-Tracking-Logik in `OnboardingTourContext.tsx` blockiert die Tour faelschlicherweise:
-
-```text
-Ablauf:
-1. User auf /auth → initialRouteRef = "/auth"
-2. User navigiert zu /welcome → hasNavigatedRef = true
-3. User schliesst WelcomeFlow ab → navigiert zu /
-4. Tour-Check Zeile 191: 
-   hasNavigatedRef.current = true 
-   UND initialRouteRef.current = "/auth" (NICHT "/welcome")
-   → Ausnahme greift NICHT → Tour wird blockiert
+**Zeile 90 ändern von:**
+```
+const handleBack = () => { navigate('/form?section=deductions'); };
+```
+**zu:**
+```
+const handleBack = () => { navigate(`/form?section=deductions&year=${taxYear}`); };
 ```
 
-Die Ausnahme `initialRouteRef.current !== '/welcome'` funktioniert nur, wenn der Provider auf `/welcome` gemountet wird. Da er aber in `App.tsx` lebt und auf `/auth` zuerst rendert, ist die initiale Route `/auth`.
+Die Variable `taxYear` ist bereits über `useFormContext()` verfügbar (Zeile 37), es sind keine weiteren Änderungen nötig.
 
-### Loesung
-
-Die Navigation-Guard-Bedingung in `OnboardingTourContext.tsx` (Zeile 191) erweitern, damit auch der Pfad `/auth` als erlaubter Startpunkt gilt:
-
-```text
-// Vorher (Zeile 191):
-if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome') {
-
-// Nachher:
-if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/auth') {
-```
-
-Alternativ (robuster): Statt einzelne Pfade auszunehmen, die Logik umdrehen und nur pruefen ob der User bereits auf einer "normalen" Seite war und dann wegnavigiert ist. Der einfachste und sicherste Fix ist aber die Erweiterung der Ausnahmeliste.
-
-### Betroffene Datei
-
-- `src/contexts/OnboardingTourContext.tsx` -- Zeile 191: Ausnahme fuer `/auth` hinzufuegen
-
-### Risiko
-
-Minimal. Die Aenderung betrifft nur die Bedingung, unter der die Tour NICHT automatisch gestartet wird. Bestehende Logik bleibt unberuehrt.
-
+## Technische Details
+- **Datei:** `src/components/DocumentChecklist.tsx`, Zeile 90
+- **Ursache:** `handleBack` navigiert ohne `year`-Parameter, Index.tsx verwendet `new Date().getFullYear()` als Fallback
+- **Umfang:** 1 Zeile in 1 Datei
