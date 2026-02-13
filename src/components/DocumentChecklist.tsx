@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { ChecklistItem } from '../types';
 import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
@@ -37,6 +38,7 @@ const DocumentChecklist: React.FC = () => {
     taxYear,
     loadDocuments: formContextLoadDocuments
   } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const {
     documents,
     isLoading,
@@ -615,6 +617,7 @@ const DocumentChecklist: React.FC = () => {
         onClose={() => { setUploadSheetOpen(false); setUploadSheetItem(null); }}
         item={uploadSheetItem}
         taxYear={taxYear}
+        taxFilerId={activeTaxFilerId}
         onUploaded={handleSheetUploaded}
       />
     </div>;
