@@ -1,21 +1,24 @@
 /**
  * DocumentUploadSheet - Unified bottom sheet for file selection, OCR validation & upload.
- * Uses the proven upload pattern from EnhancedDocumentUploader (supabase.auth.getSession + uploadEncryptedDocument).
+ * 
+ * NO framer-motion to avoid Android WebView touch blocking issues.
+ * Uses buffer-caching for mobile file stability.
+ * All uploads encrypted via EncryptedDocumentService.
  */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Image, ScanLine, FileText, Loader2, Check, X, AlertCircle } from 'lucide-react';
+import { Image, ScanLine, FileText, Loader2, Check, AlertCircle, Upload, Info } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
 import { ChecklistItem } from '@/types';
 import { validateFile } from '@/utils/fileValidation';
 import { supabase } from '@/integrations/supabase/client';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import DocumentValidator from '@/services/DocumentValidator';
 import AIDocumentValidation from '@/components/ui/ai-document-validation';
-import { DocumentCheckScreen } from '@/components/documents/DocumentCheckScreen';
 import { ValidationResult, ValidationProgress } from '@/types/documentProfile';
+import { getDocumentProfile } from '@/config/documentProfiles';
 import { toast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface DocumentUploadSheetProps {
@@ -23,7 +26,8 @@ interface DocumentUploadSheetProps {
   onClose: () => void;
   item: ChecklistItem | null;
   taxYear: string;
-  onUploaded: (itemId: string) => void;
+  /** Called after upload + document reload completes. Can be async — sheet waits for it. */
+  onUploaded: (itemId: string) => Promise<void> | void;
 }
 
 type Phase = 'select' | 'validating' | 'result' | 'uploading' | 'success' | 'error';
@@ -40,7 +44,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const [validationProgress, setValidationProgress] = useState<ValidationProgress>({ step: 'preparing', percent: 0, message: '' });
   const [uploadProgress, setUploadProgress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>('');
   const fileBufferRef = useRef<ArrayBuffer | null>(null);
   const fileInfoRef = useRef<{ name: string; type: string } | null>(null);
 
@@ -54,22 +58,19 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     setValidationProgress({ step: 'preparing', percent: 0, message: '' });
     setUploadProgress('');
     setErrorMessage('');
-    setSelectedFile(null);
+    setSelectedFileName('');
     fileBufferRef.current = null;
     fileInfoRef.current = null;
   }, []);
 
   const handleClose = useCallback(() => {
-    // Don't allow close during upload
     if (phase === 'uploading') return;
     reset();
     onClose();
   }, [phase, reset, onClose]);
 
   /**
-   * Core upload - uses the PROVEN pattern from EnhancedDocumentUploader:
-   * 1. supabase.auth.getSession() for fresh session
-   * 2. uploadEncryptedDocument with fresh File object
+   * Core upload — encrypted via EncryptedDocumentService.uploadFromBuffer
    */
   const performUpload = useCallback(async (buffer: ArrayBuffer, fileName: string, fileType: string) => {
     if (!item) return;
@@ -93,13 +94,8 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       const UPLOAD_TIMEOUT_MS = 90000;
       await Promise.race([
         encryptedDocService.uploadFromBuffer(
-          buffer,
-          fileName,
-          fileType,
-          item.id,
-          userId,
-          taxYear,
-          item.title,
+          buffer, fileName, fileType,
+          item.id, userId, taxYear, item.title,
           activeTaxFilerId
         ),
         new Promise<never>((_, reject) =>
@@ -108,12 +104,18 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       ]);
 
       setPhase('success');
-      onUploaded(item.id);
+
+      // Wait for parent to reload documents, THEN close
+      try {
+        await onUploaded(item.id);
+      } catch (err) {
+        console.error('[DocumentUploadSheet] onUploaded callback error:', err);
+      }
 
       setTimeout(() => {
         reset();
         onClose();
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
       console.error('[DocumentUploadSheet] Upload error:', err);
       setErrorMessage(err.message || 'Upload fehlgeschlagen');
@@ -122,14 +124,13 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   }, [item, taxYear, onUploaded, onClose, reset]);
 
   /**
-   * File selected → validate via OCR, then upload
+   * File selected → read buffer → OCR validate → upload or show result
    */
   const handleFileSelected = useCallback(async (file: File) => {
     if (!item) return;
-    setSelectedFile(file);
+    setSelectedFileName(file.name);
 
     try {
-      // Validate file
       const validation = await validateFile(file);
       if (!validation.isValid) {
         toast({ title: 'Ungültige Datei', description: validation.error, variant: 'destructive' });
@@ -137,7 +138,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
         return;
       }
 
-      // Immediately read file into buffer to prevent stale File references on mobile
+      // Read file into buffer immediately (mobile-safe)
       let buffer: ArrayBuffer;
       try {
         buffer = await file.arrayBuffer();
@@ -168,36 +169,26 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
           )
         ]);
       } catch (ocrError: any) {
-        if (ocrError.message === 'OCR_TIMEOUT') {
-          result = {
-            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] },
-            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] }],
-            signals: { meta: undefined, layout: undefined, keywords: undefined },
-            needsUserConfirmation: true,
-            confidenceBucket: 'low' as const,
-            statusMessage: 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
-          };
-        } else {
-          // Non-timeout OCR error → show result screen for manual confirmation
-          console.error('[DocumentUploadSheet] OCR error (non-timeout):', ocrError);
-          result = {
-            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR error'] },
-            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR error'] }],
-            signals: { meta: undefined, layout: undefined, keywords: undefined },
-            needsUserConfirmation: true,
-            confidenceBucket: 'low' as const,
-            statusMessage: 'Dokument konnte nicht automatisch erkannt werden. Bitte manuell bestätigen.'
-          };
-        }
+        const isTimeout = ocrError.message === 'OCR_TIMEOUT';
+        console.error('[DocumentUploadSheet] OCR error:', ocrError);
+        result = {
+          best: { docTypeId: item.id, confidence: 0, reasons: [isTimeout ? 'OCR timeout' : 'OCR error'] },
+          candidates: [{ docTypeId: item.id, confidence: 0, reasons: [isTimeout ? 'OCR timeout' : 'OCR error'] }],
+          signals: { meta: undefined, layout: undefined, keywords: undefined },
+          needsUserConfirmation: true,
+          confidenceBucket: 'low' as const,
+          statusMessage: isTimeout
+            ? 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
+            : 'Dokument konnte nicht automatisch erkannt werden. Bitte manuell bestätigen.'
+        };
       }
 
       setValidationResult(result);
 
-      // High confidence → auto-upload using cached buffer
+      // High confidence → auto-upload
       if (result.best.confidence >= 50) {
         performUpload(buffer, file.name, file.type);
       } else {
-        // Low confidence → show result for user confirmation
         setPhase('result');
       }
     } catch (err: any) {
@@ -210,7 +201,6 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFileSelected(file);
-    // Reset input so same file can be selected again
     e.target.value = '';
   }, [handleFileSelected]);
 
@@ -218,14 +208,13 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     if (fileBufferRef.current && fileInfoRef.current) {
       performUpload(fileBufferRef.current, fileInfoRef.current.name, fileInfoRef.current.type);
     } else {
-      console.error('[DocumentUploadSheet] handleConfirm: buffer or fileInfo ref is null!');
       toast({ title: 'Fehler', description: 'Datei konnte nicht gelesen werden. Bitte erneut auswählen.', variant: 'destructive' });
       setPhase('select');
     }
-  }, [performUpload, toast]);
+  }, [performUpload]);
 
   const handleReupload = useCallback(() => {
-    setSelectedFile(null);
+    setSelectedFileName('');
     fileBufferRef.current = null;
     fileInfoRef.current = null;
     setValidationResult(null);
@@ -234,172 +223,238 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
   const dismissible = phase === 'select' || phase === 'error' || phase === 'success';
 
+  // Result screen helpers
+  const getResultNotification = () => {
+    if (!validationResult) return null;
+    const profile = getDocumentProfile(validationResult.best.docTypeId);
+    const confidence = validationResult.best.confidence;
+    const documentLabel = profile?.label || 'Dokument';
+
+    if (confidence >= 70) {
+      return {
+        title: `${documentLabel} erfolgreich erkannt`,
+        body: 'Das Dokument wurde erkannt und kann eingereicht werden.',
+        variant: 'success' as const
+      };
+    }
+    if (confidence >= 50) {
+      return {
+        title: `${documentLabel} nicht eindeutig erkannt`,
+        body: 'Wir konnten das Dokument nicht sicher zuordnen. Bitte prüfe, ob es sich um das richtige Dokument handelt.',
+        variant: 'warning' as const
+      };
+    }
+    return {
+      title: `${documentLabel} konnte nicht erkannt werden`,
+      body: 'Wir konnten den Text in diesem Dokument nicht sicher auslesen. Bitte prüfe, ob es sich um das richtige Dokument handelt.',
+      variant: 'info' as const
+    };
+  };
+
+  const variantStyles = {
+    success: { bg: 'bg-emerald-50', border: 'border-emerald-200', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
+    warning: { bg: 'bg-amber-50', border: 'border-amber-200', iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
+    info: { bg: 'bg-blue-50', border: 'border-blue-200', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+  };
+
   return (
     <Drawer open={open} onOpenChange={(o) => { if (!o) handleClose(); }} dismissible={dismissible}>
       <DrawerContent variant="bottom-sheet">
         <div className="px-5 pt-3 pb-5">
-          <AnimatePresence mode="wait">
-            {/* Phase: Select file source */}
-            {phase === 'select' && (
-              <motion.div
-                key="select"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="text-center mb-5">
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    {item?.title || 'Dokument hochladen'}
-                  </h3>
-                  {item?.description && (
-                    <p className="text-sm text-slate-400 mt-1">{item.description}</p>
+
+          {/* Phase: Select file source */}
+          {phase === 'select' && (
+            <div>
+              <div className="text-center mb-5">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  {item?.title || 'Dokument hochladen'}
+                </h3>
+                {item?.description && (
+                  <p className="text-sm text-slate-400 mt-1">{item.description}</p>
+                )}
+              </div>
+
+              <input ref={photoInputRef} type="file" className="hidden" accept="image/*" onChange={handleInputChange} />
+              <input ref={scanInputRef} type="file" className="hidden" accept="image/*" capture="environment" onChange={handleInputChange} />
+              <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
+
+              <div className="space-y-2">
+                {[
+                  { icon: Image, label: 'Fotos hochladen', ref: photoInputRef },
+                  { icon: ScanLine, label: 'Dokument scannen', ref: scanInputRef },
+                  { icon: FileText, label: 'Dateien (PDF, Docs...)', ref: fileInputRef },
+                ].map(({ icon: Icon, label, ref }) => (
+                  <button
+                    key={label}
+                    onClick={() => ref.current?.click()}
+                    className="w-full flex items-center gap-4 rounded-2xl bg-slate-50 px-5 py-4 text-left transition-all hover:bg-slate-100 active:scale-[0.98]"
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                      <Icon className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
+                    </div>
+                    <span className="text-[15px] font-medium text-slate-700">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Phase: OCR Validating */}
+          {phase === 'validating' && (
+            <div>
+              <AIDocumentValidation
+                progress={validationProgress}
+                documentType={item?.title || 'Dokument'}
+                documentTypeId={item?.id}
+                foundKeywords={validationProgress.foundKeywords}
+              />
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={handleClose}
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Phase: OCR Result (low confidence) — inline, no framer-motion */}
+          {phase === 'result' && validationResult && (() => {
+            const notification = getResultNotification();
+            if (!notification) return null;
+            const styles = variantStyles[notification.variant];
+            const isLowConfidence = validationResult.best.confidence < 70;
+
+            return (
+              <div className="space-y-5">
+                <div className="text-center">
+                  <span className="text-lg font-semibold text-foreground">Dokumentenprüfung</span>
+                </div>
+
+                {/* Notification Card */}
+                <div className={cn('p-4 rounded-2xl border', styles.bg, styles.border)}>
+                  <div className="flex gap-3">
+                    <div className={cn('w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0', styles.iconBg)}>
+                      <Info className={cn('w-5 h-5', styles.iconColor)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground text-[15px] leading-tight mb-1">
+                        {notification.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {notification.body}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* File name */}
+                <p className="text-xs text-muted-foreground/70 truncate text-center">
+                  {selectedFileName}
+                </p>
+
+                {/* Action Buttons — touch-action: manipulation for Android */}
+                <div className="space-y-3 pt-1">
+                  {isLowConfidence ? (
+                    <>
+                      <Button
+                        onClick={handleReupload}
+                        className="w-full rounded-xl"
+                        size="lg"
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Anderes Dokument hochladen
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleConfirm}
+                        className="w-full rounded-xl border-border"
+                        size="default"
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        Dokument trotzdem einreichen
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={handleConfirm}
+                        className="w-full rounded-xl"
+                        size="lg"
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        Dokument einreichen
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleReupload}
+                        className="w-full rounded-xl border-border"
+                        size="default"
+                        style={{ touchAction: 'manipulation' }}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Andere Datei hochladen
+                      </Button>
+                    </>
                   )}
                 </div>
+              </div>
+            );
+          })()}
 
-                {/* Hidden file inputs */}
-                <input ref={photoInputRef} type="file" className="hidden" accept="image/*" onChange={handleInputChange} />
-                <input ref={scanInputRef} type="file" className="hidden" accept="image/*" capture="environment" onChange={handleInputChange} />
-                <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
+          {/* Phase: Uploading */}
+          {phase === 'uploading' && (
+            <div className="flex flex-col items-center py-10">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-5">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              </div>
+              <p className="text-lg font-semibold text-slate-800 mb-1">Wird hochgeladen</p>
+              <p className="text-sm text-slate-400">{uploadProgress}</p>
+            </div>
+          )}
 
-                <div className="space-y-2">
-                  {[
-                    { icon: Image, label: 'Fotos hochladen', ref: photoInputRef },
-                    { icon: ScanLine, label: 'Dokument scannen', ref: scanInputRef },
-                    { icon: FileText, label: 'Dateien (PDF, Docs...)', ref: fileInputRef },
-                  ].map(({ icon: Icon, label, ref }) => (
-                    <button
-                      key={label}
-                      onClick={() => ref.current?.click()}
-                      className="w-full flex items-center gap-4 rounded-2xl bg-slate-50 px-5 py-4 text-left transition-all hover:bg-slate-100 active:scale-[0.98]"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                        <Icon className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
-                      </div>
-                      <span className="text-[15px] font-medium text-slate-700">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+          {/* Phase: Success */}
+          {phase === 'success' && (
+            <div className="flex flex-col items-center py-10">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
+                <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
+              </div>
+              <p className="text-lg font-semibold text-slate-800">Erfolgreich hochgeladen</p>
+            </div>
+          )}
 
-            {/* Phase: OCR Validating */}
-            {phase === 'validating' && (
-              <motion.div
-                key="validating"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <AIDocumentValidation
-                  progress={validationProgress}
-                  documentType={item?.title || 'Dokument'}
-                  documentTypeId={item?.id}
-                  foundKeywords={validationProgress.foundKeywords}
-                />
-              </motion.div>
-            )}
+          {/* Phase: Error */}
+          {phase === 'error' && (
+            <div className="flex flex-col items-center py-8">
+              <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-5">
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              </div>
+              <p className="text-lg font-semibold text-slate-800 mb-1">Upload fehlgeschlagen</p>
+              <p className="text-sm text-slate-400 text-center mb-6">{errorMessage}</p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={handleReupload}
+                  className="flex-1 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  Erneut versuchen
+                </button>
+                <button
+                  onClick={handleClose}
+                  className="flex-1 rounded-xl bg-slate-100 px-5 py-3 text-sm font-medium text-slate-600 transition-all hover:bg-slate-200 active:scale-[0.98]"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  Schließen
+                </button>
+              </div>
+            </div>
+          )}
 
-            {/* Phase: OCR Result (low confidence) */}
-            {phase === 'result' && validationResult && selectedFile && (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <DocumentCheckScreen
-                  result={validationResult}
-                  fileName={selectedFile.name}
-                  onConfirm={handleConfirm}
-                  onReupload={handleReupload}
-                  onClose={handleClose}
-                  isConfirming={false}
-                />
-              </motion.div>
-            )}
-
-            {/* Phase: Uploading */}
-            {phase === 'uploading' && (
-              <motion.div
-                key="uploading"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col items-center py-10"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-5">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                </div>
-                <p className="text-lg font-semibold text-slate-800 mb-1">Wird hochgeladen</p>
-                <p className="text-sm text-slate-400">{uploadProgress}</p>
-              </motion.div>
-            )}
-
-            {/* Phase: Success */}
-            {phase === 'success' && (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                className="flex flex-col items-center py-10"
-              >
-                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
-                  <Check className="w-8 h-8 text-emerald-500" strokeWidth={2.5} />
-                </div>
-                <p className="text-lg font-semibold text-slate-800">Erfolgreich hochgeladen</p>
-              </motion.div>
-            )}
-
-            {/* Phase: Error */}
-            {phase === 'error' && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col items-center py-8"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-5">
-                  <AlertCircle className="w-8 h-8 text-red-500" />
-                </div>
-                <p className="text-lg font-semibold text-slate-800 mb-1">Upload fehlgeschlagen</p>
-                <p className="text-sm text-slate-400 text-center mb-6">{errorMessage}</p>
-                <div className="flex gap-3 w-full">
-                  <button
-                    onClick={handleReupload}
-                    className="flex-1 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
-                  >
-                    Erneut versuchen
-                  </button>
-                  <button
-                    onClick={handleClose}
-                    className="flex-1 rounded-xl bg-slate-100 px-5 py-3 text-sm font-medium text-slate-600 transition-all hover:bg-slate-200 active:scale-[0.98]"
-                  >
-                    Schließen
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
-
-        {/* Footer cancel for validating phase */}
-        {phase === 'validating' && (
-          <div className="border-t border-border/50 p-4 flex justify-center">
-            <button
-              onClick={handleClose}
-              className="text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
-            >
-              Abbrechen
-            </button>
-          </div>
-        )}
       </DrawerContent>
     </Drawer>
   );

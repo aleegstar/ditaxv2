@@ -47,8 +47,7 @@ const DocumentChecklist: React.FC = () => {
     hasDocuments
   } = useDocuments();
   
-  // Ref to prevent useEffect from reverting optimistic upload status
-  const skipDocSyncRef = useRef(false);
+
 
   const categorizedItemsMemo = useMemo(() => {
     const categories = {
@@ -93,29 +92,19 @@ const DocumentChecklist: React.FC = () => {
   const handleNext = () => { navigate(`/payment?year=${taxYear}`); };
   const handleBack = () => { navigate(`/form?section=deductions&year=${taxYear}`); };
 
-  const handleSheetUploaded = useCallback((itemId: string) => {
-    // Pause document sync to prevent useEffect from reverting optimistic update
-    skipDocSyncRef.current = true;
+  const handleSheetUploaded = useCallback(async (itemId: string) => {
+    // Optimistic update
     markUploaded(itemId, true);
-    toast({ title: 'Erfolgreich hochgeladen', description: 'Dokument wurde hochgeladen.' });
     
-    // Clear DocumentService cache immediately so any refresh gets fresh data
+    // Clear cache and reload fresh data from DB
     documentService.clearCache();
+    try {
+      await formContextLoadDocuments(true);
+    } catch (err) {
+      console.error('[DocumentChecklist] Error reloading documents after upload:', err);
+    }
     
-    // Reload documents directly from FormContext with forceRefresh
-    // Short delay to let DB commit the new entry
-    setTimeout(async () => {
-      try {
-        await formContextLoadDocuments(true);
-      } catch (err) {
-        console.error('[DocumentChecklist] Error reloading documents after upload:', err);
-      } finally {
-        // Wait for React to process state updates from loadDocuments before re-enabling sync
-        setTimeout(() => {
-          skipDocSyncRef.current = false;
-        }, 0);
-      }
-    }, 1500);
+    toast({ title: 'Erfolgreich hochgeladen', description: 'Dokument wurde hochgeladen.' });
   }, [markUploaded, formContextLoadDocuments, toast]);
 
   useEffect(() => {
@@ -144,9 +133,6 @@ const DocumentChecklist: React.FC = () => {
   }, [userDocuments]);
 
   useEffect(() => {
-    // Skip sync while an upload is being processed to prevent reverting optimistic updates
-    if (skipDocSyncRef.current) return;
-    
     if (checklistItems.length > 0) {
       checklistItems.forEach(item => {
         const hasDocuments = documentStatus.has(item.id);
