@@ -1,46 +1,80 @@
 
 
-# Fix: Dokument nach Upload nicht sichtbar + "Trotzdem hochladen" scheint nicht zu funktionieren
+# Fix: Dokument-Upload in Checkliste -- endgueltige Loesung
 
-## Das eigentliche Problem
+## Ursache
 
-Der Upload selbst funktioniert -- sowohl bei hoher als auch bei niedriger OCR-Konfidenz ("Trotzdem einreichen"). Das Problem ist, dass die Checkliste danach nicht aktualisiert wird, weil die `loadDocuments`-Funktion durch einen **3-Sekunden-Throttle** und einen **5-Minuten-Cache** blockiert wird.
+Das Problem ist eine **State-Synchronisations-Schleife** zwischen drei konkurrierenden Mechanismen:
 
-Der letzte Fix hat zwar `skipDocSyncRef` und den direkten Aufruf von `formContextLoadDocuments()` in `DocumentChecklist.tsx` eingebaut, aber der entscheidende Teil wurde vergessen: Die `loadDocuments`-Funktion in `useFormDataOperations.tsx` akzeptiert keinen `forceRefresh`-Parameter. Deshalb wird der Aufruf nach dem Upload einfach ignoriert.
+1. **Optimistisches Update**: `markUploaded(itemId, true)` setzt den Status sofort
+2. **FormContext.loadDocuments**: Holt Dokumente und ueberschreibt `checklistItems` komplett via `setChecklistItems` (Zeile 967-972)
+3. **useEffect-Sync** (Zeile 143-155): Synchronisiert `checklistItems` mit `documentStatus` (basierend auf `documents` aus `useDocuments`)
 
-## Aenderungen
+Das Problem: `skipDocSyncRef.current = false` wird im `finally`-Block **synchron** gesetzt, BEVOR React die State-Updates aus `formContextLoadDocuments` verarbeitet hat. Dadurch kann der `useEffect` mit veralteten Daten laufen und den Status zuruecksetzen.
 
-### 1. `src/contexts/form/useFormDataOperations.tsx`
-- `loadDocuments` bekommt einen optionalen `forceRefresh`-Parameter
-- Wenn `forceRefresh = true`: Throttle (3s) und Cache (5min) werden uebersprungen
-- Keine anderen Aenderungen an der Logik
+## Loesung
 
-### 2. `src/contexts/form/FormContext.tsx`
-- Die Wrapper-Funktion `loadDocuments` (Zeile 933) reicht den `forceRefresh`-Parameter an die darunterliegende Funktion weiter
+Die Loesung ist einfach und robust: Den `skipDocSyncRef` erst zuruecksetzen, **nachdem** React die State-Updates verarbeitet hat (naechster Render-Zyklus).
 
-### 3. `src/components/DocumentChecklist.tsx`
-- `handleSheetUploaded` ruft `formContextLoadDocuments(true)` auf, um den Throttle/Cache zu umgehen
+### Datei: `src/components/DocumentChecklist.tsx`
 
-## Technische Details
+**handleSheetUploaded anpassen:**
 
 ```text
-Aktueller Ablauf nach Upload:
-  handleSheetUploaded()
-    -> markUploaded(itemId, true)           -- optimistisch OK
-    -> setTimeout 1s
-      -> formContextLoadDocuments()          -- BLOCKIERT (Throttle 3s / Cache 5min)
-      -> skipDocSyncRef = false              -- useEffect setzt uploaded zurueck auf false!
-
-Neuer Ablauf:
-  handleSheetUploaded()
-    -> markUploaded(itemId, true)           -- optimistisch OK
-    -> setTimeout 1s
-      -> formContextLoadDocuments(true)      -- FORCE: Throttle/Cache ignoriert
-      -> Dokument wird aus DB geladen
-      -> skipDocSyncRef = false              -- useEffect bestaetigt uploaded = true
+handleSheetUploaded(itemId):
+  1. skipDocSyncRef = true
+  2. markUploaded(itemId, true)              -- optimistisch
+  3. documentService.clearCache()
+  4. setTimeout 1500ms:
+     - await formContextLoadDocuments(true)   -- laedt frische Daten
+     - NICHT sofort skipDocSyncRef = false!
+     - Stattdessen: setTimeout(0) -> skipDocSyncRef = false
+       (wartet einen Mikrotask/Render-Zyklus ab)
 ```
 
-## Umfang
-- `src/contexts/form/useFormDataOperations.tsx` -- forceRefresh-Parameter fuer loadDocuments
-- `src/contexts/form/FormContext.tsx` -- Parameter weiterreichen
-- `src/components/DocumentChecklist.tsx` -- forceRefresh=true beim Aufruf nach Upload
+Der entscheidende Unterschied: `skipDocSyncRef = false` wird in einem separaten `setTimeout(0)` gesetzt. Dadurch wird sichergestellt, dass React zuerst die State-Updates aus `loadDocuments` verarbeitet und der `useEffect` mit den AKTUELLEN Daten laeuft.
+
+### Datei: `src/contexts/form/FormContext.tsx`
+
+**loadDocuments robuster machen:**
+
+Zusaetzlich eine Sicherung einbauen: Wenn `forceRefresh = true`, den `documentService.clearCache()` Aufruf beibehalten, aber auch sicherstellen, dass `fetchDocuments` mit `forceRefresh=true` aufgerufen wird (ist bereits der Fall).
+
+Keine weiteren Aenderungen noetig -- die Funktion selbst ist korrekt.
+
+### Datei: `src/components/documents/DocumentUploadSheet.tsx`
+
+**Timing anpassen:**
+
+Das Sheet schliesst sich nach 1200ms (`setTimeout → reset(); onClose()`), aber der Reload passiert nach 1500ms. Der Close resettet das Sheet, was die `onUploaded`-Referenz nicht beeinflusst, aber es ist sauberer wenn der Reload VORHER startet.
+
+Aenderung: Sheet schliesst sich nach 2000ms statt 1200ms, damit der Reload (1500ms) sicher vorher startet.
+
+## Zusammenfassung der Aenderungen
+
+| Datei | Aenderung |
+|-------|-----------|
+| `DocumentChecklist.tsx` | `skipDocSyncRef = false` in `setTimeout(0)` statt synchron im `finally` |
+| `DocumentUploadSheet.tsx` | Close-Delay von 1200ms auf 2000ms erhoehen |
+
+## Warum das funktioniert
+
+```text
+VORHER (kaputt):
+  t=0ms:    markUploaded(true), skipSync=true
+  t=1500ms: loadDocuments() resolves, state updates QUEUED
+            skipSync=false (SOFORT, vor React-Render!)
+  t=1501ms: React rendert → useEffect sieht skipSync=false
+            → kann mit ALTEN documents revertieren
+
+NACHHER (fix):
+  t=0ms:    markUploaded(true), skipSync=true
+  t=1500ms: loadDocuments() resolves, state updates QUEUED
+  t=1501ms: setTimeout(0) → wird nach React-Render ausgefuehrt
+  t=1502ms: React rendert mit neuen Daten
+            → useEffect sieht skipSync=true → ueberspringt
+  t=1503ms: setTimeout(0) callback: skipSync=false
+  t=1504ms: React rendert erneut → useEffect sieht korrekte Daten
+            → kein Revert noetig
+```
+
