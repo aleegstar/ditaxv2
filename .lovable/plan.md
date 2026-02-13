@@ -1,83 +1,43 @@
 
 
-## Fix: Endlos-Ladeschleife auf /form verhindern
+## Fix: Apple Login auf iPhone - nur iOS-Erkennung aendern
 
 ### Problem
 
-Nach dem Durchlaufen der Touren (Startseite + /form) friert die App manchmal ein, wenn man Kontaktangaben erfassen will. Ein weisser Bildschirm mit blauem Spinner wird angezeigt und laedt endlos.
+`NativeCallback.tsx` nutzt `isDespiaNative()` um zu entscheiden, ob ein Deeplink ausgeloest wird. Im System-Browser (ASWebAuthenticationSession) auf iOS gibt diese Funktion `false` zurueck, weil der Safari User-Agent kein "despia" enthaelt. Daher werden die Tokens nie an den WebView uebergeben.
 
-### Ursache
+### Loesung (Android-sicher)
 
-Es gibt mehrere unabhaengige Lade-Gates zwischen App-Level und Formular-Ebene. Wenn eines davon steckenbleibt, sieht der User einen endlosen Spinner:
+Statt `isDespiaNative()` wird `!!pathScheme` verwendet. Dies aendert das Verhalten nur basierend auf der URL-Struktur:
 
-1. **TaxFilerGate** (App.tsx) - wartet auf TaxFilerContext.isLoading
-2. **Index.tsx** - eigene Auth- und TaxFiler-Pruefungen mit 8s Safety-Timeout
-3. **FormContext** - wartet auf sessionLoaded UND activeTaxFilerId UND !isTaxFilerLoading
-4. **TaxYearDashboard** - wartet auf formDataLoaded
+- `/native-callback/ditax/` → nativer Flow (Deeplink ausloesen)
+- `/native-callback/` ohne Scheme → Web-Flow (navigate)
 
-Das Hauptproblem: **FormContext hat keinen Safety-Timeout**. Wenn eine der Bedingungen nie erfuellt wird (z.B. durch Timing-Probleme bei Auth-State-Changes nach Tour-Abschluss), bleibt `formDataLoaded` fuer immer `false`.
+**Android-Auswirkung:** Minimal. Android-Flows nutzen bereits `/native-callback/ditax/` und der Deeplink `ditax://oauth/auth?tokens` ist in `assetlinks.json` registriert. Falls Android bisher zufaellig ueber den `navigate('/')` Branch funktionierte (weil Cookies geteilt werden), wuerde es jetzt den Deeplink-Branch nutzen - was zuverlaessiger ist, da Tokens explizit uebergeben werden.
 
-Zusaetzlich: Die `updateUser`-Aufrufe beim Tour-Abschluss loesen Auth-State-Changes aus, die wiederum `loadTaxFilers` und `loadFormDataFromDatabase` re-triggern koennen - ein Timing-Problem auf mobilen Geraeten.
+### Aenderung
 
-### Loesung
+**Datei: `src/pages/NativeCallback.tsx`**
 
-**1. Safety-Timeout in FormContext** (Datei: `src/contexts/form/FormContext.tsx`)
+Eine Zeile aendern (ca. Zeile 121):
 
-Einen 10-Sekunden-Timeout hinzufuegen, der `formDataLoaded = true` erzwingt, wenn die Daten nicht geladen werden konnten. Das verhindert, dass die UI endlos im Ladezustand haengenbleibt.
-
+**Vorher:**
 ```text
-// Neuer useEffect nach dem Initial-Load-Effect (nach Zeile ~1117):
-useEffect(() => {
-  if (formDataLoaded) return;
-  
-  const timer = setTimeout(() => {
-    if (!formDataLoaded) {
-      console.warn('Safety timeout: formDataLoaded forced to true after 10s');
-      setFormDataLoaded(true);
-    }
-  }, 10000);
-  
-  return () => clearTimeout(timer);
-}, [formDataLoaded]);
+const inDespiaNative = isDespiaNative();
+if (inDespiaNative) {
 ```
 
-**2. Safety-Timeout in TaxFilerGate** (Datei: `src/components/guards/TaxFilerGate.tsx`)
-
-Einen 8-Sekunden-Timeout hinzufuegen, damit die Gate nicht endlos blockiert:
-
+**Nachher:**
 ```text
-const [safetyTimeout, setSafetyTimeout] = useState(false);
-
-useEffect(() => {
-  if (!isLoading) return;
-  const timer = setTimeout(() => setSafetyTimeout(true), 8000);
-  return () => clearTimeout(timer);
-}, [isLoading]);
-
-// Ladebedingung aendern:
-if (isLoading && !safetyTimeout) {
-  return <LoadingSpinner fullScreen />;
-}
+// If deeplinkScheme came from URL path, this is a native OAuth flow.
+// Don't use isDespiaNative() - system browsers (ASWebAuthenticationSession,
+// Chrome Custom Tabs) don't have Despia's user agent.
+const isNativeOAuthFlow = !!pathScheme;
+if (isNativeOAuthFlow) {
 ```
 
-**3. FormContext: Fallback wenn activeTaxFilerId fehlt** (Datei: `src/contexts/form/FormContext.tsx`)
-
-Wenn nach 5 Sekunden kein `activeTaxFilerId` vorhanden ist aber die Session geladen wurde, Standarddaten setzen und `formDataLoaded = true`:
-
-```text
-// Im Initial-Load-Effect erweitern:
-useEffect(() => {
-  // Bestehende Logik...
-  
-  // Fallback: Wenn Session da ist aber kein TaxFiler nach 5s
-  if (sessionLoaded && !activeTaxFilerId && !isTaxFilerLoading && !formDataLoaded) {
-    console.warn('No activeTaxFilerId available, using defaults');
-    setFormDataLoaded(true);
-  }
-}, [sessionLoaded, taxYear, activeTaxFilerId, formDataLoaded, loading, session, isTaxFilerLoading]);
-```
+Der restliche Code (Deeplink-Aufbau, Fallback-Timeout, else-Branch) bleibt identisch. Nur die Bedingung aendert sich.
 
 ### Betroffene Dateien
-- `src/contexts/form/FormContext.tsx` - Safety-Timeout und Fallback fuer fehlenden TaxFiler
-- `src/components/guards/TaxFilerGate.tsx` - Safety-Timeout hinzufuegen
+- `src/pages/NativeCallback.tsx` - 1 Bedingung aendern (Zeile ~121)
 
