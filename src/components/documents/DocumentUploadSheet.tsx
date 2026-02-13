@@ -83,12 +83,32 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     setUploadProgress('Verschlüsselung...');
 
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      // Try to get current session, refresh if expired
+      let { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
       if (sessionError || !sessionData.session) {
-        setErrorMessage('Sitzung abgelaufen. Bitte melde dich erneut an.');
-        setPhase('error');
-        return;
+        console.log('[DocumentUploadSheet] Session expired, attempting refresh...');
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError || !refreshData.session) {
+          console.error('[DocumentUploadSheet] Session refresh failed:', refreshError);
+          setErrorMessage('Sitzung abgelaufen. Bitte melde dich erneut an.');
+          setPhase('error');
+          return;
+        }
+        sessionData = refreshData;
+        console.log('[DocumentUploadSheet] Session refreshed successfully');
       }
+      
+      // Also check if token is about to expire (< 60s left) and proactively refresh
+      const expiresAt = sessionData.session.expires_at;
+      if (expiresAt && (expiresAt - Date.now() / 1000) < 60) {
+        console.log('[DocumentUploadSheet] Token expiring soon, refreshing...');
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError && refreshData.session) {
+          sessionData = refreshData;
+        }
+      }
+      
       const userId = sessionData.session.user.id;
 
       setUploadProgress('Hochladen...');
