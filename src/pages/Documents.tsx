@@ -675,8 +675,8 @@ const DocumentsContent: React.FC<{
         <input ref={galleryInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileInputChange} />
         {/* Dokument scannen - mit capture="environment" für Kamera */}
         <input ref={scanInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileInputChange} />
-        {/* Dateien (PDF, Docs) - ohne capture, spezifische Dateitypen */}
-        <input ref={fileInputRef} type="file" accept="application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
+        {/* Dateien (PDF, Docs, Bilder) - ohne capture, alle unterstützten Dateitypen */}
+        <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
         {/* Floating Upload Button - only show if not locked */}
         {!isLocked && (
