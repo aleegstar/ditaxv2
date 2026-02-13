@@ -346,7 +346,14 @@ export class CryptoService {
   }
   
   private base64ToArrayBuffer(base64: string): ArrayBuffer {
-    const binary = atob(base64);
+    // Normalize: trim whitespace, convert URL-safe base64 to standard base64
+    let normalized = base64.trim().replace(/-/g, '+').replace(/_/g, '/');
+    // Add padding if missing
+    const pad = normalized.length % 4;
+    if (pad === 2) normalized += '==';
+    else if (pad === 3) normalized += '=';
+    
+    const binary = atob(normalized);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
