@@ -286,7 +286,7 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             {profile?.avatar_url ? <img src={profile.avatar_url} alt={profile.first_name || 'User'} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium border border-slate-200">
                 {profile?.first_name?.charAt(0) || 'U'}
               </div>}
-            <div className="flex-1 text-left">
+            <div className="flex-1 min-w-0 text-left">
               <div className="font-semibold text-slate-900">{profile?.first_name || 'User'}</div>
               <div className="text-sm text-slate-500 truncate">{profile?.email}</div>
             </div>
