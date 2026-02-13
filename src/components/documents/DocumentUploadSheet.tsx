@@ -41,8 +41,8 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const [uploadProgress, setUploadProgress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
-  const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null);
+  const fileBufferRef = useRef<ArrayBuffer | null>(null);
+  const fileInfoRef = useRef<{ name: string; type: string } | null>(null);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const scanInputRef = useRef<HTMLInputElement>(null);
@@ -55,8 +55,8 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     setUploadProgress('');
     setErrorMessage('');
     setSelectedFile(null);
-    setFileBuffer(null);
-    setFileInfo(null);
+    fileBufferRef.current = null;
+    fileInfoRef.current = null;
   }, []);
 
   const handleClose = useCallback(() => {
@@ -128,67 +128,82 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     if (!item) return;
     setSelectedFile(file);
 
-    // Validate file
-    const validation = await validateFile(file);
-    if (!validation.isValid) {
-      toast({ title: 'Ungültige Datei', description: validation.error, variant: 'destructive' });
-      setPhase('select');
-      return;
-    }
-
-    // Immediately read file into buffer to prevent stale File references on mobile
-    let buffer: ArrayBuffer;
     try {
-      buffer = await file.arrayBuffer();
-    } catch (bufferErr) {
-      console.error('[DocumentUploadSheet] Failed to read file buffer:', bufferErr);
-      toast({ title: 'Datei konnte nicht gelesen werden', description: 'Bitte versuche es erneut.', variant: 'destructive' });
-      setPhase('select');
-      return;
-    }
-    setFileBuffer(buffer);
-    setFileInfo({ name: file.name, type: file.type });
-
-    // Start OCR validation
-    setPhase('validating');
-    setValidationProgress({ step: 'preparing', percent: 0, message: '' });
-
-    const OCR_TIMEOUT_MS = 15000;
-    const validator = DocumentValidator.getInstance();
-
-    let result: ValidationResult;
-    try {
-      result = await Promise.race([
-        validator.validate(file, item.id, (progress) => {
-          setValidationProgress(progress);
-        }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
-        )
-      ]);
-    } catch (timeoutError: any) {
-      if (timeoutError.message === 'OCR_TIMEOUT') {
-        result = {
-          best: { docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] },
-          candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] }],
-          signals: { meta: undefined, layout: undefined, keywords: undefined },
-          needsUserConfirmation: true,
-          confidenceBucket: 'low' as const,
-          statusMessage: 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
-        };
-      } else {
-        throw timeoutError;
+      // Validate file
+      const validation = await validateFile(file);
+      if (!validation.isValid) {
+        toast({ title: 'Ungültige Datei', description: validation.error, variant: 'destructive' });
+        setPhase('select');
+        return;
       }
-    }
 
-    setValidationResult(result);
+      // Immediately read file into buffer to prevent stale File references on mobile
+      let buffer: ArrayBuffer;
+      try {
+        buffer = await file.arrayBuffer();
+      } catch (bufferErr) {
+        console.error('[DocumentUploadSheet] Failed to read file buffer:', bufferErr);
+        toast({ title: 'Datei konnte nicht gelesen werden', description: 'Bitte versuche es erneut.', variant: 'destructive' });
+        setPhase('select');
+        return;
+      }
+      fileBufferRef.current = buffer;
+      fileInfoRef.current = { name: file.name, type: file.type };
 
-    // High confidence → auto-upload using cached buffer
-    if (result.best.confidence >= 50) {
-      performUpload(buffer, file.name, file.type);
-    } else {
-      // Low confidence → show result for user confirmation
-      setPhase('result');
+      // Start OCR validation
+      setPhase('validating');
+      setValidationProgress({ step: 'preparing', percent: 0, message: '' });
+
+      const OCR_TIMEOUT_MS = 15000;
+      const validator = DocumentValidator.getInstance();
+
+      let result: ValidationResult;
+      try {
+        result = await Promise.race([
+          validator.validate(file, item.id, (progress) => {
+            setValidationProgress(progress);
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS)
+          )
+        ]);
+      } catch (ocrError: any) {
+        if (ocrError.message === 'OCR_TIMEOUT') {
+          result = {
+            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] },
+            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR timeout'] }],
+            signals: { meta: undefined, layout: undefined, keywords: undefined },
+            needsUserConfirmation: true,
+            confidenceBucket: 'low' as const,
+            statusMessage: 'OCR-Erkennung hat zu lange gedauert. Bitte Dokument manuell bestätigen.'
+          };
+        } else {
+          // Non-timeout OCR error → show result screen for manual confirmation
+          console.error('[DocumentUploadSheet] OCR error (non-timeout):', ocrError);
+          result = {
+            best: { docTypeId: item.id, confidence: 0, reasons: ['OCR error'] },
+            candidates: [{ docTypeId: item.id, confidence: 0, reasons: ['OCR error'] }],
+            signals: { meta: undefined, layout: undefined, keywords: undefined },
+            needsUserConfirmation: true,
+            confidenceBucket: 'low' as const,
+            statusMessage: 'Dokument konnte nicht automatisch erkannt werden. Bitte manuell bestätigen.'
+          };
+        }
+      }
+
+      setValidationResult(result);
+
+      // High confidence → auto-upload using cached buffer
+      if (result.best.confidence >= 50) {
+        performUpload(buffer, file.name, file.type);
+      } else {
+        // Low confidence → show result for user confirmation
+        setPhase('result');
+      }
+    } catch (err: any) {
+      console.error('[DocumentUploadSheet] handleFileSelected error:', err);
+      setErrorMessage(err.message || 'Fehler bei der Dokumentenverarbeitung');
+      setPhase('error');
     }
   }, [item, performUpload]);
 
@@ -200,15 +215,15 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   }, [handleFileSelected]);
 
   const handleConfirm = useCallback(() => {
-    if (fileBuffer && fileInfo) {
-      performUpload(fileBuffer, fileInfo.name, fileInfo.type);
+    if (fileBufferRef.current && fileInfoRef.current) {
+      performUpload(fileBufferRef.current, fileInfoRef.current.name, fileInfoRef.current.type);
     }
-  }, [fileBuffer, fileInfo, performUpload]);
+  }, [performUpload]);
 
   const handleReupload = useCallback(() => {
     setSelectedFile(null);
-    setFileBuffer(null);
-    setFileInfo(null);
+    fileBufferRef.current = null;
+    fileInfoRef.current = null;
     setValidationResult(null);
     setPhase('select');
   }, []);
