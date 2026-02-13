@@ -445,10 +445,10 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   }, []);
 
   const updateFormProgress = useCallback((section: FormSectionKey, completed: boolean) => {
-    setFormProgress(prev => ({
-      ...prev,
-      [section]: completed
-    }));
+    setFormProgress(prev => {
+      if (prev[section] === completed) return prev;
+      return { ...prev, [section]: completed };
+    });
   }, []);
 
   const updateQuestionProgress = useCallback(async (section: 'income' | 'assets' | 'deductions', questionIndex: number) => {
@@ -795,16 +795,22 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   };
 
   // Import functions for previous year data
+  // Use a ref for session to stabilize the callback reference -
+  // prevents re-triggering effects when auth events cascade (e.g. after tour completion)
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+
   const hasDataForPreviousYear = useCallback(async (section: FormSectionKey): Promise<boolean> => {
     try {
-      if (!session || !activeTaxFilerId) return false;
+      const currentSession = sessionRef.current;
+      if (!currentSession || !activeTaxFilerId) return false;
 
       const previousYear = (parseInt(taxYear) - 1).toString();
       
       const { data, error } = await supabase
         .from('form_data')
         .select('id')
-        .eq('user_id', session.user.id)
+        .eq('user_id', currentSession.user.id)
         .eq('tax_year', previousYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section)
@@ -820,7 +826,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       console.error('Error in hasDataForPreviousYear:', error);
       return false;
     }
-  }, [taxYear, session, activeTaxFilerId]);
+  }, [taxYear, activeTaxFilerId]);
 
   const importFromPreviousYear = useCallback(async (section: FormSectionKey) => {
     try {

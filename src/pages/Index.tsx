@@ -53,9 +53,10 @@ const IndexContent = () => {
 
   // Check if import wizard should be shown
   useEffect(() => {
+    let cancelled = false;
+
     const checkImportNeeded = async () => {
       if (!section || section === 'zusammenfassung' || section === 'unterlagen') {
-        // No import option for summary and documents sections
         setShowImportWizard(false);
         return;
       }
@@ -72,17 +73,23 @@ const IndexContent = () => {
       }
       setCheckingImport(true);
       try {
-        // Check if previous year data exists
         const hasData = await hasDataForPreviousYear(sectionKey);
-        setShowImportWizard(hasData);
+        if (!cancelled) setShowImportWizard(hasData);
       } catch (error) {
         console.error('Error checking for previous year data:', error);
-        setShowImportWizard(false);
+        if (!cancelled) setShowImportWizard(false);
       } finally {
-        setCheckingImport(false);
+        if (!cancelled) setCheckingImport(false);
       }
     };
     checkImportNeeded();
+
+    // Safety timeout: force-clear loading if check hangs
+    const timer = setTimeout(() => {
+      if (!cancelled) setCheckingImport(false);
+    }, 5000);
+
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [section, formProgress, hasDataForPreviousYear]);
 
   // Render different components based on section parameter
