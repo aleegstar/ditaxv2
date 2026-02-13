@@ -11,8 +11,7 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
-import { shouldUseAppleJSSDK, signInWithAppleSDK } from "@/lib/apple-auth";
+import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import despia from 'despia-native';
 const Auth = () => {
   const navigate = useNavigate();
@@ -275,32 +274,7 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-    // Apple JS SDK Flow - for iOS (native Face ID) and Web (popup dialog)
-    if (shouldUseAppleJSSDK()) {
-      try {
-        console.log('🍎 Using Apple JS SDK for sign in...');
-        const result = await signInWithAppleSDK();
-        
-        if (result.success) {
-          toast.success('Erfolgreich angemeldet!');
-          navigate('/', { replace: true });
-        } else if (result.error === 'cancelled') {
-          // User cancelled - no error toast needed
-          console.log('🍎 Apple Sign In cancelled');
-        } else {
-          toast.error(result.error || 'Apple-Anmeldung fehlgeschlagen');
-        }
-      } catch (err) {
-        console.error('❌ Apple JS SDK error:', err);
-        toast.error('Fehler bei der Apple-Anmeldung');
-      } finally {
-        isOAuthInProgress.current = false;
-        setIsOAuthLoading(false);
-      }
-      return;
-    }
-
-    // DESPIA ANDROID FLOW - Easy OAuth via oauth:// protocol
+    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
         const {
@@ -320,7 +294,9 @@ const Auth = () => {
           return;
         }
 
+        // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
         despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        // Safety timeout - reset after 30s if OAuth doesn't complete
         setTimeout(() => {
           isOAuthInProgress.current = false;
           setIsOAuthLoading(false);
