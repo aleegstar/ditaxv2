@@ -33,11 +33,6 @@ export const getIncomeQuestions = (t: Translation): QuestionConfig => ({
       t.yesNoForm.questions.income.hasPensionPayout.explanation
     ),
     createQuestion(
-      'hasRental',
-      t.yesNoForm.questions.income.hasRental.text,
-      t.yesNoForm.questions.income.hasRental.explanation
-    ),
-    createQuestion(
       'hasOtherIncome',
       t.yesNoForm.questions.income.hasOtherIncome.text,
       t.yesNoForm.questions.income.hasOtherIncome.explanation
