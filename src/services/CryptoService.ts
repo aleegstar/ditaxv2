@@ -346,6 +346,9 @@ export class CryptoService {
   }
   
   private base64ToArrayBuffer(base64: string): ArrayBuffer {
+    if (!base64) {
+      throw new Error('base64 input is undefined or empty');
+    }
     // Normalize: trim whitespace, convert URL-safe base64 to standard base64
     let normalized = base64.trim().replace(/-/g, '+').replace(/_/g, '/');
     // Add padding if missing

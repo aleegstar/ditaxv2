@@ -195,12 +195,16 @@ class EncryptedDocumentService {
       // Cast metadata to proper type
       const metadata = document.metadata as EncryptedDocumentMetadata;
       
+      if (!metadata?.iv) {
+        throw new Error('Verschlüsselungsmetadaten (IV) fehlen. Das Dokument kann nicht entschlüsselt werden.');
+      }
+      
       // Decrypt file
       const encryptedBuffer = await fileData.arrayBuffer();
       const decryptedBuffer = await this.cryptoService.decryptFile(
         encryptedBuffer,
         encryptionKey,
-        metadata.iv!
+        metadata.iv
       );
       
       // Verify integrity
@@ -279,12 +283,16 @@ class EncryptedDocumentService {
       // Cast metadata to proper type
       const metadata = document.metadata as EncryptedDocumentMetadata;
       
+      if (!metadata?.iv) {
+        throw new Error('Verschlüsselungsmetadaten (IV) fehlen. Das Dokument kann nicht entschlüsselt werden.');
+      }
+      
       // Decrypt file
       const encryptedBuffer = await fileData.arrayBuffer();
       const decryptedBuffer = await this.cryptoService.decryptFile(
         encryptedBuffer,
         encryptionKey,
-        metadata.iv!
+        metadata.iv
       );
       
       // Verify integrity
@@ -403,12 +411,16 @@ class EncryptedDocumentService {
       
       console.log('📥 Downloaded encrypted file, size:', fileData.size);
       
+      if (!metadata?.iv) {
+        throw new Error('Verschlüsselungsmetadaten (IV) fehlen. Das Dokument kann nicht entschlüsselt werden.');
+      }
+      
       // Decrypt file
       const encryptedBuffer = await fileData.arrayBuffer();
       const decryptedBuffer = await this.cryptoService.decryptFile(
         encryptedBuffer,
         encryptionKey,
-        metadata.iv!
+        metadata.iv
       );
       
       console.log('🔓 Decrypted file, size:', decryptedBuffer.byteLength);
