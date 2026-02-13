@@ -109,7 +109,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
         }
       }
       
-      const userId = sessionData.session.user.id;
+      const userId = sessionData.session!.user.id;
 
       setUploadProgress('Hochladen...');
       const activeTaxFilerId = taxFilerIdRef.current || null;
