@@ -1,90 +1,83 @@
 
-## Fix: Endlos-Ladeschleife beim Navigieren zu Kontaktangaben
 
-### Ursache (neu identifiziert)
+## Feedback-System komplett ueberarbeiten
 
-Die bisherigen Safety-Timeouts (10s in FormContext, 8s in TaxFilerGate) greifen nicht, weil das Problem woanders liegt: in der **`checkImportNeeded`-Logik in Index.tsx**.
+### Uebersicht
 
-Der Ablauf nach Tour-Abschluss:
+Alle drei Feedback-Komponenten (Popup, Seite, Admin) werden nach der Vorlage modernisiert: Sterne statt Emojis, Quick-Tags (Fehler/Feature/Lob), Kontakt-Checkbox. Datenbank wird um zwei Spalten erweitert.
+
+### 1. Datenbank-Migration
+
+Zwei neue Spalten auf `user_feedback`:
 
 ```text
-Tour abgeschlossen
-  --> supabase.auth.updateUser() 
-  --> onAuthStateChange (USER_UPDATED)
-  --> FormContext: setSession(newSession)
-  --> hasDataForPreviousYear wird neu erstellt (haengt von session ab)
-  --> checkImportNeeded-Effect re-triggered (haengt von hasDataForPreviousYear ab)
-  --> setCheckingImport(true) --> LoadingSpinner angezeigt
-  --> Supabase-Abfrage startet
-  --> Weiterer Auth-Event (TOKEN_REFRESHED) kommt
-  --> session aendert sich erneut
-  --> hasDataForPreviousYear erneut neu erstellt
-  --> checkImportNeeded-Effect re-triggered WAEHREND die vorherige Abfrage noch laeuft
-  --> setCheckingImport(true) --> Spinner bleibt
-  --> Endlosschleife wenn Auth-Events kaskadieren
+ALTER TABLE public.user_feedback 
+  ADD COLUMN IF NOT EXISTS feedback_category text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS contact_consent boolean DEFAULT false;
 ```
 
-Zusaetzlich: `updateFormProgress` erstellt bei JEDEM Aufruf ein neues Objekt, auch wenn der Wert sich nicht aendert. Da `formProgress` auch eine Dependency von `checkImportNeeded` ist, kann das zusaetzliche Retriggers verursachen.
+### 2. Feedback-Popup (`src/components/feedback/FeedbackPrompt.tsx`)
 
-### Loesung (3 Aenderungen)
+Komplettes Redesign des Modals das nach X Anmeldungen erscheint:
 
-**1. `hasDataForPreviousYear` stabilisieren** (FormContext.tsx)
+- **Titel**: "Wie gefaellt dir die App?" + Untertitel
+- **5 Sterne-Rating** statt Emoji-Buttons, mit Labels "Gar nicht" / "Sehr gut" links und rechts
+- **Quick-Tags**: 3 Pill-Buttons (Fehler, Feature, Lob) mit Icons (Bug, Lightbulb, Heart)
+- **Textarea**: "Was koennen wir besser machen?"
+- **Kontakt-Checkbox**: "Darf das Team mich bei Rueckfragen kontaktieren?"
+- **Buttons**: "Spaeter" (outline, left-aligned) + "Absenden" (primary blue gradient, right-aligned) in einer Row
+- **Direkt-Submit**: Feedback wird direkt aus dem Popup an Supabase gesendet (kein Redirect mehr zu /feedback)
+- Button-Design: `rounded-xl h-11` (Ditax-Standard), kein rounded-full
+- i18n-Strings verwenden
 
-Session ueber einen Ref nutzen statt als Dependency, damit sich die Callback-Referenz nicht bei jedem Auth-Event aendert.
+### 3. Feedback-Seite (`src/pages/Feedback.tsx`)
 
-**2. `updateFormProgress` optimieren** (FormContext.tsx)
+Gleiches Layout wie das Popup, aber als Full-Page:
 
-Nur neues Objekt erstellen wenn sich der Wert tatsaechlich aendert. Verhindert unnoetige Re-Renders in der gesamten App.
+- Sterne-Rating mit "Gar nicht" / "Sehr gut" Labels
+- Quick-Tags (Fehler/Feature/Lob)
+- Textarea fuer Verbesserungsvorschlaege
+- Kontakt-Checkbox
+- "Spaeter" + "Absenden" Buttons unten
+- URL-Parameter `?rating=X` weiterhin unterstuetzt (pre-select)
+- Submit sendet `feedback_category` und `contact_consent` an DB
+- Success-Screen bleibt erhalten
+
+### 4. Admin-Dashboard (`src/pages/admin/UserFeedback.tsx`)
+
+Erweitert um neue Daten:
+
+- **Neue Statistik-Karten**: Kategorie-Verteilung (Bug/Feature/Lob), Kontakt-Consent-Quote
+- **Rating-Verteilung**: Sterne statt Emojis in der Balkenanzeige
+- **Feedback-Liste**: Kategorie-Badge anzeigen, Kontakt-Icon (Mail-Check) wenn consent=true
+- **Filter**: Zusaetzlich nach Kategorie filtern (Alle/Fehler/Feature/Lob)
+- Interface `FeedbackItem` um `feedback_category` und `contact_consent` erweitern
+
+### 5. i18n-Strings (`src/i18n/translations.ts`)
+
+Typ-Definition und beide Sprachen erweitern:
 
 ```text
-// Vorher:
-setFormProgress(prev => ({
-  ...prev,
-  [section]: completed
-}));
-
-// Nachher:
-setFormProgress(prev => {
-  if (prev[section] === completed) return prev;
-  return { ...prev, [section]: completed };
-});
-```
-
-**3. `checkImportNeeded` absichern** (Index.tsx)
-
-- Cancelled-Flag hinzufuegen damit veraltete async-Aufrufe ignoriert werden
-- Safety-Timeout (5s) fuer `checkingImport` hinzufuegen als letzte Absicherung
-
-```text
-useEffect(() => {
-  let cancelled = false;
-
-  const checkImportNeeded = async () => {
-    // ... bestehende Early-Returns ...
-    
-    setCheckingImport(true);
-    try {
-      const hasData = await hasDataForPreviousYear(sectionKey);
-      if (!cancelled) setShowImportWizard(hasData);
-    } catch (error) {
-      if (!cancelled) setShowImportWizard(false);
-    } finally {
-      if (!cancelled) setCheckingImport(false);
-    }
-  };
-  
-  checkImportNeeded();
-  
-  // Safety timeout
-  const timer = setTimeout(() => {
-    if (!cancelled) setCheckingImport(false);
-  }, 5000);
-  
-  return () => { cancelled = true; clearTimeout(timer); };
-}, [section, formProgress, hasDataForPreviousYear]);
+// Neue Strings:
+feedbackPromptTitle: "Wie gefällt dir die App?"
+feedbackPromptSubtitle: "Dein Feedback hilft uns, das Erlebnis zu verbessern."
+ratingLabelLeft: "Gar nicht" / "Not at all"
+ratingLabelRight: "Sehr gut" / "Very good"
+categoryBug: "Fehler" / "Bug"
+categoryFeature: "Feature"
+categoryPraise: "Lob" / "Praise"
+improvementLabel: "Verbesserungsvorschläge" / "Improvement suggestions"
+improvementPlaceholder: "Was können wir besser machen?"
+contactConsent: "Darf das Team mich bei Rückfragen kontaktieren?"
+laterButton: "Später" / "Later"
+sendButton: "Absenden" / "Submit"
 ```
 
 ### Betroffene Dateien
 
-- `src/contexts/form/FormContext.tsx` - `hasDataForPreviousYear` mit sessionRef stabilisieren + `updateFormProgress` optimieren
-- `src/pages/Index.tsx` - `checkImportNeeded` mit Cancel-Logic und Safety-Timeout absichern
+1. **SQL-Migration** -- 2 neue Spalten
+2. **`src/components/feedback/FeedbackPrompt.tsx`** -- Komplettes Redesign mit direktem Submit
+3. **`src/pages/Feedback.tsx`** -- Redesign mit Sternen, Tags, Checkbox
+4. **`src/pages/admin/UserFeedback.tsx`** -- Neue Statistiken und Filter
+5. **`src/i18n/translations.ts`** -- Typ-Definition + DE/EN Strings
+
