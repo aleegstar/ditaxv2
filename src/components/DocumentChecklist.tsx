@@ -103,7 +103,7 @@ const DocumentChecklist: React.FC = () => {
     // Short delay to let DB commit the new entry
     setTimeout(async () => {
       try {
-        await formContextLoadDocuments();
+        await formContextLoadDocuments(true);
       } catch (err) {
         console.error('[DocumentChecklist] Error reloading documents after upload:', err);
       } finally {

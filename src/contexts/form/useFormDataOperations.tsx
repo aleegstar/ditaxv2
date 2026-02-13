@@ -305,7 +305,7 @@ export const useFormDataOperations = (
   }, []);
 
   // Optimized document loading with better throttling and loop prevention
-  const loadDocuments = useCallback(async () => {
+  const loadDocuments = useCallback(async (forceRefresh = false) => {
     if (!taxYear) return;
     
     // Prevent concurrent loading
@@ -314,9 +314,10 @@ export const useFormDataOperations = (
       return;
     }
 
-    // Enhanced throttling - minimum 3 seconds between calls
     const now = Date.now();
-    if (now - lastDocumentLoadTime.current < 3000) {
+
+    // Enhanced throttling - minimum 3 seconds between calls (skip if forceRefresh)
+    if (!forceRefresh && now - lastDocumentLoadTime.current < 3000) {
       console.log('⏱️ [loadDocuments] Throttled - too soon since last load');
       return;
     }
@@ -325,8 +326,8 @@ export const useFormDataOperations = (
     isLoadingDocumentsRef.current = true;
     setLastLoadAttempt(now);
     
-    // Check if we can use cached documents (only if tax year matches)
-    if (documentCache && 
+    // Check if we can use cached documents (skip if forceRefresh)
+    if (!forceRefresh && documentCache && 
         documentCache.taxYear === taxYear && 
         (now - documentCache.timestamp < CACHE_VALIDITY_DURATION)) {
       console.log(`Using cached documents for tax year ${taxYear}:`, documentCache.documents.length);

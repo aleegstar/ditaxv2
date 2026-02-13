@@ -55,7 +55,7 @@ export interface FormContextType {
   isItemUploaded: (id: string) => boolean;
   calculateProgress: () => number;
   loadFormProgress: () => Promise<void>;
-  loadDocuments: () => Promise<void>;
+  loadDocuments: (forceRefresh?: boolean) => Promise<void>;
   checklist: ChecklistItem[];
   uploadedDocs: any[];
   documents: any[];
