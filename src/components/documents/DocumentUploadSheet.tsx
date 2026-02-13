@@ -41,6 +41,8 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const [uploadProgress, setUploadProgress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null);
+  const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const scanInputRef = useRef<HTMLInputElement>(null);
@@ -53,6 +55,8 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
     setUploadProgress('');
     setErrorMessage('');
     setSelectedFile(null);
+    setFileBuffer(null);
+    setFileInfo(null);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -67,16 +71,17 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
    * 1. supabase.auth.getSession() for fresh session
    * 2. uploadEncryptedDocument with fresh File object
    */
-  const performUpload = useCallback(async (file: File) => {
+  const performUpload = useCallback(async (buffer: ArrayBuffer, fileName: string, fileType: string) => {
     if (!item) return;
     setPhase('uploading');
     setUploadProgress('Verschlüsselung...');
 
     try {
-      // Get fresh session directly - proven to work on mobile
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData.session) {
-        throw new Error('Bitte melde dich erneut an.');
+        setErrorMessage('Sitzung abgelaufen. Bitte melde dich erneut an.');
+        setPhase('error');
+        return;
       }
       const userId = sessionData.session.user.id;
 
@@ -85,19 +90,26 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
         || sessionStorage.getItem('ditax_selected_tax_filer');
       const encryptedDocService = EncryptedDocumentService.getInstance();
 
-      await encryptedDocService.uploadEncryptedDocument(
-        file,
-        item.id,
-        userId,
-        taxYear,
-        item.title,
-        activeTaxFilerId
-      );
+      const UPLOAD_TIMEOUT_MS = 90000;
+      await Promise.race([
+        encryptedDocService.uploadFromBuffer(
+          buffer,
+          fileName,
+          fileType,
+          item.id,
+          userId,
+          taxYear,
+          item.title,
+          activeTaxFilerId
+        ),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Upload-Timeout: Bitte versuche es erneut.')), UPLOAD_TIMEOUT_MS)
+        )
+      ]);
 
       setPhase('success');
       onUploaded(item.id);
 
-      // Auto-close after success
       setTimeout(() => {
         reset();
         onClose();
@@ -123,6 +135,19 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       setPhase('select');
       return;
     }
+
+    // Immediately read file into buffer to prevent stale File references on mobile
+    let buffer: ArrayBuffer;
+    try {
+      buffer = await file.arrayBuffer();
+    } catch (bufferErr) {
+      console.error('[DocumentUploadSheet] Failed to read file buffer:', bufferErr);
+      toast({ title: 'Datei konnte nicht gelesen werden', description: 'Bitte versuche es erneut.', variant: 'destructive' });
+      setPhase('select');
+      return;
+    }
+    setFileBuffer(buffer);
+    setFileInfo({ name: file.name, type: file.type });
 
     // Start OCR validation
     setPhase('validating');
@@ -158,9 +183,9 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
     setValidationResult(result);
 
-    // High confidence → auto-upload
+    // High confidence → auto-upload using cached buffer
     if (result.best.confidence >= 50) {
-      performUpload(file);
+      performUpload(buffer, file.name, file.type);
     } else {
       // Low confidence → show result for user confirmation
       setPhase('result');
@@ -175,13 +200,15 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   }, [handleFileSelected]);
 
   const handleConfirm = useCallback(() => {
-    if (selectedFile) {
-      performUpload(selectedFile);
+    if (fileBuffer && fileInfo) {
+      performUpload(fileBuffer, fileInfo.name, fileInfo.type);
     }
-  }, [selectedFile, performUpload]);
+  }, [fileBuffer, fileInfo, performUpload]);
 
   const handleReupload = useCallback(() => {
     setSelectedFile(null);
+    setFileBuffer(null);
+    setFileInfo(null);
     setValidationResult(null);
     setPhase('select');
   }, []);
