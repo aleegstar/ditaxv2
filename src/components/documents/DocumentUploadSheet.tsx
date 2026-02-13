@@ -113,7 +113,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       setTimeout(() => {
         reset();
         onClose();
-      }, 1200);
+      }, 2000);
     } catch (err: any) {
       console.error('[DocumentUploadSheet] Upload error:', err);
       setErrorMessage(err.message || 'Upload fehlgeschlagen');
