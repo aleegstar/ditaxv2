@@ -118,11 +118,13 @@ const NativeCallback = () => {
         console.log('✅ Session set successfully!');
         setStatus('success');
 
-        // Check if we're in Despia native environment
-        const inDespiaNative = isDespiaNative();
-        console.log('🔗 Is Despia native:', inDespiaNative);
+        // If deeplinkScheme came from URL path, this is a native OAuth flow.
+        // Don't use isDespiaNative() - system browsers (ASWebAuthenticationSession,
+        // Chrome Custom Tabs) don't have Despia's user agent.
+        const isNativeOAuthFlow = !!pathScheme;
+        console.log('🔗 Is native OAuth flow:', isNativeOAuthFlow, '(pathScheme:', pathScheme, ')');
 
-        if (inDespiaNative) {
+        if (isNativeOAuthFlow) {
           // Pass tokens directly in deeplink so the WebView can set the session
           // (ASWebAuthenticationSession on iOS has isolated storage)
           const deeplinkParams = new URLSearchParams();
