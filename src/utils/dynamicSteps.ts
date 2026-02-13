@@ -49,6 +49,13 @@ export class DynamicStepGenerator {
         validation: { required: true, message: 'Nachname des Ehepartners ist erforderlich' }
       },
       {
+        id: 'spouseBirthDate',
+        title: 'Wann ist dein Ehepartner geboren?',
+        type: 'date',
+        explanation: 'Das Geburtsdatum des Ehepartners wird für die Berechnung von Altersentlastungen und anderen altersabhängigen Abzügen benötigt.',
+        validation: { required: true, message: 'Geburtsdatum des Ehepartners ist erforderlich' }
+      },
+      {
         id: 'spouseReligion',
         title: 'Welcher Religion gehört dein Ehepartner an?',
         type: 'select',
