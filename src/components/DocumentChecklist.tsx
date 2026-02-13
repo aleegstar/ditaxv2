@@ -38,7 +38,10 @@ const DocumentChecklist: React.FC = () => {
     taxYear,
     loadDocuments: formContextLoadDocuments
   } = useFormContext();
-  const { activeTaxFilerId } = useTaxFiler();
+  const { activeTaxFilerId: contextTaxFilerId } = useTaxFiler();
+  const activeTaxFilerId = contextTaxFilerId
+    || sessionStorage.getItem('ditax_selected_tax_filer')
+    || null;
   const {
     documents,
     isLoading,

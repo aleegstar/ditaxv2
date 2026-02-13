@@ -6,7 +6,7 @@
  * All uploads encrypted via EncryptedDocumentService.
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Image, ScanLine, FileText, Loader2, Check, AlertCircle, Upload, Info } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,9 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const fileBufferRef = useRef<ArrayBuffer | null>(null);
   const fileInfoRef = useRef<{ name: string; type: string } | null>(null);
 
+  const taxFilerIdRef = useRef(taxFilerId);
+  useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
+
   const photoInputRef = useRef<HTMLInputElement>(null);
   const scanInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,7 +92,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       const userId = sessionData.session.user.id;
 
       setUploadProgress('Hochladen...');
-      const activeTaxFilerId = taxFilerId || null;
+      const activeTaxFilerId = taxFilerIdRef.current || null;
       const encryptedDocService = EncryptedDocumentService.getInstance();
 
       const UPLOAD_TIMEOUT_MS = 90000;
