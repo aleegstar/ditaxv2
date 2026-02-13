@@ -196,7 +196,7 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
 
                 <div>
                   <Label htmlFor={`isOlderThanFiveYears-${property.id}`} className="text-black">
-                    Liegenschaft ist älter als 5 Jahre *
+                    Liegenschaft ist älter als 10 Jahre *
                   </Label>
                   <Select
                     value={property.isOlderThanFiveYears ? 'ja' : 'nein'}
