@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -11,21 +11,40 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
   const { markAsRead, unreadCount } = useUnreadMessages();
   const [isEscalated, setIsEscalated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [hasMarkedAsRead, setHasMarkedAsRead] = useState(false);
+  const isChatActiveRef = useRef(true);
+
+  // Mark messages as read whenever new unread messages arrive while chat is open
+  useEffect(() => {
+    if (!isValid || !userId) return;
+    if (unreadCount > 0 && isChatActiveRef.current) {
+      console.log('Chat is active, marking messages as read:', unreadCount);
+      markAsRead();
+      
+      // Also mark chat-related in-app notifications as read
+      supabase
+        .from('user_notifications')
+        .update({ read: true })
+        .eq('user_id', userId)
+        .eq('type', 'new_message')
+        .eq('read', false)
+        .then(({ error }) => {
+          if (error) console.error('Error marking chat notifications as read:', error);
+        });
+    }
+  }, [userId, isValid, unreadCount, markAsRead]);
+
+  // Track component mount/unmount for active state
+  useEffect(() => {
+    isChatActiveRef.current = true;
+    return () => {
+      isChatActiveRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isValid || !userId) return;
     checkEscalationStatus();
   }, [userId, isValid]);
-
-  useEffect(() => {
-    if (!isValid || !userId || hasMarkedAsRead) return;
-    if (unreadCount > 0) {
-      console.log('Marking chat messages as read, count:', unreadCount);
-      markAsRead();
-      setHasMarkedAsRead(true);
-    }
-  }, [userId, isValid, unreadCount, markAsRead, hasMarkedAsRead]);
 
   const checkEscalationStatus = async () => {
     if (!userId) return;
