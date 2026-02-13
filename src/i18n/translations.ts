@@ -2548,7 +2548,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       description: 'Die Dokumenten-Checkliste wird basierend auf deinen Angaben erstellt.',
       loadingMessage: 'Bitte warte, während deine Daten geladen werden.',
       categories: {
-        general: 'Allgemeine Dokumente',
+        general: 'Allgemein',
         income: 'Einkommen',
         assets: 'Vermögen',
         deductions: 'Abzüge',
