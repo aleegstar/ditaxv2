@@ -3,14 +3,13 @@ import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { File, X, Upload, Image, FileText, Check, AlertCircle, Shield, ShieldCheck } from 'lucide-react';
+import { File, X, Upload, Image, FileText, Check, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { ChecklistItem } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
-import { sanitizeFileName } from '@/utils/fileValidation';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+
+
 import { useFormContext } from '@/contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 
@@ -43,7 +42,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [encryptionEnabled, setEncryptionEnabled] = useState(true); // Default to encrypted
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const uploadRequestId = useRef(uuidv4()).current;
@@ -123,9 +122,8 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       
       const userId = sessionData.session.user.id;
 
-      console.log('Starting upload for:', {
+      console.log('Starting encrypted upload for:', {
         fileName: fileWithPreview.file.name,
-        encrypted: encryptionEnabled,
         fileSize: fileWithPreview.file.size,
         userId
       });
@@ -137,91 +135,28 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           : f
       ));
 
-      if (encryptionEnabled) {
-        // Use encrypted upload
-        setFiles(prev => prev.map(f => 
-          f.id === fileWithPreview.id 
-            ? { ...f, progress: 50 }
-            : f
-        ));
+      // Always use encrypted upload
+      setFiles(prev => prev.map(f => 
+        f.id === fileWithPreview.id 
+          ? { ...f, progress: 50 }
+          : f
+      ));
 
-        await encryptedDocService.uploadEncryptedDocument(
-          fileWithPreview.file,
-          checklistItem.id,
-          userId,
-          taxYear,
-          checklistItem.title,
-          activeTaxFilerId
-        );
+      await encryptedDocService.uploadEncryptedDocument(
+        fileWithPreview.file,
+        checklistItem.id,
+        userId,
+        taxYear,
+        checklistItem.title,
+        activeTaxFilerId
+      );
 
-        // Mark as uploaded with encryption
-        setFiles(prev => prev.map(f => 
-          f.id === fileWithPreview.id 
-            ? { ...f, progress: 100, uploaded: true, uploading: false, encrypted: true }
-            : f
-        ));
-      } else {
-        // Use regular upload (existing logic)
-        const fileId = uuidv4();
-        // SECURITY: Sanitize file extension to prevent path traversal
-        const fileExt = fileWithPreview.file.name.split('.').pop() || 'file';
-        const safeExt = sanitizeFileName(fileExt);
-        const filePath = `${userId}/${checklistItem.id}_${fileId}.${safeExt}`;
-
-        setFiles(prev => prev.map(f => 
-          f.id === fileWithPreview.id 
-            ? { ...f, progress: 30 }
-            : f
-        ));
-
-        // Upload file to storage
-        const { error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(filePath, fileWithPreview.file);
-
-        if (uploadError) {
-          throw new Error(`${t.upload.documents.uploadError}: ${uploadError.message}`);
-        }
-
-        setFiles(prev => prev.map(f => 
-          f.id === fileWithPreview.id 
-            ? { ...f, progress: 90 }
-            : f
-        ));
-
-        // Store metadata in database
-        const { error: dbError } = await supabase
-          .from('uploaded_documents')
-          .insert({
-            user_id: userId,
-            tax_filer_id: activeTaxFilerId || null,
-            checklist_item_id: checklistItem.id,
-            file_name: fileWithPreview.file.name,
-            file_type: fileWithPreview.file.type,
-            file_path: filePath,
-            tax_year: taxYear,
-            status: 'active',
-            metadata: {
-              uploadRequestId,
-              originalName: fileWithPreview.file.name,
-              size: fileWithPreview.file.size,
-              uploadTimestamp: new Date().toISOString(),
-              encrypted: false
-            }
-          });
-
-        if (dbError) {
-          await supabase.storage.from('documents').remove([filePath]);
-          throw new Error(`${t.upload.documents.databaseError}: ${dbError.message}`);
-        }
-
-        // Mark as uploaded
-        setFiles(prev => prev.map(f => 
-          f.id === fileWithPreview.id 
-            ? { ...f, progress: 100, uploaded: true, uploading: false, encrypted: false }
-            : f
-        ));
-      }
+      // Mark as uploaded with encryption
+      setFiles(prev => prev.map(f => 
+        f.id === fileWithPreview.id 
+          ? { ...f, progress: 100, uploaded: true, uploading: false, encrypted: true }
+          : f
+      ));
 
       return true;
     } catch (err: any) {
@@ -301,45 +236,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         <p className="text-sm text-white/70">{checklistItem.description}</p>
       </div>
 
-      {/* Encryption toggle with frosted glass effect */}
-      <div className="mb-6 p-6 rounded-3xl relative overflow-hidden" 
-           style={{
-             background: 'rgba(255, 255, 255, 0.05)',
-             backdropFilter: 'blur(15px)',
-             border: '1px solid rgba(255, 255, 255, 0.1)',
-             boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.2), 0 2px 8px 0 rgba(0, 0, 0, 0.1)'
-           }}>
-        {/* Subtle gradient overlay for gloss effect */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
-        
-        <div className="relative">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="encryption-toggle"
-                checked={encryptionEnabled}
-                onCheckedChange={setEncryptionEnabled}
-                disabled={uploading}
-              />
-              <Label htmlFor="encryption-toggle" className="flex items-center space-x-2 text-white">
-                {encryptionEnabled ? (
-                  <ShieldCheck className="h-4 w-4 text-green-400" />
-                ) : (
-                  <Shield className="h-4 w-4 text-white/60" />
-                )}
-                <span className="font-medium">
-                  {encryptionEnabled ? t.upload.documents.encryptionEnabled : t.upload.documents.standardUpload}
-                </span>
-              </Label>
-            </div>
-          </div>
-          <p className="text-sm text-white/70 mt-2">
-            {encryptionEnabled 
-              ? t.upload.documents.encryptionDescription
-              : t.upload.documents.standardDescription
-            }
-          </p>
-        </div>
+      {/* Encryption info */}
+      <div className="mb-6 p-4 rounded-xl bg-white/5 backdrop-blur-[20px] border border-white/20 flex items-center space-x-2">
+        <ShieldCheck className="h-4 w-4 text-green-400" />
+        <span className="text-sm text-white/70">{t.upload.documents.encryptionDescription}</span>
       </div>
 
       {/* Hidden file input */}
@@ -447,7 +347,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-white/70">
-                      {encryptionEnabled ? t.upload.documents.encryptionProgress : t.upload.documents.uploadProgress}
+                      {t.upload.documents.encryptionProgress}
                     </span>
                     <span className="text-white/70">{Math.round(fileWithPreview.progress)}%</span>
                   </div>
@@ -477,15 +377,12 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           >
             {uploading ? (
               <div className="flex items-center gap-2">
-                <span>
-                  {encryptionEnabled ? t.upload.documents.encrypting : t.upload.documents.uploading}
-                </span>
+                <span>{t.upload.documents.encrypting}</span>
               </div>
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                {uploadableFiles.length} Datei{uploadableFiles.length !== 1 ? 'en' : ''} 
-                {encryptionEnabled ? ` ${t.upload.documents.encrypted}` : ''} {t.upload.documents.uploadFiles}
+                {uploadableFiles.length} Datei{uploadableFiles.length !== 1 ? 'en' : ''} {t.upload.documents.encrypted} {t.upload.documents.uploadFiles}
               </>
             )}
           </Button>
