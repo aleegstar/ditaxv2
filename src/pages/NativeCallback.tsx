@@ -163,19 +163,8 @@ const NativeCallback = () => {
   }, [deeplinkScheme, navigate]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6">
-      {/* Animated background — Liquid Glass Frost */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-violet-50/30" />
-      <motion.div
-        className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[100px]"
-        animate={{ scale: [1, 1.15, 1], x: [0, 20, 0], y: [0, -15, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] rounded-full bg-violet-400/[0.06] blur-[90px]"
-        animate={{ scale: [1, 1.2, 1], x: [0, -10, 0], y: [0, 20, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 bg-white">
+      {/* Clean white background */}
 
       {/* Glass card */}
       <motion.div
