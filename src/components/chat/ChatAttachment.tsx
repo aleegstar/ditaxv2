@@ -31,7 +31,7 @@ const ChatAttachment: React.FC<ChatAttachmentProps> = ({
 
   // Load image preview for current user's images
   useEffect(() => {
-    if (isImage && isCurrentUser) {
+    if (isImage) {
       loadImagePreview();
     }
     
@@ -105,7 +105,7 @@ const ChatAttachment: React.FC<ChatAttachmentProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  if (isImage && imageUrl && isCurrentUser) {
+  if (isImage && imageUrl) {
     return (
       <div className="relative group max-w-xs">
         <img
