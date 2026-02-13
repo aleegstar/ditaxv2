@@ -26,6 +26,7 @@ interface DocumentUploadSheetProps {
   onClose: () => void;
   item: ChecklistItem | null;
   taxYear: string;
+  taxFilerId?: string | null;
   /** Called after upload + document reload completes. Can be async — sheet waits for it. */
   onUploaded: (itemId: string) => Promise<void> | void;
 }
@@ -36,6 +37,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   open,
   item,
   taxYear,
+  taxFilerId,
   onClose,
   onUploaded,
 }) => {
@@ -87,8 +89,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       const userId = sessionData.session.user.id;
 
       setUploadProgress('Hochladen...');
-      const activeTaxFilerId = localStorage.getItem('activeTaxFilerId')
-        || sessionStorage.getItem('ditax_selected_tax_filer');
+      const activeTaxFilerId = taxFilerId || null;
       const encryptedDocService = EncryptedDocumentService.getInstance();
 
       const UPLOAD_TIMEOUT_MS = 90000;
