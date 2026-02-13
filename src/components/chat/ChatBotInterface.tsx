@@ -10,6 +10,15 @@ import { ChatEmptyState } from './ChatEmptyState';
 import { ChatDeleteConfirmDialog } from './ChatDeleteConfirmDialog';
 import { MissingItemsPanel } from './MissingItemsPanel';
 import { useNavigate } from 'react-router-dom';
+import { EncryptedChatService } from '@/services/EncryptedChatService';
+import ChatAttachment from './ChatAttachment';
+interface ChatAttachmentData {
+  id: string;
+  file_name: string;
+  file_type: string;
+  original_size: number;
+}
+
 interface ChatMessage {
   id: string;
   content: string;
@@ -20,6 +29,7 @@ interface ChatMessage {
   isAdmin?: boolean;
   senderName?: string;
   chat_type?: string;
+  attachment?: ChatAttachmentData;
 }
 interface ChatBotInterfaceProps {
   userId: string;
@@ -112,7 +122,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           recipient_id,
           escalation_requested,
           handled_by_admin,
-          bot_handover_requested
+          bot_handover_requested,
+          attachment_id
         `).or(`sender_id.eq.${userId},recipient_id.eq.${userId}`).order('created_at', {
         ascending: true
       }).limit(100);
@@ -140,6 +151,31 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             }, {} as Record<string, string>);
           }
         }
+        // Load attachment metadata for messages that have attachment_id
+        const attachmentIds = data
+          .filter(msg => msg.attachment_id)
+          .map(msg => msg.attachment_id as string);
+        
+        let attachmentMap: Record<string, ChatAttachmentData> = {};
+        if (attachmentIds.length > 0) {
+          const { data: attachments, error: attachError } = await supabase
+            .from('chat_attachments')
+            .select('id, file_name, file_type, original_size')
+            .in('id', attachmentIds);
+          
+          if (!attachError && attachments) {
+            attachmentMap = attachments.reduce((acc, att) => {
+              acc[att.id] = {
+                id: att.id,
+                file_name: att.file_name,
+                file_type: att.file_type,
+                original_size: att.original_size || 0
+              };
+              return acc;
+            }, {} as Record<string, ChatAttachmentData>);
+          }
+        }
+
         const formattedMessages: ChatMessage[] = data.map(msg => {
           const isBot = msg.sender_id === null && msg.chat_type === 'bot';
           const isAdmin = msg.sender_id !== null && msg.sender_id !== userId && msg.chat_type === 'human';
@@ -151,7 +187,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             timestamp: new Date(msg.created_at),
             escalated: msg.escalation_requested || false,
             chat_type: msg.chat_type,
-            senderName: isAdmin && msg.sender_id ? adminProfiles[msg.sender_id] || 'Support-Team' : undefined
+            senderName: isAdmin && msg.sender_id ? adminProfiles[msg.sender_id] || 'Support-Team' : undefined,
+            attachment: msg.attachment_id ? attachmentMap[msg.attachment_id] : undefined
           };
         });
         setMessages(formattedMessages);
@@ -224,13 +261,42 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   const handleDeleteClick = () => setIsDeleteDialogOpen(true);
   const handleGoBack = () => navigate(-1);
   const sendMessage = async (messageContent: string, files?: File[]) => {
-    if (!messageContent.trim() || isLoading) return;
+    if ((!messageContent.trim() && (!files || files.length === 0)) || isLoading) return;
+    
+    const encryptedChatService = EncryptedChatService.getInstance();
+    let attachmentId: string | undefined;
+    let attachmentData: ChatAttachmentData | undefined;
+
+    // Upload file first if provided
+    if (files && files.length > 0) {
+      try {
+        const file = files[0];
+        const attachment = await encryptedChatService.uploadEncryptedChatAttachment(file, userId);
+        attachmentId = attachment.id;
+        attachmentData = {
+          id: attachment.id,
+          file_name: attachment.fileName,
+          file_type: attachment.fileType,
+          original_size: attachment.originalSize
+        };
+      } catch (err: any) {
+        console.error('Error uploading file:', err);
+        toast({
+          title: "Upload-Fehler",
+          description: err.message || "Datei konnte nicht hochgeladen werden.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     const userMessage: ChatMessage = {
       id: uuidv4(),
       content: messageContent.trim(),
       isBot: false,
       timestamp: new Date(),
-      chat_type: 'human'
+      chat_type: 'human',
+      attachment: attachmentData
     };
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
@@ -241,9 +307,10 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
         } = await supabase.from('chat_messages').insert({
           sender_id: userId,
           recipient_id: null,
-          content: messageContent.trim(),
+          content: messageContent.trim() || null,
           chat_type: 'human',
-          escalation_requested: true
+          escalation_requested: true,
+          attachment_id: attachmentId || null
         });
         if (error) throw error;
         toast({
@@ -420,7 +487,19 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                   <div className="flex flex-col gap-1">
                     {message.isAdmin && message.senderName && <p className="text-xs font-medium text-slate-500 ml-1">{message.senderName}</p>}
                     <div className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${message.isBot || message.isAdmin ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'}`}>
-                      <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-[#1d283a]' : 'text-white'}`}>{message.content}</p>
+                      {message.content && <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-[#1d283a]' : 'text-white'}`}>{message.content}</p>}
+                      {message.attachment && (
+                        <div className={message.content ? 'mt-2' : ''}>
+                          <ChatAttachment
+                            attachmentId={message.attachment.id}
+                            fileName={message.attachment.file_name}
+                            fileType={message.attachment.file_type}
+                            originalSize={message.attachment.original_size}
+                            userId={userId}
+                            isCurrentUser={!message.isBot && !message.isAdmin}
+                          />
+                        </div>
+                      )}
                     </div>
                     <span className={`text-[10px] text-slate-400 font-medium ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1'}`}>
                       {formatTime(message.timestamp)}
