@@ -3,6 +3,7 @@ import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { DEEPLINK_SCHEME, isDespiaNative } from "@/lib/despia";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * NativeCallback - Proxy page for Despia Easy OAuth
@@ -162,75 +163,141 @@ const NativeCallback = () => {
   }, [deeplinkScheme, navigate]);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="text-center space-y-8 max-w-sm">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <img 
-            src="/ditax-logo-new.svg" 
-            alt="Ditax" 
-            className="w-auto h-10 object-contain" 
-          />
-        </div>
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6">
+      {/* Animated background — Liquid Glass Frost */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-violet-50/30" />
+      <motion.div
+        className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-primary/[0.07] blur-[100px]"
+        animate={{ scale: [1, 1.15, 1], x: [0, 20, 0], y: [0, -15, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] rounded-full bg-violet-400/[0.06] blur-[90px]"
+        animate={{ scale: [1, 1.2, 1], x: [0, -10, 0], y: [0, 20, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-        {/* Status Icon */}
-        <div className="flex justify-center">
+      {/* Glass card */}
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-sm"
+      >
+        <div className="bg-white/75 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] p-8 text-center space-y-7">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+            className="flex justify-center"
+          >
+            <img 
+              src="/ditax-logo-new.svg" 
+              alt="Ditax" 
+              className="w-auto h-9 object-contain" 
+            />
+          </motion.div>
+
+          {/* Status Icon */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={status}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              className="flex justify-center"
+            >
+              {status === 'processing' && (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-primary/10 blur-2xl scale-[1.8]" />
+                  <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary/12 to-primary/5 border border-primary/10 flex items-center justify-center relative z-10">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  </div>
+                </div>
+              )}
+              {status === 'success' && (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-2xl scale-[1.8]" />
+                  <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-emerald-500/12 to-emerald-500/5 border border-emerald-500/10 flex items-center justify-center relative z-10">
+                    <motion.div
+                      initial={{ scale: 0, rotate: -45 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.1 }}
+                    >
+                      <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                    </motion.div>
+                  </div>
+                </div>
+              )}
+              {status === 'error' && (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-red-500/10 blur-2xl scale-[1.8]" />
+                  <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-red-500/12 to-red-500/5 border border-red-500/10 flex items-center justify-center relative z-10">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    >
+                      <XCircle className="w-8 h-8 text-red-500" />
+                    </motion.div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Status Text */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={status}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2"
+            >
+              <h1 className="text-xl font-semibold text-foreground tracking-tight">
+                {status === 'processing' && 'Anmeldung wird verarbeitet'}
+                {status === 'success' && 'Erfolgreich angemeldet!'}
+                {status === 'error' && 'Anmeldung fehlgeschlagen'}
+              </h1>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {status === 'processing' && 'Einen Moment bitte...'}
+                {status === 'success' && 'Du wirst weitergeleitet...'}
+                {status === 'error' && errorMessage}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Progress dots */}
           {status === 'processing' && (
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-primary/10 blur-2xl scale-150" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative z-10">
-                <Loader2 className="w-10 h-10 text-primary animate-spin" />
-              </div>
+            <div className="flex justify-center gap-2 pt-1">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-primary/40"
+                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.85, 1.1, 0.85] }}
+                  transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+                />
+              ))}
             </div>
           )}
-          {status === 'success' && (
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-green-500/10 blur-2xl scale-150" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500/10 to-green-500/5 flex items-center justify-center relative z-10">
-                <CheckCircle2 className="w-10 h-10 text-green-500" />
-              </div>
-            </div>
-          )}
+
+          {/* Error hint */}
           {status === 'error' && (
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-red-500/10 blur-2xl scale-150" />
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500/10 to-red-500/5 flex items-center justify-center relative z-10">
-                <XCircle className="w-10 h-10 text-red-500" />
-              </div>
-            </div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-xs text-muted-foreground/50 pt-1"
+            >
+              Du wirst zur Anmeldeseite zurückgeleitet...
+            </motion.p>
           )}
         </div>
-
-        {/* Status Text */}
-        <div className="space-y-3">
-          <h1 className="text-2xl font-semibold text-foreground font-jakarta">
-            {status === 'processing' && 'Anmeldung wird verarbeitet'}
-            {status === 'success' && 'Erfolgreich angemeldet!'}
-            {status === 'error' && 'Anmeldung fehlgeschlagen'}
-          </h1>
-          <p className="text-base text-muted-foreground font-jakarta">
-            {status === 'processing' && 'Einen Moment bitte...'}
-            {status === 'success' && 'Du wirst weitergeleitet...'}
-            {status === 'error' && errorMessage}
-          </p>
-        </div>
-
-        {/* Progress indicator for processing */}
-        {status === 'processing' && (
-          <div className="flex justify-center gap-1.5 pt-4">
-            <div className="w-2 h-2 rounded-full bg-primary/30 animate-pulse" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 rounded-full bg-primary/30 animate-pulse" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 rounded-full bg-primary/30 animate-pulse" style={{ animationDelay: '300ms' }} />
-          </div>
-        )}
-
-        {/* Error hint */}
-        {status === 'error' && (
-          <p className="text-sm text-muted-foreground/60 font-jakarta pt-2">
-            Du wirst zur Anmeldeseite zurückgeleitet...
-          </p>
-        )}
-      </div>
+      </motion.div>
     </div>
   );
 };
