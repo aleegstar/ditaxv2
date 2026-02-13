@@ -930,7 +930,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     return loadFormDataFromDatabase(taxYear);
   }, [taxYear, loadFormDataFromDatabase]);
 
-  const loadDocuments = useCallback(async () => {
+  const loadDocuments = useCallback(async (forceRefresh = false) => {
     if (!session?.user?.id) {
       console.log('No session available for loading documents');
       return;
