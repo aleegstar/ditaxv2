@@ -153,9 +153,9 @@ class EncryptedDocumentService {
       
       log('DB OK - DONE');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error uploading encrypted document:', error);
-      throw new Error(`Fehler beim Hochladen des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Hochladen des Dokuments: ${error?.message || error}`);
     }
   }
   
@@ -241,9 +241,9 @@ class EncryptedDocumentService {
         fileType
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error downloading own decrypted document:', error);
-      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error?.message || error}`);
     }
   }
 
@@ -329,9 +329,9 @@ class EncryptedDocumentService {
         fileType
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error downloading decrypted document:', error);
-      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error?.message || error}`);
     }
   }
   
@@ -478,9 +478,9 @@ class EncryptedDocumentService {
         fileType
       };
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in admin download:', error);
-      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Entschlüsseln des Dokuments: ${error?.message || error}`);
     }
   }
   
@@ -566,9 +566,9 @@ class EncryptedDocumentService {
       }
       
       console.log('✅ Document metadata stored in database');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error uploading from buffer:', error);
-      throw new Error(`Fehler beim Hochladen des Dokuments: ${error.message}`);
+      throw new Error(`Fehler beim Hochladen des Dokuments: ${error?.message || error}`);
     }
   }
 
