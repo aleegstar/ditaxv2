@@ -91,8 +91,8 @@ export const WelcomeFlow = () => {
         terms_accepted_at: new Date().toISOString(),
         terms_version: '1.0',
         marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
-        onboarding_tour_completed: true,
-        onboarding_tour_completed_at: new Date().toISOString()
+        onboarding_tour_completed: false,
+        onboarding_tour_completed_at: null
       }).eq('id', user.id);
       if (profileError) throw profileError;
 
