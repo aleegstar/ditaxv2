@@ -1,43 +1,90 @@
 
+## Fix: Endlos-Ladeschleife beim Navigieren zu Kontaktangaben
 
-## Fix: Apple Login auf iPhone - nur iOS-Erkennung aendern
+### Ursache (neu identifiziert)
 
-### Problem
+Die bisherigen Safety-Timeouts (10s in FormContext, 8s in TaxFilerGate) greifen nicht, weil das Problem woanders liegt: in der **`checkImportNeeded`-Logik in Index.tsx**.
 
-`NativeCallback.tsx` nutzt `isDespiaNative()` um zu entscheiden, ob ein Deeplink ausgeloest wird. Im System-Browser (ASWebAuthenticationSession) auf iOS gibt diese Funktion `false` zurueck, weil der Safari User-Agent kein "despia" enthaelt. Daher werden die Tokens nie an den WebView uebergeben.
+Der Ablauf nach Tour-Abschluss:
 
-### Loesung (Android-sicher)
-
-Statt `isDespiaNative()` wird `!!pathScheme` verwendet. Dies aendert das Verhalten nur basierend auf der URL-Struktur:
-
-- `/native-callback/ditax/` → nativer Flow (Deeplink ausloesen)
-- `/native-callback/` ohne Scheme → Web-Flow (navigate)
-
-**Android-Auswirkung:** Minimal. Android-Flows nutzen bereits `/native-callback/ditax/` und der Deeplink `ditax://oauth/auth?tokens` ist in `assetlinks.json` registriert. Falls Android bisher zufaellig ueber den `navigate('/')` Branch funktionierte (weil Cookies geteilt werden), wuerde es jetzt den Deeplink-Branch nutzen - was zuverlaessiger ist, da Tokens explizit uebergeben werden.
-
-### Aenderung
-
-**Datei: `src/pages/NativeCallback.tsx`**
-
-Eine Zeile aendern (ca. Zeile 121):
-
-**Vorher:**
 ```text
-const inDespiaNative = isDespiaNative();
-if (inDespiaNative) {
+Tour abgeschlossen
+  --> supabase.auth.updateUser() 
+  --> onAuthStateChange (USER_UPDATED)
+  --> FormContext: setSession(newSession)
+  --> hasDataForPreviousYear wird neu erstellt (haengt von session ab)
+  --> checkImportNeeded-Effect re-triggered (haengt von hasDataForPreviousYear ab)
+  --> setCheckingImport(true) --> LoadingSpinner angezeigt
+  --> Supabase-Abfrage startet
+  --> Weiterer Auth-Event (TOKEN_REFRESHED) kommt
+  --> session aendert sich erneut
+  --> hasDataForPreviousYear erneut neu erstellt
+  --> checkImportNeeded-Effect re-triggered WAEHREND die vorherige Abfrage noch laeuft
+  --> setCheckingImport(true) --> Spinner bleibt
+  --> Endlosschleife wenn Auth-Events kaskadieren
 ```
 
-**Nachher:**
+Zusaetzlich: `updateFormProgress` erstellt bei JEDEM Aufruf ein neues Objekt, auch wenn der Wert sich nicht aendert. Da `formProgress` auch eine Dependency von `checkImportNeeded` ist, kann das zusaetzliche Retriggers verursachen.
+
+### Loesung (3 Aenderungen)
+
+**1. `hasDataForPreviousYear` stabilisieren** (FormContext.tsx)
+
+Session ueber einen Ref nutzen statt als Dependency, damit sich die Callback-Referenz nicht bei jedem Auth-Event aendert.
+
+**2. `updateFormProgress` optimieren** (FormContext.tsx)
+
+Nur neues Objekt erstellen wenn sich der Wert tatsaechlich aendert. Verhindert unnoetige Re-Renders in der gesamten App.
+
 ```text
-// If deeplinkScheme came from URL path, this is a native OAuth flow.
-// Don't use isDespiaNative() - system browsers (ASWebAuthenticationSession,
-// Chrome Custom Tabs) don't have Despia's user agent.
-const isNativeOAuthFlow = !!pathScheme;
-if (isNativeOAuthFlow) {
+// Vorher:
+setFormProgress(prev => ({
+  ...prev,
+  [section]: completed
+}));
+
+// Nachher:
+setFormProgress(prev => {
+  if (prev[section] === completed) return prev;
+  return { ...prev, [section]: completed };
+});
 ```
 
-Der restliche Code (Deeplink-Aufbau, Fallback-Timeout, else-Branch) bleibt identisch. Nur die Bedingung aendert sich.
+**3. `checkImportNeeded` absichern** (Index.tsx)
+
+- Cancelled-Flag hinzufuegen damit veraltete async-Aufrufe ignoriert werden
+- Safety-Timeout (5s) fuer `checkingImport` hinzufuegen als letzte Absicherung
+
+```text
+useEffect(() => {
+  let cancelled = false;
+
+  const checkImportNeeded = async () => {
+    // ... bestehende Early-Returns ...
+    
+    setCheckingImport(true);
+    try {
+      const hasData = await hasDataForPreviousYear(sectionKey);
+      if (!cancelled) setShowImportWizard(hasData);
+    } catch (error) {
+      if (!cancelled) setShowImportWizard(false);
+    } finally {
+      if (!cancelled) setCheckingImport(false);
+    }
+  };
+  
+  checkImportNeeded();
+  
+  // Safety timeout
+  const timer = setTimeout(() => {
+    if (!cancelled) setCheckingImport(false);
+  }, 5000);
+  
+  return () => { cancelled = true; clearTimeout(timer); };
+}, [section, formProgress, hasDataForPreviousYear]);
+```
 
 ### Betroffene Dateien
-- `src/pages/NativeCallback.tsx` - 1 Bedingung aendern (Zeile ~121)
 
+- `src/contexts/form/FormContext.tsx` - `hasDataForPreviousYear` mit sessionRef stabilisieren + `updateFormProgress` optimieren
+- `src/pages/Index.tsx` - `checkImportNeeded` mit Cancel-Logic und Safety-Timeout absichern
