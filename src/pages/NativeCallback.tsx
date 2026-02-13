@@ -65,9 +65,17 @@ const NativeCallback = () => {
         || pathParams.get('error_description') 
         || queryParams.get('error_description');
 
+      // (moved token extraction log below code detection)
+
+      // Also check for PKCE code parameter (fallback if Supabase uses PKCE instead of implicit)
+      const code = hashParams.get('code') 
+        || pathParams.get('code') 
+        || queryParams.get('code');
+
       console.log('🔐 Token extraction:', {
         hasAccessToken: !!accessToken,
         hasRefreshToken: !!refreshToken,
+        hasCode: !!code,
         error
       });
 
@@ -84,6 +92,47 @@ const NativeCallback = () => {
         return;
       }
 
+      // If we have a PKCE code but no access token, exchange it
+      if (!accessToken && code) {
+        console.log('🔐 PKCE code found, exchanging for session...');
+        try {
+          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          
+          if (exchangeError) {
+            console.error('❌ Code exchange error:', exchangeError);
+            setStatus('error');
+            setErrorMessage('Code-Austausch fehlgeschlagen');
+            setTimeout(() => {
+              navigate('/auth?error=code_exchange', { replace: true });
+            }, 2000);
+            return;
+          }
+
+          if (exchangeData?.session) {
+            console.log('✅ PKCE code exchanged successfully!');
+            setStatus('success');
+
+            const isNativeOAuthFlow = !!pathScheme;
+            if (isNativeOAuthFlow) {
+              const deeplinkParams = new URLSearchParams();
+              deeplinkParams.set('access_token', exchangeData.session.access_token);
+              if (exchangeData.session.refresh_token) deeplinkParams.set('refresh_token', exchangeData.session.refresh_token);
+              const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
+              console.log('🔗 Triggering deeplink with exchanged tokens');
+              window.location.href = deeplinkUrl;
+              setTimeout(() => {
+                window.location.href = '/?success=true';
+              }, 1500);
+            } else {
+              navigate('/', { replace: true });
+            }
+            return;
+          }
+        } catch (err) {
+          console.error('❌ Code exchange exception:', err);
+        }
+      }
+
       // Check if we have tokens
       if (!accessToken) {
         console.error('❌ No access token found');
@@ -96,8 +145,8 @@ const NativeCallback = () => {
         return;
       }
 
-      // Set session
-      console.log('🔐 Setting session...');
+      // Set session with access token
+      console.log('🔐 Setting session with access token...');
       
       try {
         const { error: sessionError } = await supabase.auth.setSession({
