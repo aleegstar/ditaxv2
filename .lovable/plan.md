@@ -1,71 +1,122 @@
 
-# Fix: tax_filer_id wird nicht an den Upload weitergegeben
+# Fix: Apple Social Login auf iOS (Despia)
 
-## Das Problem (bewiesen durch Netzwerk-Logs)
+## Problem
 
-Die Netzwerk-Requests zeigen das Problem glasklar:
+Der Apple Login nutzt aktuell auf **beiden Plattformen** (iOS und Android) den gleichen `oauth://`-Flow. Auf Android funktioniert das einwandfrei (Chrome Custom Tabs teilen teilweise den Storage). Auf iOS jedoch hat `ASWebAuthenticationSession` **isolierten Speicher** -- die Session, die im Browser gesetzt wird, kommt nie im WebView an.
+
+## Ursache laut Despia-Dokumentation
+
+Die Despia-Doku beschreibt **zwei verschiedene Strategien** fuer Apple Sign In:
 
 ```text
-INSERT uploaded_documents: "tax_filer_id": null     <-- Upload speichert NULL
-GET uploaded_documents:    tax_filer_id=eq.becd4bd4  <-- Reload sucht nach becd4bd4
+iOS (Despia):     Apple JS SDK -> Native Face ID Dialog (instant, kein Browser noetig)
+Android (Despia): oauth:// Protokoll -> Chrome Custom Tab -> form_post Callback
 ```
 
-Das Dokument wird erfolgreich in die Datenbank geschrieben, aber mit `tax_filer_id = null`. Die anschliessende Abfrage filtert nach `tax_filer_id = becd4bd4-...` und findet das neue Dokument daher nicht. Deshalb wird die Checkliste nicht aktualisiert -- das Dokument ist "unsichtbar".
-
-## Ursache
-
-Obwohl `activeTaxFilerId` im letzten Fix als Prop an `DocumentUploadSheet` weitergegeben wird, kommt es dort als `undefined` an. Das liegt daran, dass `useTaxFiler()` in `DocumentChecklist.tsx` den Wert aus dem Context holt, aber der Wert zum Zeitpunkt des Renderns noch nicht gesetzt sein kann (Race Condition beim Context-Mount).
-
-Zusaetzlich gibt es ein zweites Problem: Die `taxFilerId`-Prop wird in `DocumentUploadSheet` nur in `performUpload` verwendet, aber `performUpload` ist ein `useCallback` mit einer Closure die den **initialen** Wert von `taxFilerId` einfaengt. Wenn sich `taxFilerId` spaeter aendert (z.B. weil der Context erst spaeter initialisiert), hat `performUpload` immer noch `null`.
+Der aktuelle Code verwendet fuer iOS den gleichen `oauth://`-Flow wie Android. Das ist das Problem.
 
 ## Loesung
 
-Zwei einfache Fixes:
+Plattform-spezifische Implementierung: iOS nutzt das Apple JS SDK (nativer Face ID Dialog direkt im WebView), Android bleibt unveraendert.
 
-### 1. `DocumentUploadSheet.tsx` -- taxFilerId ueber useRef aktuell halten
-
-Statt den Prop direkt im `useCallback` zu verwenden, wird ein `useRef` genutzt, der immer den aktuellsten Wert hat:
-
-```typescript
-const taxFilerIdRef = useRef(taxFilerId);
-useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
-
-// In performUpload:
-const activeTaxFilerId = taxFilerIdRef.current || null;
-```
-
-### 2. `DocumentChecklist.tsx` -- Fallback auf sessionStorage
-
-Falls `activeTaxFilerId` aus dem Context undefined/null ist, wird ein Fallback auf `sessionStorage` verwendet (dort speichert der TaxFilerContext den Wert):
-
-```typescript
-const { activeTaxFilerId } = useTaxFiler();
-const effectiveTaxFilerId = activeTaxFilerId
-  || sessionStorage.getItem('ditax_selected_tax_filer')
-  || null;
-```
-
-## Aenderungen
+### Aenderungen
 
 | Datei | Aenderung |
-|-------|-----------|
-| `src/components/documents/DocumentUploadSheet.tsx` | `taxFilerId` in useRef speichern, useRef in performUpload verwenden |
-| `src/components/DocumentChecklist.tsx` | Fallback auf sessionStorage fuer taxFilerId |
+|---|---|
+| `index.html` | Apple JS SDK Script-Tag hinzufuegen |
+| `src/lib/apple-auth.ts` | Neue Datei: Apple JS SDK Integration mit Plattform-Erkennung |
+| `src/pages/Auth.tsx` | `handleAppleAuth` erweitern: iOS -> JS SDK, Android -> unveraendert (oauth://) |
+| `src/pages/AuthLoading.tsx` | Neue Datei: Verarbeitung der JS SDK Response (id_token an Edge Function senden) |
+| `supabase/functions/auth-apple-callback/index.ts` | Neue Edge Function: Apple Token verifizieren, Supabase User erstellen/finden, Session-Tokens zurueckgeben |
+| `supabase/config.toml` | JWT-Verifizierung fuer auth-apple-callback deaktivieren |
 
-## Warum das funktioniert
+### Benoetigte Secrets (MUSS VOR Implementierung konfiguriert werden)
+
+Diese Secrets muessen im Supabase-Projekt konfiguriert werden:
+
+- `APPLE_CLIENT_ID` -- Die Service ID aus dem Apple Developer Console (z.B. `com.ditax.web`)
+- `APPLE_TEAM_ID` -- Team ID aus dem Apple Developer Portal
+- `APPLE_KEY_ID` -- Key ID des Sign In with Apple Keys
+- `APPLE_PRIVATE_KEY` -- Inhalt der `.p8` Datei
+
+### Ablauf auf iOS (NEU)
 
 ```text
-VORHER:
-  1. DocumentChecklist rendert, activeTaxFilerId = undefined (Context laedt)
-  2. DocumentUploadSheet bekommt taxFilerId = undefined
-  3. performUpload Closure fängt undefined ein
-  4. Upload: tax_filer_id = null
-  5. Reload sucht nach becd4bd4 -> findet das neue Dokument NICHT
-
-NACHHER:
-  1. DocumentChecklist rendert, activeTaxFilerId = becd4bd4 (oder Fallback aus sessionStorage)
-  2. DocumentUploadSheet bekommt taxFilerId = becd4bd4
-  3. taxFilerIdRef.current = becd4bd4 (immer aktuell)
-  4. Upload: tax_filer_id = becd4bd4
-  5. Reload sucht nach becd4bd4 -> findet das neue Dokument
+1. User tippt "Mit Apple anmelden"
+2. isDespiaIOS() -> true
+3. Apple JS SDK zeigt nativen Face ID Dialog (kein Browser!)
+4. User authentifiziert sich mit Face ID
+5. JS SDK gibt id_token + code zurueck
+6. App sendet id_token an auth-apple-callback Edge Function
+7. Edge Function verifiziert Token mit Apple Public Keys
+8. Edge Function erstellt/findet Supabase User
+9. Edge Function gibt access_token + refresh_token zurueck
+10. App setzt Session mit supabase.auth.setSession()
+11. Fertig -- alles im WebView, kein Browser noetig
 ```
+
+### Ablauf auf Android (UNVERAENDERT)
+
+```text
+1. User tippt "Mit Apple anmelden"
+2. isDespiaIOS() -> false, isDespiaNative() -> true
+3. auth-start Edge Function liefert OAuth URL
+4. despia('oauth://...') oeffnet Chrome Custom Tab
+5. NativeCallback setzt Session + sendet Deeplink
+6. Auth.tsx empfaengt Tokens
+```
+
+### Technische Details
+
+**1. `index.html`** -- Apple JS SDK laden:
+```html
+<script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+```
+
+**2. `src/lib/apple-auth.ts`** -- Neue Bibliothek:
+- `initAppleAuth()` -- Initialisiert Apple ID SDK (nur iOS/Web, nicht Android)
+- `signInWithAppleJS()` -- Ruft nativen Dialog auf, gibt id_token zurueck
+- Nutzt bestehende `isDespiaIOS()` und `isDespiaAndroid()` aus `despia.ts`
+
+**3. `src/pages/Auth.tsx`** -- handleAppleAuth Aenderung:
+```typescript
+if (isDespia) {
+  if (isDespiaIOS()) {
+    // NEU: Apple JS SDK fuer iOS
+    const { idToken, code, user } = await signInWithAppleJS();
+    // Sende an Edge Function...
+  } else {
+    // UNVERAENDERT: Android oauth:// Flow
+    despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+  }
+}
+```
+
+**4. `supabase/functions/auth-apple-callback/index.ts`**:
+- Empfaengt id_token (JSON POST)
+- Verifiziert mit Apple Public Keys (JWKS)
+- Erstellt oder findet Supabase User via Admin API
+- Gibt access_token + refresh_token zurueck
+
+### Apple Developer Console Setup (vom User durchzufuehren)
+
+Folgende Konfiguration muss im Apple Developer Portal vorhanden sein:
+
+1. **App ID** mit "Sign In with Apple" aktiviert
+2. **Service ID** (z.B. `com.ditax.web`) mit:
+   - Domain: `app.ditax.ch`
+   - Domain: `gqbhilftduwxjszznnzy.supabase.co`
+   - Return URL: `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/auth-apple-callback`
+   - Return URL: `https://app.ditax.ch/auth/apple/callback`
+3. **Sign In Key** (.p8 Datei) erstellt und heruntergeladen
+
+### Reihenfolge der Implementierung
+
+1. User konfiguriert Apple Developer Console und liefert Credentials
+2. Secrets im Supabase-Projekt setzen (APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY)
+3. `auth-apple-callback` Edge Function erstellen
+4. Apple JS SDK in index.html einbinden
+5. `apple-auth.ts` Bibliothek erstellen
+6. `Auth.tsx` anpassen (iOS-Weiche)
+7. Testen auf iOS-Geraet
