@@ -70,15 +70,13 @@ export const buildOAuthUrl = (provider: 'google' | 'apple', redirectTo: string):
  * Detect if running on iOS in Despia
  */
 export const isDespiaIOS = (): boolean => {
-  const ua = navigator.userAgent.toLowerCase();
-  const isIOS = isDespiaNative() && (
-    ua.includes('iphone') || 
-    ua.includes('ipad') || 
-    ua.includes('despia-ipad')  // Explicit check for iPad user agent
-  );
+  // Despia only supports iOS and Android.
+  // If it's Despia but NOT Android, it must be iOS.
+  // This catches iPhones/iPads even when the WebView sends a non-standard User-Agent.
+  const isIOS = isDespiaNative() && !isDespiaAndroid();
   
   if (isIOS) {
-    console.log('📱 Despia iOS detected:', { userAgent: ua });
+    console.log('📱 Despia iOS detected (not Android):', { userAgent: navigator.userAgent });
   }
   
   return isIOS;

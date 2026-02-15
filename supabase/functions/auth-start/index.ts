@@ -28,9 +28,9 @@ serve(async (req) => {
   }
 
   try {
-    const { provider, deeplink_scheme } = await req.json();
+    const { provider, deeplink_scheme, platform } = await req.json();
 
-    console.log('🔗 auth-start: Generating OAuth URL', { provider, deeplink_scheme });
+    console.log('🔗 auth-start: Generating OAuth URL', { provider, deeplink_scheme, platform });
 
     if (!provider || !['google', 'apple'].includes(provider)) {
       return new Response(
@@ -56,10 +56,12 @@ serve(async (req) => {
       );
     }
 
-    // CRITICAL: Use React route with deeplink_scheme in path + trailing slash
-    // The trailing slash ensures Supabase correctly appends the hash fragment
-    // Format: /native-callback/{scheme}/#access_token=xxx
-    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
+    // Choose redirect URL based on platform
+    // iOS: Use lightweight bridge Edge Function (avoids loading full React SPA in ASWebAuthenticationSession)
+    // Android/default: Use React NativeCallback page (Chrome Custom Tab shares storage)
+    const redirectUrl = platform === 'ios'
+      ? `${supabaseUrl}/functions/v1/auth-ios-bridge?scheme=${encodeURIComponent(deeplink_scheme)}`
+      : `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
     // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
