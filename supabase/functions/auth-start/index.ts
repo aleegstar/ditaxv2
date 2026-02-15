@@ -6,23 +6,48 @@ const corsHeaders = {
 };
 
 /**
- * auth-start Edge Function - Despia Easy OAuth Flow
+ * PKCE helper functions
+ * Generate code_verifier and code_challenge for proper PKCE flow.
+ * The code_verifier is passed through the redirect URL so NativeCallback
+ * can use it to exchange the code for tokens.
+ */
+function base64UrlEncode(buffer: Uint8Array): string {
+  let str = '';
+  for (const byte of buffer) {
+    str += String.fromCharCode(byte);
+  }
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function generateCodeVerifier(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return base64UrlEncode(array);
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return base64UrlEncode(new Uint8Array(digest));
+}
+
+/**
+ * auth-start Edge Function - Despia Easy OAuth Flow (PKCE)
  * 
- * Generates OAuth URL for Despia native apps.
- * The redirect goes to /native-callback which then redirects to a deeplink
- * to close the ASWebAuthenticationSession/Chrome Custom Tab.
+ * Generates OAuth URL with proper PKCE parameters for Despia native apps.
+ * The code_verifier is embedded in the redirect URL so NativeCallback
+ * can exchange the code without needing client-side storage.
  * 
  * Flow:
- * 1. App calls this function with provider + deeplink_scheme
- * 2. App opens URL with despia('oauth://?url=...')
- * 3. User authenticates with Google/Apple
- * 4. Supabase redirects to /native-callback#access_token=xxx
- * 5. NativeCallback redirects to {scheme}://oauth/auth?tokens
- * 6. Native app intercepts deeplink, closes browser, navigates to /auth?tokens
- * 7. Auth.tsx calls setSession() with the tokens
+ * 1. Generate code_verifier + code_challenge
+ * 2. Build OAuth URL with code_challenge
+ * 3. Include code_verifier in redirect_to URL
+ * 4. After auth, Supabase redirects to /native-callback?code=xxx&cv=yyy
+ * 5. NativeCallback exchanges code+code_verifier for tokens
+ * 6. NativeCallback deeplinks tokens back to app
  */
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -56,15 +81,21 @@ serve(async (req) => {
       );
     }
 
-    // CRITICAL: Use React route with deeplink_scheme in path + trailing slash
-    // The trailing slash ensures Supabase correctly appends the hash fragment
-    // Format: /native-callback/{scheme}/#access_token=xxx
-    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
+    // Generate PKCE code_verifier and code_challenge
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-    // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
-    // PKCE flow: returns ?code=xxx (query param) instead of #access_token=xxx (hash fragment)
-    // This fixes iOS where ASWebAuthenticationSession strips hash fragments
-    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=pkce&response_type=code`;
+    console.log('🔐 auth-start: Generated PKCE challenge', { 
+      codeVerifierLength: codeVerifier.length,
+      codeChallengeLength: codeChallenge.length 
+    });
+
+    // Include code_verifier in redirect URL so NativeCallback can use it
+    // The trailing slash ensures Supabase correctly appends query params
+    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/?cv=${encodeURIComponent(codeVerifier)}`;
+
+    // Build OAuth URL with proper PKCE parameters
+    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scope=${encodeURIComponent('openid email profile')}&code_challenge=${encodeURIComponent(codeChallenge)}&code_challenge_method=S256`;
 
     console.log('✅ auth-start: Generated OAuth URL', { 
       oauthUrl, 
