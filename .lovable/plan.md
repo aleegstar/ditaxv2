@@ -1,94 +1,139 @@
 
-# Fix: Google und Apple Sign In auf iPhone (Despia iOS)
 
-## Analyse
+# Fix: Google und Apple Sign In auf iPhone (nur iOS)
 
-Nach umfassender Pruefung des Codes und der Despia-Dokumentation gibt es **zwei separate Probleme**:
+Android bleibt komplett unveraendert.
 
-### Problem 1: Google Sign In auf iOS
-Der Google OAuth Flow nutzt `despia('oauth://...')` -> ASWebAuthenticationSession -> NativeCallback -> Deeplink zurueck zur App. Dieser Flow ist laut Despia-Doku korrekt fuer **beide Plattformen** (iOS + Android). 
+## Problem 1: Google Sign In auf iPhone
 
-**Moegliche Ursache**: Der `auth-start` Edge Function verwendet `flow_type=implicit`, was Tokens im Hash-Fragment (`#access_token=xxx`) zurueckgibt. Auf iOS mit ASWebAuthenticationSession kann das Hash-Fragment beim Redirect verloren gehen. NativeCallback versucht Tokens aus Hash, Path und Query Params zu extrahieren, aber wenn das Hash-Fragment verloren geht, findet NativeCallback keine Tokens und zeigt "Keine Zugangstokens gefunden".
+**Ursache**: Die `auth-start` Edge Function verwendet `flow_type=implicit`. Supabase gibt die Tokens im URL-Hash-Fragment zurueck (`#access_token=xxx`). Auf iOS geht das Hash-Fragment in `ASWebAuthenticationSession` oft verloren. NativeCallback findet keine Tokens und zeigt "Keine Zugangstokens gefunden".
 
-**Fix**: Den `auth-start` Edge Function um einen expliziten `response_type=token` Parameter erweitern und sicherstellen, dass NativeCallback robuster Tokens aus allen URL-Teilen extrahiert. Ausserdem muss Auth.tsx die Tokens korrekt aus den Deeplink-Query-Parametern verarbeiten.
+**Loesung**: Auf PKCE Code-Flow umstellen (`flow_type=pkce`). Dabei kommt ein `code` als Query-Parameter (nicht Hash), der zuverlaessig erhalten bleibt. NativeCallback tauscht den Code dann serverseitig gegen Tokens.
 
-### Problem 2: Apple Sign In auf iOS
-Apple Sign In nutzt aktuell den gleichen `oauth://` Flow wie Google. Laut Despia-Dokumentation ist der empfohlene Ansatz fuer Apple auf iOS jedoch das **Apple JS SDK** (nativer Face ID Dialog), da iOS native Apple Sign In Unterstuetzung hat.
+### Aenderungen fuer Google iOS
 
-**Fix**: Platform-spezifische Implementierung:
-- iOS: Apple JS SDK -> Face ID Dialog -> Edge Function -> Session
-- Android: oauth:// Flow bleibt unveraendert
+| Datei | Aenderung |
+|---|---|
+| `supabase/functions/auth-start/index.ts` | `flow_type=pkce` statt `implicit` verwenden |
+| `src/pages/NativeCallback.tsx` | Code-Flow Handling: wenn `code` vorhanden, ueber `supabase.auth.exchangeCodeForSession()` Tokens holen, dann Deeplink mit Tokens senden |
 
-## Aenderungen
+### Neuer Google-Flow auf iPhone
 
-### 1. NativeCallback.tsx - Robustere Token-Extraktion
-- Zusaetzliche Fallback-Logik fuer den Fall, dass Hash-Fragmente auf iOS verloren gehen
-- Logging verbessern um das Problem zu diagnostizieren
+```text
+1. Auth.tsx -> auth-start Edge Function (unveraendert)
+2. despia('oauth://...') -> ASWebAuthenticationSession (unveraendert)
+3. Google Login -> Supabase Redirect
+4. Redirect zu /native-callback/ditax/?code=xxx (Query-Param statt Hash!)
+5. NativeCallback: exchangeCodeForSession(code) -> Tokens
+6. Deeplink ditax://oauth/auth?access_token=xxx&refresh_token=yyy
+7. Despia schliesst Browser, navigiert WebView zu /auth?tokens
+8. Auth.tsx: setSession(tokens) -> navigate('/')
+```
 
-### 2. Auth.tsx - Deeplink Token Handling verbessern
-- Sicherstellen, dass Tokens aus Query-Parametern (vom Deeplink) korrekt verarbeitet werden
-- Platform-spezifische Apple-Weiche einbauen:
-  - `isDespiaIOS()` -> Apple JS SDK Flow (neu)
-  - `isDespiaAndroid()` oder `isDespiaNative()` -> bestehender oauth:// Flow
-- Google Flow bleibt fuer beide Plattformen gleich (oauth://)
+## Problem 2: Apple Sign In auf iPhone
 
-### 3. Apple JS SDK Integration (nur fuer Apple auf iOS)
-- `index.html`: Apple JS SDK Script laden + CSP erweitern
-- `src/lib/apple-auth.ts`: Neue Datei mit Apple SDK Wrapper
-- `src/pages/AuthLoading.tsx`: Neue Seite die id_token an Edge Function sendet
-- `src/App.tsx`: Route + Apple SDK Init hinzufuegen
+**Ursache**: Apple nutzt aktuell denselben `oauth://`-Flow wie Google. Laut Despia-Dokumentation ist fuer Apple auf iOS das **Apple JS SDK** der empfohlene Ansatz (nativer Face ID Dialog direkt im WebView, kein Browser noetig).
 
-### 4. Edge Function: auth-apple-callback (NEU)
-- Verifiziert Apple id_token mit Apple JWKS Public Keys
-- Erstellt/findet Supabase User via Admin API
-- Gibt access_token + refresh_token als JSON zurueck (iOS/Web)
-- Gibt Redirect mit Deeplink zurueck (Android)
+**Loesung**: Platform-spezifische Implementierung. iOS nutzt Apple JS SDK, Android bleibt unveraendert.
 
-### 5. supabase/config.toml
-- `verify_jwt = false` fuer auth-apple-callback
+### Aenderungen fuer Apple iOS
+
+| Datei | Aenderung |
+|---|---|
+| `index.html` | Apple JS SDK Script-Tag + CSP-Erweiterung (`appleid.cdn-apple.com`, `appleid.apple.com`) |
+| `src/lib/apple-auth.ts` | **Neue Datei**: Apple JS SDK Init + `signInWithAppleJS()` |
+| `src/pages/Auth.tsx` | `handleAppleAuth` erweitern: `isDespiaIOS()` -> JS SDK Flow, sonst unveraendert |
+| `supabase/functions/auth-apple-callback/index.ts` | **Neue Edge Function**: Apple `id_token` verifizieren, Supabase User erstellen/finden, Session-Tokens zurueckgeben |
+| `supabase/config.toml` | `verify_jwt = false` fuer `auth-apple-callback` |
+
+### Neuer Apple-Flow auf iPhone
+
+```text
+1. User tippt "Mit Apple anmelden"
+2. isDespiaIOS() -> true
+3. Apple JS SDK zeigt nativen Face ID Dialog (kein Browser!)
+4. User authentifiziert sich mit Face ID/Touch ID
+5. JS SDK gibt id_token + code zurueck
+6. Auth.tsx sendet id_token an auth-apple-callback Edge Function
+7. Edge Function verifiziert Token mit Apple JWKS Public Keys
+8. Edge Function erstellt/findet Supabase User via Admin API
+9. Edge Function gibt access_token + refresh_token zurueck
+10. Auth.tsx setzt Session mit supabase.auth.setSession()
+11. navigate('/') -- fertig, alles im WebView
+```
 
 ## Voraussetzungen (vom User zu erledigen)
 
-Bevor Apple Sign In auf iOS funktioniert, muessen folgende **Edge Function Secrets** im Supabase Dashboard konfiguriert werden (unter Settings > Edge Functions > Secrets):
+Fuer Apple JS SDK auf iPhone muessen folgende **Edge Function Secrets** im Supabase Dashboard konfiguriert werden (Settings > Edge Functions > Secrets):
 
-- `APPLE_CLIENT_ID` -- Service ID aus Apple Developer Console
-- `APPLE_TEAM_ID` -- Team ID aus Apple Developer Portal  
+- `APPLE_CLIENT_ID` -- Service ID aus Apple Developer Console (z.B. `com.ditax.web`)
+- `APPLE_TEAM_ID` -- Team ID aus dem Apple Developer Portal
 - `APPLE_KEY_ID` -- Key ID des Sign In with Apple Keys
 - `APPLE_PRIVATE_KEY` -- Inhalt der .p8 Datei (Zeilenumbrueche durch `\n` ersetzen)
 - `APP_URL` -- `https://app.ditax.ch`
 
+Diese sind aktuell nur als Supabase Auth Provider konfiguriert, muessen aber zusaetzlich als Edge Function Secrets gesetzt werden.
+
 Apple Developer Console muss konfiguriert sein:
-- Service ID mit Domains `app.ditax.ch` und `gqbhilftduwxjszznnzy.supabase.co`
-- Return URLs: `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/auth-apple-callback` und `https://app.ditax.ch/auth/apple/callback`
+- Service ID mit Domains: `app.ditax.ch` und `gqbhilftduwxjszznnzy.supabase.co`
+- Return URLs: `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/auth-apple-callback`
 
-## Zusammenfassung der Flows nach dem Fix
+## Zusammenfassung
 
-| Provider | iOS | Android |
+| Provider | iPhone (NEU) | Android (UNVERAENDERT) |
 |---|---|---|
-| Google | oauth:// (gleich wie Android, Token-Handling verbessert) | oauth:// (unveraendert) |
-| Apple | Apple JS SDK -> Face ID -> Edge Function (NEU) | oauth:// (unveraendert) |
+| Google | oauth:// + PKCE Code-Flow (Hash-Problem geloest) | oauth:// + implicit (bleibt gleich) |
+| Apple | Apple JS SDK + Face ID (kein Browser) | oauth:// (bleibt gleich) |
 
 ## Technische Details
 
-### Apple JS SDK Flow (iOS)
+### auth-start Aenderung (PKCE statt Implicit)
+
+Die URL wird von:
 ```text
-1. handleAppleAuth() -> isDespiaIOS() = true
-2. AppleID.auth.signIn() -> nativer Face ID Dialog
-3. Response: { id_token, code, user }
-4. navigate('/auth-loading', { state: { idToken, code, user } })
-5. AuthLoading POST -> auth-apple-callback Edge Function
-6. Edge Function: Token verifizieren, User erstellen, Session generieren
-7. Response: { access_token, refresh_token }
-8. supabase.auth.setSession() -> navigate('/')
+...&flow_type=implicit
+```
+geaendert zu:
+```text
+...&flow_type=pkce&response_type=code
 ```
 
-### Google OAuth Flow (beide Plattformen)
-```text
-1. handleGoogleAuth() -> isDespiaNative() = true
-2. auth-start Edge Function -> OAuth URL
-3. despia('oauth://?url=...') -> ASWebAuth/CustomTab
-4. Google Login -> Redirect zu /native-callback/ditax/#access_token=xxx
-5. NativeCallback: Tokens extrahieren -> Deeplink ditax://oauth/auth?tokens
-6. Despia: Browser schliessen -> WebView /auth?tokens
-7. Auth.tsx: setSession(tokens) -> navigate('/')
-```
+Dies bewirkt, dass Supabase einen `code` als Query-Parameter zurueckgibt statt Tokens im Hash-Fragment. Wichtig: PKCE funktioniert auch auf Android, daher ist die Aenderung fuer beide Plattformen kompatibel. NativeCallback muss zusaetzlich den Code-Flow unterstuetzen (Hash-Extraktion bleibt als Fallback).
+
+### NativeCallback Erweiterung
+
+Neue Logik am Anfang von processAuth():
+1. Pruefen ob `code` als Query-Parameter vorhanden
+2. Wenn ja: `supabase.auth.exchangeCodeForSession(code)` aufrufen
+3. Session-Tokens aus dem Result extrahieren
+4. Deeplink mit Tokens senden (wie bisher)
+5. Bestehende Hash-Extraktion bleibt als Fallback
+
+### apple-auth.ts
+
+- `initAppleAuth(clientId)` -- Apple JS SDK initialisieren
+- `signInWithAppleJS()` -- Nativen Dialog aufrufen, gibt `{ idToken, code, user }` zurueck
+- Wird nur auf iOS und Web initialisiert, nicht auf Android
+
+### auth-apple-callback Edge Function
+
+- Empfaengt JSON POST mit `id_token`
+- Verifiziert Token mit Apple JWKS Public Keys (jose Library fuer Deno)
+- Erstellt User via `supabase.auth.admin.createUser()` oder findet existierenden
+- Generiert Session-Tokens und gibt sie als JSON zurueck
+
+### CSP-Erweiterung in index.html
+
+- `script-src`: `https://appleid.cdn-apple.com` hinzufuegen
+- `connect-src`: `https://appleid.apple.com` hinzufuegen
+
+### Reihenfolge der Implementierung
+
+1. Secrets abfragen (APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY, APP_URL)
+2. auth-start auf PKCE umstellen (behebt Google iPhone)
+3. NativeCallback Code-Flow Handling einbauen
+4. auth-apple-callback Edge Function erstellen
+5. Apple JS SDK in index.html + apple-auth.ts
+6. Auth.tsx iOS-Weiche fuer Apple einbauen
+7. config.toml aktualisieren
+
