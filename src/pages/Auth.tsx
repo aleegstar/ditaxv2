@@ -190,7 +190,35 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
+    // iOS DESPIA: Use auth-ios-bridge (lightweight HTML page instead of full React SPA)
+    if (isDespia && isDespiaIOS()) {
+      try {
+        const { data, error } = await supabase.functions.invoke('auth-start', {
+          body: { provider: 'google', deeplink_scheme: DEEPLINK_SCHEME, platform: 'ios' }
+        });
+        if (error || !data?.url) {
+          console.error('❌ Failed to get iOS OAuth URL:', error);
+          toast.error("Fehler beim Starten der Anmeldung");
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+          return;
+        }
+        console.log('📱 iOS Google Auth: Using auth-ios-bridge');
+        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 30000);
+      } catch (err) {
+        console.error('❌ Error starting iOS Google auth:', err);
+        toast.error("Fehler bei der Google-Anmeldung");
+        isOAuthInProgress.current = false;
+        setIsOAuthLoading(false);
+      }
+      return;
+    }
+
+    // ANDROID DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
         const {
