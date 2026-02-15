@@ -1,50 +1,78 @@
+# Fix: Apple Social Login auf iOS (Despia)
 
-# Fix: Zwei Probleme in auth-apple-callback
+## Zusammenfassung
 
-Die Despia-Doku und unsere Implementierung verglichen -- zwei Probleme gefunden:
+Apple Login funktioniert auf Android (oauth:// Flow), aber nicht auf iOS, weil ASWebAuthenticationSession isolierten Speicher hat. Die Loesung: iOS nutzt das Apple JS SDK (nativer Face ID Dialog direkt im WebView), Android bleibt unveraendert.
 
-## Problem 1: `Response.redirect()` funktioniert nicht mit Deeplinks
+## Voraussetzung: Edge Function Secrets
 
-Zeile 213 verwendet `Response.redirect(redirectUrl, 302)` mit einer Deeplink-URL wie `ditax://oauth/auth?tokens`. HTTP-Redirects (`302`) funktionieren **nicht mit Custom URL Schemes** -- der Browser/Server weiss nicht, wie er `ditax://` aufloesen soll.
+Die Apple Credentials sind aktuell nur als Supabase Auth Provider konfiguriert. Fuer den iOS JS SDK Flow brauchen wir sie **zusaetzlich** als Edge Function Secrets:
 
-**Fix**: Statt `Response.redirect()` eine HTML-Seite zurueckgeben, die per `window.location.href` oder `<meta http-equiv="refresh">` zum Deeplink weiterleitet. Das ist der gleiche Ansatz wie in NativeCallback.tsx.
+- **APPLE_CLIENT_ID** -- Deine Service ID (z.B. `com.ditax.web`)
+- **APPLE_TEAM_ID** -- Team ID aus dem Apple Developer Portal
+- **APPLE_KEY_ID** -- Key ID des Sign In with Apple Keys
+- **APPLE_PRIVATE_KEY** -- Inhalt der .p8 Datei (Zeilenumbrueche durch `\n` ersetzen)
+- **APP_URL** -- `https://app.ditax.ch`
 
-## Problem 2: `listUsers()` laedt ALLE User
-
-Zeile 117 ruft `supabaseAdmin.auth.admin.listUsers()` ohne Filter auf. Das laedt **alle** User in den Speicher und sucht dann client-seitig per `.find()`. Bei vielen Usern:
-- Performance-Problem (langsam, viel Speicher)
-- Supabase paginiert standardmaessig auf 1000 -- User ab #1001 werden nie gefunden
-- Edge Function koennte timeout bekommen
-
-**Fix**: Stattdessen gezielt per Email suchen mit der `listUsers` API mit Filter-Parameter, oder direkt per REST API.
+Diese werden als erstes abgefragt bevor der Code geschrieben wird.
 
 ## Aenderungen
 
-### `supabase/functions/auth-apple-callback/index.ts`
 
-1. **Deeplink-Redirect**: `Response.redirect()` ersetzen durch HTML-Response mit JavaScript-Redirect:
-```typescript
-// Statt: return Response.redirect(redirectUrl, 302);
-// Neu:
-const html = `<html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head><body><script>window.location.href="${redirectUrl}";</script></body></html>`;
-return new Response(html, {
-  status: 200,
-  headers: { 'Content-Type': 'text/html' },
-});
-```
+| Datei                                             | Aenderung                                                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `index.html`                                      | Apple JS SDK Script-Tag + CSP-Erweiterung fuer `appleid.cdn-apple.com`                                 |
+| `src/lib/apple-auth.ts`                           | **Neue Datei**: Apple JS SDK Init, `signInWithAppleJS()`, Platform-Erkennung                           |
+| `src/pages/Auth.tsx`                              | `handleAppleAuth` anpassen: iOS -> JS SDK, Android -> unveraendert                                     |
+| `src/pages/AuthLoading.tsx`                       | **Neue Datei**: Verarbeitet JS SDK Response, sendet id_token an Edge Function                          |
+| `src/App.tsx`                                     | Route `/auth-loading` hinzufuegen + `initAppleAuth()` aufrufen                                         |
+| `supabase/functions/auth-apple-callback/index.ts` | **Neue Edge Function**: Apple Token verifizieren, Supabase User erstellen, Session-Tokens zurueckgeben |
+| `supabase/config.toml`                            | `verify_jwt = false` fuer auth-apple-callback                                                          |
 
-2. **User-Lookup**: `listUsers()` ersetzen durch gefilterte Suche:
-```typescript
-// Statt: const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-// Neu: Direkt per REST API mit Email-Filter
-const response = await fetch(
-  `${supabaseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(email)}`,
-  { headers: { Authorization: `Bearer ${supabaseServiceKey}`, apikey: supabaseServiceKey } }
-);
-```
 
-3. **redirectWithError()**: Gleiche HTML-Redirect-Aenderung auch fuer die Fehlerfaelle.
+## Ablauf iOS (NEU)
 
-### Keine anderen Dateien betroffen
+1. User tippt "Mit Apple anmelden"
+2. `isDespiaIOS()` ergibt `true`
+3. Apple JS SDK zeigt nativen Face ID Dialog (kein Browser!)
+4. User authentifiziert sich
+5. JS SDK gibt `id_token` + `code` zurueck
+6. Navigate zu `/auth-loading` mit den Credentials
+7. AuthLoading sendet `id_token` als JSON POST an `auth-apple-callback`
+8. Edge Function verifiziert Token mit Apple JWKS Public Keys
+9. Edge Function erstellt/findet Supabase User via Admin API
+10. Edge Function gibt `access_token` + `refresh_token` zurueck
+11. App setzt Session mit `supabase.auth.setSession()`
+12. Redirect zu `/` -- fertig, alles im WebView
 
-Die restliche Implementierung (auth-start PKCE, NativeCallback Code-Exchange, apple-auth.ts, Auth.tsx) ist korrekt und stimmt mit der Despia-Dokumentation ueberein.
+## Ablauf Android (UNVERAENDERT)
+
+Kein Code wird im Android-Flow geaendert. `handleAppleAuth` prueft zuerst `isDespiaIOS()` -- nur wenn `false` und `isDespiaNative()` true, laeuft der bestehende oauth:// Flow.
+
+## Technische Details
+
+### apple-auth.ts
+
+- Nutzt `isDespiaIOS()` und `isDespiaAndroid()` aus `src/lib/despia.ts`
+- `initAppleAuth()`: Initialisiert das Apple JS SDK mit der `APPLE_CLIENT_ID` (hardcoded, da publishable)
+- `signInWithAppleJS()`: Ruft `AppleID.auth.signIn()` auf, gibt `idToken`, `code`, `user` zurueck
+- Wird nur auf iOS und Web initialisiert, nicht auf Android
+
+### Auth.tsx Aenderung (handleAppleAuth)
+
+- Neue iOS-Weiche innerhalb des bestehenden `if (isDespia)` Blocks
+- `isDespiaIOS()` -> Apple JS SDK Flow (neu)
+- Sonst -> bestehender oauth:// Flow (unveraendert)
+
+### auth-apple-callback Edge Function
+
+- Akzeptiert JSON POST (iOS/Web) und form_post (Android)
+- Verifiziert Apple id_token mit Apple JWKS Public Keys (jose Library)
+- Erstellt User via `supabase.auth.admin.createUser()` oder findet existierenden
+- Generiert Session via `generateLink()` + `verifyOtp()`
+- Gibt `access_token` + `refresh_token` als JSON zurueck (iOS/Web) oder Redirect (Android)
+
+### CSP Anpassung in index.html
+
+- `script-src`: `https://appleid.cdn-apple.com` hinzufuegen
+- `connect-src`: `https://appleid.apple.com` hinzufuegen

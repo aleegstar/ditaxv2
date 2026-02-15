@@ -33,111 +33,12 @@ const NativeCallback = () => {
       console.log('🔐 NativeCallback: Processing auth...');
       console.log('🔐 URL:', window.location.href);
 
-      const queryParams = new URLSearchParams(window.location.search);
-
-      // === PKCE CODE FLOW (iOS fix) ===
-      // When using proper PKCE, Supabase returns ?code=xxx as query parameter
-      // The code_verifier is also in the URL (passed through from auth-start edge function)
-      // This works reliably on iOS where hash fragments get stripped
-      const authCode = queryParams.get('code');
-      const codeVerifier = queryParams.get('cv'); // code_verifier from auth-start
-      
-      if (authCode) {
-        console.log('🔐 PKCE code found, exchanging for session...', { 
-          hasCodeVerifier: !!codeVerifier,
-          codeLength: authCode.length 
-        });
-        
-        try {
-          let accessToken: string | undefined;
-          let refreshToken: string | undefined;
-
-          if (codeVerifier) {
-            // Direct token exchange with Supabase's token endpoint
-            // We can't use exchangeCodeForSession() because it looks for
-            // code_verifier in localStorage (which we never stored)
-            const supabaseUrl = 'https://gqbhilftduwxjszznnzy.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxYmhpbGZ0ZHV3eGpzenpubnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyNjAxMjgsImV4cCI6MjA2MDgzNjEyOH0.u2qQOA3rIET_HevF92lrDpABK5xctFBuUqhcQUsStZs';
-            
-            console.log('🔐 Exchanging code with code_verifier via token endpoint...');
-            
-            const tokenResponse = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=pkce`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'apikey': supabaseKey,
-              },
-              body: JSON.stringify({
-                auth_code: authCode,
-                code_verifier: codeVerifier,
-              }),
-            });
-
-            if (!tokenResponse.ok) {
-              const errorBody = await tokenResponse.text();
-              console.error('❌ Token exchange failed:', tokenResponse.status, errorBody);
-              throw new Error(`Token exchange failed: ${tokenResponse.status}`);
-            }
-
-            const tokenData = await tokenResponse.json();
-            console.log('✅ Token exchange successful!');
-            
-            accessToken = tokenData.access_token;
-            refreshToken = tokenData.refresh_token;
-
-            // Set session in Supabase client (for non-native flows)
-            if (accessToken) {
-              await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken || '',
-              });
-            }
-          } else {
-            // Fallback: try exchangeCodeForSession (might work if code_verifier is in storage)
-            console.log('🔐 No code_verifier, trying exchangeCodeForSession...');
-            const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
-            
-            if (exchangeError) {
-              console.error('❌ Code exchange error:', exchangeError);
-              throw new Error(exchangeError.message);
-            }
-            
-            accessToken = data.session?.access_token;
-            refreshToken = data.session?.refresh_token;
-          }
-
-          setStatus('success');
-
-          const isNativeOAuthFlow = !!pathScheme;
-          if (isNativeOAuthFlow && accessToken) {
-            const deeplinkParams = new URLSearchParams();
-            deeplinkParams.set('access_token', accessToken);
-            if (refreshToken) deeplinkParams.set('refresh_token', refreshToken);
-            const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
-            console.log('🔗 Triggering deeplink with tokens:', deeplinkUrl);
-            window.location.href = deeplinkUrl;
-            setTimeout(() => {
-              console.log('🔗 Deeplink fallback: navigating to home...');
-              window.location.href = '/?success=true';
-            }, 1500);
-          } else {
-            navigate('/', { replace: true });
-          }
-          return;
-        } catch (err) {
-          console.error('❌ Code exchange error:', err);
-          setStatus('error');
-          setErrorMessage('Code-Austausch fehlgeschlagen');
-          setTimeout(() => navigate('/auth?error=code_exchange', { replace: true }), 2000);
-          return;
-        }
-      }
-
-      // === IMPLICIT FLOW FALLBACK (Android / legacy) ===
-      // Parse tokens from hash fragment or path
+      // Parse tokens from multiple sources
       const hash = window.location.hash.substring(1);
       const hashParams = new URLSearchParams(hash);
+      const queryParams = new URLSearchParams(window.location.search);
       
+      // Parse tokens from path if they ended up there (hash was lost during redirect)
       let pathParams = new URLSearchParams();
       const pathname = window.location.pathname;
       const tokenMatch = pathname.match(/access_token=(.+?)(?:&|$)/);
@@ -150,6 +51,7 @@ const NativeCallback = () => {
         }
       }
 
+      // Try multiple sources: hash first, then path, then query params
       const accessToken = hashParams.get('access_token') 
         || pathParams.get('access_token') 
         || queryParams.get('access_token');
