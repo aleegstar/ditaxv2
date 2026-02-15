@@ -11,7 +11,8 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
-import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';
 const Auth = () => {
   const navigate = useNavigate();
@@ -274,7 +275,32 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
+    // iOS DESPIA: Direct Apple OAuth with form_post (bypasses isolated ASWebAuthenticationSession storage)
+    if (isDespia && isDespiaIOS()) {
+      try {
+        const url = getAppleOAuthUrl(true, DEEPLINK_SCHEME);
+        if (!url) {
+          toast.error("Apple Sign In nicht konfiguriert");
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+          return;
+        }
+        console.log('🍎 iOS Apple Auth: Direct form_post flow');
+        despia(`oauth://?url=${encodeURIComponent(url)}`);
+        setTimeout(() => {
+          isOAuthInProgress.current = false;
+          setIsOAuthLoading(false);
+        }, 30000);
+      } catch (err) {
+        console.error('Error starting iOS Apple auth:', err);
+        toast.error("Fehler bei der Apple-Anmeldung");
+        isOAuthInProgress.current = false;
+        setIsOAuthLoading(false);
+      }
+      return;
+    }
+
+    // ANDROID DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
     if (isDespia) {
       try {
         const {
