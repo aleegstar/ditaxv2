@@ -12,6 +12,7 @@ import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
 import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
+import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';
 const Auth = () => {
   const navigate = useNavigate();
@@ -274,28 +275,13 @@ const Auth = () => {
     const isDespia = isDespiaNative();
     const isNativeCapacitor = Capacitor.isNativePlatform();
 
-    // DESPIA NATIVE FLOW - Easy OAuth gemäß https://lovable.despia.com/default-guide/native-features/easy-oauth
+    // DESPIA NATIVE FLOW - Apple uses direct Apple OAuth (not Supabase OAuth)
+    // because Apple requires response_mode=form_post
     if (isDespia) {
       try {
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke('auth-start', {
-          body: {
-            provider: 'apple',
-            deeplink_scheme: DEEPLINK_SCHEME
-          }
-        });
-        if (error || !data?.url) {
-          console.error('Failed to get Apple OAuth URL:', error);
-          toast.error("Fehler beim Starten der Anmeldung");
-          isOAuthInProgress.current = false;
-          setIsOAuthLoading(false);
-          return;
-        }
-
-        // Easy OAuth: Opens ASWebAuthenticationSession (iOS) or Chrome Custom Tab (Android)
-        despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+        const appleUrl = getAppleOAuthUrl(true, DEEPLINK_SCHEME);
+        console.log('🍎 Opening Apple OAuth via Despia:', appleUrl);
+        despia(`oauth://?url=${encodeURIComponent(appleUrl)}`);
         // Safety timeout - reset after 30s if OAuth doesn't complete
         setTimeout(() => {
           isOAuthInProgress.current = false;

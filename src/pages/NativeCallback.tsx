@@ -33,12 +33,61 @@ const NativeCallback = () => {
       console.log('🔐 NativeCallback: Processing auth...');
       console.log('🔐 URL:', window.location.href);
 
-      // Parse tokens from multiple sources
+      const queryParams = new URLSearchParams(window.location.search);
+
+      // === PKCE CODE FLOW (iOS fix) ===
+      // When using flow_type=pkce, Supabase returns ?code=xxx as query parameter
+      // This works reliably on iOS where hash fragments get stripped
+      const authCode = queryParams.get('code');
+      if (authCode) {
+        console.log('🔐 PKCE code found, exchanging for session...');
+        try {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
+          
+          if (exchangeError) {
+            console.error('❌ Code exchange error:', exchangeError);
+            setStatus('error');
+            setErrorMessage('Code-Austausch fehlgeschlagen');
+            setTimeout(() => navigate('/auth?error=code_exchange', { replace: true }), 2000);
+            return;
+          }
+
+          console.log('✅ Code exchange successful!');
+          setStatus('success');
+
+          const accessToken = data.session?.access_token;
+          const refreshToken = data.session?.refresh_token;
+
+          const isNativeOAuthFlow = !!pathScheme;
+          if (isNativeOAuthFlow && accessToken) {
+            const deeplinkParams = new URLSearchParams();
+            deeplinkParams.set('access_token', accessToken);
+            if (refreshToken) deeplinkParams.set('refresh_token', refreshToken);
+            const deeplinkUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
+            console.log('🔗 Triggering deeplink with tokens:', deeplinkUrl);
+            window.location.href = deeplinkUrl;
+            setTimeout(() => {
+              console.log('🔗 Deeplink fallback: navigating to home...');
+              window.location.href = '/?success=true';
+            }, 1500);
+          } else {
+            navigate('/', { replace: true });
+          }
+          return;
+        } catch (err) {
+          console.error('❌ Code exchange error:', err);
+          setStatus('error');
+          setErrorMessage('Code-Austausch fehlgeschlagen');
+          setTimeout(() => navigate('/auth?error=code_exchange', { replace: true }), 2000);
+          return;
+        }
+      }
+
+      // === IMPLICIT FLOW FALLBACK (Android / legacy) ===
+      // Parse tokens from hash fragment or path
       const hash = window.location.hash.substring(1);
       const hashParams = new URLSearchParams(hash);
-      const queryParams = new URLSearchParams(window.location.search);
       
-      // Parse tokens from path if they ended up there (hash was lost during redirect)
       let pathParams = new URLSearchParams();
       const pathname = window.location.pathname;
       const tokenMatch = pathname.match(/access_token=(.+?)(?:&|$)/);
@@ -51,7 +100,6 @@ const NativeCallback = () => {
         }
       }
 
-      // Try multiple sources: hash first, then path, then query params
       const accessToken = hashParams.get('access_token') 
         || pathParams.get('access_token') 
         || queryParams.get('access_token');

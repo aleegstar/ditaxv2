@@ -62,7 +62,9 @@ serve(async (req) => {
     const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
     // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
-    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;
+    // PKCE flow: returns ?code=xxx (query param) instead of #access_token=xxx (hash fragment)
+    // This fixes iOS where ASWebAuthenticationSession strips hash fragments
+    const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=pkce&response_type=code`;
 
     console.log('✅ auth-start: Generated OAuth URL', { 
       oauthUrl, 
