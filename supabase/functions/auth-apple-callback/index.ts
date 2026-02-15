@@ -2,26 +2,36 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import * as jose from "https://deno.land/x/jose@v5.2.0/index.ts";
 
-/**
- * auth-apple-callback Edge Function
- * 
- * Receives Apple's form_post callback with id_token, code, state, and user data.
- * Verifies the id_token using Apple's JWKS public keys, creates/finds the Supabase
- * user, generates session tokens, and redirects back to the app.
- * 
- * Flow:
- * 1. Apple POSTs form data after user authenticates
- * 2. Parse state to determine if native (contains deeplink scheme)
- * 3. Verify id_token with Apple JWKS
- * 4. Create or find Supabase user via Admin API
- * 5. Generate session via magic link + OTP verification
- * 6. Redirect with tokens (deeplink for native, URL for web)
- */
-
 const APPLE_JWKS_URL = "https://appleid.apple.com/auth/keys";
 
+/**
+ * Returns an HTML page that redirects via JS + meta refresh.
+ * Required because Response.redirect() doesn't work with custom URL schemes.
+ */
+function htmlRedirect(url: string): Response {
+  const html = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${url}"></head><body><script>window.location.href="${url}";</script></body></html>`;
+  return new Response(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html' },
+  });
+}
+
+function redirectWithError(error: string, state: string | null): Response {
+  let deeplinkScheme: string | null = null;
+  if (state && state.includes('|')) {
+    deeplinkScheme = state.split('|')[1];
+  }
+
+  const APP_URL = Deno.env.get('APP_URL') || 'https://app.ditax.ch';
+
+  if (deeplinkScheme) {
+    return htmlRedirect(`${deeplinkScheme}://oauth/auth?error=${encodeURIComponent(error)}`);
+  } else {
+    return htmlRedirect(`${APP_URL}/auth?error=${encodeURIComponent(error)}`);
+  }
+}
+
 serve(async (req) => {
-  // Apple sends a POST with form data
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -29,13 +39,11 @@ serve(async (req) => {
   try {
     const formData = await req.formData();
     const idToken = formData.get('id_token') as string;
-    const code = formData.get('code') as string;
     const state = formData.get('state') as string;
     const userStr = formData.get('user') as string | null;
 
     console.log('🍎 auth-apple-callback: Received callback', {
       hasIdToken: !!idToken,
-      hasCode: !!code,
       state,
       hasUser: !!userStr,
     });
@@ -45,8 +53,7 @@ serve(async (req) => {
       return redirectWithError('no_id_token', state);
     }
 
-    // Parse state to detect native flow
-    // Format: "uuid|scheme" for native, "uuid" for web
+    // Parse state to detect native flow ("uuid|scheme")
     let deeplinkScheme: string | null = null;
     if (state && state.includes('|')) {
       deeplinkScheme = state.split('|')[1];
@@ -54,8 +61,6 @@ serve(async (req) => {
     }
 
     // === Step 1: Verify id_token with Apple JWKS ===
-    console.log('🔐 Verifying id_token with Apple JWKS...');
-    
     const APPLE_CLIENT_ID = Deno.env.get('APPLE_CLIENT_ID');
     if (!APPLE_CLIENT_ID) {
       console.error('❌ APPLE_CLIENT_ID not configured');
@@ -63,7 +68,7 @@ serve(async (req) => {
     }
 
     const JWKS = jose.createRemoteJWKSet(new URL(APPLE_JWKS_URL));
-    
+
     let payload: jose.JWTPayload;
     try {
       const { payload: verifiedPayload } = await jose.jwtVerify(idToken, JWKS, {
@@ -71,7 +76,7 @@ serve(async (req) => {
         audience: APPLE_CLIENT_ID,
       });
       payload = verifiedPayload;
-      console.log('✅ id_token verified successfully');
+      console.log('✅ id_token verified');
     } catch (verifyError) {
       console.error('❌ id_token verification failed:', verifyError);
       return redirectWithError('token_invalid', state);
@@ -89,7 +94,6 @@ serve(async (req) => {
         const userData = JSON.parse(userStr);
         firstName = userData?.name?.firstName || '';
         lastName = userData?.name?.lastName || '';
-        console.log('👤 User info from Apple:', { firstName, lastName });
       } catch {
         console.log('⚠️ Could not parse user data');
       }
@@ -100,31 +104,47 @@ serve(async (req) => {
       return redirectWithError('no_email', state);
     }
 
-    // === Step 2: Create or find Supabase user ===
+    // === Step 2: Find or create Supabase user ===
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
+
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
+      auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    // Targeted user lookup by email (instead of loading all users)
     console.log('👤 Looking up user by email:', email);
+    const { data: usersResponse, error: lookupError } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
 
-    // Try to find existing user
-    const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    
+    // Use REST API for filtered lookup since SDK doesn't support email filter
+    const lookupRes = await fetch(
+      `${supabaseUrl}/auth/v1/admin/users?page=1&per_page=1&filter=${encodeURIComponent(email)}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'apikey': supabaseServiceKey,
+        },
+      }
+    );
+
     let userId: string;
-    
-    const existingUser = existingUsers?.users?.find(u => u.email === email);
-    
+    let existingUser = null;
+
+    if (lookupRes.ok) {
+      const lookupData = await lookupRes.json();
+      const users = lookupData.users || lookupData;
+      existingUser = Array.isArray(users)
+        ? users.find((u: any) => u.email === email)
+        : null;
+    }
+
     if (existingUser) {
       userId = existingUser.id;
       console.log('✅ Found existing user:', userId);
-      
-      // Update user metadata with Apple provider info
+
       await supabaseAdmin.auth.admin.updateUser(userId, {
         user_metadata: {
           ...existingUser.user_metadata,
@@ -136,7 +156,6 @@ serve(async (req) => {
         email_confirm: true,
       });
     } else {
-      // Create new user
       console.log('👤 Creating new user for:', email);
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
@@ -161,8 +180,7 @@ serve(async (req) => {
 
     // === Step 3: Generate session tokens ===
     console.log('🔑 Generating session tokens...');
-    
-    // Generate a magic link to get a valid token
+
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email,
@@ -173,9 +191,8 @@ serve(async (req) => {
       return redirectWithError('session_generation_failed', state);
     }
 
-    // Extract the token hash from the link
     const linkUrl = new URL(linkData.properties.action_link);
-    const tokenHash = linkUrl.searchParams.get('token') || 
+    const tokenHash = linkUrl.searchParams.get('token') ||
                       linkUrl.hash?.replace('#', '') ||
                       linkData.properties.hashed_token;
 
@@ -184,7 +201,6 @@ serve(async (req) => {
       return redirectWithError('session_generation_failed', state);
     }
 
-    // Verify the OTP to get actual session tokens
     const { data: sessionData, error: otpError } = await supabaseAdmin.auth.verifyOtp({
       token_hash: tokenHash,
       type: 'magiclink',
@@ -197,49 +213,26 @@ serve(async (req) => {
 
     const accessToken = sessionData.session.access_token;
     const refreshToken = sessionData.session.refresh_token;
+    console.log('✅ Session tokens generated');
 
-    console.log('✅ Session tokens generated successfully');
-
-    // === Step 4: Redirect with tokens ===
+    // === Step 4: Redirect with tokens (HTML redirect for deeplink support) ===
     const APP_URL = Deno.env.get('APP_URL') || 'https://app.ditax.ch';
 
     if (deeplinkScheme) {
-      // Native flow: redirect to deeplink
-      const deeplinkParams = new URLSearchParams();
-      deeplinkParams.set('access_token', accessToken);
-      deeplinkParams.set('refresh_token', refreshToken);
-      const redirectUrl = `${deeplinkScheme}://oauth/auth?${deeplinkParams.toString()}`;
-      console.log('🔗 Redirecting to deeplink:', redirectUrl);
-      return Response.redirect(redirectUrl, 302);
+      const params = new URLSearchParams();
+      params.set('access_token', accessToken);
+      params.set('refresh_token', refreshToken);
+      const redirectUrl = `${deeplinkScheme}://oauth/auth?${params.toString()}`;
+      console.log('🔗 Redirecting to deeplink');
+      return htmlRedirect(redirectUrl);
     } else {
-      // Web flow: redirect to app with tokens
       const redirectUrl = `${APP_URL}/auth?access_token=${encodeURIComponent(accessToken)}&refresh_token=${encodeURIComponent(refreshToken)}`;
-      console.log('🌐 Redirecting to web:', redirectUrl);
-      return Response.redirect(redirectUrl, 302);
+      console.log('🌐 Redirecting to web');
+      return htmlRedirect(redirectUrl);
     }
 
   } catch (error: unknown) {
-    console.error('❌ auth-apple-callback: Unexpected error:', error);
+    console.error('❌ Unexpected error:', error);
     return redirectWithError('unknown', '');
   }
 });
-
-/**
- * Helper to redirect back with an error
- */
-function redirectWithError(error: string, state: string | null): Response {
-  let deeplinkScheme: string | null = null;
-  if (state && state.includes('|')) {
-    deeplinkScheme = state.split('|')[1];
-  }
-
-  const APP_URL = Deno.env.get('APP_URL') || 'https://app.ditax.ch';
-
-  if (deeplinkScheme) {
-    const redirectUrl = `${deeplinkScheme}://oauth/auth?error=${encodeURIComponent(error)}`;
-    return Response.redirect(redirectUrl, 302);
-  } else {
-    const redirectUrl = `${APP_URL}/auth?error=${encodeURIComponent(error)}`;
-    return Response.redirect(redirectUrl, 302);
-  }
-}
