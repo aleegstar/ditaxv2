@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 
 // Apple Service ID (publishable, safe to hardcode)
-const APPLE_CLIENT_ID = 'com.ditax.web';
+const APPLE_CLIENT_ID = 'ch.ditax.app.service';
 
 const SUPABASE_URL = 'https://gqbhilftduwxjszznnzy.supabase.co';
 const REDIRECT_URI = `${SUPABASE_URL}/functions/v1/auth-apple-callback`;
