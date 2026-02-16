@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, FileText, Upload, Eye, CheckCircle, XCircle, Clock, AlertCircle, Download } from 'lucide-react';
 import { useAdminValidation } from '@/hooks/use-admin-validation';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface DefinitiveTaxBill {
   id: string;
@@ -283,6 +284,10 @@ export function DefinitiveTaxBillManager() {
   };
 
   const handleDownload = async (bill: DefinitiveTaxBill) => {
+    if (!validateStoragePath(bill.file_path)) {
+      toast({ title: 'Fehler', description: 'Ungültiger Dateipfad.', variant: 'destructive' });
+      return;
+    }
     try {
       const { data, error } = await supabase.storage
         .from('definitive-tax-bills')

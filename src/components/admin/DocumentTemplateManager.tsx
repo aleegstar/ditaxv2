@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Trash2, Upload, Eye, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface DocumentTemplate {
   id: string;
@@ -42,6 +43,9 @@ export const DocumentTemplateManager: React.FC = () => {
       // Verify that referenced files exist in storage
       const entries = await Promise.all(
         loaded.map(async (t) => {
+          if (!validateStoragePath(t.file_path)) {
+            return [t.id, true] as [string, boolean];
+          }
           const { data: signed, error: signErr } = await supabase.storage
             .from('document-templates')
             .createSignedUrl(t.file_path, 60);

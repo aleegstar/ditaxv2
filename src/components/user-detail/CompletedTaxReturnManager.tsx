@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/unified-alert-dialog";
 import { Upload, FileText, Trash2, Download, Eye } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
-import { sanitizeFileName } from '@/utils/fileValidation';
+import { sanitizeFileName, validateStoragePath } from '@/utils/fileValidation';
 import { toast } from "@/components/ui/use-toast";
 import { SecurityService } from "@/services/SecurityService";
 
@@ -281,6 +281,10 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           variant: "destructive"
         });
         return;
+      }
+
+      if (!validateStoragePath(taxReturn.file_path)) {
+        throw new Error('Ungültiger Dateipfad');
       }
 
       const { data, error } = await supabase.storage

@@ -24,6 +24,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useMissingItemRequests, type MissingItemRequest } from '@/hooks/useMissingItemRequests';
 import { toast } from 'sonner';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface ReviewSubmittedItemsDialogProps {
   open: boolean;
@@ -52,6 +53,10 @@ export const ReviewSubmittedItemsDialog: React.FC<ReviewSubmittedItemsDialogProp
   const { approveRequest, rejectRequest, approveAllAndComplete } = useMissingItemRequests();
 
   const handleDownloadFile = async (filePath: string, fileName: string) => {
+    if (!validateStoragePath(filePath)) {
+      toast.error('Ungültiger Dateipfad');
+      return;
+    }
     try {
       const { data, error } = await supabase.storage
         .from('missing-items')
