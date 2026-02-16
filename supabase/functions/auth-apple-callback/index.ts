@@ -38,7 +38,7 @@ serve(async (req) => {
     const JWKS = jose.createRemoteJWKSet(new URL('https://appleid.apple.com/auth/keys'));
     const { payload } = await jose.jwtVerify(idToken, JWKS, {
       issuer: 'https://appleid.apple.com',
-      audience: Deno.env.get('APPLE_CLIENT_ID') || 'com.ditax.web',
+      audience: Deno.env.get('APPLE_CLIENT_ID') || 'ch.ditax.app.service',
     });
 
     const appleUserId = payload.sub as string;
