@@ -223,15 +223,26 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         url: data.url
       });
 
+      // Validate payment URL before redirect
+      const paymentUrl = data.url;
+      const parsed = new URL(paymentUrl);
+      const allowedHosts = ['checkout.stripe.com', 'pay.stripe.com'];
+      if (!allowedHosts.some(host => parsed.hostname.endsWith(host))) {
+        throw new Error('Unbekannte Zahlungs-URL');
+      }
+      if (parsed.protocol !== 'https:') {
+        throw new Error('Unsichere Zahlungs-URL');
+      }
+
       if (Capacitor.isNativePlatform()) {
         toast.info("Zahlung wird im Browser geöffnet...");
         await Browser.open({
-          url: data.url,
+          url: paymentUrl,
           presentationStyle: 'fullscreen',
           toolbarColor: '#2563eb'
         });
       } else {
-        window.location.href = data.url;
+        window.location.href = paymentUrl;
       }
     } catch (error: any) {
       console.error('❌ Payment error:', error);
