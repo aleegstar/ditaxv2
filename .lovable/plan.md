@@ -1,73 +1,118 @@
 
-
-# Fix: Google iOS Login - Redirect erreicht auth-ios-bridge nicht
+# Fix: Google Login iOS - Native Callback gemäss Despia Docs
 
 ## Problem
 
-Die Logs zeigen eindeutig:
-- `auth-start` wird korrekt aufgerufen mit `platform: 'ios'`
-- `redirect_to` wird korrekt auf `auth-ios-bridge` gesetzt
-- **ABER: auth-ios-bridge hat NULL Logs** -- wird nie aufgerufen
+Der aktuelle Ansatz verwendet eine Supabase Edge Function (`auth-ios-bridge`) als Redirect-Ziel fuer Google OAuth auf iOS. Das ist falsch weil:
 
-Supabase prueft `redirect_to` gegen eine Allowlist (Authentication > URL Configuration > Redirect URLs). Wenn die URL nicht gelistet ist, wird auf die Site URL (`app.ditax.ch`) umgeleitet. Deshalb landet der User auf der vollen App-Seite im In-App-Browser statt auf der leichtgewichtigen Bridge.
+1. Die Edge Function laeuft auf `gqbhilftduwxjszznnzy.supabase.co` - nicht auf der App-Domain
+2. ASWebAuthenticationSession auf iOS erkennt den Custom-Scheme-Deeplink (`ditax://`) moeglicherweise nicht korrekt von einer fremden Domain
+3. Die Despia-Dokumentation sagt klar: `/native-callback` soll eine **statische HTML-Seite auf der App-Domain** sein
+
+## Despia-Dokumentation (Original)
+
+Die Docs sagen woertlich:
+
+> "The /native-callback page must render a loader immediately via static HTML."
+> "Google Sign In on iOS and Android" - selber Flow fuer beide Plattformen
+> "Callback pages need static HTML loaders, not React"
+
+Der Schluessel: Ein inline Script in `index.html` das **VOR dem React-Bundle** ausfuehrt, die Tokens aus dem Hash liest, und sofort den Deeplink feuert.
 
 ## Loesung
 
-### Schritt 1: Redirect URL in Supabase Dashboard hinzufuegen
+### 1. Inline Script in index.html (KERNFIX)
 
-Im Supabase Dashboard unter **Authentication > URL Configuration > Redirect URLs** muss folgende URL hinzugefuegt werden:
+Ein kleines Script das SOFORT laeuft, noch bevor React ueberhaupt geladen wird:
+
+```html
+<script>
+  // Native OAuth callback - runs BEFORE React loads
+  (function() {
+    if (window.location.pathname.indexOf('/native-callback') !== 0) return;
+    
+    var hash = window.location.hash.substring(1);
+    if (!hash) return; // Kein Hash = React uebernimmt als Fallback
+    
+    var params = new URLSearchParams(hash);
+    var accessToken = params.get('access_token');
+    if (!accessToken) return;
+    
+    var refreshToken = params.get('refresh_token');
+    var pathParts = window.location.pathname.split('/');
+    var scheme = pathParts[2] || 'ditax';
+    
+    var deeplink = scheme + '://oauth/auth?access_token=' + encodeURIComponent(accessToken);
+    if (refreshToken) {
+      deeplink += '&refresh_token=' + encodeURIComponent(refreshToken);
+    }
+    
+    window.location.href = deeplink;
+  })();
+</script>
+```
+
+Dieses Script:
+- Prueft ob URL `/native-callback` ist
+- Liest Tokens aus dem Hash-Fragment
+- Feuert sofort den Deeplink (`ditax://oauth/auth?tokens`)
+- Alles in ~500ms statt 3-5 Sekunden (kein React-Bundle noetig)
+- Wenn kein Hash vorhanden, laeuft React als Fallback weiter
+
+### 2. auth-start vereinfachen
+
+`platform` Parameter entfernen. IMMER auf `app.ditax.ch/native-callback/` redirecten (fuer iOS UND Android):
 
 ```
-https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/auth-ios-bridge**
+const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 ```
 
-Das `**` am Ende ist ein Wildcard-Pattern, das auch Query-Parameter wie `?scheme=ditax` abdeckt.
+### 3. Auth.tsx vereinfachen
 
-**Wichtig:** Das muss manuell im Supabase Dashboard gemacht werden -- das kann nicht per Code geaendert werden.
-
-### Schritt 2: Google Cloud Console pruefen
-
-In der Google Cloud Console muss die Supabase Callback URL als Authorized Redirect URI konfiguriert sein. Da die App `auth.ditax.ch` als Custom Auth Domain nutzt, muss dort stehen:
+Die separate iOS-Weiche in `handleGoogleAuth` entfernen. Beide Plattformen nutzen denselben Flow:
 
 ```
-https://auth.ditax.ch/auth/v1/callback
+// DESPIA NATIVE (iOS + Android)
+if (isDespia) {
+  const { data } = await supabase.functions.invoke('auth-start', {
+    body: { provider: 'google', deeplink_scheme: DEEPLINK_SCHEME }
+  });
+  despia(`oauth://?url=${encodeURIComponent(data.url)}`);
+  return;
+}
 ```
 
-Falls noch nicht vorhanden, auch:
-```
-https://gqbhilftduwxjszznnzy.supabase.co/auth/v1/callback
-```
+## Aenderungen
 
-### Warum das Problem auftritt
+| Datei | Aktion | Beschreibung |
+|-------|--------|-------------|
+| `index.html` | Aendern | Inline-Script hinzufuegen das Tokens aus Hash liest und Deeplink feuert BEVOR React laedt |
+| `supabase/functions/auth-start/index.ts` | Aendern | `platform` Parameter entfernen, IMMER auf `app.ditax.ch/native-callback/` redirecten |
+| `src/pages/Auth.tsx` | Aendern | iOS-Weiche in `handleGoogleAuth` entfernen (Zeilen 193-219), ein Block fuer beide Plattformen |
+
+## Flow nach dem Fix (identisch iOS + Android)
 
 ```text
-AKTUELLER FLOW (fehlerhaft):
-1. auth-start gibt OAuth URL mit redirect_to=auth-ios-bridge
-2. User authentifiziert bei Google
-3. Google leitet zu Supabase callback
-4. Supabase prueft redirect_to gegen Allowlist
-5. auth-ios-bridge URL NICHT in Allowlist -> ABGELEHNT
-6. Supabase nutzt Site URL Fallback: app.ditax.ch
-7. ASWebAuthenticationSession laedt volle React SPA
-8. User bleibt im In-App-Browser haengen (kein Deeplink)
-
-NACH DEM FIX:
-1-4. Gleich wie oben
-5. auth-ios-bridge URL IN Allowlist -> AKZEPTIERT
-6. Supabase leitet zu auth-ios-bridge#access_token=xxx
-7. Minimale HTML-Seite liest Hash, setzt Deeplink
-8. ditax://oauth/auth?tokens -> ASWebAuth schliesst sich -> App
+1. User tippt "Mit Google anmelden"
+2. Auth.tsx ruft auth-start auf (provider=google, deeplink_scheme=ditax)
+3. auth-start gibt OAuth URL mit redirect_to=https://app.ditax.ch/native-callback/ditax/
+4. despia('oauth://...') oeffnet ASWebAuthenticationSession (iOS) / Chrome Custom Tab (Android)
+5. User loggt sich bei Google ein
+6. Google leitet zu Supabase callback
+7. Supabase leitet zu app.ditax.ch/native-callback/ditax/#access_token=xxx
+8. index.html inline-Script liest Hash SOFORT (kein React noetig)
+9. Script setzt window.location.href = "ditax://oauth/auth?access_token=xxx"
+10. Despia erkennt ditax://, schliesst Browser, navigiert WebView zu /auth?tokens
+11. Auth.tsx liest Tokens, ruft setSession() auf
 ```
 
-### Code-Aenderungen
+## Was NICHT geaendert wird
 
-**Keine Code-Aenderungen noetig.** Der Code ist korrekt, nur die Supabase-Konfiguration fehlt.
+- Apple iOS Flow (form_post via auth-apple-callback) - bleibt wie ist
+- Apple Android Flow (auth-start Standard) - bleibt wie ist
+- NativeCallback.tsx - bleibt als React-Fallback bestehen
+- Web Flow - komplett unveraendert
 
-### Anleitung
+## Voraussetzung (Supabase Dashboard)
 
-1. Oeffne das Supabase Dashboard: https://supabase.com/dashboard/project/gqbhilftduwxjszznnzy/auth/url-configuration
-2. Unter "Redirect URLs" klicke "Add URL"
-3. Fuege ein: `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/auth-ios-bridge**`
-4. Speichern
-5. Nochmal auf iOS testen
-
+Die Redirect URL `https://app.ditax.ch/native-callback/**` muss in der Supabase URL-Konfiguration als erlaubte Redirect URL eingetragen sein. Falls noch nicht vorhanden, bitte manuell hinzufuegen unter Authentication > URL Configuration > Redirect URLs.
