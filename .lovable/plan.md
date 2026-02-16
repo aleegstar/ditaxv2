@@ -1,71 +1,93 @@
 
 
-# Security Fixes fuer aikido.dev Findings
+# Security Fixes fuer 3 aikido.dev Findings
 
-## Uebersicht der 4 Findings
+## 1. glob CVE-2025-64756 (Score 75) -- NICHT DIREKT FIXBAR
 
-### 1. CSP `unsafe-inline` und `unsafe-eval` (Score 85 + 75) -- NICHT FIXBAR
+**Problem:** `glob` ist eine transitive Abhaengigkeit (kommt ueber andere Pakete). Es ist nicht direkt in `package.json` gelistet.
 
-**Grund:** Lovable's Hosting-Plattform und Build-System (Vite) benoetigen `unsafe-inline` und `unsafe-eval` fuer:
-- Hot Module Replacement (HMR) waehrend der Entwicklung
-- Vite's CSS-Injection-Mechanismus
-- GPT Engineer SDK (`cdn.gpteng.co`)
-
-**Aktion:** Diese Findings koennen nur durch Migration zu einem eigenen Hosting (mit Cloudflare Workers) oder durch Nonce-basiertes CSP geloest werden. Das ist im `SECURITY.md` bereits als Roadmap-Item dokumentiert. Keine Code-Aenderung moeglich.
+**Aktion:** Lovable verwaltet die Lock-Datei automatisch. Ein manuelles Update von `glob` ist nicht moeglich, da es eine Sub-Dependency ist. Dieses Finding in aikido.dev als "accepted risk" markieren, bis die uebergeordneten Pakete aktualisiert werden.
 
 ---
 
-### 2. "Exposed JWT Token" in 8 Dateien (Score 80) -- FALSE POSITIVE
+## 2. SSRF in cloudflare/security-headers-worker.js (Score 70) -- FIXBAR
 
-Die Scanner finden den Supabase ANON Key in:
-- `src/integrations/supabase/client.ts` (direkt)
-- `.env` (direkt)
-- `src/utils/pdfDownloadHelper.ts`, `src/services/KeyManagementService.ts`, `src/components/user-detail/DocumentsPdfDownloader.tsx`, `src/components/EdgeFunctionTester.tsx`, `src/utils/coverLetterDownloadHelper.ts` (indirekt via Import)
-- `supabase/functions/setup-cron-notifications.sql` (geloeschte Datei)
+**Problem:** Zeile 16: `const response = await fetch(request);` leitet beliebige Requests weiter. Ein Angreifer koennte theoretisch interne Ressourcen ansprechen.
 
-**Grund:** Der ANON Key ist ein **oeffentlicher** Schluessel (wie ein Firebase API Key). Er ist durch RLS geschuetzt. Dies ist bereits in `SECURITY.md` dokumentiert.
+**Fix:** Origin-Validierung hinzufuegen, damit nur Requests an die eigene Domain (`ditaxv2.lovable.app`, `app.ditax.ch`) weitergeleitet werden:
 
-**Aktion:** Keine Code-Aenderung noetig. In aikido.dev als "accepted risk" / false positive markieren.
-
----
-
-### 3. XSS via `window.location.href` in PaymentSection.tsx (Score 75) -- FIXBAR
-
-**Problem:** Zeile 234 setzt `window.location.href = data.url` ohne Validierung. Ein kompromittierter Edge Function Response koennte eine `javascript:` oder boeswillige URL liefern.
-
-**Fix:** URL-Validierung vor dem Redirect hinzufuegen:
-
-```typescript
-// Vor dem Redirect: URL validieren
-const paymentUrl = data.url;
-try {
-  const parsed = new URL(paymentUrl);
-  const allowedHosts = ['checkout.stripe.com', 'pay.stripe.com'];
-  if (!allowedHosts.some(host => parsed.hostname.endsWith(host))) {
-    throw new Error('Unbekannte Zahlungs-URL');
+```javascript
+async function handleRequest(request) {
+  // SECURITY: Validate request URL to prevent SSRF
+  const url = new URL(request.url);
+  const allowedHosts = ['ditaxv2.lovable.app', 'app.ditax.ch', 'ditax.ch'];
+  
+  if (!allowedHosts.some(host => url.hostname === host || url.hostname.endsWith('.' + host))) {
+    return new Response('Forbidden', { status: 403 });
   }
-  if (parsed.protocol !== 'https:') {
-    throw new Error('Unsichere Zahlungs-URL');
-  }
-  window.location.href = paymentUrl;
-} catch (validationError) {
-  throw new Error('Ungueltige Zahlungs-URL erhalten');
+  
+  const response = await fetch(request);
+  // ... rest unchanged
 }
 ```
 
-**Dateien:**
-- `src/components/PaymentSection.tsx` -- URL-Validierung vor `window.location.href` (Zeile 234)
+**Datei:** `cloudflare/security-headers-worker.js`
+
+---
+
+## 3. Path Traversal in 35 Stellen (Score 70) -- TEILWEISE FIXBAR
+
+**Problem:** Viele Stellen nutzen `file_path` aus der Datenbank direkt in `.download()` oder `.createSignedUrl()` ohne Validierung. Ein manipulierter DB-Eintrag koennte auf Dateien ausserhalb des vorgesehenen Ordners zugreifen.
+
+**Bereits gesichert (haben `sanitizeFileName`/`validateFilePath`):**
+- `DefinitiveTaxBillManager.tsx` (Upload)
+- `DocumentTemplateManager.tsx` (Upload)
+- `MissingItemCard.tsx` (Upload)
+- `AvatarUpload.tsx` (Upload)
+
+**Fix:** Eine zentrale Hilfsfunktion `validateStoragePath()` erstellen und bei allen `.download()`, `.createSignedUrl()` Aufrufen einsetzen:
+
+```typescript
+// In src/utils/fileValidation.ts - neue Funktion
+export function validateStoragePath(path: string): boolean {
+  if (!path || typeof path !== 'string') return false;
+  const normalized = path.replace(/\\/g, '/');
+  if (normalized.includes('..')) return false;
+  if (normalized.startsWith('/')) return false;
+  if (normalized.length > 512) return false;
+  return true;
+}
+```
+
+**Betroffene Dateien fuer Download/SignedUrl-Validierung:**
+
+| Datei | Operation | Zeile ca. |
+|-------|-----------|-----------|
+| `DefinitiveTaxBillManager.tsx` | `.download(bill.file_path)` | 289 |
+| `DocumentTemplateManager.tsx` | `.createSignedUrl(t.file_path, 60)` | 47 |
+| `ChatBubble.tsx` | `.download(attachment.file_path)` | 36 |
+| `ReviewSubmittedItemsDialog.tsx` | `.download(filePath)` | 58 |
+| `UserDetail.tsx` | `.download(taxReturn.file_path)` | 381 |
+| `CompletedTaxReturnManager.tsx` | `.download(taxReturn.file_path)` | 288 |
+| `SignatureDialog.tsx` | `.createSignedUrl(...)` | 130 |
+| `SignedTaxReturns.tsx` | `.createSignedUrl(...)` | 236 |
+| `TicketManagement.tsx` | `.createSignedUrl(...)` | 53 |
+| `EncryptedChatService.ts` | `.download(attachment.file_path)` | 176 |
+
+Jede dieser Stellen erhaelt eine `validateStoragePath()` Pruefung vor dem Storage-Aufruf.
 
 ---
 
 ## Zusammenfassung
 
-| Finding | Score | Status | Aktion |
-|---------|-------|--------|--------|
-| CSP unsafe-inline | 85 | Nicht fixbar | Cloudflare Worker / Hosting-Migration noetig |
-| CSP unsafe-eval | 75 | Nicht fixbar | Cloudflare Worker / Hosting-Migration noetig |
-| JWT Token "Leak" | 80 | False Positive | In aikido.dev als akzeptiert markieren |
-| XSS window.location.href | 75 | **Fixbar** | URL-Validierung hinzufuegen |
+| Finding | Score | Status | Aenderung |
+|---------|-------|--------|-----------|
+| glob CVE | 75 | Nicht fixbar | Transitive Dependency, in aikido.dev akzeptieren |
+| SSRF Worker | 70 | **Fixbar** | Origin-Validierung in Worker |
+| Path Traversal | 70 | **Fixbar** | `validateStoragePath()` bei allen Downloads/SignedUrls |
 
-**1 Datei wird geaendert:** `src/components/PaymentSection.tsx`
+**Dateien die geaendert werden:**
+1. `cloudflare/security-headers-worker.js` -- SSRF-Schutz
+2. `src/utils/fileValidation.ts` -- Neue `validateStoragePath()` Funktion
+3. 10 Dateien mit Download/SignedUrl-Aufrufen -- Path-Validierung hinzufuegen
 
