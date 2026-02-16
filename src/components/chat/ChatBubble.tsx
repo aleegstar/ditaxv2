@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, Image } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface ChatBubbleProps {
   message: {
@@ -29,6 +30,11 @@ interface ChatBubbleProps {
 const ChatBubble = ({ message, attachment, senderName, senderAvatarUrl, isOwnMessage }: ChatBubbleProps) => {
   const handleDownloadAttachment = async () => {
     if (!attachment) return;
+    
+    if (!validateStoragePath(attachment.file_path)) {
+      console.error('Invalid storage path detected');
+      return;
+    }
     
     try {
       const { data, error } = await supabase.storage

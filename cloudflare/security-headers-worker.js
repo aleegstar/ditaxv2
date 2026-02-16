@@ -12,6 +12,14 @@ addEventListener('fetch', event => {
 });
 
 async function handleRequest(request) {
+  // SECURITY: Validate request URL to prevent SSRF
+  const url = new URL(request.url);
+  const allowedHosts = ['ditaxv2.lovable.app', 'app.ditax.ch', 'ditax.ch'];
+  
+  if (!allowedHosts.some(host => url.hostname === host || url.hostname.endsWith('.' + host))) {
+    return new Response('Forbidden', { status: 403 });
+  }
+  
   // Forward request to Lovable backend
   const response = await fetch(request);
   

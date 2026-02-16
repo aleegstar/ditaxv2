@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, FileText, CheckCircle, PenTool, Shield, X } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { validateStoragePath } from '@/utils/fileValidation';
 
 interface SignatureDialogProps {
   open: boolean;
@@ -124,6 +125,10 @@ E-Mail: ${userProfile.email}`;
   };
 
   const handleViewPdf = async () => {
+    if (!validateStoragePath(completedTaxReturn.file_path)) {
+      toast({ variant: "destructive", title: "Fehler", description: "Ungültiger Dateipfad." });
+      return;
+    }
     try {
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')

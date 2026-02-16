@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import CryptoService from './CryptoService';
 import KeyManagementService from './KeyManagementService';
 import { v4 as uuidv4 } from 'uuid';
+import { validateStoragePath } from '@/utils/fileValidation';
 
 export interface EncryptedChatAttachment {
   id: string;
@@ -169,6 +170,11 @@ export class EncryptedChatService {
       
       // Get user encryption key
       const decryptionKey = await this.keyService.getUserEncryptionKey(userId);
+      
+      // Validate storage path before download
+      if (!validateStoragePath(attachment.file_path)) {
+        throw new Error('Ungültiger Dateipfad erkannt');
+      }
       
       // Download encrypted file from storage
       const { data: fileData, error: downloadError } = await supabase.storage

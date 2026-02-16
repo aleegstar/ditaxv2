@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Ticket, Search, Filter, MessageSquare, User, Calendar, FileText, ExternalLink } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { validateStoragePath } from '@/utils/fileValidation';
 import { TicketStatusBadge } from '@/components/tickets/TicketStatusBadge';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 
@@ -47,6 +48,10 @@ const openUserInNewTab = (userId: string) => {
 
 // Helper to get signed URL for ticket attachments
 const getSignedUrl = async (filePath: string): Promise<string | null> => {
+  if (!validateStoragePath(filePath)) {
+    console.error('Invalid storage path detected');
+    return null;
+  }
   try {
     const { data, error } = await supabase.storage
       .from('ticket-attachments')

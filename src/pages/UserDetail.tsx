@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Download, FileIcon, Calendar, AlertCircle, Users } from 'lucide-react';
 import { SecurityService } from '@/services/SecurityService';
+import { validateStoragePath } from '@/utils/fileValidation';
 import { CreateMissingItemRequestDialog } from '@/components/admin/CreateMissingItemRequestDialog';
 
 import UserInfoCard from '@/components/user-detail/UserInfoCard';
@@ -373,6 +374,10 @@ const UserDetail: React.FC = () => {
   }, [userId]);
 
   const handleDownloadCompletedTaxReturn = async (taxReturn: CompletedTaxReturn) => {
+    if (!validateStoragePath(taxReturn.file_path)) {
+      toast({ title: 'Fehler', description: 'Ungültiger Dateipfad.', variant: 'destructive' });
+      return;
+    }
     try {
       console.log('Admin downloading completed tax return:', taxReturn.file_path);
       

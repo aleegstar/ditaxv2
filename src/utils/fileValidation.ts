@@ -64,6 +64,22 @@ export function validateFilePath(path: string): boolean {
   return true;
 }
 
+/**
+ * Validate storage path before download/signedUrl operations
+ * Prevents path traversal when reading files from Supabase Storage
+ * 
+ * @param path - Storage path from database
+ * @returns true if path is safe for storage operations
+ */
+export function validateStoragePath(path: string): boolean {
+  if (!path || typeof path !== 'string') return false;
+  const normalized = path.replace(/\\/g, '/');
+  if (normalized.includes('..')) return false;
+  if (normalized.startsWith('/')) return false;
+  if (normalized.length > 512) return false;
+  return true;
+}
+
 // Magic number signatures for file type verification
 const FILE_SIGNATURES = {
   pdf: {

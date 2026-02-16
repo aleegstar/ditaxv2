@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { validateStoragePath } from '@/utils/fileValidation';
 import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -230,6 +231,10 @@ const SignedTaxReturns: React.FC = () => {
       return;
     }
 
+    if (!validateStoragePath(signedPdfPath)) {
+      toast({ title: 'Fehler', description: 'Ungültiger Dateipfad.', variant: 'destructive' });
+      return;
+    }
     try {
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
