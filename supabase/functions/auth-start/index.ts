@@ -28,9 +28,9 @@ serve(async (req) => {
   }
 
   try {
-    const { provider, deeplink_scheme, platform } = await req.json();
+    const { provider, deeplink_scheme } = await req.json();
 
-    console.log('🔗 auth-start: Generating OAuth URL', { provider, deeplink_scheme, platform });
+    console.log('🔗 auth-start: Generating OAuth URL', { provider, deeplink_scheme });
 
     if (!provider || !['google', 'apple'].includes(provider)) {
       return new Response(
@@ -56,12 +56,8 @@ serve(async (req) => {
       );
     }
 
-    // Choose redirect URL based on platform
-    // iOS: Use lightweight bridge Edge Function (avoids loading full React SPA in ASWebAuthenticationSession)
-    // Android/default: Use React NativeCallback page (Chrome Custom Tab shares storage)
-    const redirectUrl = platform === 'ios'
-      ? `${supabaseUrl}/functions/v1/auth-ios-bridge?scheme=${encodeURIComponent(deeplink_scheme)}`
-      : `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
+    // Always redirect to app domain native-callback (static HTML in index.html handles deeplink)
+    const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
 
     // Build OAuth URL - use standard encoding, the # will be preserved because it has content after it
     const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(redirectUrl)}&scopes=${encodeURIComponent('openid email profile')}&flow_type=implicit`;

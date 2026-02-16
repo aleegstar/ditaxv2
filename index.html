@@ -53,6 +53,30 @@
 
   <body>
     <div id="root"></div>
+    <!-- Native OAuth callback - runs BEFORE React loads for instant deeplink redirect -->
+    <script>
+      (function() {
+        if (window.location.pathname.indexOf('/native-callback') !== 0) return;
+        
+        var hash = window.location.hash.substring(1);
+        if (!hash) return;
+        
+        var params = new URLSearchParams(hash);
+        var accessToken = params.get('access_token');
+        if (!accessToken) return;
+        
+        var refreshToken = params.get('refresh_token');
+        var pathParts = window.location.pathname.split('/');
+        var scheme = pathParts[2] || 'ditax';
+        
+        var deeplink = scheme + '://oauth/auth?access_token=' + encodeURIComponent(accessToken);
+        if (refreshToken) {
+          deeplink += '&refresh_token=' + encodeURIComponent(refreshToken);
+        }
+        
+        window.location.href = deeplink;
+      })();
+    </script>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
