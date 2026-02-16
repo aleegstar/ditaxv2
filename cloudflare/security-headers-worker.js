@@ -19,9 +19,34 @@ async function handleRequest(request) {
   if (!allowedHosts.some(host => url.hostname === host || url.hostname.endsWith('.' + host))) {
     return new Response('Forbidden', { status: 403 });
   }
+
+  // SECURITY: Block requests to private/internal IPs to prevent SSRF
+  if (url.hostname === 'localhost' || 
+      url.hostname === '127.0.0.1' || 
+      url.hostname === '0.0.0.0' ||
+      url.hostname.startsWith('10.') || 
+      url.hostname.startsWith('192.168.') || 
+      url.hostname.startsWith('172.') ||
+      url.hostname === '169.254.169.254' ||
+      url.hostname.endsWith('.internal') ||
+      url.hostname.endsWith('.local')) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  // SECURITY: Only allow HTTPS protocol
+  if (url.protocol !== 'https:') {
+    return new Response('Forbidden', { status: 403 });
+  }
   
-  // Forward request to Lovable backend
-  const response = await fetch(request);
+  // Forward validated request to origin using sanitized URL
+  const sanitizedUrl = new URL(url.pathname + url.search, `https://${url.hostname}`);
+  const sanitizedRequest = new Request(sanitizedUrl.toString(), {
+    method: request.method,
+    headers: request.headers,
+    body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : undefined,
+    redirect: 'manual',
+  });
+  const response = await fetch(sanitizedRequest);
   
   // Clone response to modify headers
   const newResponse = new Response(response.body, response);
