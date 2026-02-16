@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool } from 'lucide-react';
+import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 
@@ -25,6 +25,7 @@ interface PaidTaxReturn {
   created_at: string;
   tax_filer_id: string | null;
   tax_filer_name: string;
+  express_service: boolean;
 }
 
 const TaxReturnCreation: React.FC = () => {
@@ -453,6 +454,13 @@ const TaxReturnCreation: React.FC = () => {
                     <CheckCircle className="h-4 w-4 text-green-400" />
                     <span className="text-sm">Bezahlung bestätigt</span>
                   </div>
+                  
+                  {taxReturn.express_service && (
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-amber-500 fill-amber-500/20" />
+                      <span className="text-sm font-semibold text-amber-600">Express-Service</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2 pt-4">
