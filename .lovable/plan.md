@@ -1,118 +1,108 @@
 
-# Fix: Google Login iOS - Native Callback gemäss Despia Docs
 
-## Problem
+# Apple Auth: Anpassungen gemaess Despia-Dokumentation
 
-Der aktuelle Ansatz verwendet eine Supabase Edge Function (`auth-ios-bridge`) als Redirect-Ziel fuer Google OAuth auf iOS. Das ist falsch weil:
+## Vergleich: Aktuell vs. Docs
 
-1. Die Edge Function laeuft auf `gqbhilftduwxjszznnzy.supabase.co` - nicht auf der App-Domain
-2. ASWebAuthenticationSession auf iOS erkennt den Custom-Scheme-Deeplink (`ditax://`) moeglicherweise nicht korrekt von einer fremden Domain
-3. Die Despia-Dokumentation sagt klar: `/native-callback` soll eine **statische HTML-Seite auf der App-Domain** sein
-
-## Despia-Dokumentation (Original)
-
-Die Docs sagen woertlich:
-
-> "The /native-callback page must render a loader immediately via static HTML."
-> "Google Sign In on iOS and Android" - selber Flow fuer beide Plattformen
-> "Callback pages need static HTML loaders, not React"
-
-Der Schluessel: Ein inline Script in `index.html` das **VOR dem React-Bundle** ausfuehrt, die Tokens aus dem Hash liest, und sofort den Deeplink feuert.
-
-## Loesung
-
-### 1. Inline Script in index.html (KERNFIX)
-
-Ein kleines Script das SOFORT laeuft, noch bevor React ueberhaupt geladen wird:
-
-```html
-<script>
-  // Native OAuth callback - runs BEFORE React loads
-  (function() {
-    if (window.location.pathname.indexOf('/native-callback') !== 0) return;
-    
-    var hash = window.location.hash.substring(1);
-    if (!hash) return; // Kein Hash = React uebernimmt als Fallback
-    
-    var params = new URLSearchParams(hash);
-    var accessToken = params.get('access_token');
-    if (!accessToken) return;
-    
-    var refreshToken = params.get('refresh_token');
-    var pathParts = window.location.pathname.split('/');
-    var scheme = pathParts[2] || 'ditax';
-    
-    var deeplink = scheme + '://oauth/auth?access_token=' + encodeURIComponent(accessToken);
-    if (refreshToken) {
-      deeplink += '&refresh_token=' + encodeURIComponent(refreshToken);
-    }
-    
-    window.location.href = deeplink;
-  })();
-</script>
-```
-
-Dieses Script:
-- Prueft ob URL `/native-callback` ist
-- Liest Tokens aus dem Hash-Fragment
-- Feuert sofort den Deeplink (`ditax://oauth/auth?tokens`)
-- Alles in ~500ms statt 3-5 Sekunden (kein React-Bundle noetig)
-- Wenn kein Hash vorhanden, laeuft React als Fallback weiter
-
-### 2. auth-start vereinfachen
-
-`platform` Parameter entfernen. IMMER auf `app.ditax.ch/native-callback/` redirecten (fuer iOS UND Android):
-
-```
-const redirectUrl = `https://app.ditax.ch/native-callback/${encodeURIComponent(deeplink_scheme)}/`;
-```
-
-### 3. Auth.tsx vereinfachen
-
-Die separate iOS-Weiche in `handleGoogleAuth` entfernen. Beide Plattformen nutzen denselben Flow:
-
-```
-// DESPIA NATIVE (iOS + Android)
-if (isDespia) {
-  const { data } = await supabase.functions.invoke('auth-start', {
-    body: { provider: 'google', deeplink_scheme: DEEPLINK_SCHEME }
-  });
-  despia(`oauth://?url=${encodeURIComponent(data.url)}`);
-  return;
-}
-```
+| Aspekt | Aktuell (Code) | Despia Docs (Soll) | Problem |
+|--------|---------------|-------------------|---------|
+| Native Redirect | HTML-Seite mit `<meta http-equiv="refresh">` und JS | HTTP `302` direkt zum Deeplink | HTML kann auf iOS haengen bleiben, 302 ist zuverlaessiger |
+| Fehlerbehandlung | HTML-Fehlerseite zurueckgeben | Redirect mit `?error=` Param (Deeplink oder Web-URL) | User bleibt im Browser bei Fehler statt zurueck zur App |
+| User-Suche | Alle User listen, dann nach Email filtern | `createUser` zuerst, bei "already registered" dann suchen | Ineffizient bei vielen Usern, skaliert nicht |
+| Supabase Client Import | `npm:@supabase/supabase-js@2.57.2` | `https://esm.sh/@supabase/supabase-js@2` | Funktioniert, aber esm.sh ist der empfohlene Weg |
 
 ## Aenderungen
 
-| Datei | Aktion | Beschreibung |
-|-------|--------|-------------|
-| `index.html` | Aendern | Inline-Script hinzufuegen das Tokens aus Hash liest und Deeplink feuert BEVOR React laedt |
-| `supabase/functions/auth-start/index.ts` | Aendern | `platform` Parameter entfernen, IMMER auf `app.ditax.ch/native-callback/` redirecten |
-| `src/pages/Auth.tsx` | Aendern | iOS-Weiche in `handleGoogleAuth` entfernen (Zeilen 193-219), ein Block fuer beide Plattformen |
+### 1. `supabase/functions/auth-apple-callback/index.ts` - Hauptfix
 
-## Flow nach dem Fix (identisch iOS + Android)
+**a) Native Redirect: HTML -> 302**
 
-```text
-1. User tippt "Mit Google anmelden"
-2. Auth.tsx ruft auth-start auf (provider=google, deeplink_scheme=ditax)
-3. auth-start gibt OAuth URL mit redirect_to=https://app.ditax.ch/native-callback/ditax/
-4. despia('oauth://...') oeffnet ASWebAuthenticationSession (iOS) / Chrome Custom Tab (Android)
-5. User loggt sich bei Google ein
-6. Google leitet zu Supabase callback
-7. Supabase leitet zu app.ditax.ch/native-callback/ditax/#access_token=xxx
-8. index.html inline-Script liest Hash SOFORT (kein React noetig)
-9. Script setzt window.location.href = "ditax://oauth/auth?access_token=xxx"
-10. Despia erkennt ditax://, schliesst Browser, navigiert WebView zu /auth?tokens
-11. Auth.tsx liest Tokens, ruft setSession() auf
+Vorher:
+```typescript
+// Returns full HTML page with meta refresh + JS
+const html = `<!DOCTYPE html>...window.location.href = "${deeplink}"...`;
+return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } });
 ```
 
-## Was NICHT geaendert wird
+Nachher (gemaess Docs):
+```typescript
+// Clean 302 redirect - more reliable on iOS
+return new Response(null, {
+  status: 302,
+  headers: { 'Location': `${deeplinkScheme}://oauth/auth?${params.toString()}` }
+});
+```
 
-- Apple iOS Flow (form_post via auth-apple-callback) - bleibt wie ist
-- Apple Android Flow (auth-start Standard) - bleibt wie ist
-- NativeCallback.tsx - bleibt als React-Fallback bestehen
-- Web Flow - komplett unveraendert
+**b) Fehlerbehandlung: HTML-Seiten -> Redirects**
 
-## Voraussetzung (Supabase Dashboard)
+Eine `redirectWithError` Hilfsfunktion einfuehren (wie in den Docs):
+- Native: Deeplink mit `?error=...` -> schliesst Browser, App zeigt Fehler
+- Web: Redirect zu `/auth?error=...` -> Auth.tsx zeigt Toast
 
-Die Redirect URL `https://app.ditax.ch/native-callback/**` muss in der Supabase URL-Konfiguration als erlaubte Redirect URL eingetragen sein. Falls noch nicht vorhanden, bitte manuell hinzufuegen unter Authentication > URL Configuration > Redirect URLs.
+Vorher:
+```typescript
+function errorResponse(message: string) {
+  const html = `<h1>Fehler</h1><p>${message}</p>`;
+  return new Response(html, { status: 400 });
+}
+```
+
+Nachher:
+```typescript
+function redirectWithError(appUrl: string, error: string, isNative: boolean, deeplinkScheme?: string): Response {
+  const encoded = encodeURIComponent(error);
+  if (isNative && deeplinkScheme) {
+    return new Response(null, { status: 302, headers: { 'Location': `${deeplinkScheme}://oauth/auth?error=${encoded}` } });
+  }
+  return new Response(null, { status: 302, headers: { 'Location': `${appUrl}/auth?error=${encoded}` } });
+}
+```
+
+**c) User-Erstellung: createUser-first Pattern**
+
+Vorher:
+```typescript
+// Listen ALLE User, dann nach Email suchen
+const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+const existingUser = existingUsers?.users?.find(u => u.email === email);
+```
+
+Nachher (gemaess Docs):
+```typescript
+// Versuche zuerst zu erstellen
+const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+  email: userEmail, email_confirm: true, user_metadata: { ... }
+});
+
+if (createError?.message?.includes('already been registered')) {
+  // Nur dann suchen
+  const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+  // ...
+}
+```
+
+**d) Supabase Client Import**
+
+```typescript
+// Vorher
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+
+// Nachher (gemaess Docs)
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+```
+
+### 2. Keine Aenderungen noetig
+
+| Datei | Status |
+|-------|--------|
+| `src/lib/apple-auth.ts` | Korrekt - hardcoded IDs sind OK fuer Lovable (kein VITE_ Support) |
+| `src/pages/Auth.tsx` | Korrekt - iOS nutzt `getAppleOAuthUrl` + `despia()`, Android nutzt `auth-start` |
+| `src/pages/AppleAuth.tsx` | Bleibt als Fallback bestehen |
+| `auth-start/index.ts` | Nicht betroffen (wird nur fuer Google + Apple Android genutzt) |
+
+## Zusammenfassung
+
+Nur **eine Datei** wird geaendert: `supabase/functions/auth-apple-callback/index.ts`
+
+Die Aenderungen machen den Code zuverlaessiger auf iOS (302 statt HTML), robuster bei Fehlern (Redirect statt HTML-Seite), und skalierbarer (createUser-first statt listUsers).
+
