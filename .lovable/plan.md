@@ -1,108 +1,33 @@
 
 
-# Apple Auth: Anpassungen gemaess Despia-Dokumentation
+# Fix: Apple Service ID korrigieren
 
-## Vergleich: Aktuell vs. Docs
+## Problem
 
-| Aspekt | Aktuell (Code) | Despia Docs (Soll) | Problem |
-|--------|---------------|-------------------|---------|
-| Native Redirect | HTML-Seite mit `<meta http-equiv="refresh">` und JS | HTTP `302` direkt zum Deeplink | HTML kann auf iOS haengen bleiben, 302 ist zuverlaessiger |
-| Fehlerbehandlung | HTML-Fehlerseite zurueckgeben | Redirect mit `?error=` Param (Deeplink oder Web-URL) | User bleibt im Browser bei Fehler statt zurueck zur App |
-| User-Suche | Alle User listen, dann nach Email filtern | `createUser` zuerst, bei "already registered" dann suchen | Ineffizient bei vielen Usern, skaliert nicht |
-| Supabase Client Import | `npm:@supabase/supabase-js@2.57.2` | `https://esm.sh/@supabase/supabase-js@2` | Funktioniert, aber esm.sh ist der empfohlene Weg |
+Die Apple Service ID ist falsch hinterlegt:
+- **Aktuell im Code:** `com.ditax.web`
+- **Korrekt (laut Apple Developer Console):** `ch.ditax.app.service`
+
+Das verursacht den `invalid_client` Fehler beim Apple Login auf dem iPhone.
 
 ## Aenderungen
 
-### 1. `supabase/functions/auth-apple-callback/index.ts` - Hauptfix
+### 1. `src/lib/apple-auth.ts` - Client-seitige Apple ID
 
-**a) Native Redirect: HTML -> 302**
-
-Vorher:
-```typescript
-// Returns full HTML page with meta refresh + JS
-const html = `<!DOCTYPE html>...window.location.href = "${deeplink}"...`;
-return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html' } });
+Zeile 14 aendern:
+```
+const APPLE_CLIENT_ID = 'ch.ditax.app.service';
 ```
 
-Nachher (gemaess Docs):
-```typescript
-// Clean 302 redirect - more reliable on iOS
-return new Response(null, {
-  status: 302,
-  headers: { 'Location': `${deeplinkScheme}://oauth/auth?${params.toString()}` }
-});
-```
+### 2. `supabase/functions/auth-apple-callback/index.ts` - Fallback-Wert
 
-**b) Fehlerbehandlung: HTML-Seiten -> Redirects**
+Zeile 41 aendern: Den Fallback-Wert von `com.ditax.web` auf `ch.ditax.app.service` aktualisieren.
 
-Eine `redirectWithError` Hilfsfunktion einfuehren (wie in den Docs):
-- Native: Deeplink mit `?error=...` -> schliesst Browser, App zeigt Fehler
-- Web: Redirect zu `/auth?error=...` -> Auth.tsx zeigt Toast
+### 3. Supabase Secret `APPLE_CLIENT_ID` pruefen
 
-Vorher:
-```typescript
-function errorResponse(message: string) {
-  const html = `<h1>Fehler</h1><p>${message}</p>`;
-  return new Response(html, { status: 400 });
-}
-```
-
-Nachher:
-```typescript
-function redirectWithError(appUrl: string, error: string, isNative: boolean, deeplinkScheme?: string): Response {
-  const encoded = encodeURIComponent(error);
-  if (isNative && deeplinkScheme) {
-    return new Response(null, { status: 302, headers: { 'Location': `${deeplinkScheme}://oauth/auth?error=${encoded}` } });
-  }
-  return new Response(null, { status: 302, headers: { 'Location': `${appUrl}/auth?error=${encoded}` } });
-}
-```
-
-**c) User-Erstellung: createUser-first Pattern**
-
-Vorher:
-```typescript
-// Listen ALLE User, dann nach Email suchen
-const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-const existingUser = existingUsers?.users?.find(u => u.email === email);
-```
-
-Nachher (gemaess Docs):
-```typescript
-// Versuche zuerst zu erstellen
-const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-  email: userEmail, email_confirm: true, user_metadata: { ... }
-});
-
-if (createError?.message?.includes('already been registered')) {
-  // Nur dann suchen
-  const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-  // ...
-}
-```
-
-**d) Supabase Client Import**
-
-```typescript
-// Vorher
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-
-// Nachher (gemaess Docs)
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-```
-
-### 2. Keine Aenderungen noetig
-
-| Datei | Status |
-|-------|--------|
-| `src/lib/apple-auth.ts` | Korrekt - hardcoded IDs sind OK fuer Lovable (kein VITE_ Support) |
-| `src/pages/Auth.tsx` | Korrekt - iOS nutzt `getAppleOAuthUrl` + `despia()`, Android nutzt `auth-start` |
-| `src/pages/AppleAuth.tsx` | Bleibt als Fallback bestehen |
-| `auth-start/index.ts` | Nicht betroffen (wird nur fuer Google + Apple Android genutzt) |
+Das Secret `APPLE_CLIENT_ID` existiert bereits. Falls es noch den alten Wert `com.ditax.web` enthaelt, muss es auf `ch.ditax.app.service` aktualisiert werden. Da Secret-Werte nicht einsehbar sind, wird es sicherheitshalber aktualisiert.
 
 ## Zusammenfassung
 
-Nur **eine Datei** wird geaendert: `supabase/functions/auth-apple-callback/index.ts`
-
-Die Aenderungen machen den Code zuverlaessiger auf iOS (302 statt HTML), robuster bei Fehlern (Redirect statt HTML-Seite), und skalierbarer (createUser-first statt listUsers).
+Zwei Code-Dateien und ein Secret werden aktualisiert. Alle drei muessen denselben Wert `ch.ditax.app.service` haben, damit Apple den OAuth-Request akzeptiert.
 
