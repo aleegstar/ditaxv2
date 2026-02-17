@@ -2645,9 +2645,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Erneut senden',
       backToLogin: 'Zurück zum Login',
       codeVerificationError: 'Fehler bei der Code-Verifikation',
-      trustGdpr: 'Für die Schweiz entwickelt',
-      trustUsers: '1\u2019000\u2019000+ Nutzer',
-      trustEncryption: 'Banklevel-Verschlüsselung',
+      trustGdpr: 'Daten in der Schweiz gespeichert',
+      trustUsers: 'Geprüft von Treuhändern mit eidg. Fachausweis',
+      trustEncryption: '4.8/5 bei über 12\u2019000 Bewertungen',
     },
 
     // Form Mode Toggle
@@ -4087,9 +4087,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Resend',
       backToLogin: 'Back to login',
       codeVerificationError: 'Code verification error',
-      trustGdpr: 'Built for Switzerland',
-      trustUsers: '1,000,000+ users',
-      trustEncryption: 'Bank-level encryption',
+      trustGdpr: 'Data stored in Switzerland',
+      trustUsers: 'Verified by certified fiduciaries',
+      trustEncryption: '4.8/5 from 12,000+ reviews',
     },
 
     // Form Mode Toggle

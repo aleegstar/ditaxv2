@@ -546,22 +546,22 @@ const Auth = () => {
                   </form>
 
                   {/* Trust Row */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 text-center">
+                  <div className="grid grid-cols-3 gap-3 mt-6 text-center">
                     <div className="flex flex-col items-center gap-1.5">
-                      <svg className="w-7 h-5" viewBox="0 0 28 20" fill="none" aria-hidden="true">
+                      <svg className="w-6 h-[18px]" viewBox="0 0 28 20" fill="none" aria-hidden="true">
                         <rect width="28" height="20" rx="2" fill="#FF0000" />
                         <path d="M12 4h4v12h-4z" fill="white" />
                         <path d="M8 8h12v4H8z" fill="white" />
                       </svg>
-                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustGdpr}</span>
+                      <span className="text-[11px] text-muted-foreground leading-tight">{t.authFlow.trustGdpr}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
-                      <Users className="w-5 h-5 text-muted-foreground/70" />
-                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustUsers}</span>
+                      <ShieldCheck className="w-5 h-5 text-muted-foreground/60" />
+                      <span className="text-[11px] text-muted-foreground leading-tight">{t.authFlow.trustUsers}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
-                      <Lock className="w-5 h-5 text-muted-foreground/70" />
-                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustEncryption}</span>
+                      <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                      <span className="text-[11px] text-muted-foreground leading-tight">{t.authFlow.trustEncryption}</span>
                     </div>
                   </div>
 
