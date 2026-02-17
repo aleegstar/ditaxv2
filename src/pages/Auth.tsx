@@ -457,17 +457,18 @@ const Auth = () => {
   return <div className="min-h-screen bg-white text-slate-900 antialiased selection:bg-[#1D64FF]/30 overflow-hidden relative">
 
       {/* Ambient Background Lighting */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      {/* Ambient Background Lighting - hidden on mobile */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 hidden sm:block">
         <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-blue-100 rounded-full blur-3xl mix-blend-multiply opacity-50 animate-pulse" />
         <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-cyan-100 rounded-full blur-3xl mix-blend-multiply opacity-50" />
         <div className="absolute top-1/3 right-1/3 w-96 h-96 bg-indigo-100 rounded-full blur-3xl mix-blend-multiply opacity-50" />
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
-        {/* Glass Card */}
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-200/50 sm:p-12">
+        {/* Card: fullscreen white on mobile, card on desktop */}
+        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-3xl border-0 sm:border sm:border-slate-200 bg-white px-6 py-10 sm:p-12 sm:shadow-2xl sm:shadow-slate-200/50">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
