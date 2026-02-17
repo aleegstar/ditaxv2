@@ -560,7 +560,7 @@ const Auth = () => {
                       <span className="text-[11px] text-muted-foreground leading-tight">{t.authFlow.trustUsers}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
-                      <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                      <Lock className="w-5 h-5 text-muted-foreground/60" />
                       <span className="text-[11px] text-muted-foreground leading-tight">{t.authFlow.trustEncryption}</span>
                     </div>
                   </div>
