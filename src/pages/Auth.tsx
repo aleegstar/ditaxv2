@@ -503,7 +503,7 @@ const Auth = () => {
                     {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
 
-                  <p className="text-center text-sm text-slate-500 leading-relaxed px-4">
+                  <p className="text-center text-xs text-slate-500 leading-relaxed">
                     {t.authFlow.microcopy}
                   </p>
                 </form>
