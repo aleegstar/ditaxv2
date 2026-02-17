@@ -1,93 +1,91 @@
 
 
-# Security Fixes fuer 3 aikido.dev Findings
+# Produkttouren vereinheitlichen und modernisieren
 
-## 1. glob CVE-2025-64756 (Score 75) -- NICHT DIREKT FIXBAR
+## Aktueller Zustand
 
-**Problem:** `glob` ist eine transitive Abhaengigkeit (kommt ueber andere Pakete). Es ist nicht direkt in `package.json` gelistet.
+Es gibt 3 separate Tour-Komponenten mit leicht unterschiedlichem Design:
 
-**Aktion:** Lovable verwaltet die Lock-Datei automatisch. Ein manuelles Update von `glob` ist nicht moeglich, da es eine Sub-Dependency ist. Dieses Finding in aikido.dev als "accepted risk" markieren, bis die uebergeordneten Pakete aktualisiert werden.
+| Eigenschaft | OnboardingTour | FormTour | DocumentsTour |
+|-------------|---------------|----------|---------------|
+| Tooltip-Radius | rounded-xl | rounded-2xl | rounded-2xl |
+| Zurueck-Button | Ja (ab Step 2) | Nein | Nein |
+| i18n | Ja | Nein (hardcoded DE) | Nein (hardcoded DE) |
+| Spotlight-Padding | 10px | 8px | 12px |
+| Spotlight-Radius | 12px | 24px | 16px |
+| Overlay-Opacity | 0.75 | 0.75 | 0.75 |
 
----
+## Neues Design-Konzept
 
-## 2. SSRF in cloudflare/security-headers-worker.js (Score 70) -- FIXBAR
+Minimalistisch, modern, einheitlich -- passend zur Premium-Fintech-Aesthetik der App.
 
-**Problem:** Zeile 16: `const response = await fetch(request);` leitet beliebige Requests weiter. Ein Angreifer koennte theoretisch interne Ressourcen ansprechen.
+### Visuelle Aenderungen
 
-**Fix:** Origin-Validierung hinzufuegen, damit nur Requests an die eigene Domain (`ditaxv2.lovable.app`, `app.ditax.ch`) weitergeleitet werden:
+- **Overlay**: Weichere Abdunklung (0.6 statt 0.75), leichter Backdrop-Blur (4px) fuer Glassmorphism-Effekt
+- **Spotlight**: Einheitlich 16px Radius, 12px Padding, dezenterer Rahmen (1px statt 2px, weichere Glow-Farbe mit opacity 0.15 statt 0.3)
+- **Tooltip-Karte**: rounded-2xl, subtilerer Schatten (shadow-xl statt shadow-2xl), 1px border-slate-100
+- **Progress-Dots**: Pill-Form statt Kreise (aktiv: w-6 h-1.5, inaktiv: w-1.5 h-1.5) fuer modernen Look
+- **Buttons**: Pill-Shape (rounded-xl), primaerer Button ohne Shadow-Glow, sekundaerer Button als Ghost (kein Border)
+- **Typografie**: Titel text-base (statt text-lg), Description text-sm mit text-slate-400 (dezenter)
+- **Arrows**: Entfernen -- modern wirkt es cleaner ohne Pfeilspitzen
+- **Close-Button**: Kleiner (w-8 h-8), ohne Border, nur Icon mit hover-Effekt
 
-```javascript
-async function handleRequest(request) {
-  // SECURITY: Validate request URL to prevent SSRF
-  const url = new URL(request.url);
-  const allowedHosts = ['ditaxv2.lovable.app', 'app.ditax.ch', 'ditax.ch'];
-  
-  if (!allowedHosts.some(host => url.hostname === host || url.hostname.endsWith('.' + host))) {
-    return new Response('Forbidden', { status: 403 });
-  }
-  
-  const response = await fetch(request);
-  // ... rest unchanged
-}
-```
+### Technische Aenderungen
 
-**Datei:** `cloudflare/security-headers-worker.js`
-
----
-
-## 3. Path Traversal in 35 Stellen (Score 70) -- TEILWEISE FIXBAR
-
-**Problem:** Viele Stellen nutzen `file_path` aus der Datenbank direkt in `.download()` oder `.createSignedUrl()` ohne Validierung. Ein manipulierter DB-Eintrag koennte auf Dateien ausserhalb des vorgesehenen Ordners zugreifen.
-
-**Bereits gesichert (haben `sanitizeFileName`/`validateFilePath`):**
-- `DefinitiveTaxBillManager.tsx` (Upload)
-- `DocumentTemplateManager.tsx` (Upload)
-- `MissingItemCard.tsx` (Upload)
-- `AvatarUpload.tsx` (Upload)
-
-**Fix:** Eine zentrale Hilfsfunktion `validateStoragePath()` erstellen und bei allen `.download()`, `.createSignedUrl()` Aufrufen einsetzen:
+**Neue Datei: `src/components/ui/tour-overlay.tsx`**
+Gemeinsame Basis-Komponente, die von allen 3 Touren genutzt wird:
 
 ```typescript
-// In src/utils/fileValidation.ts - neue Funktion
-export function validateStoragePath(path: string): boolean {
-  if (!path || typeof path !== 'string') return false;
-  const normalized = path.replace(/\\/g, '/');
-  if (normalized.includes('..')) return false;
-  if (normalized.startsWith('/')) return false;
-  if (normalized.length > 512) return false;
-  return true;
+interface TourOverlayProps {
+  steps: TourStep[];
+  currentStep: number;
+  spotlightPosition: SpotlightPosition;
+  onNext: () => void;
+  onBack?: () => void;
+  onSkip: () => void;
+  maskId: string; // Unique SVG mask ID per tour
 }
 ```
 
-**Betroffene Dateien fuer Download/SignedUrl-Validierung:**
+Enthaelt:
+- Overlay mit Backdrop-Blur
+- SVG-Spotlight-Mask
+- Spotlight-Border
+- Progress-Indicator (Pill-Dots)
+- Close-Button
+- Tooltip mit Positionierung
+- Buttons (Weiter/Zurueck/Ueberspringen)
 
-| Datei | Operation | Zeile ca. |
-|-------|-----------|-----------|
-| `DefinitiveTaxBillManager.tsx` | `.download(bill.file_path)` | 289 |
-| `DocumentTemplateManager.tsx` | `.createSignedUrl(t.file_path, 60)` | 47 |
-| `ChatBubble.tsx` | `.download(attachment.file_path)` | 36 |
-| `ReviewSubmittedItemsDialog.tsx` | `.download(filePath)` | 58 |
-| `UserDetail.tsx` | `.download(taxReturn.file_path)` | 381 |
-| `CompletedTaxReturnManager.tsx` | `.download(taxReturn.file_path)` | 288 |
-| `SignatureDialog.tsx` | `.createSignedUrl(...)` | 130 |
-| `SignedTaxReturns.tsx` | `.createSignedUrl(...)` | 236 |
-| `TicketManagement.tsx` | `.createSignedUrl(...)` | 53 |
-| `EncryptedChatService.ts` | `.download(attachment.file_path)` | 176 |
+**Angepasste Dateien:**
 
-Jede dieser Stellen erhaelt eine `validateStoragePath()` Pruefung vor dem Storage-Aufruf.
+1. `src/components/OnboardingTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Step-Logik, i18n und User-Name-Laden
+2. `src/components/FormTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Steps
+3. `src/components/DocumentsTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Steps
 
----
+Jede Tour behaelt ihre eigene:
+- Step-Definition (Texte, Target-Elemente)
+- Spotlight-Update-Logik (Retry-Mechanismus)
+- Spezial-Logik (z.B. OnboardingTour laedt User-Name, navigiert am Ende)
+
+Die gemeinsame `TourOverlay`-Komponente uebernimmt:
+- Rendering von Overlay, Spotlight, Tooltip, Buttons, Progress
+- Tooltip-Positionierung
+- Animationen
+
+### Zurueck-Button
+
+Alle 3 Touren erhalten einen "Zurueck"-Button ab Step 2 (wie aktuell nur bei OnboardingTour).
+
+### i18n
+
+FormTour und DocumentsTour werden vorerst mit hardcoded deutschen Texten belassen und nutzen die gleiche visuelle Komponente. Die i18n-Integration kann spaeter erfolgen.
 
 ## Zusammenfassung
 
-| Finding | Score | Status | Aenderung |
-|---------|-------|--------|-----------|
-| glob CVE | 75 | Nicht fixbar | Transitive Dependency, in aikido.dev akzeptieren |
-| SSRF Worker | 70 | **Fixbar** | Origin-Validierung in Worker |
-| Path Traversal | 70 | **Fixbar** | `validateStoragePath()` bei allen Downloads/SignedUrls |
-
-**Dateien die geaendert werden:**
-1. `cloudflare/security-headers-worker.js` -- SSRF-Schutz
-2. `src/utils/fileValidation.ts` -- Neue `validateStoragePath()` Funktion
-3. 10 Dateien mit Download/SignedUrl-Aufrufen -- Path-Validierung hinzufuegen
+| Aenderung | Dateien |
+|-----------|---------|
+| Neue shared Komponente | `src/components/ui/tour-overlay.tsx` |
+| Refactor OnboardingTour | `src/components/OnboardingTour.tsx` |
+| Refactor FormTour | `src/components/FormTour.tsx` |
+| Refactor DocumentsTour | `src/components/DocumentsTour.tsx` |
 
