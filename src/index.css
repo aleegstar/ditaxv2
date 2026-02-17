@@ -446,7 +446,7 @@
 }
 
   .text-primary-foreground {
-    color: hsl(var(--foreground));
+    color: hsl(var(--primary-foreground));
   }
 
 .before\:\[filter\:blur\(calc\(0\.8\*1rem\)\)\]::before {
