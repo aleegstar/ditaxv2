@@ -27,7 +27,7 @@ const Auth = () => {
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  
+
   const isOAuthInProgress = useRef(false);
 
   // Combined loading state for backward compatibility
@@ -84,13 +84,13 @@ const Auth = () => {
       if (success === 'true') {
         console.log('🔐 Success signal received, checking for existing session...');
         setIsOAuthLoading(true);
-        
+
         // Small delay to ensure session storage is synced
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
         try {
           const { data: { session } } = await supabase.auth.getSession();
-          
+
           if (session) {
             console.log('✅ Session found! User authenticated.');
             window.history.replaceState({}, '', '/auth');
@@ -100,9 +100,9 @@ const Auth = () => {
           } else {
             console.log('⚠️ No session found after success signal, retrying...');
             // Retry once more after a longer delay
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
             const { data: { session: retrySession } } = await supabase.auth.getSession();
-            
+
             if (retrySession) {
               console.log('✅ Session found on retry!');
               window.history.replaceState({}, '', '/auth');
@@ -110,7 +110,7 @@ const Auth = () => {
               navigate('/', { replace: true });
               return;
             }
-            
+
             console.error('❌ No session found after retries');
             toast.error('Session konnte nicht geladen werden');
           }
@@ -399,22 +399,22 @@ const Auth = () => {
         type: 'email'
       });
       if (error) throw error;
-      
+
       // Check if MFA is required
       const { data: mfaData } = await supabase.auth.mfa.listFactors();
-      const verifiedFactors = mfaData?.totp?.filter(f => f.status === 'verified') || [];
-      
+      const verifiedFactors = mfaData?.totp?.filter((f) => f.status === 'verified') || [];
+
       if (verifiedFactors.length > 0) {
         // MFA is enabled - check if we need to verify
         const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-        
+
         if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
           // User needs to complete MFA challenge
           navigate('/mfa-verify', { state: { factorId: verifiedFactors[0].id } });
           return;
         }
       }
-      
+
       toast.success(t.authFlow.loginSuccess);
       navigate("/");
     } catch (error: any) {
@@ -464,10 +464,10 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-white sm:bg-transparent">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
-        {/* Glass Card – fullscreen on mobile, card on desktop */}
-        <div className="w-full max-w-lg rounded-none border-0 bg-transparent p-6 shadow-none backdrop-blur-none sm:rounded-3xl sm:border sm:border-slate-200 sm:bg-white/70 sm:p-12 sm:shadow-2xl sm:shadow-slate-200/50 sm:backdrop-blur-xl">
+        {/* Glass Card */}
+        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-xl sm:p-12">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
@@ -479,10 +479,10 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-xl font-semibold tracking-tight text-slate-900 mb-2">
+                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
                     {t.authFlow.login}
                   </h1>
-                  <p className="text-base text-slate-500 font-normal">
+                  <p className="text-slate-500 font-normal text-xs">
                     {t.authFlow.loginSubtitle}
                   </p>
                 </div>
@@ -495,7 +495,7 @@ const Auth = () => {
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
                         <Mail className="w-5 h-5" />
                       </div>
-                      <input type="email" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-lg text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm hover:border-slate-300" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                      <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-lg text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm hover:border-slate-300" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                     </div>
                   </div>
 
@@ -503,7 +503,7 @@ const Auth = () => {
                     {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
 
-                  <p className="text-center text-xs text-slate-500 leading-relaxed">
+                  <p className="text-center text-sm text-slate-500 leading-relaxed px-4">
                     {t.authFlow.microcopy}
                   </p>
                 </form>
@@ -559,7 +559,7 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8 space-y-2">
-                  <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
                     {t.authFlow.enterCode}
                   </h1>
                   <p className="text-base text-slate-500 max-w-[80%] mx-auto leading-relaxed">
