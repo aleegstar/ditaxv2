@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, Mail, Fingerprint, ShieldCheck, Lock, Users, Shield } from "lucide-react";
+import { ArrowLeft, Mail, Fingerprint, ShieldCheck, Lock, Users, Shield, Star } from "lucide-react";
 import { LanguageDropdown } from "@/components/ui/language-dropdown";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
@@ -483,13 +483,21 @@ const Auth = () => {
                   </div>
 
                   {/* Headline */}
-                  <div className="text-center mb-10">
-                    <h1 className="text-[26px] sm:text-3xl font-bold tracking-tight text-slate-900 leading-tight mb-2">
+                  <div className="text-center mb-8">
+                    <h1 className="text-[26px] sm:text-3xl font-bold tracking-tight text-foreground leading-tight mb-2">
                       {t.authFlow.headline}
                     </h1>
-                    <p className="text-slate-500 text-base">
+                    <p className="text-muted-foreground text-base mb-4">
                       {t.authFlow.subheadline}
                     </p>
+                    {/* Social Proof */}
+                    <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        {t.authFlow.socialProofRating}
+                      </span>
+                      <span>{t.authFlow.socialProofUsers}</span>
+                    </div>
                   </div>
 
                   {/* Email Form */}
@@ -539,17 +547,16 @@ const Auth = () => {
                   </form>
 
                   {/* Trust Row */}
-                  <div className="flex items-center justify-center gap-4 mt-6 text-[11px] text-slate-400 font-medium">
+                  <div className="flex items-center justify-center gap-3 mt-5 text-[11px] text-muted-foreground font-medium">
                     <span className="flex items-center gap-1">
-                      <Shield className="w-3 h-3" />
-                      {t.authFlow.trustGdpr}
+                      🇨🇭 {t.authFlow.trustGdpr}
                     </span>
-                    <span className="w-px h-3 bg-slate-200" />
+                    <span className="w-px h-3 bg-border" />
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" />
                       {t.authFlow.trustUsers}
                     </span>
-                    <span className="w-px h-3 bg-slate-200" />
+                    <span className="w-px h-3 bg-border" />
                     <span className="flex items-center gap-1">
                       <Lock className="w-3 h-3" />
                       {t.authFlow.trustEncryption}
