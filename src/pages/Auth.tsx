@@ -474,12 +474,12 @@ const Auth = () => {
 
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
-                  <img alt="Ditax" className="w-auto h-7 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                  <img alt="Ditax" className="w-auto h-10 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                 </div>
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+                  <h1 className="font-semibold tracking-tight text-slate-900 mb-2 text-2xl">
                     {t.authFlow.login}
                   </h1>
                   <p className="text-base text-slate-500 font-normal">
