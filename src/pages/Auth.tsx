@@ -467,7 +467,7 @@ const Auth = () => {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
         {/* Glass Card */}
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-xl sm:p-12">
+        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-200/50 sm:p-12">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
@@ -514,7 +514,7 @@ const Auth = () => {
                     <div className="w-full border-t border-slate-200" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white/70 backdrop-blur-xl px-4 text-base text-slate-500 rounded-full">{t.authFlow.or}</span>
+                    <span className="bg-white px-4 text-base text-slate-500 rounded-full">{t.authFlow.or}</span>
                   </div>
                 </div>
 
