@@ -458,16 +458,16 @@ const Auth = () => {
 
       {/* Ambient Background Lighting */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-blue-100 rounded-full blur-3xl mix-blend-multiply opacity-50 animate-pulse" />
-        <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-cyan-100 rounded-full blur-3xl mix-blend-multiply opacity-50" />
-        <div className="absolute top-1/3 right-1/3 w-96 h-96 bg-indigo-100 rounded-full blur-3xl mix-blend-multiply opacity-50" />
+        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-blue-100 rounded-full blur-3xl mix-blend-multiply opacity-70 animate-pulse" />
+        <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-cyan-100 rounded-full blur-3xl mix-blend-multiply opacity-70" />
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-indigo-100 rounded-full blur-3xl mix-blend-multiply opacity-70" />
       </div>
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
         {/* Glass Card */}
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-slate-200/50 sm:p-12">
+        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-xl sm:p-12">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
@@ -479,10 +479,10 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+                  <h1 className="font-semibold tracking-tight text-slate-900 mb-2 text-xl">
                     {t.authFlow.login}
                   </h1>
-                  <p className="text-slate-500 font-normal text-xs">
+                  <p className="text-base text-slate-500 font-normal">
                     {t.authFlow.loginSubtitle}
                   </p>
                 </div>
@@ -514,7 +514,7 @@ const Auth = () => {
                     <div className="w-full border-t border-slate-200" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-4 text-base text-slate-500 rounded-full">{t.authFlow.or}</span>
+                    <span className="bg-white/70 backdrop-blur-xl px-4 text-base text-slate-500 rounded-full">{t.authFlow.or}</span>
                   </div>
                 </div>
 
