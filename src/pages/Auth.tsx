@@ -464,7 +464,7 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8 bg-white sm:bg-transparent">
 
         {/* Glass Card – fullscreen on mobile, card on desktop */}
         <div className="w-full max-w-lg rounded-none border-0 bg-transparent p-6 shadow-none backdrop-blur-none sm:rounded-3xl sm:border sm:border-slate-200 sm:bg-white/70 sm:p-12 sm:shadow-2xl sm:shadow-slate-200/50 sm:backdrop-blur-xl">
