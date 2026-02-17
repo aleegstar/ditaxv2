@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import ditaxLogoNew from "@/assets/ditax-logo-new.png";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -475,7 +476,7 @@ const Auth = () => {
 
                 {/* Logo & Title Unit */}
                 <div className="flex flex-col items-center text-center mb-10">
-                  <img alt="Ditax" className="w-auto h-7 object-contain mb-6" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                  <img alt="Ditax" className="w-auto h-7 object-contain mb-6" src={ditaxLogoNew} />
                   <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
                     {t.authFlow.login}
                   </h1>
