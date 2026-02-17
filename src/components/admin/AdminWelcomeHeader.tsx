@@ -127,15 +127,11 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
   };
   return <div className="space-y-4 animate-fade-in">
       {/* Section Header */}
-      <Card className="border-2 border-white transition-all duration-300" style={{
-      background: 'rgba(255, 255, 255, 0.43)',
-      backdropFilter: 'blur(15px)',
-      borderRadius: '20px'
-    }}>
+      <Card className="bg-card border border-border rounded-xl transition-all duration-300">
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+              <h2 className="text-2xl font-bold text-foreground">{title}</h2>
               {badge && <Badge variant={badge.variant || 'secondary'} className="px-3 py-1 text-sm font-medium text-white">
                   {badge.text}
                 </Badge>}
@@ -143,15 +139,13 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
 
             <div className="flex items-center gap-3">
               {children}
-              {onRefresh && <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="bg-white/20 border-gray-300 text-gray-700 hover:bg-white/30 transition-all" style={{
-              borderRadius: '12px'
-            }}>
+              {onRefresh && <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="transition-all">
                   <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                   Aktualisieren
                 </Button>}
             </div>
           </div>
-          {subtitle && <p className="text-gray-600 mt-2">{subtitle}</p>}
+          {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
         </div>
       </Card>
     </div>;

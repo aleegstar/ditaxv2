@@ -97,14 +97,14 @@ export const StatsWidget: React.FC<StatsWidgetProps> = ({
   const gradientId = `areaGradientSuccess-${uniqueId}`;
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all duration-200">
+    <div className="w-full bg-card rounded-xl shadow-sm p-6 border border-border hover:shadow-md transition-all duration-200">
       <div className="flex justify-between items-center">
         {/* Left side content */}
         <div className="flex flex-col w-1/2">
           <div className="flex items-center text-gray-500 text-sm mb-1">
             <span>{label}</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mt-1">
+          <p className="text-3xl font-bold text-foreground mt-1">
             {prefix}{amount}{suffix}
           </p>
           <div className={`flex items-center mt-2 text-sm font-semibold ${changeColorClass}`}>
