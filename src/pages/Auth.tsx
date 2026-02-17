@@ -466,8 +466,8 @@ const Auth = () => {
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
-        {/* Glass Card */}
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-xl sm:p-12">
+        {/* Glass Card – fullscreen on mobile, card on desktop */}
+        <div className="w-full max-w-lg rounded-none border-0 bg-transparent p-6 shadow-none backdrop-blur-none sm:rounded-3xl sm:border sm:border-slate-200 sm:bg-white/70 sm:p-12 sm:shadow-2xl sm:shadow-slate-200/50 sm:backdrop-blur-xl">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
@@ -479,7 +479,7 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+                  <h1 className="text-xl font-semibold tracking-tight text-slate-900 mb-2">
                     {t.authFlow.login}
                   </h1>
                   <p className="text-base text-slate-500 font-normal">
@@ -559,7 +559,7 @@ const Auth = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8 space-y-2">
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+                  <h1 className="text-xl font-semibold tracking-tight text-slate-900">
                     {t.authFlow.enterCode}
                   </h1>
                   <p className="text-base text-slate-500 max-w-[80%] mx-auto leading-relaxed">
