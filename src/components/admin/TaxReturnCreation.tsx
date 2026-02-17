@@ -363,13 +363,13 @@ const TaxReturnCreation: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-black">Lädt bezahlte Steuererklärungen...</div>
+        <div className="text-foreground">Lädt bezahlte Steuererklärungen...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-white min-h-screen">
+    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
       <AdminWelcomeHeader
         title="Steuererklärung bearbeiten"
         subtitle={`Bezahlte Steuererklärungen bearbeiten und abschließen (${paidTaxReturns.length})`}
@@ -381,18 +381,13 @@ const TaxReturnCreation: React.FC = () => {
       />
 
       {paidTaxReturns.length === 0 ? (
-        <Card className="w-full transition-all duration-300 cursor-pointer hover:scale-[1.02] group border-2 border-white shadow-lg shadow-black/10" style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.43)',
-          borderRadius: '20px'
-        }}>
-          <CardContent className="flex flex-col items-center justify-center py-12" style={{
-            borderRadius: '20px'
-          }}>
+        <Card className="w-full border border-border bg-card rounded-xl shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-12">
             <FileText className="h-12 w-12 text-gray-500 mb-4" />
-            <h3 className="text-lg font-semibold text-black mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Keine bezahlten Steuererklärungen vorhanden
             </h3>
-            <p className="text-gray-600 text-center">
+            <p className="text-muted-foreground text-center">
               Es gibt derzeit keine bezahlten Steuererklärungen, die zur Bearbeitung bereit sind.
             </p>
           </CardContent>
@@ -402,35 +397,20 @@ const TaxReturnCreation: React.FC = () => {
           {paidTaxReturns.map((taxReturn) => (
             <Card 
               key={taxReturn.id} 
-              className="w-full transition-all duration-300 cursor-pointer hover:scale-[1.02] group border-2 border-white shadow-lg shadow-black/10"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.43)',
-                borderRadius: '20px'
-              }}
+              className="w-full border border-border bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <CardHeader className="pb-3" style={{ borderRadius: '20px 20px 0 0' }}>
+              <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-black text-lg">
+                  <CardTitle className="text-foreground text-lg">
                     Steuerjahr {taxReturn.tax_year}
                   </CardTitle>
-                  <Badge 
-                    variant="secondary"
-                    style={{
-                      background: 'rgba(34, 197, 94, 0.2)',
-                      borderRadius: '12px',
-                      borderColor: 'rgba(34, 197, 94, 0.3)',
-                      color: '#000000'
-                    }}
-                    className="border border-white/20 backdrop-blur-sm"
-                  >
+                  <Badge variant="secondary">
                     {getStatusText(taxReturn.status)}
                   </Badge>
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-4 relative overflow-hidden" style={{
-                borderRadius: '0 0 20px 20px'
-              }}>
+              <CardContent className="space-y-4 relative overflow-hidden">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-gray-700">
                     <User className="h-4 w-4" />
@@ -465,10 +445,7 @@ const TaxReturnCreation: React.FC = () => {
 
                 <div className="flex flex-col gap-2 pt-4">
                   <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`} className="w-full">
-                    <Button 
-                      className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]"
-                      style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
-                    >
+                    <Button className="w-full">
                       Benutzer ansehen
                     </Button>
                   </Link>

@@ -31,12 +31,7 @@ export function UserCard({
     <div className="w-full h-full group">
       <div 
         onClick={handleClick}
-        className="relative overflow-hidden rounded-[24px] p-6 transition-all duration-300 hover:scale-[1.02] cursor-pointer h-[180px] flex flex-col"
-        style={{
-          background: 'white',
-          border: '1px solid hsl(45 22.2% 92.9% / var(--tw-border-opacity, 1))',
-          boxShadow: 'rgba(0, 0, 0, 0.15) 0px 0px 22px -5px'
-        }}
+        className="relative overflow-hidden rounded-xl p-6 transition-all duration-300 hover:scale-[1.02] cursor-pointer h-[180px] flex flex-col bg-card border border-border shadow-sm hover:shadow-md"
       >
         {/* Status Badge - Top Left */}
         <div className="absolute top-4 left-4 z-10">

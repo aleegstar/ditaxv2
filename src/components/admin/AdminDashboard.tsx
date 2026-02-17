@@ -92,12 +92,10 @@ export const AdminDashboard: React.FC = () => {
 
   const loadStats = async () => {
     try {
-      // Get total users
       const { count: usersCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
-      // Get new users in last 30 days
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       thirtyDaysAgo.setHours(0, 0, 0, 0);
@@ -107,37 +105,31 @@ export const AdminDashboard: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .gte('updated_at', thirtyDaysAgo.toISOString());
 
-      // Get tax returns ready for creation (workflow_step = 'review' or 'processing')
       const { count: pendingCount } = await supabase
         .from('tax_returns')
         .select('*', { count: 'exact', head: true })
         .in('workflow_step', ['review', 'processing'])
         .neq('status', 'completed');
 
-      // Get all open express tax returns (not completed)
       const { count: expressCount } = await supabase
         .from('tax_returns')
         .select('*', { count: 'exact', head: true })
         .eq('express_service', true)
         .neq('status', 'completed');
 
-      // Keep incompleteTaxReturns as express count for now (same value)
       const incompleteExpressCount = expressCount;
 
-      // Get open tickets
       const { count: ticketsCount } = await supabase
         .from('support_tickets')
         .select('*', { count: 'exact', head: true })
         .in('status', ['open', 'in_progress']);
 
-      // Get unread messages (messages where recipient_id is null = admin messages)
       const { count: messagesCount } = await supabase
         .from('chat_messages')
         .select('*', { count: 'exact', head: true })
         .is('recipient_id', null)
         .eq('read', false);
 
-      // Get completed this month
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -148,7 +140,6 @@ export const AdminDashboard: React.FC = () => {
         .eq('status', 'completed')
         .gte('updated_at', startOfMonth.toISOString());
 
-      // Get completed last month
       const startOfLastMonth = new Date();
       startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
       startOfLastMonth.setDate(1);
@@ -165,13 +156,11 @@ export const AdminDashboard: React.FC = () => {
         .gte('updated_at', startOfLastMonth.toISOString())
         .lte('updated_at', endOfLastMonth.toISOString());
 
-      // Get pending definitive tax bills
       const { count: pendingDefinitiveTaxBillsCount } = await supabase
         .from('definitive_tax_bills')
         .select('*', { count: 'exact', head: true })
         .in('status', ['pending', 'under_review']);
 
-      // Fetch real revenue from Stripe API
       let revenueThisMonth = 0;
       let revenueLastMonth = 0;
       try {
@@ -186,7 +175,6 @@ export const AdminDashboard: React.FC = () => {
         console.warn('Stripe revenue fetch failed:', e);
       }
 
-      // Generate mock chart data (in production, this would come from daily/weekly aggregates)
       const generateChartData = (current: number, previous: number) => {
         const trend = current > previous ? 1.1 : 0.9;
         return Array.from({ length: 7 }, (_, i) => {
@@ -289,7 +277,7 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-white min-h-screen">
+    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
       <AdminWelcomeHeader
         title="Admin Dashboard"
         subtitle="Übersicht über alle anstehenden Aufgaben und wichtige Metriken"
@@ -300,7 +288,7 @@ export const AdminDashboard: React.FC = () => {
         onRefresh={loadDashboardData}
       />
 
-      {/* Stats Widgets für Steuererklärungen und Umsatz */}
+      {/* Stats Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatsWidget
           label="Abgeschlossene Steuererklärungen"
@@ -321,15 +309,14 @@ export const AdminDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Moderne Statistiken Cards */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Offene Steuererklärungen */}
         <Link to="/admin/tax-processing" className="group">
-          <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <FileText className="h-6 w-6 text-gray-400" />
+                <div className="p-3 rounded-xl bg-muted">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
                 </div>
                 {stats.expressTaxReturns > 0 && (
                   <Badge className="bg-[#1D64FF] text-white text-xs px-2 py-1">
@@ -338,19 +325,18 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-900">Offene Steuererklärungen</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingTaxReturns}</p>
+                <h3 className="font-semibold text-foreground">Offene Steuererklärungen</h3>
+                <p className="text-2xl font-bold text-foreground">{stats.pendingTaxReturns}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        {/* Offene Express */}
-        <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+        <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 rounded-xl bg-gray-50">
-                <Clock className="h-6 w-6 text-gray-400" />
+              <div className="p-3 rounded-xl bg-muted">
+                <Clock className="h-6 w-6 text-muted-foreground" />
               </div>
               {stats.expressTaxReturns > 0 && (
                 <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
@@ -359,19 +345,18 @@ export const AdminDashboard: React.FC = () => {
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-gray-900">Offene Express</h3>
-              <p className="text-2xl font-bold text-gray-900">{stats.expressTaxReturns}</p>
+              <h3 className="font-semibold text-foreground">Offene Express</h3>
+              <p className="text-2xl font-bold text-foreground">{stats.expressTaxReturns}</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Offene Tickets */}
         <Link to="/admin/tickets" className="group">
-          <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <MessageCircle className="h-6 w-6 text-gray-400" />
+                <div className="p-3 rounded-xl bg-muted">
+                  <MessageCircle className="h-6 w-6 text-muted-foreground" />
                 </div>
                 {stats.openTickets > 0 && (
                   <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
@@ -380,20 +365,19 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-900">Offene Tickets</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.openTickets}</p>
+                <h3 className="font-semibold text-foreground">Offene Tickets</h3>
+                <p className="text-2xl font-bold text-foreground">{stats.openTickets}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        {/* Rechnungen zur Prüfung */}
         <Link to="/admin/definitive-tax-bills" className="group">
-          <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <FileText className="h-6 w-6 text-gray-400" />
+                <div className="p-3 rounded-xl bg-muted">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
                 </div>
                 {stats.pendingDefinitiveTaxBills > 0 && (
                   <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
@@ -402,19 +386,18 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-900">Rechnungen zur Prüfung</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingDefinitiveTaxBills}</p>
+                <h3 className="font-semibold text-foreground">Rechnungen zur Prüfung</h3>
+                <p className="text-2xl font-bold text-foreground">{stats.pendingDefinitiveTaxBills}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        {/* Diesen Monat */}
-        <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+        <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
-              <div className="p-3 rounded-xl bg-gray-50">
-                <TrendingUp className="h-6 w-6 text-gray-400" />
+              <div className="p-3 rounded-xl bg-muted">
+                <TrendingUp className="h-6 w-6 text-muted-foreground" />
               </div>
               {stats.completedThisMonth > 0 && (
                 <Badge className="bg-green-500 text-white text-xs px-2 py-1">
@@ -423,19 +406,18 @@ export const AdminDashboard: React.FC = () => {
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-gray-900">Diesen Monat</h3>
-              <p className="text-2xl font-bold text-gray-900">{stats.completedThisMonth}</p>
+              <h3 className="font-semibold text-foreground">Diesen Monat</h3>
+              <p className="text-2xl font-bold text-foreground">{stats.completedThisMonth}</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Neue User (30 Tage) */}
         <Link to="/admin/users" className="group">
-          <Card className="relative h-full border border-gray-100 bg-white hover:shadow-lg transition-all duration-200 rounded-2xl overflow-hidden">
+          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <UserPlus className="h-6 w-6 text-gray-400" />
+                <div className="p-3 rounded-xl bg-muted">
+                  <UserPlus className="h-6 w-6 text-muted-foreground" />
                 </div>
                 {stats.newUsersLast30Days > 0 && (
                   <Badge className="bg-[#1D64FF] text-white text-xs px-2 py-1">
@@ -444,8 +426,8 @@ export const AdminDashboard: React.FC = () => {
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-gray-900">Neue User (30 Tage)</h3>
-                <p className="text-2xl font-bold text-gray-900">{stats.newUsersLast30Days}</p>
+                <h3 className="font-semibold text-foreground">Neue User (30 Tage)</h3>
+                <p className="text-2xl font-bold text-foreground">{stats.newUsersLast30Days}</p>
               </div>
             </CardContent>
           </Card>

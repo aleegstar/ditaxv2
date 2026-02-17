@@ -364,21 +364,14 @@ export const TicketManagement = () => {
 
   if (loading) {
     return (
-      <div 
-        className="text-center py-8 border-2 border-white shadow-lg"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.43)',
-          borderRadius: '20px',
-          backdropFilter: 'blur(15px)'
-        }}
-      >
-        <div className="text-black">Lade Tickets...</div>
+      <div className="text-center py-8 border border-border bg-card rounded-xl">
+        <div className="text-foreground">Lade Tickets...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-white min-h-screen">
+    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
       <AdminWelcomeHeader
         title="Support Tickets"
         subtitle="Kundenanfragen verwalten und bearbeiten"
@@ -390,37 +383,26 @@ export const TicketManagement = () => {
       />
 
       {/* Filters */}
-      <Card 
-        className="border-2 border-white transition-all duration-300"
-        style={{
-          background: 'rgba(255, 255, 255, 0.43)',
-          backdropFilter: 'blur(25px)',
-          borderRadius: '20px'
-        }}
-      >
+      <Card className="border border-border bg-card rounded-xl">
         <CardHeader>
-          <CardTitle className="text-black">Filter & Suche</CardTitle>
+          <CardTitle className="text-foreground">Filter & Suche</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-black/50" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Suche nach Titel, Beschreibung oder Nutzer..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/20 border-gray-300 text-black placeholder:text-black/50 focus:bg-white/30 transition-all"
-                style={{ borderRadius: '12px' }}
+                className="pl-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger 
-                className="bg-white/20 border-gray-300 text-black hover:bg-white/30 transition-all"
-                style={{ borderRadius: '12px' }}
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent style={{ borderRadius: '12px' }}>
+              <SelectContent>
                 <SelectItem value="all">Alle Status</SelectItem>
                 <SelectItem value="open">Offen</SelectItem>
                 <SelectItem value="in_progress">In Bearbeitung</SelectItem>
@@ -429,13 +411,10 @@ export const TicketManagement = () => {
               </SelectContent>
             </Select>
             <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger 
-                className="bg-white/20 border-gray-300 text-black hover:bg-white/30 transition-all"
-                style={{ borderRadius: '12px' }}
-              >
+              <SelectTrigger>
                 <SelectValue placeholder="Steuerjahr" />
               </SelectTrigger>
-              <SelectContent style={{ borderRadius: '12px' }}>
+              <SelectContent>
                 <SelectItem value="all">Alle Jahre</SelectItem>
                 {getUniqueYears().map(year => (
                   <SelectItem key={year} value={year}>{year}</SelectItem>
@@ -451,25 +430,20 @@ export const TicketManagement = () => {
         {filteredTickets.map((ticket) => (
           <Card 
             key={ticket.id} 
-            className="border-2 border-white shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 cursor-pointer group" 
-            style={{
-              background: 'rgba(255, 255, 255, 0.43)',
-              backdropFilter: 'blur(25px)',
-              borderRadius: '20px'
-            }}
+            className="border border-border bg-card rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer group"
             onClick={() => openTicketDetail(ticket)}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-black group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 transition-colors">
                       {ticket.title}
                     </h3>
                     <TicketStatusBadge status={ticket.status} />
                   </div>
-                  <p className="text-black/70 mb-3 line-clamp-2">{ticket.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-black/60">
+                  <p className="text-muted-foreground mb-3 line-clamp-2">{ticket.description}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span 
                       className="flex items-center cursor-pointer hover:text-blue-600 transition-colors"
                       onClick={(e) => {
@@ -493,8 +467,7 @@ export const TicketManagement = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="text-black/70 hover:text-black hover:bg-white/20 transition-all"
-                  style={{ borderRadius: '12px' }}
+                  className="text-muted-foreground hover:text-foreground transition-all"
                 >
                   <MessageSquare className="h-4 w-4" />
                 </Button>
@@ -506,17 +479,11 @@ export const TicketManagement = () => {
 
       {/* Ticket Detail Dialog */}
       <Dialog open={showTicketDetail} onOpenChange={setShowTicketDetail}>
-        <DialogContent 
-          className="max-w-2xl max-h-[90vh] overflow-y-auto backdrop-blur-[25px] border-2 border-white shadow-lg"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.43)',
-            borderRadius: '20px'
-          }}
-        >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border border-border rounded-xl">
           {selectedTicket && (
             <>
               <DialogHeader className="text-center pb-6">
-                <DialogTitle className="text-black text-xl font-semibold">
+                <DialogTitle className="text-foreground text-xl font-semibold">
                   {selectedTicket.title}
                 </DialogTitle>
               </DialogHeader>
@@ -524,27 +491,18 @@ export const TicketManagement = () => {
               <div className="space-y-6">
                 {/* Ticket Info - Centered Layout */}
                 <div className="flex flex-col items-center space-y-4">
-                  <div 
-                    className="w-full max-w-md p-4 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.43)',
-                      borderRadius: '20px'
-                    }}
-                  >
+                    <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
                     <div className="text-center mb-4">
-                      <span className="text-black/70 text-sm font-medium">Status:</span>
+                      <span className="text-muted-foreground text-sm font-medium">Status:</span>
                       <div className="mt-2">
                         <Select
                           value={selectedTicket.status}
                           onValueChange={(value) => updateTicketStatus(selectedTicket.id, value as 'open' | 'in_progress' | 'resolved' | 'closed')}
                         >
-                          <SelectTrigger 
-                            className="bg-white/20 border-gray-300 text-black hover:bg-white/30 transition-all"
-                            style={{ borderRadius: '12px' }}
-                          >
+                          <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent style={{ borderRadius: '12px' }}>
+                          <SelectContent>
                             <SelectItem value="open">Offen</SelectItem>
                             <SelectItem value="in_progress">In Bearbeitung</SelectItem>
                             <SelectItem value="resolved">Erledigt</SelectItem>
@@ -555,33 +513,26 @@ export const TicketManagement = () => {
                     </div>
                   </div>
 
-                  <div 
-                    className="w-full max-w-md p-4 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.43)',
-                      borderRadius: '20px'
-                    }}
-                  >
+                  <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
                     <div className="text-center">
-                      <span className="text-black/70 text-sm font-medium mb-2 block">Nutzer:</span>
+                      <span className="text-muted-foreground text-sm font-medium mb-2 block">Nutzer:</span>
                       <div 
-                        className="cursor-pointer hover:bg-white/20 p-3 rounded-lg transition-colors group"
+                        className="cursor-pointer hover:bg-muted p-3 rounded-lg transition-colors group"
                         onClick={(e) => {
                           e.stopPropagation();
                           window.open(`/admin/user/${selectedTicket.user_id}`, '_blank');
                         }}
-                        style={{ borderRadius: '12px' }}
                       >
                         <div className="flex items-center justify-center gap-2">
                           <div className="text-center">
-                            <p className="text-black group-hover:text-blue-600 transition-colors font-medium">
+                            <p className="text-foreground group-hover:text-blue-600 transition-colors font-medium">
                               {selectedTicket.user_first_name} {selectedTicket.user_last_name}
                             </p>
-                            <p className="text-black/70 text-sm group-hover:text-blue-600/70 transition-colors">
+                            <p className="text-muted-foreground text-sm group-hover:text-blue-600/70 transition-colors">
                               {selectedTicket.user_email}
                             </p>
                           </div>
-                          <ExternalLink className="h-4 w-4 text-black/50 group-hover:text-blue-600 transition-colors" />
+                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-blue-600 transition-colors" />
                         </div>
                       </div>
                     </div>
@@ -590,28 +541,16 @@ export const TicketManagement = () => {
 
                 {/* Original Description - Centered */}
                 <div className="flex justify-center">
-                  <div 
-                    className="w-full max-w-md p-4 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.43)',
-                      borderRadius: '20px'
-                    }}
-                  >
-                    <h4 className="text-black font-medium mb-2 text-center">Ursprüngliche Beschreibung:</h4>
-                    <p className="text-black/80 text-center">{selectedTicket.description}</p>
+                  <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
+                    <h4 className="text-foreground font-medium mb-2 text-center">Ursprüngliche Beschreibung:</h4>
+                    <p className="text-muted-foreground text-center">{selectedTicket.description}</p>
                 </div>
                 </div>
 
                 {ticketAttachments.length > 0 && (
                   <div className="flex justify-center">
-                    <div 
-                      className="w-full max-w-md p-4 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                      style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.43)',
-                        borderRadius: '20px'
-                      }}
-                    >
-                      <h4 className="text-black font-medium mb-2 text-center">Anhänge</h4>
+                    <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
+                      <h4 className="text-foreground font-medium mb-2 text-center">Anhänge</h4>
                       <div className="grid grid-cols-1 gap-3">
                         {ticketAttachments.map((att) => (
                           <div key={att.id} className="text-center">
@@ -633,7 +572,7 @@ export const TicketManagement = () => {
                                 {att.file_name}
                               </a>
                             ) : (
-                              <span className="text-black/50 text-sm">{att.file_name} (Wird geladen...)</span>
+                              <span className="text-muted-foreground text-sm">{att.file_name} (Wird geladen...)</span>
                             )}
                           </div>
                         ))}
@@ -648,22 +587,21 @@ export const TicketManagement = () => {
                     {ticketMessages.map((message) => (
                       <div
                         key={message.id}
-                        className={`p-3 backdrop-blur-[25px] border-2 border-white shadow-lg ${
+                        className={`p-3 border border-border rounded-lg ${
                           message.is_admin_message 
-                            ? 'bg-blue-100/50' 
-                            : 'bg-white/30'
+                            ? 'bg-blue-50' 
+                            : 'bg-card'
                         }`}
-                        style={{ borderRadius: '12px' }}
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <span className="text-black/70 text-sm font-medium">
+                          <span className="text-muted-foreground text-sm font-medium">
                             {message.sender_name}
                           </span>
-                          <span className="text-black/50 text-xs">
+                          <span className="text-muted-foreground text-xs">
                             {new Date(message.created_at).toLocaleString('de-DE')}
                           </span>
                         </div>
-                        <p className="text-black mb-2">{message.message}</p>
+                        <p className="text-foreground mb-2">{message.message}</p>
                         {message.attachments && message.attachments.length > 0 && (
                           <div className="mt-3 space-y-2">
                             {message.attachments.map((attachment: any) => (
@@ -686,7 +624,7 @@ export const TicketManagement = () => {
                                     {attachment.file_name}
                                   </a>
                                 ) : (
-                                  <span className="text-black/50 text-sm">{attachment.file_name} (Wird geladen...)</span>
+                                  <span className="text-muted-foreground text-sm">{attachment.file_name} (Wird geladen...)</span>
                                 )}
                               </div>
                             ))}
@@ -704,14 +642,11 @@ export const TicketManagement = () => {
                       placeholder="Antwort schreiben..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      className="bg-white/20 border-gray-300 text-black placeholder:text-black/50 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                      style={{ borderRadius: '12px' }}
                     />
                     <Button
                       onClick={sendMessage}
                       disabled={!newMessage.trim()}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 transition-all duration-200 backdrop-blur-[25px] border-2 border-white shadow-lg"
-                      style={{ borderRadius: '12px' }}
+                      className="w-full"
                     >
                       <MessageSquare className="mr-2 h-4 w-4" />
                       Antworten

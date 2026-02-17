@@ -317,7 +317,7 @@ const SignedTaxReturns: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
-        <Card className="bg-gray-50">
+        <Card className="bg-muted">
           <CardContent className="p-4">
             <div className="text-2xl font-bold">{stats.total}</div>
             <div className="text-sm text-muted-foreground">Gesamt unterschrieben</div>
