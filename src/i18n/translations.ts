@@ -2647,7 +2647,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       codeVerificationError: 'Fehler bei der Code-Verifikation',
       trustGdpr: 'Daten in der Schweiz gespeichert',
       trustUsers: 'Geprüft von Treuhändern mit eidg. Fachausweis',
-      trustEncryption: '4.8/5 bei über 12\u2019000 Bewertungen',
+      trustEncryption: 'Ende-zu-Ende verschlüsselt',
     },
 
     // Form Mode Toggle
@@ -4089,7 +4089,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       codeVerificationError: 'Code verification error',
       trustGdpr: 'Data stored in Switzerland',
       trustUsers: 'Verified by certified fiduciaries',
-      trustEncryption: '4.8/5 from 12,000+ reviews',
+      trustEncryption: 'End-to-end encrypted',
     },
 
     // Form Mode Toggle
