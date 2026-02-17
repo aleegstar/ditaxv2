@@ -1015,8 +1015,6 @@ export interface Translation {
   authFlow: {
     login: string;
     loginSubtitle: string;
-    headline: string;
-    subheadline: string;
     emailLabel: string;
     emailPlaceholder: string;
     sendCode: string;
@@ -1051,11 +1049,6 @@ export interface Translation {
     resend: string;
     backToLogin: string;
     codeVerificationError: string;
-    trustGdpr: string;
-    trustUsers: string;
-    trustEncryption: string;
-    socialProofRating: string;
-    socialProofUsers: string;
   };
 
   // Form Mode Toggle
@@ -2607,13 +2600,9 @@ export const translations: Record<'de' | 'en', Translation> = {
     authFlow: {
       login: 'Anmelden',
       loginSubtitle: 'Kein Konto? Wir erstellen automatisch eins für dich.',
-      headline: 'Steuererklärung in wenigen Minuten',
-      subheadline: 'Einfach, sicher und kostenlos starten.',
-      socialProofRating: 'bei über 12\u2019000 Bewertungen',
-      socialProofUsers: 'Über 1\u2019000\u2019000 Nutzer vertrauen ditax',
-      emailLabel: 'E-Mail-Adresse',
-      emailPlaceholder: 'E-Mail eingeben',
-      sendCode: 'Jetzt kostenlos starten',
+      emailLabel: 'Email:',
+      emailPlaceholder: 'E-Mail-Adresse',
+      sendCode: 'Login-Code senden',
       sendingCode: 'Code wird gesendet...',
       codeDisabled: 'E-Mail-Codes deaktiviert',
       enterCode: 'Code eingeben',
@@ -2645,9 +2634,6 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Erneut senden',
       backToLogin: 'Zurück zum Login',
       codeVerificationError: 'Fehler bei der Code-Verifikation',
-      trustGdpr: 'Daten in der Schweiz gespeichert',
-      trustUsers: 'Geprüft von Treuhändern mit eidg. Fachausweis',
-      trustEncryption: 'Ende-zu-Ende verschlüsselt',
     },
 
     // Form Mode Toggle
@@ -4049,13 +4035,9 @@ export const translations: Record<'de' | 'en', Translation> = {
     authFlow: {
       login: 'Sign In',
       loginSubtitle: "No account? We'll create one automatically for you.",
-      headline: 'Tax return in just a few minutes',
-      subheadline: 'Simple, secure and free to start.',
-      socialProofRating: 'from over 12,000 reviews',
-      socialProofUsers: 'Over 1,000,000 users trust ditax',
-      emailLabel: 'Email address',
-      emailPlaceholder: 'Enter your email',
-      sendCode: 'Get started free',
+      emailLabel: 'Email:',
+      emailPlaceholder: 'Email address',
+      sendCode: 'Send Login Code',
       sendingCode: 'Sending code...',
       codeDisabled: 'Email codes disabled',
       enterCode: 'Enter Code',
@@ -4087,9 +4069,6 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Resend',
       backToLogin: 'Back to login',
       codeVerificationError: 'Code verification error',
-      trustGdpr: 'Data stored in Switzerland',
-      trustUsers: 'Verified by certified fiduciaries',
-      trustEncryption: 'End-to-end encrypted',
     },
 
     // Form Mode Toggle
