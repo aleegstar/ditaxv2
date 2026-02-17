@@ -483,30 +483,30 @@ const Auth = () => {
                   </div>
 
                   {/* Headline */}
-                  <div className="text-center mb-8">
+                  <div className="text-center mb-6">
                     <h1 className="text-[26px] sm:text-3xl font-bold tracking-tight text-foreground leading-tight mb-2">
                       {t.authFlow.headline}
                     </h1>
-                    <p className="text-muted-foreground text-base mb-4">
+                    <p className="text-muted-foreground text-base mb-5">
                       {t.authFlow.subheadline}
                     </p>
                     {/* Social Proof Pill */}
-                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
-                      <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
-                      <span className="font-semibold text-foreground">4.8/5</span>
-                      <span className="text-muted-foreground/40">•</span>
-                      <span>{t.authFlow.socialProofRating}</span>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-5 py-2.5 text-sm">
+                      <Star className="w-4.5 h-4.5 text-amber-400 fill-amber-400 shrink-0" />
+                      <span className="font-bold text-foreground text-base">4.8/5</span>
+                      <span className="text-muted-foreground/30">•</span>
+                      <span className="text-muted-foreground">{t.authFlow.socialProofRating}</span>
                     </div>
                   </div>
 
                   {/* Email Form */}
-                  <form onSubmit={handleEmailSubmit} className="space-y-4">
+                  <form onSubmit={handleEmailSubmit} className="space-y-3">
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
+                      <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                         {t.authFlow.emailLabel}
                       </label>
                       <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
                           <Mail className="w-[18px] h-[18px]" />
                         </div>
                         <input
@@ -517,7 +517,7 @@ const Auth = () => {
                           onChange={(e) => setEmail(e.target.value)}
                           onFocus={() => setIsInputFocused(true)}
                           onBlur={() => setTimeout(() => setIsInputFocused(false), 150)}
-                          className="block w-full rounded-xl border border-slate-200 bg-slate-50/50 py-3.5 pl-11 pr-4 text-base text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all hover:border-slate-300"
+                          className="block w-full rounded-xl border border-border bg-muted/30 py-3.5 pl-11 pr-4 text-base text-foreground placeholder:text-muted-foreground/60 focus:bg-background focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all hover:border-muted-foreground/30"
                           placeholder={t.authFlow.emailPlaceholder}
                           aria-label={t.authFlow.emailLabel}
                           required
@@ -529,7 +529,7 @@ const Auth = () => {
                     <motion.button
                       type="submit"
                       disabled={isLoading || !isValidEmail}
-                      className="flex w-full items-center justify-center rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:brightness-110 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                      className="flex w-full items-center justify-center rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] hover:shadow-[0_6px_28px_-4px_hsl(var(--primary)/0.6)] hover:brightness-105 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-30 disabled:shadow-none disabled:pointer-events-none"
                       whileTap={{ scale: 0.98 }}
                     >
                       {isEmailLoading ? (
@@ -566,18 +566,18 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="relative my-8">
+                  <div className="relative my-5">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-slate-200" />
+                      <div className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white px-4 text-sm text-slate-400">{t.authFlow.or}</span>
+                      <span className="bg-background px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">{t.authFlow.or}</span>
                     </div>
                   </div>
 
                   {/* Social Logins */}
                   <div className="space-y-3">
-                    <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/60 py-3.5 px-4 text-sm font-medium text-slate-500 transition-all hover:bg-slate-100 hover:border-slate-300 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none">
+                    <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-background py-3 px-4 text-sm font-medium text-muted-foreground transition-all hover:bg-muted/50 hover:border-muted-foreground/20 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none">
                       <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -587,7 +587,7 @@ const Auth = () => {
                       <span>{t.authFlow.continueWithGoogle}</span>
                     </button>
 
-                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/60 py-3.5 px-4 text-sm font-medium text-slate-500 transition-all hover:bg-slate-100 hover:border-slate-300 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none">
+                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-background py-3 px-4 text-sm font-medium text-muted-foreground transition-all hover:bg-muted/50 hover:border-muted-foreground/20 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none">
                       <svg className="w-5 h-5 shrink-0 fill-current text-slate-600" viewBox="0 0 24 24">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                       </svg>
