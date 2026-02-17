@@ -490,13 +490,12 @@ const Auth = () => {
                     <p className="text-muted-foreground text-base mb-4">
                       {t.authFlow.subheadline}
                     </p>
-                    {/* Social Proof */}
-                    <div className="flex flex-col items-center gap-1 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        {t.authFlow.socialProofRating}
-                      </span>
-                      <span>{t.authFlow.socialProofUsers}</span>
+                    {/* Social Proof Pill */}
+                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+                      <span className="font-semibold text-foreground">4.8/5</span>
+                      <span className="text-muted-foreground/40">•</span>
+                      <span>{t.authFlow.socialProofRating}</span>
                     </div>
                   </div>
 
