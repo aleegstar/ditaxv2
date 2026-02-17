@@ -472,13 +472,9 @@ const Auth = () => {
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
 
-                {/* Logo */}
-                <div className="flex items-center justify-center gap-3 mb-8">
-                  <img alt="Ditax" className="w-auto h-10 object-contain" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                </div>
-
-                {/* Header */}
-                <div className="text-center mb-8">
+                {/* Logo & Title Unit */}
+                <div className="flex flex-col items-center text-center mb-10">
+                  <img alt="Ditax" className="w-auto h-7 object-contain mb-6" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
                   <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
                     {t.authFlow.login}
                   </h1>
