@@ -1,91 +1,94 @@
 
 
-# Produkttouren vereinheitlichen und modernisieren
+# Admin-Bereich im Lovable/Origin UI Design
 
-## Aktueller Zustand
+## Was ist das "Lovable Design"?
 
-Es gibt 3 separate Tour-Komponenten mit leicht unterschiedlichem Design:
+Das Lovable-Design basiert auf Origin UI -- einer minimalistischen, cleanen Komponentenbibliothek. Merkmale:
+- Inputs: h-9, `rounded-lg`, dezenter Border (`border-input`), Focus-Ring (`ring-[3px] ring-ring/20`), weisser Hintergrund
+- Buttons: saubere Varianten, `rounded-xl`, subtile Shadows
+- Cards: weisser Hintergrund, `rounded-lg`, `border border-input`, kein Glassmorphism
+- Typografie: klare Hierarchie, `text-foreground`, `text-muted-foreground`
 
-| Eigenschaft | OnboardingTour | FormTour | DocumentsTour |
-|-------------|---------------|----------|---------------|
-| Tooltip-Radius | rounded-xl | rounded-2xl | rounded-2xl |
-| Zurueck-Button | Ja (ab Step 2) | Nein | Nein |
-| i18n | Ja | Nein (hardcoded DE) | Nein (hardcoded DE) |
-| Spotlight-Padding | 10px | 8px | 12px |
-| Spotlight-Radius | 12px | 24px | 16px |
-| Overlay-Opacity | 0.75 | 0.75 | 0.75 |
+## Aktueller Zustand im Admin-Bereich
 
-## Neues Design-Konzept
+Der Admin-Bereich nutzt aktuell eine Mischung aus:
+- Glassmorphism-Karten (`rgba(255,255,255,0.43)`, `backdrop-blur`, inline `borderRadius: '20px'`)
+- Inline-Styles statt Tailwind-Klassen fuer Rundungen
+- Eigene Farbdefinitionen (`text-black`, `text-black/70`) statt Design-Tokens
+- Inputs mit Custom-Styles (`bg-white/20`, inline `borderRadius: '12px'`)
 
-Minimalistisch, modern, einheitlich -- passend zur Premium-Fintech-Aesthetik der App.
+## Geplante Aenderungen
 
-### Visuelle Aenderungen
+### 1. AdminWelcomeHeader (`src/components/admin/AdminWelcomeHeader.tsx`)
+- Glassmorphism-Card ersetzen durch cleane Card mit `bg-white border border-border rounded-xl`
+- Inline-Styles entfernen
+- Farben auf Design-Tokens umstellen (`text-foreground`, `text-muted-foreground`)
+- Refresh-Button: Standard `variant="outline"` mit `rounded-lg`
 
-- **Overlay**: Weichere Abdunklung (0.6 statt 0.75), leichter Backdrop-Blur (4px) fuer Glassmorphism-Effekt
-- **Spotlight**: Einheitlich 16px Radius, 12px Padding, dezenterer Rahmen (1px statt 2px, weichere Glow-Farbe mit opacity 0.15 statt 0.3)
-- **Tooltip-Karte**: rounded-2xl, subtilerer Schatten (shadow-xl statt shadow-2xl), 1px border-slate-100
-- **Progress-Dots**: Pill-Form statt Kreise (aktiv: w-6 h-1.5, inaktiv: w-1.5 h-1.5) fuer modernen Look
-- **Buttons**: Pill-Shape (rounded-xl), primaerer Button ohne Shadow-Glow, sekundaerer Button als Ghost (kein Border)
-- **Typografie**: Titel text-base (statt text-lg), Description text-sm mit text-slate-400 (dezenter)
-- **Arrows**: Entfernen -- modern wirkt es cleaner ohne Pfeilspitzen
-- **Close-Button**: Kleiner (w-8 h-8), ohne Border, nur Icon mit hover-Effekt
+### 2. AdminDashboard (`src/components/admin/AdminDashboard.tsx`)
+- Stat-Cards: `rounded-xl` statt `rounded-2xl`, `border border-border` statt `border-gray-100`
+- Icon-Container: `bg-muted` statt `bg-gray-50`
+- Farben: `text-foreground` statt `text-gray-900`
 
-### Technische Aenderungen
+### 3. TicketManagement (`src/components/admin/TicketManagement.tsx`)
+- Filter-Card: Glassmorphism entfernen, `bg-card border border-border rounded-xl`
+- Inputs: Standard Origin UI Input (default Variant) ohne inline borderRadius
+- Select-Trigger: Standard-Styling ohne inline Styles
+- Ticket-Cards: `bg-card border border-border rounded-xl` statt Glassmorphism
+- Alle inline `style={{borderRadius}}` entfernen
 
-**Neue Datei: `src/components/ui/tour-overlay.tsx`**
-Gemeinsame Basis-Komponente, die von allen 3 Touren genutzt wird:
+### 4. TaxReturnCreation (`src/components/admin/TaxReturnCreation.tsx`)
+- Gleiche Bereinigung: Glassmorphism raus, cleane Cards rein
+- Standard-Buttons und -Inputs nutzen
 
-```typescript
-interface TourOverlayProps {
-  steps: TourStep[];
-  currentStep: number;
-  spotlightPosition: SpotlightPosition;
-  onNext: () => void;
-  onBack?: () => void;
-  onSkip: () => void;
-  maskId: string; // Unique SVG mask ID per tour
-}
-```
+### 5. UpdatePaymentStatusForm (`src/components/admin/UpdatePaymentStatusForm.tsx`)
+- Card: `rounded-xl` hinzufuegen, bereits relativ sauber
+- Labels und Inputs pruefen
 
-Enthaelt:
-- Overlay mit Backdrop-Blur
-- SVG-Spotlight-Mask
-- Spotlight-Border
-- Progress-Indicator (Pill-Dots)
-- Close-Button
-- Tooltip mit Positionierung
-- Buttons (Weiter/Zurueck/Ueberspringen)
+### 6. MissingDocuments (`src/pages/admin/MissingDocuments.tsx`)
+- Glassmorphism-Elemente durch cleane Origin UI Cards ersetzen
 
-**Angepasste Dateien:**
+### 7. Weitere Admin-Seiten
+- `DefinitiveTaxBills.tsx`, `DeletionFeedback.tsx`, `SignedTaxReturns.tsx`, `UserFeedback.tsx`
+- Gleiches Pattern: Glassmorphism raus, Origin UI Design rein
 
-1. `src/components/OnboardingTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Step-Logik, i18n und User-Name-Laden
-2. `src/components/FormTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Steps
-3. `src/components/DocumentsTour.tsx` -- Refactored: Nutzt `TourOverlay`, behaelt eigene Steps
+### 8. StatsWidget (`src/components/ui/stats-widget.tsx`)
+- `rounded-xl` statt `rounded-2xl`
+- `border border-border` statt `border-gray-100`
+- Farben auf Design-Tokens
 
-Jede Tour behaelt ihre eigene:
-- Step-Definition (Texte, Target-Elemente)
-- Spotlight-Update-Logik (Retry-Mechanismus)
-- Spezial-Logik (z.B. OnboardingTour laedt User-Name, navigiert am Ende)
+### 9. UserCard (`src/components/ui/user-card.tsx`)
+- `rounded-xl` statt `rounded-[24px]`
+- Inline-Styles durch Tailwind-Klassen ersetzen
+- Cleaner Shadow statt `rgba(0,0,0,0.15) 0px 0px 22px`
 
-Die gemeinsame `TourOverlay`-Komponente uebernimmt:
-- Rendering von Overlay, Spotlight, Tooltip, Buttons, Progress
-- Tooltip-Positionierung
-- Animationen
+## Design-Prinzipien (konsistent umgesetzt)
 
-### Zurueck-Button
+| Eigenschaft | Vorher | Nachher |
+|-------------|--------|---------|
+| Card-Radius | 20px-24px (inline) | rounded-xl (Tailwind) |
+| Card-Hintergrund | rgba(255,255,255,0.43) + blur | bg-card / bg-white |
+| Card-Border | border-white | border border-border |
+| Input-Style | Inline borderRadius, custom bg | Default Input variant |
+| Farben | text-black, text-gray-900 | text-foreground |
+| Schatten | shadow-lg, custom rgba | shadow-sm |
+| Button-Radius | Inline 12px | rounded-lg (Standard) |
 
-Alle 3 Touren erhalten einen "Zurueck"-Button ab Step 2 (wie aktuell nur bei OnboardingTour).
+## Zusammenfassung der Dateien
 
-### i18n
-
-FormTour und DocumentsTour werden vorerst mit hardcoded deutschen Texten belassen und nutzen die gleiche visuelle Komponente. Die i18n-Integration kann spaeter erfolgen.
-
-## Zusammenfassung
-
-| Aenderung | Dateien |
-|-----------|---------|
-| Neue shared Komponente | `src/components/ui/tour-overlay.tsx` |
-| Refactor OnboardingTour | `src/components/OnboardingTour.tsx` |
-| Refactor FormTour | `src/components/FormTour.tsx` |
-| Refactor DocumentsTour | `src/components/DocumentsTour.tsx` |
+| Datei | Aenderung |
+|-------|-----------|
+| `src/components/admin/AdminWelcomeHeader.tsx` | Glassmorphism entfernen, Origin UI Card |
+| `src/components/admin/AdminDashboard.tsx` | Cards auf Origin UI umstellen |
+| `src/components/admin/TicketManagement.tsx` | Filter + Ticket-Cards bereinigen |
+| `src/components/admin/TaxReturnCreation.tsx` | Cards bereinigen |
+| `src/components/admin/UpdatePaymentStatusForm.tsx` | Card-Styling anpassen |
+| `src/pages/admin/MissingDocuments.tsx` | Glassmorphism entfernen |
+| `src/pages/admin/DefinitiveTaxBills.tsx` | Design vereinheitlichen |
+| `src/pages/admin/DeletionFeedback.tsx` | Design vereinheitlichen |
+| `src/pages/admin/SignedTaxReturns.tsx` | Design vereinheitlichen |
+| `src/pages/admin/UserFeedback.tsx` | Design vereinheitlichen |
+| `src/components/ui/stats-widget.tsx` | Radius + Farben anpassen |
+| `src/components/ui/user-card.tsx` | Inline-Styles durch Tailwind ersetzen |
 
