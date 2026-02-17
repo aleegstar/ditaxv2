@@ -546,20 +546,23 @@ const Auth = () => {
                   </form>
 
                   {/* Trust Row */}
-                  <div className="flex items-center justify-center gap-3 mt-5 text-[11px] text-muted-foreground font-medium">
-                    <span className="flex items-center gap-1">
-                      🇨🇭 {t.authFlow.trustGdpr}
-                    </span>
-                    <span className="w-px h-3 bg-border" />
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3 h-3" />
-                      {t.authFlow.trustUsers}
-                    </span>
-                    <span className="w-px h-3 bg-border" />
-                    <span className="flex items-center gap-1">
-                      <Lock className="w-3 h-3" />
-                      {t.authFlow.trustEncryption}
-                    </span>
+                  <div className="grid grid-cols-3 gap-4 mt-6 text-center">
+                    <div className="flex flex-col items-center gap-1.5">
+                      <svg className="w-7 h-5" viewBox="0 0 28 20" fill="none" aria-hidden="true">
+                        <rect width="28" height="20" rx="2" fill="#FF0000" />
+                        <path d="M12 4h4v12h-4z" fill="white" />
+                        <path d="M8 8h12v4H8z" fill="white" />
+                      </svg>
+                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustGdpr}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <Users className="w-5 h-5 text-muted-foreground/70" />
+                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustUsers}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1.5">
+                      <Lock className="w-5 h-5 text-muted-foreground/70" />
+                      <span className="text-xs text-muted-foreground leading-tight">{t.authFlow.trustEncryption}</span>
+                    </div>
                   </div>
 
                   {/* Divider */}
