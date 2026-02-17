@@ -1015,6 +1015,8 @@ export interface Translation {
   authFlow: {
     login: string;
     loginSubtitle: string;
+    headline: string;
+    subheadline: string;
     emailLabel: string;
     emailPlaceholder: string;
     sendCode: string;
@@ -1049,6 +1051,9 @@ export interface Translation {
     resend: string;
     backToLogin: string;
     codeVerificationError: string;
+    trustGdpr: string;
+    trustUsers: string;
+    trustEncryption: string;
   };
 
   // Form Mode Toggle
@@ -2600,8 +2605,10 @@ export const translations: Record<'de' | 'en', Translation> = {
     authFlow: {
       login: 'Anmelden',
       loginSubtitle: 'Kein Konto? Wir erstellen automatisch eins für dich.',
-      emailLabel: 'Email:',
-      emailPlaceholder: 'E-Mail-Adresse',
+      headline: 'Steuererklärung in wenigen Minuten',
+      subheadline: 'Kostenlos starten. Kein Passwort nötig.',
+      emailLabel: 'E-Mail-Adresse',
+      emailPlaceholder: 'name@beispiel.ch',
       sendCode: 'Login-Code senden',
       sendingCode: 'Code wird gesendet...',
       codeDisabled: 'E-Mail-Codes deaktiviert',
@@ -2634,6 +2641,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Erneut senden',
       backToLogin: 'Zurück zum Login',
       codeVerificationError: 'Fehler bei der Code-Verifikation',
+      trustGdpr: 'DSGVO-konform',
+      trustUsers: 'Über 1 Mio. Nutzer',
+      trustEncryption: 'Banklevel-Verschlüsselung',
     },
 
     // Form Mode Toggle
@@ -4035,8 +4045,10 @@ export const translations: Record<'de' | 'en', Translation> = {
     authFlow: {
       login: 'Sign In',
       loginSubtitle: "No account? We'll create one automatically for you.",
-      emailLabel: 'Email:',
-      emailPlaceholder: 'Email address',
+      headline: 'Tax return in just a few minutes',
+      subheadline: 'Start for free. No password needed.',
+      emailLabel: 'Email address',
+      emailPlaceholder: 'name@example.com',
       sendCode: 'Send Login Code',
       sendingCode: 'Sending code...',
       codeDisabled: 'Email codes disabled',
@@ -4069,6 +4081,9 @@ export const translations: Record<'de' | 'en', Translation> = {
       resend: 'Resend',
       backToLogin: 'Back to login',
       codeVerificationError: 'Code verification error',
+      trustGdpr: 'GDPR compliant',
+      trustUsers: 'Over 1M users',
+      trustEncryption: 'Bank-level encryption',
     },
 
     // Form Mode Toggle
