@@ -245,11 +245,46 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           toolbarColor: '#2563eb'
         });
 
-        // Listen for when the in-app browser is closed (manually or after redirect)
+        // Poll payment status every 3 seconds while browser is open
+        let pollingStopped = false;
+        const pollInterval = setInterval(async () => {
+          if (pollingStopped || !taxReturnId) return;
+          try {
+            const { data: taxReturn } = await supabase
+              .from('tax_returns')
+              .select('payment_status')
+              .eq('id', taxReturnId)
+              .maybeSingle();
+
+            if (taxReturn?.payment_status === 'paid') {
+              pollingStopped = true;
+              clearInterval(pollInterval);
+              try { await Browser.close(); } catch {}
+              navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}`);
+            }
+          } catch (err) {
+            console.error('Polling error:', err);
+          }
+        }, 3000);
+
+        // Stop polling after 5 minutes
+        const pollTimeout = setTimeout(() => {
+          pollingStopped = true;
+          clearInterval(pollInterval);
+        }, 300000);
+
+        // When browser is closed manually, do a final check with retries
         const finishListener = await Browser.addListener('browserFinished', async () => {
           finishListener.remove();
-          // Check if payment was completed while browser was open
-          if (taxReturnId) {
+          pollingStopped = true;
+          clearInterval(pollInterval);
+          clearTimeout(pollTimeout);
+          
+          if (!taxReturnId) return;
+          
+          // Retry 3 times with 2s delay (webhook may still be processing)
+          for (let i = 0; i < 3; i++) {
+            await new Promise(r => setTimeout(r, 2000));
             try {
               const { data: taxReturn } = await supabase
                 .from('tax_returns')
@@ -259,6 +294,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               if (taxReturn?.payment_status === 'paid') {
                 navigate(`/payment-success?session_id=browser_closed&tax_year=${year}&tax_return_id=${taxReturnId}`);
+                return;
               }
             } catch (err) {
               console.error('Error checking payment status after browser close:', err);

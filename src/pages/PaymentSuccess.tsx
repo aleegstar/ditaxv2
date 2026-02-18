@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Capacitor } from '@capacitor/core';
 
 import { Confetti, ConfettiRef } from "@/components/ui/confetti";
 
@@ -14,6 +15,7 @@ const PaymentSuccess = () => {
   const [error, setError] = useState<string | null>(null);
   const [taxYear, setTaxYear] = useState<number | null>(null);
   const [storedTaxReturnId, setStoredTaxReturnId] = useState<string | null>(null);
+  const [showBrowserCloseHint, setShowBrowserCloseHint] = useState(false);
   const confettiRef = useRef<ConfettiRef>(null);
 
   useEffect(() => {
@@ -112,6 +114,17 @@ const PaymentSuccess = () => {
         setLoading(false);
         setTaxYear(parseInt(year));
         toast.success("Zahlung erfolgreich verarbeitet!");
+        
+        // Try to close in-app browser on native platforms
+        if (Capacitor.isNativePlatform()) {
+          try {
+            const { Browser } = await import('@capacitor/browser');
+            await Browser.close();
+          } catch {
+            // Browser.close() failed — show hint to close manually
+            setShowBrowserCloseHint(true);
+          }
+        }
         
         // Trigger confetti
         setTimeout(() => {
@@ -229,6 +242,14 @@ const PaymentSuccess = () => {
               Du erhältst in Kürze eine Bestätigung per E-Mail.
             </p>
           </div>
+          {/* Browser close hint for in-app browser */}
+          {showBrowserCloseHint && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+              <p className="text-sm text-amber-700 font-medium">
+                Bitte schliesse diesen Tab, um zur App zurückzukehren.
+              </p>
+            </div>
+          )}
           
           {/* Actions */}
           <div className="space-y-3 pt-2">
