@@ -11,6 +11,7 @@ interface Profile {
   avatar_url: string | null;
   onboarding_tour_completed: boolean | null;
   date_of_birth: string | null;
+  terms_accepted_at: string | null;
 }
 
 export const useProfile = () => {
@@ -71,6 +72,7 @@ export const useProfile = () => {
         avatar_url: profileData?.avatar_url || null,
         onboarding_tour_completed: profileData?.onboarding_tour_completed || null,
         date_of_birth: profileData?.date_of_birth || null,
+        terms_accepted_at: profileData?.terms_accepted_at || null,
       });
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);

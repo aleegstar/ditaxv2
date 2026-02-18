@@ -33,8 +33,9 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
   const previousTaxFilerIdRef = useRef<string | null>(null);
 
   // Reset data when taxFilerId changes to avoid showing stale data
+  // Also triggers on null-to-value transitions to prevent race condition
   useEffect(() => {
-    if (previousTaxFilerIdRef.current !== null && previousTaxFilerIdRef.current !== taxFilerId) {
+    if (previousTaxFilerIdRef.current !== taxFilerId && (previousTaxFilerIdRef.current !== null || taxFilerId !== null)) {
       console.log('🔄 TaxFilerId changed, resetting data...', previousTaxFilerIdRef.current, '->', taxFilerId);
       setData({
         taxReturns: [],
@@ -55,7 +56,8 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
 
   const loadTaxYearData = useCallback(async () => {
     if (!userId || !taxFilerId) {
-      setData(prev => ({ ...prev, loading: false }));
+      // Keep loading: true when taxFilerId is null — prevents premature "no data" state
+      // that would cause the consent screen to flash for existing users
       return;
     }
     if (loadingRef.current) return; // Prevent concurrent loads
