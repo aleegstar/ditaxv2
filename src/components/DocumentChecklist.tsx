@@ -670,64 +670,67 @@ const DocumentChecklist: React.FC = () => {
       setAssignmentModal({ open: false, item: null });
     }} />}
 
-      <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <DialogContent hideCloseButton className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[460px] bg-white border border-slate-200 rounded-[32px] shadow-[0_30px_60px_-12px_rgba(50,50,93,0.12),0_18px_36px_-18px_rgba(0,0,0,0.08)] p-10 gap-0 overflow-hidden">
+      {/* Completion Bottom Sheet */}
+      {showCompletionDialog && (
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in-0 duration-300"
+            onClick={() => setShowCompletionDialog(false)}
+          />
+          {/* Sheet */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 p-8 pb-10 max-w-lg mx-auto">
+            {/* Handle */}
+            <div className="w-10 h-1 rounded-full bg-slate-200 mx-auto mb-6" />
 
-
-
-
-          <div className="relative z-10 flex flex-col items-center">
-            {/* Success Icon */}
-            <div className="mb-8 relative group cursor-default">
-              <div className="absolute inset-0 bg-emerald-400/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-emerald-50 to-white border border-emerald-100/50 shadow-lg shadow-emerald-100/50 flex items-center justify-center relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-inner text-white transform group-hover:scale-105 transition-transform duration-500">
+            <div className="flex flex-col items-center">
+              {/* Success Icon */}
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200/50 text-white">
                   <Check className="w-8 h-8" strokeWidth={3} />
                 </div>
               </div>
-            </div>
 
-            {/* Title */}
-            <DialogTitle className="text-3xl font-semibold text-slate-900 text-center tracking-tight mb-3">
-              {t.documentChecklist.dialogTitle}
-            </DialogTitle>
+              {/* Title */}
+              <h2 className="text-2xl font-semibold text-slate-900 text-center tracking-tight mb-3">
+                {t.documentChecklist.dialogTitle}
+              </h2>
 
-            {/* Tax year badge */}
-            <div className="mb-8">
-              <span className="inline-flex items-center gap-1.5 text-emerald-600/90 font-medium text-base tracking-tight bg-emerald-50/80 px-4 py-1.5 rounded-full border border-emerald-100/60 shadow-sm">
-                <Calendar className="w-3.5 h-3.5" strokeWidth={2.5} />
-                {t.documentChecklist.taxReturnYear} {taxYear}
-              </span>
-            </div>
+              {/* Tax year badge */}
+              <div className="mb-6">
+                <span className="inline-flex items-center gap-1.5 text-emerald-600/90 font-medium text-sm tracking-tight bg-emerald-50/80 px-4 py-1.5 rounded-full border border-emerald-100/60">
+                  <Calendar className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  {t.documentChecklist.taxReturnYear} {taxYear}
+                </span>
+              </div>
 
-            {/* Description */}
-            <p className="text-center text-[17px] text-slate-500 leading-relaxed mb-10 font-normal max-w-sm">
-              {t.documentChecklist.dialogDescription}
-            </p>
+              {/* Description */}
+              <p className="text-center text-[15px] text-slate-500 leading-relaxed mb-8 font-normal max-w-sm">
+                {t.documentChecklist.dialogDescription}
+              </p>
 
-            {/* Pill Buttons */}
-            <div className="w-full flex flex-col gap-3">
-              {/* Primary Button */}
-              <button
-                onClick={() => navigate(`/payment?year=${taxYear}`)}
-                className="w-full h-14 rounded-2xl bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] !text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-              >
-                <Zap className="w-[18px] h-[18px]" />
-                {t.documentChecklist.createNow}
-              </button>
+              {/* Buttons */}
+              <div className="w-full flex flex-col gap-3">
+                <button
+                  onClick={() => navigate(`/payment?year=${taxYear}`)}
+                  className="w-full h-14 rounded-2xl bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] !text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-[18px] h-[18px]" />
+                  {t.documentChecklist.createNow}
+                </button>
 
-              {/* Secondary Button */}
-              <button
-                onClick={() => setShowCompletionDialog(false)}
-                className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-              >
-                <Clock className="w-[18px] h-[18px]" />
-                {t.documentChecklist.later}
-              </button>
+                <button
+                  onClick={() => setShowCompletionDialog(false)}
+                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Clock className="w-[18px] h-[18px]" />
+                  {t.documentChecklist.later}
+                </button>
+              </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* Unified Upload Bottom Sheet */}
       <DocumentUploadSheet
