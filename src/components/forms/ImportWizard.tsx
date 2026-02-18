@@ -180,14 +180,14 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           <div className="flex flex-col gap-3">
             <Button
               variant="outline"
-              className="w-full h-14 rounded-2xl text-sm font-medium border-border bg-muted/50 hover:bg-muted text-foreground"
+              className="w-full h-14 rounded-2xl text-sm font-medium border-slate-200 bg-white hover:bg-slate-50 text-foreground"
               onClick={handleWithChanges}
               disabled={isImporting}
             >
               Ja, ich möchte Änderungen vornehmen
             </Button>
             <Button
-              className="w-full h-14 rounded-2xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full h-14 rounded-2xl text-sm font-semibold tracking-wide text-white bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] hover:shadow-[0_6px_20px_0_rgba(29,100,255,0.5)] active:scale-[0.98] transition-all"
               onClick={handleNoChanges}
               disabled={isImporting}
             >
