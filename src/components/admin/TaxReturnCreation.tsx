@@ -397,7 +397,7 @@ const TaxReturnCreation: React.FC = () => {
           {paidTaxReturns.map((taxReturn) => (
             <Card 
               key={taxReturn.id} 
-              className="w-full border border-border bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+              className="w-full border border-border/60 bg-card rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5"
             >
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
