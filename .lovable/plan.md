@@ -1,107 +1,122 @@
 
 
-# Fix: In-App Browser schliesst nicht nach Stripe-Zahlung
+# Fix: Zahlung wird nicht als bezahlt markiert und In-App Browser schliesst nicht
 
-## Problem
+## Problem-Analyse
 
-Wenn auf einem mobilen Geraet (Capacitor/Despia) die Zahlung ueber Stripe/TWINT abgeschlossen wird, oeffnet `Browser.open()` einen In-App-Browser-Tab. Nach erfolgreicher Zahlung leitet Stripe zur `payment-success` URL weiter -- aber diese URL wird **innerhalb des In-App-Browsers** geladen, statt den Browser zu schliessen und zurueck zur App zu navigieren.
+### Problem 1: Webhook erreicht die Edge Function nicht
+- Die `stripe-webhook` Edge Function hat **keine Logs** -- sie wird von Stripe nie aufgerufen
+- In der `payment_events` Tabelle gibt es seit November 2025 kein einziges `checkout.session.completed` Event
+- Die Steuererklarung 2030 hat `payment_status: pending` trotz erfolgter Zahlung
+- **Ursache**: Der Stripe Webhook-Endpunkt ist vermutlich nicht korrekt in Stripe konfiguriert, oder die Edge Function antwortet nicht korrekt
 
-Es gibt keinen Listener, der erkennt, wann der In-App-Browser zur Erfolgsseite navigiert, und ihn daraufhin schliesst.
+### Problem 2: In-App Browser schliesst nicht und Status wird nie aktualisiert
+- Nach der Zahlung leitet Stripe zu `https://app.ditax.ch/payment-success` weiter
+- Diese URL wird **im In-App Browser** geladen, nicht in der App
+- Der `appUrlOpen` Deep Link feuert nicht, da es kein Custom URL Scheme ist
+- Der `browserFinished` Listener prueft die DB, findet aber `pending` (weil Webhook fehlt)
+- **Ergebnis**: User bleibt im Browser-Tab stecken, Zahlung wird nie als bezahlt markiert
 
 ## Loesung
 
-Einen `browserPageLoaded` Listener in `PaymentSection.tsx` registrieren, der erkennt, wenn die URL `/payment-success` enthaelt, den In-App-Browser schliesst und zur Erfolgsseite innerhalb der App navigiert.
+### Teil 1: Polling-Mechanismus in PaymentSection (statt nur browserFinished)
 
-### Aenderungen in `src/components/PaymentSection.tsx`
+Nach `Browser.open()` wird ein Polling-Intervall gestartet, das alle 3 Sekunden den `payment_status` in der Datenbank prueft. Sobald der Status `paid` ist (via Webhook oder PaymentSuccess-Seite), wird der Browser geschlossen und zur Erfolgsseite navigiert.
 
-Nach dem Aufruf von `Browser.open()` (Zeile 242-246) wird ein Listener registriert:
-
-```typescript
-if (Capacitor.isNativePlatform()) {
-  toast.info("Zahlung wird im Browser geoeffnet...");
-  await Browser.open({
-    url: paymentUrl,
-    presentationStyle: 'fullscreen',
-    toolbarColor: '#2563eb'
-  });
-  
-  // Listen for navigation to payment-success and close the in-app browser
-  const listener = await Browser.addListener('browserPageLoaded', async () => {
-    // No reliable URL access from browserPageLoaded, so we also listen for browserFinished
-  });
-  
-  // When the in-app browser is closed manually, navigate to home
-  const finishListener = await Browser.addListener('browserFinished', () => {
-    listener.remove();
-    finishListener.remove();
-    // Check if we have a pending payment success by looking at the tax return
-    navigate('/');
-  });
-}
+```text
+Browser.open(stripeUrl)
+        |
+        v
+  Start Polling (alle 3s)
+        |
+        v
+  payment_status === 'paid'?
+   /            \
+  Ja             Nein
+  |              |
+  Browser.close()  Weiter Polling
+  Navigate to     (max 5 Min)
+  /payment-success
 ```
 
-**Problem**: Capacitor's Browser plugin hat keinen Zugang zur aktuellen URL im `browserPageLoaded` Event. Deshalb ist der bessere Ansatz:
+**Aenderungen in `src/components/PaymentSection.tsx`:**
+- Nach `Browser.open()`: Starte ein Polling-Intervall (alle 3 Sekunden)
+- Polling prueft `tax_returns.payment_status` fuer die aktuelle `taxReturnId`
+- Bei `payment_status === 'paid'`: Browser schliessen, zu Erfolgsseite navigieren
+- Timeout nach 5 Minuten (Polling stoppen)
+- `browserFinished` Listener bleibt als Fallback, prueft aber mit 3 Retries und Verzoegerung
 
-### Besserer Ansatz: Custom Scheme / Universal Link
+### Teil 2: PaymentSuccess-Seite auch im In-App Browser funktionsfaehig machen
 
-Die `success_url` im Edge Function auf ein Custom-URL-Schema setzen (z.B. `ditax://payment-success?...`), damit das Betriebssystem die App direkt oeffnet und der In-App-Browser sich schliesst.
+Falls der User die Erfolgsseite im In-App Browser sieht, soll diese Seite:
+- Den `payment_status` in der DB aktualisieren (das tut sie bereits)
+- **Neu**: Versuchen, den In-App Browser zu schliessen via `Browser.close()` auf Capacitor
+- **Neu**: Eine Nachricht anzeigen, dass der User den Browser manuell schliessen kann, falls `Browser.close()` nicht funktioniert
 
-**Da Custom Schemes native Konfiguration erfordern**, ist der pragmatischste Fix:
+**Aenderungen in `src/pages/PaymentSuccess.tsx`:**
+- Nach erfolgreicher Status-Aktualisierung: `Browser.close()` aufrufen (wenn Capacitor)
+- Fallback-Hinweis anzeigen: "Bitte schliesse diesen Tab, um zur App zurueckzukehren"
 
-### Pragmatischer Fix: `appUrlOpen` Listener erweitern
+### Teil 3: Webhook-Konfiguration pruefen
 
-In `src/App.tsx` den bestehenden Deep-Link-Listener erweitern, um auch `payment-success` URLs zu erkennen:
+Der Webhook scheint nicht zu feuern. Moegliche Ursachen:
+- Webhook URL in Stripe nicht korrekt konfiguriert
+- Die URL muss sein: `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/stripe-webhook`
+- Events die konfiguriert sein muessen: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.succeeded`, `payment_intent.payment_failed`
 
-```typescript
-await CapacitorApp.addListener('appUrlOpen', async (event) => {
-  const url = new URL(event.url);
-  
-  // Existing auth handling...
-  
-  // NEW: Handle payment success deep links
-  if (url.pathname.includes('payment-success')) {
-    const { Browser } = await import('@capacitor/browser');
-    try { await Browser.close(); } catch {}
-    const searchParams = url.searchParams.toString();
-    window.location.href = `/payment-success?${searchParams}`;
-    return;
-  }
-});
-```
-
-### Und zusaetzlich: `browserFinished` Listener in PaymentSection
-
-Da der Deep-Link-Ansatz nicht immer greift (wenn die success_url eine normale HTTPS-URL ist), wird in `PaymentSection.tsx` nach `Browser.open()` ein `browserFinished` Listener hinzugefuegt. Wenn der User den Browser manuell schliesst oder die Seite fertig ist, pruefen wir den Payment-Status:
-
-```typescript
-if (Capacitor.isNativePlatform()) {
-  await Browser.open({ url: paymentUrl, ... });
-  
-  const finishListener = await Browser.addListener('browserFinished', async () => {
-    finishListener.remove();
-    // Check if payment was completed by querying the tax return status
-    const { data } = await supabase
-      .from('tax_returns')
-      .select('payment_status')
-      .eq('id', taxReturnId)
-      .single();
-    
-    if (data?.payment_status === 'paid') {
-      navigate(`/payment-success?session_id=browser_closed&tax_year=${year}&tax_return_id=${taxReturnId}`);
-    }
-  });
-}
-```
+**Hinweis**: Die Webhook-Konfiguration muss im Stripe Dashboard geprueft werden. Dies kann nicht automatisch gemacht werden.
 
 ## Betroffene Dateien
 
-- `src/components/PaymentSection.tsx` -- `browserFinished` Listener nach `Browser.open()` hinzufuegen
-- `src/App.tsx` -- Deep-Link-Listener fuer `payment-success` URLs erweitern
+1. `src/components/PaymentSection.tsx` -- Polling-Mechanismus nach Browser.open()
+2. `src/pages/PaymentSuccess.tsx` -- Browser.close() Versuch + Fallback-Hinweis
 
-## Erwartetes Ergebnis
+## Technische Details
 
-1. User zahlt ueber Stripe/TWINT im In-App-Browser
-2. Nach Zahlung: Browser schliesst sich (manuell oder via Deep Link)
-3. App navigiert automatisch zur Erfolgsseite mit den richtigen Parametern
-4. Falls der User den Browser manuell schliesst, wird der Payment-Status aus der DB geprueft und bei Erfolg zur Erfolgsseite navigiert
+### Polling-Implementierung (PaymentSection.tsx)
+
+```typescript
+// Nach Browser.open():
+const pollInterval = setInterval(async () => {
+  if (!taxReturnId) return;
+  const { data } = await supabase
+    .from('tax_returns')
+    .select('payment_status')
+    .eq('id', taxReturnId)
+    .maybeSingle();
+  
+  if (data?.payment_status === 'paid') {
+    clearInterval(pollInterval);
+    const { Browser } = await import('@capacitor/browser');
+    try { await Browser.close(); } catch {}
+    navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}`);
+  }
+}, 3000);
+
+// Timeout nach 5 Minuten
+setTimeout(() => clearInterval(pollInterval), 300000);
+```
+
+### PaymentSuccess Browser-Close (PaymentSuccess.tsx)
+
+```typescript
+// Nach erfolgreicher Aktualisierung:
+if (Capacitor.isNativePlatform()) {
+  try {
+    const { Browser } = await import('@capacitor/browser');
+    await Browser.close();
+  } catch {
+    // Browser.close() fehlgeschlagen - Hinweis anzeigen
+  }
+}
+```
+
+## Wichtig: Stripe Webhook pruefen
+
+Du musst im Stripe Dashboard pruefen, ob der Webhook korrekt konfiguriert ist:
+1. Gehe zu https://dashboard.stripe.com/webhooks
+2. Pruefe ob ein Endpoint fuer `https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/stripe-webhook` existiert
+3. Falls nicht, erstelle einen neuen Webhook mit dieser URL
+4. Aktiviere die Events: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.succeeded`, `payment_intent.payment_failed`
+5. Kopiere das Webhook Secret und stelle sicher, dass es mit dem `STRIPE_WEBHOOK_SECRET` in den Edge Function Secrets uebereinstimmt
 
