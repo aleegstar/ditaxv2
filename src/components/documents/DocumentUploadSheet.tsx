@@ -373,15 +373,13 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                         <Upload className="w-4 h-4" />
                         Anderes Dokument hochladen
                       </button>
-                      <Button
-                        variant="outline"
+                      <button
                         onClick={handleConfirm}
-                        className="w-full rounded-xl border-border"
-                        size="default"
+                        className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200"
                         style={{ touchAction: 'manipulation' }}
                       >
                         Dokument trotzdem einreichen
-                      </Button>
+                      </button>
                     </>
                   ) : (
                     <>
@@ -392,16 +390,14 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                       >
                         Dokument einreichen
                       </button>
-                      <Button
-                        variant="outline"
+                      <button
                         onClick={handleReupload}
-                        className="w-full rounded-xl border-border"
-                        size="default"
+                        className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
                         style={{ touchAction: 'manipulation' }}
                       >
-                        <Upload className="w-4 h-4 mr-2" />
+                        <Upload className="w-4 h-4" />
                         Andere Datei hochladen
-                      </Button>
+                      </button>
                     </>
                   )}
                 </div>
