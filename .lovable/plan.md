@@ -1,60 +1,70 @@
 
-# Fix: Consent-Screen erscheint faelschlicherweise bei Navigation
+# Fix: Session-Problem — Falscher Redirect zum Consent-Screen
 
-## Problem
-Die "Schoen das du da bist"-Seite (TaxYearSelector mit Consent-Flow) wird faelschlicherweise angezeigt, obwohl der Benutzer bereits registriert und eingeloggt ist. Das passiert durch mehrere zusammenwirkende Race Conditions:
+## Problem-Analyse
 
-1. **Safety Timeout umgeht Loading-Guard**: Nach 8 Sekunden erzwingt der Safety Timeout das Rendering, auch wenn `profileLoading` noch `true` ist. Wenn das Profil noch nicht geladen wurde, ist `userProfile` noch `null`, und `!userProfile?.first_name` ergibt `true`.
+Das Kernproblem ist eine **Race Condition** zwischen drei asynchronen Datenquellen in `UserTaxReturns.tsx`:
 
-2. **Tax Returns temporaer leer**: Beim Wechsel von Tax Filern oder bei Navigation wird `taxReturns` kurzzeitig zu einem leeren Array, waehrend die neuen Daten geladen werden.
+1. **`useProfile`** — ladt das Benutzerprofil (inkl. `first_name`)
+2. **`useTaxFiler`** — ladt die `activeTaxFilerId`
+3. **`useTaxYearData`** — ladt Steuererklarungen basierend auf `userId` + `activeTaxFilerId`
 
-3. **Kombination fuehrt zum Consent-Screen**: `taxReturns.length === 0` + `!userProfile?.first_name` (weil Profil noch laedt) = TaxYearSelector wird angezeigt.
+### Ablauf des Bugs
 
-## Loesung
+```text
+Frame 1: activeTaxFilerId = null
+         -> useTaxYearData setzt loading=false, taxReturns=[]
+         (Zeile 57-59 in use-tax-year-data.ts)
 
-### Aenderung in `src/pages/UserTaxReturns.tsx`
+Frame 2: activeTaxFilerId wird gesetzt
+         -> Neuer loadTaxYearData Callback, useEffect plant Ausfuhrung
 
-**1. Profile-Loading in die TaxYearSelector-Guard einbeziehen**
-
-Die Bedingung fuer den TaxYearSelector darf nur greifen, wenn das Profil tatsaechlich fertig geladen wurde:
-
-```
-// VORHER (Zeile 276):
-if (!loading && taxReturns.length === 0 && !userProfile?.first_name) {
-  return <TaxYearSelector ... />;
-}
-
-// NACHHER:
-if (!loading && !profileLoading && taxReturns.length === 0 && !userProfile?.first_name) {
-  return <TaxYearSelector ... />;
-}
+ZWISCHEN Frame 1 und Frame 2:
+  loading=false, taxReturns=[], profileLoading=false
+  -> Zeile 282 evaluiert zu TRUE
+  -> TaxYearSelector ("Schon das du da bist") wird angezeigt!
 ```
 
-**2. Safety Timeout darf Profile-Loading nicht ueberspringen**
+Das Reset-Logic in `use-tax-year-data.ts` (Zeile 36-54) fangt diesen Fall nicht ab, weil die Bedingung `previousTaxFilerIdRef.current !== null` bei null-zu-Wert-Ubergangen `false` ergibt — kein Reset auf `loading: true` erfolgt.
 
-Der Safety Timeout auf Zeile 262 laesst aktuell das Rendering zu, selbst wenn `profileLoading` noch `true` ist. Das muss angepasst werden, damit der TaxYearSelector-Guard nicht mit unvollstaendigen Daten evaluiert wird:
+## Losung (3 Massnahmen)
 
+### 1. `use-tax-year-data.ts` — Loading-State bei fehlendem taxFilerId nicht auf false setzen
+
+Wenn `taxFilerId` noch `null` ist, soll `loading: true` bleiben, damit der Skeleton-Screen weiter angezeigt wird.
+
+### 2. `use-tax-year-data.ts` — Reset auch bei null-zu-Wert-Ubergang auslosen
+
+Die Bedingung andern, sodass auch der Wechsel von `null` zu einem echten Wert den Reset auf `loading: true` triggert.
+
+### 3. `UserTaxReturns.tsx` — Zusatzliche Guards fur TaxYearSelector
+
+Zwei weitere Absicherungen:
+- **Guard A**: Wenn `activeTaxFilerId` noch nicht verfugbar ist, Skeleton zeigen (nicht TaxYearSelector)
+- **Guard B**: Prufung auf `terms_accepted_at` im Profil — wenn bereits vorhanden, ist der User kein Neuer und der Consent-Screen wird ubersprungen, auch wenn `first_name` leer sein sollte
+
+Die Zeile 282 wird zu:
 ```
-// VORHER (Zeile 262):
-if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
-  return <UserTaxReturnsSkeleton />;
-}
-
-// NACHHER - Profil-Loading separat behandeln:
-// Skeleton zeigen waehrend Daten laden
-if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
-  return <UserTaxReturnsSkeleton />;
-}
-
-// Wenn Safety Timeout aktiv aber Profil noch laedt: Skeleton weiter zeigen
-// (nur fuer die TaxYearSelector-Entscheidung relevant)
-if (safetyTimeout && profileLoading && taxReturns.length === 0) {
-  return <UserTaxReturnsSkeleton />;
-}
+if (!loading && !profileLoading && activeTaxFilerId && taxReturns.length === 0 
+    && !userProfile?.first_name && !userProfile?.terms_accepted_at) {
 ```
 
-### Zusammenfassung
-- Zwei Zeilen werden angepasst in `src/pages/UserTaxReturns.tsx`
-- Die TaxYearSelector-Guard prueft jetzt explizit, ob das Profil geladen ist
-- Der Safety Timeout kann die Consent-Seite nicht mehr faelschlicherweise ausloesen
-- Benutzer sehen schlimmstenfalls einen laengeren Skeleton-Screen statt der falschen Consent-Seite
+Dazu muss `useProfile` auch `terms_accepted_at` aus der Datenbank laden.
+
+### 4. `useProfile.ts` — `terms_accepted_at` zum Profil-Interface hinzufugen
+
+Das Feld `terms_accepted_at` wird aus der DB geladen und im Profile-Interface bereitgestellt.
+
+## Technische Details
+
+| Datei | Anderung |
+|-------|----------|
+| `src/hooks/use-tax-year-data.ts` | Loading bleibt `true` bei `taxFilerId=null`; Reset bei null-zu-Wert |
+| `src/hooks/useProfile.ts` | `terms_accepted_at` ins Interface + Query aufnehmen |
+| `src/pages/UserTaxReturns.tsx` | Guards: `activeTaxFilerId`-Check + `terms_accepted_at`-Check |
+
+## Erwartetes Ergebnis
+
+- Bestehende Benutzer sehen **nie** den Consent-Screen beim normalen Laden
+- Neue Benutzer (ohne `first_name` UND ohne `terms_accepted_at`) sehen den Consent-Screen korrekt
+- Der Skeleton-Screen bleibt sichtbar, bis alle Daten geladen sind
