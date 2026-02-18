@@ -1,121 +1,76 @@
 
 
-# Fix: Session-Race-Conditions zwischen App und ProtectedRoute beseitigen
+# Fix: Session-Validierung mit Server-Check statt nur Local Storage
 
-## Ursachenanalyse
+## Das Problem
 
-Das Problem entsteht durch **doppelte, unabhaengige Auth-Validierung** mit kuenstlichen Verzoegerungen:
+Der `AuthContext` nutzt `supabase.auth.getSession()`, um zu pruefen ob der User eingeloggt ist. Diese Methode liest aber nur aus dem **Local Storage** — sie validiert das Token **nicht mit dem Server**. 
 
-1. **Aeussere Pruefung (App.tsx)**: Prueft die Session, setzt `isAuthenticated=true`, rendert `AuthenticatedApp`
-2. **Innere Pruefung (ProtectedRoute via useAuthValidation)**: Startet eine **komplett neue** Session-Pruefung mit 150ms Verzoegerung + 100ms Debounce
+Das bedeutet: Ein User kann ein abgelaufenes oder ungueltiges Token im Browser gespeichert haben und trotzdem als "eingeloggt" durchgelassen werden. Das Ergebnis:
 
-Zwischen Schritt 1 und Schritt 2 gibt es ein Zeitfenster, in dem `useAuthValidation` noch `isValid=false` und `isLoading=true` meldet. Falls durch Timing-Probleme `isLoading` auf `false` wechselt bevor `isValid` auf `true` steht, zeigt `ProtectedRoute` den "Bitte anmelden"-Toast und leitet zu `/auth` weiter -- obwohl der User eingeloggt ist.
+- `isValid = true` (basierend auf dem alten Token)
+- Die Home-Seite wird angezeigt
+- Aber Profil-Daten koennen nicht geladen werden (Server lehnt Token ab)
+- "Benutzer" wird als Fallback angezeigt statt dem echten Namen
+- Alle weiteren API-Calls schlagen fehl
 
-Zusaetzlich erstellt **jede Route mit ProtectedRoute** eine eigene `useAuthValidation`-Instanz, was zu vielen parallelen `getSession()`-Aufrufen fuehrt und die Race Condition verschaerft.
+## Die Loesung
 
-## Loesung: Zentraler AuthContext als Single Source of Truth
+Den `AuthContext` so aendern, dass nach dem schnellen `getSession()` Check eine **Server-Validierung** mit `getUser()` durchgefuehrt wird. Falls das Token ungueltig ist, wird der User sofort ausgeloggt und zu `/auth` weitergeleitet.
 
-Statt dass jede `ProtectedRoute`-Instanz unabhaengig validiert, wird ein zentraler `AuthContext` eingefuehrt, der den Auth-State einmalig verwaltet und an alle Komponenten weitergibt.
+### Schritt 1: AuthContext mit Server-Validierung
 
-### Schritt 1: AuthContext erstellen
+In `src/contexts/AuthContext.tsx`:
 
-Neue Datei `src/contexts/AuthContext.tsx`:
+1. `getSession()` bleibt als schneller Initialcheck (verhindert Flackern)
+2. Danach wird `getUser()` aufgerufen, um das Token serverseitig zu validieren
+3. Falls `getUser()` einen Fehler zurueckgibt (z.B. `AuthSessionMissingError`), wird die Session geloescht und `isValid` auf `false` gesetzt
 
-- Verwaltet `userId`, `email`, `isValid`, `isLoading` zentral
-- Registriert **einen einzigen** `onAuthStateChange`-Listener
-- Ruft `getSession()` nur einmal beim Initialisieren auf
-- Stellt den Idle-Timer bereit (30-Minuten Auto-Logout)
-- Exportiert `useAuth()` Hook fuer alle Konsumenten
+```typescript
+// Nach getSession() — serverseitige Validierung
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  // Validate token server-side
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) {
+    // Token is stale/invalid — force logout
+    await supabase.auth.signOut();
+    setState({ userId: null, email: null, isValid: false, isLoading: false });
+    return;
+  }
+}
+```
 
-### Schritt 2: App.tsx anpassen
+### Schritt 2: WelcomeHeader Fallback verbessern
 
-- `AuthContext.Provider` einbinden (innerhalb von `BrowserRouter`)
-- Die bestehende `isAuthenticated`-Logik in `App` durch `useAuth()` aus dem Context ersetzen
-- Die OAuth-Token-Behandlung (`handleUrlTokens`, `handleOAuthSuccessSignal`) bleibt in `App.tsx`, setzt aber den Context-State
+In `src/components/ui/welcome-header.tsx`:
 
-### Schritt 3: ProtectedRoute vereinfachen
+Waehrend das Profil geladen wird, "Benutzer" nicht sofort anzeigen — stattdessen den Loading-State beruecksichtigen:
 
-- `useAuthValidation()` durch `useAuth()` ersetzen
-- Keine eigene Session-Pruefung mehr -- liest nur noch den zentralen State
-- Kein Toast und kein Redirect wenn `isLoading=true`
-- Redirect zu `/auth` nur wenn `isLoading=false` UND `isValid=false`
+```typescript
+const getUserFirstName = () => {
+  if (loading) return '...';  // Zeige Platzhalter waehrend des Ladens
+  if (profile?.first_name) return profile.first_name;
+  return 'Benutzer';
+};
+```
 
-### Schritt 4: useAuthValidation anpassen
+### Schritt 3: useProfile mit Auth-Fehlerbehandlung
 
-- Die bestehende Hook-Logik wird in den AuthContext verschoben
-- `useAuthValidation` wird zu einem duennen Wrapper um `useAuth()`
-- Bestehende Aufrufe (z.B. `AuthenticatedApp` fuer Idle-State) funktionieren weiterhin
+In `src/hooks/useProfile.ts`:
 
-### Schritt 5: PaymentSection pruefen
-
-- `PaymentSection.tsx` hat bereits den Fix (Listener vor getSession) -- bleibt wie ist
-- Zusaetzlich kann `isLoggedIn` durch den zentralen Context ersetzt werden
+Wenn `getUser()` fehlschlaegt (Session ungueltig), keinen Toast zeigen sondern still fehlschlagen — der AuthContext kuemmert sich um den Redirect.
 
 ## Erwartetes Ergebnis
 
-- **Eine einzige** Session-Pruefung statt einer pro Route
-- Kein Zeitfenster mehr zwischen aeusserer und innerer Auth-Pruefung
-- Keine falschen "Bitte anmelden"-Toasts
-- Keine falschen Redirects zu `/auth` bei eingeloggten Usern
-- Idle-Timer und Force-Logout funktionieren weiterhin
+- Abgelaufene/ungueltige Tokens werden beim App-Start erkannt
+- User mit ungueltigem Token werden sofort zu `/auth` weitergeleitet
+- Kein "Benutzer"-Fallback mehr bei ungueltigem Token
+- Schnelles Laden bei gueltigem Token (kein sichtbarer Unterschied)
 
-## Technische Details
+## Betroffene Dateien
 
-### Neue Datei: `src/contexts/AuthContext.tsx`
-
-```typescript
-// Zentraler Auth-State mit einem einzigen Listener
-const AuthProvider = ({ children }) => {
-  const [state, setState] = useState({ userId, email, isValid, isLoading: true });
-
-  useEffect(() => {
-    // 1. Listener registrieren
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setState({
-          userId: session?.user?.id ?? null,
-          email: session?.user?.email ?? null,
-          isValid: !!session,
-          isLoading: false
-        });
-      }
-    );
-    // 2. Initiale Session pruefen
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setState({ ... , isLoading: false });
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
-};
-```
-
-### Aenderung: `src/components/guards/ProtectedRoute.tsx`
-
-```typescript
-// Vorher: eigene useAuthValidation() mit Delays
-// Nachher: liest nur den zentralen Context
-const ProtectedRoute = ({ children }) => {
-  const { isValid, isLoading } = useAuth();
-  
-  if (isLoading) return null; // Warten, kein Redirect
-  if (!isValid) return <Navigate to="/auth" replace />;
-  return <>{children}</>;
-};
-```
-
-### Aenderung: `src/App.tsx`
-
-```typescript
-// AuthProvider wird um BrowserRouter-Inhalt gewickelt
-<BrowserRouter>
-  <AuthProvider>
-    <SpaRedirector />
-    <Routes>...</Routes>
-  </AuthProvider>
-</BrowserRouter>
-```
-
-Die `isAuthenticated`-State-Variable in `App` wird durch `useAuth()` ersetzt, sodass nur noch ein einziger Auth-State existiert.
+- `src/contexts/AuthContext.tsx` — Server-Validierung hinzufuegen
+- `src/components/ui/welcome-header.tsx` — Loading-State fuer Namen
+- `src/hooks/useProfile.ts` — Stille Fehlerbehandlung bei Auth-Fehler
 
