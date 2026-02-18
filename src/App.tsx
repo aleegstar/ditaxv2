@@ -380,6 +380,8 @@ const App = () => {
 
   useEffect(() => {
     let mounted = true;
+    // Guard: while initializing (OAuth/token handling), don't let the listener set isAuthenticated=false
+    let isInitializing = true;
 
     // Handle OAuth success signal from Despia deeplink (success=true)
     const handleOAuthSuccessSignal = async () => {
@@ -387,10 +389,8 @@ const App = () => {
       if (urlParams.get('success') === 'true') {
         console.log('🔐 App.tsx: OAuth success signal detected from deeplink');
         
-        // Short delay to ensure session storage is synced from Chrome Custom Tab
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Refresh session - it was already set in NativeCallback
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -405,14 +405,12 @@ const App = () => {
           console.warn('⚠️ App.tsx: No session found after OAuth success signal');
         }
         
-        // Clean URL (remove success parameter)
         window.history.replaceState({}, '', window.location.pathname);
-        return true; // Signal was handled
+        return true;
       }
       return false;
     };
 
-    // Prüfe ob Tokens in der URL sind (Deep Link von AuthSuccess)
     const handleUrlTokens = async () => {
       const url = new URL(window.location.href);
       const accessToken = url.searchParams.get('at');
@@ -431,7 +429,6 @@ const App = () => {
             console.error('❌ App.tsx: Session error:', error);
           } else {
             console.log('✅ App.tsx: Session erfolgreich gesetzt');
-            // URL bereinigen (Tokens entfernen)
             window.history.replaceState({}, '', '/');
           }
         } catch (err) {
@@ -440,53 +437,71 @@ const App = () => {
       }
     };
 
-    // First check for OAuth success signal, then handle URL tokens
-    const initAuth = async () => {
-      const wasOAuthSuccess = await handleOAuthSuccessSignal();
-      if (!wasOAuthSuccess) {
-        await handleUrlTokens();
-      }
-    };
-    
-    initAuth();
-
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        const isLoggedIn = !!session?.user;
-        
-        if (mounted) {
-          setIsAuthenticated(isLoggedIn);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    checkAuth();
-
+    // 1. Set up auth listener FIRST (Supabase best practice)
+    // During initialization, only allow positive auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!mounted) return;
         
         const isLoggedIn = !!session?.user;
+        
+        if (isInitializing) {
+          // During init: only allow setting authenticated=true, never false
+          // Prevents INITIAL_SESSION without session from redirecting to /auth
+          if (isLoggedIn) {
+            console.log('🔐 Auth listener (init phase): session found, setting authenticated');
+            setIsAuthenticated(true);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // After init: normal behavior
         setIsAuthenticated(isLoggedIn);
         setIsLoading(false);
       }
     );
+
+    // 2. Run initAuth then checkAuth sequentially
+    const initialize = async () => {
+      try {
+        const wasOAuthSuccess = await handleOAuthSuccessSignal();
+        if (!wasOAuthSuccess) {
+          await handleUrlTokens();
+        }
+        
+        // Check session after token handling
+        if (mounted) {
+          try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (error) {
+              if (mounted) {
+                setIsAuthenticated(false);
+                setIsLoading(false);
+              }
+            } else {
+              const isLoggedIn = !!session?.user;
+              if (mounted) {
+                setIsAuthenticated(isLoggedIn);
+                setIsLoading(false);
+              }
+            }
+          } catch (error) {
+            if (mounted) {
+              setIsAuthenticated(false);
+              setIsLoading(false);
+            }
+          }
+        }
+      } finally {
+        // 3. Init complete - listener handles all events normally now
+        isInitializing = false;
+        console.log('✅ Auth initialization complete, listener fully active');
+      }
+    };
+
+    initialize();
 
     // Set up app URL listener for deep links (Capacitor native only)
     const setupAppUrlListener = async () => {
@@ -504,7 +519,6 @@ const App = () => {
             return;
           }
           
-          // Handle tokens in query params (from AuthSuccess Deep Link)
           const accessToken = url.searchParams.get('at');
           const refreshToken = url.searchParams.get('rt');
           
@@ -523,7 +537,6 @@ const App = () => {
                 console.log('✅ App.tsx: Session set successfully');
               }
               
-              // Close browser tab if open
               const { Browser } = await import('@capacitor/browser');
               try {
                 await Browser.close();
@@ -531,7 +544,6 @@ const App = () => {
                 console.log('Browser.close() not available');
               }
               
-              // Navigate to home
               window.location.href = '/';
             } catch (err) {
               console.error('❌ App.tsx: Deep link error:', err);
