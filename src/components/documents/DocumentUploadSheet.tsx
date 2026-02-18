@@ -296,7 +296,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-12 rounded-full bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                className="w-full h-14 rounded-2xl bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
                 style={{ touchAction: 'manipulation' }}
               >
                 <Upload className="w-5 h-5" />
