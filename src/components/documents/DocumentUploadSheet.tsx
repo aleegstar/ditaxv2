@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Loader2, Check, AlertCircle, Upload, Info } from 'lucide-react';
+import { Loader2, Check, AlertCircle, Upload, Info, Camera, FileText, Image } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { ChecklistItem } from '@/types';
@@ -55,22 +55,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hasAutoOpenedRef = useRef(false);
-
-  // Auto-open file picker when sheet opens
-  useEffect(() => {
-    if (open && phase === 'select' && !hasAutoOpenedRef.current) {
-      hasAutoOpenedRef.current = true;
-      // Small delay to ensure the hidden input is mounted
-      const timer = setTimeout(() => {
-        fileInputRef.current?.click();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-    if (!open) {
-      hasAutoOpenedRef.current = false;
-    }
-  }, [open, phase]);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const reset = useCallback(() => {
     setPhase('select');
@@ -292,24 +277,55 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
           {phase === 'select' && (
             <div>
               <div className="text-center mb-5">
-                <h3 className="text-lg font-semibold text-slate-800">
+                <h3 className="text-lg font-semibold text-foreground">
                   {item?.title || 'Dokument hochladen'}
                 </h3>
                 {item?.description && (
-                  <p className="text-sm text-slate-400 mt-1">{item.description}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
                 )}
               </div>
 
+              {/* Hidden file inputs */}
+              <input ref={photoInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,image/heic" capture="environment" onChange={handleInputChange} />
               <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
 
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-14 rounded-2xl bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-                style={{ touchAction: 'manipulation' }}
-              >
-                <Upload className="w-5 h-5" />
-                Dokument auswählen
-              </button>
+              <div className="space-y-3">
+                <button
+                  onClick={() => photoInputRef.current?.click()}
+                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <Image className="w-5 h-5 text-primary" />
+                  Fotos hochladen
+                </button>
+                <button
+                  onClick={() => {
+                    // Open camera directly via capture
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.capture = 'environment';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) handleFileSelected(file);
+                    };
+                    input.click();
+                  }}
+                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <Camera className="w-5 h-5 text-muted-foreground" />
+                  Dokument scannen
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                  Dateien (PDF, Docs...)
+                </button>
+              </div>
             </div>
           )}
 
