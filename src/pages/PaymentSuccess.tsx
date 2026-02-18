@@ -4,8 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-import { Confetti, ConfettiRef } from "@/components/ui/confetti";
+import confetti from "canvas-confetti";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -14,8 +13,7 @@ const PaymentSuccess = () => {
   const [error, setError] = useState<string | null>(null);
   const [taxYear, setTaxYear] = useState<number | null>(null);
   const [storedTaxReturnId, setStoredTaxReturnId] = useState<string | null>(null);
-  const [showBrowserCloseHint, setShowBrowserCloseHint] = useState(false);
-  const confettiRef = useRef<ConfettiRef>(null);
+  const hasConfettiFired = useRef(false);
 
   useEffect(() => {
     const waitForAuth = async (maxRetries = 8): Promise<any> => {
@@ -124,13 +122,13 @@ const PaymentSuccess = () => {
         toast.success("Zahlung erfolgreich verarbeitet!");
         
         // Trigger confetti
-        setTimeout(() => {
-          confettiRef.current?.fire({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-        }, 300);
+        if (!hasConfettiFired.current) {
+          hasConfettiFired.current = true;
+          setTimeout(() => {
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+            setTimeout(() => confetti({ particleCount: 60, spread: 100, origin: { y: 0.4 } }), 250);
+          }, 400);
+        }
       } catch (error: any) {
         setError(error.message || "Fehler beim Verarbeiten der Zahlung");
         setLoading(false);
@@ -142,7 +140,7 @@ const PaymentSuccess = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 will-change-auto">
         <div className="w-full max-w-sm text-center">
           <div className="mb-12">
             <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
@@ -197,12 +195,7 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative">
-      <Confetti
-        ref={confettiRef}
-        className="absolute left-0 top-0 z-0 size-full pointer-events-none"
-        manualstart
-      />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative animate-fade-in will-change-auto">
       
       <div className="w-full max-w-sm text-center relative z-10">
         <div className="mb-12">
@@ -239,15 +232,6 @@ const PaymentSuccess = () => {
               Du erhältst in Kürze eine Bestätigung per E-Mail.
             </p>
           </div>
-          {/* Browser close hint for in-app browser */}
-          {showBrowserCloseHint && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
-              <p className="text-sm text-amber-700 font-medium">
-                Bitte schliesse diesen Tab, um zur App zurückzukehren.
-              </p>
-            </div>
-          )}
-          
           {/* Actions */}
           <div className="space-y-3 pt-2">
             <Button 
