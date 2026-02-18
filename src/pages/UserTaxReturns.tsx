@@ -279,7 +279,7 @@ const UserTaxReturns = () => {
   // that the user already went through the consent/name flow. Previously used
   // onboarding_tour_completed which stays false after WelcomeFlow, causing the
   // consent page to flash for existing users on navigation or filer-switch.
-  if (!loading && !profileLoading && taxReturns.length === 0 && !userProfile?.first_name) {
+  if (!loading && !profileLoading && activeTaxFilerId && taxReturns.length === 0 && !userProfile?.first_name && !userProfile?.terms_accepted_at) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
   const getExistingReturn = (year: string) => {
