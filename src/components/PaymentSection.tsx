@@ -280,12 +280,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         onBack={() => navigate(-1)}
       />
 
-      <main className="flex-grow pt-8 pb-16 px-4 sm:px-6">
+      <main className="flex-grow pt-8 pb-16 px-2 sm:px-6">
         <div className="max-w-[640px] mx-auto">
 
           {/* Main Card Container */}
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-50">
-            <div className="p-6 sm:p-8 space-y-8">
+          <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 p-1.5 sm:p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-50">
+            <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
 
               {/* Express Service Toggle */}
               {!isUpgrade && (
@@ -379,19 +379,19 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Cost Breakdown */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/50 overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50/80">
                   <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Kostenaufstellung</h4>
                 </div>
                 <div className="bg-white divide-y divide-slate-50">
                   {priceBreakdown.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center px-6 py-4 hover:bg-slate-50/50 transition-colors">
-                      <span className="text-slate-600 font-normal">{item.label}</span>
-                      <span className="text-slate-900 font-medium tabular-nums">CHF {formatPrice(item.amount)}</span>
+                    <div key={idx} className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 hover:bg-slate-50/50 transition-colors gap-2">
+                      <span className="text-slate-600 font-normal text-sm sm:text-base truncate min-w-0">{item.label}</span>
+                      <span className="text-slate-900 font-medium tabular-nums text-sm sm:text-base whitespace-nowrap shrink-0">CHF {formatPrice(item.amount)}</span>
                     </div>
                   ))}
                 </div>
                 {/* Total */}
-                <div className="bg-slate-50/80 px-6 py-5 border-t border-slate-100">
+                <div className="bg-slate-50/80 px-3 sm:px-6 py-4 sm:py-5 border-t border-slate-100">
                   {hasAnyPromo && (
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-xs text-slate-500">Zwischensumme</span>
