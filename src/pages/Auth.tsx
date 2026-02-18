@@ -5,8 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, Mail, Fingerprint, ShieldCheck } from "lucide-react";
-import { LanguageDropdown } from "@/components/ui/language-dropdown";
+import { ArrowLeft, Mail, Fingerprint, ShieldCheck, Globe } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -14,6 +13,28 @@ import { FramerButton } from "@/components/ui/framer-button";
 import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';
+
+const AuthLanguageToggle = () => {
+  const { language, switchLanguage } = useI18n();
+  return (
+    <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border border-white/40" style={{ background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+      <Globe className="w-3.5 h-3.5 text-slate-400" />
+      <button
+        onClick={() => switchLanguage('de')}
+        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
+      >
+        DE
+      </button>
+      <button
+        onClick={() => switchLanguage('en')}
+        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
+      >
+        EN
+      </button>
+    </div>
+  );
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -538,13 +559,13 @@ const Auth = () => {
                 </div>
 
                 {/* Footer Links */}
-                <div className="mt-12 flex flex-col items-center justify-between gap-6 sm:flex-row text-sm text-slate-500">
-                  <div className="flex gap-6">
-                    <a href="/impressum" className="hover:text-slate-900 transition-colors">Impressum</a>
+                <div className="mt-12 flex flex-col items-center gap-4 text-sm text-slate-400">
+                  <div className="flex items-center gap-3">
+                    <a href="/impressum" className="hover:text-slate-600 transition-colors">Impressum</a>
                     <span className="text-slate-300">•</span>
-                    <a href="/datenschutzrichtlinie" className="hover:text-slate-900 transition-colors">Datenschutz</a>
+                    <a href="/datenschutzrichtlinie" className="hover:text-slate-600 transition-colors">Datenschutz</a>
                   </div>
-                  <LanguageDropdown variant="compact" />
+                  <AuthLanguageToggle />
                 </div>
 
               </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
