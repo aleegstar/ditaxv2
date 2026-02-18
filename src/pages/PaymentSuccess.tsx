@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Capacitor } from '@capacitor/core';
 
 import { Confetti, ConfettiRef } from "@/components/ui/confetti";
 
@@ -43,23 +42,7 @@ const PaymentSuccess = () => {
           throw new Error("Steuerjahr nicht gefunden");
         }
 
-        // On native platform without auth, just close the in-app browser
-        // The polling in PaymentSection will handle navigation in the main app
-        if (Capacitor.isNativePlatform()) {
-          const user = await waitForAuth(2); // Quick check, only 2 retries
-          if (!user) {
-            console.log('📱 PaymentSuccess: No auth in in-app browser, closing browser...');
-            try {
-              const { Browser } = await import('@capacitor/browser');
-              await Browser.close();
-            } catch {
-              setShowBrowserCloseHint(true);
-              setLoading(false);
-            }
-            return; // Don't try DB update without auth
-          }
-        }
-
+        // Wait for auth session (may take a moment after deeplink navigation)
         const user = await waitForAuth();
         
         if (!user) {
@@ -131,17 +114,6 @@ const PaymentSuccess = () => {
         setLoading(false);
         setTaxYear(parseInt(year));
         toast.success("Zahlung erfolgreich verarbeitet!");
-        
-        // Try to close in-app browser on native platforms
-        if (Capacitor.isNativePlatform()) {
-          try {
-            const { Browser } = await import('@capacitor/browser');
-            await Browser.close();
-          } catch {
-            // Browser.close() failed — show hint to close manually
-            setShowBrowserCloseHint(true);
-          }
-        }
         
         // Trigger confetti
         setTimeout(() => {

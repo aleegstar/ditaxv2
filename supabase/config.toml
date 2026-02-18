@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.auth-apple-callback]
 verify_jwt = false
+
+[functions.payment-redirect]
+verify_jwt = false

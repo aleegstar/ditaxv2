@@ -22,7 +22,8 @@ const paymentRequestSchema = z.object({
   taxReturnId: z.string().uuid().optional().nullable(),
   origin: z.string().url().optional().nullable(),
   paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default'),
-  promoCodeId: z.string().optional().nullable() // Stripe promotion code ID for referral discounts
+  promoCodeId: z.string().optional().nullable(), // Stripe promotion code ID for referral discounts
+  isDespia: z.boolean().optional().default(false) // Whether request comes from Despia native app
 })
 
 const logStep = (step: string, details?: any) => {
@@ -218,7 +219,8 @@ serve(async (req) => {
         taxReturnId, 
         origin: bodyOrigin, 
         paymentMethod,
-        promoCodeId
+        promoCodeId,
+        isDespia
       } = validatedRequest;
       
       // Check minimum amount for TWINT (CHF 5.00 = 500 cents)
@@ -464,12 +466,20 @@ serve(async (req) => {
           requestId 
         });
         
+        const supabaseFunctionsUrl = `${supabaseUrl}/functions/v1`;
+        
+        // For Despia native: redirect through payment-redirect edge function which triggers deeplink
+        // For web: redirect directly to payment-success page
+        const successUrl = isDespia
+          ? `${supabaseFunctionsUrl}/payment-redirect?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}&scheme=ditax`
+          : `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}`;
+        
         const sessionData: any = {
           customer: customerId,
           payment_method_types: paymentMethodTypes,
           line_items,
           mode: "payment",
-          success_url: `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}`,
+          success_url: successUrl,
           cancel_url: `${appOrigin}/form?year=${taxYear}`,
           locale: "de",
           client_reference_id: taxReturnId || `${user.id}-${taxYear}`,
