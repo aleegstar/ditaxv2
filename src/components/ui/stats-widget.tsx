@@ -97,48 +97,48 @@ export const StatsWidget: React.FC<StatsWidgetProps> = ({
   const gradientId = `areaGradientSuccess-${uniqueId}`;
 
   return (
-    <div className="w-full bg-card rounded-xl shadow-sm p-6 border border-border hover:shadow-md transition-all duration-200">
-      <div className="flex justify-between items-center">
-        {/* Left side content */}
-        <div className="flex flex-col w-1/2">
-          <div className="flex items-center text-gray-500 text-sm mb-1">
-            <span>{label}</span>
-          </div>
-          <p className="text-3xl font-bold text-foreground mt-1">
+    <div className="relative overflow-hidden w-full bg-card rounded-2xl border border-border/60 p-8 hover:shadow-md transition-shadow duration-300">
+      <div className="flex flex-col relative z-10">
+        <h3 className="text-base text-muted-foreground font-medium mb-3">
+          {label}
+        </h3>
+        <div className="flex items-baseline gap-3">
+          <span className="text-5xl tracking-tight text-foreground font-medium">
             {prefix}{amount}{suffix}
-          </p>
-          <div className={`flex items-center mt-2 text-sm font-semibold ${changeColorClass}`}>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className={`text-sm font-semibold flex items-center ${changeColorClass}`}>
             {isPositiveChange ? '+' : ''}{change}%
-            {isPositiveChange ? <ArrowUp size={14} className="ml-1" /> : <ArrowDown size={14} className="ml-1" />}
-            <span className="text-gray-400 ml-2 font-normal">vs. letzter Monat</span>
-          </div>
+            {isPositiveChange ? <ArrowUp size={12} className="ml-0.5" /> : <ArrowDown size={12} className="ml-0.5" />}
+          </span>
+          <span className="text-sm text-muted-foreground/60">vs. letzter Monat</span>
         </div>
-
-        {/* Right side chart */}
-        <div className="w-1/2 h-16">
-          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-full" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22C55E" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="#22C55E" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <path
-              ref={areaPathRef}
-              d={areaPath}
-              fill={`url(#${gradientId})`}
-            />
-            <path
-              ref={linePathRef}
-              d={linePath}
-              fill="none"
-              stroke="#22C55E"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+      </div>
+      {/* Decorative Chart Background */}
+      <div className="absolute bottom-0 right-0 w-[60%] h-16 opacity-90">
+        <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={graphStrokeColor} stopOpacity={0.2} />
+              <stop offset="100%" stopColor={graphStrokeColor} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <path
+            ref={areaPathRef}
+            d={areaPath}
+            fill={`url(#${gradientId})`}
+          />
+          <path
+            ref={linePathRef}
+            d={linePath}
+            fill="none"
+            stroke={graphStrokeColor}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
     </div>
   );

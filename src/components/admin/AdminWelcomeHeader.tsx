@@ -125,28 +125,25 @@ export const AdminWelcomeHeader: React.FC<AdminWelcomeHeaderProps> = ({
       day: 'numeric'
     });
   };
-  return <div className="space-y-4 animate-fade-in">
-      {/* Section Header */}
-      <Card className="bg-card border border-border rounded-xl transition-all duration-300">
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-foreground">{title}</h2>
-              {badge && <Badge variant={badge.variant || 'secondary'} className="px-3 py-1 text-sm font-medium text-white">
-                  {badge.text}
-                </Badge>}
-            </div>
-
-            <div className="flex items-center gap-3">
-              {children}
-              {onRefresh && <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="transition-all">
-                  <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                  Aktualisieren
-                </Button>}
-            </div>
+  return <div className="animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-4 mb-3">
+            <h1 className="text-3xl tracking-tight text-foreground font-medium">{title}</h1>
+            {badge && <span className="px-3 py-1 bg-primary text-white rounded-full text-xs font-semibold shadow-sm shadow-primary/30">
+                {badge.text}
+              </span>}
           </div>
-          {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
+          {subtitle && <p className="text-base text-muted-foreground leading-relaxed max-w-2xl">{subtitle}</p>}
         </div>
-      </Card>
+
+        <div className="flex items-center gap-3">
+          {children}
+          {onRefresh && <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="rounded-xl shadow-sm hover:shadow-md transition-all">
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              Aktualisieren
+            </Button>}
+        </div>
+      </div>
     </div>;
 };

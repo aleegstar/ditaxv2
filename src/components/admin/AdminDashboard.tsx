@@ -277,7 +277,7 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
+    <div className="space-y-10">
       <AdminWelcomeHeader
         title="Admin Dashboard"
         subtitle="Übersicht über alle anstehenden Aufgaben und wichtige Metriken"
@@ -289,7 +289,7 @@ export const AdminDashboard: React.FC = () => {
       />
 
       {/* Stats Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatsWidget
           label="Abgeschlossene Steuererklärungen"
           amount={stats.completedThisMonth}
@@ -310,124 +310,109 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link to="/admin/tax-processing" className="group">
-          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
             <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-muted">
-                  <FileText className="h-6 w-6 text-muted-foreground" />
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                  <FileText className="h-5 w-5" />
                 </div>
                 {stats.expressTaxReturns > 0 && (
-                  <Badge className="bg-[#1D64FF] text-white text-xs px-2 py-1">
+                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
                     {stats.expressTaxReturns}
-                  </Badge>
+                  </div>
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">Offene Steuererklärungen</h3>
-                <p className="text-2xl font-bold text-foreground">{stats.pendingTaxReturns}</p>
+                <h4 className="text-sm font-semibold text-foreground">Offene Steuererklärungen</h4>
+                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingTaxReturns}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 rounded-xl bg-muted">
-                <Clock className="h-6 w-6 text-muted-foreground" />
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                <Clock className="h-5 w-5" />
               </div>
               {stats.expressTaxReturns > 0 && (
-                <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
+                <div className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-orange-500/20">
                   {stats.expressTaxReturns}
-                </Badge>
+                </div>
               )}
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-foreground">Offene Express</h3>
-              <p className="text-2xl font-bold text-foreground">{stats.expressTaxReturns}</p>
+              <h4 className="text-sm font-semibold text-foreground">Offene Express</h4>
+              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.expressTaxReturns}</p>
             </div>
           </CardContent>
         </Card>
 
         <Link to="/admin/tickets" className="group">
-          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
             <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-muted">
-                  <MessageCircle className="h-6 w-6 text-muted-foreground" />
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                  <MessageCircle className="h-5 w-5" />
                 </div>
-                {stats.openTickets > 0 && (
-                  <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
-                    {stats.openTickets}
-                  </Badge>
-                )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">Offene Tickets</h3>
-                <p className="text-2xl font-bold text-foreground">{stats.openTickets}</p>
+                <h4 className="text-sm font-semibold text-foreground">Offene Tickets</h4>
+                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.openTickets}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
         <Link to="/admin/definitive-tax-bills" className="group">
-          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
             <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-muted">
-                  <FileText className="h-6 w-6 text-muted-foreground" />
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                  <FileText className="h-5 w-5" />
                 </div>
-                {stats.pendingDefinitiveTaxBills > 0 && (
-                  <Badge className="bg-orange-500 text-white text-xs px-2 py-1">
-                    {stats.pendingDefinitiveTaxBills}
-                  </Badge>
-                )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">Rechnungen zur Prüfung</h3>
-                <p className="text-2xl font-bold text-foreground">{stats.pendingDefinitiveTaxBills}</p>
+                <h4 className="text-sm font-semibold text-foreground">Rechnungen zur Prüfung</h4>
+                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingDefinitiveTaxBills}</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 rounded-xl bg-muted">
-                <TrendingUp className="h-6 w-6 text-muted-foreground" />
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                <TrendingUp className="h-5 w-5" />
               </div>
-              {stats.completedThisMonth > 0 && (
-                <Badge className="bg-green-500 text-white text-xs px-2 py-1">
-                  {stats.completedThisMonth}
-                </Badge>
-              )}
             </div>
             <div className="space-y-1">
-              <h3 className="font-semibold text-foreground">Diesen Monat</h3>
-              <p className="text-2xl font-bold text-foreground">{stats.completedThisMonth}</p>
+              <h4 className="text-sm font-semibold text-foreground">Diesen Monat</h4>
+              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.completedThisMonth}</p>
             </div>
           </CardContent>
         </Card>
 
         <Link to="/admin/users" className="group">
-          <Card className="relative h-full border border-border bg-card hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
             <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-muted">
-                  <UserPlus className="h-6 w-6 text-muted-foreground" />
+              <div className="flex items-start justify-between mb-6">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                  <UserPlus className="h-5 w-5" />
                 </div>
                 {stats.newUsersLast30Days > 0 && (
-                  <Badge className="bg-[#1D64FF] text-white text-xs px-2 py-1">
+                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
                     +{stats.newUsersLast30Days}
-                  </Badge>
+                  </div>
                 )}
               </div>
               <div className="space-y-1">
-                <h3 className="font-semibold text-foreground">Neue User (30 Tage)</h3>
-                <p className="text-2xl font-bold text-foreground">{stats.newUsersLast30Days}</p>
+                <h4 className="text-sm font-semibold text-foreground">Neue User (30 Tage)</h4>
+                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.newUsersLast30Days}</p>
               </div>
             </CardContent>
           </Card>
