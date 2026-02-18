@@ -24,44 +24,13 @@ Deno.serve(async (req) => {
 
   const deeplink = `${safeScheme}://oauth/payment-success?${params.toString()}`;
 
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Weiterleitung...</title>
-  <style>
-    body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #fff; color: #333; }
-    .loader { text-align: center; }
-    .spinner { width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
-</head>
-<body>
-  <div class="loader">
-    <div class="spinner"></div>
-    <p>Zahlung erfolgreich – Weiterleitung zur App...</p>
-  </div>
-  <script>
-    (function() {
-      try {
-        var deeplink = '${deeplink}';
-        console.log('Redirecting to deeplink:', deeplink);
-        window.location.href = deeplink;
-        setTimeout(function() {
-          document.querySelector('p').textContent = 'Bitte schliesse diesen Tab, um zur App zurückzukehren.';
-          document.querySelector('.spinner').style.display = 'none';
-        }, 3000);
-      } catch(e) {
-        document.querySelector('p').textContent = 'Fehler: ' + e.message;
-      }
-    })();
-  </script>
-</body>
-</html>`;
-
-  return new Response(html, {
-    status: 200,
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  // Try direct 302 redirect to deeplink first — most reliable on Android
+  // The in-app browser will intercept the custom scheme and close itself
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': deeplink,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    },
   });
 });
