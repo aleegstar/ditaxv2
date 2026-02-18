@@ -227,11 +227,10 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full" style={{ backgroundColor: 'rgb(244 244 244 / var(--tw-bg-opacity, 1))' }}>
+    <div className="flex min-h-screen w-full bg-background">
       <AdminSidebar />
       
       <main className="flex-1 p-6">
-        <div className="bg-white rounded-3xl shadow-sm min-h-[calc(100vh-3rem)] p-6">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -320,7 +319,6 @@ const Admin: React.FC = () => {
           <Route path="user-feedback" element={<UserFeedback />} />
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           </Routes>
-        </div>
       </main>
     </div>
   );
