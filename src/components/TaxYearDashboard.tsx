@@ -219,63 +219,65 @@ export const TaxYearDashboard: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 pt-4">
         {/* Step 1: Persönliche Angaben - Collapsible when complete */}
         {allAngabenComplete && !isAngabenExpanded ? (
-          /* Collapsed Pill View */
+          /* Collapsed Completed Card */
           <div 
             data-tour="form-step-1" 
             onClick={() => setIsAngabenExpanded(true)}
-            className="bg-slate-50/80 p-5 px-6 rounded-[1.75rem] ring-1 ring-slate-200/40 flex items-center gap-4 transition-all duration-200 cursor-pointer hover:bg-slate-100/80"
+            className="group bg-white rounded-[1.5rem] border border-slate-200/80 p-6 sm:p-8 flex items-center gap-6 sm:gap-8 shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)] transition-all cursor-pointer"
           >
-            <div className="h-10 w-10 rounded-full flex items-center justify-center shrink-0 bg-green-500 text-white shadow-sm">
-              <Check className="w-5 h-5" strokeWidth={2.5} />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm shadow-emerald-100">
+              <Check className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
             </div>
-            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
-              <span className="font-semibold text-slate-600">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-[1.1rem] sm:text-[1.15rem] font-semibold text-slate-800 tracking-tight">
                 {t.formDashboard.personalInfo}
-              </span>
+              </h2>
+              <p className="text-slate-500 text-sm sm:text-[0.95rem] mt-1 font-normal leading-relaxed">
+                {t.formDashboard.tasksCompleted
+                  .replace('{completed}', '4')
+                  .replace('{total}', '4')}
+              </p>
             </div>
-            <ChevronDown className="w-5 h-5 text-slate-400" />
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 group-hover:text-slate-500 transition-colors" strokeWidth={2} />
           </div>
         ) : (
-          /* Expanded Card View - Timeline style */
-          <section data-tour="form-step-1" className={`rounded-[1.75rem] overflow-hidden transition-all duration-200 ${
-            !allAngabenComplete 
-              ? 'bg-white ring-1 ring-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]' 
-              : 'bg-slate-50/80 ring-1 ring-slate-200/40'
+          /* Expanded Card View */
+          <section data-tour="form-step-1" className={`rounded-[1.5rem] overflow-hidden transition-all duration-200 ${
+            allAngabenComplete 
+              ? 'bg-white border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.02)]' 
+              : 'bg-white border border-blue-100 shadow-[0_4px_20px_rgba(37,99,235,0.06)]'
           }`}>
             {/* Step Header */}
             <div 
               onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-              className={`px-6 py-5 flex items-center gap-4 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-100/60' : 'border-b border-slate-100/80'}`}
+              className={`p-6 sm:p-8 flex items-center gap-6 sm:gap-8 ${allAngabenComplete ? 'cursor-pointer hover:bg-slate-50/50' : ''} border-b border-slate-100/80`}
             >
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-medium shrink-0 ${
                 allAngabenComplete 
-                  ? 'bg-green-500 text-white shadow-sm' 
-                  : 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100' 
+                  : 'bg-blue-600 text-white shadow-lg shadow-blue-200'
               }`}>
-                {allAngabenComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '1'}
+                {allAngabenComplete ? <Check className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} /> : <span className="text-lg sm:text-xl">1</span>}
               </div>
-              <div className="flex-1">
-                {!allAngabenComplete && (
-                  <div className="flex items-center mb-1.5">
-                    <div className="w-[2.5px] h-3.5 bg-blue-600 rounded-full mr-2.5" />
-                    <span className="text-blue-600 font-semibold text-xs tracking-wide">
-                      {t.formDashboard.tasksCompleted
-                        .replace('{completed}', String(angabenProgress.completed))
-                        .replace('{total}', String(angabenProgress.total))}
-                    </span>
-                  </div>
-                )}
-                <h2 className={`font-semibold ${allAngabenComplete ? 'text-slate-600' : 'text-slate-800'}`}>
+              <div className="flex-1 min-w-0">
+                <h2 className={`text-[1.1rem] sm:text-[1.15rem] font-semibold tracking-tight ${allAngabenComplete ? 'text-slate-800' : 'text-slate-900'}`}>
                   {t.formDashboard.personalInfo}
                 </h2>
+                {!allAngabenComplete && (
+                  <p className="text-blue-600 text-sm sm:text-[0.95rem] mt-1 font-medium leading-relaxed">
+                    {t.formDashboard.tasksCompleted
+                      .replace('{completed}', String(angabenProgress.completed))
+                      .replace('{total}', String(angabenProgress.total))}
+                  </p>
+                )}
               </div>
               {allAngabenComplete && (
-                <ChevronDown className="w-4 h-4 text-slate-400 rotate-180" />
+                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 rotate-180" strokeWidth={2} />
               )}
             </div>
 
             {/* Action Grid */}
-            <div className={`px-5 pb-5 ${allAngabenComplete ? '' : 'bg-slate-50/30'}`}>
+            <div className="px-5 sm:px-7 pb-5 sm:pb-7 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {angabenSections.map(section => {
                   const Icon = section.icon;
@@ -287,13 +289,13 @@ export const TaxYearDashboard: React.FC = () => {
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined} 
                       className={`group flex items-center gap-3 p-3 text-left rounded-xl transition-all duration-150 ${
                         completed 
-                          ? 'bg-white/60 hover:bg-white cursor-pointer' 
-                          : 'bg-white ring-1 ring-slate-200 cursor-pointer hover:ring-blue-400 hover:shadow-md hover:shadow-blue-500/5 active:scale-[0.98]'
+                          ? 'bg-slate-50/80 hover:bg-slate-100 cursor-pointer' 
+                          : 'bg-white border border-slate-200 cursor-pointer hover:border-blue-300 hover:shadow-md hover:shadow-blue-500/5 active:scale-[0.98]'
                       }`}
                     >
                       <div className={`h-8 w-8 shrink-0 rounded-full flex items-center justify-center transition-all duration-150 ${
                         completed 
-                          ? 'bg-green-500 text-white' 
+                          ? 'bg-emerald-500 text-white' 
                           : 'bg-slate-100 text-slate-500 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105'
                       }`}>
                         {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
@@ -311,50 +313,53 @@ export const TaxYearDashboard: React.FC = () => {
         )}
 
         {/* Following Steps */}
-        <div className="mt-4 space-y-3">
+        <div className="mt-5 flex flex-col gap-5">
           {/* Step 2: Belege & Unterlagen */}
           <div 
             data-tour="form-step-2" 
             onClick={() => allAngabenComplete && handleDocumentsClick()} 
-            className={`p-5 px-6 rounded-[1.75rem] flex items-center gap-4 transition-all duration-200 ${
+            className={`group bg-white rounded-[1.5rem] border p-6 sm:p-8 flex items-center gap-6 sm:gap-8 transition-all ${
               isDocumentsComplete
-                ? 'bg-slate-50/80 ring-1 ring-slate-200/40 cursor-pointer hover:bg-slate-100/80'
+                ? 'border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)] cursor-pointer'
                 : allAngabenComplete && !isDocumentsComplete 
-                  ? 'bg-white ring-1 ring-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.07)]' 
-                  : 'bg-slate-50/40 ring-1 ring-slate-100/60'
+                  ? 'border-blue-100 shadow-[0_4px_20px_rgba(37,99,235,0.06)] hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] cursor-pointer' 
+                  : 'border-slate-100 opacity-60 hover:opacity-90 cursor-not-allowed'
             }`}
           >
-            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 ${
               isDocumentsComplete 
-                ? 'bg-green-500 text-white shadow-sm' 
+                ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100' 
                 : allAngabenComplete 
-                  ? 'bg-blue-600 text-white shadow-sm' 
-                  : 'bg-slate-200 text-slate-400'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                  : 'bg-slate-100 text-slate-400 border border-slate-200'
             }`}>
-              {isDocumentsComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '2'}
+              {isDocumentsComplete ? <Check className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} /> : <span className="text-lg sm:text-xl font-medium">2</span>}
             </div>
-            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
-              {allAngabenComplete && !isDocumentsComplete && (
-                <div className="flex items-center mb-1.5">
-                  <div className="w-[2.5px] h-3.5 bg-blue-600 rounded-full mr-2.5" />
-                  <span className="text-blue-600 font-semibold text-xs tracking-wide">{t.formDashboard.uploadDocuments}</span>
-                </div>
-              )}
-              <h3 className={`font-semibold ${
+            <div className="flex-1 min-w-0">
+              <h3 className={`text-[1.1rem] sm:text-[1.15rem] font-semibold tracking-tight ${
                 isDocumentsComplete 
-                  ? 'text-slate-600' 
+                  ? 'text-slate-800' 
                   : allAngabenComplete 
-                    ? 'text-slate-800' 
-                    : 'text-slate-400'
+                    ? 'text-slate-900' 
+                    : 'text-slate-700'
               }`}>
                 {t.formDashboard.documentsTitle}
               </h3>
+              {allAngabenComplete && !isDocumentsComplete && (
+                <p className="text-blue-600 text-sm sm:text-[0.95rem] mt-1 font-medium leading-relaxed">{t.formDashboard.uploadDocuments}</p>
+              )}
+              {isDocumentsComplete && (
+                <p className="text-slate-500 text-sm sm:text-[0.95rem] mt-1 font-normal leading-relaxed">{t.formDashboard.uploadDocuments}</p>
+              )}
               {!allAngabenComplete && (
-                <p className="text-sm text-slate-400 mt-0.5">{t.formDashboard.completeStep1First}</p>
+                <p className="text-slate-400 text-sm sm:text-[0.95rem] mt-1 font-normal leading-relaxed">{t.formDashboard.completeStep1First}</p>
               )}
             </div>
-            {allAngabenComplete && (
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+            {isDocumentsComplete && (
+              <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 group-hover:text-slate-500 transition-colors" strokeWidth={2} />
+            )}
+            {allAngabenComplete && !isDocumentsComplete && (
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 group-hover:text-blue-600 transition-colors" strokeWidth={2} />
             )}
           </div>
 
@@ -362,42 +367,42 @@ export const TaxYearDashboard: React.FC = () => {
           <div 
             data-tour="form-step-3" 
             onClick={() => canSubmit && handleSubmitClick()} 
-            className={`p-5 px-6 rounded-[1.75rem] flex items-center gap-4 transition-all duration-200 ${
+            className={`group bg-white rounded-[1.5rem] border p-6 sm:p-8 flex items-center gap-6 sm:gap-8 transition-all ${
               isCompleted('submit')
-                ? 'bg-slate-50/80 ring-1 ring-slate-200/40 cursor-pointer hover:bg-slate-100/80'
+                ? 'border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.04)] cursor-pointer'
                 : canSubmit && !isCompleted('submit')
-                  ? 'bg-white ring-1 ring-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.07)]'
-                  : 'bg-slate-50/40 ring-1 ring-slate-100/60'
+                  ? 'border-blue-100 shadow-[0_4px_20px_rgba(37,99,235,0.06)] hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] cursor-pointer'
+                  : 'border-slate-100 opacity-60 hover:opacity-90 cursor-not-allowed'
             }`}
           >
-            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold shrink-0 ${
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 ${
               isCompleted('submit') 
-                ? 'bg-green-500 text-white shadow-sm' 
+                ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-100' 
                 : canSubmit 
-                  ? 'bg-blue-600 text-white shadow-sm' 
-                  : 'bg-slate-200 text-slate-400'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                  : 'bg-slate-100 text-slate-400 border border-slate-200'
             }`}>
-              {isCompleted('submit') ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '3'}
+              {isCompleted('submit') ? <Check className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} /> : <span className="text-lg sm:text-xl font-medium">3</span>}
             </div>
-            <div className="flex-1 min-h-[40px] flex flex-col justify-center">
-              <h3 className={`font-semibold ${
+            <div className="flex-1 min-w-0">
+              <h3 className={`text-[1.1rem] sm:text-[1.15rem] font-semibold tracking-tight ${
                 isCompleted('submit') 
-                  ? 'text-slate-600' 
+                  ? 'text-slate-800' 
                   : canSubmit 
-                    ? 'text-slate-800' 
-                    : 'text-slate-400'
+                    ? 'text-slate-900' 
+                    : 'text-slate-700'
               }`}>
                 {t.formDashboard.reviewAndSubmit}
               </h3>
               {canSubmit && !isCompleted('submit') && (
-                <p className="text-sm text-slate-500 mt-0.5">{t.formDashboard.completeAndPay}</p>
+                <p className="text-blue-600 text-sm sm:text-[0.95rem] mt-1 font-medium leading-relaxed">{t.formDashboard.completeAndPay}</p>
               )}
               {!canSubmit && (
-                <p className="text-sm text-slate-400 mt-0.5">{t.formDashboard.completeSteps12First}</p>
+                <p className="text-slate-400 text-sm sm:text-[0.95rem] mt-1 font-normal leading-relaxed">{t.formDashboard.completeSteps12First}</p>
               )}
             </div>
-            {canSubmit && (
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+            {canSubmit && !isCompleted('submit') && (
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 group-hover:text-blue-600 transition-colors" strokeWidth={2} />
             )}
           </div>
         </div>
