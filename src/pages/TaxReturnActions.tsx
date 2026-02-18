@@ -420,64 +420,26 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <header className="w-full max-w-3xl mx-auto px-6 py-8 md:py-12 flex items-center justify-between relative">
-          <button 
-            onClick={() => navigate('/')}
-            className="group p-3 rounded-full border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 focus:ring-4 focus:ring-slate-100 outline-none"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
-          </button>
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
-            {t.taxReturnActions.title} {taxYear}
-          </h1>
-          <div className="w-11" />
-        </header>
+      <div className="min-h-screen bg-white text-slate-800 antialiased">
+        <div className="w-full max-w-xl mx-auto px-4 sm:px-6 py-12 space-y-8">
 
-        <div className="max-w-3xl mx-auto px-6 pb-24 md:pb-12">
-          {/* Glassy Detail Card */}
-          <div className="relative mb-16">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-50 to-slate-50 rounded-[2.5rem] blur-2xl opacity-50 -z-10" />
-            <div className="bg-white/60 backdrop-blur-xl border border-slate-100 rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)]">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-                {firstName && (
-                  <div className="space-y-2">
-                    <span className="block text-sm font-medium text-slate-400">Name</span>
-                    <p className="text-lg text-slate-900 font-medium tracking-tight">{firstName}</p>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <span className="block text-sm font-medium text-slate-400">Steuerjahr</span>
-                  <p className="text-lg text-slate-900 font-medium tracking-tight">{taxYear}</p>
-                </div>
-                <div className="space-y-2">
-                  <span className="block text-sm font-medium text-slate-400">Service</span>
-                  <div className="flex items-center gap-2">
-                    {expressService && (
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                      </span>
-                    )}
-                    <p className="text-lg text-slate-900 font-medium tracking-tight">
-                      {expressService ? 'Express-Service' : 'Standard'}
-                    </p>
-                  </div>
-                </div>
-                <div className="md:col-span-1 space-y-2">
-                  <span className="block text-sm font-medium text-slate-400">Status</span>
-                  <span className="inline-flex items-center gap-1.5 text-lg text-blue-600 font-medium tracking-tight">
-                    {isSigned ? 'Abgeschlossen' : 'In Bearbeitung'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Header */}
+          <header className="flex items-center justify-between px-1 mb-8 relative">
+            <button
+              onClick={() => navigate('/')}
+              className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all duration-300"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-slate-900 tracking-tight">
+              {t.taxReturnActions.title} {taxYear}
+            </h1>
+            <div className="w-10" />
+          </header>
 
-          {/* Signature CTA */}
+          {/* Signature CTA (unsigned) */}
           {needsSignature && (
-            <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 shadow-lg mb-12 p-6">
+            <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 shadow-lg p-6">
               <div className="relative z-10">
                 <div className="mb-4">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 border border-white/30">
@@ -491,7 +453,7 @@ export default function TaxReturnActions() {
                   {t.taxReturnActions.signatureRequired}
                 </h2>
                 <p className="text-white/80 text-sm mb-4">{t.taxReturnActions.signatureDescription}</p>
-                <button 
+                <button
                   onClick={() => setSignatureDialogOpen(true)}
                   className="group bg-white text-primary rounded-full font-semibold text-sm sm:text-base hover:bg-white/90 transition-all w-full flex items-center justify-center gap-2.5 px-4 py-3"
                   style={{ boxShadow: '0 0 20px rgba(255, 255, 255, 0.3)' }}
@@ -503,17 +465,30 @@ export default function TaxReturnActions() {
             </div>
           )}
 
-          {/* Signed Status */}
+          {/* Signed Status Banner */}
           {isSigned && (
-            <div className="rounded-[2rem] bg-emerald-50 border border-emerald-200 shadow-sm mb-12">
-              <div className="flex items-center gap-4 p-6">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="w-6 h-6 text-emerald-600" />
+            <div className="liquid-card rounded-[2rem] p-6 relative overflow-hidden group"
+              style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
+              }}
+            >
+              {/* Subtle green glow */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-5 relative z-10">
+                <div className="flex-shrink-0">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-4 ring-emerald-50">
+                    <Check className="w-7 h-7" />
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-emerald-900">{t.taxReturnActions.electronicallySigned}</h3>
-                  <p className="text-sm text-emerald-700">
-                    {signatureData?.signed_at 
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold text-slate-900 tracking-tight">{t.taxReturnActions.electronicallySigned}</h2>
+                  <p className="mt-0.5 text-sm text-slate-500 font-medium tracking-tight">
+                    {signatureData?.signed_at
                       ? t.taxReturnActions.signedAt.replace('{date}', new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
                       : t.taxReturnActions.signedDescription
                     }
@@ -523,113 +498,202 @@ export default function TaxReturnActions() {
             </div>
           )}
 
-          {/* Timeline */}
-          <div className="space-y-0 relative">
-            {timelineSteps.map((step, idx) => {
-              const isLast = idx === timelineSteps.length - 1;
-              const isCompleted = step.completed && !step.current;
-              const isCurrent = !!step.current;
-              const nextCompleted = !isLast && timelineSteps[idx + 1]?.completed && !timelineSteps[idx + 1]?.current;
-              const nextIsCurrent = !isLast && !!timelineSteps[idx + 1]?.current;
-
-              return (
-                <div key={step.id} className={cn("flex gap-6 relative", !isLast && "pb-12")}>
-                  {/* Connector line */}
-                  {!isLast && (
-                    <div 
-                      className={cn(
-                        "absolute left-[1.5rem] top-[3.5rem] bottom-[-0.5rem] w-[2px] z-0",
-                        isCompleted && nextCompleted ? "bg-blue-500" :
-                        isCompleted && nextIsCurrent ? "bg-gradient-to-b from-blue-500 to-slate-200" :
-                        "bg-slate-100"
-                      )}
-                    />
-                  )}
-                  {/* Icon */}
-                  <div className="relative z-10 flex-shrink-0">
-                    {isCompleted ? (
-                      <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-                        <Check className="w-6 h-6 text-white" />
-                      </div>
-                    ) : isCurrent ? (
-                      <div className="w-12 h-12 rounded-full bg-white border-[3px] border-blue-500 flex items-center justify-center shadow-xl shadow-blue-100 ring-4 ring-blue-50">
-                        <div className="w-3.5 h-3.5 bg-blue-600 rounded-full animate-pulse" />
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
-                        <div className="w-3 h-3 bg-slate-300 rounded-full" />
-                      </div>
-                    )}
-                  </div>
-                  {/* Content */}
-                  <div className={cn("pt-2 w-full", isCurrent && "pt-1.5")}>
-                    <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                      <h3 className="text-lg font-medium text-slate-900 tracking-tight">{step.label}</h3>
-                      {isCurrent && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600 border border-orange-100 tracking-wide">
-                          In Bearbeitung
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-base text-slate-500 leading-relaxed max-w-md">{step.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Action cards for signed returns */}
+          {/* Main Tax Year Card with Pill Buttons */}
           {isSigned && (
-            <div className="mt-12 space-y-4">
-              <div className="rounded-[2rem] bg-white border border-slate-100 shadow-[0_4px_14px_rgba(0,0,0,0.04)] p-6">
-                <h3 className="text-lg font-medium text-slate-900 tracking-tight mb-4">{t.taxReturnActions.taxYear} {taxYear}</h3>
-                <div className="flex flex-col gap-3">
-                  <button onClick={handleView} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <Eye className="w-5 h-5" /> {t.taxReturnActions.view}
-                  </button>
-                  <button onClick={handleDownload} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <Download className="w-5 h-5" /> {t.taxReturnActions.download}
-                  </button>
+            <div className="rounded-[2rem] p-8 space-y-8"
+              style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
+              }}
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 text-slate-600 text-[11px] font-semibold tracking-wide uppercase border border-slate-200/50">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Abgeschlossen
+                  </div>
+                  <h2 className="text-3xl font-semibold text-slate-900 tracking-tighter">{t.taxReturnActions.taxYear} {taxYear}</h2>
                 </div>
               </div>
 
-              <div className="rounded-[2rem] bg-white border border-slate-100 shadow-[0_4px_14px_rgba(0,0,0,0.04)] p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <h3 className="text-lg font-medium text-slate-900 tracking-tight">{t.taxReturnActions.definitiveTaxBill}</h3>
-                  {definitiveTaxBill ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
-                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t.taxReturnActions.available}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-100">
-                      <div className="h-1.5 w-1.5 rounded-full bg-amber-500" /> {t.taxReturnActions.pending}
-                    </span>
-                  )}
-                </div>
-                {definitiveTaxBill ? (
-                  <div className="flex flex-col gap-3">
-                    <button onClick={handleTaxBillView} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                      <Eye className="w-5 h-5" /> {t.taxReturnActions.viewBill}
-                    </button>
-                    <button onClick={handleTaxBillDownload} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                      <Download className="w-5 h-5" /> {t.taxReturnActions.downloadBill}
-                    </button>
+              {/* Pill Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Blue "View" Button */}
+                <button
+                  onClick={handleView}
+                  className="group relative h-[4.25rem] w-full rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-between pl-6 pr-2 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.01] transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3">
+                    <Eye className="w-5 h-5" />
+                    <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.view}</span>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-sm text-slate-500 mb-1">{t.taxReturnActions.noBillYet}</p>
-                    <button onClick={() => setUploadDialogOpen(true)} className="flex items-center justify-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                      <Upload className="w-5 h-5" /> {t.taxReturnActions.uploadBill}
-                    </button>
+                  <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/25 transition-colors backdrop-blur-sm">
+                    <ExternalLink className="w-5 h-5 text-white" />
                   </div>
-                )}
+                </button>
+
+                {/* White "Download" Button */}
+                <button
+                  onClick={handleDownload}
+                  className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <Download className="w-5 h-5 text-blue-500" />
+                    <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.download}</span>
+                  </div>
+                  <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+                    <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                  </div>
+                </button>
               </div>
             </div>
           )}
 
-          {/* Support */}
+          {/* Definitive Tax Bill Card */}
+          {isSigned && (
+            <div className="rounded-[2rem] p-8 space-y-6"
+              style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
+              }}
+            >
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase border"
+                  style={{
+                    background: definitiveTaxBill ? 'rgba(236, 253, 245, 0.8)' : 'rgba(255, 251, 235, 0.8)',
+                    color: definitiveTaxBill ? '#047857' : '#b45309',
+                    borderColor: definitiveTaxBill ? 'rgba(167, 243, 208, 1)' : 'rgba(253, 230, 138, 1)',
+                  }}
+                >
+                  <span className={cn(
+                    "w-1.5 h-1.5 rounded-full",
+                    definitiveTaxBill ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+                  )} />
+                  {definitiveTaxBill ? t.taxReturnActions.available : t.taxReturnActions.pending}
+                </div>
+
+                <div className="space-y-1.5">
+                  <h2 className="text-xl font-semibold text-slate-900 tracking-tight">{t.taxReturnActions.definitiveTaxBill}</h2>
+                  {!definitiveTaxBill && (
+                    <p className="text-base text-slate-500 font-normal leading-relaxed">
+                      {t.taxReturnActions.noBillYet}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {definitiveTaxBill ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    onClick={handleTaxBillView}
+                    className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Eye className="w-5 h-5 text-blue-500" />
+                      <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.viewBill}</span>
+                    </div>
+                    <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+                      <ExternalLink className="w-5 h-5 text-slate-400" />
+                    </div>
+                  </button>
+                  <button
+                    onClick={handleTaxBillDownload}
+                    className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Download className="w-5 h-5 text-blue-500" />
+                      <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.downloadBill}</span>
+                    </div>
+                    <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+                      <ExternalLink className="w-5 h-5 text-slate-400" />
+                    </div>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setUploadDialogOpen(true)}
+                  className="group relative w-full h-16 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 flex items-center justify-center gap-3"
+                >
+                  <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Upload className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <span className="text-[15px] font-medium text-slate-700">{t.taxReturnActions.uploadBill}</span>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Timeline (when not signed) */}
           {!isSigned && (
-            <div className="mt-12 rounded-[2rem] bg-white border border-slate-100 shadow-[0_4px_14px_rgba(0,0,0,0.04)] p-6">
+            <div className="space-y-0 relative">
+              {timelineSteps.map((step, idx) => {
+                const isLast = idx === timelineSteps.length - 1;
+                const isCompleted = step.completed && !step.current;
+                const isCurrent = !!step.current;
+                const nextCompleted = !isLast && timelineSteps[idx + 1]?.completed && !timelineSteps[idx + 1]?.current;
+                const nextIsCurrent = !isLast && !!timelineSteps[idx + 1]?.current;
+
+                return (
+                  <div key={step.id} className={cn("flex gap-6 relative", !isLast && "pb-12")}>
+                    {!isLast && (
+                      <div
+                        className={cn(
+                          "absolute left-[1.5rem] top-[3.5rem] bottom-[-0.5rem] w-[2px] z-0",
+                          isCompleted && nextCompleted ? "bg-blue-500" :
+                          isCompleted && nextIsCurrent ? "bg-gradient-to-b from-blue-500 to-slate-200" :
+                          "bg-slate-100"
+                        )}
+                      />
+                    )}
+                    <div className="relative z-10 flex-shrink-0">
+                      {isCompleted ? (
+                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                          <Check className="w-6 h-6 text-white" />
+                        </div>
+                      ) : isCurrent ? (
+                        <div className="w-12 h-12 rounded-full bg-white border-[3px] border-blue-500 flex items-center justify-center shadow-xl shadow-blue-100 ring-4 ring-blue-50">
+                          <div className="w-3.5 h-3.5 bg-blue-600 rounded-full animate-pulse" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                          <div className="w-3 h-3 bg-slate-300 rounded-full" />
+                        </div>
+                      )}
+                    </div>
+                    <div className={cn("pt-2 w-full", isCurrent && "pt-1.5")}>
+                      <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                        <h3 className="text-lg font-medium text-slate-900 tracking-tight">{step.label}</h3>
+                        {isCurrent && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600 border border-orange-100 tracking-wide">
+                            In Bearbeitung
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-base text-slate-500 leading-relaxed max-w-md">{step.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Support (when not signed) */}
+          {!isSigned && (
+            <div className="rounded-[2rem] p-6"
+              style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
+              }}
+            >
               <h3 className="text-lg font-medium text-slate-900 tracking-tight mb-4">{t.taxReturnActions.needHelp}</h3>
               {supportTickets.length > 0 && (
                 <div className="space-y-2 mb-4">
@@ -660,6 +724,7 @@ export default function TaxReturnActions() {
               </div>
             </div>
           )}
+
         </div>
       </div>
 
