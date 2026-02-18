@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Image, ScanLine, FileText, Loader2, Check, AlertCircle, Upload, Info } from 'lucide-react';
+import { Loader2, Check, AlertCircle, Upload, Info } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { ChecklistItem } from '@/types';
@@ -53,8 +53,6 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   const taxFilerIdRef = useRef(taxFilerId);
   useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
 
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const scanInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reset = useCallback(() => {
@@ -278,29 +276,16 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                 )}
               </div>
 
-              <input ref={photoInputRef} type="file" className="hidden" accept="image/*" onChange={handleInputChange} />
-              <input ref={scanInputRef} type="file" className="hidden" accept="image/*" capture="environment" onChange={handleInputChange} />
               <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
 
-              <div className="space-y-2">
-                {[
-                  { icon: Image, label: 'Fotos hochladen', ref: photoInputRef },
-                  { icon: ScanLine, label: 'Dokument scannen', ref: scanInputRef },
-                  { icon: FileText, label: 'Dateien (PDF, Docs...)', ref: fileInputRef },
-                ].map(({ icon: Icon, label, ref }) => (
-                  <button
-                    key={label}
-                    onClick={() => ref.current?.click()}
-                    className="w-full flex items-center gap-4 rounded-2xl bg-slate-50 px-5 py-4 text-left transition-all hover:bg-slate-100 active:scale-[0.98]"
-                    style={{ touchAction: 'manipulation' }}
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                      <Icon className="w-5 h-5 text-slate-600" strokeWidth={1.5} />
-                    </div>
-                    <span className="text-[15px] font-medium text-slate-700">{label}</span>
-                  </button>
-                ))}
-              </div>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full rounded-full h-12 !bg-primary !text-white hover:!bg-primary/90 shadow-lg shadow-primary/25 active:scale-[0.98] transition-all font-semibold text-[15px] tracking-wide"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <Upload className="w-5 h-5 mr-2" />
+                Dokument auswählen
+              </Button>
             </div>
           )}
 
