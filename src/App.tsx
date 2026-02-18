@@ -397,6 +397,18 @@ const AppRoutes = () => {
         }
       }
 
+      // Handle payment-success params (Despia ignores deeplink path)
+      const sessionId = url.searchParams.get('session_id');
+      const taxYear = url.searchParams.get('tax_year');
+      if (sessionId && taxYear && !window.location.pathname.includes('payment-success')) {
+        console.log('💳 Payment params detected on root — redirecting to /payment-success');
+        const taxReturnId = url.searchParams.get('tax_return_id') || '';
+        const params = new URLSearchParams({ session_id: sessionId, tax_year: taxYear });
+        if (taxReturnId) params.set('tax_return_id', taxReturnId);
+        window.location.href = `/payment-success?${params.toString()}`;
+        return; // Stop further initialization
+      }
+
       if (mounted) setIsInitialized(true);
     };
 
