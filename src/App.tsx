@@ -263,7 +263,7 @@ const AuthenticatedApp = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
-                <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/tax-return-tracking/:id" element={
                   <ProtectedRoute>
                     <TaxReturnTracking />

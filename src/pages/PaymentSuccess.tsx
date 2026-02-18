@@ -43,6 +43,23 @@ const PaymentSuccess = () => {
           throw new Error("Steuerjahr nicht gefunden");
         }
 
+        // On native platform without auth, just close the in-app browser
+        // The polling in PaymentSection will handle navigation in the main app
+        if (Capacitor.isNativePlatform()) {
+          const user = await waitForAuth(2); // Quick check, only 2 retries
+          if (!user) {
+            console.log('📱 PaymentSuccess: No auth in in-app browser, closing browser...');
+            try {
+              const { Browser } = await import('@capacitor/browser');
+              await Browser.close();
+            } catch {
+              setShowBrowserCloseHint(true);
+              setLoading(false);
+            }
+            return; // Don't try DB update without auth
+          }
+        }
+
         const user = await waitForAuth();
         
         if (!user) {
