@@ -555,25 +555,20 @@ const DocumentsContent: React.FC<{
           )}
 
           {/* Combined Search and Filter Bar */}
-          <div className="mb-6 relative">
-            <div className="flex items-center min-h-[56px] px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:border-[#1D64FF] focus-within:ring-[3px] focus-within:ring-[#1D64FF]/20 transition-shadow">
-              {/* Search Icon */}
-              <div className="pr-3 flex items-center justify-center">
-                <Search className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
+          <div className="mb-8 relative group z-30">
+            <div className="relative flex items-center">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-zinc-400 group-focus-within:text-blue-500 transition-colors" strokeWidth={1.5} />
               </div>
-              
-              {/* Search Input */}
-              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 h-full bg-transparent text-base text-slate-800 placeholder:text-slate-400 focus:outline-none" />
-              
-              {/* Filter Button */}
-              <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors", showSortDropdown && "bg-muted/50")}>
-                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-              </button>
-              
-              {/* Clear Button */}
-              {searchQuery && <button onClick={() => setSearchQuery('')} className="h-full px-3 flex items-center justify-center border-l border-input hover:bg-muted/50 transition-colors">
-                  <X className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                </button>}
+              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-14 py-5 bg-zinc-50/50 hover:bg-zinc-50 border border-zinc-200 rounded-3xl text-lg font-normal text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-300 shadow-sm" />
+              <div className="absolute inset-y-0 right-0 pr-5 flex items-center gap-1">
+                {searchQuery && <button onClick={() => setSearchQuery('')} className="p-2 rounded-xl hover:bg-zinc-200/50 transition-colors">
+                    <X className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                  </button>}
+                <button onClick={() => setShowSortDropdown(!showSortDropdown)} className={cn("p-2 rounded-xl hover:bg-zinc-200/50 transition-colors", showSortDropdown && "bg-zinc-200/50")}>
+                  <SlidersHorizontal className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
             
             {/* Sort Dropdown */}
@@ -594,8 +589,8 @@ const DocumentsContent: React.FC<{
 
           {/* Documents Section */}
           {documents.length > 0 ? (/* Document Grid Container */
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-6">
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="rounded-[2.5rem] border border-zinc-100 bg-zinc-50/30 p-6 sm:p-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
                 {filteredDocuments.map(doc => {
               const isImage = doc.file_type?.startsWith('image/');
               const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
@@ -607,12 +602,14 @@ const DocumentsContent: React.FC<{
               return <button key={doc.id} onClick={() => {
                 setSelectedDocument(doc);
                 setShowActionSheet(true);
-              }} className="group bg-white rounded-2xl p-3 text-left transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+              }} className="group relative flex flex-col bg-white p-4 rounded-[2rem] text-left transition-all duration-500 cursor-pointer border border-white hover:border-blue-100 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
                       {/* Thumbnail Area */}
-                      <div className="aspect-square rounded-xl overflow-hidden bg-zinc-100 mb-3">
-                        {isImage ? <DocumentThumbnail doc={doc} /> : <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20 flex items-center justify-center">
-                              <span className="px-2 py-0.5 rounded-full bg-white/90 text-[9px] font-bold text-blue-600">
+                      <div className="aspect-square w-full rounded-[1.5rem] overflow-hidden bg-zinc-100 mb-5 shadow-inner">
+                        {isImage ? <DocumentThumbnail doc={doc} /> : <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-200 relative overflow-hidden">
+                            <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
+                            <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
+                            <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
+                              <span className="px-2.5 py-1 rounded-full bg-white/90 text-[10px] font-bold text-blue-600 shadow-sm">
                                 {fileExt}
                               </span>
                             </div>
@@ -620,9 +617,9 @@ const DocumentsContent: React.FC<{
                       </div>
                       
                       {/* File Info */}
-                      <div className="space-y-0.5">
-                        <p className="text-sm font-medium text-zinc-900 truncate leading-tight">{doc.file_name}</p>
-                        <p className="text-xs text-zinc-400">{uploadDate}</p>
+                      <div className="px-2 pb-2">
+                        <p className="text-base font-medium text-zinc-900 tracking-tight truncate leading-snug mb-1 group-hover:text-blue-600 transition-colors">{doc.file_name}</p>
+                        <p className="text-sm text-zinc-400 font-normal">{uploadDate}</p>
                       </div>
                     </button>;
             })}
@@ -661,16 +658,14 @@ const DocumentsContent: React.FC<{
 
         {/* Floating Upload Button - only show if not locked */}
         {!isLocked && (
-          <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-            <button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
-              <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-                <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
+          <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2">
+            <button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="flex items-center gap-3 pl-4 pr-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-2xl shadow-blue-600/30 hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group backdrop-blur-md border border-blue-400/20">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
+                <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
               </div>
-              <div className="text-left">
-                <span className="block text-xs font-semibold text-white font-jakarta tracking-wide">
-                  {t.documentsPage.upload}
-                </span>
-              </div>
+              <span className="text-lg font-medium tracking-tight">
+                {t.documentsPage.upload}
+              </span>
             </button>
           </div>
         )}
