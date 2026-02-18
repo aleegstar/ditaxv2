@@ -277,36 +277,30 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex-1 py-8 px-4 sm:px-6">
-        <div className="w-full max-w-lg mx-auto space-y-6">
-          {/* Content Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <div className="p-6 space-y-6">
-              {/* Express Service Toggle - Only show for non-upgrades */}
+      <main className="flex-grow pt-8 pb-16 px-4 sm:px-6">
+        <div className="max-w-[640px] mx-auto">
+
+          {/* Main Card Container */}
+          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-50">
+            <div className="p-6 sm:p-8 space-y-8">
+
+              {/* Express Service Toggle */}
               {!isUpgrade && (
-                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-[#1D64FF]/20 rounded-lg text-[#1D64FF] shrink-0">
-                      <Zap className="w-5 h-5" />
+                <div className="relative overflow-hidden rounded-2xl bg-blue-50/60 border border-blue-100/80 p-5 flex items-center justify-between transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+                      <Zap className="w-5 h-5 fill-current" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-slate-800 font-jakarta">
-                          Express-Service
-                        </p>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#1D64FF] text-white uppercase tracking-wider">
-                          Empfohlen
-                        </span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-medium text-slate-900 tracking-tight">Express-Service</h3>
+                        <span className="px-2.5 py-0.5 rounded-full bg-primary text-white text-[10px] font-semibold tracking-wide uppercase">Empfohlen</span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5 font-jakarta">
-                        Bearbeitung in 10 Arbeitstagen
-                      </p>
+                      <p className="text-sm text-slate-500 font-normal mt-0.5">Bearbeitung in 10 Arbeitstagen</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-slate-800 font-jakarta">
-                      +100.00
-                    </span>
+                  <div className="flex items-center gap-5">
+                    <span className="text-base font-medium text-slate-900 tracking-tight">+100.00</span>
                     <Switch checked={expressService} onCheckedChange={setExpressService} />
                   </div>
                 </div>
@@ -314,7 +308,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Promo Code Display (referral) */}
               {activePromo && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-green-100 rounded-full">
@@ -333,32 +327,34 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               {/* Manual Promo Code Input */}
               {!manualPromoResult ? (
                 <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <div className="flex gap-3 h-14">
+                    <div className="relative flex-grow h-full group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Tag className="w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+                      </div>
                       <input
                         type="text"
                         placeholder="Aktionscode eingeben"
                         value={manualPromoCode}
                         onChange={(e) => { setManualPromoCode(e.target.value); setManualPromoError(null); }}
                         onKeyDown={(e) => e.key === 'Enter' && handleValidatePromoCode()}
-                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#1D64FF]/20 focus:border-[#1D64FF] font-jakarta"
+                        className="w-full h-full pl-11 pr-4 bg-white border border-slate-200 text-slate-900 text-base rounded-2xl focus:ring-4 focus:ring-primary/10 focus:border-primary focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal font-normal"
                       />
                     </div>
                     <button
                       onClick={handleValidatePromoCode}
                       disabled={!manualPromoCode.trim() || manualPromoValidating}
-                      className="px-4 py-2.5 text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors disabled:opacity-50 font-jakarta"
+                      className="px-6 h-full bg-slate-100 hover:bg-slate-200/80 text-slate-600 font-medium rounded-2xl transition-colors text-sm tracking-tight border border-slate-200/50 disabled:opacity-50"
                     >
                       {manualPromoValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Anwenden'}
                     </button>
                   </div>
                   {manualPromoError && (
-                    <p className="text-xs text-red-500 font-jakarta">{manualPromoError}</p>
+                    <p className="text-xs text-red-500 pl-1">{manualPromoError}</p>
                   )}
                 </div>
               ) : (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-green-100 rounded-full">
@@ -379,87 +375,88 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               )}
 
               {/* Cost Breakdown */}
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
-                <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-jakarta">Kostenaufstellung</span>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/50 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+                  <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Kostenaufstellung</h4>
                 </div>
-                <div className="divide-y divide-slate-100">
+                <div className="bg-white divide-y divide-slate-50">
                   {priceBreakdown.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center px-4 py-2.5">
-                      <span className="text-sm text-slate-600 font-jakarta">{item.label}</span>
-                      <span className="text-sm font-medium text-slate-800 font-jakarta tabular-nums">
-                        CHF {formatPrice(item.amount)}
-                      </span>
+                    <div key={idx} className="flex justify-between items-center px-6 py-4 hover:bg-slate-50/50 transition-colors">
+                      <span className="text-slate-600 font-normal">{item.label}</span>
+                      <span className="text-slate-900 font-medium tabular-nums">CHF {formatPrice(item.amount)}</span>
                     </div>
                   ))}
                 </div>
                 {/* Total */}
-                <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
+                <div className="bg-slate-50/80 px-6 py-5 border-t border-slate-100">
                   {hasAnyPromo && (
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-slate-500 font-jakarta">Zwischensumme</span>
-                      <span className="text-xs text-slate-400 line-through font-jakarta tabular-nums">CHF {formatPrice(finalPrice)}</span>
+                      <span className="text-xs text-slate-500">Zwischensumme</span>
+                      <span className="text-xs text-slate-400 line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-slate-800 font-jakarta">
-                      {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
-                    </span>
-                    <span className="text-lg font-bold text-slate-900 font-jakarta tabular-nums">
+                    <div className="flex flex-col">
+                      <span className="text-slate-900 font-semibold text-base tracking-tight">
+                        {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-normal uppercase tracking-wide">inkl. MwSt.</span>
+                    </div>
+                    <span className="text-slate-900 font-semibold text-xl tracking-tight tabular-nums">
                       CHF {formatPrice(priceAfterDiscount)}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-jakarta">inkl. MwSt.</span>
                 </div>
               </div>
 
               {/* Payment Methods */}
-              <div className="space-y-2">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider font-jakarta">Zahlungsmethoden</span>
-                <div className="flex items-center gap-3">
+              <div className="space-y-4">
+                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-1">Zahlungsmethoden</h4>
+                <div className="flex gap-3">
                   {/* TWINT */}
-                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
-                    <span className="text-sm font-bold text-black font-jakarta tracking-tight">TWINT</span>
+                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                    <span className="font-bold text-slate-900 text-sm italic tracking-tighter">TWINT</span>
                   </div>
-                  {/* Visa */}
-                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
-                    <img src={paymentVisa} alt="Visa" className="h-4 object-contain" />
+                  {/* VISA */}
+                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" />
                   </div>
                   {/* Mastercard */}
-                  <div className="flex items-center justify-center h-10 px-3 bg-white rounded-lg border border-slate-200">
-                    <img src={paymentMastercard} alt="Mastercard" className="h-6 object-contain" />
+                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" />
                   </div>
                 </div>
               </div>
 
-              {/* CTA Button */}
-              <button 
-                onClick={handlePayment} 
-                disabled={isLoading || !priceBreakdown || !isLoggedIn} 
-                className="w-full bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white text-base font-medium py-3.5 px-6 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed font-jakarta shadow-md"
-              >
-                {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
-              </button>
+              {/* Primary Action */}
+              <div className="pt-2">
+                <button
+                  onClick={handlePayment}
+                  disabled={isLoading || !priceBreakdown || !isLoggedIn}
+                  className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl font-medium text-lg tracking-tight shadow-xl shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
+                </button>
+              </div>
 
               {/* Trust Badge */}
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">
+              <div className="flex justify-center pb-2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50/50 rounded-full border border-slate-100">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span className="text-xs font-medium text-slate-500 font-jakarta">
-                    Sichere Zahlung mit Stripe
-                  </span>
+                  <span className="text-sm text-slate-500 font-normal">Sichere Zahlung mit Stripe</span>
                 </div>
               </div>
+
             </div>
           </div>
 
           {errorMessage && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-jakarta">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm mt-4">
               {errorMessage}
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
