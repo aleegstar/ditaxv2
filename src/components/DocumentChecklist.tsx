@@ -709,32 +709,22 @@ const DocumentChecklist: React.FC = () => {
 
             {/* Pill Buttons */}
             <div className="w-full flex flex-col gap-3">
-              {/* Primary - Blue Pill */}
+              {/* Primary Button */}
               <button
                 onClick={() => navigate(`/payment?year=${taxYear}`)}
-                className="group relative w-full bg-primary hover:bg-primary/90 text-white rounded-full p-1.5 pl-6 pr-1.5 flex items-center justify-between transition-all duration-300 shadow-[0_4px_14px_0_rgba(0,118,255,0.39)] active:scale-[0.98]"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center gap-2 font-semibold text-[16px] tracking-tight transition-all duration-200 shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98]"
               >
-                <div className="flex items-center gap-3.5">
-                  <Zap className="w-5 h-5 text-blue-50" />
-                  <span className="font-semibold text-[17px] tracking-tight">{t.documentChecklist.createNow}</span>
-                </div>
-                <div className="w-11 h-11 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors backdrop-blur-sm">
-                  <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
-                </div>
+                <Zap className="w-[18px] h-[18px]" />
+                {t.documentChecklist.createNow}
               </button>
 
-              {/* Secondary - White Pill */}
+              {/* Secondary Button */}
               <button
                 onClick={() => setShowCompletionDialog(false)}
-                className="group relative w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 rounded-full p-1.5 pl-6 pr-1.5 flex items-center justify-between transition-all duration-300 shadow-sm active:scale-[0.98]"
+                className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center gap-2 font-medium text-[16px] tracking-tight transition-all duration-200 active:scale-[0.98]"
               >
-                <div className="flex items-center gap-3.5">
-                  <Clock className="w-5 h-5 text-slate-400 group-hover:text-slate-500 transition-colors" />
-                  <span className="font-medium text-[17px] tracking-tight text-slate-600 group-hover:text-slate-700">{t.documentChecklist.later}</span>
-                </div>
-                <div className="w-11 h-11 bg-slate-100 rounded-full flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-slate-500 transition-colors" />
-                </div>
+                <Clock className="w-[18px] h-[18px]" />
+                {t.documentChecklist.later}
               </button>
             </div>
           </div>
