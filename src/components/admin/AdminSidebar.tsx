@@ -46,7 +46,7 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
       className={cn(
         "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150",
         isActive
-          ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+          ? "bg-primary text-white font-semibold shadow-md"
           : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
       )}
     >
@@ -188,7 +188,7 @@ export function AdminSidebar() {
   return (
     <div 
       data-sidebar 
-      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-background border-r border-border"
+      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-transparent"
     >
       {/* Logo Header */}
       <div className="flex items-center h-16 px-5 shrink-0">
@@ -251,7 +251,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* User Profile Section */}
-      <div className="shrink-0 p-3 border-t border-border">
+      <div className="shrink-0 p-3">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors cursor-pointer">
