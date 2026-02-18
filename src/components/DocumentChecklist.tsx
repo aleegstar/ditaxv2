@@ -721,7 +721,7 @@ const DocumentChecklist: React.FC = () => {
               {/* Secondary Button */}
               <button
                 onClick={() => setShowCompletionDialog(false)}
-                className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center gap-2 font-medium text-[16px] tracking-tight transition-all duration-200 active:scale-[0.98]"
+                className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
               >
                 <Clock className="w-[18px] h-[18px]" />
                 {t.documentChecklist.later}
