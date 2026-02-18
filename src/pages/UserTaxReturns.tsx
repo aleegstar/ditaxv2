@@ -268,7 +268,12 @@ const UserTaxReturns = () => {
     return <UserTaxReturnsSkeleton />;
   }
 
-  if (!loading && taxReturns.length === 0 && userProfile?.onboarding_tour_completed !== true) {
+  // Only show TaxYearSelector for truly new users who haven't completed onboarding yet.
+  // Use first_name as the indicator: it's set during WelcomeFlow and reliably shows
+  // that the user already went through the consent/name flow. Previously used
+  // onboarding_tour_completed which stays false after WelcomeFlow, causing the
+  // consent page to flash for existing users on navigation or filer-switch.
+  if (!loading && taxReturns.length === 0 && !userProfile?.first_name) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
   const getExistingReturn = (year: string) => {
