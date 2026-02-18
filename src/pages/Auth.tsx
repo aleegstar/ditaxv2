@@ -517,7 +517,7 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center rounded-2xl py-4 text-sm font-semibold tracking-widest uppercase text-slate-600 border border-white/60 hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(230,235,245,0.5) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5)' }}>
+                  <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center rounded-2xl py-4 text-sm font-semibold tracking-widest uppercase text-white border border-blue-400/30 hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-300/40 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.9) 0%, rgba(37,99,235,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
                     {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
 
