@@ -54,6 +54,22 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
   useEffect(() => { taxFilerIdRef.current = taxFilerId; }, [taxFilerId]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasAutoOpenedRef = useRef(false);
+
+  // Auto-open file picker when sheet opens
+  useEffect(() => {
+    if (open && phase === 'select' && !hasAutoOpenedRef.current) {
+      hasAutoOpenedRef.current = true;
+      // Small delay to ensure the hidden input is mounted
+      const timer = setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    if (!open) {
+      hasAutoOpenedRef.current = false;
+    }
+  }, [open, phase]);
 
   const reset = useCallback(() => {
     setPhase('select');
