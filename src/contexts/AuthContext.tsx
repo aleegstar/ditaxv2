@@ -66,12 +66,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // 2. Check existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    // 2. Check existing session, then validate server-side
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (!mountedRef.current) return;
       if (error) {
         console.error('Error getting session:', error);
       }
+
+      if (session) {
+        // Validate token server-side with getUser()
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (!mountedRef.current) return;
+        if (userError || !user) {
+          console.warn('Session token invalid, forcing logout:', userError?.message);
+          await supabase.auth.signOut();
+          setState({ userId: null, email: null, isValid: false, isLoading: false });
+          return;
+        }
+      }
+
       setState({
         userId: session?.user?.id ?? null,
         email: session?.user?.email ?? null,

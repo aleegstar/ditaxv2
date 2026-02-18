@@ -76,7 +76,10 @@ export const useProfile = () => {
       });
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
-      toast.error('Fehler beim Laden des Profils: ' + error.message);
+      // Don't show toast for auth errors — AuthContext handles redirect
+      if (!error.message?.includes('not authenticated') && !error.message?.includes('Auth')) {
+        toast.error('Fehler beim Laden des Profils: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
