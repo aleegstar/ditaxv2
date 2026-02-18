@@ -1,94 +1,42 @@
 
 
-# Admin-Bereich im Lovable/Origin UI Design
+## Admin Sidebar und Layout im UI8 Core Stil
 
-## Was ist das "Lovable Design"?
+Das Ziel ist, die Admin-Sidebar und das Layout an den minimalistischen Stil von UI8 Core anzupassen -- weisser, sauberer Hintergrund, flache Navigation ohne farbige Pills, dezente Hover-Effekte und ein cleanes Layout ohne den grauen Hintergrund.
 
-Das Lovable-Design basiert auf Origin UI -- einer minimalistischen, cleanen Komponentenbibliothek. Merkmale:
-- Inputs: h-9, `rounded-lg`, dezenter Border (`border-input`), Focus-Ring (`ring-[3px] ring-ring/20`), weisser Hintergrund
-- Buttons: saubere Varianten, `rounded-xl`, subtile Shadows
-- Cards: weisser Hintergrund, `rounded-lg`, `border border-input`, kein Glassmorphism
-- Typografie: klare Hierarchie, `text-foreground`, `text-muted-foreground`
+### Was sich aendert
 
-## Aktueller Zustand im Admin-Bereich
+**1. Sidebar (`AdminSidebar.tsx`)**
+- Hintergrund wird reinweiss statt `bg-sidebar`
+- Rechter Rand als dezenter Separator (`border-r border-border`)
+- Logo-Bereich: nur Logo, ohne "Admin Panel" Text -- cleaner wie bei UI8
+- Nav-Items: kein farbiger Pill/rounded-full mehr. Stattdessen dezente `rounded-lg` Items mit leichtem Hintergrund bei Active-State (z.B. `bg-muted font-semibold text-foreground`) und subtiler Hover (`hover:bg-muted/50`)
+- Icons etwas kleiner und in Grauton (`text-muted-foreground`), bei Active schwarz
+- Gruppen-Header: ohne ChevronRight, nur als einfache Textlabel in Uppercase wie bei UI8 (Products, Customers etc.) -- oder alternativ mit Chevron beibehalten fuer Collapse-Funktion
+- User-Profil unten: dezenter, ohne Ring am Avatar
 
-Der Admin-Bereich nutzt aktuell eine Mischung aus:
-- Glassmorphism-Karten (`rgba(255,255,255,0.43)`, `backdrop-blur`, inline `borderRadius: '20px'`)
-- Inline-Styles statt Tailwind-Klassen fuer Rundungen
-- Eigene Farbdefinitionen (`text-black`, `text-black/70`) statt Design-Tokens
-- Inputs mit Custom-Styles (`bg-white/20`, inline `borderRadius: '12px'`)
+**2. Layout (`Admin.tsx`)**
+- Der graue Hintergrund (`rgb(244 244 244)`) und der weisse `rounded-3xl` Container werden entfernt
+- Stattdessen: weisser Hintergrund ueberall, Content direkt im `main` ohne extra Card-Wrapper
+- Kein `shadow-sm` und kein `rounded-3xl` auf dem Content-Bereich
+- Padding bleibt fuer Spacing
 
-## Geplante Aenderungen
+### Technische Aenderungen
 
-### 1. AdminWelcomeHeader (`src/components/admin/AdminWelcomeHeader.tsx`)
-- Glassmorphism-Card ersetzen durch cleane Card mit `bg-white border border-border rounded-xl`
-- Inline-Styles entfernen
-- Farben auf Design-Tokens umstellen (`text-foreground`, `text-muted-foreground`)
-- Refresh-Button: Standard `variant="outline"` mit `rounded-lg`
+**Datei: `src/components/admin/AdminSidebar.tsx`**
+- `NavItem`: Styling von `rounded-full bg-primary text-white shadow-md` zu `rounded-lg bg-muted text-foreground font-semibold` (active) und `hover:bg-muted/50` (inactive)
+- `NavGroup`: Chevron-Toggle beibehalten aber Styling vereinfachen
+- Sidebar-Container: `bg-sidebar` durch `bg-white border-r border-border` ersetzen
+- Logo-Bereich: "Admin Panel" Text entfernen, nur Logo anzeigen
+- User-Bereich: `ring-2 ring-border` vom Avatar entfernen, subtileren Style
 
-### 2. AdminDashboard (`src/components/admin/AdminDashboard.tsx`)
-- Stat-Cards: `rounded-xl` statt `rounded-2xl`, `border border-border` statt `border-gray-100`
-- Icon-Container: `bg-muted` statt `bg-gray-50`
-- Farben: `text-foreground` statt `text-gray-900`
+**Datei: `src/pages/Admin.tsx`**
+- Aeusserer Container: `style={{ backgroundColor: 'rgb(244 244 244 ...)' }}` entfernen, stattdessen `bg-background`
+- Inner Container: `bg-white rounded-3xl shadow-sm` entfernen, nur padding beibehalten
+- Das ergibt ein flaches, weisses Layout wie bei UI8 Core
 
-### 3. TicketManagement (`src/components/admin/TicketManagement.tsx`)
-- Filter-Card: Glassmorphism entfernen, `bg-card border border-border rounded-xl`
-- Inputs: Standard Origin UI Input (default Variant) ohne inline borderRadius
-- Select-Trigger: Standard-Styling ohne inline Styles
-- Ticket-Cards: `bg-card border border-border rounded-xl` statt Glassmorphism
-- Alle inline `style={{borderRadius}}` entfernen
+### Vorher / Nachher
 
-### 4. TaxReturnCreation (`src/components/admin/TaxReturnCreation.tsx`)
-- Gleiche Bereinigung: Glassmorphism raus, cleane Cards rein
-- Standard-Buttons und -Inputs nutzen
-
-### 5. UpdatePaymentStatusForm (`src/components/admin/UpdatePaymentStatusForm.tsx`)
-- Card: `rounded-xl` hinzufuegen, bereits relativ sauber
-- Labels und Inputs pruefen
-
-### 6. MissingDocuments (`src/pages/admin/MissingDocuments.tsx`)
-- Glassmorphism-Elemente durch cleane Origin UI Cards ersetzen
-
-### 7. Weitere Admin-Seiten
-- `DefinitiveTaxBills.tsx`, `DeletionFeedback.tsx`, `SignedTaxReturns.tsx`, `UserFeedback.tsx`
-- Gleiches Pattern: Glassmorphism raus, Origin UI Design rein
-
-### 8. StatsWidget (`src/components/ui/stats-widget.tsx`)
-- `rounded-xl` statt `rounded-2xl`
-- `border border-border` statt `border-gray-100`
-- Farben auf Design-Tokens
-
-### 9. UserCard (`src/components/ui/user-card.tsx`)
-- `rounded-xl` statt `rounded-[24px]`
-- Inline-Styles durch Tailwind-Klassen ersetzen
-- Cleaner Shadow statt `rgba(0,0,0,0.15) 0px 0px 22px`
-
-## Design-Prinzipien (konsistent umgesetzt)
-
-| Eigenschaft | Vorher | Nachher |
-|-------------|--------|---------|
-| Card-Radius | 20px-24px (inline) | rounded-xl (Tailwind) |
-| Card-Hintergrund | rgba(255,255,255,0.43) + blur | bg-card / bg-white |
-| Card-Border | border-white | border border-border |
-| Input-Style | Inline borderRadius, custom bg | Default Input variant |
-| Farben | text-black, text-gray-900 | text-foreground |
-| Schatten | shadow-lg, custom rgba | shadow-sm |
-| Button-Radius | Inline 12px | rounded-lg (Standard) |
-
-## Zusammenfassung der Dateien
-
-| Datei | Aenderung |
-|-------|-----------|
-| `src/components/admin/AdminWelcomeHeader.tsx` | Glassmorphism entfernen, Origin UI Card |
-| `src/components/admin/AdminDashboard.tsx` | Cards auf Origin UI umstellen |
-| `src/components/admin/TicketManagement.tsx` | Filter + Ticket-Cards bereinigen |
-| `src/components/admin/TaxReturnCreation.tsx` | Cards bereinigen |
-| `src/components/admin/UpdatePaymentStatusForm.tsx` | Card-Styling anpassen |
-| `src/pages/admin/MissingDocuments.tsx` | Glassmorphism entfernen |
-| `src/pages/admin/DefinitiveTaxBills.tsx` | Design vereinheitlichen |
-| `src/pages/admin/DeletionFeedback.tsx` | Design vereinheitlichen |
-| `src/pages/admin/SignedTaxReturns.tsx` | Design vereinheitlichen |
-| `src/pages/admin/UserFeedback.tsx` | Design vereinheitlichen |
-| `src/components/ui/stats-widget.tsx` | Radius + Farben anpassen |
-| `src/components/ui/user-card.tsx` | Inline-Styles durch Tailwind ersetzen |
+- **Vorher**: Grauer Hintergrund, weisse Card mit Schatten, farbige Sidebar-Pills
+- **Nachher**: Weisser Hintergrund durchgehend, flache Navigation mit dezenten Highlights, cleaner minimalistischer Look
 
