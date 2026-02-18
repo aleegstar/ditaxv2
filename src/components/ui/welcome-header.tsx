@@ -18,6 +18,7 @@ export const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
     loading
   } = useProfile();
   const getUserFirstName = () => {
+    if (loading) return '...';
     if (profile?.first_name) {
       return profile.first_name;
     }
