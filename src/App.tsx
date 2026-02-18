@@ -65,6 +65,7 @@ import { Capacitor } from '@capacitor/core';
 import FloatingDebugButton from "@/components/debug/FloatingDebugButton";
 import { useFontLoader } from "@/hooks/useFontLoader";
 import { useAuthValidation } from "@/hooks/use-auth-validation";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import SpaRedirector from "@/components/SpaRedirector";
 import { MfaSetupPrompt } from "@/components/auth/MfaSetupPrompt";
 import { MfaEnrollmentFlow } from "@/components/auth/MfaEnrollmentFlow";
@@ -357,274 +358,165 @@ const AuthenticatedApp = () => {
   );
 };
 
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Apply Plus Jakarta Sans font
-  useFontLoader();
-
-  // Initialize native error monitoring for Android and preload OCR
-  useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
-      NativeErrorMonitor.init();
-      androidDebug.log('App initialized with native error monitoring');
-    }
-    
-    // Set default dark status bar for Despia environment
-    if (isDespiaEnvironment()) {
-      setStatusBarDark();
-    }
-    
-  }, []);
+/**
+ * Inner component that handles OAuth/deeplink token handling and routing.
+ * Auth state comes from AuthContext (single source of truth).
+ */
+const AppRoutes = () => {
+  const { isValid, isLoading: authLoading } = useAuth();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    // Guard: while initializing (OAuth/token handling), don't let the listener set isAuthenticated=false
-    let isInitializing = true;
 
-    // Handle OAuth success signal from Despia deeplink (success=true)
-    const handleOAuthSuccessSignal = async () => {
+    const initialize = async () => {
+      // Handle OAuth success signal from Despia deeplink
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('success') === 'true') {
-        console.log('🔐 App.tsx: OAuth success signal detected from deeplink');
-        
+        console.log('🔐 App: OAuth success signal detected');
         await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ App.tsx: Session refresh error:', error);
-        } else if (session) {
-          console.log('✅ App.tsx: Session found after OAuth success');
-          if (mounted) {
-            setIsAuthenticated(true);
-            setIsLoading(false);
-          }
-        } else {
-          console.warn('⚠️ App.tsx: No session found after OAuth success signal');
-        }
-        
+        await supabase.auth.getSession();
         window.history.replaceState({}, '', window.location.pathname);
-        return true;
       }
-      return false;
-    };
 
-    const handleUrlTokens = async () => {
+      // Handle URL tokens (at/rt)
       const url = new URL(window.location.href);
       const accessToken = url.searchParams.get('at');
       const refreshToken = url.searchParams.get('rt');
-      
       if (accessToken && refreshToken) {
-        console.log('🔐 App.tsx: Tokens in URL gefunden - setze Session...');
-        
+        console.log('🔐 App: Tokens in URL — setting session...');
         try {
-          const { data, error } = await supabase.auth.setSession({
+          const { error } = await supabase.auth.setSession({
             access_token: decodeURIComponent(accessToken),
-            refresh_token: decodeURIComponent(refreshToken)
+            refresh_token: decodeURIComponent(refreshToken),
           });
-          
-          if (error) {
-            console.error('❌ App.tsx: Session error:', error);
-          } else {
-            console.log('✅ App.tsx: Session erfolgreich gesetzt');
-            window.history.replaceState({}, '', '/');
-          }
+          if (error) console.error('❌ Session error:', error);
+          else window.history.replaceState({}, '', '/');
         } catch (err) {
-          console.error('❌ App.tsx: Token handling error:', err);
+          console.error('❌ Token handling error:', err);
         }
       }
-    };
 
-    // 1. Set up auth listener FIRST (Supabase best practice)
-    // During initialization, only allow positive auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return;
-        
-        const isLoggedIn = !!session?.user;
-        
-        if (isInitializing) {
-          // During init: only allow setting authenticated=true, never false
-          // Prevents INITIAL_SESSION without session from redirecting to /auth
-          if (isLoggedIn) {
-            console.log('🔐 Auth listener (init phase): session found, setting authenticated');
-            setIsAuthenticated(true);
-            setIsLoading(false);
-          }
-          return;
-        }
-        
-        // After init: normal behavior
-        setIsAuthenticated(isLoggedIn);
-        setIsLoading(false);
-      }
-    );
-
-    // 2. Run initAuth then checkAuth sequentially
-    const initialize = async () => {
-      try {
-        const wasOAuthSuccess = await handleOAuthSuccessSignal();
-        if (!wasOAuthSuccess) {
-          await handleUrlTokens();
-        }
-        
-        // Check session after token handling
-        if (mounted) {
-          try {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
-            if (error) {
-              if (mounted) {
-                setIsAuthenticated(false);
-                setIsLoading(false);
-              }
-            } else {
-              const isLoggedIn = !!session?.user;
-              if (mounted) {
-                setIsAuthenticated(isLoggedIn);
-                setIsLoading(false);
-              }
-            }
-          } catch (error) {
-            if (mounted) {
-              setIsAuthenticated(false);
-              setIsLoading(false);
-            }
-          }
-        }
-      } finally {
-        // 3. Init complete - listener handles all events normally now
-        isInitializing = false;
-        console.log('✅ Auth initialization complete, listener fully active');
-      }
+      if (mounted) setIsInitialized(true);
     };
 
     initialize();
 
-    // Set up app URL listener for deep links (Capacitor native only)
+    // Deep link listener (Capacitor native)
     const setupAppUrlListener = async () => {
       try {
         await CapacitorApp.addListener('appUrlOpen', async (event) => {
           if (!mounted) return;
-          
           console.log('🔗 Deep link URL:', event.url);
-          
+
           let url: URL;
-          try {
-            url = new URL(event.url);
-          } catch {
-            console.error('Invalid URL:', event.url);
-            return;
-          }
-          
-          const accessToken = url.searchParams.get('at');
-          const refreshToken = url.searchParams.get('rt');
-          
-          if (accessToken && refreshToken) {
-            console.log('🔐 App.tsx: Setting session from deep link tokens...');
-            
+          try { url = new URL(event.url); } catch { return; }
+
+          const at = url.searchParams.get('at');
+          const rt = url.searchParams.get('rt');
+          if (at && rt) {
             try {
               const { error } = await supabase.auth.setSession({
-                access_token: decodeURIComponent(accessToken),
-                refresh_token: decodeURIComponent(refreshToken)
+                access_token: decodeURIComponent(at),
+                refresh_token: decodeURIComponent(rt),
               });
-              
-              if (error) {
-                console.error('❌ App.tsx: Session error:', error);
-              } else {
-                console.log('✅ App.tsx: Session set successfully');
-              }
-              
+              if (error) console.error('❌ Session error:', error);
               const { Browser } = await import('@capacitor/browser');
-              try {
-                await Browser.close();
-              } catch (e) {
-                console.log('Browser.close() not available');
-              }
-              
+              try { await Browser.close(); } catch {}
               window.location.href = '/';
             } catch (err) {
-              console.error('❌ App.tsx: Deep link error:', err);
+              console.error('❌ Deep link error:', err);
             }
           }
         });
-      } catch (error) {
-        console.log('Capacitor not available, skipping app URL listener');
+      } catch {
+        // Capacitor not available
       }
     };
-
     setupAppUrlListener();
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    return () => { mounted = false; };
   }, []);
 
-  if (isLoading) {
+  // Wait for both init + auth context
+  if (!isInitialized || authLoading) {
     return <LoadingSpinner fullScreen />;
   }
 
   const handleAppError = (error: Error, errorInfo: any) => {
     if (Capacitor.getPlatform() === 'android') {
       androidDebug.criticalError('App ErrorBoundary triggered', { error: error.message, errorInfo, stack: error.stack });
-      
-      // Auto-navigate to debug page on Android for critical errors
-      setTimeout(() => {
-        window.location.href = '/debug';
-      }, 1000);
+      setTimeout(() => { window.location.href = '/debug'; }, 1000);
     }
   };
 
   return (
     <ErrorBoundary onError={handleAppError}>
-      <QueryClientProvider client={queryClient}>
-        <I18nProvider>
-          <TooltipProvider>
-            <BrowserRouter>
-              <SpaRedirector />
-              <Suspense fallback={<LoadingSpinner fullScreen />}>
-                <Routes>
-                  <Route path="/preisrechner" element={<PriceCalculator />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/google-auth" element={<GoogleAuth />} />
-                  <Route path="/apple-auth" element={<AppleAuth />} />
-                  <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
-                  <Route path="/mfa-verify" element={<MfaVerify />} />
-                  <Route path="/auth-success" element={<AuthSuccess />} />
-                  <Route path="/native-callback" element={<NativeCallback />} />
-                  <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
-                  <Route path="/native-callback/:deeplinkScheme/*" element={<NativeCallback />} />
-                  
-                  <Route path="/auth-bridge" element={<AuthBridge />} />
-                  <Route path="/login" element={<Navigate to="/auth" replace />} />
-                  
-                  {/* Public legal pages - accessible without authentication */}
-                  <Route path="/datenschutzrichtlinie" element={<Privacy />} />
-                  <Route path="/agb" element={<Terms />} />
-                  <Route path="/cookie-richtlinie" element={<Cookies />} />
-                  <Route path="/impressum" element={<Impressum />} />
-                  <Route path="/nutzungsbedingungen" element={<Terms />} />
-                  
-                  <Route
-                    path="/*"
-                    element={
-                      isAuthenticated ? (
-                        <AuthenticatedApp />
-                      ) : (
-                        <Navigate to="/auth" replace />
-                      )
-                    }
-                  />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </I18nProvider>
-      </QueryClientProvider>
+      <SpaRedirector />
+      <Suspense fallback={<LoadingSpinner fullScreen />}>
+        <Routes>
+          <Route path="/preisrechner" element={<PriceCalculator />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/google-auth" element={<GoogleAuth />} />
+          <Route path="/apple-auth" element={<AppleAuth />} />
+          <Route path="/webauthn-auth" element={<WebAuthnAuth />} />
+          <Route path="/mfa-verify" element={<MfaVerify />} />
+          <Route path="/auth-success" element={<AuthSuccess />} />
+          <Route path="/native-callback" element={<NativeCallback />} />
+          <Route path="/native-callback/:deeplinkScheme" element={<NativeCallback />} />
+          <Route path="/native-callback/:deeplinkScheme/*" element={<NativeCallback />} />
+          
+          <Route path="/auth-bridge" element={<AuthBridge />} />
+          <Route path="/login" element={<Navigate to="/auth" replace />} />
+          
+          {/* Public legal pages */}
+          <Route path="/datenschutzrichtlinie" element={<Privacy />} />
+          <Route path="/agb" element={<Terms />} />
+          <Route path="/cookie-richtlinie" element={<Cookies />} />
+          <Route path="/impressum" element={<Impressum />} />
+          <Route path="/nutzungsbedingungen" element={<Terms />} />
+          
+          <Route
+            path="/*"
+            element={
+              isValid ? (
+                <AuthenticatedApp />
+              ) : (
+                <Navigate to="/auth" replace />
+              )
+            }
+          />
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
+  );
+};
+
+const App = () => {
+  useFontLoader();
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      NativeErrorMonitor.init();
+      androidDebug.log('App initialized with native error monitoring');
+    }
+    if (isDespiaEnvironment()) {
+      setStatusBarDark();
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <I18nProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </I18nProvider>
+    </QueryClientProvider>
   );
 };
 
