@@ -227,11 +227,12 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/40">
+    <div className="flex min-h-screen w-full" style={{ backgroundColor: 'hsl(228 25% 97%)' }}>
       <AdminSidebar />
       
-      <main className="flex-1 p-4 md:p-6">
-        <div className="bg-card rounded-2xl shadow-sm border border-border min-h-[calc(100vh-3rem)] p-6">
+      <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+        <div className="bg-card w-full h-full rounded-[2.5rem] border border-border/80 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-y-auto p-8 lg:p-12">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -242,7 +243,7 @@ const Admin: React.FC = () => {
           <Route path="tickets" element={<TicketManagement />} />
           <Route path="templates" element={<DocumentTemplateManager />} />
           <Route path="chat" element={
-            <div className="-m-6 h-[calc(100vh-3rem)] overflow-hidden rounded-3xl">
+            <div className="-m-8 lg:-m-12 h-[calc(100vh-2rem)] overflow-hidden rounded-[2.5rem]">
               <EnhancedAdminChatOverview />
             </div>
           } />
@@ -320,6 +321,7 @@ const Admin: React.FC = () => {
           <Route path="user-feedback" element={<UserFeedback />} />
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           </Routes>
+          </div>
         </div>
       </main>
     </div>

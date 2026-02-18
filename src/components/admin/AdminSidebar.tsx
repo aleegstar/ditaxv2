@@ -44,13 +44,20 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150",
+        "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-300",
         isActive
-          ? "bg-primary text-white font-semibold shadow-md"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+          ? "bg-card text-foreground font-semibold shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] border border-border/60 hover:shadow-md hover:-translate-y-0.5"
+          : "text-muted-foreground hover:bg-card hover:text-foreground hover:shadow-sm font-medium"
       )}
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
+      <div className={cn(
+        "flex items-center justify-center w-8 h-8 rounded-lg transition-transform",
+        isActive 
+          ? "bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/20 group-hover:scale-105"
+          : "text-muted-foreground group-hover:text-primary"
+      )}>
+        <Icon className="h-4 w-4 flex-shrink-0" />
+      </div>
       <span className="truncate">{title}</span>
     </NavLink>
   );
@@ -67,22 +74,12 @@ function NavGroup({ title, children, defaultOpen = true }: NavGroupProps) {
 
   return (
     <div className="space-y-1">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 w-full px-3 py-2 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider hover:text-muted-foreground transition-colors"
-      >
-        <ChevronRight 
-          className={cn(
-            "h-3.5 w-3.5 transition-transform duration-200",
-            isOpen && "rotate-90"
-          )} 
-        />
-        {title}
-      </button>
-      <div className={cn(
-        "space-y-0.5 overflow-hidden transition-all duration-200",
-        isOpen ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"
-      )}>
+      <div className="px-5 py-2">
+        <span className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-wider">
+          {title}
+        </span>
+      </div>
+      <div className="space-y-0.5">
         {children}
       </div>
     </div>
@@ -188,15 +185,16 @@ export function AdminSidebar() {
   return (
     <div 
       data-sidebar 
-      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-transparent"
+      className="h-full flex-shrink-0 w-[280px] flex flex-col relative min-h-0 bg-transparent p-6 justify-between"
     >
-      {/* Logo Header */}
-      <div className="flex items-center h-16 px-5 shrink-0">
-        <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
-      </div>
-      
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Logo Header */}
+        <div className="flex items-center mb-8 px-2">
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 space-y-6 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-2">
         {/* Main */}
         <div className="space-y-0.5">
           {mainNavItems.map((item) => (
@@ -248,10 +246,11 @@ export function AdminSidebar() {
             />
           ))}
         </NavGroup>
-      </nav>
+        </nav>
+      </div>
 
       {/* User Profile Section */}
-      <div className="shrink-0 p-3">
+      <div className="mt-4 pt-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors cursor-pointer">
