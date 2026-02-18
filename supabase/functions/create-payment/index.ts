@@ -12,7 +12,7 @@ const corsHeaders = {
 
 // Input validation schema
 const paymentRequestSchema = z.object({
-  taxYear: z.string().regex(/^20[2-3][4-9]$/, 'Invalid tax year'),
+  taxYear: z.string().regex(/^20[2-3]\d$/, 'Invalid tax year'),
   amount: z.number().int().min(1).max(10000000),
   items: z.array(z.object({
     label: z.string().max(200),
