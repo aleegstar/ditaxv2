@@ -12,10 +12,9 @@ import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
 import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
-import { Capacitor } from '@capacitor/core';
-import { Browser } from '@capacitor/browser';
 import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import { isDespiaNative, triggerDespiaOAuth } from '@/lib/despia';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
   upgradeReturnId?: string;
@@ -201,11 +200,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       const requestPayload = {
         taxYear: year,
         amount: totalInCents,
-        items: priceBreakdown.items, // Use actual breakdown items instead of single item
+        items: priceBreakdown.items,
         expressService,
         taxReturnId: taxReturnId,
         origin: window.location.origin,
-        promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId // Pass promo code ID to backend
+        promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
+        isDespia: isDespiaNative()
       };
       console.log('💳 Creating payment session:', requestPayload);
       const {
@@ -237,15 +237,14 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         throw new Error('Unsichere Zahlungs-URL');
       }
 
-      if (Capacitor.isNativePlatform()) {
-        toast.info("Zahlung wird im Browser geöffnet...");
-        await Browser.open({
-          url: paymentUrl,
-          presentationStyle: 'fullscreen',
-          toolbarColor: '#2563eb'
-        });
+      if (isDespiaNative()) {
+        // Despia native: open Stripe via oauth:// protocol
+        // The payment-redirect edge function will redirect to ditax://oauth/payment-success
+        // which automatically closes the browser and navigates the WebView
+        toast.info("Zahlung wird geöffnet...");
+        triggerDespiaOAuth(paymentUrl);
 
-        // Poll payment status every 3 seconds while browser is open
+        // Polling as fallback in case deeplink doesn't work
         let pollingStopped = false;
         const pollInterval = setInterval(async () => {
           if (pollingStopped || !taxReturnId) return;
@@ -259,7 +258,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             if (taxReturn?.payment_status === 'paid') {
               pollingStopped = true;
               clearInterval(pollInterval);
-              try { await Browser.close(); } catch {}
               navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}`);
             }
           } catch (err) {
@@ -268,39 +266,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         }, 3000);
 
         // Stop polling after 5 minutes
-        const pollTimeout = setTimeout(() => {
+        setTimeout(() => {
           pollingStopped = true;
           clearInterval(pollInterval);
         }, 300000);
-
-        // When browser is closed manually, do a final check with retries
-        const finishListener = await Browser.addListener('browserFinished', async () => {
-          finishListener.remove();
-          pollingStopped = true;
-          clearInterval(pollInterval);
-          clearTimeout(pollTimeout);
-          
-          if (!taxReturnId) return;
-          
-          // Retry 3 times with 2s delay (webhook may still be processing)
-          for (let i = 0; i < 3; i++) {
-            await new Promise(r => setTimeout(r, 2000));
-            try {
-              const { data: taxReturn } = await supabase
-                .from('tax_returns')
-                .select('payment_status')
-                .eq('id', taxReturnId)
-                .maybeSingle();
-
-              if (taxReturn?.payment_status === 'paid') {
-                navigate(`/payment-success?session_id=browser_closed&tax_year=${year}&tax_return_id=${taxReturnId}`);
-                return;
-              }
-            } catch (err) {
-              console.error('Error checking payment status after browser close:', err);
-            }
-          }
-        });
       } else {
         window.location.href = paymentUrl;
       }
