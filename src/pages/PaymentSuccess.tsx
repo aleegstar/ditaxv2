@@ -18,12 +18,16 @@ const PaymentSuccess = () => {
   const confettiRef = useRef<ConfettiRef>(null);
 
   useEffect(() => {
-    const waitForAuth = async (maxRetries = 3): Promise<any> => {
+    const waitForAuth = async (maxRetries = 8): Promise<any> => {
       for (let i = 0; i < maxRetries; i++) {
+        // Try getSession first (faster, uses local cache)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) return session.user;
+        // Fallback to getUser (server validation)
         const { data: { user } } = await supabase.auth.getUser();
         if (user) return user;
-        console.log(`Auth retry ${i + 1}/${maxRetries}, waiting 1s...`);
-        await new Promise(r => setTimeout(r, 1000));
+        console.log(`Auth retry ${i + 1}/${maxRetries}, waiting ${i < 3 ? 1 : 2}s...`);
+        await new Promise(r => setTimeout(r, i < 3 ? 1000 : 2000));
       }
       return null;
     };
@@ -46,7 +50,11 @@ const PaymentSuccess = () => {
         const user = await waitForAuth();
         
         if (!user) {
-          navigate('/auth');
+          // Don't redirect to /auth — in Despia WebView the session should exist.
+          // Show error instead so user can navigate back manually.
+          console.error('PaymentSuccess: No auth session found after retries');
+          setError('Sitzung nicht gefunden. Bitte kehre zur Übersicht zurück.');
+          setLoading(false);
           return;
         }
 
