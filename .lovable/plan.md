@@ -1,127 +1,57 @@
 
 
-# Fix: In-App Browser mit Despia-Funktionen oeffnen und schliessen
+# Fix: Payment-Deeplink wird auf Hauptseite statt /payment-success geleitet
 
 ## Problem
 
-Aktuell wird `Capacitor Browser.open()` verwendet, um Stripe Checkout zu oeffnen. Das funktioniert nicht zuverlaessig in der Despia-Umgebung, weil:
-- `Browser.close()` hat keinen Effekt im Chrome Custom Tab
-- `Capacitor.isNativePlatform()` gibt `false` zurueck in Despia
-- Die `/payment-success` Seite im Browser hat keine Auth-Session
-- Der User bleibt im Browser-Tab stecken
+Der Despia-Deeplink `ditax://oauth/payment-success?params` ignoriert den Pfad (`payment-success`) und navigiert die WebView zu `/?session_id=xxx&tax_year=xxx`. Der User landet auf dem Dashboard -- die Payment-Success-Logik wird nie ausgefuehrt.
 
-## Loesung: Despia OAuth-Mechanismus fuer Stripe nutzen
-
-Despia hat bereits einen eingebauten Mechanismus fuer Browser-Sessions:
-- `despia('oauth://?url=...')` oeffnet den sicheren Browser (ASWebAuthenticationSession auf iOS, Chrome Custom Tab auf Android)
-- `{scheme}://oauth/{path}?params` schliesst den Browser automatisch und navigiert die WebView zu `/{path}?params`
-
-Wir nutzen diesen Mechanismus fuer den Stripe-Payment-Flow:
+Das steht sogar im eigenen Code dokumentiert (`src/lib/despia.ts`, Zeile 44-46):
 
 ```text
-1. PaymentSection: despia('oauth://?url=stripeCheckoutUrl')
-   --> Oeffnet Stripe in sicherem Browser
+IMPORTANT: Deeplink must be exactly ditax://oauth (not ditax://oauth/auth)
+because that's what's registered in Android. The path param is ignored.
+Despia will navigate WebView to /?params when receiving this deeplink.
+```
 
-2. Nach Zahlung: Stripe redirected zu success_url
-   --> success_url zeigt auf eine Edge Function (payment-redirect)
+Fuer OAuth funktioniert das zufaellig, weil `App.tsx` die Token-Parameter (`at`/`rt`) auf JEDER Seite erkennt und die Session setzt. Fuer Payment-Params (`session_id`, `tax_year`) gibt es keine solche Erkennung.
 
-3. Edge Function: Redirected zu ditax://oauth/payment-success?params
-   --> Browser schliesst automatisch
-   --> WebView navigiert zu /payment-success?params
+## Loesung
 
-4. PaymentSuccess: Laedt IN der WebView (mit Auth!)
-   --> Kann DB updaten, Erfolgsseite anzeigen
+In `App.tsx` bei der URL-Initialisierung pruefen, ob Payment-spezifische Parameter (`session_id` + `tax_year`) vorhanden sind. Falls ja, sofort zu `/payment-success` weiterleiten.
+
+```text
+Despia Deeplink: ditax://oauth/payment-success?session_id=xxx&tax_year=2025
+--> WebView navigiert zu: /?session_id=xxx&tax_year=2025
+--> App.tsx erkennt Payment-Params
+--> Redirect zu: /payment-success?session_id=xxx&tax_year=2025
+--> Payment-Success-Logik laeuft korrekt
 ```
 
 ## Aenderungen
 
-### 1. Neue Edge Function: `payment-redirect`
+### 1. `src/App.tsx` - Payment-Parameter-Erkennung hinzufuegen
 
-Eine minimale HTML-Seite (wie `auth-ios-bridge`), die:
-- Die Query-Parameter (`session_id`, `tax_year`, `tax_return_id`) ausliest
-- Zu `ditax://oauth/payment-success?session_id=xxx&tax_year=xxx&tax_return_id=xxx` redirected
-- Dadurch den Browser schliesst und zur App zurueckkehrt
-
-### 2. `supabase/functions/create-payment/index.ts`
-
-Wenn der Request aus der Despia-App kommt (neuer Parameter `isDespia: true`), wird die `success_url` auf die Edge Function `payment-redirect` gesetzt statt direkt auf `/payment-success`:
-
-- Despia: `success_url` = `https://...supabase.co/functions/v1/payment-redirect?session_id=...&tax_year=...&tax_return_id=...&scheme=ditax`
-- Web: `success_url` bleibt wie bisher (`{origin}/payment-success?...`)
-
-### 3. `src/components/PaymentSection.tsx`
-
-Im Despia-Umfeld:
-- `isDespia: true` im Request-Payload mitsenden
-- `despia('oauth://?url=stripeUrl')` statt `Browser.open()` verwenden
-- Polling bleibt als Fallback bestehen
-- Kein `browserFinished` Listener noetig (Despia schliesst den Browser automatisch)
-
-Im Web-Browser: Keine Aenderung (bleibt `window.location.href`).
-
-### 4. `src/pages/PaymentSuccess.tsx`
-
-- Entfernung der `Capacitor.isNativePlatform()` Logik (nicht mehr noetig)
-- Die Seite laeuft jetzt immer in der WebView mit Auth-Session
-- Normaler DB-Update-Flow wie im Web
-
-## Betroffene Dateien
-
-1. **`supabase/functions/payment-redirect/index.ts`** -- Neue Edge Function (wie auth-ios-bridge)
-2. **`supabase/functions/create-payment/index.ts`** -- success_url anpassen wenn isDespia
-3. **`src/components/PaymentSection.tsx`** -- Despia oauth:// statt Browser.open()
-4. **`src/pages/PaymentSuccess.tsx`** -- Vereinfachen, Capacitor-Logik entfernen
-5. **`supabase/config.toml`** -- payment-redirect Function registrieren
-
-## Technische Details
-
-### payment-redirect Edge Function
+In der `initialize`-Funktion (dort wo bereits `at`/`rt` Token-Params behandelt werden), eine zusaetzliche Pruefung einbauen:
 
 ```typescript
-// Liest query params und redirected zu Deeplink
-const scheme = url.searchParams.get('scheme') || 'ditax';
-const sessionId = url.searchParams.get('session_id') || '';
-const taxYear = url.searchParams.get('tax_year') || '';
-const taxReturnId = url.searchParams.get('tax_return_id') || '';
-
-// HTML-Seite die zu Deeplink redirected
-// ditax://oauth/payment-success?session_id=xxx&tax_year=xxx&tax_return_id=xxx
-// --> Browser schliesst, WebView navigiert zu /payment-success?...
-```
-
-### PaymentSection.tsx - Despia Flow
-
-```typescript
-if (isDespiaNative()) {
-  // Despia: open via oauth:// protocol
-  toast.info("Zahlung wird geoeffnet...");
-  triggerDespiaOAuth(paymentUrl);
-  
-  // Polling bleibt als Fallback
-  startPolling(taxReturnId);
-} else if (Capacitor.isNativePlatform()) {
-  // Capacitor fallback (falls jemals ohne Despia)
-  await Browser.open({ url: paymentUrl, ... });
-} else {
-  // Web
-  window.location.href = paymentUrl;
+// Handle payment-success params (Despia ignores deeplink path)
+const sessionId = url.searchParams.get('session_id');
+const taxYear = url.searchParams.get('tax_year');
+if (sessionId && taxYear && !window.location.pathname.includes('payment-success')) {
+  const taxReturnId = url.searchParams.get('tax_return_id') || '';
+  const params = new URLSearchParams({ session_id: sessionId, tax_year: taxYear });
+  if (taxReturnId) params.set('tax_return_id', taxReturnId);
+  window.location.href = `/payment-success?${params.toString()}`;
+  return; // Stop further initialization
 }
 ```
 
-### create-payment success_url
+Diese Pruefung kommt VOR dem `setIsInitialized(true)`, sodass der Redirect sofort passiert bevor irgendeine Route gerendert wird.
 
-```typescript
-// Wenn Despia, redirect ueber Edge Function
-const successUrl = isDespia
-  ? `${supabaseUrl}/functions/v1/payment-redirect?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}&tax_return_id=${taxReturnId}&scheme=ditax`
-  : `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}`;
-```
+## Betroffene Dateien
 
-## Warum das funktioniert
+1. **`src/App.tsx`** -- Payment-Param-Erkennung und Redirect hinzufuegen (ca. 8 Zeilen)
 
-- Despia erkennt den `oauth/` Prefix im Deeplink und schliesst den Browser automatisch
-- Die WebView navigiert zu `/payment-success?params` -- dort existiert die Auth-Session
-- Funktioniert auf iOS (ASWebAuthenticationSession) und Android (Chrome Custom Tabs)
-- Kein manuelles Browser-Schliessen noetig
-- Der gleiche Mechanismus wird bereits erfolgreich fuer OAuth Login verwendet
+Das ist alles. Keine anderen Dateien muessen geaendert werden. Die `payment-redirect` Edge Function und `PaymentSuccess.tsx` bleiben wie sie sind.
 
