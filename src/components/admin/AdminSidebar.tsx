@@ -44,16 +44,13 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        "group flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200",
+        "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-150",
         isActive
-          ? "bg-primary text-white shadow-md"
-          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          ? "bg-muted text-foreground font-semibold"
+          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium"
       )}
     >
-      <Icon className={cn(
-        "h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200",
-        !isActive && "group-hover:scale-110"
-      )} />
+      <Icon className="h-4 w-4 flex-shrink-0" />
       <span className="truncate">{title}</span>
     </NavLink>
   );
@@ -191,16 +188,11 @@ export function AdminSidebar() {
   return (
     <div 
       data-sidebar 
-      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-sidebar"
+      className="h-full flex-shrink-0 w-64 flex flex-col relative min-h-0 bg-background border-r border-border"
     >
       {/* Logo Header */}
       <div className="flex items-center h-16 px-5 shrink-0">
-        <div className="flex items-center gap-3">
-          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
-          <div className="flex flex-col">
-            <span className="text-xs font-medium text-muted-foreground">Admin Panel</span>
-          </div>
-        </div>
+        <img src="/ditax-logo-new.svg" alt="Ditax" className="h-7 w-auto" />
       </div>
       
       {/* Navigation */}
@@ -259,11 +251,11 @@ export function AdminSidebar() {
       </nav>
 
       {/* User Profile Section */}
-      <div className="shrink-0 p-3 bg-sidebar">
+      <div className="shrink-0 p-3 border-t border-border">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-accent transition-colors cursor-pointer">
-              <Avatar className="h-9 w-9 ring-2 ring-border">
+              <Avatar className="h-9 w-9">
                 {adminAvatarUrl ? (
                   <AvatarImage src={adminAvatarUrl} alt={adminName} />
                 ) : (
