@@ -5,16 +5,11 @@ import { Download, Edit, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import {
-  UnifiedAlertDialog,
-  UnifiedAlertDialogAction,
-  UnifiedAlertDialogCancel,
-  UnifiedAlertDialogContent,
-  UnifiedAlertDialogDescription,
-  UnifiedAlertDialogFooter,
-  UnifiedAlertDialogHeader,
-  UnifiedAlertDialogIcon,
-  UnifiedAlertDialogTitle,
-} from '@/components/ui/unified-alert-dialog';
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
 import { useFormContext } from '@/contexts';
 import { FormSectionKey } from '@/types';
 import { toast } from 'sonner';
@@ -170,34 +165,37 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
         </motion.div>
       </div>
       
-      {/* Changes dialog */}
-      <UnifiedAlertDialog open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <UnifiedAlertDialogContent showCloseButton={false} className="p-6">
-          <UnifiedAlertDialogHeader>
-            <UnifiedAlertDialogTitle>
+      {/* Changes bottom sheet */}
+      <Drawer open={showChangesDialog} onOpenChange={setShowChangesDialog}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <DrawerTitle className="text-xl font-bold text-foreground">
               Gibt es Änderungen?
-            </UnifiedAlertDialogTitle>
-            <UnifiedAlertDialogDescription>
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
               Haben sich deine Daten seit dem letzten Jahr geändert?
-            </UnifiedAlertDialogDescription>
-          </UnifiedAlertDialogHeader>
-          <UnifiedAlertDialogFooter>
-            <UnifiedAlertDialogAction
+            </DrawerDescription>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button
+              variant="outline"
+              className="w-full h-14 rounded-2xl text-sm font-medium border-border bg-muted/50 hover:bg-muted text-foreground"
               onClick={handleWithChanges}
               disabled={isImporting}
-              variant="secondary"
             >
               Ja, ich möchte Änderungen vornehmen
-            </UnifiedAlertDialogAction>
-            <UnifiedAlertDialogAction
+            </Button>
+            <Button
+              className="w-full h-14 rounded-2xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={handleNoChanges}
               disabled={isImporting}
             >
               Nein, keine Änderungen
-            </UnifiedAlertDialogAction>
-          </UnifiedAlertDialogFooter>
-        </UnifiedAlertDialogContent>
-      </UnifiedAlertDialog>
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
