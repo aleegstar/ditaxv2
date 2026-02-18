@@ -294,14 +294,14 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
 
               <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
 
-              <Button
+              <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full rounded-full h-12 !bg-primary !text-white hover:!bg-primary/90 shadow-lg shadow-primary/25 active:scale-[0.98] transition-all font-semibold text-[15px] tracking-wide"
+                className="w-full h-12 rounded-full bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
                 style={{ touchAction: 'manipulation' }}
               >
-                <Upload className="w-5 h-5 mr-2" />
+                <Upload className="w-5 h-5" />
                 Dokument auswählen
-              </Button>
+              </button>
             </div>
           )}
 
