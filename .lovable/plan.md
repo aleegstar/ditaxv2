@@ -1,47 +1,60 @@
 
-# Auth Race Condition Fix
+# Fix: Consent-Screen erscheint faelschlicherweise bei Navigation
 
 ## Problem
-Es gibt eine Race Condition in `App.tsx`, die dazu fuehrt, dass du manchmal unauthentifiziert landest und das Onboarding siehst, obwohl du eingeloggt bist. Das passiert so:
+Die "Schoen das du da bist"-Seite (TaxYearSelector mit Consent-Flow) wird faelschlicherweise angezeigt, obwohl der Benutzer bereits registriert und eingeloggt ist. Das passiert durch mehrere zusammenwirkende Race Conditions:
 
-1. `initAuth()` startet (async) -- prueft OAuth-Tokens
-2. Gleichzeitig wird `checkAuth()` aufgerufen (async)
-3. Der `onAuthStateChange`-Listener wird parallel eingerichtet
-4. Wenn der Listener ein `INITIAL_SESSION`-Event ohne Session feuert, BEVOR `initAuth` die Session setzen konnte, wird `isAuthenticated = false` gesetzt und du wirst auf `/auth` umgeleitet
-5. Danach setzt `initAuth` die Session korrekt -- aber du bist schon auf der Auth-Seite
+1. **Safety Timeout umgeht Loading-Guard**: Nach 8 Sekunden erzwingt der Safety Timeout das Rendering, auch wenn `profileLoading` noch `true` ist. Wenn das Profil noch nicht geladen wurde, ist `userProfile` noch `null`, und `!userProfile?.first_name` ergibt `true`.
 
-Ein weiteres Problem: Der `onAuthStateChange`-Listener wird NACH `getSession()` eingerichtet, obwohl Supabase empfiehlt, den Listener ZUERST aufzusetzen.
+2. **Tax Returns temporaer leer**: Beim Wechsel von Tax Filern oder bei Navigation wird `taxReturns` kurzzeitig zu einem leeren Array, waehrend die neuen Daten geladen werden.
+
+3. **Kombination fuehrt zum Consent-Screen**: `taxReturns.length === 0` + `!userProfile?.first_name` (weil Profil noch laedt) = TaxYearSelector wird angezeigt.
 
 ## Loesung
 
-### 1. Auth-Listener VOR getSession einrichten (`App.tsx`)
-- Den `onAuthStateChange`-Listener als erstes aufsetzen
-- `initAuth()` und `checkAuth()` erst DANACH starten
-- Eine Flag einfuehren, die verhindert, dass der auth state waehrend `initAuth` (Token-Handling) ueberschrieben wird
+### Aenderung in `src/pages/UserTaxReturns.tsx`
 
-### 2. Race Condition verhindern
-- Waehrend `initAuth` laeuft (OAuth/Deeplink Token-Handling), soll der `onAuthStateChange`-Listener den State nicht auf `false` setzen
-- Erst nach Abschluss von `initAuth` darf der Listener den State aktualisieren
-- Das verhindert das kurze Aufblitzen der Auth-Seite
+**1. Profile-Loading in die TaxYearSelector-Guard einbeziehen**
 
-### Technische Details
+Die Bedingung fuer den TaxYearSelector darf nur greifen, wenn das Profil tatsaechlich fertig geladen wurde:
 
-```text
-VORHER (problematisch):
-  initAuth() ──async──> setzt Session
-  checkAuth() ──async──> setzt isAuthenticated
-  onAuthStateChange ──> kann isAuthenticated=false setzen BEVOR initAuth fertig ist
+```
+// VORHER (Zeile 276):
+if (!loading && taxReturns.length === 0 && !userProfile?.first_name) {
+  return <TaxYearSelector ... />;
+}
 
-NACHHER (korrekt):
-  onAuthStateChange aufsetzen (listener ready)
-  initAuth() ──async──> setzt Session (listener blockiert waehrend dessen)
-  checkAuth() ──async──> setzt isAuthenticated
-  listener wird aktiviert
+// NACHHER:
+if (!loading && !profileLoading && taxReturns.length === 0 && !userProfile?.first_name) {
+  return <TaxYearSelector ... />;
+}
 ```
 
-### Aenderungen
-- **`src/App.tsx`**: Auth-Initialisierung umstrukturieren:
-  - `isInitializing` Ref einfuehren
-  - Listener zuerst aufsetzen, aber waehrend Init-Phase ignorieren
-  - `initAuth` + `checkAuth` sequentiell ausfuehren
-  - Erst danach Listener-Updates zulassen
+**2. Safety Timeout darf Profile-Loading nicht ueberspringen**
+
+Der Safety Timeout auf Zeile 262 laesst aktuell das Rendering zu, selbst wenn `profileLoading` noch `true` ist. Das muss angepasst werden, damit der TaxYearSelector-Guard nicht mit unvollstaendigen Daten evaluiert wird:
+
+```
+// VORHER (Zeile 262):
+if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
+  return <UserTaxReturnsSkeleton />;
+}
+
+// NACHHER - Profil-Loading separat behandeln:
+// Skeleton zeigen waehrend Daten laden
+if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
+  return <UserTaxReturnsSkeleton />;
+}
+
+// Wenn Safety Timeout aktiv aber Profil noch laedt: Skeleton weiter zeigen
+// (nur fuer die TaxYearSelector-Entscheidung relevant)
+if (safetyTimeout && profileLoading && taxReturns.length === 0) {
+  return <UserTaxReturnsSkeleton />;
+}
+```
+
+### Zusammenfassung
+- Zwei Zeilen werden angepasst in `src/pages/UserTaxReturns.tsx`
+- Die TaxYearSelector-Guard prueft jetzt explizit, ob das Profil geladen ist
+- Der Safety Timeout kann die Consent-Seite nicht mehr faelschlicherweise ausloesen
+- Benutzer sehen schlimmstenfalls einen laengeren Skeleton-Screen statt der falschen Consent-Seite
