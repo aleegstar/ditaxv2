@@ -263,6 +263,12 @@ const UserTaxReturns = () => {
     return <UserTaxReturnsSkeleton />;
   }
 
+  // If safety timeout fired but profile still loading with no tax returns,
+  // keep showing skeleton to prevent false consent screen
+  if (safetyTimeout && profileLoading && taxReturns.length === 0) {
+    return <UserTaxReturnsSkeleton />;
+  }
+
   // Also show skeleton while redirecting to select-person
   if (hasMultipleFilers && !selectionConfirmed) {
     return <UserTaxReturnsSkeleton />;
@@ -273,7 +279,7 @@ const UserTaxReturns = () => {
   // that the user already went through the consent/name flow. Previously used
   // onboarding_tour_completed which stays false after WelcomeFlow, causing the
   // consent page to flash for existing users on navigation or filer-switch.
-  if (!loading && taxReturns.length === 0 && !userProfile?.first_name) {
+  if (!loading && !profileLoading && taxReturns.length === 0 && !userProfile?.first_name) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
   const getExistingReturn = (year: string) => {
