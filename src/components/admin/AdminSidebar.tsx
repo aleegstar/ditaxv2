@@ -44,10 +44,10 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-150",
+        "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150",
         isActive
-          ? "bg-muted text-foreground font-semibold"
-          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium"
+          ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
       )}
     >
       <Icon className="h-4 w-4 flex-shrink-0" />
