@@ -555,7 +555,7 @@ const DocumentsContent: React.FC<{
           )}
 
           {/* Combined Search and Filter Bar */}
-          <div className="mb-8 relative group z-30">
+          <div className="mb-8 relative group z-10">
             <div className="relative flex items-center">
               <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-zinc-400 group-focus-within:text-blue-500 transition-colors" strokeWidth={1.5} />
