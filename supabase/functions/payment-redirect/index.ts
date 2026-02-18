@@ -1,5 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 /**
  * payment-redirect Edge Function
  * 
@@ -7,22 +5,15 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
  * After Stripe Checkout completes, Stripe redirects here.
  * This function serves a minimal HTML page that redirects to
  * the app's deeplink, closing the in-app browser automatically.
- * 
- * Flow:
- * 1. Stripe redirects to: payment-redirect?session_id=xxx&tax_year=2024&tax_return_id=yyy&scheme=ditax
- * 2. This function serves a minimal HTML page
- * 3. JavaScript redirects to: ditax://oauth/payment-success?session_id=xxx&tax_year=2024&tax_return_id=yyy
- * 4. Despia catches the deeplink, closes the browser session
- * 5. WebView navigates to /payment-success?session_id=xxx&tax_year=2024&tax_return_id=yyy
  */
-serve(async (req) => {
+Deno.serve(async (req) => {
   const url = new URL(req.url);
   const scheme = url.searchParams.get('scheme') || 'ditax';
   const sessionId = url.searchParams.get('session_id') || '';
   const taxYear = url.searchParams.get('tax_year') || '';
   const taxReturnId = url.searchParams.get('tax_return_id') || '';
 
-  // Sanitize scheme to prevent XSS (only allow alphanumeric and hyphens)
+  // Sanitize scheme to prevent XSS
   const safeScheme = scheme.replace(/[^a-zA-Z0-9-]/g, '');
 
   // Build deeplink params
@@ -30,6 +21,8 @@ serve(async (req) => {
   if (sessionId) params.set('session_id', sessionId);
   if (taxYear) params.set('tax_year', taxYear);
   if (taxReturnId) params.set('tax_return_id', taxReturnId);
+
+  const deeplink = `${safeScheme}://oauth/payment-success?${params.toString()}`;
 
   const html = `<!DOCTYPE html>
 <html>
@@ -52,11 +45,9 @@ serve(async (req) => {
   <script>
     (function() {
       try {
-        var deeplink = '${safeScheme}://oauth/payment-success?${params.toString()}';
+        var deeplink = '${deeplink}';
         console.log('Redirecting to deeplink:', deeplink);
         window.location.href = deeplink;
-        
-        // Fallback: if deeplink doesn't work after 3s, show manual hint
         setTimeout(function() {
           document.querySelector('p').textContent = 'Bitte schliesse diesen Tab, um zur App zurückzukehren.';
           document.querySelector('.spinner').style.display = 'none';
