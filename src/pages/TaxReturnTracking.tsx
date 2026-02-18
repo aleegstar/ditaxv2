@@ -7,6 +7,7 @@ import { ExpressUpgradeCard } from '@/components/tax-tracking/ExpressUpgradeCard
 import { useToast } from '@/hooks/use-toast';
 import { format, addBusinessDays } from 'date-fns';
 import { de } from 'date-fns/locale';
+
 interface TaxReturnData {
   id: string;
   user_id: string;
@@ -18,59 +19,52 @@ interface TaxReturnData {
   payment_date: string | null;
   created_at: string;
 }
+
 interface ProfileData {
   first_name: string;
   last_name: string;
   email: string;
 }
+
 export default function TaxReturnTracking() {
-  const {
-    id
-  } = useParams<{
-    id: string;
-  }>();
+  const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [taxReturn, setTaxReturn] = useState<TaxReturnData | null>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
+
   useEffect(() => {
     fetchTaxReturnData();
   }, [id]);
+
   const fetchTaxReturnData = async () => {
     try {
       if (!id) {
         throw new Error('Tax return ID is required');
       }
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/auth');
         return;
       }
-
-      // Fetch tax return data
-      const {
-        data: taxReturnData,
-        error: taxReturnError
-      } = await supabase.from('tax_returns').select('*').eq('id', id).eq('user_id', user.id).single();
+      const { data: taxReturnData, error: taxReturnError } = await supabase
+        .from('tax_returns')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
       if (taxReturnError) throw taxReturnError;
       if (!taxReturnData) {
         throw new Error('Tax return not found');
       }
       setTaxReturn(taxReturnData);
-
-      // Fetch profile data
-      const {
-        data: profileData,
-        error: profileError
-      } = await supabase.from('profiles').select('first_name, last_name, email').eq('id', user.id).single();
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, email')
+        .eq('id', user.id)
+        .single();
       if (profileError) throw profileError;
       setProfile(profileData);
     } catch (error) {
@@ -78,28 +72,26 @@ export default function TaxReturnTracking() {
       toast({
         title: 'Fehler',
         description: 'Steuererklärung konnte nicht geladen werden.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       navigate('/');
     } finally {
       setLoading(false);
     }
   };
+
   const getEstimatedDeliveryDate = () => {
     if (!taxReturn) return '';
-
-    // For express service, show specific date (10 business days from payment)
     if (taxReturn.express_service) {
-      const baseDate = taxReturn.payment_date ? new Date(taxReturn.payment_date) : new Date(taxReturn.created_at);
+      const baseDate = taxReturn.payment_date
+        ? new Date(taxReturn.payment_date)
+        : new Date(taxReturn.created_at);
       const deliveryDate = addBusinessDays(baseDate, 10);
-      return format(deliveryDate, 'dd. MMMM yyyy', {
-        locale: de
-      });
+      return format(deliveryDate, 'dd. MMMM yyyy', { locale: de });
     }
-
-    // For standard service, don't show specific date as it varies
     return 'Variierende Bearbeitungszeit';
   };
+
   const getStatusText = () => {
     if (!taxReturn) return '';
     switch (taxReturn.workflow_step) {
@@ -111,70 +103,99 @@ export default function TaxReturnTracking() {
         return 'Eingereicht';
     }
   };
+
   if (loading) {
     return <div className="min-h-screen bg-white" />;
   }
+
   if (!taxReturn || !profile) {
     return null;
   }
-  return <div className="min-h-screen bg-white text-slate-700 antialiased flex justify-center">
-      {/* Main Container - wider on desktop */}
-      <div className="w-full max-w-[480px] md:max-w-2xl lg:max-w-3xl min-h-screen bg-white relative flex flex-col overflow-hidden">
 
-        {/* Sticky Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/80 px-6 py-4 flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors group bg-slate-50 border border-slate-200">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+  return (
+    <div className="min-h-screen bg-white text-slate-600 antialiased flex justify-center">
+      <div className="w-full max-w-3xl px-6 py-12 md:py-20">
+
+        {/* Header */}
+        <header className="flex items-center justify-between mb-16 relative">
+          <button
+            onClick={() => navigate('/')}
+            className="group p-3 rounded-full border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 focus:ring-4 focus:ring-slate-100 outline-none"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
           </button>
-          <h1 className="text-sm font-semibold text-slate-800 tracking-tight">Steuererklärung {taxReturn.tax_year}</h1>
-          <div className="w-9 h-9" /> {/* Spacer for centering */}
+
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+            Steuererklärung {taxReturn.tax_year}
+          </h1>
+
+          <div className="w-11" />
         </header>
 
-        {/* Content Scroll Area */}
-        <div className="flex-1 overflow-y-auto pb-10">
-          
-          {/* Info Grid */}
-          <div className="p-6 pb-2">
-            <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-              <div>
-                <div className="text-[11px] font-medium text-slate-400 mb-1">Name</div>
-                <div className="text-sm font-medium text-slate-800">{profile.first_name}</div>
+        {/* Glassy Detail Card */}
+        <div className="relative mb-16">
+          {/* Decorative blur */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-50 to-slate-50 rounded-[2.5rem] blur-2xl opacity-50 -z-10" />
+
+          <div className="bg-white/60 backdrop-blur-xl border border-slate-100 rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+              {/* Name */}
+              <div className="space-y-2">
+                <span className="block text-sm font-medium text-slate-400">Name</span>
+                <p className="text-lg text-slate-900 font-medium tracking-tight">{profile.first_name}</p>
               </div>
-              <div>
-                <div className="text-[11px] font-medium text-slate-400 mb-1">Steuerjahr</div>
-                <div className="text-sm font-medium text-slate-800">{taxReturn.tax_year}</div>
+
+              {/* Steuerjahr */}
+              <div className="space-y-2">
+                <span className="block text-sm font-medium text-slate-400">Steuerjahr</span>
+                <p className="text-lg text-slate-900 font-medium tracking-tight">{taxReturn.tax_year}</p>
               </div>
-              <div>
-                <div className="text-[11px] font-medium text-slate-400 mb-1">Service</div>
-                <div className="text-sm font-medium text-slate-800">
-                  {taxReturn.express_service ? 'Express-Service' : 'Standard-Service'}
+
+              {/* Service */}
+              <div className="space-y-2">
+                <span className="block text-sm font-medium text-slate-400">Service</span>
+                <div className="flex items-center gap-2">
+                  {taxReturn.express_service && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                    </span>
+                  )}
+                  <p className="text-lg text-slate-900 font-medium tracking-tight">
+                    {taxReturn.express_service ? 'Express-Service' : 'Standard-Service'}
+                  </p>
                 </div>
               </div>
-              <div>
-                <div className="text-[11px] font-medium text-slate-400 mb-1">Voraussichtliche Lieferung</div>
-                <div className="text-sm font-medium text-slate-800">{getEstimatedDeliveryDate()}</div>
+
+              {/* Lieferung */}
+              <div className="space-y-2">
+                <span className="block text-sm font-medium text-slate-400">Voraussichtliche Lieferung</span>
+                <p className="text-lg text-slate-900 font-medium tracking-tight">{getEstimatedDeliveryDate()}</p>
               </div>
-              <div className="col-span-2">
-                <div className="text-[11px] font-medium text-slate-400 mb-1">Status</div>
-                <button className="text-sm font-medium text-[#1D64FF] hover:text-blue-600 transition-colors flex items-center gap-1.5">
+
+              {/* Status */}
+              <div className="md:col-span-2 space-y-2">
+                <span className="block text-sm font-medium text-slate-400">Status</span>
+                <button className="inline-flex items-center gap-1.5 text-lg text-blue-600 font-medium tracking-tight hover:text-blue-700 hover:gap-2 transition-all group">
                   {getStatusText()}
-                  <ExternalLink className="w-3 h-3 opacity-50" />
+                  <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </button>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="h-px bg-slate-200 mx-6 my-4" />
+        {/* Timeline */}
+        <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
 
-          {/* Timeline Section */}
-          <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
-
-          {/* Express Upgrade Card */}
-          <ExpressUpgradeCard taxReturnId={taxReturn.id} currentExpressService={taxReturn.express_service} />
-
-          {/* Bottom Spacer */}
-          <div className="h-6" />
+        {/* Express Upgrade */}
+        <div className="mt-16">
+          <ExpressUpgradeCard
+            taxReturnId={taxReturn.id}
+            currentExpressService={taxReturn.express_service}
+          />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 }
