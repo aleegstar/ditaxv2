@@ -54,6 +54,16 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const promoDiscount = activePromo ? activePromo.amount : 0;
 
   useEffect(() => {
+    // Register listener FIRST to catch any session changes during navigation
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    // Then check current session
     const checkAuth = async () => {
       const {
         data: {
@@ -64,13 +74,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     };
     checkAuth();
 
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
     return () => subscription.unsubscribe();
   }, []);
 

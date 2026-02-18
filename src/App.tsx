@@ -236,11 +236,11 @@ const AuthenticatedApp = () => {
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <TaxFilerGate>
               <Routes>
-                <Route path="/" element={<UserTaxReturns />} />
-                <Route path="/select-person" element={<SelectPerson />} />
-                <Route path="/welcome" element={<Welcome />} />
-                <Route path="/form" element={<Index />} />
-                <Route path="/form/documents/upload/:itemId" element={<DocumentUploadPage />} />
+                <Route path="/" element={<ProtectedRoute><UserTaxReturns /></ProtectedRoute>} />
+                <Route path="/select-person" element={<ProtectedRoute><SelectPerson /></ProtectedRoute>} />
+                <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
+                <Route path="/form" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/form/documents/upload/:itemId" element={<ProtectedRoute><DocumentUploadPage /></ProtectedRoute>} />
                 <Route path="/documents" element={
                   <ProtectedRoute>
                     <Documents />
@@ -261,8 +261,8 @@ const AuthenticatedApp = () => {
                     <CreateTicket />
                   </ProtectedRoute>
                 } />
-                <Route path="/payment" element={<PaymentPage />} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+                <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
                 <Route path="/tax-return-tracking/:id" element={
                   <ProtectedRoute>
                     <TaxReturnTracking />
@@ -273,7 +273,7 @@ const AuthenticatedApp = () => {
                     <TaxReturnActions />
                   </ProtectedRoute>
                 } />
-                <Route path="/chat" element={<Chat />} />
+                <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
                 <Route path="/missing-items" element={
                   <ProtectedRoute>
                     <MissingItems />
@@ -285,7 +285,7 @@ const AuthenticatedApp = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/help" element={<Help />} />
-                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
