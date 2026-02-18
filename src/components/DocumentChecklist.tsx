@@ -671,9 +671,7 @@ const DocumentChecklist: React.FC = () => {
     }} />}
 
       <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[460px] bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[32px] shadow-[0_30px_60px_-12px_rgba(50,50,93,0.12),0_18px_36px_-18px_rgba(0,0,0,0.08)] p-10 gap-0 overflow-hidden">
-          {/* Glossy reflection */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/20 to-transparent pointer-events-none" />
+        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-[460px] bg-white border border-slate-200 rounded-[32px] shadow-[0_30px_60px_-12px_rgba(50,50,93,0.12),0_18px_36px_-18px_rgba(0,0,0,0.08)] p-10 gap-0 overflow-hidden">
 
           {/* Close button */}
           <button onClick={() => setShowCompletionDialog(false)} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 rounded-full transition-all duration-300 z-20 group">
