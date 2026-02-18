@@ -244,6 +244,27 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           presentationStyle: 'fullscreen',
           toolbarColor: '#2563eb'
         });
+
+        // Listen for when the in-app browser is closed (manually or after redirect)
+        const finishListener = await Browser.addListener('browserFinished', async () => {
+          finishListener.remove();
+          // Check if payment was completed while browser was open
+          if (taxReturnId) {
+            try {
+              const { data: taxReturn } = await supabase
+                .from('tax_returns')
+                .select('payment_status')
+                .eq('id', taxReturnId)
+                .maybeSingle();
+
+              if (taxReturn?.payment_status === 'paid') {
+                navigate(`/payment-success?session_id=browser_closed&tax_year=${year}&tax_return_id=${taxReturnId}`);
+              }
+            } catch (err) {
+              console.error('Error checking payment status after browser close:', err);
+            }
+          }
+        });
       } else {
         window.location.href = paymentUrl;
       }

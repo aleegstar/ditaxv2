@@ -412,6 +412,16 @@ const AppRoutes = () => {
           let url: URL;
           try { url = new URL(event.url); } catch { return; }
 
+          // Handle payment success deep links
+          if (url.pathname.includes('payment-success') || url.href.includes('payment-success')) {
+            console.log('💳 Payment success deep link detected');
+            const { Browser } = await import('@capacitor/browser');
+            try { await Browser.close(); } catch {}
+            const searchParams = url.searchParams.toString();
+            window.location.href = `/payment-success${searchParams ? '?' + searchParams : ''}`;
+            return;
+          }
+
           const at = url.searchParams.get('at');
           const rt = url.searchParams.get('rt');
           if (at && rt) {
