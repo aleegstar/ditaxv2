@@ -518,8 +518,8 @@ const DocumentsContent: React.FC<{
                 </button>
 
                 {isYearDropdownOpen && <>
-                  <div className="fixed inset-0 z-[59]" onClick={() => setIsYearDropdownOpen(false)} />
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
+                  <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[200] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
                     <div className="max-h-64 overflow-y-auto py-1">
                       {availableYears.map(year => (
                         <button 
