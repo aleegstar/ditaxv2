@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ArrowLeft, Loader2, AlertCircle, Fingerprint } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, AlertCircle, Fingerprint } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -398,23 +398,27 @@ export const EnhancedLoginFlow: React.FC = () => {
               </div>
             )}
             
-            <Button 
+            <button 
               type="submit" 
-              className="w-full" 
               disabled={loading || !email.trim() || otpDisabled}
+              className="group relative flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-6 pr-4 py-2.5 transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)] disabled:pointer-events-none disabled:opacity-50"
             >
               {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span className="flex items-center gap-2 text-base font-semibold text-white tracking-tight">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   {t.authFlow.sendingCode}
-                </>
+                </span>
               ) : (
                 <>
-                  <Mail className="mr-2 h-4 w-4" />
-                  {otpDisabled ? t.authFlow.codeDisabled : t.authFlow.sendCode}
+                  <span className="text-base font-semibold text-white tracking-tight">
+                    {otpDisabled ? t.authFlow.codeDisabled : t.authFlow.sendCode}
+                  </span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm text-white transition-all group-hover:bg-white/25">
+                    <ArrowRight className="h-4 w-4 stroke-[2] group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </>
               )}
-            </Button>
+            </button>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
