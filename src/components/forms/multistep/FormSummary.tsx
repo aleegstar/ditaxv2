@@ -135,7 +135,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-center pt-4 px-4 pb-6">
-          <Button onClick={onConfirm} size="lg" className="w-full max-w-sm h-14 text-lg font-medium bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90 rounded-full">
+          <Button onClick={onConfirm} className="w-full max-w-sm">
             <Check className="w-5 h-5 mr-2" />
             Bestätigen & Weiter
           </Button>
@@ -248,9 +248,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
 
       {/* Action Buttons */}
       <div className="flex justify-center pt-4 px-4 pb-6">
-        <Button onClick={onConfirm} size="lg" className="w-full max-w-sm h-14 text-base font-medium bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full transition-colors duration-200 border-0" style={{
-        boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-      }}>
+        <Button onClick={onConfirm} className="w-full max-w-sm">
           <Check className="w-5 h-5 mr-2" />
           Bestätigen & Weiter
         </Button>

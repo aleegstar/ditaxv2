@@ -451,10 +451,10 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setUploadDialogOpen(false)} className="rounded-full">
+            <Button variant="secondary" onClick={() => setUploadDialogOpen(false)}>
               Abbrechen
             </Button>
-            <Button onClick={handleUpload} disabled={uploading || !selectedFile} className="rounded-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white">
+            <Button onClick={handleUpload} disabled={uploading || !selectedFile}>
               {uploading ? 'Wird hochgeladen...' : 'Hochladen'}
             </Button>
           </DialogFooter>
