@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, Mail, Fingerprint, ShieldCheck, Globe } from "lucide-react";
+import { ArrowLeft, ArrowRight, Mail, Fingerprint, ShieldCheck, Globe } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -517,8 +517,17 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center rounded-2xl py-4 text-sm font-semibold tracking-widest uppercase text-white border border-blue-400/30 hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-300/40 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.9) 0%, rgba(37,99,235,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-                    {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                  <button type="submit" disabled={isLoading} className="group relative flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-6 pr-4 py-2.5 transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)] disabled:pointer-events-none disabled:opacity-50">
+                    {isEmailLoading ? (
+                      <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendingCode}</span>
+                    ) : (
+                      <>
+                        <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendCode}</span>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm text-white transition-all group-hover:bg-white/25">
+                          <ArrowRight className="h-4 w-4 stroke-[2] group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                      </>
+                    )}
                   </button>
 
                   <p className="text-center text-sm text-slate-500 leading-relaxed px-4">
