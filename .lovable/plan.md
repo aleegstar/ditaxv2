@@ -1,57 +1,79 @@
 
 
-# Fix: Payment-Deeplink wird auf Hauptseite statt /payment-success geleitet
+## Button-Standardisierung: Auth-Style als globaler Standard
 
-## Problem
+### Ziel
+Der blaue "Liquid Glass"-Button von `/auth` wird zum einheitlichen Primary-Button in der gesamten App. Helle/sekundäre Buttons erhalten das gleiche Design in Weiss.
 
-Der Despia-Deeplink `ditax://oauth/payment-success?params` ignoriert den Pfad (`payment-success`) und navigiert die WebView zu `/?session_id=xxx&tax_year=xxx`. Der User landet auf dem Dashboard -- die Payment-Success-Logik wird nie ausgefuehrt.
-
-Das steht sogar im eigenen Code dokumentiert (`src/lib/despia.ts`, Zeile 44-46):
-
+### Der Auth-Button-Style (Referenz)
 ```text
-IMPORTANT: Deeplink must be exactly ditax://oauth (not ditax://oauth/auth)
-because that's what's registered in Android. The path param is ignored.
-Despia will navigate WebView to /?params when receiving this deeplink.
++------------------------------------------+
+|  Blauer Glasgradient, rounded-2xl, py-4  |
+|  tracking-widest, uppercase, weisse Font  |
+|  Shadow: blue glow, inset highlight       |
+|  Hover: -translate-y-0.5                  |
+|  Active: scale-[0.98]                     |
++------------------------------------------+
 ```
 
-Fuer OAuth funktioniert das zufaellig, weil `App.tsx` die Token-Parameter (`at`/`rt`) auf JEDER Seite erkennt und die Session setzt. Fuer Payment-Params (`session_id`, `tax_year`) gibt es keine solche Erkennung.
+### Schritt 1: Button-Komponente aktualisieren (`src/components/ui/button.tsx`)
 
-## Loesung
+Die `default`-Variante des `Button`-Komponents bekommt den Auth-Style:
 
-In `App.tsx` bei der URL-Initialisierung pruefen, ob Payment-spezifische Parameter (`session_id` + `tax_year`) vorhanden sind. Falls ja, sofort zu `/payment-success` weiterleiten.
+- **`default` (Primary)**: Blauer Glasgradient mit `linear-gradient(180deg, rgba(59,130,246,0.9), rgba(37,99,235,0.85))`, weisser Text, `rounded-2xl`, `py-4`, `tracking-widest uppercase`, blauer Glow-Shadow, `hover:-translate-y-0.5`, `active:scale-[0.98]`
+- **`outline` / `secondary` (Helle Buttons)**: Gleiche Form (`rounded-2xl`, `py-4`), aber mit weissem/transparentem Glasgradient (`rgba(255,255,255,0.45)`), `border-white/40`, `backdrop-blur(20px)`, `text-slate-700`, gleiche hover/active Effekte
+- Bestehende `destructive`, `ghost`, `link` Varianten bleiben erhalten
+- `login` und `dark` Varianten werden entfernt (durch `default` und `outline` ersetzt)
+- Standard-`size` auf die neue Grösse angepasst
 
-```text
-Despia Deeplink: ditax://oauth/payment-success?session_id=xxx&tax_year=2025
---> WebView navigiert zu: /?session_id=xxx&tax_year=2025
---> App.tsx erkennt Payment-Params
---> Redirect zu: /payment-success?session_id=xxx&tax_year=2025
---> Payment-Success-Logik laeuft korrekt
-```
+### Schritt 2: Veraltete Button-Komponenten bereinigen
 
-## Aenderungen
+Folgende Dateien werden nicht mehr benötigt und entfernt:
+- `src/components/ui/new-button.tsx` (wird nirgends aktiv genutzt)
+- `src/components/ui/framer-button-dark.tsx` (wird nirgends importiert)  
+- `src/components/ui/framer-button-v4.tsx` (wird nirgends importiert)
 
-### 1. `src/App.tsx` - Payment-Parameter-Erkennung hinzufuegen
+`src/components/ui/framer-button.tsx` bleibt vorerst, da es in 4 Dateien importiert wird, wird aber auf den neuen Standard umgestellt.
 
-In der `initialize`-Funktion (dort wo bereits `at`/`rt` Token-Params behandelt werden), eine zusaetzliche Pruefung einbauen:
+### Schritt 3: Inline-Buttons auf die Komponente umstellen
 
-```typescript
-// Handle payment-success params (Despia ignores deeplink path)
-const sessionId = url.searchParams.get('session_id');
-const taxYear = url.searchParams.get('tax_year');
-if (sessionId && taxYear && !window.location.pathname.includes('payment-success')) {
-  const taxReturnId = url.searchParams.get('tax_return_id') || '';
-  const params = new URLSearchParams({ session_id: sessionId, tax_year: taxYear });
-  if (taxReturnId) params.set('tax_return_id', taxReturnId);
-  window.location.href = `/payment-success?${params.toString()}`;
-  return; // Stop further initialization
-}
-```
+Alle Stellen mit inline-gestylten Buttons im Auth-Style (ca. 28 Vorkommen mit `bg-gradient-to-b from-[hsl(217...`) werden auf `<Button>` umgestellt:
 
-Diese Pruefung kommt VOR dem `setIsInitialized(true)`, sodass der Redirect sofort passiert bevor irgendeine Route gerendert wird.
+- `DocumentChecklist.tsx` - "Jetzt einreichen" Button
+- `DocumentUploadSheet.tsx` - Bestätigungs/Upload Buttons
+- `DocumentCheckScreen.tsx` - Primary Actions
+- `ImportWizard.tsx` - "Keine Änderungen" Button
+- `Auth.tsx` - Login-Code senden, Weiter-Button (bleiben vorerst inline wegen des speziellen `style`-Attributs mit backdrop-filter)
 
-## Betroffene Dateien
+### Schritt 4: FramerButton-Nutzungen migrieren
 
-1. **`src/App.tsx`** -- Payment-Param-Erkennung und Redirect hinzufuegen (ca. 8 Zeilen)
+Die 4 Dateien, die `FramerButton` importieren, werden auf `<Button>` umgestellt:
+- `tax-year-card.tsx`
+- `FormNavigation.tsx`
+- `ContactForm.tsx`
+- `Auth.tsx` (FramerButton import entfernen, wird dort nicht direkt als Button genutzt)
 
-Das ist alles. Keine anderen Dateien muessen geaendert werden. Die `payment-redirect` Edge Function und `PaymentSuccess.tsx` bleiben wie sie sind.
+### Schritt 5: Variant-Migrationen
+
+- `variant="login"` (2 Stellen: `EdgeFunctionTester.tsx`, `FormSummary.tsx`) wird zu `variant="default"`
+- `variant="dark"` Nutzungen werden zu `variant="outline"` oder `variant="default"`
+
+### Betroffene Dateien (Zusammenfassung)
+
+| Datei | Aktion |
+|-------|--------|
+| `button.tsx` | Varianten neu definieren |
+| `new-button.tsx` | Löschen |
+| `framer-button-dark.tsx` | Löschen |
+| `framer-button-v4.tsx` | Löschen |
+| `framer-button.tsx` | Anpassen oder entfernen |
+| `DocumentChecklist.tsx` | Inline-Buttons migrieren |
+| `DocumentUploadSheet.tsx` | Inline-Buttons migrieren |
+| `DocumentCheckScreen.tsx` | Inline-Buttons migrieren |
+| `ImportWizard.tsx` | Bereits teilweise migriert |
+| `FormNavigation.tsx` | FramerButton ersetzen |
+| `tax-year-card.tsx` | FramerButton ersetzen |
+| `ContactForm.tsx` | FramerButton ersetzen |
+| `EdgeFunctionTester.tsx` | `variant="login"` entfernen |
+| `FormSummary.tsx` | `variant="login"` entfernen |
 
