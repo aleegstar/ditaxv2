@@ -711,21 +711,22 @@ const DocumentChecklist: React.FC = () => {
 
               {/* Buttons */}
               <div className="w-full flex flex-col gap-3">
-                <button
+                <Button
                   onClick={() => navigate(`/payment?year=${taxYear}`)}
-                  className="w-full h-14 rounded-2xl bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] !text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full"
                 >
                   <Zap className="w-[18px] h-[18px]" />
                   {t.documentChecklist.createNow}
-                </button>
+                </Button>
 
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => setShowCompletionDialog(false)}
-                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full"
                 >
                   <Clock className="w-[18px] h-[18px]" />
                   {t.documentChecklist.later}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

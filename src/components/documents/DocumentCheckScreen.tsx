@@ -138,21 +138,24 @@ export const DocumentCheckScreen: React.FC<DocumentCheckScreenProps> = ({
       {/* Action Buttons */}
       <div className="space-y-3 pt-1">
         {/* Primary Action */}
-        {isLowConfidence ? <button onClick={onReupload} className="w-full h-12 rounded-full bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] !text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
-            <Upload className="w-4 h-4" />
-            Anderes Dokument hochladen
-          </button> : <button onClick={onConfirm} disabled={isConfirming} className="w-full h-12 rounded-full bg-gradient-to-b from-[hsl(217,90%,62%)] to-[hsl(217,90%,52%)] !text-white font-semibold text-[15px] tracking-wide shadow-[0_4px_14px_0_rgba(29,100,255,0.39)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50">
-            <FileCheck className="w-4 h-4" />
-            {isConfirming ? 'Wird verarbeitet...' : 'Dokument einreichen'}
-          </button>}
-        
-        {/* Secondary Action */}
-        {isLowConfidence ? <button onClick={onConfirm} disabled={isConfirming} className="w-full h-11 rounded-full border border-border bg-white text-foreground font-medium text-sm active:scale-[0.98] transition-all duration-200 disabled:opacity-50">
-            {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
-          </button> : <button onClick={onReupload} className="w-full h-11 rounded-full border border-border bg-white text-foreground font-medium text-sm active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
-            <Upload className="w-4 h-4" />
-            Andere Datei hochladen
-          </button>}
+        {isLowConfidence ? <>
+            <Button onClick={onReupload} className="w-full">
+              <Upload className="w-4 h-4" />
+              Anderes Dokument hochladen
+            </Button>
+            <Button variant="secondary" onClick={onConfirm} disabled={isConfirming} className="w-full">
+              {isConfirming ? 'Wird verarbeitet...' : 'Dokument trotzdem einreichen'}
+            </Button>
+          </> : <>
+            <Button onClick={onConfirm} disabled={isConfirming} className="w-full">
+              <FileCheck className="w-4 h-4" />
+              {isConfirming ? 'Wird verarbeitet...' : 'Dokument einreichen'}
+            </Button>
+            <Button variant="secondary" onClick={onReupload} className="w-full">
+              <Upload className="w-4 h-4" />
+              Andere Datei hochladen
+            </Button>
+          </>}
       </div>
     </motion.div>;
 };

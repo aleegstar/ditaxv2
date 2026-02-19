@@ -9,7 +9,7 @@ import { ArrowLeft, Mail, Fingerprint, ShieldCheck, Globe } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
-import { FramerButton } from "@/components/ui/framer-button";
+
 import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';

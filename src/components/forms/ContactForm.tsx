@@ -10,7 +10,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import ImportFromPreviousYear from '@/components/ui/import-from-previous-year';
-import { FramerButton } from '@/components/ui/framer-button';
+
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -629,21 +629,22 @@ const ContactForm = ({
 
             {/* Footer Actions */}
             <div className="mt-12 flex gap-3 pb-8">
-              <button 
+              <Button 
                 type="button"
+                variant="secondary"
                 onClick={() => embedded ? handleBack() : setSearchParams({})}
-                className="px-6 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-2xl py-3.5 text-sm font-medium transition-all"
+                className="px-6"
               >
                 Zurück
-              </button>
+              </Button>
               
-              <button 
+              <Button 
                 type={embedded ? "button" : "submit"}
                 onClick={embedded ? handleNext : undefined}
-                className="flex-1 bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white rounded-2xl py-3.5 text-sm font-medium transition-all flex items-center justify-center gap-2"
+                className="flex-1"
               >
                 {embedded ? 'Weiter' : 'Speichern'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

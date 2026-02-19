@@ -51,7 +51,7 @@ const FormSummary: React.FC = () => {
           </div>
 
           <div className="text-center mt-8">
-            <Button variant="login" onClick={goToDocuments} className="px-8">
+            <Button onClick={goToDocuments} className="px-8">
               Zur Dokumenten-Checkliste
             </Button>
           </div>

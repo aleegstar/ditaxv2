@@ -199,7 +199,7 @@ export const EdgeFunctionTester: React.FC = () => {
             onClick={runComprehensiveTest} 
             disabled={testing}
             className="w-full"
-            variant="login"
+            variant="default"
           >
             {testing ? (
               <>
