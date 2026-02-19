@@ -17,7 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AnimatedCircularProgressBar } from "@/components/ui/animated-circular-progress-bar";
-import { FramerButton } from "@/components/ui/framer-button";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { TaxReturnProgressTracker } from "@/components/ui/tax-return-progress-tracker";
 import { TaxReturnActionDialog } from "@/components/ui/tax-return-action-dialog";

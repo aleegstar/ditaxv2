@@ -5,7 +5,7 @@ import { useFormContext } from '../contexts';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
-import { FramerButton } from '@/components/ui/framer-button';
+import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { debug } from '@/utils/debug';
 
@@ -139,9 +139,9 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
   if (isDialogMode) {
     return (
       <div className="flex justify-center mt-8 w-full">
-        <FramerButton variant="desktop" onClick={handleNext} disabled={!canProceed} className="w-full">
+        <Button onClick={handleNext} disabled={!canProceed} className="w-full">
           Speichern
-        </FramerButton>
+        </Button>
       </div>
     );
   }
