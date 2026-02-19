@@ -155,14 +155,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
       fileBufferRef.current = buffer;
       fileInfoRef.current = { name: file.name, type: file.type };
 
-      // On mobile WebView: skip OCR entirely to avoid hangs → upload directly
-      if (isMobileAppContext()) {
-        console.log('[DocumentUploadSheet] Mobile detected — skipping OCR, uploading directly');
-        performUpload(buffer, file.name, file.type);
-        return;
-      }
-
-      // Desktop: Start OCR validation
+      // Start OCR validation (both mobile and desktop)
       setPhase('validating');
       setValidationProgress({ step: 'preparing', percent: 0, message: '' });
 
