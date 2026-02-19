@@ -39,9 +39,15 @@ export function useAuthValidation() {
     });
   }, [auth, toast, t.auth, navigate]);
 
+  const handleIdleWarning = useCallback(() => {
+    setIdleState(prev => ({ ...prev, showWarning: true }));
+  }, []);
+
   const { timeLeft, extendSession: extendIdleSession } = useIdleTimer({
-    timeout: 30 * 60 * 1000,
+    timeout: 20 * 60 * 1000,
     onIdle: handleIdleTimeout,
+    onWarning: handleIdleWarning,
+    warningTime: 18 * 60 * 1000,
   });
 
   useEffect(() => {
