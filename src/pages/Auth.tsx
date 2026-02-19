@@ -21,18 +21,18 @@ const AuthLanguageToggle = () => {
       <Globe className="w-3.5 h-3.5 text-slate-400" />
       <button
         onClick={() => switchLanguage('de')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
-      >
+        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+
         DE
       </button>
       <button
         onClick={() => switchLanguage('en')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}
-      >
+        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+
         EN
       </button>
-    </div>
-  );
+    </div>);
+
 };
 
 const Auth = () => {
@@ -517,17 +517,17 @@ const Auth = () => {
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="group relative flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-6 pr-4 py-2.5 transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)] disabled:pointer-events-none disabled:opacity-50">
-                    {isEmailLoading ? (
-                      <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendingCode}</span>
-                    ) : (
-                      <>
+                  <button type="submit" disabled={isLoading} className="group relative flex w-full items-center justify-center gap-3 bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-6 pr-4 py-2.5 transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)] disabled:pointer-events-none disabled:opacity-50 rounded-xl">
+                    {isEmailLoading ?
+                <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendingCode}</span> :
+
+                <>
                         <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendCode}</span>
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm text-white transition-all group-hover:bg-white/25">
                           <ArrowRight className="h-4 w-4 stroke-[2] group-hover:translate-x-0.5 transition-transform" />
                         </div>
                       </>
-                    )}
+                }
                   </button>
 
                   <p className="text-center text-sm text-slate-500 leading-relaxed px-4">
