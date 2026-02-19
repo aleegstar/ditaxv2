@@ -25,6 +25,8 @@ import UserFeedback from './admin/UserFeedback';
 import { UpdatePaymentStatusForm } from '@/components/admin/UpdatePaymentStatusForm';
 import { UserCard } from '@/components/ui/user-card';
 import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
+import { OcrDocumentConfigManager } from '@/components/admin/OcrDocumentConfigManager';
+import { OcrUnrecognizedUploads } from '@/components/admin/OcrUnrecognizedUploads';
 
 interface AdminUser {
   id: string;
@@ -320,6 +322,8 @@ const Admin: React.FC = () => {
           <Route path="deletion-feedback" element={<DeletionFeedback />} />
           <Route path="user-feedback" element={<UserFeedback />} />
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
+          <Route path="ocr-config" element={<OcrDocumentConfigManager />} />
+          <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
           </Routes>
           </div>
         </div>
