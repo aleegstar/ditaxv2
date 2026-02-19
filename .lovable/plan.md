@@ -1,78 +1,61 @@
 
 
-## OCR-Verwaltung im Admin-Bereich
+## Fix: Tax Return nicht sichtbar nach Zahlung (Multi-Person-Bug)
 
-Zwei neue Funktionen fuer den Admin-Bereich:
+### Ursache
 
-### 1. OCR-Keyword-Verwaltung (pro Dokumenttyp)
+Nach einer Stripe-Zahlung fuer eine bestimmte Person (z.B. "Amelia Graber") wird beim Rueckkehren zur Hauptseite die Steuererklaerung nicht angezeigt, weil:
 
-Eine neue Admin-Seite, auf der alle Dokumenttypen mit ihren OCR-Keywords, Mindest-Treffern und Konfidenz-Level angezeigt werden. Admins koennen diese Einstellungen anpassen, ohne den Code zu aendern.
+1. **PaymentSuccess Fallback** ignoriert `tax_filer_id`: Wenn `taxReturnId` nicht greift, wird nach `user_id + tax_year` gesucht - ohne `tax_filer_id`. Bei mehreren Personen kann das falsche Objekt aktualisiert werden.
+2. **Kein Filer-Kontext nach Zahlung**: Die Erfolgsseite navigiert zurueck zur Uebersicht, ohne sicherzustellen, dass die bezahlte Person aktiv ist.
 
-**Datenbank-Aenderungen:**
-- Neue Tabelle `ocr_document_configs` mit Spalten:
-  - `id` (uuid, PK)
-  - `document_type_id` (text, unique) - z.B. "employment-income"
-  - `display_name` (text)
-  - `keywords` (text[]) - Array der Schluesselwoerter
-  - `min_match_count` (integer)
-  - `confidence` (text) - 'high', 'medium', 'low'
-  - `is_active` (boolean, default true)
-  - `updated_by` (uuid)
-  - `created_at`, `updated_at` (timestamptz)
-- RLS: Nur Admins koennen lesen/schreiben
-- Seed-Migration: Bestehende Keywords aus `documentKeywords.ts` als Initialwerte einfuegen
+### Loesung
 
-**Code-Aenderungen:**
-- `src/utils/documentKeywords.ts`: Erweitern um eine Funktion `loadDocumentKeywordsFromDB()`, die zuerst die DB prueft und bei Fehler auf die hardcodierten Keywords zurueckfaellt (Fallback)
-- Neue Komponente `src/components/admin/OcrConfigManager.tsx`: Tabelle mit allen Dokumenttypen, inline-Bearbeitung von Keywords (Tags), minMatchCount (Slider/Input), Konfidenz (Dropdown), aktiv/inaktiv (Switch)
-- Route `/admin/ocr-config` in `Admin.tsx` registrieren
-- Neuer Sidebar-Eintrag "OCR-Regeln" unter "Verwaltung" in `AdminSidebar.tsx`
+#### 1. `tax_filer_id` in die Payment-Success-URL aufnehmen
 
-### 2. Sammlung nicht erkannter Dokumente
+**Datei: `src/components/PaymentSection.tsx`**
+- Die `tax_filer_id` (= `activeTaxFilerId`) wird als Query-Parameter `tax_filer_id` an die `create-payment` Edge Function uebergeben.
 
-Dokumente, die vom User trotz fehlgeschlagener OCR-Validierung hochgeladen wurden ("Dokument trotzdem einreichen"), sollen fuer Admins sichtbar gesammelt werden.
+**Datei: `supabase/functions/create-payment/index.ts`**
+- `taxFilerId` im Zod-Schema als optionalen String akzeptieren
+- In die `success_url` als `&tax_filer_id=...` einbauen
+- In die Stripe-Metadata aufnehmen
 
-**Datenbank-Aenderungen:**
-- Neue Tabelle `unrecognized_uploads` mit Spalten:
-  - `id` (uuid, PK)
-  - `document_id` (uuid, FK -> uploaded_documents.id)
-  - `user_id` (uuid)
-  - `tax_filer_id` (uuid, nullable)
-  - `expected_doc_type` (text) - Welcher Typ war erwartet
-  - `ocr_confidence` (integer) - Erreichte Konfidenz in %
-  - `ocr_best_match` (text, nullable) - Bester OCR-Treffer
-  - `admin_status` (text, default 'pending') - 'pending', 'approved', 'rejected'
-  - `admin_notes` (text, nullable)
-  - `reviewed_by` (uuid, nullable)
-  - `created_at`, `reviewed_at` (timestamptz)
-- RLS: Admins koennen alles, User koennen eigene Eintraege lesen
+#### 2. PaymentSuccess: Fallback mit `tax_filer_id` absichern
 
-**Code-Aenderungen:**
-- Upload-Flow anpassen: Wenn User auf "Dokument trotzdem einreichen" klickt, wird ein Eintrag in `unrecognized_uploads` erstellt (in `DocumentUploadSheet.tsx`, `EnhancedDocumentUploader.tsx`, `DocumentAssignmentModal.tsx`)
-- Neue Komponente `src/components/admin/UnrecognizedUploadsManager.tsx`: Listenansicht mit Filtern (Status, Dokumenttyp), Dokumentvorschau, Admin-Review (genehmigen/ablehnen mit Notiz)
-- Route `/admin/unrecognized-uploads` in `Admin.tsx`
-- Neuer Sidebar-Eintrag "Nicht erkannte Belege" unter "Steuern" in `AdminSidebar.tsx`
+**Datei: `src/pages/PaymentSuccess.tsx`**
+- `tax_filer_id` aus den URL-Parametern lesen
+- Beim Fallback-Update (Zeilen 81-86, 99-104) den `tax_filer_id`-Filter hinzufuegen
+- Vor der Navigation zurueck: `sessionStorage.setItem('ditax_selected_tax_filer', taxFilerId)` setzen, damit die richtige Person nach dem Zurueckkehren aktiv ist
 
-### Technische Details
+#### 3. Stripe Webhook absichern
 
-**Fallback-Strategie fuer OCR-Keywords:**
+**Datei: `supabase/functions/stripe-webhook/index.ts`**
+- `taxFilerId` aus der Stripe-Metadata lesen (als zusaetzliche Absicherung)
+
+### Technische Aenderungen im Detail
+
 ```text
-App startet
-  -> Versuche Keywords aus Supabase zu laden
-  -> Erfolg: Verwende DB-Keywords (Admin-konfiguriert)
-  -> Fehler/Leer: Verwende hardcodierte Keywords aus documentKeywords.ts
+PaymentSection.tsx
+  -> Sendet activeTaxFilerId an create-payment
+  
+create-payment/index.ts
+  -> Nimmt taxFilerId entgegen
+  -> Fuegt tax_filer_id in success_url + metadata ein
+  
+PaymentSuccess.tsx
+  -> Liest tax_filer_id aus URL
+  -> Fallback-Queries filtern nach tax_filer_id
+  -> Setzt sessionStorage vor Navigation zurueck
+
+stripe-webhook/index.ts
+  -> Liest taxFilerId aus metadata (bereits vorhanden als Absicherung)
 ```
 
-**Admin-UI OCR-Regeln:**
-- Jeder Dokumenttyp wird als Karte/Zeile dargestellt
-- Keywords als editierbare Tags (hinzufuegen/entfernen)
-- minMatchCount als Zahleneingabe
-- Konfidenz als Dropdown (hoch/mittel/niedrig)
-- Aktiv/Inaktiv-Toggle pro Dokumenttyp
-- "Zuruecksetzen"-Button pro Typ (auf Standard-Keywords)
+### Betroffene Dateien
 
-**Admin-UI Nicht erkannte Belege:**
-- Tabelle mit: Benutzer, Dokumentname, Erwarteter Typ, OCR-Konfidenz, Datum, Status
-- Klick oeffnet Detail-Ansicht mit Dokument-Vorschau
-- Aktionen: Genehmigen, Ablehnen (mit Notiz), dem richtigen Typ zuweisen
+- `src/components/PaymentSection.tsx` (1 Zeile hinzufuegen)
+- `supabase/functions/create-payment/index.ts` (Schema + URL + Metadata)
+- `src/pages/PaymentSuccess.tsx` (URL-Parameter + Fallback-Filter + sessionStorage)
+- `supabase/functions/stripe-webhook/index.ts` (minimale Aenderung)
 
