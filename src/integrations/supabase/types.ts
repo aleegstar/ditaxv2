@@ -927,6 +927,98 @@ export type Database = {
           },
         ]
       }
+      ocr_document_configs: {
+        Row: {
+          confidence: string
+          created_at: string
+          display_name: string
+          document_type_id: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          min_match_count: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          confidence?: string
+          created_at?: string
+          display_name: string
+          document_type_id: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          min_match_count?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          confidence?: string
+          created_at?: string
+          display_name?: string
+          document_type_id?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          min_match_count?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ocr_unrecognized_uploads: {
+        Row: {
+          best_match_score: number | null
+          best_match_type: string | null
+          created_at: string
+          detected_text_sample: string | null
+          document_id: string | null
+          file_name: string
+          id: string
+          matched_keywords: string[] | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          best_match_score?: number | null
+          best_match_type?: string | null
+          created_at?: string
+          detected_text_sample?: string | null
+          document_id?: string | null
+          file_name: string
+          id?: string
+          matched_keywords?: string[] | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          best_match_score?: number | null
+          best_match_type?: string | null
+          created_at?: string
+          detected_text_sample?: string | null
+          document_id?: string | null
+          file_name?: string
+          id?: string
+          matched_keywords?: string[] | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocr_unrecognized_uploads_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "uploaded_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_events: {
         Row: {
           amount: number | null
