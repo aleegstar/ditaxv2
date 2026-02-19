@@ -174,8 +174,7 @@ const WebAuthnAuth = () => {
               <Button 
                 type="submit" 
                 disabled={isLoading || !email} 
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-[10px]" 
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                className="w-full"
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Fingerprint className="w-5 h-5" />}
                 {isLoading ? 'Prüfe Fingerprint-Geräte...' : 'Mit Fingerprint anmelden'}
@@ -268,8 +267,7 @@ const WebAuthnAuth = () => {
               ) : (
                 <Button 
                   onClick={handleRetry} 
-                  className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200" 
-                  style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                  className="w-full"
                 >
                   Erneut versuchen
                 </Button>
@@ -277,8 +275,8 @@ const WebAuthnAuth = () => {
               
               <Button 
                 onClick={handleBackToMain} 
-                className="w-full bg-white hover:bg-gray-50 text-black border border-[rgb(230,230,230)] font-medium px-[20px] py-[10px] h-14 text-base rounded-full transition-colors duration-200 flex items-center justify-center gap-[10px]" 
-                style={{ boxShadow: 'rgba(0, 0, 0, 0.05) 0px 3px 5px 0px' }}
+                variant="secondary"
+                className="w-full"
               >
                 {isFromDespia ? 'Zurück zur App' : 'Zurück zur Anmeldung'}
               </Button>

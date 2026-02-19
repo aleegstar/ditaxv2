@@ -143,23 +143,22 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           
           {/* Import button */}
           <Button
-            className="w-full mb-4 bg-primary hover:bg-primary/90 text-white rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{ boxShadow: 'none' }}
+            className="w-full mb-4"
             onClick={handleImportClick}
             disabled={isImporting}
           >
-            <Download className="w-4 h-4 lg:w-5 lg:h-5" />
+            <Download className="w-5 h-5" />
             Daten aus {previousYear} übernehmen
           </Button>
           
           {/* Enter new data button */}
           <Button
-            variant="outline"
-            className="w-full !bg-slate-50 hover:!bg-slate-100 !text-slate-600 rounded-full h-12 lg:h-14 text-sm lg:text-base font-medium !border-slate-200 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+            variant="secondary"
+            className="w-full"
             onClick={handleSkipImport}
             disabled={isImporting}
           >
-            <Edit className="w-4 h-4 lg:w-5 lg:h-5" />
+            <Edit className="w-5 h-5" />
             Neu eingeben
           </Button>
         </motion.div>
@@ -179,8 +178,8 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           </div>
           <div className="flex flex-col gap-3">
             <Button
-              variant="outline"
-              className="w-full h-14 rounded-2xl text-sm font-medium border-slate-200 bg-white hover:bg-slate-50 text-foreground"
+              variant="secondary"
+              className="w-full"
               onClick={handleWithChanges}
               disabled={isImporting}
             >

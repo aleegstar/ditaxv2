@@ -192,8 +192,7 @@ export const TaxYearSelector: React.FC<TaxYearSelectorProps> = ({
               <Button
                 onClick={handleConsentSubmit}
                 disabled={!termsAccepted}
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                className="w-full"
               >
                 Fortfahren
               </Button>
@@ -226,8 +225,7 @@ export const TaxYearSelector: React.FC<TaxYearSelectorProps> = ({
               <Button
                 onClick={handleFirstNameSubmit}
                 disabled={!firstName.trim()}
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                className="w-full"
               >
                 Weiter
               </Button>
@@ -250,8 +248,7 @@ export const TaxYearSelector: React.FC<TaxYearSelectorProps> = ({
               <Button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isCreating}
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200 flex items-center justify-center gap-2"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                className="w-full"
               >
                 <Calendar className="w-5 h-5" />
                 {isCreating ? 'Wird erstellt...' : 'Steuerjahr auswählen'}
