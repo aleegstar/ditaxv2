@@ -14,14 +14,17 @@ const PaymentSuccess = () => {
   const [taxYear, setTaxYear] = useState<number | null>(null);
   const [storedTaxReturnId, setStoredTaxReturnId] = useState<string | null>(null);
   const hasConfettiFired = useRef(false);
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    // Prevent re-execution on re-renders (searchParams reference can change)
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const waitForAuth = async (maxRetries = 8): Promise<any> => {
       for (let i = 0; i < maxRetries; i++) {
-        // Try getSession first (faster, uses local cache)
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) return session.user;
-        // Fallback to getUser (server validation)
         const { data: { user } } = await supabase.auth.getUser();
         if (user) return user;
         console.log(`Auth retry ${i + 1}/${maxRetries}, waiting ${i < 3 ? 1 : 2}s...`);
@@ -30,12 +33,12 @@ const PaymentSuccess = () => {
       return null;
     };
 
+    const sessionId = searchParams.get('session_id');
+    const year = searchParams.get('tax_year');
+    const taxReturnId = searchParams.get('tax_return_id');
+
     const updatePaymentStatus = async () => {
       try {
-        const sessionId = searchParams.get('session_id');
-        const year = searchParams.get('tax_year');
-        const taxReturnId = searchParams.get('tax_return_id');
-
         if (!sessionId) {
           throw new Error("Keine Sitzungs-ID gefunden");
         }
@@ -44,12 +47,9 @@ const PaymentSuccess = () => {
           throw new Error("Steuerjahr nicht gefunden");
         }
 
-        // Wait for auth session (may take a moment after deeplink navigation)
         const user = await waitForAuth();
         
         if (!user) {
-          // Don't redirect to /auth — in Despia WebView the session should exist.
-          // Show error instead so user can navigate back manually.
           console.error('PaymentSuccess: No auth session found after retries');
           setError('Sitzung nicht gefunden. Bitte kehre zur Übersicht zurück.');
           setLoading(false);
@@ -63,7 +63,6 @@ const PaymentSuccess = () => {
           workflow_step: 'in_creation'
         };
 
-        // Update the specific tax return by ID if available
         if (taxReturnId && taxReturnId.trim().length > 0) {
           setStoredTaxReturnId(taxReturnId);
           const { data: updateData, error: updateError } = await supabase
@@ -79,7 +78,6 @@ const PaymentSuccess = () => {
 
           if (!updateData || updateData.length === 0) {
             console.warn('Update by taxReturnId matched 0 rows, trying fallback by user_id + tax_year');
-            // Fallback to user_id + tax_year
             const { data: fallbackData, error: fallbackError } = await supabase
               .from('tax_returns')
               .update(updatePayload)
@@ -98,7 +96,6 @@ const PaymentSuccess = () => {
             }
           }
         } else {
-          // Fallback: Update by user_id + tax_year
           const { data: updateData, error: updateError } = await supabase
             .from('tax_returns')
             .update(updatePayload)
@@ -121,7 +118,6 @@ const PaymentSuccess = () => {
         setTaxYear(parseInt(year));
         toast.success("Zahlung erfolgreich verarbeitet!");
         
-        // Trigger confetti
         if (!hasConfettiFired.current) {
           hasConfettiFired.current = true;
           setTimeout(() => {
@@ -136,7 +132,8 @@ const PaymentSuccess = () => {
     };
 
     updatePaymentStatus();
-  }, [searchParams, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (
