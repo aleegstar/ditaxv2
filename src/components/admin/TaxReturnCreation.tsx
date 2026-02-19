@@ -445,7 +445,7 @@ const TaxReturnCreation: React.FC = () => {
 
                 <div className="flex flex-col gap-2 pt-4">
                   <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`} className="w-full">
-                    <Button variant="default" className="w-full rounded-full h-12 !bg-primary !text-white hover:!bg-primary/90 shadow-lg shadow-primary/25 active:scale-[0.98] transition-all font-semibold text-[15px] tracking-wide">
+                    <Button className="w-full">
                       Benutzer ansehen
                     </Button>
                   </Link>

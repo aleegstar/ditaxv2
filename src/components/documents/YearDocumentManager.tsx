@@ -315,10 +315,10 @@ const YearDocumentManager: React.FC<YearDocumentManagerProps> = ({
               <div className="flex gap-1 border border-gray-300 rounded-full p-1">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
+                  size="icon"
                   onClick={() => setViewMode('grid')}
-                  className={`rounded-full h-8 w-8 p-0 ${viewMode === 'grid' 
-                    ? 'bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90' 
+                  className={`h-8 w-8 ${viewMode === 'grid' 
+                    ? '' 
                     : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
@@ -326,10 +326,10 @@ const YearDocumentManager: React.FC<YearDocumentManagerProps> = ({
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
+                  size="icon"
                   onClick={() => setViewMode('list')}
-                  className={`rounded-full h-8 w-8 p-0 ${viewMode === 'list' 
-                    ? 'bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90' 
+                  className={`h-8 w-8 ${viewMode === 'list' 
+                    ? '' 
                     : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
