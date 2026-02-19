@@ -6,17 +6,17 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-base font-semibold tracking-tight transition-all duration-200 outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-semibold tracking-tight transition-all duration-200 outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)]",
+        default: "bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white hover:scale-[1.02] active:scale-95",
         destructive:
-          "bg-gradient-to-b from-red-500 to-red-600 text-white shadow-[0_4px_20px_-4px_rgba(220,38,38,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(220,38,38,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95",
+          "bg-gradient-to-b from-red-500 to-red-600 text-white hover:scale-[1.02] active:scale-95",
         outline:
-          "bg-white/45 backdrop-blur-[20px] border border-white/40 text-slate-700 shadow-sm hover:bg-white/60 hover:scale-[1.02] active:scale-95",
+          "bg-white/45 backdrop-blur-[20px] border border-white/40 text-slate-700 hover:bg-white/60 hover:scale-[1.02] active:scale-95",
         secondary:
-          "bg-white border border-border text-foreground shadow-sm hover:bg-slate-50 hover:scale-[1.02] active:scale-95",
+          "bg-white border border-border text-foreground hover:bg-slate-50 hover:scale-[1.02] active:scale-95",
         ghost: "hover:bg-accent hover:text-accent-foreground active:scale-95",
         link: "text-primary underline-offset-4 hover:underline",
       },
