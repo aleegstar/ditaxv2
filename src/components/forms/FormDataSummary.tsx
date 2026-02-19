@@ -351,8 +351,7 @@ export const FormDataSummary: React.FC = () => {
               </div> : <Button 
                 onClick={handleConfirm} 
                 disabled={isConfirming} 
-                className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200"
-                style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+                className="w-full"
               >
                 {isConfirming ? "Wird bestätigt..." : "Angaben bestätigen"}
               </Button>}

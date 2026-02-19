@@ -446,14 +446,11 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
           </div>
 
           {isAdmin && <div className="flex gap-2">
-              {!isHandled && <Button 
-                  onClick={handleTakeOverInternal} 
-                  size="sm" 
-                  className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-[20px] py-[10px] h-14 text-base font-medium border-0 transition-colors duration-200"
-                  style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
-                >
-                  Chat übernehmen
-                </Button>}
+{!isHandled && <Button 
+                   onClick={handleTakeOverInternal} 
+                 >
+                   Chat übernehmen
+                 </Button>}
               {isHandled && <>
                   <Button onClick={handleHandoverToBot} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
                     <Bot className="w-4 h-4 mr-2" />

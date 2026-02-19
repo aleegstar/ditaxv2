@@ -56,10 +56,7 @@ export const PriceCalculatorFlow = () => {
               <div className="pt-4">
                 <Button
                   onClick={startCalculator}
-                  className="w-full bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 lg:px-[20px] py-3 lg:py-[10px] h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200"
-                  style={{
-                    boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-                  }}
+                  className="w-full"
                 >
                   Jetzt Preis berechnen
                 </Button>
