@@ -152,6 +152,13 @@ const TaxReturnCreation: React.FC = () => {
         taxFiler: tr.tax_filer_name
       })));
 
+      // Sort: express service first, then by payment date descending
+      taxReturnsWithUserInfo.sort((a, b) => {
+        if (a.express_service && !b.express_service) return -1;
+        if (!a.express_service && b.express_service) return 1;
+        return new Date(b.payment_date || 0).getTime() - new Date(a.payment_date || 0).getTime();
+      });
+
       setPaidTaxReturns(taxReturnsWithUserInfo);
     } catch (error) {
       console.error('💥 Error in fetchPaidTaxReturns:', error);
