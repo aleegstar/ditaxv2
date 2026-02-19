@@ -1,61 +1,59 @@
 
 
-## Fix: Tax Return nicht sichtbar nach Zahlung (Multi-Person-Bug)
+## Problem-Analyse
 
-### Ursache
+Das Dashboard zeigt "Benutzer" statt des echten Namens, weil eine Race Condition im AuthContext existiert:
 
-Nach einer Stripe-Zahlung fuer eine bestimmte Person (z.B. "Amelia Graber") wird beim Rueckkehren zur Hauptseite die Steuererklaerung nicht angezeigt, weil:
+1. `onAuthStateChange` feuert sofort mit dem gecachten (aber abgelaufenen) Session-Token
+2. Setzt `isValid: true` und `isLoading: false` - Dashboard wird gerendert
+3. `getUser()` stellt erst danach fest, dass die Session ungueltig ist
+4. Bis dahin hat `useProfile` bereits versucht, das Profil zu laden - und ist gescheitert
+5. Ergebnis: Dashboard zeigt "Benutzer" fuer einen kurzen Moment (oder dauerhaft falls kein Redirect)
 
-1. **PaymentSuccess Fallback** ignoriert `tax_filer_id`: Wenn `taxReturnId` nicht greift, wird nach `user_id + tax_year` gesucht - ohne `tax_filer_id`. Bei mehreren Personen kann das falsche Objekt aktualisiert werden.
-2. **Kein Filer-Kontext nach Zahlung**: Die Erfolgsseite navigiert zurueck zur Uebersicht, ohne sicherzustellen, dass die bezahlte Person aktiv ist.
+## Loesung
 
-### Loesung
+### 1. AuthContext: Initiales Laden absichern (src/contexts/AuthContext.tsx)
 
-#### 1. `tax_filer_id` in die Payment-Success-URL aufnehmen
-
-**Datei: `src/components/PaymentSection.tsx`**
-- Die `tax_filer_id` (= `activeTaxFilerId`) wird als Query-Parameter `tax_filer_id` an die `create-payment` Edge Function uebergeben.
-
-**Datei: `supabase/functions/create-payment/index.ts`**
-- `taxFilerId` im Zod-Schema als optionalen String akzeptieren
-- In die `success_url` als `&tax_filer_id=...` einbauen
-- In die Stripe-Metadata aufnehmen
-
-#### 2. PaymentSuccess: Fallback mit `tax_filer_id` absichern
-
-**Datei: `src/pages/PaymentSuccess.tsx`**
-- `tax_filer_id` aus den URL-Parametern lesen
-- Beim Fallback-Update (Zeilen 81-86, 99-104) den `tax_filer_id`-Filter hinzufuegen
-- Vor der Navigation zurueck: `sessionStorage.setItem('ditax_selected_tax_filer', taxFilerId)` setzen, damit die richtige Person nach dem Zurueckkehren aktiv ist
-
-#### 3. Stripe Webhook absichern
-
-**Datei: `supabase/functions/stripe-webhook/index.ts`**
-- `taxFilerId` aus der Stripe-Metadata lesen (als zusaetzliche Absicherung)
-
-### Technische Aenderungen im Detail
+- Einen `initialCheckDone`-Ref einfuehren
+- `onAuthStateChange` darf `isLoading: false` NICHT setzen, solange der initiale `getUser()`-Check laeuft
+- Nur der `getSession()` + `getUser()`-Flow darf den initialen Loading-State aufloesen
+- Danach arbeitet `onAuthStateChange` normal weiter
 
 ```text
-PaymentSection.tsx
-  -> Sendet activeTaxFilerId an create-payment
-  
-create-payment/index.ts
-  -> Nimmt taxFilerId entgegen
-  -> Fuegt tax_filer_id in success_url + metadata ein
-  
-PaymentSuccess.tsx
-  -> Liest tax_filer_id aus URL
-  -> Fallback-Queries filtern nach tax_filer_id
-  -> Setzt sessionStorage vor Navigation zurueck
+Ablauf VORHER:
+onAuthStateChange(session) --> isValid=true, isLoading=false  (SOFORT, aus Cache)
+getSession() + getUser()  --> Session ungueltig --> signOut()  (ZU SPAET)
 
-stripe-webhook/index.ts
-  -> Liest taxFilerId aus metadata (bereits vorhanden als Absicherung)
+Ablauf NACHHER:
+onAuthStateChange(session) --> ignoriert waehrend initialem Check
+getSession() + getUser()  --> Session ungueltig --> signOut(), isLoading=false
+                           --> Session gueltig  --> isValid=true, isLoading=false
+onAuthStateChange          --> ab jetzt normal aktiv
 ```
 
-### Betroffene Dateien
+### 2. useProfile: Fallback-Verhalten verbessern (src/hooks/useProfile.ts)
 
-- `src/components/PaymentSection.tsx` (1 Zeile hinzufuegen)
-- `supabase/functions/create-payment/index.ts` (Schema + URL + Metadata)
-- `src/pages/PaymentSuccess.tsx` (URL-Parameter + Fallback-Filter + sessionStorage)
-- `supabase/functions/stripe-webhook/index.ts` (minimale Aenderung)
+- Bei `getUser()`-Fehler nicht still scheitern, sondern `profile` explizit auf `null` belassen (bereits der Fall)
+- Optional: Retry-Logik wenn AuthContext bereit ist
+
+## Technische Aenderungen
+
+### Datei: src/contexts/AuthContext.tsx
+
+- `initialCheckDoneRef = useRef(false)` hinzufuegen
+- Im `onAuthStateChange`-Callback: Wenn `initialCheckDoneRef.current === false`, State-Update ueberspringen (nur merken fuer spaeter)
+- Im `getSession().then()`-Block: Nach Abschluss `initialCheckDoneRef.current = true` setzen
+- Dadurch wird der Loading-State erst aufgeloest, wenn die Server-Validierung abgeschlossen ist
+
+### Datei: src/hooks/useProfile.ts (optional, defensiv)
+
+- `fetchProfile` an den Auth-State koppeln: Erst ausfuehren wenn AuthContext `isValid === true` meldet
+- Dafuer `useAuth()` importieren und als Dependency nutzen
+
+## Auswirkungen
+
+- Kein "Benutzer"-Flash mehr bei abgelaufenen Sessions
+- Der LoadingSpinner bleibt sichtbar bis die Session tatsaechlich validiert ist
+- Bei gueltiger Session: Kein merkbarer Unterschied im Verhalten
+- Bei ungueltiger Session: Sofortiger Redirect zu /auth ohne Dashboard-Flash
 
