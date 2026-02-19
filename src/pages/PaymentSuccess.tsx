@@ -36,6 +36,7 @@ const PaymentSuccess = () => {
     const sessionId = searchParams.get('session_id');
     const year = searchParams.get('tax_year');
     const taxReturnId = searchParams.get('tax_return_id');
+    const taxFilerId = searchParams.get('tax_filer_id');
 
     const updatePaymentStatus = async () => {
       try {
@@ -77,13 +78,14 @@ const PaymentSuccess = () => {
           }
 
           if (!updateData || updateData.length === 0) {
-            console.warn('Update by taxReturnId matched 0 rows, trying fallback by user_id + tax_year');
-            const { data: fallbackData, error: fallbackError } = await supabase
+            console.warn('Update by taxReturnId matched 0 rows, trying fallback by user_id + tax_year + tax_filer_id');
+            let fallbackQuery = supabase
               .from('tax_returns')
               .update(updatePayload)
               .eq('user_id', user.id)
-              .eq('tax_year', year)
-              .select('id');
+              .eq('tax_year', year);
+            if (taxFilerId) fallbackQuery = fallbackQuery.eq('tax_filer_id', taxFilerId);
+            const { data: fallbackData, error: fallbackError } = await fallbackQuery.select('id');
 
             if (fallbackError) {
               throw new Error(`Fehler beim Aktualisieren: ${fallbackError.message}`);
@@ -96,12 +98,13 @@ const PaymentSuccess = () => {
             }
           }
         } else {
-          const { data: updateData, error: updateError } = await supabase
+          let noIdQuery = supabase
             .from('tax_returns')
             .update(updatePayload)
             .eq('user_id', user.id)
-            .eq('tax_year', year)
-            .select('id');
+            .eq('tax_year', year);
+          if (taxFilerId) noIdQuery = noIdQuery.eq('tax_filer_id', taxFilerId);
+          const { data: updateData, error: updateError } = await noIdQuery.select('id');
 
           if (updateError) {
             throw new Error(`Fehler beim Aktualisieren: ${updateError.message}`);
@@ -116,6 +119,12 @@ const PaymentSuccess = () => {
         
         setLoading(false);
         setTaxYear(parseInt(year));
+        
+        // Set active tax filer in sessionStorage so dashboard shows the correct person
+        if (taxFilerId) {
+          sessionStorage.setItem('ditax_selected_tax_filer', taxFilerId);
+        }
+        
         toast.success("Zahlung erfolgreich verarbeitet!");
         
         if (!hasConfettiFired.current) {

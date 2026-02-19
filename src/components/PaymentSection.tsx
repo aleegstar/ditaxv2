@@ -208,6 +208,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         items: priceBreakdown.items,
         expressService,
         taxReturnId: taxReturnId,
+        taxFilerId: activeTaxFilerId,
         origin: window.location.origin,
         promoCodeId: manualPromoResult?.promoCodeId || activePromo?.promoId,
         isDespia: isDespiaNative()
@@ -263,7 +264,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             if (taxReturn?.payment_status === 'paid') {
               pollingStopped = true;
               clearInterval(pollInterval);
-              navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}`);
+              navigate(`/payment-success?session_id=polling&tax_year=${year}&tax_return_id=${taxReturnId}${activeTaxFilerId ? `&tax_filer_id=${activeTaxFilerId}` : ''}`);
             }
           } catch (err) {
             console.error('Polling error:', err);

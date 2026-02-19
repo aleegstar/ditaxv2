@@ -20,6 +20,7 @@ const paymentRequestSchema = z.object({
   })).optional().default([]),
   expressService: z.boolean().optional().default(false),
   taxReturnId: z.string().uuid().optional().nullable(),
+  taxFilerId: z.string().uuid().optional().nullable(),
   origin: z.string().url().optional().nullable(),
   paymentMethod: z.enum(['default', 'twint', 'card_only']).optional().default('default'),
   promoCodeId: z.string().optional().nullable(), // Stripe promotion code ID for referral discounts
@@ -216,7 +217,8 @@ serve(async (req) => {
         amount, 
         items, 
         expressService, 
-        taxReturnId, 
+        taxReturnId,
+        taxFilerId,
         origin: bodyOrigin, 
         paymentMethod,
         promoCodeId,
@@ -470,9 +472,10 @@ serve(async (req) => {
         
         // For Despia native: redirect through payment-redirect edge function which triggers deeplink
         // For web: redirect directly to payment-success page
+        const taxFilerParam = taxFilerId ? `&tax_filer_id=${taxFilerId}` : '';
         const successUrl = isDespia
-          ? `${supabaseFunctionsUrl}/payment-redirect?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}&scheme=ditax`
-          : `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}`;
+          ? `${supabaseFunctionsUrl}/payment-redirect?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}${taxFilerParam}&scheme=ditax`
+          : `${appOrigin}/payment-success?session_id={CHECKOUT_SESSION_ID}&tax_year=${taxYear}${taxReturnId ? `&tax_return_id=${taxReturnId}` : ''}${taxFilerParam}`;
         
         const sessionData: any = {
           customer: customerId,
@@ -488,6 +491,7 @@ serve(async (req) => {
               userId: user.id,
               taxYear,
               taxReturnId: taxReturnId || '',
+              taxFilerId: taxFilerId || '',
               requestId,
               expressService: expressService.toString()
             }
@@ -497,6 +501,7 @@ serve(async (req) => {
             taxYear,
             expressService: expressService.toString(),
             taxReturnId: taxReturnId || '',
+            taxFilerId: taxFilerId || '',
             requestId
           },
           customer_update: {
