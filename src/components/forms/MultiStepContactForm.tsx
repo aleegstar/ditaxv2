@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
@@ -621,13 +622,14 @@ const MultiStepContactForm = ({
 
           {/* Navigation Buttons */}
           <div className="flex flex-col gap-3 pt-6">
-            <button
+            <Button
               type="submit"
               disabled={!validateCurrentStep()}
-              className="w-full py-4 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 text-white border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 font-semibold text-lg tracking-tight disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              size="lg"
+              className="w-full"
             >
               {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
-            </button>
+            </Button>
 
             {(currentStep > 1 || embedded) && (
               <button
