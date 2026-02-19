@@ -2,6 +2,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthValidation } from '@/hooks/use-auth-validation';
+import { IdleWarningDialog } from '@/components/IdleWarningDialog';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,20 +11,28 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isValid, isLoading } = useAuth();
+  const { idleState, extendSession } = useAuthValidation();
   const location = useLocation();
 
-  // Wait for auth to resolve — no redirect, no toast
   if (isLoading) {
     return null;
   }
 
-  // Only redirect when we're certain the user is not authenticated
   if (!isValid) {
     console.log('🔒 ProtectedRoute: Redirecting to /auth (not authenticated)');
     return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <IdleWarningDialog
+        isOpen={idleState.showWarning}
+        timeLeft={idleState.timeLeft}
+        onExtendSession={extendSession}
+      />
+    </>
+  );
 };
 
 export default ProtectedRoute;
