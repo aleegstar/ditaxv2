@@ -46,6 +46,7 @@ const TaxReturnTracking = lazy(() => import("./pages/TaxReturnTracking"));
 const TaxReturnActions = lazy(() => import("./pages/TaxReturnActions"));
 const TaxFilers = lazy(() => import("./pages/TaxFilers"));
 const SelectPerson = lazy(() => import("./pages/SelectPerson"));
+const Invoices = lazy(() => import("./pages/Invoices"));
 
 // Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
@@ -286,6 +287,7 @@ const AuthenticatedApp = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/help" element={<Help />} />
+                <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 
                 <Route path="/privacy" element={<Privacy />} />

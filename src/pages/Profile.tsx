@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, Mail, User, LogOut, Upload, Gift, ChevronRight, Users } from 'lucide-react';
+import { Camera, Mail, User, LogOut, Upload, Gift, ChevronRight, Users, Receipt } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -239,6 +239,21 @@ const Profile = () => {
               <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
             </Link>
           </section>
+
+          {/* Invoices Link */}
+          <Link 
+            to="/invoices"
+            className="bg-muted/50 border border-border hover:bg-muted hover:border-border/80 p-4 rounded-xl flex items-center gap-4 transition-colors group"
+          >
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Receipt className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <span className="text-sm font-semibold text-foreground block">Rechnungen</span>
+              <span className="text-sm text-muted-foreground block">Zahlungsbelege anzeigen & herunterladen</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+          </Link>
 
           {/* Logout Button */}
           <div className="pt-4">
