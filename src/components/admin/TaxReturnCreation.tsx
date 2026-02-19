@@ -404,7 +404,7 @@ const TaxReturnCreation: React.FC = () => {
                   <CardTitle className="text-foreground text-lg">
                     Steuerjahr {taxReturn.tax_year}
                   </CardTitle>
-                  <Badge variant="secondary">
+                  <Badge className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
                     {getStatusText(taxReturn.status)}
                   </Badge>
                 </div>
@@ -412,40 +412,37 @@ const TaxReturnCreation: React.FC = () => {
               
               <CardContent className="space-y-4 relative overflow-hidden">
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <User className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <User className="h-4 w-4 shrink-0" />
                     <div>
-                      <p className="font-medium">{taxReturn.tax_filer_name}</p>
-                      <p className="text-sm text-gray-600">{taxReturn.user_email}</p>
+                      <p className="font-medium text-foreground">{taxReturn.tax_filer_name}</p>
+                      <p className="text-sm text-muted-foreground">{taxReturn.user_email}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Calendar className="h-4 w-4" />
-                    <div>
-                      <span className="text-sm">Bezahlt am: </span>
-                      <span className="text-sm">
-                        {new Date(taxReturn.payment_date).toLocaleDateString('de-DE')}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="h-4 w-4 shrink-0" />
+                    <span className="text-sm">
+                      Bezahlt am: {new Date(taxReturn.payment_date).toLocaleDateString('de-DE')}
+                    </span>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
-                    <span className="text-sm">Bezahlung bestätigt</span>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span className="text-sm text-muted-foreground">Bezahlung bestätigt</span>
                   </div>
                   
                   {taxReturn.express_service && (
                     <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-amber-500 fill-amber-500/20" />
+                      <Zap className="h-4 w-4 text-amber-500 fill-amber-500/20 shrink-0" />
                       <span className="text-sm font-semibold text-amber-600">Express-Service</span>
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2 pt-4">
+                <div className="pt-4">
                   <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`} className="w-full">
-                    <Button className="w-full">
+                    <Button className="w-full h-12 rounded-full shadow-lg shadow-primary/25 text-sm font-semibold">
                       Benutzer ansehen
                     </Button>
                   </Link>
