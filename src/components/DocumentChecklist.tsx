@@ -584,21 +584,24 @@ const DocumentChecklist: React.FC = () => {
                               </div>
                               <div className="flex items-center gap-3 w-full md:w-auto">
                                 {hasUnassignedDocs && (
-                                  <button 
+                                  <Button 
+                                    variant="secondary"
+                                    size="sm"
                                     onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                                    className="flex-1 md:flex-none px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
+                                    className="flex-1 md:flex-none"
                                   >
                                     <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                                     {t.documentChecklist.assign}
-                                  </button>
+                                  </Button>
                                 )}
-                                <button 
+                                <Button 
+                                  size="sm"
                                   onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                                  className="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
+                                  className="flex-1 md:flex-none"
                                 >
                                   <Plus className="w-4 h-4" strokeWidth={1.5} />
                                   Hochladen
-                                </button>
+                                </Button>
                               </div>
                             </div>
                           </div>
