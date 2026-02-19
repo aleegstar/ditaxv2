@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { isDespiaNative, triggerDespiaOAuth } from '@/lib/despia';
+import { useAuth } from '@/contexts/AuthContext';
 interface PaymentSectionProps {
   isUpgrade?: boolean;
   upgradeReturnId?: string;
@@ -29,12 +30,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     taxYear
   } = useFormContext();
   const { activeTaxFilerId } = useTaxFiler();
+  const { isValid, isLoading: authLoading, refreshAuth } = useAuth();
   const navigate = useNavigate();
   const year = taxYear || (new Date().getFullYear() - 1).toString();
   const [isLoading, setIsLoading] = useState(false);
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [expressService, setExpressService] = useState(isUpgrade);
   const [user, setUser] = useState<any>(null);
   const { promoCodes, getActivePromoCode } = usePromoCodes();
@@ -52,29 +53,33 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const activePromo = getActivePromoCode();
   const promoDiscount = activePromo ? activePromo.amount : 0;
 
+  // Auto-recovery: refresh session or redirect if invalid
   useEffect(() => {
-    // Register listener FIRST to catch any session changes during navigation
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
+    if (authLoading) return;
+    if (isValid) return;
 
-    // Then check current session
-    const checkAuth = async () => {
-      const {
-        data: {
-          session
+    const sessionKey = 'payment_auth_retry';
+    const hasRetried = sessionStorage.getItem(sessionKey);
+
+    if (!hasRetried) {
+      sessionStorage.setItem(sessionKey, 'true');
+      refreshAuth().then(success => {
+        if (!success) {
+          window.location.reload();
         }
-      } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-    };
-    checkAuth();
+      });
+    } else {
+      sessionStorage.removeItem(sessionKey);
+      navigate('/auth');
+    }
+  }, [authLoading, isValid, refreshAuth, navigate]);
 
-    return () => subscription.unsubscribe();
-  }, []);
+  // Clear retry flag on successful auth
+  useEffect(() => {
+    if (isValid) {
+      sessionStorage.removeItem('payment_auth_retry');
+    }
+  }, [isValid]);
 
   useEffect(() => {
     if (isUpgrade) {
@@ -149,7 +154,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   const handlePayment = async () => {
-    if (!isLoggedIn) {
+    if (!isValid) {
       toast.error("Bitte melde dich an, um die Zahlung abzuschließen.");
       navigate('/auth');
       return;
@@ -431,11 +436,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               <div className="pt-2">
                 <Button
                   onClick={handlePayment}
-                  disabled={isLoading || !priceBreakdown || !isLoggedIn}
+                  disabled={isLoading || !priceBreakdown || !isValid || authLoading}
                   size="lg"
                   className="w-full"
                 >
-                  {isLoading ? 'Lädt…' : !isLoggedIn ? 'Bitte anmelden' : 'Jetzt bezahlen'}
+                  {isLoading ? 'Lädt…' : authLoading ? 'Sitzung wird geprüft…' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'}
                 </Button>
               </div>
 
