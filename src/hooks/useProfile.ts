@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface Profile {
@@ -15,6 +16,7 @@ interface Profile {
 }
 
 export const useProfile = () => {
+  const { isValid, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -111,12 +113,19 @@ export const useProfile = () => {
   };
 
   useEffect(() => {
+    // Only fetch profile once auth is confirmed valid
+    if (authLoading) return;
+    if (!isValid) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
     fetchProfile();
     const timer = setTimeout(() => {
       setLoading(false);
     }, 5000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isValid, authLoading]);
 
   return {
     profile,

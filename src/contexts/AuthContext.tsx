@@ -24,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoading: true,
   });
   const mountedRef = useRef(true);
+  const initialCheckDoneRef = useRef(false);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -52,11 +53,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     mountedRef.current = true;
+    initialCheckDoneRef.current = false;
 
     // 1. Register auth listener FIRST (Supabase best practice)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (!mountedRef.current) return;
+        // Skip updates until the initial server-side check is done
+        if (!initialCheckDoneRef.current) return;
         setState({
           userId: session?.user?.id ?? null,
           email: session?.user?.email ?? null,
@@ -80,11 +84,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (userError || !user) {
           console.warn('Session token invalid, forcing logout:', userError?.message);
           await supabase.auth.signOut();
+          initialCheckDoneRef.current = true;
           setState({ userId: null, email: null, isValid: false, isLoading: false });
           return;
         }
       }
 
+      initialCheckDoneRef.current = true;
       setState({
         userId: session?.user?.id ?? null,
         email: session?.user?.email ?? null,
