@@ -1,29 +1,72 @@
 
+## Problem
 
-## Automatischer Logout nach 20 Minuten Inaktivitaet
+Die `PaymentSection`-Komponente verwaltet ihren eigenen Auth-State (`isLoggedIn`) mit einem separaten `supabase.auth.getSession()`-Aufruf (Zeile 37, 55-77). Dieser lokale State kann veraltet sein und zeigt dann faelschlicherweise "Bitte anmelden" statt "Jetzt bezahlen" an -- obwohl der Benutzer eingeloggt ist.
 
-### Aktueller Stand
-- Der Idle-Timer ist bereits implementiert, steht aber auf **30 Minuten**
-- Es gibt eine `IdleWarningDialog`-Komponente, die aber **nirgends eingebunden** ist
-- Der User wird ohne Vorwarnung ausgeloggt
+## Ursache
 
-### Aenderungen
+- `PaymentSection` nutzt **nicht** den zentralen `AuthContext` (`useAuth()`), sondern erstellt einen eigenen Auth-Listener
+- `getSession()` liest nur aus dem Local Storage und kann veraltete Daten liefern
+- Der zentrale AuthContext validiert die Session serverseitig mit `getUser()`, der lokale Check in PaymentSection tut das nicht
 
-**1. Timeout auf 20 Minuten aendern**
-- In `src/hooks/use-auth-validation.ts`: `timeout: 30 * 60 * 1000` wird zu `timeout: 20 * 60 * 1000`
+## Loesung
 
-**2. Warnung 2 Minuten vor Logout anzeigen**
-- In `use-auth-validation.ts`: Den `onWarning`-Callback und `warningTime` an `useIdleTimer` uebergeben, sodass ab Minute 18 ein Countdown-Dialog erscheint
-- `showWarning` wird auf `true` gesetzt, wenn die Warnung ausgeloest wird
+1. **Lokalen Auth-State entfernen** -- die Variablen `isLoggedIn` und den separaten `useEffect` mit `onAuthStateChange` + `getSession()` (Zeilen 37, 55-77) entfernen
 
-**3. IdleWarningDialog einbinden**
-- In der Hauptlayout-Komponente (z.B. `App.tsx` oder dem Layout, das geschuetzte Routen umschliesst) wird `IdleWarningDialog` mit den Werten aus `idleState` gerendert
-- Der User kann ueber den Button "Session verlaengern" den Timer zuruecksetzen
+2. **Zentralen `useAuth()` Hook verwenden** -- `isValid` und `isLoading` aus dem AuthContext beziehen, der bereits serverseitig validiert ist
 
-### Technische Details
+3. **Auto-Recovery bei ungueltigem State** -- Falls `isValid === false` und `isLoading === false` auf der Payment-Seite: automatisch `refreshAuth()` versuchen. Falls das fehlschlaegt, einmalig `window.location.reload()` ausfuehren. Falls nach dem Reload immer noch nicht authentifiziert, auf `/auth` weiterleiten.
 
-| Datei | Aenderung |
-|-------|-----------|
-| `src/hooks/use-auth-validation.ts` | Timeout 30min auf 20min, `onWarning` + `warningTime: 18 * 60 * 1000` hinzufuegen, `showWarning` korrekt setzen |
-| Layout-Komponente (zu ermitteln) | `IdleWarningDialog` importieren und rendern |
+4. **Button-Logik anpassen** -- `isLoggedIn` durch `isValid` ersetzen, waehrend `isLoading` einen Lade-Zustand anzeigen
 
+## Technische Details
+
+### Datei: `src/components/PaymentSection.tsx`
+
+**Entfernen:**
+- `useState` fuer `isLoggedIn` (Zeile 37)
+- `useEffect` mit eigenem Auth-Listener (Zeilen 55-77)
+
+**Hinzufuegen:**
+- `import { useAuth } from '@/contexts/AuthContext'`
+- `const { isValid, isLoading: authLoading, refreshAuth } = useAuth()`
+- Neuer `useEffect` fuer Auto-Recovery:
+
+```typescript
+useEffect(() => {
+  if (authLoading) return;
+  if (isValid) return;
+
+  // Session ungueltig -- versuche Refresh
+  const sessionKey = 'payment_auth_retry';
+  const hasRetried = sessionStorage.getItem(sessionKey);
+
+  if (!hasRetried) {
+    sessionStorage.setItem(sessionKey, 'true');
+    refreshAuth().then(success => {
+      if (!success) {
+        window.location.reload();
+      }
+    });
+  } else {
+    // Bereits versucht, immer noch ungueltig -> redirect
+    sessionStorage.removeItem(sessionKey);
+    navigate('/auth');
+  }
+}, [authLoading, isValid, refreshAuth, navigate]);
+
+// Bei Erfolg: Retry-Flag bereinigen
+useEffect(() => {
+  if (isValid) {
+    sessionStorage.removeItem('payment_auth_retry');
+  }
+}, [isValid]);
+```
+
+**Button aendern (Zeile 432-439):**
+- `disabled={isLoading || !priceBreakdown || !isValid || authLoading}`
+- Text: `authLoading ? 'Sitzung wird geprueft...' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'`
+- Der Fall "Bitte anmelden" sollte in der Praxis nicht mehr sichtbar sein, da der Auto-Recovery-Mechanismus vorher greift
+
+**handlePayment (Zeile 152):**
+- `isLoggedIn` durch `isValid` ersetzen
