@@ -178,19 +178,21 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           </div>
           <div className="flex flex-col gap-3">
             <Button
+              className="w-full"
+              onClick={handleNoChanges}
+              disabled={isImporting}
+            >
+              <Download className="w-5 h-5" />
+              Nein, keine Änderungen
+            </Button>
+            <Button
               variant="secondary"
               className="w-full"
               onClick={handleWithChanges}
               disabled={isImporting}
             >
+              <Edit className="w-5 h-5" />
               Ja, ich möchte Änderungen vornehmen
-            </Button>
-            <Button
-              className="w-full"
-              onClick={handleNoChanges}
-              disabled={isImporting}
-            >
-              Nein, keine Änderungen
             </Button>
           </div>
         </DrawerContent>
