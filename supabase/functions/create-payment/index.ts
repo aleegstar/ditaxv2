@@ -458,8 +458,8 @@ serve(async (req) => {
           requestId 
         });
         
-        // Always load all payment methods - let Stripe handle the selection UI
-        const paymentMethodTypes = ["card", "twint"];
+        // TWINT temporarily disabled - not yet qualified in Stripe
+        const paymentMethodTypes = ["card"];
         
         logStep("Payment methods configured - all methods enabled", { 
           paymentMethodTypes,
