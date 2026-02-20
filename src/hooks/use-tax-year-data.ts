@@ -227,14 +227,14 @@ export const useTaxYearData = (userId: string | null, taxFilerId: string | null)
   useEffect(() => {
     mountedRef.current = true;
     
-    if (userId) {
+    if (userId && taxFilerId) {
       loadTaxYearData();
     }
     
     return () => {
       mountedRef.current = false;
     };
-  }, [userId, loadTaxYearData]);
+  }, [userId, taxFilerId, loadTaxYearData]);
 
   return {
     ...data,
