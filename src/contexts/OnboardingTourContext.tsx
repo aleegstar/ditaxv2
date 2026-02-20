@@ -85,7 +85,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       '.sidebar, nav[data-sidebar]',
     ];
 
-    const maxAttempts = isManualStartMode ? 4 : 15;
+    const maxAttempts = isManualStartMode ? 3 : 8;
     let attempts = 0;
 
     while (attempts < maxAttempts) {
@@ -142,7 +142,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       }
 
       attempts++;
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 150));
     }
 
     debug.warn('⚠️ Tour: Timeout waiting for mandatory elements. DOM state:', {
@@ -163,7 +163,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
   // Load tour completion status when user is authenticated
   useEffect(() => {
     const loadTourStatus = async () => {
-      if (!isValid || !userId || isLoading) {
+      if (!isValid || !userId) {
         return;
       }
 
@@ -173,7 +173,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
     };
 
     loadTourStatus();
-  }, [isValid, userId, isLoading]);
+  }, [isValid, userId]);
 
   // Track navigation — only mark as "navigated" when moving between non-system routes
   useEffect(() => {
@@ -281,7 +281,7 @@ export const OnboardingTourProvider: React.FC<{ children: React.ReactNode }> = (
       }
     };
 
-    const timer = setTimeout(checkTourConditions, 800);
+    const timer = setTimeout(checkTourConditions, 0);
 
     return () => clearTimeout(timer);
   }, [isValid, userId, isLoading, tourCompleted, isManualStart]);
