@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isDespiaNative } from "@/lib/despia";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
 const AuthSuccess = () => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -46,14 +48,14 @@ const AuthSuccess = () => {
           if (data?.session) {
             console.log('✅ AuthSuccess: Session set successfully');
             setStatus('success');
-            setTimeout(() => {
+              setTimeout(() => {
               if (isDespia) {
                 console.log('🔗 AuthSuccess: Triggering deeplink for Despia...');
                 const deeplinkUrl = `ditax://oauth/auth?success=true&at=${finalAccessToken}&rt=${finalRefreshToken}`;
                 window.location.href = deeplinkUrl;
               } else {
                 console.log('🔗 AuthSuccess: Soft-navigating to home...');
-                window.location.replace('/');
+                navigate('/', { replace: true });
               }
             }, 100);
           } else {
@@ -78,7 +80,7 @@ const AuthSuccess = () => {
               const deeplinkUrl = `ditax://oauth/auth?success=true&at=${session.access_token}&rt=${session.refresh_token}`;
               window.location.href = deeplinkUrl;
             } else {
-              window.location.href = '/';
+              navigate('/', { replace: true });
             }
           } else {
             console.log('❌ AuthSuccess: No session - redirecting to auth');

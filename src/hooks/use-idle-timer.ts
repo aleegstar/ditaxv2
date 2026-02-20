@@ -18,6 +18,8 @@ export function useIdleTimer({ timeout, onIdle, onWarning, warningTime }: UseIdl
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
   const eventsAttachedRef = useRef(false);
+  // Ref to read isIdle without triggering useEffect re-runs on every activity
+  const isIdleRef = useRef(false);
 
   // Memoized cleanup function
   const clearAllTimers = useCallback(() => {
@@ -38,6 +40,7 @@ export function useIdleTimer({ timeout, onIdle, onWarning, warningTime }: UseIdl
   const resetTimer = useCallback(() => {
     if (!mountedRef.current) return;
     
+    isIdleRef.current = false;
     setIsIdle(false);
     setIsWarning(false);
     setTimeLeft(timeout);
@@ -77,6 +80,7 @@ export function useIdleTimer({ timeout, onIdle, onWarning, warningTime }: UseIdl
     // Set idle timer
     timeoutRef.current = setTimeout(() => {
       if (!mountedRef.current) return;
+      isIdleRef.current = true;
       setIsIdle(true);
       onIdle();
     }, timeout);
@@ -101,7 +105,8 @@ export function useIdleTimer({ timeout, onIdle, onWarning, warningTime }: UseIdl
     
     const handleActivity = () => {
       if (!mountedRef.current) return;
-      if (!isIdle) {
+      // Read isIdle via ref — prevents this effect from re-running on every mouse move
+      if (!isIdleRef.current) {
         resetTimer();
       }
     };
@@ -128,7 +133,8 @@ export function useIdleTimer({ timeout, onIdle, onWarning, warningTime }: UseIdl
       
       clearAllTimers();
     };
-  }, [resetTimer, stopTimer, isIdle, clearAllTimers]);
+  // isIdle removed from deps — we read it via isIdleRef to prevent render-storm on every activity
+  }, [resetTimer, clearAllTimers]);
 
   return {
     isIdle,
