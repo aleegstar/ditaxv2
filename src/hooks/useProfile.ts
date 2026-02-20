@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ export const useProfile = () => {
   const { isValid, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const abortRef = useRef(false);
 
   const updateFirstName = async (firstName: string) => {
     try {
@@ -82,8 +83,7 @@ export const useProfile = () => {
       if (!error.message?.includes('not authenticated') && !error.message?.includes('Auth')) {
         toast.error('Fehler beim Laden des Profils: ' + error.message);
       }
-    } finally {
-      setLoading(false);
+      throw error; // Re-throw so retry logic can catch it
     }
   };
 
@@ -112,7 +112,35 @@ export const useProfile = () => {
     }
   };
 
+  const fetchProfileWithRetry = async () => {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 500;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      if (abortRef.current) return; // Session changed → abort
+
+      try {
+        await fetchProfile();
+        setLoading(false);
+        return; // Success
+      } catch (error: any) {
+        const isLastAttempt = attempt === MAX_RETRIES;
+
+        if (isLastAttempt) {
+          console.warn(`useProfile: All ${MAX_RETRIES} retries exhausted`);
+          setLoading(false);
+          return;
+        }
+
+        console.log(`useProfile: fetchProfile failed (attempt ${attempt + 1}/${MAX_RETRIES}), retrying in ${RETRY_DELAY_MS}ms...`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
+    }
+  };
+
   useEffect(() => {
+    abortRef.current = false;
+
     // Only fetch profile once auth is confirmed valid
     if (authLoading) return;
     if (!isValid) {
@@ -120,11 +148,18 @@ export const useProfile = () => {
       setLoading(false);
       return;
     }
-    fetchProfile();
+
+    fetchProfileWithRetry();
+
+    // Safety fallback: never stay loading longer than 5s
     const timer = setTimeout(() => {
       setLoading(false);
     }, 5000);
-    return () => clearTimeout(timer);
+
+    return () => {
+      abortRef.current = true; // Abort retries if isValid changes
+      clearTimeout(timer);
+    };
   }, [isValid, authLoading]);
 
   return {

@@ -269,6 +269,12 @@ const UserTaxReturns = () => {
     return <UserTaxReturnsSkeleton />;
   }
 
+  // Guard: valid session but profile not yet loaded → keep skeleton visible
+  // prevents "Benutzer" fallback from flashing during auth/profile race condition
+  if (isValid && !profileLoading && !userProfile && !safetyTimeout) {
+    return <UserTaxReturnsSkeleton />;
+  }
+
   // Also show skeleton while redirecting to select-person
   if (hasMultipleFilers && !selectionConfirmed) {
     return <UserTaxReturnsSkeleton />;
