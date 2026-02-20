@@ -264,7 +264,7 @@ const AuthenticatedApp = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
+                {/* payment-success intentionally moved to top-level AppRoutes */}
                 <Route path="/tax-return-tracking/:id" element={
                   <ProtectedRoute>
                     <TaxReturnTracking />
@@ -492,6 +492,9 @@ const AppRoutes = () => {
           
           <Route path="/auth-bridge" element={<AuthBridge />} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
+
+          {/* payment-success is top-level: bypasses AuthenticatedApp, TaxFilerGate, and onboarding checks */}
+          <Route path="/payment-success" element={<Suspense fallback={<LoadingSpinner fullScreen />}><PaymentSuccess /></Suspense>} />
           
           {/* Public legal pages */}
           <Route path="/datenschutzrichtlinie" element={<Privacy />} />

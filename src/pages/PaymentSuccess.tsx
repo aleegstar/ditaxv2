@@ -21,14 +21,12 @@ const PaymentSuccess = () => {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const waitForAuth = async (maxRetries = 8): Promise<any> => {
+    const waitForAuth = async (maxRetries = 5): Promise<any> => {
       for (let i = 0; i < maxRetries; i++) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) return session.user;
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) return user;
-        console.log(`Auth retry ${i + 1}/${maxRetries}, waiting ${i < 3 ? 1 : 2}s...`);
-        await new Promise(r => setTimeout(r, i < 3 ? 1000 : 2000));
+        console.log(`Auth retry ${i + 1}/${maxRetries}...`);
+        await new Promise(r => setTimeout(r, 1000));
       }
       return null;
     };
