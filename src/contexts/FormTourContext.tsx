@@ -30,16 +30,23 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
   const shouldForceStart = new URLSearchParams(location.search).get('startTour') === 'true';
 
-  // Load tour status from session user_metadata — no extra network call needed
+  // Load tour status — form_tour_completed from user_metadata, onboarding from profiles table
   useEffect(() => {
     const loadTourStatus = async () => {
-      // Use getSession() which reads from local cache — no network request
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        setUserId(session.user.id);
+        const uid = session.user.id;
+        setUserId(uid);
         const meta = session.user.user_metadata || {};
         setTourCompleted(meta.form_tour_completed === true);
-        setOnboardingCompleted(meta.onboarding_tour_completed === true);
+
+        // onboarding_tour_completed lives in profiles table, not user_metadata
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_tour_completed')
+          .eq('id', uid)
+          .single();
+        setOnboardingCompleted(profile?.onboarding_tour_completed === true);
         setIsReady(true);
       } else {
         setUserId(null);
@@ -53,10 +60,20 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setUserId(session.user.id);
+        const uid = session.user.id;
+        setUserId(uid);
         const meta = session.user.user_metadata || {};
         setTourCompleted(meta.form_tour_completed === true);
-        setOnboardingCompleted(meta.onboarding_tour_completed === true);
+
+        // Re-fetch onboarding status from profiles on auth change
+        supabase
+          .from('profiles')
+          .select('onboarding_tour_completed')
+          .eq('id', uid)
+          .single()
+          .then(({ data: profile }) => {
+            setOnboardingCompleted(profile?.onboarding_tour_completed === true);
+          });
       } else {
         setUserId(null);
         setTourCompleted(false);
