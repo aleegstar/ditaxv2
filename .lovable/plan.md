@@ -1,105 +1,105 @@
 
-# Root Cause: "Benutzer" Flash trotz korrekter Session
+# Problem: Tour startet zu spät (800ms + bis zu 3s zusätzlich)
 
-## Eigentliche Ursachen (drei verknüpfte Probleme)
+## Ursachen im Detail
 
-### Problem 1: `isReady` ignoriert `activeTaxFilerId`
-In `UserTaxReturns.tsx` (Zeile 196-200) wird `isReady = true` gesetzt, sobald `loading`, `authLoading` und `profileLoading` alle `false` sind — aber OHNE zu warten, bis `activeTaxFilerId` aus dem `TaxFilerContext` gesetzt wurde. Das führt dazu, dass der Skeleton verschwindet, obwohl die Steuerdaten noch nicht mit dem richtigen Filer geladen werden können.
+### Ursache 1: Fixer 800ms Delay vor jeder Prüfung
+In `OnboardingTourContext.tsx` Zeile 284:
+```typescript
+const timer = setTimeout(checkTourConditions, 800);
+```
+Dieser Delay ist immer aktiv — unabhängig davon, ob alle Daten schon bereit sind.
 
-### Problem 2: Zwei unabhängige Auth-Initialisierungen
-`AuthContext` und `TaxFilerContext` führen beide eigene `getSession()` Aufrufe durch. Sie sind nicht synchronisiert. Wenn `AuthContext` bereits `isValid=true` hat, kann `TaxFilerContext` noch im `sessionLoaded=false`-Zustand sein und `activeTaxFilerId=null` melden — was zu einem kurzen Zeitfenster mit leerem Dashboard führt.
+### Ursache 2: `waitForElements` bis zu 3 Sekunden
+Die Schleife prüft bis zu 15 Mal mit 200ms Pause = **3 Sekunden** Wartezeit im Worst Case. Für den normalen Start ist das viel zu aggressiv.
 
-### Problem 3: Leerer `first_name` → "Benutzer" Fallback
-`useProfile` konvertiert `profileData?.first_name || null` — bei leerem String `""` gibt das `null` zurück. `getUserDisplayName()` zeigt dann den Fallback "Benutzer". Wenn eine kurze Race-Condition dazu führt, dass das Profil nochmal gerendert wird bevor die Daten vollständig sind, sieht der Nutzer kurz "Benutzer".
+### Ursache 3: `tourCompleted` braucht separaten Supabase-Call
+Die Tour wartet bis `tourCompleted !== null` (Zeile 237). Das setzt einen eigenen `getUser()` Call voraus, der erst nach Auth getriggert wird — aber async, also verzögert.
 
-## Lösung: Drei gezielte Korrekturen
+### Kombinierter Worst-Case-Ablauf:
+```
+Auth: isLoading → false           (~0ms)
+checkTourCompletionStatus()       (+200-500ms, async Supabase)
+tourCompleted state update        (+React render cycle)
+setTimeout 800ms                  (+800ms fixer Delay)
+waitForElements: 15x 200ms        (bis zu +3000ms)
+───────────────────────────────────────────────
+TOTAL: bis zu 4+ Sekunden Wartezeit
+```
 
-### Fix 1: `isReady` wartet auch auf `activeTaxFilerId`
-In `UserTaxReturns.tsx` die `isReady`-Bedingung erweitern:
+## Lösung: Drei Optimierungen
+
+### Fix 1: 800ms → 0ms (sofortiger Start)
+Den `setTimeout` auf **0ms** reduzieren. Die Tour soll sofort prüfen, sobald alle Conditions erfüllt sind — nicht künstlich verzögert.
 
 ```typescript
 // VORHER
-useEffect(() => {
-  if (!loading && !authLoading && !profileLoading && !isReady) {
-    setIsReady(true);
-  }
-}, [loading, authLoading, profileLoading, isReady]);
+const timer = setTimeout(checkTourConditions, 800);
 
-// NACHHER
-useEffect(() => {
-  if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {
-    setIsReady(true);
-  }
-}, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
+// NACHHER  
+const timer = setTimeout(checkTourConditions, 0);
 ```
 
-Dies stellt sicher, dass die Seite erst rendert, wenn wirklich alle Datenquellen bereit sind — inklusive der aktiven Steuerperson.
-
-### Fix 2: Skeleton-Guard um `activeTaxFilerId` ergänzen
-In `UserTaxReturns.tsx` die primäre Skeleton-Bedingung erweitern:
+### Fix 2: `waitForElements` aggressiver und kürzer
+Max Attempts von 15 auf **8** reduzieren, Interval von 200ms auf **150ms**. Das gibt maximal 1.2 Sekunden statt 3 Sekunden — ausreichend für langsames DOM-Rendering.
 
 ```typescript
 // VORHER
-if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
-  return <UserTaxReturnsSkeleton />;
-}
+const maxAttempts = isManualStartMode ? 4 : 15;
+// ...
+await new Promise(resolve => setTimeout(resolve, 200));
 
 // NACHHER
-if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading || !activeTaxFilerId) && !safetyTimeout) {
-  return <UserTaxReturnsSkeleton />;
-}
+const maxAttempts = isManualStartMode ? 3 : 8;
+// ...
+await new Promise(resolve => setTimeout(resolve, 150));
 ```
 
-### Fix 3: `getUserDisplayName()` zeigt Skeleton statt Fallback
-Anstatt "Benutzer" anzuzeigen wenn `first_name` fehlt, wird ein Inline-Skeleton-Platzhalter gerendert — eine gepulste Ladeanimation, die den Nutzer nicht irreführt:
+### Fix 3: `tourCompleted` parallel zur Auth laden
+Derzeit wird `checkTourCompletionStatus()` sequenziell **nach** Auth gestartet. Der Call soll direkt beim Mount ausgeführt werden (nicht erst wenn `isValid` true ist), sobald irgendeine Session vorhanden ist — der Wert wird dann gesetzt wenn er kommt.
+
+Der `loadTourStatus` Effect soll sofort starten (ohne auf `isLoading=false` zu warten), aber trotzdem nur wenn `isValid` da ist:
 
 ```typescript
-const getUserDisplayName = () => {
-  if (userProfile?.first_name) {
-    return userProfile.first_name;
-  }
-  // Zeige niemals "Benutzer" — wenn kein Name verfügbar, nichts anzeigen
-  return null;
-};
+// VORHER: wartet auf isLoading=false
+useEffect(() => {
+  const loadTourStatus = async () => {
+    if (!isValid || !userId || isLoading) return;
+    ...
+  };
+  loadTourStatus();
+}, [isValid, userId, isLoading]);
+
+// NACHHER: startet sobald isValid & userId bekannt
+useEffect(() => {
+  const loadTourStatus = async () => {
+    if (!isValid || !userId) return;
+    // isLoading check entfernt — der Call darf parallel laufen
+    ...
+  };
+  loadTourStatus();
+}, [isValid, userId]); // isLoading aus deps entfernt
 ```
 
-Und im JSX:
-```tsx
-<h1 className="text-2xl font-bold text-black">
-  {getUserDisplayName() ?? (
-    <span className="inline-block bg-gray-200 rounded animate-pulse w-28 h-7" />
-  )}
-</h1>
+## Ergebnis
+
+```
+VORHER:
+Auth fertig → +800ms → tourCompleted loaded → Tour prüft → waitForElements (bis 3s)
+= bis zu 4+ Sekunden
+
+NACHHER:
+Auth fertig → tourCompleted parallel → Tour prüft sofort → waitForElements (max 1.2s)
+= unter 1 Sekunde in den meisten Fällen
 ```
 
-So sieht der Nutzer einen neutralen Ladeindikator statt eines falschen Namens.
+## Geänderte Datei
 
-## Dateien die geändert werden
+### `src/contexts/OnboardingTourContext.tsx`
+1. Zeile 88: `maxAttempts` für auto-start: `15 → 8`
+2. Zeile 145: Sleep-Interval: `200ms → 150ms`
+3. Zeile 166: `isLoading` Bedingung aus `loadTourStatus` entfernen
+4. Zeile 176: `isLoading` aus den useEffect-Dependencies entfernen
+5. Zeile 284: `setTimeout` Delay: `800ms → 0ms`
 
-### `src/pages/UserTaxReturns.tsx`
-1. `isReady`-useEffect: `activeTaxFilerId` als zusätzliche Bedingung hinzufügen
-2. Skeleton-Guard: `!activeTaxFilerId` in die Hauptbedingung aufnehmen
-3. `getUserDisplayName()`: statt "Benutzer"-Fallback `null` zurückgeben
-4. Begrüßungszeile: Statt des Fallback-Texts einen Skeleton-Platzhalter anzeigen
-
-## Warum das die User Experience verbessert
-
-```text
-VORHER (fehlerhaft):
-  AuthContext: isValid=true ✓
-  TaxFilerContext: isLoading=false ✓, activeTaxFilerId=null ✗
-  isReady: true (setzt sich zu früh)
-  → Dashboard rendert mit "Benutzer" und keinen Steuerdaten
-
-NACHHER (korrekt):
-  AuthContext: isValid=true ✓
-  TaxFilerContext: isLoading=false ✓, activeTaxFilerId=null → Skeleton bleibt
-  TaxFilerContext: activeTaxFilerId="xyz" ✓
-  isReady: true (setzt sich erst jetzt)
-  → Dashboard rendert mit echtem Namen und echten Steuerdaten
-
-  Falls activeTaxFilerId nie kommt:
-  → Safety-Timeout nach 8s entsperrt trotzdem (Absicherung gegen Endlos-Skeleton)
-```
-
-Die Änderungen sind minimal, direkt und lösen alle drei Ursachen gleichzeitig.
+Die Änderung ist minimal (5 Zeilen) und beseitigt alle unnötigen Wartezeiten ohne die bestehende Sicherheitslogik zu beeinflussen.
