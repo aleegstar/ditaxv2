@@ -136,21 +136,14 @@ export const FormTour: React.FC<FormTourProps> = ({ onComplete, onSkip }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      <TourOverlay
-        steps={formTourSteps}
-        currentStep={currentStep}
-        spotlightPosition={spotlightPosition}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSkip={onSkip}
-        maskId="form-spotlight-mask"
-      />
-    </motion.div>
+    <TourOverlay
+      steps={formTourSteps}
+      currentStep={currentStep}
+      spotlightPosition={spotlightPosition}
+      onNext={handleNext}
+      onBack={handleBack}
+      onSkip={onSkip}
+      maskId="form-spotlight-mask"
+    />
   );
 };
