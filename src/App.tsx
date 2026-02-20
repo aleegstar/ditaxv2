@@ -120,27 +120,15 @@ const AuthenticatedApp = () => {
   const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const { idleState, extendSession } = useAuthValidation();
-  const [user, setUser] = useState<any>(null);
+  const { userId, email } = useAuth();
+  // Minimal user object from AuthContext — no extra Supabase call needed
+  const user = userId ? { id: userId, email } : null;
   const [showMfaSetup, setShowMfaSetup] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [initialPathChecked, setInitialPathChecked] = useState<string | null>(null);
   const { shouldShow: shouldShowMfaPrompt, markMfaOffered } = useMfaPrompt(user?.id);
   const { shouldShow: shouldShowFeedback, dismissPrompt: dismissFeedbackPrompt } = useFeedbackPrompt(user?.id);
-
-  useEffect(() => {
-    let mounted = true;
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (mounted) setUser(user);
-      } catch (error) {
-        console.error('Error getting user:', error);
-      }
-    };
-    getUser();
-    return () => { mounted = false; };
-  }, []);
 
   // Check if user needs onboarding (new user without first_name)
   useEffect(() => {
@@ -447,7 +435,8 @@ const AppRoutes = () => {
               if (error) console.error('❌ Session error:', error);
               const { Browser } = await import('@capacitor/browser');
               try { await Browser.close(); } catch {}
-              window.location.href = '/';
+              // Use history API instead of full reload to preserve React state & QueryClient cache
+              window.history.replaceState({}, '', '/');
             } catch (err) {
               console.error('❌ Deep link error:', err);
             }
