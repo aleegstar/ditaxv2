@@ -1,116 +1,142 @@
 
-# Performance-Probleme: Navigation fühlt sich träge an / App-Neustarts nötig
+# Ursache: TourOverlay blockiert Formular nach Klick auf "Kontaktangaben"
 
-## Diagnose: 4 identifizierte Probleme
+## Präzise Diagnose
 
-### Problem 1 (KRITISCH): `useIdleTimer` re-rendert bei JEDER Mausbewegung
-Die `useEffect`-Dependencies in `src/hooks/use-idle-timer.ts` enthalten `isIdle` und `resetTimer`. Das bedeutet: **jede Mausbewegung** → `handleActivity()` → `resetTimer()` → neues `resetTimer`-Objekt (da `isIdle` im Closure) → useEffect läuft neu → Events werden detached + re-attached + neue Timer erstellt. Auf mobil mit Touch-Events ist das ein konstanter Render-Storm.
+Wenn die Tour auf dem `/form`-Dashboard aktiv ist und der User auf "Kontaktangaben" klickt:
+
+1. Der User klickt auf die "Kontaktangaben"-Karte im Dashboard
+2. React-Router navigiert zu `/form?section=kontakt`
+3. `isOnFormDashboard` wird `false` → `useEffect` ruft `setShowTour(false)` auf
+4. `showTour` ändert sich → `{showTour && <FormTour />}` wird `false`
+5. `AnimatePresence` startet die **Exit-Animation** (200ms)
+6. **Während dieser 200ms** liegt der `TourOverlay` noch mit `pointerEvents: 'auto'` über dem gesamten Screen — inklusive dem gerade gerenderten Formular
+7. Der User sieht das Formular, tippt Daten ein, klickt "Weiter" — **die Klicks landen aber im Overlay, nicht im Formular**
+
+**Warum geht es nach Seiten-Reload?**
+Nach einem Reload wird die Tour nicht gezeigt (`tourCompleted = true` im Supabase-Metadata) → kein Overlay → Weiter-Knopf funktioniert sofort.
+
+**Warum geht es nach "Zurück zum Dashboard → erneut auf Steuerjahr"?**
+Selber Grund: `tourCompleted` wurde beim ersten Durchlauf auf `true` gesetzt → Tour erscheint nicht mehr.
+
+## Das strukturelle Problem
 
 ```
-useEffect(..., [resetTimer, stopTimer, isIdle, clearAllTimers]);
-//                                     ^^^^^^ PROBLEM: Änderung triggert alles neu
+Tour aktiv auf /form
+  → User klickt "Kontaktangaben"  
+  → Navigation zu /form?section=kontakt
+  → showTour = false (durch useEffect)
+  → FormTour beginnt Exit-Animation (200ms, pointerEvents NOCH 'auto')
+  → Formular wird gerendert (darunter)
+  → User klickt "Weiter" → trifft den Overlay ← BUG
 ```
 
-### Problem 2 (KRITISCH): `AuthenticatedApp` macht DOPPELTEN `getUser()`-Call
-In `src/App.tsx` Zeile 133-141 macht `AuthenticatedApp` einen eigenen `supabase.auth.getUser()` Call — obwohl `AuthContext` bereits serverseitig validiert hat. Das ist ein **redundanter Netzwerkrequest** bei jedem Route-Wechsel in die App.
+`pointerEvents: 'none'` wird erst beim **Start** der Exit-Animation gesetzt (per Framer Motion `exit` prop). Das Problem ist der **render-Zyklus-Versatz**: `showTour = false` → React rendert → `AnimatePresence` erkennt das Exit → Framer Motion beginnt Animation mit `exit`-Wert — aber das geschieht nicht synchron im gleichen Frame. Es gibt 1-2 Frames Verzögerung wo `pointerEvents: 'auto'` noch gilt.
 
-```typescript
-// AuthenticatedApp (App.tsx ~133):
-const getUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser(); // ← unnötiger Call
-  if (mounted) setUser(user);
-};
+Zusätzlich: `FormTour.tsx` setzt `document.body.setAttribute('data-form-tour-open', 'true')` im mount-Effekt. Der cleanup (removeAttribute) läuft ebenfalls asynchron nach dem Unmount — also nach der 200ms Animation.
+
+## Lösung: 2 gezielte Fixes
+
+### Fix 1 (Haupt-Fix): Tour sofort beenden wenn User aktiv navigiert
+
+Statt `showTour(false)` passiv über `useEffect` zu setzen, soll die Tour **aktiv beendet** werden, bevor der User zu einem Section-Formular navigiert.
+
+In `src/pages/Index.tsx` in der `renderContent()`-Funktion: Wenn `section` gesetzt ist (User ist im Formular), soll die Tour sofort per `completeTour()` beendet werden — oder noch besser: Der `TaxYearDashboard` soll beim Klick auf eine Sektion zuerst `skipTour()` aufrufen, dann navigieren.
+
+**Konkret**: In `FormTourContext.tsx` soll ein `useEffect` hinzugefügt werden, der bei Navigation weg vom Dashboard (`isOnFormDashboard === false`) `showTour` synchron auf `false` setzt UND zusätzlich `tourCompleted = true` speichert (via `skipTour()`). Damit wird die Tour sauber abgeschlossen und nicht nur ausgeblendet.
+
+Aber das reicht nicht — wegen dem Framer-Motion-Versatz. Deshalb Fix 2:
+
+### Fix 2 (Kern-Fix): `pointer-events: none` sofort auf Exit setzen — ohne Animation-Versatz
+
+Das Problem ist, dass `pointerEvents: 'none'` im `exit`-Prop von Framer Motion **verzögert** angewendet wird (erst wenn React den Exit-State committed hat). 
+
+Die sauberste Lösung: **Wenn `showTour` false wird, soll der Container sofort im selben Render-Zyklus `pointer-events: none` bekommen** — durch ein zustandsgesteuertes CSS-Attribut statt durch Framer-Motion-Animation-Props.
+
+In `TourOverlay.tsx`:
+```tsx
+// NEU: Wrapper mit sofortigem pointer-events: none wenn nicht sichtbar
+<div style={{ pointerEvents: isVisible ? 'auto' : 'none' }}>
+  <AnimatePresence>
+    ...
+  </AnimatePresence>
+</div>
 ```
 
-`AuthContext` gibt bereits `userId` und `email` zurück — `user.id` kann direkt von dort kommen.
+Dabei muss `isVisible` direkt aus dem `showTour`-State kommen (via Prop), nicht aus dem Framer-Motion-Animationszustand.
 
-### Problem 3 (KRITISCH): `window.location.href` statt `navigate()` verursacht Full-Reload
-An mehreren Stellen (App.tsx Zeile 450, AuthSuccess.tsx Zeile 56, 81) wird `window.location.href = '/'` verwendet statt `navigate('/')`. Das verursacht einen kompletten **Browser-Reload** — alle React-States, QueryClient-Cache, und Contexts werden zerstört und von Null aufgebaut. Das ist exakt das "Gefühl als ob man die App neustartet".
+**Aber**: `TourOverlay` kennt `showTour` nicht. Besser ist es, das Problem in `Index.tsx` bzw. `FormTour.tsx` zu lösen.
 
-```typescript
-// App.tsx ~450:
-window.location.href = '/'; // ← Full Reload! React stirbt komplett
+### Gewählte Lösung: Sofortiges Deaktivieren via CSS-Wrapper
 
-// AuthSuccess.tsx ~56:
-window.location.replace('/'); // ← ebenfalls Full Reload
+**`src/pages/Index.tsx`** — Der `<FormTour>`-Wrapper bekommt einen `div` mit `pointer-events: none` sobald `showTour` false ist, aber `AnimatePresence` noch rendert:
+
+```tsx
+{/* Form Tour — wrapper ensures immediate pointer-events removal */}
+<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
+  <AnimatePresence>
+    {showTour && <FormTour onComplete={completeTour} onSkip={skipTour} />}
+  </AnimatePresence>
+</div>
 ```
 
-### Problem 4: Doppelte `getSession()` in `TaxFilerContext`
-`TaxFilerContext` registriert einen `onAuthStateChange` Listener UND ruft zusätzlich `getSession()` auf — beides parallel. Das sind unnötige Race-Conditions beim Start.
+Das ist einfach und präzise: Sobald `showTour = false`, blockiert der Wrapper-`div` keine Events mehr — der innere animierte Div kann trotzdem noch seine Exit-Animation abspielen (sieht schön aus), aber Events gehen sofort durch.
 
----
+**`src/contexts/FormTourContext.tsx`** — Bei Navigation weg vom Dashboard soll `completeTour()` statt nur `setShowTour(false)` aufgerufen werden. Das verhindert auch, dass die Tour beim nächsten Besuch des Dashboards wieder erscheint (da `tourCompleted: true` gespeichert wird):
 
-## Lösung: 3 gezielte Fixes
-
-### Fix 1: `useIdleTimer` — `isIdle` aus useEffect-Dependencies entfernen
-`handleActivity` soll `isIdle` über eine **Ref** lesen, nicht direkt aus State. Damit löst die Dependency nicht mehr bei jeder Mausbewegung aus.
-
-```typescript
-// VORHER
-const handleActivity = () => {
-  if (!isIdle) resetTimer(); // isIdle aus State → re-renders
-};
-useEffect(..., [resetTimer, stopTimer, isIdle, clearAllTimers]);
-
-// NACHHER
-const isIdleRef = useRef(false);
-const handleActivity = () => {
-  if (!isIdleRef.current) resetTimer(); // ref → kein re-render
-};
-useEffect(..., [resetTimer, clearAllTimers]); // isIdle entfernt
-```
-
-### Fix 2: `AuthenticatedApp` — `useAuth()` statt eigenem `getUser()`-Call
-`user.id` kommt direkt aus `AuthContext.userId` — kein extra Supabase-Call nötig.
-
-```typescript
-// VORHER (App.tsx ~118)
-const [user, setUser] = useState<any>(null);
+```tsx
+// Wenn User weg navigiert während Tour aktiv, Tour als abgeschlossen markieren
 useEffect(() => {
-  supabase.auth.getUser().then(...)
-}, []);
-
-// NACHHER
-const { userId } = useAuth();
-// user.id überall durch userId ersetzen
+  if (!isOnFormDashboard && showTour) {
+    completeTour(); // Speichert in Supabase + setzt showTour=false
+  }
+}, [isOnFormDashboard]);
 ```
 
-### Fix 3: `window.location.href = '/'` → `navigate('/')` nach Deep-Link-Session
-In `App.tsx` nach einem erfolgreichen Deep-Link-Token-Set (`setSession()`): statt `window.location.href = '/'` soll der bereits vorhandene `navigate()` hook verwendet werden. Da `AppRoutes` bereits `useNavigate` nutzt, kann diese Navigation soft erfolgen.
+Aber Achtung: Das würde die Tour vorzeitig abschliessen wenn der User versehentlich weg navigiert. Besser: Nur `setShowTour(false)` (ohne in Supabase zu speichern) — der User kann die Tour beim nächsten Besuch des Dashboards nochmal sehen.
 
-```typescript
-// VORHER (App.tsx ~450):
-window.location.href = '/';
+### Finale Entscheidung: Minimal-invasiver Fix
 
-// NACHHER:
-navigate('/', { replace: true });
+**Nur `src/pages/Index.tsx` ändern** — ein Wrapper-`div` mit sofortigem `pointer-events: none` wenn Tour nicht aktiv:
+
+```tsx
+{/* Wrapper ensures pointer-events are cleared immediately when tour hides */}
+<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
+  {showTour && <FormTour onComplete={completeTour} onSkip={skipTour} />}
+</div>
 ```
 
----
+Für `AnimatePresence` (um die Exit-Animation zu behalten) muss `FormTour` intern das handhaben. Da das aber `AnimatePresence` ist, brauchen wir es aussen:
+
+```tsx
+<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
+  <AnimatePresence>
+    {showTour && <FormTour key="form-tour" onComplete={completeTour} onSkip={skipTour} />}
+  </AnimatePresence>
+</div>
+```
 
 ## Geänderte Dateien
 
-### 1. `src/hooks/use-idle-timer.ts`
-- `isIdleRef` hinzufügen, der mit `isIdle`-State synchron gehalten wird
-- `handleActivity` verwendet `isIdleRef.current` statt `isIdle` State
-- `isIdle` aus useEffect-Dependencies entfernen → kein Render-Storm mehr bei User-Aktivität
+### 1. `src/pages/Index.tsx`
+- `FormTour` in einen `<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>` + `<AnimatePresence>` wrappen
+- Damit werden Events sofort freigegeben wenn `showTour = false` — unabhängig von Framer Motion's Animation-Timing
 
-### 2. `src/App.tsx`
-- `AuthenticatedApp`: `useAuth()` importieren, `userId` direkt verwenden statt eigenem `getUser()` Call
-- `AppRoutes`: Deep-Link nach `setSession()` via `navigate('/', { replace: true })` statt `window.location.href = '/'`
+### 2. `src/components/FormTour.tsx`
+- `FormTour` muss als `motion.div`-Root gerendert werden damit `AnimatePresence` darauf reagieren kann
+- Das Root-Element bekommt `initial/animate/exit` Props
 
-### Ergebnis
+## Ergebnis
 
 ```
 VORHER:
-  Jede Mausbewegung → useEffect re-runs → Timers neu setzen → UI zittert
-  Deep-Link Login → window.location.href → Full Reload → App neu aufbauen
-  Route-Wechsel → extra getUser() Call → ~200ms extra Latenz
+  Tour aktiv → User klickt "Kontaktangaben" → Route wechselt →
+  showTour = false → AnimatePresence Exit → 200ms Framer-Versatz →
+  Overlay blockiert Formular → Weiter-Knopf reagiert nicht
 
 NACHHER:
-  Jede Mausbewegung → ref check → kein re-render
-  Deep-Link Login → navigate() → SPA Navigation, kein Reload
-  Route-Wechsel → kein extra Supabase-Call
+  Tour aktiv → User klickt "Kontaktangaben" → Route wechselt →
+  showTour = false → Wrapper-div: pointerEvents='none' SOFORT →
+  Formular voll klickbar → AnimatePresence Exit-Animation läuft (sieht gut aus)
+  → nach 200ms Overlay vollständig weg
 ```
-
-Die Kombination dieser drei Fixes beseitigt die Hauptursachen für die wahrgenommene Trägheit und die notwendigen App-Neustarts.
