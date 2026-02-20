@@ -50,8 +50,23 @@ export const MobileFriendlyDateInput: React.FC<MobileFriendlyDateInputProps> = (
   const [dateComponents, setDateComponents] = useState(parseDate(value));
 
   useEffect(() => {
-    setDateComponents(parseDate(value));
+    const parsed = parseDate(value);
+    setDateComponents(parsed);
+    // If value is empty but we parsed valid components from a prior load, re-sync
+    // (no-op here since we're parsing from value itself)
   }, [value]);
+
+  // When all three date components are set but parent value is empty, sync upward
+  // This handles the case where existing data is displayed but parent state wasn't updated
+  useEffect(() => {
+    if (dateComponents.day && dateComponents.month && dateComponents.year && !value) {
+      const dateString = `${dateComponents.year}-${dateComponents.month}-${dateComponents.day}`;
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        onChange(dateString);
+      }
+    }
+  }, [dateComponents.day, dateComponents.month, dateComponents.year]);
 
   // Generate year options (last 100 years, starting from defaultYear)
   const generateYearOptions = () => {
@@ -97,21 +112,25 @@ export const MobileFriendlyDateInput: React.FC<MobileFriendlyDateInputProps> = (
   };
 
   const updateDate = (component: 'day' | 'month' | 'year', newValue: string) => {
-    const newComponents = { ...dateComponents, [component]: newValue };
-    setDateComponents(newComponents);
+    setDateComponents(prev => {
+      const newComponents = { ...prev, [component]: newValue };
 
-    // Only call onChange if we have all components
-    if (newComponents.day && newComponents.month && newComponents.year) {
-      const dateString = `${newComponents.year}-${newComponents.month}-${newComponents.day}`;
-      // Validate the date
-      const date = new Date(dateString);
-      if (!isNaN(date.getTime())) {
-        onChange(dateString);
+      // Only call onChange if we have all components
+      if (newComponents.day && newComponents.month && newComponents.year) {
+        const dateString = `${newComponents.year}-${newComponents.month}-${newComponents.day}`;
+        // Validate the date
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+          // Use setTimeout to avoid calling onChange during setState
+          setTimeout(() => onChange(dateString), 0);
+        }
+      } else if (!newComponents.day && !newComponents.month && !newComponents.year) {
+        // All empty, clear the value
+        setTimeout(() => onChange(''), 0);
       }
-    } else if (!newComponents.day && !newComponents.month && !newComponents.year) {
-      // All empty, clear the value
-      onChange('');
-    }
+
+      return newComponents;
+    });
   };
 
   const handleCalendarSelect = (date: Date | undefined) => {
