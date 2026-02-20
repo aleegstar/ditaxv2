@@ -194,10 +194,10 @@ const UserTaxReturns = () => {
     }, 600);
   }, [navigate]);
   useEffect(() => {
-    if (!loading && !authLoading && !profileLoading && !isReady) {
+    if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {
       setIsReady(true);
     }
-  }, [loading, authLoading, profileLoading, isReady]);
+  }, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
@@ -259,7 +259,7 @@ const UserTaxReturns = () => {
   const getDocumentCount = (year: string): number => {
     return uploadedDocuments[year]?.length || 0;
   };
-  if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
+  if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading || !activeTaxFilerId) && !safetyTimeout) {
     return <UserTaxReturnsSkeleton />;
   }
 
@@ -314,7 +314,7 @@ const UserTaxReturns = () => {
     if (userProfile?.first_name) {
       return userProfile.first_name;
     }
-    return t.userDashboard.fallbackUser;
+    return null;
   };
   const getGreeting = () => {
     return t.userDashboard.greeting;
@@ -348,7 +348,9 @@ const UserTaxReturns = () => {
               {getGreeting()}
             </p>
             <h1 className="text-gray-900 font-medium tracking-tight font-jakarta leading-none text-2xl">
-              {getUserDisplayName()}
+              {getUserDisplayName() ?? (
+                <span className="inline-block bg-gray-200 rounded-md animate-pulse w-28 h-7" />
+              )}
             </h1>
           </div>
           
