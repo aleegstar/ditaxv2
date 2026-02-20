@@ -94,8 +94,13 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [location.pathname]);
 
   // Handle ?startTour=true URL param — triggered from menu
+  // Reset the handled flag whenever the param disappears (so next invocation works)
   useEffect(() => {
-    if (!shouldForceStart || !isReady || !userId || forceStartHandledRef.current) return;
+    if (!shouldForceStart) {
+      forceStartHandledRef.current = false;
+      return;
+    }
+    if (!isReady || !userId || forceStartHandledRef.current) return;
     forceStartHandledRef.current = true;
 
     debug.log('🎯 Form Tour: startTour param detected — force starting tour');
