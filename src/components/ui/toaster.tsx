@@ -8,7 +8,6 @@ export function Toaster() {
       <SonnerToaster 
         position="top-center"
         offset={16}
-        style={{ left: '50%', transform: 'translateX(-50%)', right: 'auto', width: 'min(calc(100vw - 32px), 20rem)' }}
         visibleToasts={3}
         expand={false}
         gap={6}
@@ -62,6 +61,11 @@ export function Toaster() {
           transform: translateX(-50%) !important;
           margin-left: 0 !important;
           width: min(calc(100vw - 32px), 20rem) !important;
+          --width: min(calc(100vw - 32px), 20rem) !important;
+        }
+        [data-sonner-toaster] li[data-sonner-toast] {
+          width: 100% !important;
+          max-width: 100% !important;
         }
         [data-sonner-toast] {
           position: relative;
