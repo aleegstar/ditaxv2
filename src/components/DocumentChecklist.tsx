@@ -579,7 +579,6 @@ const DocumentChecklist: React.FC = () => {
                           <div className="bg-white rounded-2xl p-5 shadow-sm ring-1 ring-slate-200 mb-4 transition-all hover:shadow-md hover:ring-blue-100">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
                               <div className="flex items-center gap-4">
-                                <div className="w-6 h-6 rounded-full border-2 border-slate-300 flex-shrink-0" />
                                 <h3 className="text-lg font-medium text-slate-800">{item.title}</h3>
                               </div>
                               <div className="flex items-center gap-3 w-full md:w-auto">
@@ -621,11 +620,6 @@ const DocumentChecklist: React.FC = () => {
                           {idx > 0 && <div className="border-t border-slate-100 my-3" />}
                           <div className="group flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
                             <div className="flex items-start gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                              <div className="mt-1 flex-shrink-0">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm">
-                                  <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                                </div>
-                              </div>
                               <div>
                                 <h3 className="text-lg text-slate-500 line-through decoration-slate-300">
                                   {item.title}
