@@ -1,89 +1,96 @@
 
-# Bug-Fix: Kontaktangaben-Fortschritt nur nach vollständigem Ausfüllen als "abgeschlossen" markieren
+# Fix: /payment-success Blinkt auf Mobile
 
-## Problem-Analyse
+## Ursachen-Analyse
 
-Das Kontaktangaben-Formular wird nach dem ersten Schritt bereits als vollständig angezeigt. Die Ursache liegt an **drei Stellen** im Code:
+### Hauptursache 1: TaxFilerGate blockiert/redirectet die payment-success Seite
 
-### Stelle 1: `src/contexts/form/useFormDataOperations.tsx` (Zeile 187)
+Die `/payment-success` Route ist innerhalb von `AuthenticatedApp` eingebettet, welche `TaxFilerGate` umschliesst. Der Gate prüft ob eine Person ausgewählt wurde — bei Benutzern mit mehreren Tax Filern (Sandro + Leano) ist `selectionConfirmed = false` und der Gate leitet zu `/select-person` um. Die Bypass-Liste des Gates enthält `/payment-success` nicht:
+
 ```typescript
-// FALSCH: Immer true, sobald irgendwelche contactInfo-Daten vorhanden sind
-newFormProgress.contactInfo = true;
+// TaxFilerGate.tsx — aktuelle Bypass-Liste:
+const bypassPaths = ['/select-person', '/welcome', '/privacy', ...];
+// '/payment-success' fehlt!
 ```
 
-### Stelle 2: `src/contexts/form/FormContext.tsx` (Zeile 254-258)
-```typescript
-// FALSCH: contactInfo ist NICHT in multiStepSections → landet im else-Branch → immer true
-const multiStepSections = ['income', 'assets', 'deductions'];
-if (multiStepSections.includes(item.form_type)) {
-  newFormProgress[...] = item.data._completed === true;
-} else {
-  newFormProgress[...] = true; // ← contactInfo landet hier!
-}
-```
+Das führt zu folgendem Ablauf auf Mobile:
+1. PaymentSuccess lädt, TaxFilerGate beginnt Tax Filer zu laden
+2. TaxFilerGate zeigt LoadingSpinner
+3. Tax Filer geladen → `hasMultipleFilers = true`, `selectionConfirmed = false`
+4. Redirect zu `/select-person` → Blinken
+5. Nach der Auswahl → zurück zu PaymentSuccess → alles wiederholt sich
 
-### Stelle 3: `src/components/forms/MultiStepContactForm.tsx` (handleNext)
-Beim Speichern der Zwischenschritte (Schritt 1-3) wird `saveSection('contactInfo', currentContactData)` aufgerufen, aber `currentContactData` enthält **kein `_completed: true`-Flag**. Das ist korrekt für Zwischenschritte. Aber beim Laden der Daten wird `contactInfo` trotzdem als `true` markiert (Stellen 1 & 2).
+### Hauptursache 2: PaymentSuccess ist in der falschen Route-Ebene
+
+Die `/payment-success` Route ist innerhalb von `AuthenticatedApp` unter dem `/*`-Catch-all eingebettet (Zeile 267), obwohl sie eine öffentliche/semi-öffentliche Seite ist (kein `ProtectedRoute`-Guard). Sie sollte wie `/auth`, `/preisrechner` etc. direkt in `AppRoutes` als eigenständige Route registriert sein — ausserhalb von `AuthenticatedApp`.
+
+### Nebenproblem: Mehrfache Auth-Requests
+
+`waitForAuth()` macht bei jedem Retry `getSession()` + `getUser()` = bis zu 16 Requests. Das ist sichtbar auf langsamen mobilen Netzwerken.
 
 ## Lösung
 
-### Fix 1: `src/components/forms/MultiStepContactForm.tsx`
-Im `handleNext()`-Handler beim letzten Schritt `_completed: true` zu den gespeicherten Daten hinzufügen:
+### Fix 1 (Kern-Fix): /payment-success aus AuthenticatedApp herauslösen
+
+Die Route aus dem `/*`-Catch-all in `AuthenticatedApp` entfernen und direkt als eigene Route in `AppRoutes` registrieren — analog zu `/auth`, `/preisrechner` etc.
+
+**In `src/App.tsx`:**
 
 ```typescript
-// Beim finalen Schritt (currentStep === steps.length):
-await saveSection('contactInfo', { ...currentContactData, _completed: true });
-updateFormProgress('contactInfo', true);
+// AppRoutes — payment-success als eigenständige Top-Level Route:
+<Route path="/payment-success" element={<PaymentSuccess />} />
+
+// AuthenticatedApp — diese Zeile entfernen:
+// <Route path="/payment-success" element={<PaymentSuccess />} />
 ```
 
-### Fix 2: `src/contexts/form/useFormDataOperations.tsx` (Zeile 187)
-`contactInfo` genauso behandeln wie die anderen Multi-Step-Sektionen:
+So wird `PaymentSuccess` nie durch `TaxFilerGate`, `AuthenticatedApp`-Loading, `onboardingChecked`-Check oder die `isValid`-Prüfung blockiert.
+
+### Fix 2 (Absicherung): /payment-success zur Bypass-Liste von TaxFilerGate hinzufügen
+
+Als zweite Absicherungslinie, falls die Route-Struktur sich ändert:
 
 ```typescript
-// VORHER:
-newFormProgress.contactInfo = true;
-newFormProgress.contact = true;
-
-// NACHHER:
-newFormProgress.contactInfo = item.data._completed === true;
-newFormProgress.contact = item.data._completed === true;
+// TaxFilerGate.tsx
+const bypassPaths = [
+  '/select-person', '/welcome', '/privacy', '/terms', '/cookies',
+  '/acceptable-use', '/impressum', '/privacy-settings', '/debug',
+  '/help', '/feedback',
+  '/payment-success', // NEU: payment-success niemals blockieren
+];
 ```
 
-### Fix 3: `src/contexts/form/FormContext.tsx` (Zeile 254)
-`contactInfo` zu den Multi-Step-Sektionen hinzufügen, damit der `_completed`-Check greift:
+### Fix 3: Auth-Retry-Logik vereinfachen
+
+In `PaymentSuccess.tsx` die `waitForAuth`-Funktion optimieren: Nur `getSession()` verwenden (ein Netzwerkrequest statt zwei pro Retry), und den `useEffect` mit einem `ref`-Guard absichern (bereits vorhanden mit `hasRun.current`).
 
 ```typescript
-// VORHER:
-const multiStepSections = ['income', 'assets', 'deductions'];
-
-// NACHHER:
-const multiStepSections = ['income', 'assets', 'deductions', 'contactInfo'];
+const waitForAuth = async (maxRetries = 5): Promise<any> => {
+  for (let i = 0; i < maxRetries; i++) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) return session.user;
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  return null;
+};
 ```
 
-Und den Sync-Block darunter ebenfalls anpassen:
-```typescript
-if (item.form_type === 'contactInfo') {
-  newFormProgress.contact = item.data._completed === true; // war: true
-}
-```
+## Dateien die geändert werden
+
+| Datei | Änderung |
+|---|---|
+| `src/App.tsx` | `/payment-success` aus `AuthenticatedApp`-Routes entfernen und als Top-Level Route in `AppRoutes` hinzufügen |
+| `src/components/guards/TaxFilerGate.tsx` | `/payment-success` zur Bypass-Liste hinzufügen |
+| `src/pages/PaymentSuccess.tsx` | `waitForAuth` vereinfachen (weniger redundante Requests) |
+
+## Warum kein Data-Loss
+
+`PaymentSuccess` macht keine Supabase-Queries die Auth-Guards benötigen — nur `supabase.auth.getSession()` und `supabase.from('tax_returns').update(...)`. Diese funktionieren auch ohne `TaxFilerGate` oder `AuthenticatedApp`.
 
 ## Verhalten nach dem Fix
 
 | Situation | Vorher | Nachher |
 |---|---|---|
-| Nur Schritt 1 ausgefüllt, gespeichert | ✅ "Vollständig" (Bug!) | ⏳ Nicht vollständig |
-| Alle 4 Schritte ausgefüllt | ✅ "Vollständig" | ✅ "Vollständig" |
-| App neu gestartet, nur Schritt 1 Daten in DB | ✅ "Vollständig" (Bug!) | ⏳ Nicht vollständig |
-| App neu gestartet, alle 4 Schritte in DB | ✅ "Vollständig" | ✅ "Vollständig" |
-
-## Dateien die geändert werden
-
-1. `src/components/forms/MultiStepContactForm.tsx` — `_completed: true` beim finalen Schritt mitschicken
-2. `src/contexts/form/useFormDataOperations.tsx` — `_completed`-Check für `contactInfo`
-3. `src/contexts/form/FormContext.tsx` — `contactInfo` zu `multiStepSections` hinzufügen
-
-## Wichtiger Hinweis zur bestehenden Datenlage
-
-Benutzer die das Formular bereits vollständig ausgefüllt haben, haben in der Datenbank **kein `_completed: true`** in ihren `contactInfo`-Daten. Nach dem Fix würden ihre Daten als "nicht vollständig" angezeigt werden, obwohl sie das Formular abgeschlossen haben.
-
-**Lösung dafür:** Im `handleNext()` beim finalen Schritt wird das Flag gesetzt und gespeichert. Das bedeutet: Benutzer die das Formular erneut öffnen und auf "Weiter" klicken (beim letzten Schritt), werden korrekt als "vollständig" markiert. Alternativ kann eine einmalige Datenmigration durchgeführt werden — aber das ist optional und kann je nach Bedarf entschieden werden.
+| Mobile, mehrere Tax Filer | Blinken / Loop zu /select-person | Direkt PaymentSuccess angezeigt |
+| Langsames Netzwerk | 16 Auth-Requests sichtbar | Max. 5 Requests |
+| Deeplink nach Zahlung | Blinken, manchmal kein Confetti | Sofort stabile Anzeige |
