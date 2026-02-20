@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,12 +21,18 @@ export function useAuthValidation() {
   const { toast } = useToast();
   const { t } = useI18n();
 
+  // Guard: ensure the logout toast + navigation only fires once per idle event
+  const logoutFiredRef = useRef(false);
+
   const [idleState, setIdleState] = useState<IdleState>({
     showWarning: false,
     timeLeft: 0,
   });
 
   const handleIdleTimeout = useCallback(() => {
+    if (logoutFiredRef.current) return;
+    logoutFiredRef.current = true;
+
     console.log('Idle timeout reached, logging out');
     setIdleState({ showWarning: false, timeLeft: 0 });
     auth.forceLogout().then(() => {
@@ -49,6 +55,13 @@ export function useAuthValidation() {
     onWarning: handleIdleWarning,
     warningTime: 18 * 60 * 1000,
   });
+
+  // Reset the guard when the user is authenticated again
+  useEffect(() => {
+    if (auth.isValid) {
+      logoutFiredRef.current = false;
+    }
+  }, [auth.isValid]);
 
   useEffect(() => {
     if (idleState.showWarning) {
