@@ -18,7 +18,7 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
 import { FormTour } from '@/components/FormTour';
 
@@ -130,14 +130,10 @@ const IndexContent = () => {
   return <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
       
-      {/* Form Tour — wrapper clears pointer-events immediately when tour hides */}
-      <div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
-        <AnimatePresence>
-          {showTour && (
-            <FormTour key="form-tour" onComplete={completeTour} onSkip={skipTour} />
-          )}
-        </AnimatePresence>
-      </div>
+      {/* Form Tour — only render when active, no lingering overlay */}
+      {showTour && (
+        <FormTour onComplete={completeTour} onSkip={skipTour} />
+      )}
       
       {/* Floating Add Document Button */}
       {showFloatingButton}
