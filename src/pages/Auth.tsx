@@ -489,7 +489,7 @@ const Auth = () => {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
         {/* Card: Liquid Glass */}
-        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-3xl border-0 sm:border sm:border-white/40 px-6 py-10 sm:p-12 sm:shadow-2xl sm:shadow-black/5" style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(40px) saturate(180%)', WebkitBackdropFilter: 'blur(40px) saturate(180%)' }}>
+        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-3xl border-0 sm:border sm:border-slate-200/60 px-6 py-10 sm:p-12 sm:shadow-2xl sm:shadow-black/5 bg-white">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
