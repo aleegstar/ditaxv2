@@ -1,96 +1,107 @@
 
-# Fix: /payment-success Blinkt auf Mobile
+# Fix: Produkttour startet nach /select-person-Navigation fälschlicherweise
 
-## Ursachen-Analyse
+## Problem-Analyse
 
-### Hauptursache 1: TaxFilerGate blockiert/redirectet die payment-success Seite
+### Ablauf bei eingeloggten Benutzern mit mehreren Tax Filern
 
-Die `/payment-success` Route ist innerhalb von `AuthenticatedApp` eingebettet, welche `TaxFilerGate` umschliesst. Der Gate prüft ob eine Person ausgewählt wurde — bei Benutzern mit mehreren Tax Filern (Sandro + Leano) ist `selectionConfirmed = false` und der Gate leitet zu `/select-person` um. Die Bypass-Liste des Gates enthält `/payment-success` nicht:
-
-```typescript
-// TaxFilerGate.tsx — aktuelle Bypass-Liste:
-const bypassPaths = ['/select-person', '/welcome', '/privacy', ...];
-// '/payment-success' fehlt!
+```text
+Login → / (Dashboard) → TaxFilerGate erkennt mehrere Filer, keine Auswahl
+     → Redirect zu /select-person (automatisch)
+     → User wählt Person aus
+     → navigate('/', { state: { personSelected: true } })
+     → OnboardingTourContext: initialRouteRef = '/select-person'
+     → location.pathname wechselt zu '/'
+     → hasNavigatedRef.current = true (wegen Wechsel von /select-person zu /)
+     → ABER: Ausnahme-Check erlaubt nur '/welcome' und '/auth'
+     → Tour startet trotzdem! ❌
 ```
 
-Das führt zu folgendem Ablauf auf Mobile:
-1. PaymentSuccess lädt, TaxFilerGate beginnt Tax Filer zu laden
-2. TaxFilerGate zeigt LoadingSpinner
-3. Tax Filer geladen → `hasMultipleFilers = true`, `selectionConfirmed = false`
-4. Redirect zu `/select-person` → Blinken
-5. Nach der Auswahl → zurück zu PaymentSuccess → alles wiederholt sich
+### Ursache im Code
 
-### Hauptursache 2: PaymentSuccess ist in der falschen Route-Ebene
+In `src/contexts/OnboardingTourContext.tsx` (Zeile 191):
 
-Die `/payment-success` Route ist innerhalb von `AuthenticatedApp` unter dem `/*`-Catch-all eingebettet (Zeile 267), obwohl sie eine öffentliche/semi-öffentliche Seite ist (kein `ProtectedRoute`-Guard). Sie sollte wie `/auth`, `/preisrechner` etc. direkt in `AppRoutes` als eigenständige Route registriert sein — ausserhalb von `AuthenticatedApp`.
+```typescript
+if (hasNavigatedRef.current 
+    && initialRouteRef.current !== '/welcome' 
+    && initialRouteRef.current !== '/auth') {
+  debug.log('❌ Tour: User has navigated, skipping auto-start');
+  return;
+}
+```
 
-### Nebenproblem: Mehrfache Auth-Requests
+Diese Prüfung soll verhindern, dass die Tour startet, wenn der User bereits navigiert hat. Aber es gibt zwei Fehler:
 
-`waitForAuth()` macht bei jedem Retry `getSession()` + `getUser()` = bis zu 16 Requests. Das ist sichtbar auf langsamen mobilen Netzwerken.
+1. **`/select-person` fehlt in der Ausnahmeliste**: `/select-person` ist eine automatische System-Weiterleitung (durch `TaxFilerGate`), keine bewusste User-Navigation. Es sollte wie `/welcome` behandelt werden — d.h. eine Tour-Auslösung von `/select-person` → `/` ist erlaubt.
+
+2. **Logik-Fehler**: Die Bedingung ist invertiert. Der Code sagt "wenn navigiert UND initialRoute war NICHT /welcome UND nicht /auth → Tour blockieren". Das bedeutet: Wenn `initialRoute = '/select-person'`, ist die Ausnahme NICHT erfüllt → Tour wird blockiert. Aber in der Praxis startet die Tour trotzdem, weil `hasNavigatedRef.current` zu diesem Zeitpunkt noch `false` sein kann (Race Condition zwischen dem Timeout von 800ms und der Navigation).
+
+### Zweites Problem: Race Condition
+
+Der `checkTourConditions`-Effect hat einen 800ms Delay. Wenn der User sehr schnell von `/select-person` zu `/` navigiert und das Timeout noch nicht abgelaufen ist, wird der `hasNavigatedRef` möglicherweise noch nicht korrekt gesetzt. Das führt dazu, dass die Tour auch auf Unterseiten startet, wenn der Delay-Timer noch nicht ausgelöst wurde.
+
+### Drittes Problem: Tour startet auf falscher Seite
+
+Wenn der User auf einer Unterseite wie `/documents`, `/tickets` etc. ist (nach direktem Login ohne /welcome-Flow), und `tourCompleted = false` ist, startet die Tour wegen des `location.pathname !== '/'`-Checks eigentlich nicht. Aber wenn der User dann zur `/` navigiert, wird die Tour gestartet — obwohl der User das nur durch eine bewusste Navigation gemacht hat, nicht durch einen Onboarding-Flow.
 
 ## Lösung
 
-### Fix 1 (Kern-Fix): /payment-success aus AuthenticatedApp herauslösen
+### Fix 1: `/select-person` zur Ausnahmeliste hinzufügen
 
-Die Route aus dem `/*`-Catch-all in `AuthenticatedApp` entfernen und direkt als eigene Route in `AppRoutes` registrieren — analog zu `/auth`, `/preisrechner` etc.
-
-**In `src/App.tsx`:**
+`/select-person` ist eine automatische System-Weiterleitung — kein bewusster User-Entscheid. Deswegen soll eine Transition von `/select-person` → `/` die Tour auslösen dürfen.
 
 ```typescript
-// AppRoutes — payment-success als eigenständige Top-Level Route:
-<Route path="/payment-success" element={<PaymentSuccess />} />
+// OnboardingTourContext.tsx — Zeile 191
+// VORHER:
+if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/auth') {
 
-// AuthenticatedApp — diese Zeile entfernen:
-// <Route path="/payment-success" element={<PaymentSuccess />} />
+// NACHHER:
+if (hasNavigatedRef.current && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/auth' && initialRouteRef.current !== '/select-person') {
 ```
 
-So wird `PaymentSuccess` nie durch `TaxFilerGate`, `AuthenticatedApp`-Loading, `onboardingChecked`-Check oder die `isValid`-Prüfung blockiert.
+### Fix 2: Tour nur starten wenn Route von Anfang an `/` war ODER von erlaubten Quellen kommt
 
-### Fix 2 (Absicherung): /payment-success zur Bypass-Liste von TaxFilerGate hinzufügen
+Robusterer Ansatz: Statt nur `initialRouteRef` zu tracken, die `location.state` von `SelectPerson` prüfen. Wenn `navigate('/', { state: { personSelected: true } })` aufgerufen wurde, ist das eine erlaubte Navigation.
 
-Als zweite Absicherungslinie, falls die Route-Struktur sich ändert:
+Zusätzlich: Die `hasNavigatedRef`-Logik so anpassen, dass sie Übergänge von System-Seiten (`/select-person`) zur Tour-Route `/` nicht blockiert.
 
-```typescript
-// TaxFilerGate.tsx
-const bypassPaths = [
-  '/select-person', '/welcome', '/privacy', '/terms', '/cookies',
-  '/acceptable-use', '/impressum', '/privacy-settings', '/debug',
-  '/help', '/feedback',
-  '/payment-success', // NEU: payment-success niemals blockieren
-];
-```
+### Fix 3: `hasNavigatedRef` erst nach dem ersten Render setzen (Race Condition)
 
-### Fix 3: Auth-Retry-Logik vereinfachen
+Den `initialRouteRef`-Tracking-Effect so anpassen, dass er den echten initialen Pfad (vor dem `TaxFilerGate`-Redirect) korrekt erfasst. Da `TaxFilerGate` sehr schnell von `/` zu `/select-person` weiterleitet, wird `/select-person` als `initialRoute` gesetzt — nicht `/`.
 
-In `PaymentSuccess.tsx` die `waitForAuth`-Funktion optimieren: Nur `getSession()` verwenden (ein Netzwerkrequest statt zwei pro Retry), und den `useEffect` mit einem `ref`-Guard absichern (bereits vorhanden mit `hasRun.current`).
+**Lösung**: Im `OnboardingTourContext` die `location.state` von React Router auslesen, um zu erkennen ob der User von `/select-person` (mit `personSelected: true`) kam:
 
 ```typescript
-const waitForAuth = async (maxRetries = 5): Promise<any> => {
-  for (let i = 0; i < maxRetries; i++) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) return session.user;
-    await new Promise(r => setTimeout(r, 1000));
-  }
-  return null;
-};
+// Im checkTourConditions-Effect:
+const locationState = location.state as { personSelected?: boolean } | null;
+const cameFromSelectPerson = locationState?.personSelected === true;
+
+if (hasNavigatedRef.current 
+    && !cameFromSelectPerson
+    && initialRouteRef.current !== '/welcome' 
+    && initialRouteRef.current !== '/auth'
+    && initialRouteRef.current !== '/select-person') {
+  debug.log('❌ Tour: User has navigated (not via select-person), skipping auto-start');
+  return;
+}
 ```
 
 ## Dateien die geändert werden
 
 | Datei | Änderung |
 |---|---|
-| `src/App.tsx` | `/payment-success` aus `AuthenticatedApp`-Routes entfernen und als Top-Level Route in `AppRoutes` hinzufügen |
-| `src/components/guards/TaxFilerGate.tsx` | `/payment-success` zur Bypass-Liste hinzufügen |
-| `src/pages/PaymentSuccess.tsx` | `waitForAuth` vereinfachen (weniger redundante Requests) |
-
-## Warum kein Data-Loss
-
-`PaymentSuccess` macht keine Supabase-Queries die Auth-Guards benötigen — nur `supabase.auth.getSession()` und `supabase.from('tax_returns').update(...)`. Diese funktionieren auch ohne `TaxFilerGate` oder `AuthenticatedApp`.
+| `src/contexts/OnboardingTourContext.tsx` | `/select-person` zur Ausnahmeliste hinzufügen + `location.state.personSelected` als zusätzliche Bedingung prüfen |
 
 ## Verhalten nach dem Fix
 
 | Situation | Vorher | Nachher |
 |---|---|---|
-| Mobile, mehrere Tax Filer | Blinken / Loop zu /select-person | Direkt PaymentSuccess angezeigt |
-| Langsames Netzwerk | 16 Auth-Requests sichtbar | Max. 5 Requests |
-| Deeplink nach Zahlung | Blinken, manchmal kein Confetti | Sofort stabile Anzeige |
+| Login → TaxFilerGate → /select-person → / | Tour startet (Bug!) | Tour startet korrekt auf Dashboard ✅ |
+| Login → /welcome → / (neue User) | Tour startet | Tour startet ✅ |
+| Login → direkt zu / (kein Gate) | Tour startet | Tour startet ✅ |
+| User navigiert manuell zu / (von /documents) | Tour startet manchmal (Bug!) | Tour startet nicht ✅ |
+| Tour bereits abgeschlossen | Tour startet nicht | Tour startet nicht ✅ |
+
+## Technische Details
+
+Die Änderung ist minimal und chirurgisch — nur `OnboardingTourContext.tsx` wird angepasst. Keine Änderungen an Routing, Guards oder anderen Contexts nötig.
