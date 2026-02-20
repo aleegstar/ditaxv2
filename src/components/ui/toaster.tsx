@@ -51,6 +51,12 @@ export function Toaster() {
         <ToastViewport />
       </ToastProvider>
       <style>{`
+        /* Force center alignment on mobile */
+        [data-sonner-toaster] {
+          left: 50% !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+        }
         [data-sonner-toast] {
           position: relative;
           overflow: hidden;
