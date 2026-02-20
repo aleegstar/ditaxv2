@@ -7,7 +7,8 @@ export function Toaster() {
     <>
       <SonnerToaster 
         position="top-center"
-        style={{ left: '50%', transform: 'translateX(-50%)', right: 'auto' }}
+        offset={16}
+        style={{ left: '50%', transform: 'translateX(-50%)', right: 'auto', width: 'min(calc(100vw - 32px), 20rem)' }}
         visibleToasts={3}
         expand={false}
         gap={6}
@@ -53,12 +54,14 @@ export function Toaster() {
       </ToastProvider>
       <style>{`
         /* Force center alignment on all viewports */
+        [data-sonner-toaster],
         [data-sonner-toaster][data-x-position="center"],
-        [data-sonner-toaster] {
+        [data-sonner-toaster][data-position="top-center"] {
           left: 50% !important;
           right: auto !important;
           transform: translateX(-50%) !important;
           margin-left: 0 !important;
+          width: min(calc(100vw - 32px), 20rem) !important;
         }
         [data-sonner-toast] {
           position: relative;
