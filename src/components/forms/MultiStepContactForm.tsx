@@ -201,22 +201,26 @@ const MultiStepContactForm = ({
     }
 
     try {
-      await saveSection('contactInfo', currentContactData);
-      
       const checkboxFields = ['firefighterService', 'hasChildren'];
       const hasCheckboxChanges = checkboxFields.some(field => 
         currentContactData[field] !== formData.contactInfo?.[field]
       );
       
-      if (hasCheckboxChanges) {
-        generateChecklist();
-      }
-
       if (currentStep < steps.length) {
-        // Intermediate step - just advance, don't mark as complete
+        // Intermediate step - save without _completed flag, just advance
+        await saveSection('contactInfo', currentContactData);
+        
+        if (hasCheckboxChanges) {
+          generateChecklist();
+        }
         setCurrentFormStep(currentStep + 1);
       } else {
-        // Final step completed - NOW mark as complete
+        // Final step completed - save WITH _completed: true flag
+        await saveSection('contactInfo', { ...currentContactData, _completed: true });
+        
+        if (hasCheckboxChanges) {
+          generateChecklist();
+        }
         updateFormProgress('contactInfo', true);
         toast({
           title: t.forms.savedSuccessfully,

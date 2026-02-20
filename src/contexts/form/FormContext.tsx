@@ -251,7 +251,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
                 }
                 
                 // For multi-step yes/no sections, only mark complete if _completed flag is set
-                const multiStepSections = ['income', 'assets', 'deductions'];
+                const multiStepSections = ['income', 'assets', 'deductions', 'contactInfo'];
                 if (multiStepSections.includes(item.form_type)) {
                   newFormProgress[item.form_type as keyof FormProgressType] = item.data._completed === true;
                 } else {
@@ -260,7 +260,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
                 
                 // Sync contact and contactInfo
                 if (item.form_type === 'contactInfo') {
-                  newFormProgress.contact = true;
+                  newFormProgress.contact = item.data._completed === true;
                 }
               } else if (item.form_type === 'summary' && item.data?.confirmed === true) {
                 // Special handling for summary confirmation status

@@ -184,8 +184,8 @@ export const useFormDataOperations = (
               ...newFormData.contactInfo, 
               ...item.data 
             };
-            newFormProgress.contactInfo = true;
-            newFormProgress.contact = true; // Sync contact alias
+            newFormProgress.contactInfo = item.data._completed === true;
+            newFormProgress.contact = item.data._completed === true; // Sync contact alias
           }
           else if (item.form_type === 'income') {
             newFormData.income = { 
