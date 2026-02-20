@@ -1,95 +1,116 @@
 
-# Problem: Tour blockiert Formular-Eingaben nach dem Schliessen
+# Performance-Probleme: Navigation fühlt sich träge an / App-Neustarts nötig
 
-## Ursache (technisch präzise)
+## Diagnose: 4 identifizierte Probleme
 
-Das `TourOverlay` in `src/components/ui/tour-overlay.tsx` hat auf seinem Root-Element:
+### Problem 1 (KRITISCH): `useIdleTimer` re-rendert bei JEDER Mausbewegung
+Die `useEffect`-Dependencies in `src/hooks/use-idle-timer.ts` enthalten `isIdle` und `resetTimer`. Das bedeutet: **jede Mausbewegung** → `handleActivity()` → `resetTimer()` → neues `resetTimer`-Objekt (da `isIdle` im Closure) → useEffect läuft neu → Events werden detached + re-attached + neue Timer erstellt. Auf mobil mit Touch-Events ist das ein konstanter Render-Storm.
 
-```tsx
-className="fixed inset-0 z-[10000] pointer-events-auto"
+```
+useEffect(..., [resetTimer, stopTimer, isIdle, clearAllTimers]);
+//                                     ^^^^^^ PROBLEM: Änderung triggert alles neu
 ```
 
-Das führt zu zwei verknüpften Problemen:
+### Problem 2 (KRITISCH): `AuthenticatedApp` macht DOPPELTEN `getUser()`-Call
+In `src/App.tsx` Zeile 133-141 macht `AuthenticatedApp` einen eigenen `supabase.auth.getUser()` Call — obwohl `AuthContext` bereits serverseitig validiert hat. Das ist ein **redundanter Netzwerkrequest** bei jedem Route-Wechsel in die App.
 
-### Problem 1: Exit-Animation blockiert Inputs (400ms)
-Wenn der Nutzer die Tour abschliesst, setzt React `showTour = false`. `AnimatePresence` lässt das Overlay aber noch **400ms** mit der Exit-Animation (`opacity: 0 → 0`) im DOM — und weil `pointer-events-auto` gesetzt ist, blockiert das unsichtbare Overlay in dieser Zeit alle Klicks und Tastatureingaben im Formular.
+```typescript
+// AuthenticatedApp (App.tsx ~133):
+const getUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser(); // ← unnötiger Call
+  if (mounted) setUser(user);
+};
+```
 
-### Problem 2: `pointer-events-auto` auf dem ganzen Container
-Der äussere Container fängt alle Events ab — auch im Spotlight-Bereich. Das SVG hat `pointer-events-none`, aber weil der übergeordnete `div` `pointer-events-auto` hat, werden Events trotzdem vom Container abgefangen. Nur die Buttons im Tooltip-Bereich sind korrekt klickbar, weil sie explizit im DOM weiter oben sind.
+`AuthContext` gibt bereits `userId` und `email` zurück — `user.id` kann direkt von dort kommen.
 
-### Problem 3: `AnimatePresence mode="wait"` in Kombination
-Mit `mode="wait"` wartet `AnimatePresence` darauf, dass das exitierende Element seine Animation beendet, bevor das nächste Element gemountet wird. Das macht die 400ms Blockade noch länger und zuverlässiger reproduzierbar.
+### Problem 3 (KRITISCH): `window.location.href` statt `navigate()` verursacht Full-Reload
+An mehreren Stellen (App.tsx Zeile 450, AuthSuccess.tsx Zeile 56, 81) wird `window.location.href = '/'` verwendet statt `navigate('/')`. Das verursacht einen kompletten **Browser-Reload** — alle React-States, QueryClient-Cache, und Contexts werden zerstört und von Null aufgebaut. Das ist exakt das "Gefühl als ob man die App neustartet".
 
-## Lösung: Drei gezielte Korrekturen
+```typescript
+// App.tsx ~450:
+window.location.href = '/'; // ← Full Reload! React stirbt komplett
 
-### Fix 1: `pointer-events-none` auf Exit (wichtigster Fix)
-Während der Exit-Animation soll der Container keine Events mehr blockieren. Das lässt sich über den `animate`/`exit` prop lösen: Der Container bekommt `pointerEvents: 'auto'` nur wenn er sichtbar ist, und `pointerEvents: 'none'` sobald er schliesst.
+// AuthSuccess.tsx ~56:
+window.location.replace('/'); // ← ebenfalls Full Reload
+```
 
-```tsx
+### Problem 4: Doppelte `getSession()` in `TaxFilerContext`
+`TaxFilerContext` registriert einen `onAuthStateChange` Listener UND ruft zusätzlich `getSession()` auf — beides parallel. Das sind unnötige Race-Conditions beim Start.
+
+---
+
+## Lösung: 3 gezielte Fixes
+
+### Fix 1: `useIdleTimer` — `isIdle` aus useEffect-Dependencies entfernen
+`handleActivity` soll `isIdle` über eine **Ref** lesen, nicht direkt aus State. Damit löst die Dependency nicht mehr bei jeder Mausbewegung aus.
+
+```typescript
 // VORHER
-<motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  exit={{ opacity: 0 }}
-  className="fixed inset-0 z-[10000] pointer-events-auto"
->
+const handleActivity = () => {
+  if (!isIdle) resetTimer(); // isIdle aus State → re-renders
+};
+useEffect(..., [resetTimer, stopTimer, isIdle, clearAllTimers]);
 
 // NACHHER
-<motion.div
-  initial={{ opacity: 0, pointerEvents: 'none' }}
-  animate={{ opacity: 1, pointerEvents: 'auto' }}
-  exit={{ opacity: 0, pointerEvents: 'none' }}
-  className="fixed inset-0 z-[10000]"
->
+const isIdleRef = useRef(false);
+const handleActivity = () => {
+  if (!isIdleRef.current) resetTimer(); // ref → kein re-render
+};
+useEffect(..., [resetTimer, clearAllTimers]); // isIdle entfernt
 ```
 
-So werden Events sofort beim Starten der Exit-Animation (nicht erst nach 400ms) freigegeben.
+### Fix 2: `AuthenticatedApp` — `useAuth()` statt eigenem `getUser()`-Call
+`user.id` kommt direkt aus `AuthContext.userId` — kein extra Supabase-Call nötig.
 
-### Fix 2: SVG-Overlay erhält ebenfalls explizit `pointer-events-none`
-Das dunkle Overlay-Rechteck im SVG soll keine Events abfangen — nur die Buttons im Tooltip sollen klickbar sein. Das ist jetzt teilweise schon korrekt (SVG hat `pointer-events-none`), aber der Container-Div dahinter blockiert trotzdem. Mit Fix 1 wird das behoben.
-
-Zusätzlich: Das nicht-SVG Overlay (wenn kein Target vorhanden) bekommt `pointer-events-none`:
-
-```tsx
-// VORHER
-<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px]" />
+```typescript
+// VORHER (App.tsx ~118)
+const [user, setUser] = useState<any>(null);
+useEffect(() => {
+  supabase.auth.getUser().then(...)
+}, []);
 
 // NACHHER
-<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] pointer-events-none" />
+const { userId } = useAuth();
+// user.id überall durch userId ersetzen
 ```
 
-### Fix 3: Exit-Dauer verkürzen
-400ms Exit-Animation ist zu lang wenn Inputs dahinter blockiert werden. Auf 200ms reduzieren:
+### Fix 3: `window.location.href = '/'` → `navigate('/')` nach Deep-Link-Session
+In `App.tsx` nach einem erfolgreichen Deep-Link-Token-Set (`setSession()`): statt `window.location.href = '/'` soll der bereits vorhandene `navigate()` hook verwendet werden. Da `AppRoutes` bereits `useNavigate` nutzt, kann diese Navigation soft erfolgen.
 
-```tsx
-// VORHER
-transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+```typescript
+// VORHER (App.tsx ~450):
+window.location.href = '/';
 
-// NACHHER
-transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+// NACHHER:
+navigate('/', { replace: true });
 ```
 
-## Geänderte Datei
+---
 
-### `src/components/ui/tour-overlay.tsx`
-1. Root `motion.div`: `pointer-events-auto` Klasse entfernen, stattdessen `pointerEvents` in `initial`/`animate`/`exit` props setzen
-2. Fallback-Overlay ohne Spotlight: `pointer-events-none` hinzufügen
-3. Exit-Transition-Dauer: `0.4 → 0.2`
+## Geänderte Dateien
 
-## Warum das Session-Problem behebt
+### 1. `src/hooks/use-idle-timer.ts`
+- `isIdleRef` hinzufügen, der mit `isIdle`-State synchron gehalten wird
+- `handleActivity` verwendet `isIdleRef.current` statt `isIdle` State
+- `isIdle` aus useEffect-Dependencies entfernen → kein Render-Storm mehr bei User-Aktivität
 
-```text
+### 2. `src/App.tsx`
+- `AuthenticatedApp`: `useAuth()` importieren, `userId` direkt verwenden statt eigenem `getUser()` Call
+- `AppRoutes`: Deep-Link nach `setSession()` via `navigate('/', { replace: true })` statt `window.location.href = '/'`
+
+### Ergebnis
+
+```
 VORHER:
-  Tour endet → showTour=false → AnimatePresence Exit startet
-  → 400ms: fixed inset-0 pointer-events-auto blockiert ALLES
-  → User tippt in Formular: kein Input registriert
-  → Wirkt wie "Session-Problem" (ist aber UI-Blockade)
+  Jede Mausbewegung → useEffect re-runs → Timers neu setzen → UI zittert
+  Deep-Link Login → window.location.href → Full Reload → App neu aufbauen
+  Route-Wechsel → extra getUser() Call → ~200ms extra Latenz
 
 NACHHER:
-  Tour endet → showTour=false → AnimatePresence Exit startet
-  → 0ms: pointerEvents='none' sofort gesetzt
-  → User tippt in Formular: funktioniert sofort
-  → 200ms: Overlay verschwindet komplett
+  Jede Mausbewegung → ref check → kein re-render
+  Deep-Link Login → navigate() → SPA Navigation, kein Reload
+  Route-Wechsel → kein extra Supabase-Call
 ```
 
-Das Problem ist kein Session-Problem — die Session ist korrekt. Es ist ein UI-Event-Blocking durch den Tour-Overlay während der Exit-Animation.
+Die Kombination dieser drei Fixes beseitigt die Hauptursachen für die wahrgenommene Trägheit und die notwendigen App-Neustarts.
