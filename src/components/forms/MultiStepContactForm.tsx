@@ -291,7 +291,7 @@ const MultiStepContactForm = ({
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <motion.div
             key={currentStep}
             initial={{ opacity: 0, x: 20 }}
@@ -623,8 +623,8 @@ const MultiStepContactForm = ({
           {/* Navigation Buttons */}
           <div className="flex flex-col gap-3 pt-6">
             <Button
-              type="submit"
-              disabled={!validateCurrentStep()}
+              type="button"
+              onClick={handleNext}
               size="lg"
               className="w-full"
             >
