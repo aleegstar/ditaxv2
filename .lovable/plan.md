@@ -1,142 +1,180 @@
 
-# Ursache: TourOverlay blockiert Formular nach Klick auf "Kontaktangaben"
+# Vollständige Diagnose: 4 Root Causes für schlechtes Routing + Tour-Bug
 
-## Präzise Diagnose
+## Problem 1 (KRITISCH): Doppeltes Auth-System in `Index.tsx` — "0 Sessions"
 
-Wenn die Tour auf dem `/form`-Dashboard aktiv ist und der User auf "Kontaktangaben" klickt:
-
-1. Der User klickt auf die "Kontaktangaben"-Karte im Dashboard
-2. React-Router navigiert zu `/form?section=kontakt`
-3. `isOnFormDashboard` wird `false` → `useEffect` ruft `setShowTour(false)` auf
-4. `showTour` ändert sich → `{showTour && <FormTour />}` wird `false`
-5. `AnimatePresence` startet die **Exit-Animation** (200ms)
-6. **Während dieser 200ms** liegt der `TourOverlay` noch mit `pointerEvents: 'auto'` über dem gesamten Screen — inklusive dem gerade gerenderten Formular
-7. Der User sieht das Formular, tippt Daten ein, klickt "Weiter" — **die Klicks landen aber im Overlay, nicht im Formular**
-
-**Warum geht es nach Seiten-Reload?**
-Nach einem Reload wird die Tour nicht gezeigt (`tourCompleted = true` im Supabase-Metadata) → kein Overlay → Weiter-Knopf funktioniert sofort.
-
-**Warum geht es nach "Zurück zum Dashboard → erneut auf Steuerjahr"?**
-Selber Grund: `tourCompleted` wurde beim ersten Durchlauf auf `true` gesetzt → Tour erscheint nicht mehr.
-
-## Das strukturelle Problem
+`Index.tsx` hat eine **eigene Auth-Prüfung** mit `useAuthValidation()`, obwohl das Routing bereits durch `ProtectedRoute` + `TaxFilerGate` in `AuthenticatedApp` abgesichert ist. Das bedeutet:
 
 ```
-Tour aktiv auf /form
-  → User klickt "Kontaktangaben"  
-  → Navigation zu /form?section=kontakt
-  → showTour = false (durch useEffect)
-  → FormTour beginnt Exit-Animation (200ms, pointerEvents NOCH 'auto')
-  → Formular wird gerendert (darunter)
-  → User klickt "Weiter" → trifft den Overlay ← BUG
+AppRoutes prüft Auth → AuthenticatedApp rendert → TaxFilerGate prüft Filers
+→ ProtectedRoute prüft Auth NOCHMALS → Index.tsx prüft Auth EIN DRITTES MAL
 ```
 
-`pointerEvents: 'none'` wird erst beim **Start** der Exit-Animation gesetzt (per Framer Motion `exit` prop). Das Problem ist der **render-Zyklus-Versatz**: `showTour = false` → React rendert → `AnimatePresence` erkennt das Exit → Framer Motion beginnt Animation mit `exit`-Wert — aber das geschieht nicht synchron im gleichen Frame. Es gibt 1-2 Frames Verzögerung wo `pointerEvents: 'auto'` noch gilt.
+Das Resultat: `Index.tsx` startet seinen eigenen Loading-State (`isLoading=true`). Wenn `TaxFilerContext` noch lädt, hat `Index.tsx` `taxFilerLoading=true` — und zeigt `<LoadingSpinner fullScreen />`. Aber `TaxFilerGate` hat die Kontrolle bereits übergeben → es gibt keinen echten "Block" mehr, aber `Index.tsx` setzt trotzdem `LoadingSpinner`. Das führt zu 0-Session-Flackern.
 
-Zusätzlich: `FormTour.tsx` setzt `document.body.setAttribute('data-form-tour-open', 'true')` im mount-Effekt. Der cleanup (removeAttribute) läuft ebenfalls asynchron nach dem Unmount — also nach der 200ms Animation.
-
-## Lösung: 2 gezielte Fixes
-
-### Fix 1 (Haupt-Fix): Tour sofort beenden wenn User aktiv navigiert
-
-Statt `showTour(false)` passiv über `useEffect` zu setzen, soll die Tour **aktiv beendet** werden, bevor der User zu einem Section-Formular navigiert.
-
-In `src/pages/Index.tsx` in der `renderContent()`-Funktion: Wenn `section` gesetzt ist (User ist im Formular), soll die Tour sofort per `completeTour()` beendet werden — oder noch besser: Der `TaxYearDashboard` soll beim Klick auf eine Sektion zuerst `skipTour()` aufrufen, dann navigieren.
-
-**Konkret**: In `FormTourContext.tsx` soll ein `useEffect` hinzugefügt werden, der bei Navigation weg vom Dashboard (`isOnFormDashboard === false`) `showTour` synchron auf `false` setzt UND zusätzlich `tourCompleted = true` speichert (via `skipTour()`). Damit wird die Tour sauber abgeschlossen und nicht nur ausgeblendet.
-
-Aber das reicht nicht — wegen dem Framer-Motion-Versatz. Deshalb Fix 2:
-
-### Fix 2 (Kern-Fix): `pointer-events: none` sofort auf Exit setzen — ohne Animation-Versatz
-
-Das Problem ist, dass `pointerEvents: 'none'` im `exit`-Prop von Framer Motion **verzögert** angewendet wird (erst wenn React den Exit-State committed hat). 
-
-Die sauberste Lösung: **Wenn `showTour` false wird, soll der Container sofort im selben Render-Zyklus `pointer-events: none` bekommen** — durch ein zustandsgesteuertes CSS-Attribut statt durch Framer-Motion-Animation-Props.
-
-In `TourOverlay.tsx`:
-```tsx
-// NEU: Wrapper mit sofortigem pointer-events: none wenn nicht sichtbar
-<div style={{ pointerEvents: isVisible ? 'auto' : 'none' }}>
-  <AnimatePresence>
-    ...
-  </AnimatePresence>
-</div>
-```
-
-Dabei muss `isVisible` direkt aus dem `showTour`-State kommen (via Prop), nicht aus dem Framer-Motion-Animationszustand.
-
-**Aber**: `TourOverlay` kennt `showTour` nicht. Besser ist es, das Problem in `Index.tsx` bzw. `FormTour.tsx` zu lösen.
-
-### Gewählte Lösung: Sofortiges Deaktivieren via CSS-Wrapper
-
-**`src/pages/Index.tsx`** — Der `<FormTour>`-Wrapper bekommt einen `div` mit `pointer-events: none` sobald `showTour` false ist, aber `AnimatePresence` noch rendert:
-
-```tsx
-{/* Form Tour — wrapper ensures immediate pointer-events removal */}
-<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
-  <AnimatePresence>
-    {showTour && <FormTour onComplete={completeTour} onSkip={skipTour} />}
-  </AnimatePresence>
-</div>
-```
-
-Das ist einfach und präzise: Sobald `showTour = false`, blockiert der Wrapper-`div` keine Events mehr — der innere animierte Div kann trotzdem noch seine Exit-Animation abspielen (sieht schön aus), aber Events gehen sofort durch.
-
-**`src/contexts/FormTourContext.tsx`** — Bei Navigation weg vom Dashboard soll `completeTour()` statt nur `setShowTour(false)` aufgerufen werden. Das verhindert auch, dass die Tour beim nächsten Besuch des Dashboards wieder erscheint (da `tourCompleted: true` gespeichert wird):
-
-```tsx
-// Wenn User weg navigiert während Tour aktiv, Tour als abgeschlossen markieren
+Noch schlimmer: `Index.tsx` hat diese Logik:
+```typescript
+// Handle auth state changes with better logic
 useEffect(() => {
-  if (!isOnFormDashboard && showTour) {
-    completeTour(); // Speichert in Supabase + setzt showTour=false
+  if (isLoading && !safetyTimeout) return;
+  setAuthChecked(true);
+  if (!isValid || !userId) {
+    navigate('/auth', { replace: true }); // ← dieser redirect feuert oft zu früh
+  } else if (hasMultipleFilers && !selectionConfirmed) {
+    navigate('/select-person', { replace: true });
   }
-}, [isOnFormDashboard]);
+}, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed, safetyTimeout]);
 ```
 
-Aber Achtung: Das würde die Tour vorzeitig abschliessen wenn der User versehentlich weg navigiert. Besser: Nur `setShowTour(false)` (ohne in Supabase zu speichern) — der User kann die Tour beim nächsten Besuch des Dashboards nochmal sehen.
+**`hasMultipleFilers` und `selectionConfirmed` kommen aus `TaxFilerContext`** — und wenn `TaxFilerContext` noch lädt (Session erst holt), ist `hasMultipleFilers=false` und `selectionConfirmed=false`. Aber da `isLoading=false` (Auth ist fertig), feuert der Effect und navigiert zu `/select-person` auch wenn nur 1 Filer existiert!
 
-### Finale Entscheidung: Minimal-invasiver Fix
+## Problem 2 (KRITISCH): `TaxFilerContext` macht eigenen `getSession()` Call
 
-**Nur `src/pages/Index.tsx` ändern** — ein Wrapper-`div` mit sofortigem `pointer-events: none` wenn Tour nicht aktiv:
+`TaxFilerContext` registriert `onAuthStateChange` **UND** ruft zusätzlich `getSession()` parallel auf. Da `AuthContext` bereits `onAuthStateChange` verwaltet, ist der `getSession()`-Call in `TaxFilerContext` ein redundanter, raceprone Netzwerk-Call.
 
-```tsx
-{/* Wrapper ensures pointer-events are cleared immediately when tour hides */}
-<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
-  {showTour && <FormTour onComplete={completeTour} onSkip={skipTour} />}
-</div>
+Während `TaxFilerContext` auf seine eigene Session wartet (`sessionLoaded=false`), hält `TaxFilerGate` die App mit `isLoading=true` blockiert. Das erklärt den langen Lade-Screen nach Login.
+
+## Problem 3 (KRITISCH): `FormTourContext` macht JEDEN Route-Change einen `getUser()` Call
+
+```typescript
+const checkTourCompletionStatus = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser(); // ← Netzwerkrequest!
 ```
 
-Für `AnimatePresence` (um die Exit-Animation zu behalten) muss `FormTour` intern das handhaben. Da das aber `AnimatePresence` ist, brauchen wir es aussen:
+Diese Funktion wird aufgerufen:
+1. Beim Mount des `FormTourProvider` 
+2. Bei JEDEM `onAuthStateChange` Event
 
-```tsx
-<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>
-  <AnimatePresence>
-    {showTour && <FormTour key="form-tour" onComplete={completeTour} onSkip={skipTour} />}
-  </AnimatePresence>
-</div>
+Da `AuthContext` bereits `getUser()` ausgeführt hat und die Metadaten verfügbar sind, ist dieser Call vollständig redundant.
+
+## Problem 4 (HAUPT-BUG Tour): TourOverlay blockiert Formular
+
+`TourOverlay` hat `className="fixed inset-0 z-[10000]"` und `pointerEvents: 'auto'`. Das `{showTour && <FormTour />}` Pattern entfernt die Komponente zwar sofort aus dem DOM wenn `showTour=false`, aber der Wechsel von `showTour=true` zu `showTour=false` passiert in einem React-Render-Zyklus **nach** dem Route-Wechsel. Das bedeutet:
+
+1. User klickt "Kontaktangaben"
+2. React-Router navigiert: `?section=kontakt` 
+3. `IndexContent` rendert neu → `section !== null`
+4. `FormTourContext` erkennt `isOnFormDashboard=false` → ruft `setShowTour(false)` auf
+5. **Aber**: Steps 2-4 passieren in verschiedenen React-Commits. Zwischen Commit 2 und Commit 4 ist der TourOverlay noch sichtbar und blockiert Events.
+
+Die Lösung ist, `showTour` **sofort auf false zu setzen** wenn `section` im URL-Parameter gesetzt wird — direkt in `IndexContent`, nicht erst im Context über `isOnFormDashboard`.
+
+---
+
+## Lösung: 3 gezielte Fixes
+
+### Fix 1: `Index.tsx` — Redundante Auth-Prüfung entfernen
+
+`Index.tsx` soll **keine eigene Auth-Prüfung** mehr machen. `ProtectedRoute` + `TaxFilerGate` übernehmen das bereits zuverlässig. Die gesamte `useEffect`-Logik mit `setAuthChecked`, `safetyTimeout`, `navigate('/auth')` etc. wird entfernt.
+
+`Index` wird zu einer simplen Wrapper-Komponente:
+
+```typescript
+const Index = () => {
+  const [searchParams] = useSearchParams();
+  const year = searchParams.get('year') || new Date().getFullYear().toString();
+
+  return (
+    <FormProvider taxYear={year}>
+      <FormTourProvider>
+        <IndexContent />
+      </FormTourProvider>
+    </FormProvider>
+  );
+};
 ```
+
+Das `useTaxFiler()` in `Index` wird ebenfalls entfernt (doppelte Prüfung zu `TaxFilerGate`).
+
+### Fix 2: `TaxFilerContext` — Eigenen `getSession()` durch AuthContext ersetzen
+
+`TaxFilerContext` soll **nicht mehr selbst** `getSession()` aufrufen. Stattdessen empfängt er die Session über einen Prop oder über eine direkte Abhängigkeit auf `AuthContext`.
+
+Da `TaxFilerProvider` innerhalb von `AuthenticatedApp` gerendert wird (welche `AuthContext` nutzt), kann `TaxFilerContext` direkt `useAuth()` nutzen:
+
+```typescript
+// TaxFilerContext.tsx — VORHER
+const { data: { session: currentSession } } = await supabase.auth.getSession();
+
+// NACHHER: Nur noch onAuthStateChange listener, kein eigener getSession() Call
+// Initialer State kommt sofort vom bereits validierten AuthContext
+```
+
+Konkret: `TaxFilerContext` bekommt die userId via `useAuth()` als Input, und `loadTaxFilers` wird direkt beim Erhalt der userId getriggert — ohne eigenen Session-Fetch.
+
+### Fix 3: Tour sofort deaktivieren bei Section-Navigation
+
+In `IndexContent` soll die Tour sofort beim Wechsel zu einem Section-Formular beendet werden — **ohne** auf den Context-Effekt zu warten:
+
+```typescript
+// Wenn section gesetzt wird, Tour sofort lokal deaktivieren
+const section = searchParams.get('section');
+
+useEffect(() => {
+  if (section && showTour) {
+    // Sofort completeTour() aufrufen wenn User zu einer Sektion navigiert
+    completeTour();
+  }
+}, [section]);
+```
+
+Aber noch besser: In `TaxYearDashboard`, beim Klick auf eine Karte, soll `skipTour()` aufgerufen werden **bevor** navigiert wird:
+
+```typescript
+// In TaxYearDashboard — beim Klick auf eine Sektion:
+const { skipTour } = useFormTourSafe() || {};
+const handleSectionClick = (sectionPath: string) => {
+  skipTour?.(); // Tour sofort beenden
+  navigate(sectionPath);
+};
+```
+
+Das ist atomisch: Tour-Ende und Navigation passieren im selben Event-Handler, im selben React-Commit.
+
+---
 
 ## Geänderte Dateien
 
 ### 1. `src/pages/Index.tsx`
-- `FormTour` in einen `<div style={{ pointerEvents: showTour ? 'auto' : 'none' }}>` + `<AnimatePresence>` wrappen
-- Damit werden Events sofort freigegeben wenn `showTour = false` — unabhängig von Framer Motion's Animation-Timing
+- Alle Auth-Check-Logik entfernen (`useAuthValidation`, `useEffect` für navigate, `authChecked`, `safetyTimeout`, `taxFilerLoading`)
+- `useTaxFiler()` Import entfernen
+- `Index` zu einer minimalen Wrapper-Komponente vereinfachen
+- Deep-Link Token Handler bleibt (aber vereinfacht)
 
-### 2. `src/components/FormTour.tsx`
-- `FormTour` muss als `motion.div`-Root gerendert werden damit `AnimatePresence` darauf reagieren kann
-- Das Root-Element bekommt `initial/animate/exit` Props
+### 2. `src/contexts/TaxFilerContext.tsx`  
+- `useAuth()` importieren und userId direkt daraus beziehen
+- Eigenen `getSession()` Call entfernen
+- `sessionLoaded` State entfernen
+- `loadTaxFilers` direkt auf `userId` (aus AuthContext) reagieren lassen
+- `onAuthStateChange` Listener entfernen (AuthContext ist Single Source of Truth)
+
+### 3. `src/components/TaxYearDashboard.tsx`
+- `useFormTourSafe()` importieren
+- Beim Klick auf Sektions-Karten `skipTour()` aufrufen **vor** der Navigation
+- Das eliminiert die Race-Condition zwischen Tour-Overlay und Form-Render
+
+### 4. `src/contexts/FormTourContext.tsx`  
+- `checkTourCompletionStatus` aus `user.user_metadata` lesen (bereits im AuthContext verfügbar) statt neuen `getUser()` Call zu machen
+- Den separaten `loadTourStatus()` Call vereinfachen
+
+---
 
 ## Ergebnis
 
 ```
-VORHER:
-  Tour aktiv → User klickt "Kontaktangaben" → Route wechselt →
-  showTour = false → AnimatePresence Exit → 200ms Framer-Versatz →
-  Overlay blockiert Formular → Weiter-Knopf reagiert nicht
+VORHER (mit allen Bugs):
+  Login → AuthContext ✓ → TaxFilerContext getSession() (neu) → warten
+        → TaxFilerGate blockiert → Index.tsx auch noch warten
+        → 3x Auth-Check → Flackern → "0 sessions"
+        
+  Tour → User klickt Karte → Navigation → Tour noch aktiv (200ms)
+        → Form unklickbar → "Weiter" reagiert nicht
 
 NACHHER:
-  Tour aktiv → User klickt "Kontaktangaben" → Route wechselt →
-  showTour = false → Wrapper-div: pointerEvents='none' SOFORT →
-  Formular voll klickbar → AnimatePresence Exit-Animation läuft (sieht gut aus)
-  → nach 200ms Overlay vollständig weg
+  Login → AuthContext ✓ (einmalig, zentral) → TaxFilerContext bekommt
+          userId direkt → sofort laden → TaxFilerGate gibt frei
+        → Index rendert direkt ohne eigene Auth-Checks
+        
+  Tour → User klickt Karte → skipTour() + navigate() im selben Handler
+        → Tour ist SOFORT weg → Form voll klickbar
 ```
