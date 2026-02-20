@@ -170,6 +170,9 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     } catch (error) {
       debug.error('Error resetting form tour:', error);
     }
+    // Reset navigation guard so tour can start even after navigating here
+    hasNavigatedRef.current = false;
+    initialRouteRef.current = '/form';
     setTourCompleted(false);
     setShowTour(true);
   };
