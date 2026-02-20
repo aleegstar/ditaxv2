@@ -6,7 +6,7 @@ export function Toaster() {
   return (
     <>
       <SonnerToaster 
-        position="top-right" 
+        position="top-center" 
         visibleToasts={3}
         expand={false}
         gap={6}
