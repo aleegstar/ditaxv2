@@ -1,105 +1,95 @@
 
-# Problem: Tour startet zu spät (800ms + bis zu 3s zusätzlich)
+# Problem: Tour blockiert Formular-Eingaben nach dem Schliessen
 
-## Ursachen im Detail
+## Ursache (technisch präzise)
 
-### Ursache 1: Fixer 800ms Delay vor jeder Prüfung
-In `OnboardingTourContext.tsx` Zeile 284:
-```typescript
-const timer = setTimeout(checkTourConditions, 800);
-```
-Dieser Delay ist immer aktiv — unabhängig davon, ob alle Daten schon bereit sind.
+Das `TourOverlay` in `src/components/ui/tour-overlay.tsx` hat auf seinem Root-Element:
 
-### Ursache 2: `waitForElements` bis zu 3 Sekunden
-Die Schleife prüft bis zu 15 Mal mit 200ms Pause = **3 Sekunden** Wartezeit im Worst Case. Für den normalen Start ist das viel zu aggressiv.
-
-### Ursache 3: `tourCompleted` braucht separaten Supabase-Call
-Die Tour wartet bis `tourCompleted !== null` (Zeile 237). Das setzt einen eigenen `getUser()` Call voraus, der erst nach Auth getriggert wird — aber async, also verzögert.
-
-### Kombinierter Worst-Case-Ablauf:
-```
-Auth: isLoading → false           (~0ms)
-checkTourCompletionStatus()       (+200-500ms, async Supabase)
-tourCompleted state update        (+React render cycle)
-setTimeout 800ms                  (+800ms fixer Delay)
-waitForElements: 15x 200ms        (bis zu +3000ms)
-───────────────────────────────────────────────
-TOTAL: bis zu 4+ Sekunden Wartezeit
+```tsx
+className="fixed inset-0 z-[10000] pointer-events-auto"
 ```
 
-## Lösung: Drei Optimierungen
+Das führt zu zwei verknüpften Problemen:
 
-### Fix 1: 800ms → 0ms (sofortiger Start)
-Den `setTimeout` auf **0ms** reduzieren. Die Tour soll sofort prüfen, sobald alle Conditions erfüllt sind — nicht künstlich verzögert.
+### Problem 1: Exit-Animation blockiert Inputs (400ms)
+Wenn der Nutzer die Tour abschliesst, setzt React `showTour = false`. `AnimatePresence` lässt das Overlay aber noch **400ms** mit der Exit-Animation (`opacity: 0 → 0`) im DOM — und weil `pointer-events-auto` gesetzt ist, blockiert das unsichtbare Overlay in dieser Zeit alle Klicks und Tastatureingaben im Formular.
 
-```typescript
+### Problem 2: `pointer-events-auto` auf dem ganzen Container
+Der äussere Container fängt alle Events ab — auch im Spotlight-Bereich. Das SVG hat `pointer-events-none`, aber weil der übergeordnete `div` `pointer-events-auto` hat, werden Events trotzdem vom Container abgefangen. Nur die Buttons im Tooltip-Bereich sind korrekt klickbar, weil sie explizit im DOM weiter oben sind.
+
+### Problem 3: `AnimatePresence mode="wait"` in Kombination
+Mit `mode="wait"` wartet `AnimatePresence` darauf, dass das exitierende Element seine Animation beendet, bevor das nächste Element gemountet wird. Das macht die 400ms Blockade noch länger und zuverlässiger reproduzierbar.
+
+## Lösung: Drei gezielte Korrekturen
+
+### Fix 1: `pointer-events-none` auf Exit (wichtigster Fix)
+Während der Exit-Animation soll der Container keine Events mehr blockieren. Das lässt sich über den `animate`/`exit` prop lösen: Der Container bekommt `pointerEvents: 'auto'` nur wenn er sichtbar ist, und `pointerEvents: 'none'` sobald er schliesst.
+
+```tsx
 // VORHER
-const timer = setTimeout(checkTourConditions, 800);
-
-// NACHHER  
-const timer = setTimeout(checkTourConditions, 0);
-```
-
-### Fix 2: `waitForElements` aggressiver und kürzer
-Max Attempts von 15 auf **8** reduzieren, Interval von 200ms auf **150ms**. Das gibt maximal 1.2 Sekunden statt 3 Sekunden — ausreichend für langsames DOM-Rendering.
-
-```typescript
-// VORHER
-const maxAttempts = isManualStartMode ? 4 : 15;
-// ...
-await new Promise(resolve => setTimeout(resolve, 200));
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  className="fixed inset-0 z-[10000] pointer-events-auto"
+>
 
 // NACHHER
-const maxAttempts = isManualStartMode ? 3 : 8;
-// ...
-await new Promise(resolve => setTimeout(resolve, 150));
+<motion.div
+  initial={{ opacity: 0, pointerEvents: 'none' }}
+  animate={{ opacity: 1, pointerEvents: 'auto' }}
+  exit={{ opacity: 0, pointerEvents: 'none' }}
+  className="fixed inset-0 z-[10000]"
+>
 ```
 
-### Fix 3: `tourCompleted` parallel zur Auth laden
-Derzeit wird `checkTourCompletionStatus()` sequenziell **nach** Auth gestartet. Der Call soll direkt beim Mount ausgeführt werden (nicht erst wenn `isValid` true ist), sobald irgendeine Session vorhanden ist — der Wert wird dann gesetzt wenn er kommt.
+So werden Events sofort beim Starten der Exit-Animation (nicht erst nach 400ms) freigegeben.
 
-Der `loadTourStatus` Effect soll sofort starten (ohne auf `isLoading=false` zu warten), aber trotzdem nur wenn `isValid` da ist:
+### Fix 2: SVG-Overlay erhält ebenfalls explizit `pointer-events-none`
+Das dunkle Overlay-Rechteck im SVG soll keine Events abfangen — nur die Buttons im Tooltip sollen klickbar sein. Das ist jetzt teilweise schon korrekt (SVG hat `pointer-events-none`), aber der Container-Div dahinter blockiert trotzdem. Mit Fix 1 wird das behoben.
 
-```typescript
-// VORHER: wartet auf isLoading=false
-useEffect(() => {
-  const loadTourStatus = async () => {
-    if (!isValid || !userId || isLoading) return;
-    ...
-  };
-  loadTourStatus();
-}, [isValid, userId, isLoading]);
+Zusätzlich: Das nicht-SVG Overlay (wenn kein Target vorhanden) bekommt `pointer-events-none`:
 
-// NACHHER: startet sobald isValid & userId bekannt
-useEffect(() => {
-  const loadTourStatus = async () => {
-    if (!isValid || !userId) return;
-    // isLoading check entfernt — der Call darf parallel laufen
-    ...
-  };
-  loadTourStatus();
-}, [isValid, userId]); // isLoading aus deps entfernt
+```tsx
+// VORHER
+<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px]" />
+
+// NACHHER
+<div className="absolute inset-0 bg-black/60 backdrop-blur-[4px] pointer-events-none" />
 ```
 
-## Ergebnis
+### Fix 3: Exit-Dauer verkürzen
+400ms Exit-Animation ist zu lang wenn Inputs dahinter blockiert werden. Auf 200ms reduzieren:
 
-```
-VORHER:
-Auth fertig → +800ms → tourCompleted loaded → Tour prüft → waitForElements (bis 3s)
-= bis zu 4+ Sekunden
+```tsx
+// VORHER
+transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
 
-NACHHER:
-Auth fertig → tourCompleted parallel → Tour prüft sofort → waitForElements (max 1.2s)
-= unter 1 Sekunde in den meisten Fällen
+// NACHHER
+transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
 ```
 
 ## Geänderte Datei
 
-### `src/contexts/OnboardingTourContext.tsx`
-1. Zeile 88: `maxAttempts` für auto-start: `15 → 8`
-2. Zeile 145: Sleep-Interval: `200ms → 150ms`
-3. Zeile 166: `isLoading` Bedingung aus `loadTourStatus` entfernen
-4. Zeile 176: `isLoading` aus den useEffect-Dependencies entfernen
-5. Zeile 284: `setTimeout` Delay: `800ms → 0ms`
+### `src/components/ui/tour-overlay.tsx`
+1. Root `motion.div`: `pointer-events-auto` Klasse entfernen, stattdessen `pointerEvents` in `initial`/`animate`/`exit` props setzen
+2. Fallback-Overlay ohne Spotlight: `pointer-events-none` hinzufügen
+3. Exit-Transition-Dauer: `0.4 → 0.2`
 
-Die Änderung ist minimal (5 Zeilen) und beseitigt alle unnötigen Wartezeiten ohne die bestehende Sicherheitslogik zu beeinflussen.
+## Warum das Session-Problem behebt
+
+```text
+VORHER:
+  Tour endet → showTour=false → AnimatePresence Exit startet
+  → 400ms: fixed inset-0 pointer-events-auto blockiert ALLES
+  → User tippt in Formular: kein Input registriert
+  → Wirkt wie "Session-Problem" (ist aber UI-Blockade)
+
+NACHHER:
+  Tour endet → showTour=false → AnimatePresence Exit startet
+  → 0ms: pointerEvents='none' sofort gesetzt
+  → User tippt in Formular: funktioniert sofort
+  → 200ms: Overlay verschwindet komplett
+```
+
+Das Problem ist kein Session-Problem — die Session ist korrekt. Es ist ein UI-Event-Blocking durch den Tour-Overlay während der Exit-Animation.
