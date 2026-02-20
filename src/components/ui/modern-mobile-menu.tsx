@@ -12,6 +12,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useDocumentsTour } from '@/contexts/DocumentsTourContext';
+import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { LanguageDropdown } from '@/components/ui/language-dropdown';
 type IconComponentType = React.ElementType<{
@@ -99,6 +100,8 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   const {
     forceTour: startDocumentsTour
   } = useDocumentsTour();
+  const formTourContext = useFormTourSafe();
+  const startFormTour = formTourContext?.forceTour;
   const { t } = useI18n();
   const [navigationOpen, setNavigationOpen] = useState(true);
   const [helpOpen, setHelpOpen] = useState(true);
@@ -139,6 +142,14 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
       onOpenChange(false);
       navigate('/documents');
       setTimeout(() => startDocumentsTour(), 500);
+    }
+  }, {
+    label: t.menu.startFormGuide,
+    icon: FileText,
+    action: () => {
+      onOpenChange(false);
+      navigate('/');
+      setTimeout(() => startFormTour?.(), 500);
     }
   }, {
     label: t.menu.feedback,

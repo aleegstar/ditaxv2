@@ -195,3 +195,8 @@ export const useFormTour = () => {
   }
   return context;
 };
+
+// Safe version that returns null when used outside provider
+export const useFormTourSafe = () => {
+  return useContext(FormTourContext);
+};

@@ -1357,6 +1357,7 @@ export interface Translation {
     knowledgeBase: string;
     startGuide: string;
     startDocumentsGuide: string;
+    startFormGuide: string;
     feedbackAndRoadmap: string;
     feedback: string;
     roadmap: string;
@@ -2795,6 +2796,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       knowledgeBase: 'Wissensdatenbank',
       startGuide: 'Anleitung starten',
       startDocumentsGuide: 'Dokumenten Anleitung starten',
+      startFormGuide: 'Formular Anleitung starten',
       feedbackAndRoadmap: 'Feedback & Roadmap',
       feedback: 'Feedback',
       roadmap: 'Roadmap',
@@ -4230,6 +4232,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       knowledgeBase: 'Knowledge Base',
       startGuide: 'Start Guide',
       startDocumentsGuide: 'Start Documents Guide',
+      startFormGuide: 'Start Form Guide',
       feedbackAndRoadmap: 'Feedback & Roadmap',
       feedback: 'Feedback',
       roadmap: 'Roadmap',
