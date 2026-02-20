@@ -1,73 +1,105 @@
 
-# Problem: Dashboard zeigt "Benutzer" statt echtem Namen
+# Root Cause: "Benutzer" Flash trotz korrekter Session
 
-## Ursache (Race Condition)
+## Eigentliche Ursachen (drei verknüpfte Probleme)
 
-Das Problem hat drei Schichten:
+### Problem 1: `isReady` ignoriert `activeTaxFilerId`
+In `UserTaxReturns.tsx` (Zeile 196-200) wird `isReady = true` gesetzt, sobald `loading`, `authLoading` und `profileLoading` alle `false` sind — aber OHNE zu warten, bis `activeTaxFilerId` aus dem `TaxFilerContext` gesetzt wurde. Das führt dazu, dass der Skeleton verschwindet, obwohl die Steuerdaten noch nicht mit dem richtigen Filer geladen werden können.
 
-**Schicht 1 – `useProfile.ts` hat keine Wiederholungslogik:**
-Wenn `fetchProfile()` fehlschlägt (z.B. weil `supabase.auth.getUser()` kurz nach dem Login noch einen Netzwerkfehler liefert oder die Session noch nicht voll propagiert ist), wird `profile` auf `null` belassen und `loading` auf `false` gesetzt. Das passiert im `finally`-Block. Resultat: Die UI rendert sofort mit leerem Profil.
+### Problem 2: Zwei unabhängige Auth-Initialisierungen
+`AuthContext` und `TaxFilerContext` führen beide eigene `getSession()` Aufrufe durch. Sie sind nicht synchronisiert. Wenn `AuthContext` bereits `isValid=true` hat, kann `TaxFilerContext` noch im `sessionLoaded=false`-Zustand sein und `activeTaxFilerId=null` melden — was zu einem kurzen Zeitfenster mit leerem Dashboard führt.
 
-**Schicht 2 – `UserTaxReturns` rendert ohne Profil:**
-Die Skeleton-Anzeige in Zeile 262 wartet auf `profileLoading === false`. Sobald das eintritt (auch wenn `profile === null`), wird der echte Inhalt gerendert — mit dem Fallback-Namen "Benutzer".
+### Problem 3: Leerer `first_name` → "Benutzer" Fallback
+`useProfile` konvertiert `profileData?.first_name || null` — bei leerem String `""` gibt das `null` zurück. `getUserDisplayName()` zeigt dann den Fallback "Benutzer". Wenn eine kurze Race-Condition dazu führt, dass das Profil nochmal gerendert wird bevor die Daten vollständig sind, sieht der Nutzer kurz "Benutzer".
 
-**Schicht 3 – Kein Re-Fetch bei fehlgeschlagenem Profil:**
-Es gibt keine Mechanismus, der erkennt: „`isValid` ist `true`, aber `profile` ist `null` ohne Fehler-State" → erneut laden.
+## Lösung: Drei gezielte Korrekturen
 
-## Lösung
+### Fix 1: `isReady` wartet auch auf `activeTaxFilerId`
+In `UserTaxReturns.tsx` die `isReady`-Bedingung erweitern:
 
-### Fix 1: Retry-Logik in `useProfile.ts`
-Wenn `fetchProfile()` mit einem Auth-Fehler scheitert aber `isValid` noch `true` ist, wird automatisch bis zu 3-mal nach kurzem Warten erneut versucht. Erst wenn alle Versuche scheitern oder die Session wirklich ungültig wird, wird `loading: false` gesetzt.
+```typescript
+// VORHER
+useEffect(() => {
+  if (!loading && !authLoading && !profileLoading && !isReady) {
+    setIsReady(true);
+  }
+}, [loading, authLoading, profileLoading, isReady]);
 
+// NACHHER
+useEffect(() => {
+  if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {
+    setIsReady(true);
+  }
+}, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
 ```
-fetchProfile()
-  → Fehler? → warte 500ms → erneut versuchen (max. 3x)
-  → Dann erst loading: false
-```
 
-### Fix 2: Skeleton bleibt sichtbar wenn `isValid` aber kein Profil
-In `UserTaxReturns.tsx` eine zusätzliche Bedingung hinzufügen: Wenn Auth gültig ist (`isValid`) und `profileLoading` false ist, aber `userProfile` noch `null` ist — Skeleton weiterhin anzeigen (mit eigenem Safety-Timeout von 3s):
+Dies stellt sicher, dass die Seite erst rendert, wenn wirklich alle Datenquellen bereit sind — inklusive der aktiven Steuerperson.
 
-```tsx
-// Zusätzliche Guard: isValid aber kein Profil geladen
-if (isValid && !profileLoading && !userProfile && !safetyTimeout) {
+### Fix 2: Skeleton-Guard um `activeTaxFilerId` ergänzen
+In `UserTaxReturns.tsx` die primäre Skeleton-Bedingung erweitern:
+
+```typescript
+// VORHER
+if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading) && !safetyTimeout) {
+  return <UserTaxReturnsSkeleton />;
+}
+
+// NACHHER
+if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading || !activeTaxFilerId) && !safetyTimeout) {
   return <UserTaxReturnsSkeleton />;
 }
 ```
 
-## Dateien die geändert werden
+### Fix 3: `getUserDisplayName()` zeigt Skeleton statt Fallback
+Anstatt "Benutzer" anzuzeigen wenn `first_name` fehlt, wird ein Inline-Skeleton-Platzhalter gerendert — eine gepulste Ladeanimation, die den Nutzer nicht irreführt:
 
-### `src/hooks/useProfile.ts`
-- Retry-Zähler hinzufügen (max. 3 Versuche, jeweils 500ms Pause)
-- Nur wenn alle Retries scheitern oder Session ungültig → `loading: false`
-- Retries werden abgebrochen wenn `isValid` sich ändert (Cleanup)
-
-### `src/pages/UserTaxReturns.tsx`
-- Zusätzliche Skeleton-Bedingung: `isValid && !userProfile && !profileLoading`
-- Verhindert, dass "Benutzer" jemals angezeigt wird solange eine gültige Session besteht
-
-## Technische Details
-
-```text
-Aktueller Ablauf (fehlerhaft):
-  AuthContext: isValid=true
-       ↓
-  useProfile: fetchProfile() → Netzwerkfehler/Auth-Race
-       ↓
-  finally: setLoading(false) ← profile bleibt null
-       ↓
-  UserTaxReturns: profileLoading=false → rendert "Benutzer" ✗
-
-Neuer Ablauf (korrekt):
-  AuthContext: isValid=true
-       ↓
-  useProfile: fetchProfile() → Fehler → Retry 1 (nach 500ms)
-                             → Fehler → Retry 2 (nach 500ms)
-                             → Erfolg → setProfile(data), setLoading(false) ✓
-  Falls alle Retries scheitern:
-       ↓
-  UserTaxReturns: isValid && !userProfile → Skeleton bleibt sichtbar
-                  (Safety-Timeout nach 3s entsperrt dann trotzdem)
+```typescript
+const getUserDisplayName = () => {
+  if (userProfile?.first_name) {
+    return userProfile.first_name;
+  }
+  // Zeige niemals "Benutzer" — wenn kein Name verfügbar, nichts anzeigen
+  return null;
+};
 ```
 
-Die Lösung ist minimal-invasiv und ändert nur die zwei betroffenen Dateien.
+Und im JSX:
+```tsx
+<h1 className="text-2xl font-bold text-black">
+  {getUserDisplayName() ?? (
+    <span className="inline-block bg-gray-200 rounded animate-pulse w-28 h-7" />
+  )}
+</h1>
+```
+
+So sieht der Nutzer einen neutralen Ladeindikator statt eines falschen Namens.
+
+## Dateien die geändert werden
+
+### `src/pages/UserTaxReturns.tsx`
+1. `isReady`-useEffect: `activeTaxFilerId` als zusätzliche Bedingung hinzufügen
+2. Skeleton-Guard: `!activeTaxFilerId` in die Hauptbedingung aufnehmen
+3. `getUserDisplayName()`: statt "Benutzer"-Fallback `null` zurückgeben
+4. Begrüßungszeile: Statt des Fallback-Texts einen Skeleton-Platzhalter anzeigen
+
+## Warum das die User Experience verbessert
+
+```text
+VORHER (fehlerhaft):
+  AuthContext: isValid=true ✓
+  TaxFilerContext: isLoading=false ✓, activeTaxFilerId=null ✗
+  isReady: true (setzt sich zu früh)
+  → Dashboard rendert mit "Benutzer" und keinen Steuerdaten
+
+NACHHER (korrekt):
+  AuthContext: isValid=true ✓
+  TaxFilerContext: isLoading=false ✓, activeTaxFilerId=null → Skeleton bleibt
+  TaxFilerContext: activeTaxFilerId="xyz" ✓
+  isReady: true (setzt sich erst jetzt)
+  → Dashboard rendert mit echtem Namen und echten Steuerdaten
+
+  Falls activeTaxFilerId nie kommt:
+  → Safety-Timeout nach 8s entsperrt trotzdem (Absicherung gegen Endlos-Skeleton)
+```
+
+Die Änderungen sind minimal, direkt und lösen alle drei Ursachen gleichzeitig.
