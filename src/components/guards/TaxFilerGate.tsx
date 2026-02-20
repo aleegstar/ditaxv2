@@ -27,7 +27,7 @@ const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
   }, [isLoading]);
 
   // Allow /select-person, /welcome, and legal pages through without gating
-  const bypassPaths = ['/select-person', '/welcome', '/privacy', '/terms', '/cookies', '/acceptable-use', '/impressum', '/privacy-settings', '/debug', '/help', '/feedback'];
+  const bypassPaths = ['/select-person', '/welcome', '/privacy', '/terms', '/cookies', '/acceptable-use', '/impressum', '/privacy-settings', '/debug', '/help', '/feedback', '/payment-success'];
   const shouldBypass = bypassPaths.some(p => location.pathname.startsWith(p));
 
   if (shouldBypass) {
