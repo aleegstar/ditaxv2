@@ -8,6 +8,7 @@ import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
+import { useFormTourSafe } from '@/contexts/FormTourContext';
 interface DashboardSection {
   id: string;
   title: string;
@@ -32,6 +33,7 @@ export const TaxYearDashboard: React.FC = () => {
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
 
   const { activeTaxFilerId } = useTaxFiler();
+  const formTour = useFormTourSafe();
 
   // Load payment status
   useEffect(() => {
@@ -165,12 +167,15 @@ export const TaxYearDashboard: React.FC = () => {
     };
   };
   const handleSectionClick = (section: DashboardSection) => {
+    // End tour immediately — same event handler as navigation, no race condition
+    formTour?.skipTour();
     setSearchParams({
       section: section.param,
       year: taxYear
     });
   };
   const handleDocumentsClick = () => {
+    formTour?.skipTour();
     setSearchParams({
       section: 'unterlagen',
       year: taxYear
