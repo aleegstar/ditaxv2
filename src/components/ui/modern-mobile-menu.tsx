@@ -148,9 +148,8 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     icon: FileText,
     action: () => {
       onOpenChange(false);
-      navigate('/form');
-      // Delay to allow navigation + page render before starting tour
-      setTimeout(() => startFormTour?.(), 800);
+      // Navigate to /form with startTour param — FormTourContext handles it on load
+      navigate('/form?startTour=true');
     }
   }, {
     label: t.menu.feedback,
