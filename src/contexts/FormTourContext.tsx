@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { debug } from '@/utils/debug';
 
 interface FormTourContextType {
@@ -14,8 +14,6 @@ interface FormTourContextType {
 
 const FormTourContext = createContext<FormTourContextType | undefined>(undefined);
 
-const FORM_TOUR_KEY = 'form-tour-completed';
-
 export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [showTour, setShowTour] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -23,32 +21,22 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   
-  // Track if user has navigated - prevents tour from starting after navigation
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
+  const forceStartHandledRef = useRef(false);
 
-  // Check if on form page without section param (main dashboard)
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
+  const shouldForceStart = new URLSearchParams(location.search).get('startTour') === 'true';
 
-  // Check tour completion status in user metadata
   const checkTourCompletionStatus = async (): Promise<{ form: boolean; onboarding: boolean }> => {
     try {
-      debug.log('🎯 Form Tour: Checking user metadata for tour completion status...');
-      
       const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        debug.error('Error checking form tour status:', error);
-        return { form: false, onboarding: false };
-      }
-
+      if (error || !user) return { form: false, onboarding: false };
       const formCompleted = user.user_metadata?.form_tour_completed === true;
-      const onboardingCompleted = user.user_metadata?.onboarding_tour_completed === true;
-      
-      debug.log('🎯 Form Tour: User metadata status:', { formCompleted, onboardingCompleted });
-      
-      return { form: formCompleted, onboarding: onboardingCompleted };
+      const onboardingDone = user.user_metadata?.onboarding_tour_completed === true;
+      return { form: formCompleted, onboarding: onboardingDone };
     } catch (error) {
       debug.error('Error in checkTourCompletionStatus:', error);
       return { form: false, onboarding: false };
@@ -59,7 +47,6 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     const loadTourStatus = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
         setUserId(user.id);
         const { form, onboarding } = await checkTourCompletionStatus();
@@ -92,38 +79,50 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     return () => subscription.unsubscribe();
   }, []);
 
-  // Track navigation - if user navigates away, don't show tour on return
+  // Track navigation
   useEffect(() => {
     if (initialRouteRef.current === null) {
       initialRouteRef.current = location.pathname;
-      debug.log('🎯 Form Tour: Initial route set:', location.pathname);
     } else if (location.pathname !== initialRouteRef.current) {
       hasNavigatedRef.current = true;
-      debug.log('🎯 Form Tour: User navigated, tour will not auto-start');
     }
   }, [location.pathname]);
 
+  // Handle ?startTour=true URL param — triggered from menu
+  useEffect(() => {
+    if (!shouldForceStart || !isReady || !userId || forceStartHandledRef.current) return;
+    forceStartHandledRef.current = true;
+
+    debug.log('🎯 Form Tour: startTour param detected — force starting tour');
+
+    // Remove the param from URL cleanly
+    navigate('/form', { replace: true });
+
+    // Reset guards and show tour immediately
+    hasNavigatedRef.current = false;
+    initialRouteRef.current = '/form';
+    setTourCompleted(false);
+    setShowTour(true);
+  }, [shouldForceStart, isReady, userId, navigate]);
+
   // Auto-show tour when on form dashboard and not completed
-  // CRITICAL: Only show if onboarding tour is already completed (prevents overlapping tours)
   useEffect(() => {
     if (!isReady || !userId) return;
 
-    // Don't show form tour if onboarding tour hasn't been completed yet
+    // Skip if force-start already handled (to avoid conflict)
+    if (shouldForceStart) return;
+
     if (!onboardingCompleted) {
-      debug.log('🎯 Form Tour: Onboarding tour not completed yet, skipping form tour');
       setShowTour(false);
       return;
     }
     
-    // Don't show tour if user navigated here from another page
     if (hasNavigatedRef.current && !initialRouteRef.current?.startsWith('/form')) {
-      debug.log('🎯 Form Tour: User navigated here, skipping tour');
       setShowTour(false);
       return;
     }
 
     if (isOnFormDashboard && !tourCompleted) {
-      // Small delay to ensure page is rendered
       const timer = setTimeout(() => {
         setShowTour(true);
       }, 500);
@@ -131,25 +130,18 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     } else {
       setShowTour(false);
     }
-  }, [isReady, userId, isOnFormDashboard, tourCompleted, onboardingCompleted]);
+  }, [isReady, userId, isOnFormDashboard, tourCompleted, onboardingCompleted, shouldForceStart]);
 
   const completeTour = async () => {
     setShowTour(false);
     setTourCompleted(true);
-
     try {
-      const { error } = await supabase.auth.updateUser({
+      await supabase.auth.updateUser({
         data: { 
           form_tour_completed: true,
           form_tour_completed_at: new Date().toISOString()
         }
       });
-
-      if (error) {
-        debug.error('Error saving form tour completion:', error);
-      } else {
-        debug.log('✅ Form tour marked as completed in user metadata');
-      }
     } catch (error) {
       debug.error('Error saving form tour completion:', error);
     }
@@ -170,7 +162,6 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     } catch (error) {
       debug.error('Error resetting form tour:', error);
     }
-    // Reset navigation guard so tour can start even after navigating here
     hasNavigatedRef.current = false;
     initialRouteRef.current = '/form';
     setTourCompleted(false);
