@@ -521,12 +521,7 @@ const Auth = () => {
                     {isEmailLoading ?
                 <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendingCode}</span> :
 
-                <>
-                        <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendCode}</span>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm text-white transition-all group-hover:bg-white/25">
-                          <ArrowRight className="h-4 w-4 stroke-[2] group-hover:translate-x-0.5 transition-transform" />
-                        </div>
-                      </>
+                <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendCode}</span>
                 }
                   </button>
 
