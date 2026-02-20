@@ -22,7 +22,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [userId, setUserId] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
   const forceStartHandledRef = useRef(false);
@@ -30,28 +30,16 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
   const shouldForceStart = new URLSearchParams(location.search).get('startTour') === 'true';
 
-  const checkTourCompletionStatus = async (): Promise<{ form: boolean; onboarding: boolean }> => {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) return { form: false, onboarding: false };
-      const formCompleted = user.user_metadata?.form_tour_completed === true;
-      const onboardingDone = user.user_metadata?.onboarding_tour_completed === true;
-      return { form: formCompleted, onboarding: onboardingDone };
-    } catch (error) {
-      debug.error('Error in checkTourCompletionStatus:', error);
-      return { form: false, onboarding: false };
-    }
-  };
-
-  // Load tour status on auth change
+  // Load tour status from session user_metadata — no extra network call needed
   useEffect(() => {
     const loadTourStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        const { form, onboarding } = await checkTourCompletionStatus();
-        setTourCompleted(form);
-        setOnboardingCompleted(onboarding);
+      // Use getSession() which reads from local cache — no network request
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserId(session.user.id);
+        const meta = session.user.user_metadata || {};
+        setTourCompleted(meta.form_tour_completed === true);
+        setOnboardingCompleted(meta.onboarding_tour_completed === true);
         setIsReady(true);
       } else {
         setUserId(null);
@@ -63,12 +51,12 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     loadTourStatus();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUserId(session.user.id);
-        const { form, onboarding } = await checkTourCompletionStatus();
-        setTourCompleted(form);
-        setOnboardingCompleted(onboarding);
+        const meta = session.user.user_metadata || {};
+        setTourCompleted(meta.form_tour_completed === true);
+        setOnboardingCompleted(meta.onboarding_tour_completed === true);
       } else {
         setUserId(null);
         setTourCompleted(false);
@@ -95,10 +83,8 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     debug.log('🎯 Form Tour: startTour param detected — force starting tour');
 
-    // Remove the param from URL cleanly
     navigate('/form', { replace: true });
 
-    // Reset guards and show tour immediately
     hasNavigatedRef.current = false;
     initialRouteRef.current = '/form';
     setTourCompleted(false);
@@ -109,14 +95,13 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     if (!isReady || !userId) return;
 
-    // Skip if force-start already handled (to avoid conflict)
     if (shouldForceStart) return;
 
     if (!onboardingCompleted) {
       setShowTour(false);
       return;
     }
-    
+
     if (hasNavigatedRef.current && !initialRouteRef.current?.startsWith('/form')) {
       setShowTour(false);
       return;
@@ -137,7 +122,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     setTourCompleted(true);
     try {
       await supabase.auth.updateUser({
-        data: { 
+        data: {
           form_tour_completed: true,
           form_tour_completed_at: new Date().toISOString()
         }
@@ -148,13 +133,14 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const skipTour = async () => {
-    await completeTour();
+    // Immediately hide the tour — do NOT save to Supabase so user sees it again next visit
+    setShowTour(false);
   };
 
   const forceTour = async () => {
     try {
       await supabase.auth.updateUser({
-        data: { 
+        data: {
           form_tour_completed: false,
           form_tour_completed_at: null
         }

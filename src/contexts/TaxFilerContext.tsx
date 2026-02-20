@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import type { Session } from '@supabase/supabase-js';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface TaxFiler {
   id: string;
@@ -37,7 +37,6 @@ interface TaxFilerContextType {
   updateTaxFiler: (id: string, input: Partial<TaxFilerInput>) => Promise<TaxFiler | null>;
   deleteTaxFiler: (id: string) => Promise<boolean>;
   getPrimaryTaxFiler: () => TaxFiler | null;
-  // New fields for person selection flow
   hasMultipleFilers: boolean;
   selectionConfirmed: boolean;
   confirmSelection: (filerId?: string) => void;
@@ -49,78 +48,54 @@ const TaxFilerContext = createContext<TaxFilerContextType | undefined>(undefined
 const SESSION_KEY = 'ditax_selected_tax_filer';
 
 export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { userId, isLoading: authLoading } = useAuth();
+
   const [taxFilers, setTaxFilers] = useState<TaxFiler[]>([]);
   const [activeTaxFilerId, setActiveTaxFilerId] = useState<string | null>(() => {
-    // Initialize from sessionStorage
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem(SESSION_KEY);
     }
     return null;
   });
-  const [isLoading, setIsLoading] = useState(true); // Start with loading=true until we know filers state
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [sessionLoaded, setSessionLoaded] = useState(false);
   const [selectionConfirmed, setSelectionConfirmed] = useState(() => {
-    // If we have a stored filer ID, selection is confirmed
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem(SESSION_KEY) !== null;
     }
     return false;
   });
 
-  // Initialize session
-  useEffect(() => {
-    let mounted = true;
-
-    const initSession = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (mounted) {
-        setSession(currentSession);
-        setSessionLoaded(true);
-      }
-    };
-
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-      if (mounted) {
-        setSession(newSession);
-        setSessionLoaded(true);
-        
-        // Reset state on logout and clear sessionStorage
-        if (!newSession) {
-          setTaxFilers([]);
-          setActiveTaxFilerId(null);
-          setSelectionConfirmed(false);
-          sessionStorage.removeItem(SESSION_KEY);
-        }
-      }
-    });
-
-    initSession();
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Refs to avoid dependency loop in loadTaxFilers
+  // Refs to avoid stale closures
   const activeTaxFilerIdRef = useRef(activeTaxFilerId);
   const taxFilersRef = useRef(taxFilers);
+  const userIdRef = useRef(userId);
 
-  // Keep refs in sync
   useEffect(() => { activeTaxFilerIdRef.current = activeTaxFilerId; }, [activeTaxFilerId]);
   useEffect(() => { taxFilersRef.current = taxFilers; }, [taxFilers]);
+  useEffect(() => { userIdRef.current = userId; }, [userId]);
 
-  // Load tax filers when session is available
+  // Reset on logout
+  useEffect(() => {
+    if (!authLoading && !userId) {
+      setTaxFilers([]);
+      setActiveTaxFilerId(null);
+      setSelectionConfirmed(false);
+      sessionStorage.removeItem(SESSION_KEY);
+      setIsLoading(false);
+    }
+  }, [userId, authLoading]);
+
+  // Load tax filers — called directly with userId from AuthContext
   const loadTaxFilers = useCallback(async () => {
-    if (!session) {
-      console.log('No session, skipping tax filers load');
+    const currentUserId = userIdRef.current;
+    if (!currentUserId) {
+      console.log('No userId, skipping tax filers load');
+      setIsLoading(false);
       return;
     }
 
     // Only show full-screen loading on initial load (no filers yet)
-    // On subsequent refreshes (e.g., token refresh on mobile resume), don't block UI
     if (taxFilersRef.current.length === 0) {
       setIsLoading(true);
     }
@@ -130,7 +105,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const { data, error: fetchError } = await supabase
         .from('tax_filers')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', currentUserId)
         .order('is_primary', { ascending: false })
         .order('created_at', { ascending: true });
 
@@ -150,7 +125,6 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const primary = filers.find(f => f.is_primary);
         setActiveTaxFilerId(primary?.id || filers[0].id);
       } else if (storedFilerId && filers.some(f => f.id === storedFilerId)) {
-        // Validate stored filer ID still exists in the list
         setActiveTaxFilerId(storedFilerId);
         setSelectionConfirmed(true);
       }
@@ -162,19 +136,18 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } finally {
       setIsLoading(false);
     }
-  }, [session]);
+  }, []);
 
-  // Load tax filers when session becomes available
+  // Load tax filers when userId becomes available from AuthContext
   useEffect(() => {
-    if (sessionLoaded) {
-      if (session) {
+    if (!authLoading) {
+      if (userId) {
         loadTaxFilers();
       } else {
-        // No session, stop loading
         setIsLoading(false);
       }
     }
-  }, [sessionLoaded, session, loadTaxFilers]);
+  }, [userId, authLoading, loadTaxFilers]);
 
   // Get active tax filer object
   const activeTaxFiler = useMemo(() => {
@@ -207,7 +180,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Create new tax filer
   const createTaxFiler = useCallback(async (input: TaxFilerInput): Promise<TaxFiler | null> => {
-    if (!session) {
+    if (!userId) {
       toast({
         title: 'Fehler',
         description: 'Sie müssen angemeldet sein.',
@@ -220,7 +193,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const { data, error: insertError } = await supabase
         .from('tax_filers')
         .insert({
-          user_id: session.user.id,
+          user_id: userId,
           first_name: input.first_name,
           last_name: input.last_name,
           date_of_birth: input.date_of_birth || null,
@@ -254,11 +227,11 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.error('Unexpected error creating tax filer:', err);
       return null;
     }
-  }, [session]);
+  }, [userId]);
 
   // Update tax filer
   const updateTaxFiler = useCallback(async (id: string, input: Partial<TaxFilerInput>): Promise<TaxFiler | null> => {
-    if (!session) return null;
+    if (!userId) return null;
 
     try {
       const { data, error: updateError } = await supabase
@@ -268,7 +241,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .select()
         .single();
 
@@ -295,11 +268,11 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.error('Unexpected error updating tax filer:', err);
       return null;
     }
-  }, [session]);
+  }, [userId]);
 
   // Delete tax filer
   const deleteTaxFiler = useCallback(async (id: string): Promise<boolean> => {
-    if (!session) return false;
+    if (!userId) return false;
 
     const filer = taxFilers.find(f => f.id === id);
     if (filer?.is_primary) {
@@ -316,7 +289,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .from('tax_filers')
         .delete()
         .eq('id', id)
-        .eq('user_id', session.user.id);
+        .eq('user_id', userId);
 
       if (deleteError) {
         console.error('Error deleting tax filer:', deleteError);
@@ -346,7 +319,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.error('Unexpected error deleting tax filer:', err);
       return false;
     }
-  }, [session, taxFilers, activeTaxFilerId]);
+  }, [userId, taxFilers, activeTaxFilerId]);
 
   const value: TaxFilerContextType = {
     taxFilers,

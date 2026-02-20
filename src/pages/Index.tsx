@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { FormProvider, useFormContext } from '../contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuthValidation } from '@/hooks/use-auth-validation';
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import DocumentChecklist from '@/components/DocumentChecklist';
 import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import MultiStepContactForm from '@/components/forms/MultiStepContactForm';
@@ -13,12 +11,9 @@ import AssetsForm from '@/components/forms/AssetsForm';
 import { SubmissionForm } from '@/components/forms/SubmissionForm';
 import { FormDataSummary } from '@/components/forms/FormDataSummary';
 import { ImportWizard } from '@/components/forms/ImportWizard';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
-import { motion } from 'framer-motion';
 import { FormTourProvider, useFormTour } from '@/contexts/FormTourContext';
 import { FormTour } from '@/components/FormTour';
 
@@ -35,6 +30,7 @@ const sectionNameMap: Record<string, string> = {
   'abzuege': 'Abzüge',
   'vermoegen': 'Vermögen'
 };
+
 const IndexContent = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -43,13 +39,17 @@ const IndexContent = () => {
     formProgress,
     taxYear
   } = useFormContext();
-  const { showTour, completeTour, skipTour, forceTour, tourCompleted } = useFormTour();
+  const { showTour, completeTour, skipTour } = useFormTour();
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [checkingImport, setCheckingImport] = useState(false);
   const section = searchParams.get('section');
 
-  // Check if on main dashboard (no section)
-  const isOnDashboard = !section;
+  // When navigating to a section, immediately end the tour to prevent overlay blocking
+  useEffect(() => {
+    if (section && showTour) {
+      skipTour();
+    }
+  }, [section]);
 
   // Check if import wizard should be shown
   useEffect(() => {
@@ -125,119 +125,51 @@ const IndexContent = () => {
     }
   };
 
-  // Show floating button only on main dashboard
-  const showFloatingButton = !section;
-  return <AnimatedPageContainer className="min-h-screen bg-white">
+  return (
+    <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
-      
+
       {/* Form Tour — only render when active, no lingering overlay */}
       {showTour && (
         <FormTour onComplete={completeTour} onSkip={skipTour} />
       )}
-      
-      {/* Floating Add Document Button */}
-      {showFloatingButton}
-    </AnimatedPageContainer>;
+    </AnimatedPageContainer>
+  );
 };
+
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {
-    userId,
-    isValid,
-    isLoading
-  } = useAuthValidation();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [safetyTimeout, setSafetyTimeout] = useState(false);
   const year = searchParams.get('year') || new Date().getFullYear().toString();
-
-  // Get tax filer context for redirect logic
-  const { hasMultipleFilers, selectionConfirmed, isLoading: taxFilerLoading } = useTaxFiler();
-
-  // Safety timeout to prevent infinite loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      console.warn('⚠️ Safety timeout triggered - forcing loading state to resolve after 8s');
-      setSafetyTimeout(true);
-    }, 8000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Clear safety timeout when loading resolves normally
-  useEffect(() => {
-    if (!isLoading && !taxFilerLoading) {
-      setSafetyTimeout(false);
-    }
-  }, [isLoading, taxFilerLoading]);
 
   // Handle auth tokens from deep link
   useEffect(() => {
     const accessToken = searchParams.get("at");
     const refreshToken = searchParams.get("rt");
     if (accessToken && refreshToken) {
-      // Set session from deep link tokens
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken
-      }).then(({
-        error
-      }) => {
+      }).then(({ error }) => {
         if (error) {
           console.error('Error setting session from deep link:', error);
         } else {
-          // Clean up URL by removing tokens
           const newParams = new URLSearchParams(searchParams);
           newParams.delete("at");
           newParams.delete("rt");
-          navigate({
-            search: newParams.toString()
-          }, {
-            replace: true
-          });
+          navigate({ search: newParams.toString() }, { replace: true });
         }
       });
     }
   }, [searchParams, navigate]);
 
-  // Handle auth state changes with better logic
-  useEffect(() => {
-    if (isLoading && !safetyTimeout) {
-      return; // Still checking auth, wait (unless safety timeout hit)
-    }
-    setAuthChecked(true);
-    if (!isValid || !userId) {
-      console.log('❌ Not authenticated, redirecting to auth');
-      navigate('/auth', {
-        replace: true,
-        state: {
-          from: window.location.pathname
-        }
-      });
-    } else if (hasMultipleFilers && !selectionConfirmed) {
-      // Redirect to person selection if not confirmed
-      navigate('/select-person', { replace: true });
-    } else {
-      console.log('✅ User authenticated, showing content');
-    }
-  }, [isValid, userId, isLoading, navigate, hasMultipleFilers, selectionConfirmed, safetyTimeout]);
-
-  // Determine if we're still in a loading state
-  const stillLoading = (isLoading || !authChecked || taxFilerLoading) && !safetyTimeout;
-
-  // Show nothing while auth is being checked or redirecting
-  if (stillLoading) {
-    return <LoadingSpinner fullScreen />;
-  }
-
-  // If not authenticated or needs person selection, don't render content
-  if (!isValid || !userId || (hasMultipleFilers && !selectionConfirmed)) {
-    return <LoadingSpinner fullScreen />;
-  }
-  return <FormProvider taxYear={year}>
+  return (
+    <FormProvider taxYear={year}>
       <FormTourProvider>
         <IndexContent />
       </FormTourProvider>
-    </FormProvider>;
+    </FormProvider>
+  );
 };
+
 export default Index;
