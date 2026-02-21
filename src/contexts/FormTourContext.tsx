@@ -25,7 +25,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
-  const forceStartHandledRef = useRef(false);
+  
 
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
   const shouldForceStart = new URLSearchParams(location.search).get('startTour') === 'true';
@@ -94,24 +94,31 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [location.pathname]);
 
   // Handle ?startTour=true URL param — triggered from menu
-  // Reset the handled flag whenever the param disappears (so next invocation works)
+  // We store the pending flag in a ref so it survives until isReady becomes true
+  const pendingForceStartRef = useRef(false);
+
+  // When the param appears, mark as pending (even before isReady)
   useEffect(() => {
-    if (!shouldForceStart) {
-      forceStartHandledRef.current = false;
-      return;
+    if (shouldForceStart) {
+      pendingForceStartRef.current = true;
     }
-    if (!isReady || !userId || forceStartHandledRef.current) return;
-    forceStartHandledRef.current = true;
+  }, [shouldForceStart]);
+
+  // Once ready + pending, actually start the tour
+  useEffect(() => {
+    if (!pendingForceStartRef.current || !isReady || !userId) return;
+    pendingForceStartRef.current = false;
 
     debug.log('🎯 Form Tour: startTour param detected — force starting tour');
 
+    // Remove the param from the URL now that we've consumed it
     navigate('/form', { replace: true });
 
     hasNavigatedRef.current = false;
     initialRouteRef.current = '/form';
     setTourCompleted(false);
     setShowTour(true);
-  }, [shouldForceStart, isReady, userId, navigate]);
+  }, [isReady, userId, navigate]);
 
   // Auto-show tour when on form dashboard and not completed
   useEffect(() => {
