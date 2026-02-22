@@ -37,7 +37,9 @@ const IndexContent = () => {
   const {
     hasDataForPreviousYear,
     formProgress,
-    taxYear
+    taxYear,
+    formDataLoaded,
+    isDataLoading
   } = useFormContext();
   const { showTour, completeTour, skipTour } = useFormTour();
   const [showImportWizard, setShowImportWizard] = useState(false);
@@ -56,13 +58,18 @@ const IndexContent = () => {
     let cancelled = false;
 
     const checkImportNeeded = async () => {
-      if (!section || section === 'zusammenfassung' || section === 'unterlagen') {
+      if (!section || section === 'zusammenfassung' || section === 'unterlagen' || section === 'einreichen') {
         setShowImportWizard(false);
         return;
       }
       const sectionKey = sectionKeyMap[section];
       if (!sectionKey) {
         setShowImportWizard(false);
+        return;
+      }
+
+      // Wait for form data to be fully loaded (ensures activeTaxFilerId is available)
+      if (!formDataLoaded || isDataLoading) {
         return;
       }
 
@@ -107,7 +114,7 @@ const IndexContent = () => {
     }, 5000);
 
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [section, taxYear, hasDataForPreviousYear]);
+  }, [section, taxYear, hasDataForPreviousYear, formDataLoaded, isDataLoading]);
 
   // Render different components based on section parameter
   const renderContent = () => {
