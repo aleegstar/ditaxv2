@@ -263,6 +263,9 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   const sendMessage = async (messageContent: string, files?: File[]) => {
     if ((!messageContent.trim() && (!files || files.length === 0)) || isLoading) return;
     
+    // If only a file is sent with no text, use a default message for the bot
+    const hasFilesOnly = !messageContent.trim() && files && files.length > 0;
+    
     const encryptedChatService = EncryptedChatService.getInstance();
     let attachmentId: string | undefined;
     let attachmentData: ChatAttachmentData | undefined;
@@ -323,7 +326,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           error
         } = await supabase.functions.invoke('chatbot-response', {
           body: {
-            message: messageContent,
+            message: hasFilesOnly ? 'Ich habe eine Datei gesendet.' : messageContent,
             userId,
             sessionId
           }
