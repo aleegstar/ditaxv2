@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SubpageHeader } from '@/components/ui/subpage-header';
 import {
   Drawer,
   DrawerContent,
@@ -106,86 +105,78 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <SubpageHeader 
-        title={sectionName}
-        onBack={() => navigate(`/form?year=${taxYear}`)}
-      />
-      
-      {/* Single drawer with animated step content */}
-      <Drawer open={drawerOpen} onOpenChange={(open) => { if (!open) closeAndRun(() => navigate(`/form?year=${taxYear}`)); }}>
-        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
-          <div className="mb-6" />
-          
-          <div className="relative">
-            {/* Step 1: Import question */}
-            <div
-              className="transition-all duration-300 ease-in-out"
-              style={{
-                opacity: step === 'import' ? 1 : 0,
-                transform: step === 'import' ? 'translateX(0)' : 'translateX(-100%)',
-                position: step === 'import' ? 'relative' : 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                pointerEvents: step === 'import' ? 'auto' : 'none',
-              }}
-            >
-              <div className="text-center space-y-2 mb-6">
-                <DrawerTitle className="text-xl font-bold text-foreground">
-                  Daten aus {previousYear} übernehmen?
-                </DrawerTitle>
-                <DrawerDescription className="text-sm text-muted-foreground">
-                  Du hast bereits Daten für &quot;{sectionName}&quot; aus dem Jahr {previousYear} eingegeben.
-                </DrawerDescription>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Button className="w-full" onClick={handleImportClick} disabled={isImporting}>
-                  <Download className="w-5 h-5" />
-                  Daten aus {previousYear} übernehmen
-                </Button>
-                <Button variant="secondary" className="w-full" onClick={handleSkipImport} disabled={isImporting}>
-                  <Edit className="w-5 h-5" />
-                  Neu eingeben
-                </Button>
-              </div>
+    <Drawer open={drawerOpen} onOpenChange={(open) => { if (!open) closeAndRun(() => onComplete()); }}>
+      <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
+        <div className="mb-6" />
+        
+        <div className="relative">
+          {/* Step 1: Import question */}
+          <div
+            className="transition-all duration-300 ease-in-out"
+            style={{
+              opacity: step === 'import' ? 1 : 0,
+              transform: step === 'import' ? 'translateX(0)' : 'translateX(-100%)',
+              position: step === 'import' ? 'relative' : 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              pointerEvents: step === 'import' ? 'auto' : 'none',
+            }}
+          >
+            <div className="text-center space-y-2 mb-6">
+              <DrawerTitle className="text-xl font-bold text-foreground">
+                Daten aus {previousYear} übernehmen?
+              </DrawerTitle>
+              <DrawerDescription className="text-sm text-muted-foreground">
+                Du hast bereits Daten für &quot;{sectionName}&quot; aus dem Jahr {previousYear} eingegeben.
+              </DrawerDescription>
             </div>
-
-            {/* Step 2: Changes question */}
-            <div
-              className="transition-all duration-300 ease-in-out"
-              style={{
-                opacity: step === 'changes' ? 1 : 0,
-                transform: step === 'changes' ? 'translateX(0)' : 'translateX(100%)',
-                position: step === 'changes' ? 'relative' : 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                pointerEvents: step === 'changes' ? 'auto' : 'none',
-              }}
-            >
-              <div className="text-center space-y-2 mb-6">
-                <DrawerTitle className="text-xl font-bold text-foreground">
-                  Gibt es Änderungen?
-                </DrawerTitle>
-                <DrawerDescription className="text-sm text-muted-foreground">
-                  Haben sich deine Daten seit dem letzten Jahr geändert?
-                </DrawerDescription>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Button className="w-full" onClick={handleNoChanges} disabled={isImporting}>
-                  <Download className="w-5 h-5" />
-                  Nein, keine Änderungen
-                </Button>
-                <Button variant="secondary" className="w-full" onClick={handleWithChanges} disabled={isImporting}>
-                  <Edit className="w-5 h-5" />
-                  Ja, ich möchte Änderungen vornehmen
-                </Button>
-              </div>
+            <div className="flex flex-col gap-3">
+              <Button className="w-full" onClick={handleImportClick} disabled={isImporting}>
+                <Download className="w-5 h-5" />
+                Daten aus {previousYear} übernehmen
+              </Button>
+              <Button variant="secondary" className="w-full" onClick={handleSkipImport} disabled={isImporting}>
+                <Edit className="w-5 h-5" />
+                Neu eingeben
+              </Button>
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
-    </div>
+
+          {/* Step 2: Changes question */}
+          <div
+            className="transition-all duration-300 ease-in-out"
+            style={{
+              opacity: step === 'changes' ? 1 : 0,
+              transform: step === 'changes' ? 'translateX(0)' : 'translateX(100%)',
+              position: step === 'changes' ? 'relative' : 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              pointerEvents: step === 'changes' ? 'auto' : 'none',
+            }}
+          >
+            <div className="text-center space-y-2 mb-6">
+              <DrawerTitle className="text-xl font-bold text-foreground">
+                Gibt es Änderungen?
+              </DrawerTitle>
+              <DrawerDescription className="text-sm text-muted-foreground">
+                Haben sich deine Daten seit dem letzten Jahr geändert?
+              </DrawerDescription>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Button className="w-full" onClick={handleNoChanges} disabled={isImporting}>
+                <Download className="w-5 h-5" />
+                Nein, keine Änderungen
+              </Button>
+              <Button variant="secondary" className="w-full" onClick={handleWithChanges} disabled={isImporting}>
+                <Edit className="w-5 h-5" />
+                Ja, ich möchte Änderungen vornehmen
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 };
