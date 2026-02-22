@@ -9,7 +9,7 @@ export function Toaster() {
       <div
         style={{
           position: 'fixed',
-          top: 0,
+          top: 16,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'min(calc(100vw - 32px), 20rem)',
