@@ -94,17 +94,12 @@ const IndexContent = () => {
 
   // Render different components based on section parameter
   const renderContent = () => {
-    // Show import wizard if applicable
-    if (showImportWizard && section && sectionKeyMap[section]) {
-      return <ImportWizard section={sectionKeyMap[section]} sectionName={sectionNameMap[section]} taxYear={taxYear} onComplete={() => setShowImportWizard(false)} />;
-    }
-
     // Show loading state while checking
     if (checkingImport) {
       return <LoadingSpinner fullScreen />;
     }
 
-    // Normal flow
+    // Normal flow - always render the form content
     switch (section) {
       case 'kontakt':
         return <MultiStepContactForm onSave={() => navigate(`/form?year=${taxYear}`)} />;
@@ -128,6 +123,16 @@ const IndexContent = () => {
   return (
     <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
+
+      {/* Import wizard overlay - renders as bottom sheet over the form */}
+      {showImportWizard && section && sectionKeyMap[section] && (
+        <ImportWizard 
+          section={sectionKeyMap[section]} 
+          sectionName={sectionNameMap[section]} 
+          taxYear={taxYear} 
+          onComplete={() => setShowImportWizard(false)} 
+        />
+      )}
 
       {/* Form Tour — only render when active, no lingering overlay */}
       {showTour && (
