@@ -25,6 +25,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
+  const forcedActiveRef = useRef(false);
   
 
   const isOnFormDashboard = location.pathname === '/form' && !new URLSearchParams(location.search).get('section');
@@ -111,6 +112,9 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     debug.log('🎯 Form Tour: startTour param detected — force starting tour');
 
+    // Mark as force-activated so auto-show effect won't override
+    forcedActiveRef.current = true;
+
     // Remove the param from the URL now that we've consumed it
     navigate('/form', { replace: true });
 
@@ -125,6 +129,9 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (!isReady || !userId) return;
 
     if (shouldForceStart) return;
+
+    // Don't override a force-started tour
+    if (forcedActiveRef.current) return;
 
     if (!onboardingCompleted) {
       setShowTour(false);
@@ -149,6 +156,7 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   const completeTour = async () => {
     setShowTour(false);
     setTourCompleted(true);
+    forcedActiveRef.current = false;
     try {
       await supabase.auth.updateUser({
         data: {
@@ -162,8 +170,8 @@ export const FormTourProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const skipTour = async () => {
-    // Immediately hide the tour — do NOT save to Supabase so user sees it again next visit
     setShowTour(false);
+    forcedActiveRef.current = false;
   };
 
   const forceTour = async () => {
