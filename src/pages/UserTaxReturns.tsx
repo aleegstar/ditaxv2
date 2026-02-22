@@ -185,6 +185,14 @@ const UserTaxReturns = () => {
       setIsDeleting(false);
       setDeleteDialogOpen(false);
       setYearToDelete(null);
+      // Force cleanup of any lingering dialog overlays (Android WebView issue)
+      setTimeout(() => {
+        document.body.style.pointerEvents = '';
+        document.body.style.overflow = '';
+        document.querySelectorAll('[data-radix-portal]').forEach(el => {
+          if (el.children.length === 0) el.remove();
+        });
+      }, 300);
     }
   };
   const handleDocumentsClick = useCallback(() => {

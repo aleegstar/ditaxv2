@@ -17,14 +17,20 @@ export function useVaulCleanup() {
       document.querySelectorAll('[data-vaul-drawer]').forEach(el => el.remove());
       document.querySelectorAll('.drawer-overlay-frosted').forEach(el => el.remove());
       
-      // Remove empty radix portal containers (leftover from drawers)
+      // Remove lingering radix alert-dialog overlays (e.g. after delete confirmations)
+      document.querySelectorAll('[role="alertdialog"]').forEach(el => {
+        const portal = el.closest('[data-radix-portal]');
+        if (portal) portal.remove();
+      });
+
+      // Remove empty radix portal containers (leftover from drawers/dialogs)
       document.querySelectorAll('[data-radix-portal]').forEach(el => {
         if (el.querySelector('[data-vaul-overlay], [data-vaul-drawer]') || el.children.length === 0) {
           el.remove();
         }
       });
 
-      // Reset body styles that vaul may have set
+      // Reset body styles that vaul/radix may have set
       document.body.style.pointerEvents = '';
       document.body.style.overflow = '';
     };
