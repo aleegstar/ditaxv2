@@ -74,7 +74,9 @@ export function ChatCard({
 
     // Check file type - only images and PDFs
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+    if (!allowedTypes.includes(file.type) && !(ext && allowedExtensions.includes(ext))) {
       alert('Nur Bilder (JPEG, PNG, GIF, WebP) und PDFs sind erlaubt.');
       return;
     }
