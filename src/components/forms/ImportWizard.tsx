@@ -122,47 +122,39 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
         onBack={() => navigate(`/form?year=${taxYear}`)}
       />
       
-      {/* Main content */}
-      <div className="max-w-2xl mx-auto px-6 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl p-8 border border-slate-200"
-          style={{
-            boxShadow: '0 4px 20px -4px rgba(0,0,0,0.1)'
-          }}
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-slate-800">
+      {/* Import bottom sheet - shown immediately */}
+      <Drawer open={true} onOpenChange={(open) => { if (!open) navigate(`/form?year=${taxYear}`); }}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <DrawerTitle className="text-xl font-bold text-foreground">
               Daten aus {previousYear} übernehmen?
-            </h2>
-            <p className="text-slate-500">
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
               Du hast bereits Daten für "{sectionName}" aus dem Jahr {previousYear} eingegeben.
-            </p>
+            </DrawerDescription>
           </div>
-          
-          {/* Import button */}
-          <Button
-            className="w-full mb-4"
-            onClick={handleImportClick}
-            disabled={isImporting}
-          >
-            <Download className="w-5 h-5" />
-            Daten aus {previousYear} übernehmen
-          </Button>
-          
-          {/* Enter new data button */}
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={handleSkipImport}
-            disabled={isImporting}
-          >
-            <Edit className="w-5 h-5" />
-            Neu eingeben
-          </Button>
-        </motion.div>
-      </div>
+          <div className="flex flex-col gap-3">
+            <Button
+              className="w-full"
+              onClick={handleImportClick}
+              disabled={isImporting}
+            >
+              <Download className="w-5 h-5" />
+              Daten aus {previousYear} übernehmen
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={handleSkipImport}
+              disabled={isImporting}
+            >
+              <Edit className="w-5 h-5" />
+              Neu eingeben
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
       
       {/* Changes bottom sheet */}
       <Drawer open={showChangesDialog} onOpenChange={setShowChangesDialog}>
