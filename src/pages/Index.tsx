@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { FormProvider, useFormContext } from '../contexts';
+import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DocumentChecklist from '@/components/DocumentChecklist';
 import { TaxYearDashboard } from '@/components/TaxYearDashboard';
@@ -41,6 +42,7 @@ const IndexContent = () => {
     formDataLoaded,
     isDataLoading
   } = useFormContext();
+  const { activeTaxFilerId } = useTaxFiler();
   const { showTour, completeTour, skipTour } = useFormTour();
   const [showImportWizard, setShowImportWizard] = useState(false);
   const [checkingImport, setCheckingImport] = useState(false);
@@ -69,30 +71,31 @@ const IndexContent = () => {
       }
 
       // Wait for form data to be fully loaded (ensures activeTaxFilerId is available)
-      if (!formDataLoaded || isDataLoading) {
+      if (!formDataLoaded || isDataLoading || !activeTaxFilerId) {
         return;
       }
 
       setCheckingImport(true);
       try {
-        // Check form_progress table directly to see if user explicitly completed this section
-        // (don't rely on in-memory formProgress which is contaminated by form_data._completed)
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           if (!cancelled) setShowImportWizard(false);
           return;
         }
-        
-        const { data: progressData } = await supabase
-          .from('form_progress')
-          .select('form_sections')
+
+        // Check if form_data already exists for this section + tax filer + current year
+        // If it does, the user has already filled out or imported this section – skip import
+        const { data: existingData } = await supabase
+          .from('form_data')
+          .select('id')
           .eq('user_id', session.user.id)
           .eq('tax_year', taxYear)
-          .maybeSingle();
-        
-        const sections = progressData?.form_sections as Record<string, boolean> | null;
-        if (sections?.[sectionKey]) {
-          // Section was explicitly marked complete via form_progress – skip import
+          .eq('tax_filer_id', activeTaxFilerId)
+          .eq('form_type', sectionKey)
+          .limit(1);
+
+        if (existingData && existingData.length > 0) {
+          // Section already has data for this tax filer – skip import
           if (!cancelled) setShowImportWizard(false);
           return;
         }
@@ -114,7 +117,7 @@ const IndexContent = () => {
     }, 5000);
 
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [section, taxYear, hasDataForPreviousYear, formDataLoaded, isDataLoading]);
+  }, [section, taxYear, hasDataForPreviousYear, formDataLoaded, isDataLoading, activeTaxFilerId]);
 
   // Render different components based on section parameter
   const renderContent = () => {
