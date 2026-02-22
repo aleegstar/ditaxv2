@@ -124,6 +124,10 @@ const DocumentChecklist: React.FC = () => {
 
   const userDocuments = documents.filter(doc => {
     if (!userId) return false;
+    // Filter by active tax filer to prevent showing other filer's documents
+    if (activeTaxFilerId && doc.metadata?.taxFilerId && doc.metadata.taxFilerId !== activeTaxFilerId) {
+      return false;
+    }
     return true;
   });
 
@@ -155,14 +159,16 @@ const DocumentChecklist: React.FC = () => {
   }, [isLoading, initialLoadComplete]);
 
   const loadUnassignedDocsCount = useCallback(async () => {
-    if (!userId || !taxYear) return;
-    const activeTaxFilerId = localStorage.getItem('activeTaxFilerId');
+    if (!userId || !taxYear || !activeTaxFilerId) return;
     try {
-      let query = supabase.from('uploaded_documents').select('id, checklist_item_id').eq('user_id', userId).eq('status', 'active').eq('is_assigned_to_checklist', false).eq('tax_year', taxYear);
-      if (activeTaxFilerId) {
-        query = query.eq('tax_filer_id', activeTaxFilerId);
-      }
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from('uploaded_documents')
+        .select('id, checklist_item_id')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .eq('is_assigned_to_checklist', false)
+        .eq('tax_year', taxYear)
+        .eq('tax_filer_id', activeTaxFilerId);
       if (error) {
         debug.error('Error loading unassigned documents:', error);
         return;
@@ -175,7 +181,7 @@ const DocumentChecklist: React.FC = () => {
     } catch (error) {
       debug.error('Error in loadUnassignedDocsCount:', error);
     }
-  }, [userId, taxYear, checklistItems]);
+  }, [userId, taxYear, checklistItems, activeTaxFilerId]);
 
   const hasLoadedCountsRef = useRef(false);
   useEffect(() => {
