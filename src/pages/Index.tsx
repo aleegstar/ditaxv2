@@ -66,13 +66,30 @@ const IndexContent = () => {
         return;
       }
 
-      // Don't show if section is already completed
-      if (formProgress[sectionKey]) {
-        setShowImportWizard(false);
-        return;
-      }
       setCheckingImport(true);
       try {
+        // Check form_progress table directly to see if user explicitly completed this section
+        // (don't rely on in-memory formProgress which is contaminated by form_data._completed)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          if (!cancelled) setShowImportWizard(false);
+          return;
+        }
+        
+        const { data: progressData } = await supabase
+          .from('form_progress')
+          .select('form_sections')
+          .eq('user_id', session.user.id)
+          .eq('tax_year', taxYear)
+          .maybeSingle();
+        
+        const sections = progressData?.form_sections as Record<string, boolean> | null;
+        if (sections?.[sectionKey]) {
+          // Section was explicitly marked complete via form_progress – skip import
+          if (!cancelled) setShowImportWizard(false);
+          return;
+        }
+
         const hasData = await hasDataForPreviousYear(sectionKey);
         if (!cancelled) setShowImportWizard(hasData);
       } catch (error) {
@@ -90,7 +107,7 @@ const IndexContent = () => {
     }, 5000);
 
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [section, formProgress, hasDataForPreviousYear]);
+  }, [section, taxYear, hasDataForPreviousYear]);
 
   // Render different components based on section parameter
   const renderContent = () => {
