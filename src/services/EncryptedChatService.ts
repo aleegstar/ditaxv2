@@ -48,7 +48,25 @@ export class EncryptedChatService {
       'image/webp',
       'application/pdf'
     ];
-    return allowedTypes.includes(file.type);
+    if (allowedTypes.includes(file.type)) return true;
+
+    // Fallback: check file extension (Android often sends application/octet-stream)
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+    return !!ext && allowedExtensions.includes(ext);
+  }
+
+  /**
+   * Resolve the actual MIME type from file extension when browser reports application/octet-stream
+   */
+  private resolveFileType(file: File): string {
+    if (file.type && file.type !== 'application/octet-stream') return file.type;
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const mimeMap: Record<string, string> = {
+      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+      gif: 'image/gif', webp: 'image/webp', pdf: 'application/pdf',
+    };
+    return (ext && mimeMap[ext]) || file.type;
   }
   
   /**
@@ -62,6 +80,8 @@ export class EncryptedChatService {
       if (!this.isSupportedFileType(file)) {
         throw new Error('Dateityp wird nicht unterstützt. Nur Bilder (JPEG, PNG, GIF, WebP) und PDFs sind erlaubt.');
       }
+
+      const resolvedType = this.resolveFileType(file);
 
       // Get user encryption key
       const encryptionKey = await this.keyService.getUserEncryptionKey(userId);
@@ -77,7 +97,7 @@ export class EncryptedChatService {
       const originalMetadata = {
         originalName: file.name,
         originalSize: file.size,
-        originalType: file.type,
+        originalType: resolvedType,
         uploadTimestamp: new Date().toISOString()
       };
       
@@ -133,11 +153,11 @@ export class EncryptedChatService {
       return {
         id: data.id,
         fileName: file.name,
-        fileType: file.type,
+        fileType: resolvedType,
         filePath: filePath,
         originalSize: file.size,
-        isImage: file.type.startsWith('image/'),
-        isPdf: file.type === 'application/pdf'
+        isImage: resolvedType.startsWith('image/'),
+        isPdf: resolvedType === 'application/pdf'
       };
     } catch (error: any) {
       console.error('Error uploading encrypted chat attachment:', error);
