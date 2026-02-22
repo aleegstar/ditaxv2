@@ -144,7 +144,7 @@ const PaymentSuccess = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 will-change-auto">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6">
         <div className="w-full max-w-sm text-center">
           <div className="mb-12">
             <img src="/lovable-uploads/8eb6c82b-7b0b-4d51-a64f-6d3e8b5366fd.png" alt="Ditax Logo" className="h-8 w-auto mx-auto opacity-90" />
@@ -199,7 +199,7 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative animate-fade-in will-change-auto">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-white to-blue-50/50 px-6 relative">
       
       <div className="w-full max-w-sm text-center relative z-10">
         <div className="mb-12">
