@@ -77,6 +77,7 @@ import { setStatusBarDark } from "@/utils/despiaStatusBar";
 import { isDespiaEnvironment } from "@/utils/platform";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import TaxFilerGate from "@/components/guards/TaxFilerGate";
+import { useVaulCleanup } from "@/hooks/useVaulCleanup";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +119,7 @@ const GlobalMobileMenuSheet = () => {
 const AuthenticatedApp = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  useVaulCleanup(); // Global drawer overlay cleanup on route change
   const isAdminRoute = location.pathname.startsWith('/admin');
   const { idleState, extendSession } = useAuthValidation();
   const { userId, email } = useAuth();
