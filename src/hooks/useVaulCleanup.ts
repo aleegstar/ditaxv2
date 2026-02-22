@@ -1,16 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 /**
  * Global cleanup hook for Vaul drawer overlays.
  * On Android WebViews, Vaul portals/overlays can persist in the DOM
  * after navigation, blocking all touch events. This hook removes
- * leftover elements on every route change.
+ * leftover elements only on pathname changes (not query param changes,
+ * which would destroy actively-opening drawers like ImportWizard).
  */
 export function useVaulCleanup() {
   const location = useLocation();
+  const prevPathname = useRef(location.pathname);
 
   useEffect(() => {
+    // Only run cleanup when the pathname actually changes, not on query param changes
+    if (prevPathname.current === location.pathname) return;
+    prevPathname.current = location.pathname;
+
     const cleanup = () => {
       // Remove vaul overlay and drawer elements
       document.querySelectorAll('[data-vaul-overlay]').forEach(el => el.remove());
@@ -44,5 +50,5 @@ export function useVaulCleanup() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [location.pathname, location.search]);
+  }, [location.pathname]);
 }
