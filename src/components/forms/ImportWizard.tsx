@@ -54,29 +54,57 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
     
     try {
       await importFromPreviousYear(section);
-      updateFormProgress(section, true);
       
+      // Explicitly save the imported data with _completed: true and markComplete flag
+      // This ensures the section is persisted as completed even if the previous year
+      // data didn't have _completed set
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data: existing } = await supabase
-          .from('form_progress')
-          .select('form_sections')
+        // Update form_data to ensure _completed is true
+        const { data: currentData } = await supabase
+          .from('form_data')
+          .select('id, data')
           .eq('user_id', session.user.id)
           .eq('tax_year', taxYear)
-          .single();
+          .eq('form_type', section)
+          .maybeSingle();
+        
+        if (currentData) {
+          const updatedData = { ...(currentData.data as Record<string, any>), _completed: true };
+          await supabase
+            .from('form_data')
+            .update({ data: updatedData, updated_at: new Date().toISOString() })
+            .eq('id', currentData.id);
+        }
+        
+        // Also update form_progress table
+        const { data: existing } = await supabase
+          .from('form_progress')
+          .select('id, form_sections')
+          .eq('user_id', session.user.id)
+          .eq('tax_year', taxYear)
+          .maybeSingle();
         
         const existingSections = existing?.form_sections as Record<string, boolean> || {};
         const mergedSections = { ...existingSections, [section]: true };
         
-        await supabase
-          .from('form_progress')
-          .upsert({
-            user_id: session.user.id,
-            tax_year: taxYear,
-            form_sections: mergedSections
-          });
+        if (existing) {
+          await supabase
+            .from('form_progress')
+            .update({ form_sections: mergedSections, updated_at: new Date().toISOString() })
+            .eq('id', existing.id);
+        } else {
+          await supabase
+            .from('form_progress')
+            .insert({
+              user_id: session.user.id,
+              tax_year: taxYear,
+              form_sections: mergedSections
+            });
+        }
       }
       
+      updateFormProgress(section, true);
       toast.success(`${sectionName} erfolgreich aus ${previousYear} übernommen`);
       closeAndRun(() => navigate(`/form?year=${taxYear}`));
       
