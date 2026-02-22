@@ -33,21 +33,40 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
 
-  // Safety cleanup: remove any leftover vaul overlays on unmount
+  // Aggressive cleanup: remove ALL vaul overlay/drawer/portal elements
+  const cleanupVaulElements = useCallback(() => {
+    document.querySelectorAll('[data-vaul-overlay]').forEach(el => el.remove());
+    document.querySelectorAll('[data-vaul-drawer]').forEach(el => el.remove());
+    // Also remove any fixed frosted overlays that vaul creates
+    document.querySelectorAll('.drawer-overlay-frosted').forEach(el => el.remove());
+    // Remove leftover portal containers
+    document.querySelectorAll('[data-radix-portal]').forEach(el => {
+      if (el.querySelector('[data-vaul-overlay], [data-vaul-drawer]') || el.children.length === 0) {
+        el.remove();
+      }
+    });
+    // Reset body styles that vaul may have set
+    document.body.style.pointerEvents = '';
+    document.body.style.overflow = '';
+  }, []);
+
   useEffect(() => {
     return () => {
-      setTimeout(() => {
-        document.querySelectorAll('[data-vaul-overlay]').forEach(el => el.remove());
-        document.querySelectorAll('[data-vaul-drawer]').forEach(el => el.remove());
-      }, 50);
+      cleanupVaulElements();
+      // Also run delayed cleanup as fallback
+      setTimeout(cleanupVaulElements, 100);
+      setTimeout(cleanupVaulElements, 500);
     };
-  }, []);
+  }, [cleanupVaulElements]);
 
   const closeAllAndRun = useCallback((fn: () => void) => {
     setDrawerOpen(false);
     setShowChangesDialog(false);
-    setTimeout(fn, 350);
-  }, []);
+    setTimeout(() => {
+      cleanupVaulElements();
+      fn();
+    }, 350);
+  }, [cleanupVaulElements]);
   
   const previousYear = parseInt(taxYear) - 1;
 
