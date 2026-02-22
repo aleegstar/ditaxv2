@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Download, Edit, HelpCircle } from 'lucide-react';
+import { Download, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import {
@@ -30,8 +29,25 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
 }) => {
   const { importFromPreviousYear, updateFormProgress } = useFormContext();
   const [showChangesDialog, setShowChangesDialog] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
+
+  // Safety cleanup: remove any leftover vaul overlays on unmount
+  useEffect(() => {
+    return () => {
+      setTimeout(() => {
+        document.querySelectorAll('[data-vaul-overlay]').forEach(el => el.remove());
+        document.querySelectorAll('[data-vaul-drawer]').forEach(el => el.remove());
+      }, 50);
+    };
+  }, []);
+
+  const closeAllAndRun = useCallback((fn: () => void) => {
+    setDrawerOpen(false);
+    setShowChangesDialog(false);
+    setTimeout(fn, 350);
+  }, []);
   
   const previousYear = parseInt(taxYear) - 1;
 
@@ -40,7 +56,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   };
 
   const handleSkipImport = () => {
-    onComplete();
+    closeAllAndRun(() => onComplete());
   };
 
   const handleNoChanges = async () => {
@@ -83,8 +99,8 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       toast.success(`${sectionName} erfolgreich aus ${previousYear} übernommen`);
       
-      // Navigate back to dashboard
-      navigate(`/form?year=${taxYear}`);
+      // Close drawers first, then navigate
+      closeAllAndRun(() => navigate(`/form?year=${taxYear}`));
       
     } catch (error) {
       console.error('Import error:', error);
@@ -103,8 +119,8 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       toast.success('Daten übernommen. Du kannst sie jetzt bearbeiten.');
       
-      // Navigate to form for editing
-      onComplete();
+      // Close drawers first, then proceed
+      closeAllAndRun(() => onComplete());
       
     } catch (error) {
       console.error('Import error:', error);
@@ -123,7 +139,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       />
       
       {/* Import bottom sheet - shown immediately */}
-      <Drawer open={true} onOpenChange={(open) => { if (!open) navigate(`/form?year=${taxYear}`); }}>
+      <Drawer open={drawerOpen} onOpenChange={(open) => { if (!open) closeAllAndRun(() => navigate(`/form?year=${taxYear}`)); }}>
         <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
           <div className="mb-6" />
           <div className="text-center space-y-2 mb-6">
