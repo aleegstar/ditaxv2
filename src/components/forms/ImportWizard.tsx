@@ -21,6 +21,8 @@ interface ImportWizardProps {
   onComplete: () => void;
 }
 
+type Step = 'import' | 'changes';
+
 export const ImportWizard: React.FC<ImportWizardProps> = ({
   section,
   sectionName,
@@ -28,41 +30,35 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
   onComplete,
 }) => {
   const { importFromPreviousYear, updateFormProgress } = useFormContext();
-  const [showChangesDialog, setShowChangesDialog] = useState(false);
+  const [step, setStep] = useState<Step>('import');
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
 
-  const closeAllAndRun = useCallback((fn: () => void) => {
+  const closeAndRun = useCallback((fn: () => void) => {
     setDrawerOpen(false);
-    setShowChangesDialog(false);
     setTimeout(fn, 350);
   }, []);
   
   const previousYear = parseInt(taxYear) - 1;
 
   const handleImportClick = () => {
-    setShowChangesDialog(true);
+    setStep('changes');
   };
 
   const handleSkipImport = () => {
-    closeAllAndRun(() => onComplete());
+    closeAndRun(() => onComplete());
   };
 
   const handleNoChanges = async () => {
     setIsImporting(true);
     
     try {
-      // Import data from previous year
       await importFromPreviousYear(section);
-      
-      // Mark section as completed
       updateFormProgress(section, true);
       
-      // Save to database with merge logic
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        // 1. Load existing form_progress
         const { data: existing } = await supabase
           .from('form_progress')
           .select('form_sections')
@@ -70,14 +66,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
           .eq('tax_year', taxYear)
           .single();
         
-        // 2. Merge with new section
         const existingSections = existing?.form_sections as Record<string, boolean> || {};
-        const mergedSections = {
-          ...existingSections,
-          [section]: true
-        };
+        const mergedSections = { ...existingSections, [section]: true };
         
-        // 3. Upsert with merged sections
         await supabase
           .from('form_progress')
           .upsert({
@@ -88,9 +79,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       }
       
       toast.success(`${sectionName} erfolgreich aus ${previousYear} übernommen`);
-      
-      // Close drawers first, then navigate
-      closeAllAndRun(() => navigate(`/form?year=${taxYear}`));
+      closeAndRun(() => navigate(`/form?year=${taxYear}`));
       
     } catch (error) {
       console.error('Import error:', error);
@@ -104,13 +93,9 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
     setIsImporting(true);
     
     try {
-      // Import data from previous year
       await importFromPreviousYear(section);
-      
       toast.success('Daten übernommen. Du kannst sie jetzt bearbeiten.');
-      
-      // Close drawers first, then proceed
-      closeAllAndRun(() => onComplete());
+      closeAndRun(() => onComplete());
       
     } catch (error) {
       console.error('Import error:', error);
@@ -122,76 +107,82 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with back button */}
       <SubpageHeader 
         title={sectionName}
         onBack={() => navigate(`/form?year=${taxYear}`)}
       />
       
-      {/* Import bottom sheet - shown immediately */}
-      <Drawer open={drawerOpen} onOpenChange={(open) => { if (!open) closeAllAndRun(() => navigate(`/form?year=${taxYear}`)); }}>
-        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
+      {/* Single drawer with animated step content */}
+      <Drawer open={drawerOpen} onOpenChange={(open) => { if (!open) closeAndRun(() => navigate(`/form?year=${taxYear}`)); }}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
           <div className="mb-6" />
-          <div className="text-center space-y-2 mb-6">
-            <DrawerTitle className="text-xl font-bold text-foreground">
-              Daten aus {previousYear} übernehmen?
-            </DrawerTitle>
-            <DrawerDescription className="text-sm text-muted-foreground">
-              Du hast bereits Daten für "{sectionName}" aus dem Jahr {previousYear} eingegeben.
-            </DrawerDescription>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button
-              className="w-full"
-              onClick={handleImportClick}
-              disabled={isImporting}
+          
+          <div className="relative">
+            {/* Step 1: Import question */}
+            <div
+              className="transition-all duration-300 ease-in-out"
+              style={{
+                opacity: step === 'import' ? 1 : 0,
+                transform: step === 'import' ? 'translateX(0)' : 'translateX(-100%)',
+                position: step === 'import' ? 'relative' : 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                pointerEvents: step === 'import' ? 'auto' : 'none',
+              }}
             >
-              <Download className="w-5 h-5" />
-              Daten aus {previousYear} übernehmen
-            </Button>
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={handleSkipImport}
-              disabled={isImporting}
+              <div className="text-center space-y-2 mb-6">
+                <DrawerTitle className="text-xl font-bold text-foreground">
+                  Daten aus {previousYear} übernehmen?
+                </DrawerTitle>
+                <DrawerDescription className="text-sm text-muted-foreground">
+                  Du hast bereits Daten für &quot;{sectionName}&quot; aus dem Jahr {previousYear} eingegeben.
+                </DrawerDescription>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button className="w-full" onClick={handleImportClick} disabled={isImporting}>
+                  <Download className="w-5 h-5" />
+                  Daten aus {previousYear} übernehmen
+                </Button>
+                <Button variant="secondary" className="w-full" onClick={handleSkipImport} disabled={isImporting}>
+                  <Edit className="w-5 h-5" />
+                  Neu eingeben
+                </Button>
+              </div>
+            </div>
+
+            {/* Step 2: Changes question */}
+            <div
+              className="transition-all duration-300 ease-in-out"
+              style={{
+                opacity: step === 'changes' ? 1 : 0,
+                transform: step === 'changes' ? 'translateX(0)' : 'translateX(100%)',
+                position: step === 'changes' ? 'relative' : 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                pointerEvents: step === 'changes' ? 'auto' : 'none',
+              }}
             >
-              <Edit className="w-5 h-5" />
-              Neu eingeben
-            </Button>
-          </div>
-        </DrawerContent>
-      </Drawer>
-      
-      {/* Changes bottom sheet */}
-      <Drawer open={showChangesDialog} onOpenChange={setShowChangesDialog}>
-        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
-          <div className="mb-6" />
-          <div className="text-center space-y-2 mb-6">
-            <DrawerTitle className="text-xl font-bold text-foreground">
-              Gibt es Änderungen?
-            </DrawerTitle>
-            <DrawerDescription className="text-sm text-muted-foreground">
-              Haben sich deine Daten seit dem letzten Jahr geändert?
-            </DrawerDescription>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button
-              className="w-full"
-              onClick={handleNoChanges}
-              disabled={isImporting}
-            >
-              <Download className="w-5 h-5" />
-              Nein, keine Änderungen
-            </Button>
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={handleWithChanges}
-              disabled={isImporting}
-            >
-              <Edit className="w-5 h-5" />
-              Ja, ich möchte Änderungen vornehmen
-            </Button>
+              <div className="text-center space-y-2 mb-6">
+                <DrawerTitle className="text-xl font-bold text-foreground">
+                  Gibt es Änderungen?
+                </DrawerTitle>
+                <DrawerDescription className="text-sm text-muted-foreground">
+                  Haben sich deine Daten seit dem letzten Jahr geändert?
+                </DrawerDescription>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button className="w-full" onClick={handleNoChanges} disabled={isImporting}>
+                  <Download className="w-5 h-5" />
+                  Nein, keine Änderungen
+                </Button>
+                <Button variant="secondary" className="w-full" onClick={handleWithChanges} disabled={isImporting}>
+                  <Edit className="w-5 h-5" />
+                  Ja, ich möchte Änderungen vornehmen
+                </Button>
+              </div>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
