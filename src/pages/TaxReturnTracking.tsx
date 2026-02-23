@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { TrackingProgressSteps } from '@/components/tax-tracking/TrackingProgressSteps';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { ExpressUpgradeCard } from '@/components/tax-tracking/ExpressUpgradeCard';
 import { useToast } from '@/hooks/use-toast';
 import { format, addBusinessDays } from 'date-fns';
@@ -113,24 +114,13 @@ export default function TaxReturnTracking() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-600 antialiased flex justify-center">
-      <div className="w-full max-w-3xl px-6 py-12 md:py-20">
+    <div className="min-h-screen bg-white text-slate-600 antialiased">
+      <SubpageHeader 
+        title={`Steuererklärung ${taxReturn.tax_year}`} 
+        onBack={() => navigate('/')} 
+      />
 
-        {/* Header */}
-        <header className="flex items-center justify-between mb-16 relative">
-          <button
-            onClick={() => navigate('/')}
-            className="group p-3 rounded-full border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 focus:ring-4 focus:ring-slate-100 outline-none"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
-          </button>
-
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
-            Steuererklärung {taxReturn.tax_year}
-          </h1>
-
-          <div className="w-11" />
-        </header>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
 
         {/* Glassy Detail Card */}
         <div className="relative mb-16">

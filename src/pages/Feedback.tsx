@@ -100,7 +100,7 @@ const Feedback = () => {
     return (
       <div className="min-h-screen bg-background">
         <SubpageHeader title={t.feedbackPage.title} onBack={() => navigate(-1)} />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex flex-col items-center justify-center text-center space-y-6">
             <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
               <Check className="w-10 h-10 text-green-600" />
@@ -123,7 +123,7 @@ const Feedback = () => {
   return (
     <div className="min-h-screen bg-background">
       <SubpageHeader title={t.feedbackPage.title} onBack={() => navigate(-1)} />
-      <div className="max-w-lg mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="space-y-8">
           {/* Star Rating */}
           <div className="space-y-3">

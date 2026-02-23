@@ -75,7 +75,7 @@ const Invoices: React.FC = () => {
       />
 
       <main className="flex-grow pt-4 pb-16 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-4">
 
           {loading && (
             <div className="flex items-center justify-center py-20">

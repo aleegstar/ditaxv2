@@ -84,7 +84,7 @@ const Tickets = () => {
         onBack={() => navigate(-1)}
       />
       
-      <div className="container mx-auto p-6 max-w-4xl">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
         {tickets.length === 0 ? (
           <Card className="bg-slate-50 border border-slate-200">
             <CardContent className="p-8 text-center">

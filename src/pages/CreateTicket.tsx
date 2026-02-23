@@ -1,10 +1,11 @@
 
 import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Paperclip, X, Loader2 } from 'lucide-react';
+import { Paperclip, X, Loader2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeFileName } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
+import { SubpageHeader } from '@/components/ui/subpage-header';
 
 const CreateTicket = () => {
   const { completedTaxReturnId, taxYear } = useParams<{ completedTaxReturnId: string; taxYear: string }>();
@@ -180,25 +181,18 @@ const CreateTicket = () => {
 
   return (
     <div className="bg-white text-slate-700 min-h-screen relative overflow-x-hidden">
+      <SubpageHeader 
+        title="Neues Ticket erstellen" 
+        onBack={() => navigate(-1)} 
+      />
+
       {/* Main Page Layout */}
-      <main className="w-full max-w-3xl mx-auto px-6 py-12 md:py-20 relative z-10">
+      <main className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 relative z-10">
         
         {/* Header Section */}
-        <div className="mb-12">
-          <div className="flex items-center space-x-4 text-slate-500 mb-8">
-            <button 
-              onClick={() => navigate(-1)}
-              className="p-2 -ml-2 rounded-full hover:bg-slate-100 hover:text-slate-800 transition-colors group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform stroke-[1.5]" />
-            </button>
-            <span className="text-sm font-medium tracking-wide">Problem melden — {taxYear}</span>
-          </div>
-
-          <h1 className="text-4xl font-medium tracking-tight text-slate-800 mb-3">
-            Neues Ticket erstellen
-          </h1>
-          <p className="text-lg text-slate-500 font-normal">
+        <div className="mb-8">
+          <p className="text-sm text-slate-500 mb-2">Problem melden — {taxYear}</p>
+          <p className="text-base text-slate-500 font-normal">
             Fülle die Details unten aus, um den Support zu kontaktieren.
           </p>
         </div>
