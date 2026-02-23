@@ -545,7 +545,8 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
                   return yearMatch && filerMatch;
                 })} 
-                onRefresh={onCompletedTaxReturnsRefresh} 
+                onRefresh={onCompletedTaxReturnsRefresh}
+                selectedTaxFilerId={selectedTaxFilerId}
               />
             </div>
 
