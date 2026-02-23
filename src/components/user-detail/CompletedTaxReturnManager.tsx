@@ -36,13 +36,15 @@ interface CompletedTaxReturnManagerProps {
   userName: string;
   completedTaxReturns: CompletedTaxReturn[];
   onRefresh: () => void;
+  selectedTaxFilerId?: string | null;
 }
 
 const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
   userId,
   userName,
   completedTaxReturns,
-  onRefresh
+  onRefresh,
+  selectedTaxFilerId
 }) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -162,7 +164,8 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           file_path: filePath,
           file_type: 'application/pdf',
           status: 'available',
-          uploaded_by_admin_id: userData.user?.id
+          uploaded_by_admin_id: userData.user?.id,
+          tax_filer_id: selectedTaxFilerId || null
         });
 
       if (dbError) {
@@ -183,7 +186,8 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           updated_at: new Date().toISOString()
         })
         .eq('user_id', userId)
-        .eq('tax_year', taxYear);
+        .eq('tax_year', taxYear)
+        .eq('tax_filer_id', selectedTaxFilerId || '');
 
       if (taxReturnUpdateError) {
         console.warn('Could not update tax_returns status:', taxReturnUpdateError);
