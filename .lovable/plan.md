@@ -1,52 +1,42 @@
 
 
-## Problem
+## Signatur-Dialog als Bottom Sheet umgestalten
 
-Es gibt zwei zusammenhaengende Probleme:
+### Ziel
+Den Signatur-Dialog von einem zentrierten Modal zu einem modernen Bottom Sheet umbauen. Der Ton wird freundlicher und weniger juristisch -- es geht darum, dass der User bestaetigt: "Ja, diese Steuererklaerung darf eingereicht werden."
 
-1. **Admin-Upload setzt kein `tax_filer_id`**: Wenn ein Admin eine fertige Steuererklaerung hochlaedt (`CompletedTaxReturnManager.tsx`), wird die `tax_filer_id` nicht mitgespeichert. Der Datensatz hat daher `tax_filer_id: null`.
+### Aenderungen
 
-2. **User-Dashboard filtert nach `tax_filer_id`**: Der Hook `use-tax-year-data.ts` filtert `completed_tax_returns` mit `.eq('tax_filer_id', taxFilerId)`. Da der Datensatz `null` hat, wird er fuer Leano (und auch Sandro) nicht angezeigt.
+**Datei: `src/components/signature/SignatureDialog.tsx`**
 
-Aktueller Zustand in der Datenbank:
-- Leanos Upload (Galaxus_Kaufbeleg): `tax_filer_id = null` -- wird nirgends angezeigt
-- Sandros Upload (Formularangaben): `tax_filer_id = 598fc1ec...` (Sandro) -- korrekt
+1. **Dialog zu Drawer umbauen**
+   - `Dialog`/`DialogContent` ersetzen durch `Drawer`/`DrawerContent` (variant="bottom-sheet")
+   - Drawer-Komponente aus `@/components/ui/drawer` importieren
+   - Kein manueller X-Button mehr noetig (Drawer hat Drag-Handle)
 
-## Loesung
+2. **Inhalt vereinfachen und freundlicher gestalten**
+   - Header: Icon (Send/FileCheck) + "Steuererklaerung einreichen" statt "unterschreiben"
+   - Untertitel: "Steuerjahr 2025" -- schlicht und klar
+   - PDF-Vorschau-Button bleibt (Datei ansehen)
+   - Den langen Vollmacht-Text und die Shield-Box komplett entfernen
+   - Die zwei separaten Checkboxen (Vollmacht + Verantwortung) zu einer einzigen zusammenfassen:
+     "Ich habe meine Steuererklaerung geprueft und bin einverstanden, dass diese ueber Ditax eingereicht wird."
+   - Das Signatur-Namensfeld bleibt als Bestaetigung (Name eintippen)
+   - Der rechtliche Langtext (`authorizationText`) wird weiterhin im Hintergrund an die Edge Function gesendet -- er wird nur nicht mehr angezeigt
 
-### 1. `CompletedTaxReturnManager.tsx` -- `tax_filer_id` beim Upload mitsenden
+3. **Button-Layout (Bottom-Sheet-Standard)**
+   - Primaer-Button oben: "Einreichen" (blau, pill-shaped, mit Send-Icon)
+   - Sekundaer-Button unten: "Abbrechen" (weiss/grau, pill-shaped)
+   - Kleiner Hinweistext darunter bleibt
 
-- Die Komponente erhaelt `selectedTaxFilerId` als neuen Prop (wird bereits in `UserTabs.tsx` verwendet)
-- Beim Insert in die `completed_tax_returns`-Tabelle wird `tax_filer_id: selectedTaxFilerId` mitgegeben
-- Beim Update der `tax_returns`-Tabelle wird ebenfalls nach `tax_filer_id` gefiltert
+4. **Erfolgs-Ansicht**
+   - Bleibt gleich (CheckCircle + "Erfolgreich eingereicht")
 
-### 2. `UserTabs.tsx` -- `selectedTaxFilerId` an `CompletedTaxReturnManager` weitergeben
+### Technische Details
 
-- Der bestehende Prop `selectedTaxFilerId` wird an die `CompletedTaxReturnManager`-Komponente durchgereicht
-
-### 3. Bestehenden Datensatz korrigieren
-
-- SQL-Update um den vorhandenen Datensatz (`b43964f3...`) mit Leanos `tax_filer_id` (`a1454d06...`) zu aktualisieren
-
-## Technische Details
-
-**Datei: `src/components/user-detail/CompletedTaxReturnManager.tsx`**
-- Neuer Prop: `selectedTaxFilerId?: string | null`
-- Insert-Statement erweitern um `tax_filer_id: selectedTaxFilerId`
-- Update-Query fuer `tax_returns` um `.eq('tax_filer_id', selectedTaxFilerId)` erweitern (falls vorhanden)
-
-**Datei: `src/components/user-detail/UserTabs.tsx`**
-- `selectedTaxFilerId` als Prop an `CompletedTaxReturnManager` weitergeben
-
-**SQL-Migration:**
-```sql
-UPDATE completed_tax_returns 
-SET tax_filer_id = 'a1454d06-b958-4e87-905f-bbe628ee53ee'
-WHERE id = 'b43964f3-8a67-4a3d-91dd-502800caec6a';
-```
-
-Nach dieser Aenderung:
-- Wird der Admin beim Upload immer die richtige Person zuordnen
-- Wird der User die Steuererklaerung sehen und signieren koennen
-- Wird der bestehende Datensatz fuer Leano sofort sichtbar
+- Import aendern: `Drawer, DrawerContent, DrawerTitle` statt `Dialog, DialogContent, DialogTitle`
+- `open`/`onOpenChange` Props bleiben identisch (Drawer unterstuetzt dieselbe API)
+- `handleSign`-Logik bleibt komplett unveraendert (authorizationText wird weiterhin mitgesendet)
+- Nur eine Checkbox statt zwei -> `responsibilityAccepted` State entfaellt, nur `authorizationAccepted` bleibt
+- Validierung: `authorizationAccepted && signatureName matches fullName`
 
