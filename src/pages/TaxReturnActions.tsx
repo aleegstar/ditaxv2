@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Download, Eye, AlertTriangle, Upload, Loader2, ArrowLeft, CheckCircle, PenTool, Check, ExternalLink, ChevronDown } from 'lucide-react';
+import { Download, Eye, AlertTriangle, Upload, Loader2, CheckCircle, PenTool, Check, ExternalLink, ChevronDown } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeFileName, validateFilePath } from '@/utils/fileValidation';
 import { toast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from '@/contexts/I18nContext';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader, ModernUploadDialogTitle } from "@/components/ui/modern-upload-dialog";
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
@@ -421,21 +422,12 @@ export default function TaxReturnActions() {
   return (
     <>
       <div className="min-h-screen bg-white text-slate-800 antialiased">
-        <div className="w-full max-w-xl mx-auto px-4 sm:px-6 py-12 space-y-8">
+        <SubpageHeader 
+          title={`${t.taxReturnActions.title} ${taxYear}`} 
+          onBack={() => navigate('/')} 
+        />
 
-          {/* Header */}
-          <header className="flex items-center justify-between px-1 mb-8 relative">
-            <button
-              onClick={() => navigate('/')}
-              className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all duration-300"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-slate-900 tracking-tight">
-              {t.taxReturnActions.title} {taxYear}
-            </h1>
-            <div className="w-10" />
-          </header>
+        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
           {/* Signature CTA (unsigned) */}
           {needsSignature && (

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
-  ArrowLeft,
   FileQuestion,
   Send,
   Loader2,
@@ -10,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { MissingItemCard } from '@/components/chat/MissingItemCard';
 import { usePendingMissingItems, useMissingItemRequests, type MissingItemResponse } from '@/hooks/useMissingItemRequests';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
@@ -101,23 +101,13 @@ const MissingItems: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-white sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
-          <button
-            onClick={() => navigate('/')}
-            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-100 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <h1 className="text-lg font-semibold text-slate-900">
-            Fehlende Unterlagen/Angaben
-          </h1>
-        </div>
-      </div>
+      <SubpageHeader 
+        title="Fehlende Unterlagen/Angaben" 
+        onBack={() => navigate('/')} 
+      />
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
         {pendingRequests.length === 0 ? (
           /* Empty State */
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">

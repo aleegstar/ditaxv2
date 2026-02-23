@@ -125,7 +125,7 @@ const TaxFilers: React.FC = () => {
         onBack={() => navigate(-1)}
       />
 
-      <div className="px-4 py-6 max-w-2xl mx-auto">
+      <div className="px-4 sm:px-6 py-6 max-w-3xl mx-auto">
         {/* Description */}
         <p className="text-muted-foreground mb-6">
           {t.taxFilers?.pageDescription || 

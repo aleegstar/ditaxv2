@@ -35,7 +35,7 @@ const InviteFriends: React.FC = () => {
         showAvatar={false}
       />
       
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Intro Text */}
         <p className="text-center text-muted-foreground">
           {t.inviteFriends.subtitle}
