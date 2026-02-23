@@ -2,37 +2,51 @@
 
 ## Problem
 
-Nach dem Import der Kontaktdaten ("Nein, keine Änderungen") navigiert die App zum Dashboard zurueck. Dabei bleibt das unsichtbare Drawer-Overlay (frosted glass Hintergrund) im DOM haengen und blockiert saemtliche Touch-Events. Die App wirkt "eingefroren".
+Es gibt zwei zusammenhaengende Probleme:
 
-## Ursache
+1. **Admin-Upload setzt kein `tax_filer_id`**: Wenn ein Admin eine fertige Steuererklaerung hochlaedt (`CompletedTaxReturnManager.tsx`), wird die `tax_filer_id` nicht mitgespeichert. Der Datensatz hat daher `tax_filer_id: null`.
 
-1. Der `ImportWizard` hat zwei Drawer-Komponenten, die ueber Portale gerendert werden (`z-50` Overlay ueber dem gesamten Bildschirm)
-2. Bei `handleNoChanges` wird `navigate()` aufgerufen, waehrend die Drawers noch offen sind
-3. Die Komponente wird durch `showImportWizard(false)` unmounted, aber auf Android-WebViews wird das Vaul-Drawer-Portal/Overlay nicht zuverlaessig aufgeraeumt
-4. Zusaetzlich wird `motion` aus framer-motion importiert (bekanntes Problem auf Android)
+2. **User-Dashboard filtert nach `tax_filer_id`**: Der Hook `use-tax-year-data.ts` filtert `completed_tax_returns` mit `.eq('tax_filer_id', taxFilerId)`. Da der Datensatz `null` hat, wird er fuer Leano (und auch Sandro) nicht angezeigt.
+
+Aktueller Zustand in der Datenbank:
+- Leanos Upload (Galaxus_Kaufbeleg): `tax_filer_id = null` -- wird nirgends angezeigt
+- Sandros Upload (Formularangaben): `tax_filer_id = 598fc1ec...` (Sandro) -- korrekt
 
 ## Loesung
 
-### 1. Drawers vor Navigation schliessen
+### 1. `CompletedTaxReturnManager.tsx` -- `tax_filer_id` beim Upload mitsenden
 
-In `handleNoChanges` und `handleWithChanges` werden die Drawers erst geschlossen, bevor navigiert wird. Ein kurzes Timeout gibt dem DOM Zeit, das Overlay zu entfernen.
+- Die Komponente erhaelt `selectedTaxFilerId` als neuen Prop (wird bereits in `UserTabs.tsx` verwendet)
+- Beim Insert in die `completed_tax_returns`-Tabelle wird `tax_filer_id: selectedTaxFilerId` mitgegeben
+- Beim Update der `tax_returns`-Tabelle wird ebenfalls nach `tax_filer_id` gefiltert
 
-### 2. Framer-motion Import entfernen
+### 2. `UserTabs.tsx` -- `selectedTaxFilerId` an `CompletedTaxReturnManager` weitergeben
 
-Der `motion`-Import wird nicht verwendet und wird entfernt, um potenzielle Touch-Blockaden auf Android zu vermeiden.
+- Der bestehende Prop `selectedTaxFilerId` wird an die `CompletedTaxReturnManager`-Komponente durchgereicht
 
-### 3. Sicherheits-Cleanup bei Unmount
+### 3. Bestehenden Datensatz korrigieren
 
-Ein `useEffect`-Cleanup wird hinzugefuegt, der beim Unmount sicherstellt, dass keine Drawer-Overlays im DOM zurueckbleiben.
+- SQL-Update um den vorhandenen Datensatz (`b43964f3...`) mit Leanos `tax_filer_id` (`a1454d06...`) zu aktualisieren
 
 ## Technische Details
 
-Aenderungen in `src/components/forms/ImportWizard.tsx`:
+**Datei: `src/components/user-detail/CompletedTaxReturnManager.tsx`**
+- Neuer Prop: `selectedTaxFilerId?: string | null`
+- Insert-Statement erweitern um `tax_filer_id: selectedTaxFilerId`
+- Update-Query fuer `tax_returns` um `.eq('tax_filer_id', selectedTaxFilerId)` erweitern (falls vorhanden)
 
-- Ungenutzten `motion`-Import von framer-motion entfernen
-- Neuen State `drawerOpen` einfuehren, um den Drawer kontrolliert zu schliessen
-- In `handleNoChanges`: Erst `drawerOpen = false` setzen, dann mit `setTimeout` (~300ms fuer Animation) navigieren
-- In `handleWithChanges`: Gleiche Strategie
-- `useEffect` Cleanup: Beim Unmount alle `[data-vaul-overlay]` Elemente im DOM entfernen als Fallback
-- `handleSkipImport`: Drawer ebenfalls erst schliessen, dann `onComplete()` aufrufen
+**Datei: `src/components/user-detail/UserTabs.tsx`**
+- `selectedTaxFilerId` als Prop an `CompletedTaxReturnManager` weitergeben
+
+**SQL-Migration:**
+```sql
+UPDATE completed_tax_returns 
+SET tax_filer_id = 'a1454d06-b958-4e87-905f-bbe628ee53ee'
+WHERE id = 'b43964f3-8a67-4a3d-91dd-502800caec6a';
+```
+
+Nach dieser Aenderung:
+- Wird der Admin beim Upload immer die richtige Person zuordnen
+- Wird der User die Steuererklaerung sehen und signieren koennen
+- Wird der bestehende Datensatz fuer Leano sofort sichtbar
 
