@@ -147,7 +147,7 @@ E-Mail: ${userProfile.email}`;
   const canSubmit = authorizationAccepted && nameMatches && !loading;
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
       <DrawerContent variant="bottom-sheet" className="px-5 pb-6 max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-8">
