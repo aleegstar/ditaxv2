@@ -117,18 +117,9 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
       const {
         data: messagesData,
         error
-      } = await supabase.from('chat_messages').select(`
-          *,
-          chat_attachments!left (
-            id,
-            file_name,
-            file_type,
-            original_size,
-            encrypted
-          )
-        `).or(`sender_id.eq.${userId},recipient_id.eq.${userId}`).order('created_at', {
-        ascending: true
-      });
+      } = await supabase.from('chat_messages').select('*')
+        .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+        .order('created_at', { ascending: true });
       if (error) {
         console.error('Error loading messages:', error);
         return;
@@ -152,6 +143,28 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
         return acc;
       }, {} as Record<string, string>);
 
+      // Fetch attachments separately using attachment_id (not message_id join)
+      const attachmentIds = messagesData
+        .filter(msg => msg.attachment_id)
+        .map(msg => msg.attachment_id as string);
+
+      let attachmentsMap: Record<string, any> = {};
+      if (attachmentIds.length > 0) {
+        const { data: attachments, error: attachmentsError } = await supabase
+          .from('chat_attachments')
+          .select('id, file_name, file_type, file_path, original_size, encrypted')
+          .in('id', attachmentIds);
+
+        if (attachmentsError) {
+          console.error('Error fetching attachments:', attachmentsError);
+        } else if (attachments) {
+          attachmentsMap = attachments.reduce((acc, att) => {
+            acc[att.id] = att;
+            return acc;
+          }, {} as Record<string, any>);
+        }
+      }
+
       // Check if chat is currently escalated and handled by checking the most recent escalation status
       const escalatedMessages = messagesData.filter(m => m.escalation_requested === true && m.handled_by_admin);
       const mostRecentEscalation = escalatedMessages.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
@@ -160,37 +173,38 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
       if (mostRecentEscalation) {
         const handoverMessages = messagesData.filter(m => m.bot_handover_requested === true && new Date(m.created_at) > new Date(mostRecentEscalation.created_at));
         if (handoverMessages.length > 0) {
-          // Bot handover occurred after escalation, chat is no longer escalated
           setIsHandled(false);
           setHandledBy(null);
         } else {
-          // No handover after escalation, chat is still handled
           setIsHandled(true);
           setHandledBy(mostRecentEscalation.handled_by_admin);
         }
       } else {
-        // No escalated messages with admin handler
         setIsHandled(false);
         setHandledBy(null);
       }
-      const formattedMessages: ChatMessage[] = messagesData.map(msg => ({
-        id: msg.id,
-        content: msg.content || undefined,
-        sender_id: msg.sender_id || 'bot',
-        recipient_id: msg.recipient_id,
-        created_at: new Date(msg.created_at),
-        read: msg.read,
-        attachment: msg.chat_attachments?.[0] ? {
-          id: msg.chat_attachments[0].id,
-          file_name: msg.chat_attachments[0].file_name,
-          file_type: msg.chat_attachments[0].file_type,
-          file_path: '',
-          original_size: msg.chat_attachments[0].original_size || 0,
-          encrypted: msg.chat_attachments[0].encrypted
-        } : undefined,
-        senderName: msg.sender_id ? profileMap[msg.sender_id] || 'Benutzer' : 'Assistent',
-        isCurrentUser: isAdmin ? msg.sender_id === adminId : msg.sender_id === userId
-      }));
+
+      const formattedMessages: ChatMessage[] = messagesData.map(msg => {
+        const att = msg.attachment_id ? attachmentsMap[msg.attachment_id] : null;
+        return {
+          id: msg.id,
+          content: msg.content || undefined,
+          sender_id: msg.sender_id || 'bot',
+          recipient_id: msg.recipient_id,
+          created_at: new Date(msg.created_at),
+          read: msg.read,
+          attachment: att ? {
+            id: att.id,
+            file_name: att.file_name,
+            file_type: att.file_type,
+            file_path: att.file_path,
+            original_size: att.original_size || 0,
+            encrypted: att.encrypted
+          } : undefined,
+          senderName: msg.sender_id ? profileMap[msg.sender_id] || 'Benutzer' : 'Assistent',
+          isCurrentUser: isAdmin ? msg.sender_id === adminId : msg.sender_id === userId
+        };
+      });
       setMessages(formattedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
