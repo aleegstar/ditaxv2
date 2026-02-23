@@ -146,9 +146,16 @@ E-Mail: ${userProfile.email}`;
   const nameMatches = signatureName.trim().toLowerCase() === fullName.toLowerCase();
   const canSubmit = authorizationAccepted && nameMatches && !loading;
 
+  const scrollToInput = () => {
+    setTimeout(() => {
+      const input = document.getElementById('signature');
+      input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
-      <DrawerContent variant="bottom-sheet" className="px-5 pb-6 max-h-[90vh] overflow-y-auto">
+      <DrawerContent variant="bottom-sheet" className="px-5 pb-6 max-h-[85vh] overflow-y-auto">
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-8">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
@@ -212,7 +219,7 @@ E-Mail: ${userProfile.email}`;
                 id="signature"
                 value={signatureName}
                 onChange={(e) => setSignatureName(e.target.value)}
-                placeholder={`„${fullName}" eingeben`}
+                onFocus={scrollToInput}
                 className="bg-white border-slate-200 h-11 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 mt-1.5"
               />
             </div>
