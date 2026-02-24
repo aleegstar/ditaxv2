@@ -243,48 +243,76 @@ const MissingDocuments = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
-        <Card className="bg-muted">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold">{missingDocumentsStats.total}</div>
-            <div className="text-sm text-muted-foreground">Gesamt offen</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 mb-6">
+        <Card className="border-border/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                <AlertCircle className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight">{missingDocumentsStats.total}</div>
+                <div className="text-xs text-muted-foreground">Gesamt offen</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="bg-orange-50 border-orange-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-700">{missingDocumentsCount}</div>
-            <div className="text-sm text-orange-600">Fehlende Unterlagen</div>
+        <Card className="border-orange-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <FileWarning className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-orange-700">{missingDocumentsCount}</div>
+                <div className="text-xs text-orange-600/80">Fehlende Unterlagen</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="bg-red-50 border-red-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-red-700">{missingInfoCount}</div>
-            <div className="text-sm text-red-600">Fehlende Angaben</div>
+        <Card className="border-red-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center">
+                <HelpCircle className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-red-700">{missingInfoCount}</div>
+                <div className="text-xs text-red-600/80">Fehlende Angaben</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-700">{submittedItems.length}</div>
-            <div className="text-sm text-blue-600">Zur Prüfung</div>
+        <Card className="border-blue-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <ClipboardCheck className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold tracking-tight text-blue-700">{submittedItems.length}</div>
+                <div className="text-xs text-blue-600/80">Zur Prüfung</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pending' | 'submitted')} className="mb-4">
-        <TabsList>
-          <TabsTrigger value="pending" className="flex items-center gap-2">
+        <TabsList className="bg-muted/50 rounded-xl p-1 h-auto">
+          <TabsTrigger value="pending" className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:shadow-sm">
             <AlertCircle className="h-4 w-4" />
             Offene Anfragen
             {pendingItems.length > 0 && (
-              <Badge variant="secondary" className="ml-1">{pendingItems.length}</Badge>
+              <span className="ml-1 bg-orange-100 text-orange-700 text-xs font-medium px-2 py-0.5 rounded-full">{pendingItems.length}</span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="submitted" className="flex items-center gap-2">
+          <TabsTrigger value="submitted" className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:shadow-sm">
             <ClipboardCheck className="h-4 w-4" />
             Eingereicht
             {submittedItems.length > 0 && (
-              <Badge className="ml-1 bg-blue-500">{submittedItems.length}</Badge>
+              <span className="ml-1 bg-primary text-white text-xs font-medium px-2 py-0.5 rounded-full">{submittedItems.length}</span>
             )}
           </TabsTrigger>
         </TabsList>
@@ -311,10 +339,10 @@ const MissingDocuments = () => {
           </div>
 
           {/* Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
+          <Card className="border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base font-medium">
+                <AlertCircle className="h-4 w-4 text-muted-foreground" />
                 Steuererklärungen mit fehlenden Daten
               </CardTitle>
             </CardHeader>
@@ -424,10 +452,10 @@ const MissingDocuments = () => {
 
         {/* Submitted Tab */}
         <TabsContent value="submitted">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ClipboardCheck className="h-5 w-5" />
+          <Card className="border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base font-medium">
+                <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
                 Eingereichte Unterlagen zur Prüfung
               </CardTitle>
             </CardHeader>
