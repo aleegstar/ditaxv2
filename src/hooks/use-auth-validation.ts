@@ -36,11 +36,6 @@ export function useAuthValidation() {
     console.log('Idle timeout reached, logging out');
     setIdleState({ showWarning: false, timeLeft: 0 });
     auth.forceLogout().then(() => {
-      toast({
-        title: t.auth.autoLogout,
-        description: t.auth.autoLogoutDescription,
-        variant: "destructive",
-      });
       navigate('/auth');
     });
   }, [auth, toast, t.auth, navigate]);
