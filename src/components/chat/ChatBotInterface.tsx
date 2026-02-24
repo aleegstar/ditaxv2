@@ -328,7 +328,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           body: {
             message: hasFilesOnly ? 'Ich habe eine Datei gesendet.' : messageContent,
             userId,
-            sessionId
+            sessionId,
+            attachmentId: attachmentId || null
           }
         });
         if (error) throw error;
