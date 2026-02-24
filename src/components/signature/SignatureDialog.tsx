@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, FileText, CheckCircle, Send } from 'lucide-react';
+import { Loader2, FileText, CheckCircle, Send, ExternalLink, Check } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { validateStoragePath } from '@/utils/fileValidation';
@@ -147,7 +145,7 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent variant="light" className="max-w-md p-5 rounded-2xl">
+      <DialogContent variant="light" className="max-w-lg p-8 sm:p-10 rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)]" hideCloseButton={step === 'complete'}>
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-6">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
@@ -161,86 +159,104 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Header */}
-            <div className="flex flex-col items-center text-center">
-              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-2">
-                <Send className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
-              </div>
-              <DialogTitle className="text-lg font-semibold text-slate-900">
-                Steuererklärung einreichen
-              </DialogTitle>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Steuerjahr {completedTaxReturn.tax_year}
-              </p>
+          <div>
+            {/* Header - Digitale Unterschrift Input */}
+            <DialogTitle className="sr-only">Steuererklärung einreichen</DialogTitle>
+            <div className="mb-8">
+              <label htmlFor="signature-top" className="block text-sm font-semibold text-slate-900 mb-2 ml-1">
+                Digitale Unterschrift
+              </label>
+              <Input
+                id="signature-top"
+                value={signatureName}
+                onChange={(e) => setSignatureName(e.target.value)}
+                placeholder="Vor- und Nachname"
+                className="w-full px-4 py-3.5 h-auto bg-slate-50/50 border-slate-200/80 rounded-xl text-base text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all duration-200 shadow-sm"
+              />
             </div>
 
-            {/* PDF Preview Button */}
+            {/* Document Card */}
             <button
               onClick={handleViewPdf}
-              className="w-full p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center gap-3"
+              className="w-full flex items-center gap-4 p-4 mb-6 bg-white border border-slate-200/80 shadow-sm rounded-2xl hover:border-blue-400 hover:shadow-md transition-all duration-300 group cursor-pointer"
             >
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-red-500" strokeWidth={1.5} />
+              <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors duration-300">
+                <FileText className="w-6 h-6" strokeWidth={1.5} />
               </div>
-              <div className="text-left flex-1 min-w-0">
-                <p className="font-medium text-slate-900 text-sm truncate">{completedTaxReturn.file_name}</p>
-                <p className="text-xs text-slate-500">Dokument ansehen</p>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-base font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                  {completedTaxReturn.file_name}
+                </p>
+                <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-2 group-hover:text-blue-500 transition-colors">
+                  <span>PDF Dokument</span>
+                </p>
+              </div>
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
               </div>
             </button>
 
-            {/* Single Confirmation Checkbox */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-              <Checkbox
-                id="authorization"
+            {/* Checkbox Area */}
+            <label className="relative flex items-start gap-4 p-5 mb-6 bg-slate-50/50 border border-slate-200/60 rounded-2xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 group">
+              <input
+                type="checkbox"
                 checked={authorizationAccepted}
-                onCheckedChange={(checked) => setAuthorizationAccepted(checked as boolean)}
-                className="mt-0.5 h-5 w-5 rounded border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                onChange={(e) => setAuthorizationAccepted(e.target.checked)}
+                className="peer sr-only"
               />
-              <label htmlFor="authorization" className="text-sm text-slate-700 cursor-pointer leading-snug">
-                Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
-              </label>
-            </div>
+              <div className="mt-0.5 flex-shrink-0 w-5 h-5 border-2 border-slate-300 rounded-md peer-checked:bg-blue-600 peer-checked:border-blue-600 group-hover:border-blue-400 transition-all duration-200 flex items-center justify-center shadow-sm bg-white">
+                <Check className={`w-3.5 h-3.5 text-white transition-all duration-200 ${authorizationAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} strokeWidth={3} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-slate-900 leading-snug select-none mb-1">
+                  Einverständniserklärung
+                </span>
+                <span className="text-sm text-slate-600 leading-relaxed select-none">
+                  Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
+                </span>
+              </div>
+            </label>
 
-            {/* Signature Input */}
-            <div>
-              <Label htmlFor="signature" className="text-slate-700 font-medium text-sm">
+            {/* Name Confirmation Input */}
+            <div className="mb-8">
+              <label htmlFor="signature-confirm" className="block text-base font-medium text-slate-900 mb-2.5 ml-1">
                 Name zur Bestätigung
-              </Label>
+              </label>
               <Input
-                id="signature"
+                id="signature-confirm"
                 value={signatureName}
                 onChange={(e) => setSignatureName(e.target.value)}
-                className="bg-white border-slate-200 h-11 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 mt-1.5"
+                className="w-full px-4 py-4 h-auto bg-white border-slate-200/80 rounded-2xl text-base text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200 shadow-sm"
               />
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col gap-2 pt-1">
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row-reverse gap-3">
               <Button
                 onClick={handleSign}
                 disabled={!canSubmit}
-                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_15px_rgba(29,100,255,0.25)] disabled:opacity-50 disabled:shadow-none text-sm gap-2"
+                className="flex-1 py-3.5 h-auto rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-medium shadow-sm hover:shadow gap-2 disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <Send className="w-4 h-4" strokeWidth={2} />
                     Einreichen
                   </>
                 )}
               </Button>
               <Button
-                variant="ghost"
+                variant="secondary"
                 onClick={() => onOpenChange(false)}
-                className="w-full h-11 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium border border-slate-200 text-sm"
+                className="flex-1 py-3.5 h-auto rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-base font-medium shadow-sm"
               >
                 Abbrechen
               </Button>
             </div>
 
-            <p className="text-xs text-center text-slate-400 pb-1">
+            {/* Footer Note */}
+            <p className="mt-6 text-sm text-slate-400">
               Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
             </p>
           </div>
