@@ -153,7 +153,7 @@ E-Mail: ${userProfile.email}`;
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent variant="light" className="max-w-[380px] w-[calc(100%-2rem)] p-5 rounded-[24px] border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] sm:max-h-[85vh] overflow-y-auto gap-0" hideCloseButton>
+        <DialogContent variant="light" className="max-w-lg w-[calc(100%-2rem)] p-8 sm:p-10 rounded-3xl border border-border/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] sm:max-h-[90vh] overflow-y-auto gap-0" hideCloseButton>
           {step === 'complete' ? (
             <div className="flex flex-col items-center justify-center py-6">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
@@ -167,21 +167,21 @@ E-Mail: ${userProfile.email}`;
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3.5 relative">
-              {/* Close Button */}
+            <div className="flex flex-col relative">
+              {/* Close Button - matching popup main design */}
               <button
                 onClick={() => onOpenChange(false)}
-                className="absolute -top-0.5 -right-0.5 w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+                className="absolute top-0 right-0 p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors duration-200"
               >
-                <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
 
               {/* Title */}
-              <div className="pr-7">
-                <DialogTitle className="text-[17px] font-semibold text-foreground leading-tight">
+              <div className="pr-12 mb-8">
+                <DialogTitle className="text-lg font-semibold text-foreground">
                   Steuererklärung einreichen
                 </DialogTitle>
-                <p className="text-[13px] text-muted-foreground mt-0.5">
+                <p className="text-sm text-muted-foreground mt-1">
                   Bestätige die Einreichung für das Steuerjahr {completedTaxReturn.tax_year}
                 </p>
               </div>
@@ -189,26 +189,26 @@ E-Mail: ${userProfile.email}`;
               {/* Document Card */}
               <button
                 onClick={handleViewPdf}
-                className="w-full flex items-center gap-3 p-3 bg-card border border-border/60 rounded-2xl hover:border-primary/40 hover:shadow-md transition-all duration-300 group cursor-pointer"
+                className="w-full flex items-center gap-4 p-4 mb-6 bg-card border border-border/60 rounded-2xl hover:border-primary/40 hover:shadow-md transition-all duration-300 group cursor-pointer shadow-sm"
               >
-                <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-muted text-muted-foreground rounded-xl border border-border/60 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20 transition-colors duration-300">
-                  <FileText className="w-5 h-5" strokeWidth={1.5} />
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-muted text-muted-foreground rounded-xl border border-border/60 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20 transition-colors duration-300">
+                  <FileText className="w-6 h-6" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                  <p className="text-base font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                     {completedTaxReturn.file_name}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5 group-hover:text-primary/70 transition-colors">
+                  <p className="text-sm text-muted-foreground mt-0.5 group-hover:text-primary/70 transition-colors">
                     PDF Dokument
                   </p>
                 </div>
-                <div className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                  <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary transition-colors">
+                  <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                 </div>
               </button>
 
               {/* Checkbox Area */}
-              <label className="relative flex items-start gap-3 p-3.5 bg-muted/30 border border-border/40 rounded-2xl cursor-pointer hover:bg-muted/50 hover:border-border transition-all duration-200 group">
+              <label className="relative flex items-start gap-4 p-5 mb-6 bg-muted/30 border border-border/40 rounded-2xl cursor-pointer hover:bg-muted/50 hover:border-border transition-all duration-200 group">
                 <input
                   type="checkbox"
                   checked={authorizationAccepted}
@@ -218,14 +218,19 @@ E-Mail: ${userProfile.email}`;
                 <div className="mt-0.5 flex-shrink-0 w-5 h-5 border-2 border-border rounded-md peer-checked:bg-primary peer-checked:border-primary group-hover:border-primary/60 transition-all duration-200 flex items-center justify-center shadow-sm bg-card">
                   <Check className={`w-3.5 h-3.5 text-primary-foreground transition-all duration-200 ${authorizationAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} strokeWidth={3} />
                 </div>
-                <span className="text-sm text-muted-foreground leading-relaxed select-none">
-                  Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-foreground leading-snug select-none mb-1">
+                    Einverständniserklärung
+                  </span>
+                  <span className="text-sm text-muted-foreground leading-relaxed select-none">
+                    Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
+                  </span>
+                </div>
               </label>
 
               {/* Name Input */}
-              <div>
-                <label htmlFor="signature-confirm" className="block text-sm font-semibold text-foreground mb-1.5 ml-1">
+              <div className="mb-8">
+                <label htmlFor="signature-confirm" className="block text-base font-medium text-foreground mb-2.5 ml-1">
                   Name zur Bestätigung
                 </label>
                 <Input
@@ -233,22 +238,22 @@ E-Mail: ${userProfile.email}`;
                   value={signatureName}
                   onChange={(e) => setSignatureName(e.target.value)}
                   placeholder={fullName}
-                  className="w-full px-4 py-3 h-auto bg-card border-border/60 rounded-xl text-base text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 shadow-sm"
+                  className="w-full px-4 py-4 h-auto bg-card border-border/60 rounded-2xl text-base text-foreground placeholder:text-muted-foreground focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all duration-200 shadow-sm"
                 />
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row-reverse gap-3">
                 <Button
                   onClick={handleSign}
                   disabled={!canSubmit}
-                  className="w-full py-2.5 h-auto rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.9)] hover:opacity-90 active:scale-95 text-primary-foreground text-[15px] font-medium shadow-sm gap-2 disabled:opacity-50 transition-all duration-200"
+                  className="flex-1 py-3.5 h-auto rounded-xl bg-primary hover:bg-primary/90 active:bg-primary/80 text-primary-foreground text-base font-medium shadow-sm hover:shadow gap-2 disabled:opacity-50 transition-all duration-200"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <Send className="w-3.5 h-3.5" strokeWidth={2} />
+                      <Send className="w-4 h-4" strokeWidth={2} />
                       Einreichen
                     </>
                   )}
@@ -256,23 +261,24 @@ E-Mail: ${userProfile.email}`;
                 <Button
                   variant="secondary"
                   onClick={() => onOpenChange(false)}
-                  className="w-full py-2.5 h-auto rounded-2xl bg-card hover:bg-muted text-foreground border border-border/60 text-[15px] font-medium shadow-sm transition-all duration-200"
+                  className="flex-1 py-3.5 h-auto rounded-xl bg-card hover:bg-muted text-foreground border border-border/60 text-base font-medium shadow-sm transition-all duration-200"
                 >
                   Abbrechen
                 </Button>
               </div>
 
-              <p className="text-[11px] text-muted-foreground text-center leading-snug">
+              {/* Footer */}
+              <p className="mt-6 text-sm text-muted-foreground">
                 Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
               </p>
 
               {/* Support Ticket Link */}
-              <div className="border-t border-border/40 pt-2.5 -mt-1">
+              <div className="border-t border-border/40 mt-4 pt-4">
                 <button
                   onClick={handleOpenTicket}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
-                  <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />
                   <span>Nicht einverstanden? Problem melden</span>
                 </button>
               </div>
