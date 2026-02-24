@@ -196,7 +196,7 @@ E-Mail: ${userProfile.email}`;
                   Abbrechen
                 </Button>
                 <Button onClick={handleSign} disabled={!canSubmit} className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-3.5 h-3.5 mr-1" strokeWidth={2} />Einreichen</>}
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einreichen'}
                 </Button>
               </div>
 
