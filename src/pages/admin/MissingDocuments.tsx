@@ -223,7 +223,7 @@ const MissingDocuments = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       <AdminWelcomeHeader
         title="Fehlende Unterlagen"
         subtitle="Übersicht aller Steuererklärungen mit fehlendem Status"
@@ -235,7 +235,7 @@ const MissingDocuments = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="border-border/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
           <CardContent className="p-5">
             <div className="flex items-center gap-3">
@@ -291,7 +291,7 @@ const MissingDocuments = () => {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pending' | 'submitted')} className="mb-4">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pending' | 'submitted')}>
         <TabsList className="bg-muted/50 rounded-xl p-1 h-auto">
           <TabsTrigger value="pending" className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:shadow-sm">
             <AlertCircle className="h-4 w-4" />
@@ -312,7 +312,7 @@ const MissingDocuments = () => {
         {/* Pending Tab */}
         <TabsContent value="pending">
           {/* Filter */}
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4 mb-5">
             <Select value={filter} onValueChange={(v) => setFilter(v as FilterStatus)}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Status filtern" />
