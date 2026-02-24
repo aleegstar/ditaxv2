@@ -411,7 +411,7 @@ const TaxReturnCreation: React.FC = () => {
                   <CardTitle className="text-foreground text-lg">
                     Steuerjahr {taxReturn.tax_year}
                   </CardTitle>
-                  <Badge className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
+                  <Badge className="bg-primary text-white rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
                     {getStatusText(taxReturn.status)}
                   </Badge>
                 </div>
