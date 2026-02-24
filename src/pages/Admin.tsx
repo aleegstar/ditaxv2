@@ -245,9 +245,7 @@ const Admin: React.FC = () => {
           <Route path="tickets" element={<TicketManagement />} />
           <Route path="templates" element={<DocumentTemplateManager />} />
           <Route path="chat" element={
-            <div className="-m-8 lg:-m-12 h-[calc(100vh-2rem)] overflow-hidden rounded-[2.5rem]">
-              <EnhancedAdminChatOverview />
-            </div>
+            <EnhancedAdminChatOverview />
           } />
           <Route path="users" element={
              <div className="container mx-auto px-4 py-8 space-y-6">
