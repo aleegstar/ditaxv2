@@ -5,15 +5,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -338,202 +330,147 @@ const MissingDocuments = () => {
             </Button>
           </div>
 
-          {/* Table */}
-          <Card className="border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-2xl overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base font-medium">
-                <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                Steuererklärungen mit fehlenden Daten
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-3 w-[150px]" />
-                      </div>
-                      <Skeleton className="h-8 w-[100px]" />
+          {/* Cards Grid */}
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="rounded-2xl border-border/60">
+                  <CardContent className="p-6 space-y-4">
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-12 w-full rounded-2xl" />
+                    <Skeleton className="h-4 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : pendingItems.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50 text-green-500" />
+              <p>Keine offenen Anfragen vorhanden.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pendingItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="rounded-2xl border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-200"
+                >
+                  <CardContent className="p-5 flex flex-col items-center text-center gap-3">
+                    {/* Status + Year */}
+                    <div className="flex items-center gap-2 w-full justify-between">
+                      {getStatusBadge(item.status)}
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {item.tax_year} · {item.adressnummer || '–'}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              ) : pendingItems.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50 text-green-500" />
-                  <p>Keine offenen Anfragen vorhanden.</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Benutzer</TableHead>
-                      <TableHead>Adressnr.</TableHead>
-                      <TableHead>Steuerjahr</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Zuletzt aktualisiert</TableHead>
-                      <TableHead className="text-right">Aktionen</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingItems.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9">
-                              {item.user_avatar_url ? (
-                                <AvatarImage src={item.user_avatar_url} />
-                              ) : null}
-                              <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                                {getUserInitials(item.user_first_name, item.user_last_name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">
-                                {item.user_first_name || item.user_last_name
-                                  ? `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim()
-                                  : 'Unbekannt'}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {item.user_email || 'Keine E-Mail'}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {item.adressnummer ? (
-                            <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
-                              {item.adressnummer}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{item.tax_year}</Badge>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(item.status)}</TableCell>
-                        <TableCell>
-                          {format(new Date(item.updated_at), 'dd.MM.yyyy HH:mm', { locale: de })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleOpenCreateDialog(item)}
-                              title="Anfrage erstellen"
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              Anfrage
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              asChild
-                              title="Benutzer anzeigen"
-                            >
-                              <Link to={`/admin/user/${item.user_id}?year=${item.tax_year}`}>
-                                <ExternalLink className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+
+                    {/* User Button */}
+                    <Link
+                      to={`/admin/user/${item.user_id}?year=${item.tax_year}`}
+                      className="w-full"
+                    >
+                      <div className="w-full bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white rounded-2xl h-12 flex items-center justify-center font-medium text-sm hover:scale-[1.02] active:scale-95 transition-transform">
+                        {item.user_first_name || item.user_last_name
+                          ? `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim()
+                          : 'Unbekannt'}
+                      </div>
+                    </Link>
+
+                    {/* Email */}
+                    <span className="text-xs text-muted-foreground truncate max-w-full">
+                      {item.user_email || 'Keine E-Mail'}
+                    </span>
+
+                    {/* Footer: date + action */}
+                    <div className="flex items-center justify-between w-full pt-1 border-t border-border/40">
+                      <span className="text-[11px] text-muted-foreground">
+                        {format(new Date(item.updated_at), 'dd.MM.yyyy', { locale: de })}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-3 text-xs rounded-xl"
+                        onClick={() => handleOpenCreateDialog(item)}
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        Anfrage
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         {/* Submitted Tab */}
         <TabsContent value="submitted">
-          <Card className="border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-2xl overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base font-medium">
-                <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-                Eingereichte Unterlagen zur Prüfung
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {submittedLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-3 w-[150px]" />
-                      </div>
-                      <Skeleton className="h-8 w-[100px]" />
+          {submittedLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="rounded-2xl border-border/60">
+                  <CardContent className="p-6 space-y-4">
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-12 w-full rounded-2xl" />
+                    <Skeleton className="h-4 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : submittedItems.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <ClipboardCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Keine eingereichten Unterlagen zur Prüfung vorhanden.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {submittedItems.map((item) => (
+                <Card
+                  key={item.tax_return_id}
+                  className="rounded-2xl border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-200"
+                >
+                  <CardContent className="p-5 flex flex-col items-center text-center gap-3">
+                    {/* Status + Year */}
+                    <div className="flex items-center gap-2 w-full justify-between">
+                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                        <ClipboardCheck className="h-3 w-3 mr-1" />
+                        {item.requests.length} Einreichung(en)
+                      </Badge>
+                      <span className="text-xs text-muted-foreground font-medium">{item.tax_year}</span>
                     </div>
-                  ))}
-                </div>
-              ) : submittedItems.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <ClipboardCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Keine eingereichten Unterlagen zur Prüfung vorhanden.</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Benutzer</TableHead>
-                      <TableHead>Steuerjahr</TableHead>
-                      <TableHead>Anzahl Einreichungen</TableHead>
-                      <TableHead>Eingereicht am</TableHead>
-                      <TableHead className="text-right">Aktionen</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {submittedItems.map((item) => (
-                      <TableRow key={item.tax_return_id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9">
-                              <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                                {item.user_name.split(' ').map(n => n[0]).join('').toUpperCase() || '?'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">{item.user_name || 'Unbekannt'}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {item.user_email || 'Keine E-Mail'}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{item.tax_year}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="bg-blue-100 text-blue-800">
-                            {item.requests.length} Einreichung(en)
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(item.submitted_at), 'dd.MM.yyyy HH:mm', { locale: de })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            onClick={() => handleOpenReviewDialog(item)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Prüfen
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+
+                    {/* User Button */}
+                    <button
+                      onClick={() => handleOpenReviewDialog(item)}
+                      className="w-full bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white rounded-2xl h-12 flex items-center justify-center font-medium text-sm hover:scale-[1.02] active:scale-95 transition-transform"
+                    >
+                      {item.user_name || 'Unbekannt'}
+                    </button>
+
+                    {/* Email */}
+                    <span className="text-xs text-muted-foreground truncate max-w-full">
+                      {item.user_email || 'Keine E-Mail'}
+                    </span>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between w-full pt-1 border-t border-border/40">
+                      <span className="text-[11px] text-muted-foreground">
+                        {format(new Date(item.submitted_at), 'dd.MM.yyyy', { locale: de })}
+                      </span>
+                      <Button
+                        size="sm"
+                        className="h-8 px-3 text-xs rounded-xl bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white hover:scale-[1.02] active:scale-95 transition-transform"
+                        onClick={() => handleOpenReviewDialog(item)}
+                      >
+                        <Eye className="h-3.5 w-3.5 mr-1" />
+                        Prüfen
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
