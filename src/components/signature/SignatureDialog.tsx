@@ -148,7 +148,7 @@ E-Mail: ${userProfile.email}`;
               </button>
 
               {/* Header */}
-              <DialogTitle className="text-base font-semibold text-foreground pr-8 mb-3">
+              <DialogTitle className="text-base font-semibold text-foreground pr-8 mb-5">
                 Steuererklärung einreichen
               </DialogTitle>
 
