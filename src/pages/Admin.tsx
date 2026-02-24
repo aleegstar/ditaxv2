@@ -250,7 +250,7 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="users" element={
-            <div className="container mx-auto px-4 py-8">
+             <div className="container mx-auto px-4 py-8 space-y-6">
               <AdminWelcomeHeader
                 title="Benutzer"
                 subtitle="Alle registrierten Benutzer verwalten"
