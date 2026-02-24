@@ -17,6 +17,10 @@ const chatRequestSchema = z.object({
   sessionId: z.string()
     .uuid('Invalid session ID format')
     .optional()
+    .nullable(),
+  attachmentId: z.string()
+    .uuid('Invalid attachment ID format')
+    .optional()
     .nullable()
 })
 
@@ -49,7 +53,7 @@ serve(async (req) => {
       throw validationError
     }
 
-    const { message, sessionId } = validatedData
+    const { message, sessionId, attachmentId } = validatedData
 
     console.log('=== CHATBOT REQUEST START ===')
     console.log('Message length:', message.length)
@@ -151,7 +155,8 @@ serve(async (req) => {
       content: message,
       chat_type: 'human',
       bot_session_id: sessionId || null,
-      escalation_requested: shouldEscalate
+      escalation_requested: shouldEscalate,
+      attachment_id: attachmentId || null
     }
     
     console.log('User message data to save:', userMessageData)
