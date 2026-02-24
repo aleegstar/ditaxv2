@@ -155,7 +155,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
   const categories = [...new Set(quickReplies.map(r => r.category || 'Allgemein'))];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       <AdminWelcomeHeader
         title="Schnellantworten"
         subtitle="Vorlagen für häufige Chat-Antworten verwalten"
@@ -167,7 +167,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
       />
 
       {/* Actions Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-6">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -185,7 +185,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
 
       {/* Error State */}
       {error && (
-        <div className="bg-destructive/10 text-destructive p-4 rounded-lg mb-6">
+        <div className="bg-destructive/10 text-destructive p-4 rounded-lg">
           {error}
           <Button variant="link" onClick={fetchQuickReplies} className="ml-2">
             Erneut versuchen

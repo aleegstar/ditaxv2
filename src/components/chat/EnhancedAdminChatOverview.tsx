@@ -335,7 +335,7 @@ export const EnhancedAdminChatOverview: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 min-h-screen">
+    <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col gap-6">
       <AdminWelcomeHeader
         title="Chat-Übersicht"
         subtitle="Verwalte Kundenbetreuung und Bot-Eskalationen"
@@ -347,7 +347,7 @@ export const EnhancedAdminChatOverview: React.FC = () => {
         showStats={false}
       />
       
-      <div className="flex h-[calc(100vh-200px)]">
+      <div className="flex flex-1 h-[calc(100vh-200px)]">
       {/* Users List */}
       <div className="w-1/3 border-r border-gray-200 flex flex-col bg-white">
         <div className="p-4 border-b border-gray-200">
