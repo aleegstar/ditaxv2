@@ -142,9 +142,9 @@ E-Mail: ${userProfile.email}`;
               {/* Close */}
               <button
                 onClick={() => onOpenChange(false)}
-                className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full transition-colors"
+                className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors"
               >
-                <X className="w-4.5 h-4.5" strokeWidth={1.5} />
+                <X className="h-4 w-4 text-slate-500" />
               </button>
 
               {/* Header */}
@@ -191,12 +191,14 @@ E-Mail: ${userProfile.email}`;
               </div>
 
               {/* Buttons */}
-              <Button onClick={handleSign} disabled={!canSubmit} className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium gap-1.5 disabled:opacity-40 transition-all mb-2">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-3.5 h-3.5" strokeWidth={2} />Einreichen</>}
-              </Button>
-              <Button variant="secondary" onClick={() => onOpenChange(false)} className="w-full h-10 rounded-xl bg-card hover:bg-muted text-foreground border border-border/50 text-sm font-medium transition-all">
-                Abbrechen
-              </Button>
+              <div className="flex gap-3">
+                <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]">
+                  Abbrechen
+                </Button>
+                <Button onClick={handleSign} disabled={!canSubmit} className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-3.5 h-3.5 mr-1" strokeWidth={2} />Einreichen</>}
+                </Button>
+              </div>
 
               <p className="text-[11px] text-muted-foreground text-center mt-3">
                 Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
