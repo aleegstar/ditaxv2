@@ -3,9 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Clock, CheckCircle, Bot } from 'lucide-react';
+import { User, Clock, CheckCircle, Bot, Download, FileText, Image } from 'lucide-react';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
-import UserChatBubble from './UserChatBubble';
 import { QuickReplySelector } from './QuickReplySelector';
 import { useQuickReplies, QuickReply } from '@/hooks/useQuickReplies';
 
@@ -437,77 +436,186 @@ export const EscalatedChatWindow: React.FC<EscalatedChatWindowProps> = ({
     }
   };
   const userName = userProfile ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || userProfile.email || 'Benutzer' : 'Benutzer';
-  return <div className="flex flex-col h-full relative">
-      {/* Header with user info and status */}
-      <div className="border-b border-gray-200 p-4 bg-gray-50 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-gray-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{userName}</h3>
-              <div className="flex items-center gap-2">
-                {isHandled ? <Badge variant="secondary" className="text-xs">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Wird bearbeitet
-                  </Badge> : <Badge variant="destructive" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Wartet auf Support
-                  </Badge>}
-              </div>
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-white relative overflow-hidden">
+      {/* Header */}
+      <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b border-slate-100 bg-white shrink-0">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden"
+            style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+          >
+            <User className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="font-semibold text-base tracking-tight text-slate-800 leading-tight">
+              {userName}
+            </h1>
+            <div className="flex items-center gap-1.5">
+              {isHandled ? (
+                <>
+                  <div className="relative w-2 h-2 bg-emerald-500 rounded-full">
+                    <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-40" />
+                  </div>
+                  <span className="text-xs font-medium text-emerald-600">Wird bearbeitet</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                  <span className="text-xs font-medium text-amber-600">Wartet auf Support</span>
+                </>
+              )}
             </div>
           </div>
-
-          {isAdmin && <div className="flex gap-2">
-{!isHandled && <Button 
-                   onClick={handleTakeOverInternal} 
-                 >
-                   Chat übernehmen
-                 </Button>}
-              {isHandled && <>
-                  <Button onClick={handleHandoverToBot} size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                    <Bot className="w-4 h-4 mr-2" />
-                    An Bot zurückgeben
-                  </Button>
-                  <Button onClick={handleResolveChat} size="sm" variant="outline" className="text-gray-600 border-gray-200">
-                    Abschließen
-                  </Button>
-                </>}
-            </div>}
         </div>
+
+        {isAdmin && (
+          <div className="flex gap-2 ml-auto">
+            {!isHandled && (
+              <Button onClick={handleTakeOverInternal} size="sm">
+                Chat übernehmen
+              </Button>
+            )}
+            {isHandled && (
+              <>
+                <Button onClick={handleHandoverToBot} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Bot className="w-4 h-4 mr-2" />
+                  An Bot zurückgeben
+                </Button>
+                <Button onClick={handleResolveChat} size="sm" variant="outline" className="text-slate-600 border-slate-200">
+                  Abschließen
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Chat messages area */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-          {loading ? <div className="flex justify-center items-center h-64 text-gray-500">
-              Nachrichten werden geladen...
-            </div> : messages.length === 0 ? <div className="flex justify-center items-center h-64 text-gray-500">
-              Keine Nachrichten vorhanden.
-            </div> : messages.map(msg => <UserChatBubble key={msg.id} message={msg} onDownloadFile={handleDownloadFile} />)}
-          <div ref={messagesEndRef} />
-        </div>
+      {/* Messages Area */}
+      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
+        {loading ? (
+          <div className="flex items-center justify-center h-64 text-slate-500">
+            Chat wird geladen...
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-64 text-slate-500">
+            Keine Nachrichten vorhanden.
+          </div>
+        ) : (
+          <div className="max-w-2xl mx-auto space-y-4">
+            {messages.map(msg => {
+              const isMe = msg.isCurrentUser;
+              const isBotMessage = msg.sender_id === 'bot' || (!msg.sender_id);
+              
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${isMe ? 'flex-col items-end ml-auto max-w-[85%]' : 'items-start gap-3 max-w-[90%]'}`}
+                >
+                  {/* Avatar for other user */}
+                  {!isMe && (
+                    <div
+                      className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
+                      style={{
+                        background: isBotMessage
+                          ? 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
+                          : 'linear-gradient(to bottom right, #059669, #047857)'
+                      }}
+                    >
+                      {isBotMessage ? (
+                        <img src="/bot-avatar.png" alt="Bot" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                  )}
 
-        {/* Input area */}
-        <div ref={inputContainerRef} className="flex-shrink-0 p-4 border-t border-gray-200 bg-white relative">
-          {/* Quick Reply Selector */}
-          {isAdmin && showQuickReplies && quickReplies.length > 0 && (
-            <QuickReplySelector
-              replies={quickReplies}
-              searchQuery={quickReplyQuery}
-              onSelect={handleQuickReplySelect}
-              onClose={handleCloseQuickReplies}
-            />
-          )}
-          <PromptInputBox 
-            onSend={handleSendMessage} 
-            placeholder={isAdmin ? "Nachricht eingeben... (@trigger für Schnellantworten)" : "Nachricht eingeben..."} 
+                  <div className="flex flex-col gap-1">
+                    {!isMe && (
+                      <p className="text-xs font-medium text-slate-500 ml-1">{msg.senderName}</p>
+                    )}
+
+                    {/* Text bubble */}
+                    {msg.content && (
+                      <div
+                        className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
+                          isMe
+                            ? 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'
+                            : 'bg-white border border-slate-200 text-slate-700 shadow-sm'
+                        }`}
+                      >
+                        <p className={`whitespace-pre-wrap ${isMe ? 'text-white' : 'text-[#1d283a]'}`}>
+                          {msg.content}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Attachment */}
+                    {msg.attachment && (
+                      <div
+                        className={`px-3 py-2 rounded-[24px] text-sm ${
+                          isMe
+                            ? 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'
+                            : 'bg-white border border-slate-200 text-slate-700 shadow-sm'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {msg.attachment.file_type?.startsWith('image/') ? (
+                            <Image className={`h-5 w-5 flex-shrink-0 ${isMe ? 'text-white/80' : 'text-slate-500'}`} />
+                          ) : (
+                            <FileText className={`h-5 w-5 flex-shrink-0 ${isMe ? 'text-white/80' : 'text-slate-500'}`} />
+                          )}
+                          <span className={`text-sm flex-1 truncate ${isMe ? 'text-white' : 'text-slate-700'}`}>
+                            {msg.attachment.file_name}
+                          </span>
+                          <button
+                            onClick={() => handleDownloadFile(msg.attachment!.file_path, msg.attachment!.file_name, msg.attachment!.id)}
+                            className={`flex-shrink-0 p-1 rounded-full transition-colors ${isMe ? 'text-white/80 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <span className={`text-[10px] text-slate-400 font-medium ${isMe ? 'mr-1 text-right' : 'ml-1'}`}>
+                      {formatTime(msg.created_at)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      {/* Input area */}
+      <div ref={inputContainerRef} className="z-20 p-4 w-full bg-white shrink-0 border-t border-slate-100 relative">
+        {/* Quick Reply Selector */}
+        {isAdmin && showQuickReplies && quickReplies.length > 0 && (
+          <QuickReplySelector
+            replies={quickReplies}
+            searchQuery={quickReplyQuery}
+            onSelect={handleQuickReplySelect}
+            onClose={handleCloseQuickReplies}
+          />
+        )}
+        <div className="max-w-2xl mx-auto">
+          <PromptInputBox
+            onSend={handleSendMessage}
+            placeholder={isAdmin ? "Nachricht eingeben... (@trigger für Schnellantworten)" : "Nachricht eingeben..."}
             isLoading={uploading}
             value={inputValue}
             onValueChange={handleInputChange}
+            className="!bg-slate-50 !border-slate-200 hover:!border-slate-300 focus-within:!border-[#1D64FF]/50 focus-within:!ring-1 focus-within:!ring-[#1D64FF]/20 shadow-sm"
           />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
