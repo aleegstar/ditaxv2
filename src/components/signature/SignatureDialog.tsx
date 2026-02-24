@@ -151,9 +151,6 @@ E-Mail: ${userProfile.email}`;
               <DialogTitle className="text-base font-semibold text-foreground pr-8">
                 Steuererklärung einreichen
               </DialogTitle>
-              <p className="text-[13px] text-muted-foreground mt-0.5 mb-4">
-                Bestätige die Einreichung für {completedTaxReturn.tax_year}
-              </p>
 
               {/* PDF */}
               <button onClick={handleViewPdf} className="w-full flex items-center gap-2.5 p-2.5 bg-card border border-border/50 rounded-xl hover:border-primary/30 transition-all group mb-3">
