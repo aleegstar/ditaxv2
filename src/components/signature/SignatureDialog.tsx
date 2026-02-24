@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,6 @@ export function SignatureDialog({
     minute: '2-digit'
   });
 
-  // Authorization text is kept for backend/legal purposes but not shown in UI
   const authorizationText = `Ich, ${fullName}, ${userProfile.date_of_birth ? `geboren am ${new Date(userProfile.date_of_birth).toLocaleDateString('de-CH')}` : ''} bevollmächtige hiermit Ditax by Graber Sandro, meine Steuererklärung für das Steuerjahr ${completedTaxReturn.tax_year} beim zuständigen Steueramt einzureichen.
 
 Ich bestätige, dass:
@@ -146,18 +145,11 @@ E-Mail: ${userProfile.email}`;
   const nameMatches = signatureName.trim().toLowerCase() === fullName.toLowerCase();
   const canSubmit = authorizationAccepted && nameMatches && !loading;
 
-  const scrollToInput = () => {
-    setTimeout(() => {
-      const input = document.getElementById('signature');
-      input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
-  };
-
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent variant="fullscreen" className="px-5 pb-6 overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent variant="light" className="max-w-md p-5 rounded-2xl">
         {step === 'complete' ? (
-          <div className="flex flex-col items-center justify-center py-8">
+          <div className="flex flex-col items-center justify-center py-6">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
               <CheckCircle className="w-7 h-7 text-emerald-500" strokeWidth={1.5} />
             </div>
@@ -169,15 +161,15 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         ) : (
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4">
             {/* Header */}
             <div className="flex flex-col items-center text-center">
               <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-2">
                 <Send className="w-5 h-5 text-blue-600" strokeWidth={1.5} />
               </div>
-              <DrawerTitle className="text-lg font-semibold text-slate-900">
+              <DialogTitle className="text-lg font-semibold text-slate-900">
                 Steuererklärung einreichen
-              </DrawerTitle>
+              </DialogTitle>
               <p className="text-sm text-slate-500 mt-0.5">
                 Steuerjahr {completedTaxReturn.tax_year}
               </p>
@@ -219,12 +211,11 @@ E-Mail: ${userProfile.email}`;
                 id="signature"
                 value={signatureName}
                 onChange={(e) => setSignatureName(e.target.value)}
-                onFocus={scrollToInput}
                 className="bg-white border-slate-200 h-11 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 mt-1.5"
               />
             </div>
 
-            {/* Buttons: Primary on top, Secondary below */}
+            {/* Buttons */}
             <div className="flex flex-col gap-2 pt-1">
               <Button
                 onClick={handleSign}
@@ -254,7 +245,7 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         )}
-      </DrawerContent>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   );
 }
