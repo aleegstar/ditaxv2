@@ -145,7 +145,7 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent variant="light" className="max-w-lg p-8 sm:p-10 rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)]" hideCloseButton={step === 'complete'}>
+      <DialogContent variant="light" className="max-w-lg p-6 sm:p-10 rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] max-h-[100dvh] sm:max-h-[90vh] overflow-hidden" hideCloseButton={step === 'complete'}>
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-6">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
@@ -159,36 +159,23 @@ E-Mail: ${userProfile.email}`;
             </p>
           </div>
         ) : (
-          <div>
-            {/* Header - Digitale Unterschrift Input */}
+          <div className="flex flex-col gap-4 sm:gap-5">
             <DialogTitle className="sr-only">Steuererklärung einreichen</DialogTitle>
-            <div className="mb-8">
-              <label htmlFor="signature-top" className="block text-sm font-semibold text-slate-900 mb-2 ml-1">
-                Digitale Unterschrift
-              </label>
-              <Input
-                id="signature-top"
-                value={signatureName}
-                onChange={(e) => setSignatureName(e.target.value)}
-                placeholder="Vor- und Nachname"
-                className="w-full px-4 py-3.5 h-auto bg-slate-50/50 border-slate-200/80 rounded-xl text-base text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all duration-200 shadow-sm"
-              />
-            </div>
 
             {/* Document Card */}
             <button
               onClick={handleViewPdf}
-              className="w-full flex items-center gap-4 p-4 mb-6 bg-white border border-slate-200/80 shadow-sm rounded-2xl hover:border-blue-400 hover:shadow-md transition-all duration-300 group cursor-pointer"
+              className="w-full flex items-center gap-3 p-3 sm:p-4 bg-white border border-slate-200/80 shadow-sm rounded-2xl hover:border-blue-400 hover:shadow-md transition-all duration-300 group cursor-pointer"
             >
-              <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors duration-300">
-                <FileText className="w-6 h-6" strokeWidth={1.5} />
+              <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-slate-50 text-slate-600 rounded-xl border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors duration-300">
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.5} />
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-base font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                <p className="text-sm sm:text-base font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
                   {completedTaxReturn.file_name}
                 </p>
-                <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-2 group-hover:text-blue-500 transition-colors">
-                  <span>PDF Dokument</span>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 group-hover:text-blue-500 transition-colors">
+                  PDF Dokument
                 </p>
               </div>
               <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
@@ -197,7 +184,7 @@ E-Mail: ${userProfile.email}`;
             </button>
 
             {/* Checkbox Area */}
-            <label className="relative flex items-start gap-4 p-5 mb-6 bg-slate-50/50 border border-slate-200/60 rounded-2xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 group">
+            <label className="relative flex items-start gap-3 p-4 bg-slate-50/50 border border-slate-200/60 rounded-2xl cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 group">
               <input
                 type="checkbox"
                 checked={authorizationAccepted}
@@ -207,35 +194,31 @@ E-Mail: ${userProfile.email}`;
               <div className="mt-0.5 flex-shrink-0 w-5 h-5 border-2 border-slate-300 rounded-md peer-checked:bg-blue-600 peer-checked:border-blue-600 group-hover:border-blue-400 transition-all duration-200 flex items-center justify-center shadow-sm bg-white">
                 <Check className={`w-3.5 h-3.5 text-white transition-all duration-200 ${authorizationAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} strokeWidth={3} />
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-slate-900 leading-snug select-none mb-1">
-                  Einverständniserklärung
-                </span>
-                <span className="text-sm text-slate-600 leading-relaxed select-none">
-                  Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
-                </span>
-              </div>
+              <span className="text-sm text-slate-600 leading-relaxed select-none">
+                Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
+              </span>
             </label>
 
-            {/* Name Confirmation Input */}
-            <div className="mb-8">
-              <label htmlFor="signature-confirm" className="block text-base font-medium text-slate-900 mb-2.5 ml-1">
+            {/* Name Input */}
+            <div>
+              <label htmlFor="signature-confirm" className="block text-sm font-semibold text-slate-900 mb-1.5 ml-1">
                 Name zur Bestätigung
               </label>
               <Input
                 id="signature-confirm"
                 value={signatureName}
                 onChange={(e) => setSignatureName(e.target.value)}
-                className="w-full px-4 py-4 h-auto bg-white border-slate-200/80 rounded-2xl text-base text-slate-900 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                placeholder={fullName}
+                className="w-full px-4 py-3 h-auto bg-white border-slate-200/80 rounded-xl text-base text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 shadow-sm"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row-reverse gap-3">
+            <div className="flex flex-col sm:flex-row-reverse gap-2.5">
               <Button
                 onClick={handleSign}
                 disabled={!canSubmit}
-                className="flex-1 py-3.5 h-auto rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-medium shadow-sm hover:shadow gap-2 disabled:opacity-50"
+                className="flex-1 py-3 h-auto rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-base font-medium shadow-sm hover:shadow gap-2 disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -249,14 +232,13 @@ E-Mail: ${userProfile.email}`;
               <Button
                 variant="secondary"
                 onClick={() => onOpenChange(false)}
-                className="flex-1 py-3.5 h-auto rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-base font-medium shadow-sm"
+                className="flex-1 py-3 h-auto rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-base font-medium shadow-sm"
               >
                 Abbrechen
               </Button>
             </div>
 
-            {/* Footer Note */}
-            <p className="mt-6 text-sm text-slate-400">
+            <p className="text-xs text-slate-400 text-center">
               Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
             </p>
           </div>
