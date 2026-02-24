@@ -145,7 +145,7 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent variant="light" className="max-w-lg p-4 sm:p-10 rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] max-h-[95dvh] sm:max-h-[90vh] overflow-y-auto" hideCloseButton={step === 'complete'}>
+      <DialogContent variant="light" className="max-w-lg p-4 sm:p-10 rounded-none sm:rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] h-[100dvh] sm:h-auto sm:max-h-[90vh] w-full sm:w-auto overflow-y-auto flex flex-col justify-center" hideCloseButton={step === 'complete'}>
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-6">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
