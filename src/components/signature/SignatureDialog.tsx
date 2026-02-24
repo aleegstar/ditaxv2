@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, FileText, CheckCircle, Send, ExternalLink, Check } from 'lucide-react';
+import { Loader2, FileText, CheckCircle, Send, ExternalLink, Check, X } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { validateStoragePath } from '@/utils/fileValidation';
@@ -145,23 +145,38 @@ E-Mail: ${userProfile.email}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent variant="light" className="max-w-lg p-4 sm:p-10 rounded-none sm:rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] h-[100dvh] sm:h-auto sm:max-h-[90vh] w-full sm:w-auto overflow-y-auto flex flex-col justify-center" hideCloseButton={step === 'complete'}>
+      <DialogContent variant="light" className="max-w-lg p-5 sm:p-10 rounded-none sm:rounded-3xl border-slate-100 shadow-[0_0_50px_-12px_rgba(0,0,0,0.06),0_20px_24px_-4px_rgba(0,0,0,0.02)] h-[100dvh] sm:h-auto sm:max-h-[90vh] w-full sm:w-auto overflow-y-auto flex flex-col justify-center" hideCloseButton>
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-6">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
               <CheckCircle className="w-7 h-7 text-emerald-500" strokeWidth={1.5} />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900 mb-1 text-center">
+            <h2 className="text-lg font-semibold text-foreground mb-1 text-center">
               Erfolgreich eingereicht!
             </h2>
-            <p className="text-slate-500 text-center text-sm">
+            <p className="text-muted-foreground text-center text-sm">
               Deine Steuererklärung wird übermittelt.
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 sm:gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => onOpenChange(false)}
+              className="absolute -top-1 right-0 p-2.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors duration-200"
+            >
+              <X className="w-5 h-5" strokeWidth={1.5} />
+            </button>
 
-            {/* Document Card */}
+            {/* Title */}
+            <div className="pr-10">
+              <DialogTitle className="text-xl font-semibold text-foreground">
+                Steuererklärung einreichen
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Bestätige die Einreichung für das Steuerjahr {completedTaxReturn.tax_year}
+              </p>
+            </div>
             <button
               onClick={handleViewPdf}
               className="w-full flex items-center gap-3 p-3 sm:p-4 bg-white border border-slate-200/80 shadow-sm rounded-2xl hover:border-blue-400 hover:shadow-md transition-all duration-300 group cursor-pointer"
