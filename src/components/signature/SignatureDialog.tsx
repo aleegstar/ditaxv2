@@ -154,8 +154,8 @@ E-Mail: ${userProfile.email}`;
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
-      <DrawerContent variant="bottom-sheet" className="px-5 pb-6 max-h-[85vh] overflow-y-auto">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent variant="fullscreen" className="px-5 pb-6 overflow-y-auto">
         {step === 'complete' ? (
           <div className="flex flex-col items-center justify-center py-8">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
