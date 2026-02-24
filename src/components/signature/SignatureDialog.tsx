@@ -153,7 +153,7 @@ E-Mail: ${userProfile.email}`;
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent variant="light" className="max-w-md w-[calc(100%-2rem)] p-5 sm:p-8 rounded-3xl border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] sm:max-h-[90vh] overflow-y-auto gap-0" hideCloseButton>
+        <DialogContent variant="light" className="max-w-[380px] w-[calc(100%-2rem)] p-5 rounded-[24px] border-0 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] sm:max-h-[85vh] overflow-y-auto gap-0" hideCloseButton>
           {step === 'complete' ? (
             <div className="flex flex-col items-center justify-center py-6">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
@@ -167,21 +167,21 @@ E-Mail: ${userProfile.email}`;
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-4 relative">
-              {/* Close Button - matching screenshot 2 style */}
+            <div className="flex flex-col gap-3.5 relative">
+              {/* Close Button */}
               <button
                 onClick={() => onOpenChange(false)}
-                className="absolute -top-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute -top-0.5 -right-0.5 w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
-                <X className="w-4 h-4" strokeWidth={2} />
+                <X className="w-3.5 h-3.5" strokeWidth={2.5} />
               </button>
 
               {/* Title */}
-              <div className="pr-8">
-                <DialogTitle className="text-lg font-semibold text-foreground">
+              <div className="pr-7">
+                <DialogTitle className="text-[17px] font-semibold text-foreground leading-tight">
                   Steuererklärung einreichen
                 </DialogTitle>
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   Bestätige die Einreichung für das Steuerjahr {completedTaxReturn.tax_year}
                 </p>
               </div>
@@ -238,17 +238,17 @@ E-Mail: ${userProfile.email}`;
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2">
                 <Button
                   onClick={handleSign}
                   disabled={!canSubmit}
-                  className="w-full py-3 h-auto rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.9)] hover:opacity-90 active:scale-95 text-primary-foreground text-base font-medium shadow-sm gap-2 disabled:opacity-50 transition-all duration-200"
+                  className="w-full py-2.5 h-auto rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(var(--primary)/0.9)] hover:opacity-90 active:scale-95 text-primary-foreground text-[15px] font-medium shadow-sm gap-2 disabled:opacity-50 transition-all duration-200"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <Send className="w-4 h-4" strokeWidth={2} />
+                      <Send className="w-3.5 h-3.5" strokeWidth={2} />
                       Einreichen
                     </>
                   )}
@@ -256,23 +256,23 @@ E-Mail: ${userProfile.email}`;
                 <Button
                   variant="secondary"
                   onClick={() => onOpenChange(false)}
-                  className="w-full py-3 h-auto rounded-2xl bg-card hover:bg-muted text-foreground border border-border/60 text-base font-medium shadow-sm transition-all duration-200"
+                  className="w-full py-2.5 h-auto rounded-2xl bg-card hover:bg-muted text-foreground border border-border/60 text-[15px] font-medium shadow-sm transition-all duration-200"
                 >
                   Abbrechen
                 </Button>
               </div>
 
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-[11px] text-muted-foreground text-center leading-snug">
                 Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
               </p>
 
               {/* Support Ticket Link */}
-              <div className="border-t border-border/40 pt-3 -mt-1">
+              <div className="border-t border-border/40 pt-2.5 -mt-1">
                 <button
                   onClick={handleOpenTicket}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors duration-200"
                 >
-                  <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />
+                  <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} />
                   <span>Nicht einverstanden? Problem melden</span>
                 </button>
               </div>
