@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool, Zap } from 'lucide-react';
+import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool, Zap, Search, Filter, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 
@@ -35,6 +35,9 @@ const TaxReturnCreation: React.FC = () => {
   const [selectedTaxReturn, setSelectedTaxReturn] = useState<PaidTaxReturn | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing'>('all');
+  const [expressFilter, setExpressFilter] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -375,6 +378,20 @@ const TaxReturnCreation: React.FC = () => {
     );
   }
 
+  const filteredTaxReturns = paidTaxReturns.filter((tr) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = !query || 
+      tr.user_name.toLowerCase().includes(query) || 
+      tr.user_email.toLowerCase().includes(query) || 
+      tr.tax_year.includes(query) ||
+      tr.tax_filer_name.toLowerCase().includes(query);
+    const matchesStatus = statusFilter === 'all' || tr.status === statusFilter;
+    const matchesExpress = !expressFilter || tr.express_service;
+    return matchesSearch && matchesStatus && matchesExpress;
+  });
+
+  const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
       <AdminWelcomeHeader
@@ -387,10 +404,72 @@ const TaxReturnCreation: React.FC = () => {
         onRefresh={fetchPaidTaxReturns}
       />
 
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Name, E-Mail oder Steuerjahr suchen..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-11 rounded-xl bg-card border-border/60"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={statusFilter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('all')}
+            className="rounded-xl h-11 px-4"
+          >
+            Alle
+          </Button>
+          <Button
+            variant={statusFilter === 'pending' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('pending')}
+            className="rounded-xl h-11 px-4"
+          >
+            Bereit
+          </Button>
+          <Button
+            variant={statusFilter === 'processing' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatusFilter('processing')}
+            className="rounded-xl h-11 px-4"
+          >
+            In Bearbeitung
+          </Button>
+          <Button
+            variant={expressFilter ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setExpressFilter(!expressFilter)}
+            className="rounded-xl h-11 px-4 gap-1.5"
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Express
+          </Button>
+        </div>
+      </div>
+
+      {hasActiveFilters && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>{filteredTaxReturns.length} von {paidTaxReturns.length} Ergebnissen</span>
+          <button onClick={() => { setSearchQuery(''); setStatusFilter('all'); setExpressFilter(false); }} className="text-primary hover:underline ml-1">
+            Filter zurücksetzen
+          </button>
+        </div>
+      )}
+
       {paidTaxReturns.length === 0 ? (
         <Card className="w-full border border-border bg-card rounded-xl shadow-sm">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-gray-500 mb-4" />
+            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
               Keine bezahlten Steuererklärungen vorhanden
             </h3>
@@ -399,9 +478,21 @@ const TaxReturnCreation: React.FC = () => {
             </p>
           </CardContent>
         </Card>
+      ) : filteredTaxReturns.length === 0 ? (
+        <Card className="w-full border border-border bg-card rounded-xl shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Search className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              Keine Ergebnisse gefunden
+            </h3>
+            <p className="text-muted-foreground text-center">
+              Versuche einen anderen Suchbegriff oder setze die Filter zurück.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {paidTaxReturns.map((taxReturn) => (
+          {filteredTaxReturns.map((taxReturn) => (
             <Card 
               key={taxReturn.id} 
               className="w-full border border-border/60 bg-card rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5"
