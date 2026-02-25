@@ -24,8 +24,8 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
   const availableYears = allYears.filter(year => !existingYears.includes(year));
 
   const handleYearClick = (year: string) => {
-    setIsOpen(false);
     onYearSelect(year);
+    setTimeout(() => setIsOpen(false), 150);
   };
 
   // Card variant for light theme
@@ -94,6 +94,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
               <button
                 key={year}
                 onClick={() => handleYearClick(year)}
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent', willChange: 'transform' }}
                 className="w-full group flex items-center gap-4 p-4 rounded-2xl border border-gray-200/80 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
                 <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 border border-gray-100 group-hover:border-blue-200">
@@ -189,6 +190,7 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
             <button
               key={year}
               onClick={() => handleYearClick(year)}
+              style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent', willChange: 'transform' }}
               className="w-full group flex items-center gap-4 p-4 rounded-2xl border border-gray-200/80 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
               <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 border border-gray-100 group-hover:border-blue-200">
