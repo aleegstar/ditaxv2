@@ -160,11 +160,11 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
               </DrawerDescription>
             </div>
             <div className="flex flex-col gap-3">
-              <Button className="w-full" onClick={handleImportClick} disabled={isImporting}>
+              <Button className="w-full" onClick={handleImportClick} disabled={isImporting} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <Download className="w-5 h-5" />
                 Daten aus {previousYear} übernehmen
               </Button>
-              <Button variant="secondary" className="w-full" onClick={handleSkipImport} disabled={isImporting}>
+              <Button variant="secondary" className="w-full" onClick={handleSkipImport} disabled={isImporting} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <Edit className="w-5 h-5" />
                 Neu eingeben
               </Button>
@@ -193,11 +193,11 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
               </DrawerDescription>
             </div>
             <div className="flex flex-col gap-3">
-              <Button className="w-full" onClick={handleNoChanges} disabled={isImporting}>
+              <Button className="w-full" onClick={handleNoChanges} disabled={isImporting} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <Download className="w-5 h-5" />
                 Nein, keine Änderungen
               </Button>
-              <Button variant="secondary" className="w-full" onClick={handleWithChanges} disabled={isImporting}>
+              <Button variant="secondary" className="w-full" onClick={handleWithChanges} disabled={isImporting} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
                 <Edit className="w-5 h-5" />
                 Ja, ich möchte Änderungen vornehmen
               </Button>
