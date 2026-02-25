@@ -2,28 +2,46 @@
 
 ## Analyse
 
-Ja, der **ImportWizard** hat dasselbe Problem. Seine Buttons in beiden Schritten (Import-Frage und Änderungen-Frage) haben kein `touch-action: manipulation` und kein `WebkitTapHighlightColor: 'transparent'`. Da der ImportWizard ebenfalls einen Vaul-Drawer mit Spring-Animation nutzt, können auf iOS dieselben Touch-Target-Verschiebungen auftreten.
+Die bisherigen Fixes (`touch-action: manipulation`, Handler-Reihenfolge) haben das Problem nicht gelöst. Die Ursache ist tiefer: **Vaul's Spring-Animation** verschiebt den gesamten Drawer-Inhalt während des Öffnens. Auf iOS werden Touch-Koordinaten zum Zeitpunkt des Taps ausgewertet, aber der Inhalt hat sich durch die Animation verschoben — deshalb wird das falsche Jahr getroffen.
 
-Das **DocumentUploadSheet** hat `touch-action: manipulation` bereits auf seinen Buttons — dort besteht das Problem also nicht.
+`touch-action: manipulation` verhindert nur den 300ms-Delay, löst aber nicht das Layout-Shift-Problem der Spring-Animation.
 
-### Betroffene Buttons im ImportWizard
+## Lösung
 
-**Schritt 1** (Zeilen 163-170):
-- "Daten aus {previousYear} übernehmen" — `Button` ohne touch-action
-- "Neu eingeben" — `Button` ohne touch-action
+Den Vaul-Drawer in `AddTaxYearDropdown` durch ein **eigenes Bottom Sheet mit CSS-Transition** ersetzen (kein Spring-Bouncing). Das ist derselbe Ansatz, der laut Memory für Android-WebViews bereits bewährt ist: keine framer-motion/AnimatePresence, stattdessen einfache CSS-Transitions.
 
-**Schritt 2** (Zeilen 196-203):
-- "Nein, keine Änderungen" — `Button` ohne touch-action
-- "Ja, ich möchte Änderungen vornehmen" — `Button` ohne touch-action
+### Konkret
 
-### Plan
+**Datei: `src/components/ui/add-tax-year-dropdown.tsx`**
 
-`src/components/forms/ImportWizard.tsx` — Allen 4 Buttons `style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}` hinzufügen:
+- Vaul `Drawer`/`DrawerContent`/`DrawerTrigger` komplett entfernen
+- Eigenes Bottom Sheet bauen mit:
+  - `position: fixed` + `inset-x-0 bottom-0`
+  - CSS `transition: transform 300ms ease-out` (kein Spring)
+  - State `isOpen` → `translate-y-0` (offen) vs `translate-y-full` (geschlossen)
+  - Frosted-glass Backdrop mit `onClick` zum Schließen
+- Alle Year-Buttons behalten `touch-action: manipulation`
+- Handler bleibt: `onYearSelect(year)` sofort, dann `setIsOpen(false)` nach 150ms
+- Trigger-Button bleibt optisch identisch (beide Varianten)
 
-- Zeile 163: `<Button className="w-full" onClick={handleImportClick} ...>` → add style
-- Zeile 167: `<Button variant="secondary" className="w-full" onClick={handleSkipImport} ...>` → add style
-- Zeile 196: `<Button className="w-full" onClick={handleNoChanges} ...>` → add style
-- Zeile 200: `<Button variant="secondary" className="w-full" onClick={handleWithChanges} ...>` → add style
+### Warum das funktioniert
 
-Eine einzelne Datei, 4 einfache Änderungen.
+- Kein Spring-Bounce = Inhalt ist sofort an finaler Position
+- Touch-Targets stimmen exakt mit der visuellen Position überein
+- Bewährtes Muster im Projekt (siehe DocumentUploadSheet, Repeater-Pattern)
+
+### Technische Details
+
+```text
+Vorher (Vaul):
+  Drawer öffnet → Spring-Animation → Content bounct hoch/runter
+  → Touch registriert auf falschem Element
+
+Nachher (CSS):
+  Sheet öffnet → translateY(0) in 300ms ease-out → kein Bouncing
+  → Touch registriert korrekt
+```
+
+Dateien:
+- `src/components/ui/add-tax-year-dropdown.tsx` — Vaul durch eigenes CSS-Bottom-Sheet ersetzen
 
