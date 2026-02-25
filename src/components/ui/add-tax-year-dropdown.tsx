@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Plus, Check, X } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-  DrawerClose,
 } from "@/components/ui/drawer";
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -72,42 +71,35 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
           </button>
         </DrawerTrigger>
 
-        <DrawerContent className="bg-white border-t border-gray-200 rounded-t-3xl max-h-[85vh]">
+        <DrawerContent className="bg-white border-t border-gray-200 rounded-t-[28px] max-h-[85vh]">
           {/* Handle bar */}
           <div className="flex justify-center pt-3 pb-2">
             <div className="w-12 h-1.5 rounded-full bg-gray-200" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <Plus className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">{t.addTaxYear.addTaxYear}</h3>
-                <p className="text-sm text-gray-500">{t.addTaxYear.chooseYear}</p>
-              </div>
+          <div className="px-6 pt-4 pb-5 border-b border-gray-100 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-[18px] bg-blue-50 flex items-center justify-center flex-shrink-0 border border-blue-100/50 shadow-sm">
+              <Plus className="w-6 h-6 text-blue-600" strokeWidth={1.5} />
             </div>
-            <DrawerClose asChild>
-              <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </DrawerClose>
+            <div>
+              <h3 className="text-xl font-semibold tracking-tight text-gray-900 leading-tight">{t.addTaxYear.addTaxYear}</h3>
+              <p className="text-base text-gray-500 mt-1">{t.addTaxYear.chooseYear}</p>
+            </div>
           </div>
 
           {/* Year options */}
-          <div className="px-4 py-4 space-y-2 overflow-y-auto">
+          <div className="p-4 space-y-3 bg-gray-50/30 overflow-y-auto">
             {availableYears.map((year) => (
               <button
                 key={year}
                 onClick={() => handleYearClick(year)}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 transition-all group"
+                className="w-full group flex items-center gap-4 p-4 rounded-2xl border border-gray-200/80 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
-                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                  <Plus className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+                <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 border border-gray-100 group-hover:border-blue-200">
+                  <Plus className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" strokeWidth={1.5} />
                 </div>
-                <div className="flex-1 text-left">
+                <div className="flex-1">
                   <p className="text-base font-medium text-gray-900">{t.addTaxYear.taxYear} {year}</p>
                   <p className="text-sm text-gray-500">{t.addTaxYear.createTaxReturn}</p>
                 </div>
@@ -174,44 +166,37 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
         </motion.div>
       </DrawerTrigger>
 
-      <DrawerContent className="bg-[#0A0C10] border-t border-white/10 rounded-t-3xl max-h-[85vh]">
+      <DrawerContent className="bg-white border-t border-gray-200 rounded-t-[28px] max-h-[85vh]">
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1.5 rounded-full bg-white/20" />
+          <div className="w-12 h-1.5 rounded-full bg-gray-200" />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#1D64FF]/10 flex items-center justify-center">
-              <Plus className="w-6 h-6 text-[#1D64FF]" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white">{t.addTaxYear.addTaxYear}</h3>
-              <p className="text-sm text-zinc-500">{t.addTaxYear.chooseYear}</p>
-            </div>
+        <div className="px-6 pt-4 pb-5 border-b border-gray-100 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-[18px] bg-blue-50 flex items-center justify-center flex-shrink-0 border border-blue-100/50 shadow-sm">
+            <Plus className="w-6 h-6 text-blue-600" strokeWidth={1.5} />
           </div>
-          <DrawerClose asChild>
-            <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
-              <X className="w-5 h-5 text-zinc-400" />
-            </button>
-          </DrawerClose>
+          <div>
+            <h3 className="text-xl font-semibold tracking-tight text-gray-900 leading-tight">{t.addTaxYear.addTaxYear}</h3>
+            <p className="text-base text-gray-500 mt-1">{t.addTaxYear.chooseYear}</p>
+          </div>
         </div>
 
         {/* Year options */}
-        <div className="px-4 py-4 space-y-2 overflow-y-auto">
+        <div className="p-4 space-y-3 bg-gray-50/30 overflow-y-auto">
           {availableYears.map((year) => (
             <button
               key={year}
               onClick={() => handleYearClick(year)}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-[#1D64FF]/10 border border-white/5 hover:border-[#1D64FF]/30 transition-all group"
+              className="w-full group flex items-center gap-4 p-4 rounded-2xl border border-gray-200/80 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             >
-              <div className="w-12 h-12 rounded-full bg-[#1D64FF]/10 flex items-center justify-center group-hover:bg-[#1D64FF] transition-colors">
-                <Plus className="w-5 h-5 text-[#1D64FF] group-hover:text-white transition-colors" />
+              <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 border border-gray-100 group-hover:border-blue-200">
+                <Plus className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" strokeWidth={1.5} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-base font-medium text-white">{t.addTaxYear.taxYear} {year}</p>
-                <p className="text-sm text-zinc-500">{t.addTaxYear.createTaxReturn}</p>
+                <p className="text-base font-medium text-gray-900">{t.addTaxYear.taxYear} {year}</p>
+                <p className="text-sm text-gray-500">{t.addTaxYear.createTaxReturn}</p>
               </div>
             </button>
           ))}
