@@ -1,47 +1,59 @@
-
-
 ## Analyse
 
-Die bisherigen Fixes (`touch-action: manipulation`, Handler-Reihenfolge) haben das Problem nicht gelöst. Die Ursache ist tiefer: **Vaul's Spring-Animation** verschiebt den gesamten Drawer-Inhalt während des Öffnens. Auf iOS werden Touch-Koordinaten zum Zeitpunkt des Taps ausgewertet, aber der Inhalt hat sich durch die Animation verschoben — deshalb wird das falsche Jahr getroffen.
+Der aktuelle System-Prompt (Zeilen 234-254 in `chatbot-response/index.ts`) ist sehr generisch — "Steuerberatungskanzlei in der Schweiz". Der Bot kennt weder den App-Namen, noch die Features, noch die Navigation. Wenn ein User fragt "Wo lade ich meine Dokumente hoch?", kann der Bot nicht helfen.
 
-`touch-action: manipulation` verhindert nur den 300ms-Delay, löst aber nicht das Layout-Shift-Problem der Spring-Animation.
+## Plan
 
-## Lösung
+Den System-Prompt in `supabase/functions/chatbot-response/index.ts` durch einen detaillierten, app-spezifischen Prompt ersetzen. Keine Code-Änderungen am Frontend nötig.
 
-Den Vaul-Drawer in `AddTaxYearDropdown` durch ein **eigenes Bottom Sheet mit CSS-Transition** ersetzen (kein Spring-Bouncing). Das ist derselbe Ansatz, der laut Memory für Android-WebViews bereits bewährt ist: keine framer-motion/AnimatePresence, stattdessen einfache CSS-Transitions.
+### Neuer System-Prompt — Inhalt
 
-### Konkret
+Der erweiterte Prompt wird folgende Bereiche abdecken:
 
-**Datei: `src/components/ui/add-tax-year-dropdown.tsx`**
+**1. App-Identität**
 
-- Vaul `Drawer`/`DrawerContent`/`DrawerTrigger` komplett entfernen
-- Eigenes Bottom Sheet bauen mit:
-  - `position: fixed` + `inset-x-0 bottom-0`
-  - CSS `transition: transform 300ms ease-out` (kein Spring)
-  - State `isOpen` → `translate-y-0` (offen) vs `translate-y-full` (geschlossen)
-  - Frosted-glass Backdrop mit `onClick` zum Schließen
-- Alle Year-Buttons behalten `touch-action: manipulation`
-- Handler bleibt: `onYearSelect(year)` sofort, dann `setIsOpen(false)` nach 150ms
-- Trigger-Button bleibt optisch identisch (beide Varianten)
+- Name: Ditax — digitale Steuerplattform für die Schweiz
+- Zweck: Steuererklärung digital erstellen und einreichen
 
-### Warum das funktioniert
+**2. Haupt-Features & Navigation**
 
-- Kein Spring-Bounce = Inhalt ist sofort an finaler Position
-- Touch-Targets stimmen exakt mit der visuellen Position überein
-- Bewährtes Muster im Projekt (siehe DocumentUploadSheet, Repeater-Pattern)
+- **Steuerjahr anlegen**: Auf der Startseite neues Steuerjahr hinzufügen
+- **Vorjahres-Import**: Daten aus dem Vorjahr übernehmen
+- **Formulare**: Persönliche Angaben, Einkommen, Vermögen, Abzüge — Schritt für Schritt ausfüllen
+- **Dokumente hochladen**: Lohnausweise, Kontoauszüge etc. unter "Dokumente" hochladen
+- **Steuererklärung einreichen**: Nach Fertigstellung über "Einreichen" absenden
+- **Status verfolgen**: Unter "Meine Steuererklärungen" den Bearbeitungsstand sehen
+- **Fehlende Unterlagen**: Falls Unterlagen fehlen, erscheint eine Benachrichtigung
+- **Definitive Steuerrechnung**: Nach Abschluss einsehbar
+- **Rechnungen**: Unter "Rechnungen" die Gebühren und Zahlungen einsehen
+- **Profil**: Persönliche Daten und Einstellungen verwalten
+- **Support-Tickets**: Bei Problemen ein Ticket erstellen
+- **Steuerpflichtige Personen**: Ehepartner/Kinder als Steuerpflichtige hinzufügen
+
+**3. Unterstützte Kantone**
+
+- AG, ZH, ZG, SZ
+
+**4. Formularbereiche**
+
+- Persönliche Angaben (Adresse, Zivilstand, Kinder, Religion)
+- Einkommen (Lohn, Selbständigkeit, Mieteinnahmen, Dividenden)
+- Vermögen (Bankkonten, Aktien, Immobilien, Fahrzeuge, Krypto)
+- Abzüge (Säule 3a, BVG-Einkauf, Spenden, Krankheitskosten, Kinderbetreuung)
+
+**5. Verhaltensregeln**
+
+- Bestehende Regeln beibehalten (keine spezifische Steuerberatung, Eskalation etc.)
+- Zusätzlich: Bei Navigationsfragen konkrete Hinweise geben ("Gehen Sie auf die Startseite und tippen Sie auf '+ Steuerjahr hinzufügen'")
+
+### Technische Umsetzung
+
+**Datei: `supabase/functions/chatbot-response/index.ts**`
+
+- Zeilen 233-254: Den `systemPrompt`-String durch den erweiterten Prompt ersetzen
+- Sonst keine Änderungen
 
 ### Technische Details
 
-```text
-Vorher (Vaul):
-  Drawer öffnet → Spring-Animation → Content bounct hoch/runter
-  → Touch registriert auf falschem Element
-
-Nachher (CSS):
-  Sheet öffnet → translateY(0) in 300ms ease-out → kein Bouncing
-  → Touch registriert korrekt
-```
-
-Dateien:
-- `src/components/ui/add-tax-year-dropdown.tsx` — Vaul durch eigenes CSS-Bottom-Sheet ersetzen
-
+- Der Prompt bleibt unter ~1500 Tokens — kein relevanter Einfluss auf Kosten oder Latenz bei gpt-4o-mini
+- Der Prompt wird nur serverseitig gesetzt (Edge Function), nicht im Frontend — kein Sicherheitsrisiko
