@@ -24,16 +24,10 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     return savedLang && (savedLang === 'de' || savedLang === 'en') ? savedLang : 'de';
   });
 
-  // Force rerender key to trigger component rerendering when language changes
-  const [rerenderKey, setRerenderKey] = useState(0);
-
   const switchLanguage = (lang: Language) => {
     if (lang !== language) {
       setLanguage(lang);
       localStorage.setItem('ditax-language', lang);
-      
-      // Force a complete rerender of all components using translations
-      setRerenderKey(prev => prev + 1);
       
       // Call ConveyThis if available
       if (typeof window !== 'undefined' && (window as any).ConveyThis) {
@@ -49,7 +43,6 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Include rerenderKey in the context value to trigger rerendering
   const value: I18nContextType = {
     language,
     setLanguage,
@@ -58,7 +51,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   };
 
   return (
-    <I18nContext.Provider key={rerenderKey} value={value}>
+    <I18nContext.Provider value={value}>
       {children}
     </I18nContext.Provider>
   );
