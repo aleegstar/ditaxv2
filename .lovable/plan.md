@@ -1,59 +1,77 @@
+
+
 ## Analyse
 
-Der aktuelle System-Prompt (Zeilen 234-254 in `chatbot-response/index.ts`) ist sehr generisch — "Steuerberatungskanzlei in der Schweiz". Der Bot kennt weder den App-Namen, noch die Features, noch die Navigation. Wenn ein User fragt "Wo lade ich meine Dokumente hoch?", kann der Bot nicht helfen.
+Ja, das macht absolut Sinn. Der aktuelle System-Prompt beschreibt bereits die App-Navigation und Features, aber es fehlen wichtige Informationen von der Webseite und der Wissensdatenbank:
+
+**Von www.ditax.ch fehlt:**
+- Wie der Service funktioniert (4 Schritte: Anmelden, Angaben erfassen, Unterlagen hochladen, Steuererklärung erhalten)
+- Dass **Treuhänder mit eidg. Fachausweis** die Steuererklärung erstellen (nicht der User selbst)
+- Preise: ab 150 CHF, transparente Preisgestaltung
+- Bearbeitungsdauer: bis 60 Tage, Express-Service in 10 Tagen
+- Sicherheit: Ende-zu-Ende Verschlüsselung, 2FA, Daten in Schweiz/EU, DSGVO konform
+- App verfügbar im App Store und Play Store
+- Gründer: Sandro Graber, Treuhänder mit eidg. Fachausweis
+
+**Von der Wissensdatenbank fehlt:**
+- Die Wissensdatenbank ist direkt in der App unter "Hilfe & Support" im Menü erreichbar
+- Kategorien: Registrieren/Anmelden, Angaben hinzufügen, Dokumente hochladen, Steuererklärung anpassen lassen, Sicherheit
+- Verweis darauf, dass der User dort detaillierte Anleitungen findet
+
+**Wichtig:** Die Wissensdatenbank-Inhalte (die einzelnen Artikel) konnten nicht geladen werden, da sie hinter Unterseiten liegen. Aber der Bot kann auf die Wissensdatenbank verweisen, wenn er eine Frage nicht detailliert beantworten kann.
 
 ## Plan
 
-Den System-Prompt in `supabase/functions/chatbot-response/index.ts` durch einen detaillierten, app-spezifischen Prompt ersetzen. Keine Code-Änderungen am Frontend nötig.
+Den System-Prompt in `supabase/functions/chatbot-response/index.ts` erweitern um die Webseiten- und Wissensdatenbank-Informationen. Alles in den bestehenden `systemPrompt`-String integrieren.
 
-### Neuer System-Prompt — Inhalt
+### Neue Abschnitte im Prompt
 
-Der erweiterte Prompt wird folgende Bereiche abdecken:
+**1. ÜBER DITAX (neu):**
+- DiTax ist eine digitale Steuerplattform für die Schweiz
+- Treuhänder mit eidg. Fachausweis erstellen die Steuererklärung
+- Der User füllt nicht selbst aus, sondern liefert Angaben und Dokumente
+- Gründer: Sandro Graber
 
-**1. App-Identität**
+**2. SO FUNKTIONIERT ES (neu):**
+- Schritt 1: Anmelden / Registrieren
+- Schritt 2: Angaben erfassen (4 Formulare)
+- Schritt 3: Unterlagen hochladen (individuelle Checkliste)
+- Schritt 4: Fertige Steuererklärung erhalten
 
-- Name: Ditax — digitale Steuerplattform für die Schweiz
-- Zweck: Steuererklärung digital erstellen und einreichen
+**3. PREISE & DAUER (neu):**
+- Ab 150 CHF, transparente Preise ohne versteckte Kosten
+- Standard: bis 60 Tage Bearbeitungszeit
+- Express-Service: 10 Tage
+- Individueller Preis via Preisrechner auf www.ditax.ch
 
-**2. Haupt-Features & Navigation**
+**4. SICHERHEIT (neu):**
+- Ende-zu-Ende Verschlüsselung
+- Optionale 2FA (App oder Passkey)
+- Datenspeicherung in der Schweiz/EU
+- DSGVO konform, SSL/TLS verschlüsselt
+- Alle Zugriffe werden protokolliert (Audit-Logs)
+- Gesichert mit Aikido Security
 
-- **Steuerjahr anlegen**: Auf der Startseite neues Steuerjahr hinzufügen
-- **Vorjahres-Import**: Daten aus dem Vorjahr übernehmen
-- **Formulare**: Persönliche Angaben, Einkommen, Vermögen, Abzüge — Schritt für Schritt ausfüllen
-- **Dokumente hochladen**: Lohnausweise, Kontoauszüge etc. unter "Dokumente" hochladen
-- **Steuererklärung einreichen**: Nach Fertigstellung über "Einreichen" absenden
-- **Status verfolgen**: Unter "Meine Steuererklärungen" den Bearbeitungsstand sehen
-- **Fehlende Unterlagen**: Falls Unterlagen fehlen, erscheint eine Benachrichtigung
-- **Definitive Steuerrechnung**: Nach Abschluss einsehbar
-- **Rechnungen**: Unter "Rechnungen" die Gebühren und Zahlungen einsehen
-- **Profil**: Persönliche Daten und Einstellungen verwalten
-- **Support-Tickets**: Bei Problemen ein Ticket erstellen
-- **Steuerpflichtige Personen**: Ehepartner/Kinder als Steuerpflichtige hinzufügen
+**5. WISSENSDATENBANK (neu):**
+- Verfügbar in der App unter "Hilfe & Support" im Menü
+- Kategorien: Registrieren/Anmelden, Angaben hinzufügen, Dokumente hochladen, Steuererklärung anpassen, Sicherheit
+- Bei detaillierten Anleitungsfragen auf die Wissensdatenbank verweisen
 
-**3. Unterstützte Kantone**
-
-- AG, ZH, ZG, SZ
-
-**4. Formularbereiche**
-
-- Persönliche Angaben (Adresse, Zivilstand, Kinder, Religion)
-- Einkommen (Lohn, Selbständigkeit, Mieteinnahmen, Dividenden)
-- Vermögen (Bankkonten, Aktien, Immobilien, Fahrzeuge, Krypto)
-- Abzüge (Säule 3a, BVG-Einkauf, Spenden, Krankheitskosten, Kinderbetreuung)
-
-**5. Verhaltensregeln**
-
-- Bestehende Regeln beibehalten (keine spezifische Steuerberatung, Eskalation etc.)
-- Zusätzlich: Bei Navigationsfragen konkrete Hinweise geben ("Gehen Sie auf die Startseite und tippen Sie auf '+ Steuerjahr hinzufügen'")
+**6. APP-VERFÜGBARKEIT (neu):**
+- iOS: App Store
+- Android: Play Store
+- Webseite: www.ditax.ch
 
 ### Technische Umsetzung
 
-**Datei: `supabase/functions/chatbot-response/index.ts**`
+**Datei: `supabase/functions/chatbot-response/index.ts`**
+- Zeilen 234-270: Den `systemPrompt`-String erweitern mit den neuen Abschnitten
+- Der Prompt bleibt unter ~2000 Tokens — bei gpt-4o-mini kein relevanter Kosten- oder Latenz-Impact
+- Bestehende Abschnitte (Navigation, Formularbereiche, Regeln, Eskalation) bleiben erhalten
 
-- Zeilen 233-254: Den `systemPrompt`-String durch den erweiterten Prompt ersetzen
-- Sonst keine Änderungen
+### Was sich nicht ändert
 
-### Technische Details
+- Keine Frontend-Änderungen
+- Keine Datenbank-Änderungen
+- Nur der System-Prompt in der Edge Function wird erweitert
 
-- Der Prompt bleibt unter ~1500 Tokens — kein relevanter Einfluss auf Kosten oder Latenz bei gpt-4o-mini
-- Der Prompt wird nur serverseitig gesetzt (Edge Function), nicht im Frontend — kein Sicherheitsrisiko
