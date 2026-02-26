@@ -155,7 +155,7 @@ export const MobileFriendlyDateInput: React.FC<MobileFriendlyDateInputProps> = (
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Tag</Label>
             <Select value={dateComponents.day} onValueChange={(value) => updateDate('day', value)}>
-              <SelectTrigger className="min-h-[48px] text-base">
+              <SelectTrigger type="button" className="min-h-[48px] text-base">
                 <SelectValue placeholder="Tag" />
               </SelectTrigger>
               <SelectContent>
@@ -169,7 +169,7 @@ export const MobileFriendlyDateInput: React.FC<MobileFriendlyDateInputProps> = (
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Monat</Label>
             <Select value={dateComponents.month} onValueChange={(value) => updateDate('month', value)}>
-              <SelectTrigger className="min-h-[48px] text-base">
+              <SelectTrigger type="button" className="min-h-[48px] text-base">
                 <SelectValue placeholder="Monat" />
               </SelectTrigger>
               <SelectContent>
@@ -183,7 +183,7 @@ export const MobileFriendlyDateInput: React.FC<MobileFriendlyDateInputProps> = (
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Jahr</Label>
             <Select value={dateComponents.year} onValueChange={(value) => updateDate('year', value)}>
-              <SelectTrigger className="min-h-[48px] text-base">
+              <SelectTrigger type="button" className="min-h-[48px] text-base">
                 <SelectValue placeholder="Jahr" />
               </SelectTrigger>
               <SelectContent>
