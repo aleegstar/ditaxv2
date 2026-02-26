@@ -2,76 +2,64 @@
 
 ## Analyse
 
-Ja, das macht absolut Sinn. Der aktuelle System-Prompt beschreibt bereits die App-Navigation und Features, aber es fehlen wichtige Informationen von der Webseite und der Wissensdatenbank:
+Die App hat derzeit mehrere dekorative Elemente, die von einer professionellen Steuer-Plattform ablenken. Im Vergleich zur eigenen Webseite (ditax.ch) -- die clean, weiss und vertrauenswuerdig ist -- wirkt die App in einigen Bereichen zu verspielt.
 
-**Von www.ditax.ch fehlt:**
-- Wie der Service funktioniert (4 Schritte: Anmelden, Angaben erfassen, Unterlagen hochladen, Steuererklärung erhalten)
-- Dass **Treuhänder mit eidg. Fachausweis** die Steuererklärung erstellen (nicht der User selbst)
-- Preise: ab 150 CHF, transparente Preisgestaltung
-- Bearbeitungsdauer: bis 60 Tage, Express-Service in 10 Tagen
-- Sicherheit: Ende-zu-Ende Verschlüsselung, 2FA, Daten in Schweiz/EU, DSGVO konform
-- App verfügbar im App Store und Play Store
-- Gründer: Sandro Graber, Treuhänder mit eidg. Fachausweis
+### Konkrete Problembereiche
 
-**Von der Wissensdatenbank fehlt:**
-- Die Wissensdatenbank ist direkt in der App unter "Hilfe & Support" im Menü erreichbar
-- Kategorien: Registrieren/Anmelden, Angaben hinzufügen, Dokumente hochladen, Steuererklärung anpassen lassen, Sicherheit
-- Verweis darauf, dass der User dort detaillierte Anleitungen findet
+1. **Auth-Seite (Desktop):** 4 bunte Gradient-Orbs (lila, pink, gruen, blau) im Hintergrund
+2. **Shimmer-Text im Chat:** Regenbogen-Gradient (lila, pink, blau) fuer AI-Research-Texte
+3. **Animated Background:** Radial-Gradient Overlay mit Secondary-Farbe
+4. **Rainbow-Button Farben:** 5 bunte CSS-Variablen (rot, lila, blau, cyan, gruen)
+5. **Diverse Glow/Shine-Effekte** in UI-Komponenten
 
-**Wichtig:** Die Wissensdatenbank-Inhalte (die einzelnen Artikel) konnten nicht geladen werden, da sie hinter Unterseiten liegen. Aber der Bot kann auf die Wissensdatenbank verweisen, wenn er eine Frage nicht detailliert beantworten kann.
+### Was NICHT geaendert wird
+
+- Das blaue Farbschema (Primaerfarbe) -- passt perfekt
+- Die Schriftart Plus Jakarta Sans -- professionell
+- Subtile Hover-Effekte und Micro-Interactions -- gehoeren zu guter UX
+- Confetti bei Zahlungserfolg -- kurzer Moment, vertretbar
+- Die grundlegende Kartenstruktur und Layouts
 
 ## Plan
 
-Den System-Prompt in `supabase/functions/chatbot-response/index.ts` erweitern um die Webseiten- und Wissensdatenbank-Informationen. Alles in den bestehenden `systemPrompt`-String integrieren.
+### Schritt 1: Auth-Seite beruhigen
 
-### Neue Abschnitte im Prompt
+**Datei: `src/pages/Auth.tsx`**
+- Die 4 bunten Gradient-Orbs (lila, pink, gruen, blau) entfernen
+- Den bunten Hintergrund-Gradient (`linear-gradient(135deg, #e0e7ff ... #e0f2fe)`) ersetzen durch einen cleanen, hellen Hintergrund -- entweder reines Weiss oder ein sehr dezentes Grau (wie ditax.ch)
+- Optional: Ein einzelner, subtiler blauer Akzent-Glow beibehalten fuer etwas Tiefe
 
-**1. ÜBER DITAX (neu):**
-- DiTax ist eine digitale Steuerplattform für die Schweiz
-- Treuhänder mit eidg. Fachausweis erstellen die Steuererklärung
-- Der User füllt nicht selbst aus, sondern liefert Angaben und Dokumente
-- Gründer: Sandro Graber
+### Schritt 2: Shimmer-Text professionalisieren
 
-**2. SO FUNKTIONIERT ES (neu):**
-- Schritt 1: Anmelden / Registrieren
-- Schritt 2: Angaben erfassen (4 Formulare)
-- Schritt 3: Unterlagen hochladen (individuelle Checkliste)
-- Schritt 4: Fertige Steuererklärung erhalten
+**Datei: `src/index.css`**
+- Die `.shimmer-text` Klasse (Zeilen 342-358) von buntem Regenbogen-Gradient zu einem monochromen Blau-Grau-Gradient aendern
+- Statt pink/lila/blau nur Abstufungen von Blau und Grau verwenden
 
-**3. PREISE & DAUER (neu):**
-- Ab 150 CHF, transparente Preise ohne versteckte Kosten
-- Standard: bis 60 Tage Bearbeitungszeit
-- Express-Service: 10 Tage
-- Individueller Preis via Preisrechner auf www.ditax.ch
+### Schritt 3: Animated Background vereinfachen
 
-**4. SICHERHEIT (neu):**
-- Ende-zu-Ende Verschlüsselung
-- Optionale 2FA (App oder Passkey)
-- Datenspeicherung in der Schweiz/EU
-- DSGVO konform, SSL/TLS verschlüsselt
-- Alle Zugriffe werden protokolliert (Audit-Logs)
-- Gesichert mit Aikido Security
+**Datei: `src/components/ui/animated-background.tsx`**
+- Den `radial-gradient` Overlay von `var(--secondary)` (= Blau) zu einem subtileren, fast unsichtbaren Akzent aendern
+- Ziel: Kaum wahrnehmbar, aber gibt der Seite trotzdem etwas Tiefe
 
-**5. WISSENSDATENBANK (neu):**
-- Verfügbar in der App unter "Hilfe & Support" im Menü
-- Kategorien: Registrieren/Anmelden, Angaben hinzufügen, Dokumente hochladen, Steuererklärung anpassen, Sicherheit
-- Bei detaillierten Anleitungsfragen auf die Wissensdatenbank verweisen
+### Schritt 4: Rainbow-Farben neutralisieren
 
-**6. APP-VERFÜGBARKEIT (neu):**
-- iOS: App Store
-- Android: Play Store
-- Webseite: www.ditax.ch
+**Datei: `src/index.css`**
+- Die 5 Rainbow CSS-Variablen (`--color-1` bis `--color-5`) von bunt (rot, lila, blau, cyan, gruen) auf monochrome Blau-Toene umstellen
+- So behalten Rainbow-Buttons und Shine-Borders ihren Effekt, wirken aber professioneller
 
-### Technische Umsetzung
+### Zusammenfassung der Aenderungen
 
-**Datei: `supabase/functions/chatbot-response/index.ts`**
-- Zeilen 234-270: Den `systemPrompt`-String erweitern mit den neuen Abschnitten
-- Der Prompt bleibt unter ~2000 Tokens — bei gpt-4o-mini kein relevanter Kosten- oder Latenz-Impact
-- Bestehende Abschnitte (Navigation, Formularbereiche, Regeln, Eskalation) bleiben erhalten
+| Bereich | Vorher | Nachher |
+|---------|--------|---------|
+| Auth-Hintergrund | 4 bunte Gradient-Orbs | Cleaner, heller Hintergrund |
+| Shimmer-Text | Regenbogen (lila/pink/blau) | Monochrom (blau/grau) |
+| Animated Background | Blauer Radial-Gradient | Dezenter, fast neutraler Gradient |
+| Rainbow-Variablen | 5 bunte Farben | Monochrome Blau-Toene |
 
-### Was sich nicht ändert
+### Technische Details
 
-- Keine Frontend-Änderungen
-- Keine Datenbank-Änderungen
-- Nur der System-Prompt in der Edge Function wird erweitert
+- 4 Dateien werden geaendert
+- Reine CSS/Style-Aenderungen, keine Logik-Aenderungen
+- Kein Risiko fuer funktionale Regression
+- Ergebnis: Visuell naeher an ditax.ch -- professionell, vertrauenswuerdig, clean
 
