@@ -47,11 +47,11 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 221 100% 56%;
 
-  --color-1: 0 100% 63%;
-  --color-2: 270 100% 63%;
-  --color-3: 210 100% 63%;
-  --color-4: 195 100% 63%;
-  --color-5: 90 100% 63%;
+  --color-1: 221 80% 45%;
+  --color-2: 221 90% 55%;
+  --color-3: 215 85% 50%;
+  --color-4: 210 80% 60%;
+  --color-5: 225 75% 65%;
 
     --radius: 0.75rem;
 
@@ -73,12 +73,12 @@
 
     --font-sans: "Plus Jakarta Sans", sans-serif;
 
-    /* Standard Rainbow button colors */
-    --color-1: 0 100% 63%;
-    --color-2: 270 100% 63%;
-    --color-3: 210 100% 63%;
-    --color-4: 195 100% 63%;
-    --color-5: 90 100% 63%;
+    /* Standard button colors - monochrome blue */
+    --color-1: 221 80% 45%;
+    --color-2: 221 90% 55%;
+    --color-3: 215 85% 50%;
+    --color-4: 210 80% 60%;
+    --color-5: 225 75% 65%;
 
     /* Additional variables for new checkbox */
     --hu-font-geist: var(--font-geist);
@@ -159,12 +159,12 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Standard Rainbow button colors for dark mode */
-    --color-1: 0 100% 63%;
-    --color-2: 270 100% 63%;
-    --color-3: 210 100% 63%;
-    --color-4: 195 100% 63%;
-    --color-5: 90 100% 63%;
+    /* Standard button colors for dark mode - monochrome blue */
+    --color-1: 221 80% 50%;
+    --color-2: 221 90% 60%;
+    --color-3: 215 85% 55%;
+    --color-4: 210 80% 65%;
+    --color-5: 225 75% 70%;
 
     /* Dark mode variables for new checkbox */
     --hu-background: 0, 0%, 7%;
@@ -342,13 +342,11 @@
 .shimmer-text {
   background: linear-gradient(
     90deg,
-    #6B7280 0%,
-    #3B82F6 15%,
-    #8B5CF6 35%,
-    #EC4899 50%,
-    #8B5CF6 65%,
-    #3B82F6 85%,
-    #6B7280 100%
+    #94a3b8 0%,
+    #3b82f6 25%,
+    #1e40af 50%,
+    #3b82f6 75%,
+    #94a3b8 100%
   );
   background-size: 300% 100%;
   -webkit-background-clip: text;
