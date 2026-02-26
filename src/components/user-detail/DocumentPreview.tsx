@@ -229,20 +229,22 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     }
 
     if (isPDF(document.fileType)) {
-      // For blob URLs, don't add fragments as they can cause issues
-      const iframeUrl = previewUrl.startsWith('blob:') 
-        ? previewUrl 
-        : `${previewUrl}#toolbar=1&navpanes=0&scrollbar=1`;
-        
       return (
         <div className="w-full h-[500px] flex items-center justify-center p-4">
-          <iframe
-            src={iframeUrl}
-            className="w-full h-full rounded-lg shadow-lg border border-border bg-white"
+          <object
+            data={previewUrl}
+            type="application/pdf"
+            className="w-full h-full rounded-lg shadow-lg border border-border"
             title={document.fileName}
-            onError={() => setError('PDF konnte nicht geladen werden')}
-            onLoad={() => console.log('PDF iframe loaded successfully')}
-          />
+          >
+            {/* Fallback if object tag can't render the PDF */}
+            <iframe
+              src={previewUrl}
+              className="w-full h-full rounded-lg shadow-lg border border-border"
+              title={document.fileName}
+              style={{ border: 'none' }}
+            />
+          </object>
         </div>
       );
     }
