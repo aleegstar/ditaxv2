@@ -25,7 +25,7 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
       <div 
         className="fixed top-0 left-0 right-0 h-full z-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(125% 125% at 50% 10%,var(--background) 40%,var(--secondary) 100%)'
+          background: 'radial-gradient(125% 125% at 50% 10%, hsl(var(--background)) 60%, hsl(var(--muted)) 100%)'
         }}
       />
       

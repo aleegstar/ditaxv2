@@ -475,15 +475,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-slate-900 antialiased selection:bg-[#1D64FF]/30 overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 25%, #faf5ff 50%, #ecfdf5 75%, #e0f2fe 100%)' }}>
-
-      {/* Ambient Background Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-24 left-1/4 w-[500px] h-[500px] rounded-full blur-[100px] opacity-60 animate-pulse" style={{ background: 'radial-gradient(circle, rgba(147,130,255,0.4) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-32 right-1/6 w-[450px] h-[450px] rounded-full blur-[100px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.35) 0%, transparent 70%)' }} />
-        <div className="absolute top-1/3 -right-16 w-[400px] h-[400px] rounded-full blur-[100px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(244,114,182,0.3) 0%, transparent 70%)' }} />
-        <div className="absolute top-1/2 left-1/6 w-[350px] h-[350px] rounded-full blur-[100px] opacity-40" style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.3) 0%, transparent 70%)' }} />
-      </div>
+  return <div className="min-h-screen text-slate-900 antialiased selection:bg-[#1D64FF]/30 overflow-hidden relative" style={{ background: '#f8f9fb' }}>
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
