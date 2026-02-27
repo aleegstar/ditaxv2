@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuthValidation } from './use-auth-validation';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from './use-toast';
 
 export interface Notification {
@@ -19,7 +19,7 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { userId, isValid } = useAuthValidation();
+  const { userId, isValid } = useAuth();
   const { toast } = useToast();
 
   // Fetch notifications

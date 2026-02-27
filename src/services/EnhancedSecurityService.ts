@@ -228,9 +228,8 @@ export class EnhancedSecurityService {
     const appliedMeasures: string[] = [];
 
     try {
-      // Initialize enhanced security monitoring
-      await this.startRealTimeMonitoring();
-      appliedMeasures.push('Real-time security monitoring enabled');
+      // Real-time security monitoring is handled by admin panel (useSecurityMonitoring)
+      // No need to start a permanent Realtime channel for all users
 
       // Apply rate limiting enhancement
       appliedMeasures.push('Enhanced rate limiting policies applied');

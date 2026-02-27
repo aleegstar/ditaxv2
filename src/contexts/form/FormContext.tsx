@@ -6,9 +6,9 @@ import { FormData, FormProgressType, FormContextType, QuestionProgressType } fro
 import { ChecklistItem, FormSectionKey } from '../../types';
 import { generateChecklistItems } from './checklistGenerator';
 import { documentService } from '../../services/DocumentService';
-import type { Session } from '@supabase/supabase-js';
 import { androidDebug, safeClone } from '../../utils/androidDebug';
 import { useTaxFiler } from '../TaxFilerContext';
+import { useAuth } from '../AuthContext';
 
 // Production-safe logging - only log in development
 const isDev = process.env.NODE_ENV === 'development';
@@ -39,6 +39,9 @@ const calculateCurrentStep = (formProgress: FormProgressType, formDataLoaded: bo
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: string }> = ({ children, taxYear: propTaxYear }) => {
+  // Get auth state from central AuthContext
+  const { userId, isValid: isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  
   // Get active tax filer from TaxFilerContext
   const { activeTaxFilerId, activeTaxFiler, isLoading: isTaxFilerLoading } = useTaxFiler();
   
@@ -77,9 +80,6 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     }
   }, [propTaxYear]);
   
-  // Session state for optimized auth management
-  const [session, setSession] = useState<Session | null>(null);
-  const [sessionLoaded, setSessionLoaded] = useState<boolean>(false);
   
   // Document state
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
@@ -105,50 +105,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   //   console.log('FormContext render:', { taxYear, formDataLoaded, isSwitchingTaxYear });
   // }
 
-  // Initialize session and set up auth listener
-  useEffect(() => {
-    let mounted = true;
-    
-    const initializeSession = async () => {
-      console.log('🔐 Initializing session...');
-      
-      try {
-        // Get current session
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-        
-        if (mounted) {
-          if (error) {
-            console.error('❌ Error getting session:', error);
-          } else {
-            console.log('✅ Session loaded:', currentSession ? 'Valid session' : 'No session');
-            setSession(currentSession);
-          }
-          setSessionLoaded(true);
-        }
-      } catch (error) {
-        console.error('❌ Session initialization error:', error);
-        if (mounted) {
-          setSessionLoaded(true);
-        }
-      }
-    };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-      console.log('🔄 Auth state changed:', event, newSession ? 'Session present' : 'No session');
-      if (mounted) {
-        setSession(newSession);
-        setSessionLoaded(true);
-      }
-    });
-
-    initializeSession();
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
+  // No more local session listener — AuthContext handles auth state centrally
 
   // Enhanced form data loading with session-aware approach
   const loadFormDataFromDatabase = useCallback(async (yearToLoad: string) => {
@@ -169,9 +126,9 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     setIsDataLoading(true);
     
     try {
-      if (!session) {
-        androidDebug.log('No session, using default data');
-        console.log('No session, using default data');
+      if (!userId) {
+        androidDebug.log('Not authenticated, using default data');
+        devLog('Not authenticated, using default data');
         const freshDefaults = androidDebug.isAndroid() ? safeClone(defaultFormData) : JSON.parse(JSON.stringify(defaultFormData));
         setFormData(freshDefaults);
         setFormProgress({
@@ -188,14 +145,14 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         return;
       }
 
-      androidDebug.log('Session found, loading form data from database');
+      androidDebug.log('Authenticated, loading form data from database');
 
       // Load data with cached session - filter by tax_filer_id
       const { data, error } = await supabase
         .from('form_data')
         .select('form_type, data')
         .eq('tax_year', yearToLoad)
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .eq('tax_filer_id', activeTaxFilerId)
         .not('form_type', 'like', '%_progress');
 
@@ -315,7 +272,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       loadingRef.current = false;
       setIsDataLoading(false);
     }
-  }, [session, activeTaxFilerId]);
+  }, [userId, activeTaxFilerId]);
 
   // Enhanced tax year switching with complete isolation
   const switchTaxYear = useCallback(async (newTaxYear: string) => {
@@ -378,7 +335,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       await loadFormDataFromDatabase(newTaxYear);
       
       // Load documents for the new tax year
-      if (session) {
+      if (userId) {
         console.log(`📄 Loading documents for new tax year: ${newTaxYear}`);
         await loadDocuments();
       }
@@ -459,12 +416,12 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     }));
     
     // Save to database if we have a session, tax year and tax filer
-    if (session && taxYear && activeTaxFilerId) {
+    if (userId && taxYear && activeTaxFilerId) {
       try {
         const { data: existingData, error: checkError } = await supabase
           .from('form_data')
           .select('id, data')
-          .eq('user_id', session.user.id)
+          .eq('user_id', userId)
           .eq('tax_year', taxYear)
           .eq('tax_filer_id', activeTaxFilerId)
           .eq('form_type', `${section}_progress`);
@@ -488,7 +445,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
           await supabase
             .from('form_data')
             .insert({
-              user_id: session.user.id,
+              user_id: userId,
               tax_year: taxYear,
               tax_filer_id: activeTaxFilerId,
               form_type: `${section}_progress`,
@@ -499,7 +456,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         console.error('Error saving question progress:', error);
       }
     }
-  }, [session, taxYear, activeTaxFilerId]);
+  }, [userId, taxYear, activeTaxFilerId]);
 
   // Reset field functionality
   const resetFormField = useCallback((section: FormSectionKey, fieldName: string) => {
@@ -711,8 +668,8 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       return;
     }
 
-    if (!session) {
-      console.log("⚠️ [SAVE] No session available for saving - data will be saved when user logs in");
+    if (!userId) {
+      devLog("⚠️ [SAVE] Not authenticated - data will be saved when user logs in");
       // Still update local state
       updateFormData(section, data);
       updateFormProgress(section, true);
@@ -733,7 +690,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       const { data: existingData, error: checkError } = await supabase
         .from('form_data')
         .select('id')
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .eq('tax_year', taxYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section);
@@ -767,7 +724,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
         result = await supabase
           .from('form_data')
           .insert({
-            user_id: session.user.id,
+            user_id: userId,
             tax_year: taxYear,
             tax_filer_id: activeTaxFilerId,
             form_type: section,
@@ -795,22 +752,21 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   };
 
   // Import functions for previous year data
-  // Use a ref for session to stabilize the callback reference -
-  // prevents re-triggering effects when auth events cascade (e.g. after tour completion)
-  const sessionRef = useRef(session);
-  sessionRef.current = session;
+  // Use a ref for userId to stabilize the callback reference
+  const userIdRef = useRef(userId);
+  userIdRef.current = userId;
 
   const hasDataForPreviousYear = useCallback(async (section: FormSectionKey): Promise<boolean> => {
     try {
-      const currentSession = sessionRef.current;
-      if (!currentSession || !activeTaxFilerId) return false;
+      const currentUserId = userIdRef.current;
+      if (!currentUserId || !activeTaxFilerId) return false;
 
       const previousYear = (parseInt(taxYear) - 1).toString();
       
       const { data, error } = await supabase
         .from('form_data')
         .select('id')
-        .eq('user_id', currentSession.user.id)
+        .eq('user_id', currentUserId)
         .eq('tax_year', previousYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section)
@@ -830,7 +786,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
 
   const importFromPreviousYear = useCallback(async (section: FormSectionKey) => {
     try {
-      if (!session) {
+      if (!userId) {
         throw new Error('Nicht authentifiziert');
       }
       
@@ -844,7 +800,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       const { data: previousData, error: fetchError } = await supabase
         .from('form_data')
         .select('data')
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .eq('tax_year', previousYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .eq('form_type', section)
@@ -902,7 +858,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       console.error('Error importing from previous year:', error);
       throw error;
     }
-  }, [taxYear, session, activeTaxFilerId, saveSection]);
+  }, [taxYear, userId, activeTaxFilerId, saveSection]);
 
   // Placeholder functions for compatibility
   const addChild = useCallback((childData: any) => {
@@ -931,8 +887,8 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
   }, [taxYear, loadFormDataFromDatabase]);
 
   const loadDocuments = useCallback(async (forceRefresh = false) => {
-    if (!session?.user?.id) {
-      console.log('No session available for loading documents');
+    if (!userId) {
+      console.log('Not authenticated for loading documents');
       return;
     }
     
@@ -979,20 +935,20 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error loading documents in FormContext:', error);
     }
-  }, [taxYear, session, activeTaxFilerId, updateDocumentProgress]);
+  }, [taxYear, userId, activeTaxFilerId, updateDocumentProgress]);
 
   // Chat history functions
   const saveChatMessage = useCallback(async (stepId: string, messageType: 'question' | 'answer', content: string, stepIndex: number) => {
     try {
-      if (!session) {
-        console.warn("No session for saving chat message");
+      if (!userId) {
+        console.warn("Not authenticated for saving chat message");
         return;
       }
 
       const { error } = await supabase
         .from('form_chat_history')
         .insert({
-          user_id: session.user.id,
+          user_id: userId,
           tax_year: taxYear,
           tax_filer_id: activeTaxFilerId,
           step_id: stepId,
@@ -1008,16 +964,16 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in saveChatMessage:', error);
     }
-  }, [taxYear, session, activeTaxFilerId]);
+  }, [taxYear, userId, activeTaxFilerId]);
 
   const loadChatHistory = useCallback(async () => {
     try {
-      if (!session || !activeTaxFilerId) return;
+      if (!userId || !activeTaxFilerId) return;
 
       const { data, error } = await supabase
         .from('form_chat_history')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .eq('tax_year', taxYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .order('step_index', { ascending: true })
@@ -1056,7 +1012,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in loadChatHistory:', error);
     }
-  }, [taxYear, session, activeTaxFilerId]);
+  }, [taxYear, userId, activeTaxFilerId]);
 
   const clearChatHistory = useCallback(() => {
     setChatHistory([]);
@@ -1064,13 +1020,13 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
 
   // Load question progress from database
   const loadQuestionProgress = useCallback(async () => {
-    if (!session || !taxYear || !activeTaxFilerId) return;
+    if (!userId || !taxYear || !activeTaxFilerId) return;
 
     try {
       const { data, error } = await supabase
         .from('form_data')
         .select('form_type, data')
-        .eq('user_id', session.user.id)
+        .eq('user_id', userId)
         .eq('tax_year', taxYear)
         .eq('tax_filer_id', activeTaxFilerId)
         .in('form_type', ['income_progress', 'assets_progress', 'deductions_progress']);
@@ -1096,7 +1052,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     } catch (error) {
       console.error('Error in loadQuestionProgress:', error);
     }
-  }, [session, taxYear, activeTaxFilerId]);
+  }, [userId, taxYear, activeTaxFilerId]);
 
   // Initial load effect - wait for session and tax filer to be loaded
   useEffect(() => {
@@ -1113,25 +1069,25 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       previousTaxFilerIdRef.current = activeTaxFilerId;
     }
     
-    if (sessionLoaded && taxYear && activeTaxFilerId && !formDataLoaded && !loading && !taxYearSwitchRef.current && !isTaxFilerLoading) {
+    if (!isAuthLoading && taxYear && activeTaxFilerId && !formDataLoaded && !loading && !taxYearSwitchRef.current && !isTaxFilerLoading) {
       initialLoadCompletedRef.current = true;
       previousTaxFilerIdRef.current = activeTaxFilerId;
-      console.log(`🚀 Initial load for tax year: ${taxYear}, tax filer: ${activeTaxFilerId} with session:`, session ? 'Available' : 'Not available');
+      devLog(`🚀 Initial load for tax year: ${taxYear}, tax filer: ${activeTaxFilerId} with auth:`, userId ? 'Authenticated' : 'Not authenticated');
       loadFormDataFromDatabase(taxYear);
       loadQuestionProgress();
       // Load documents automatically on initialization
-      if (session) {
-        console.log('🚀 Auto-loading documents on FormContext initialization');
+      if (userId) {
+        devLog('🚀 Auto-loading documents on FormContext initialization');
         loadDocuments();
       }
     }
 
     // Fallback: If session is loaded but no activeTaxFilerId after TaxFiler loading is done
-    if (sessionLoaded && !activeTaxFilerId && !isTaxFilerLoading && !formDataLoaded && !loading) {
+    if (!isAuthLoading && !activeTaxFilerId && !isTaxFilerLoading && !formDataLoaded && !loading) {
       console.warn('No activeTaxFilerId available, using defaults');
       setFormDataLoaded(true);
     }
-  }, [sessionLoaded, taxYear, activeTaxFilerId, formDataLoaded, loading, session, isTaxFilerLoading]);
+  }, [isAuthLoading, taxYear, activeTaxFilerId, formDataLoaded, loading, userId, isTaxFilerLoading]);
 
   // Safety timeout: force formDataLoaded after 10s to prevent infinite loading
   useEffect(() => {
