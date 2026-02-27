@@ -262,24 +262,15 @@ export class CSRFProtection {
   }
 }
 
-// Auto-initialize security features
-if (typeof window !== 'undefined') {
-  // Apply security headers to document
-  document.addEventListener('DOMContentLoaded', () => {
-    SecurityHeaders.applyToDocument();
-    CSRFProtection.initialize();
-  });
-
-  // Initialize immediately if DOM is already loaded (skip on native platforms)
-  if (!Capacitor.isNativePlatform()) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        SecurityHeaders.applyToDocument();
-        CSRFProtection.initialize();
-      });
-    } else {
+// Auto-initialize security features (single initialization)
+if (typeof window !== 'undefined' && !Capacitor.isNativePlatform()) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
       SecurityHeaders.applyToDocument();
       CSRFProtection.initialize();
-    }
+    });
+  } else {
+    SecurityHeaders.applyToDocument();
+    CSRFProtection.initialize();
   }
 }

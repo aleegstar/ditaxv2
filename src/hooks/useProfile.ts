@@ -16,23 +16,21 @@ interface Profile {
 }
 
 export const useProfile = () => {
-  const { isValid, isLoading: authLoading } = useAuth();
+  const { isValid, isLoading: authLoading, userId } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const abortRef = useRef(false);
 
   const updateFirstName = async (firstName: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      if (!userId) {
         throw new Error('User not authenticated');
       }
 
       const { error } = await supabase
         .from('profiles')
         .upsert({ 
-          id: user.id, 
+          id: userId, 
           first_name: firstName.trim() 
         });
 
@@ -50,16 +48,14 @@ export const useProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !user) {
+      if (!userId) {
         throw new Error('User not authenticated');
       }
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
       if (profileError) {
@@ -68,10 +64,10 @@ export const useProfile = () => {
       }
 
       setProfile({
-        id: user.id,
+        id: userId,
         first_name: profileData?.first_name || null,
         last_name: profileData?.last_name || null,
-        email: user.email || null,
+        email: profileData?.email || null,
         avatar_url: profileData?.avatar_url || null,
         onboarding_tour_completed: profileData?.onboarding_tour_completed || null,
         date_of_birth: profileData?.date_of_birth || null,
@@ -89,16 +85,14 @@ export const useProfile = () => {
 
   const updateAvatar = async (avatarUrl: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      if (!userId) {
         throw new Error('User not authenticated');
       }
 
       const { error } = await supabase
         .from('profiles')
         .update({ avatar_url: avatarUrl })
-        .eq('id', user.id);
+        .eq('id', userId);
 
       if (error) {
         throw error;
