@@ -17,22 +17,19 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border border-white/40" style={{ background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-      <Globe className="w-3.5 h-3.5 text-slate-400" />
+    <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border border-border/60 bg-background">
+      <Globe className="w-3.5 h-3.5 text-muted-foreground" />
       <button
         onClick={() => switchLanguage('de')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
-
+        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
         DE
       </button>
       <button
         onClick={() => switchLanguage('en')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
-
+        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
         EN
       </button>
     </div>);
-
 };
 
 const Auth = () => {
@@ -475,65 +472,59 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-slate-900 antialiased selection:bg-[#1D64FF]/30 overflow-hidden relative" style={{ background: '#f8f9fb' }}>
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-background">
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
-        {/* Card: Liquid Glass */}
-        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-3xl border-0 sm:border sm:border-slate-200/60 px-6 py-10 sm:p-12 sm:shadow-2xl sm:shadow-black/5 bg-white">
+        {/* Card */}
+        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-2xl border-0 sm:border sm:border-border/60 px-6 py-10 sm:p-12 sm:shadow-sm bg-background">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
 
-                {/* Logo & Title Unit */}
+                {/* Logo & Title */}
                 <div className="flex flex-col items-center text-center mb-10">
                   <img alt="Ditax" className="w-auto h-7 object-contain mb-6" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900 mb-2">
+                  <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1.5">
                     {t.authFlow.login}
                   </h1>
-                  <p className="text-slate-500 font-normal text-xs">
+                  <p className="text-muted-foreground text-[13px]">
                     {t.authFlow.loginSubtitle}
                   </p>
                 </div>
 
                 {/* Email Form */}
-                <form onSubmit={handleEmailSubmit} className="space-y-6">
+                <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div>
                     <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                    <div className="relative group">
-                      <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl border border-slate-200 h-14 px-4 text-lg text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all bg-white" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
-                    </div>
+                    <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-xl border border-border/60 h-12 px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-ring/30 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                   </div>
 
-                  <button type="submit" disabled={isLoading} className="group relative flex w-full items-center justify-center gap-3 bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] h-14 px-6 transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-[1.02] active:scale-95 active:shadow-[0_2px_10px_-4px_rgba(29,100,255,0.4)] disabled:pointer-events-none disabled:opacity-50 rounded-2xl">
-                    {isEmailLoading ?
-                <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendingCode}</span> :
-
-                <span className="text-base font-semibold text-white tracking-tight">{t.authFlow.sendCode}</span>
-                }
+                  <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
+                    {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                   </button>
 
-                  <p className="text-center text-sm text-slate-500 leading-relaxed px-4">
+                  <p className="text-center text-[12px] text-muted-foreground leading-relaxed px-4">
                     {t.authFlow.microcopy}
                   </p>
                 </form>
 
                 {/* Divider */}
-                <div className="relative my-10">
+                <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-white/30" />
+                    <div className="w-full border-t border-border/40" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="px-4 text-base text-slate-500 rounded-full" style={{ background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>{t.authFlow.or}</span>
+                    <span className="px-3 text-[12px] text-muted-foreground bg-background">{t.authFlow.or}</span>
                   </div>
                 </div>
 
                 {/* Social Logins */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Google */}
-                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/40 py-4 px-4 text-base font-medium text-slate-700 transition-all hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none group" style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
-                    <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
+                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground transition-all hover:bg-muted/30 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                    <svg className="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -543,8 +534,8 @@ const Auth = () => {
                   </button>
 
                   {/* Apple */}
-                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/40 py-4 px-4 text-base font-medium text-slate-700 transition-all hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none group" style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.3)' }}>
-                    <svg className="w-5 h-5 shrink-0 fill-current text-slate-900 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
+                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground transition-all hover:bg-muted/30 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                    <svg className="w-4.5 h-4.5 shrink-0 fill-current" viewBox="0 0 24 24">
                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                     </svg>
                     <span>{t.authFlow.continueWithApple}</span>
@@ -552,11 +543,11 @@ const Auth = () => {
                 </div>
 
                 {/* Footer Links */}
-                <div className="mt-12 flex flex-col items-center gap-4 text-sm text-slate-400">
+                <div className="mt-10 flex flex-col items-center gap-3 text-[12px] text-muted-foreground">
                   <div className="flex items-center gap-3">
-                    <a href="/impressum" className="hover:text-slate-600 transition-colors">Impressum</a>
-                    <span className="text-slate-300">•</span>
-                    <a href="/datenschutzrichtlinie" className="hover:text-slate-600 transition-colors">Datenschutz</a>
+                    <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
+                    <span>·</span>
+                    <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
                   </div>
                   <AuthLanguageToggle />
                 </div>
@@ -565,55 +556,55 @@ const Auth = () => {
 
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
-                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-10 object-contain" />
+                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-8 object-contain" />
                 </div>
 
                 {/* Header */}
-                <div className="text-center mb-8 space-y-2">
-                  <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+                <div className="text-center mb-8 space-y-1.5">
+                  <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                     {t.authFlow.enterCode}
                   </h1>
-                  <p className="text-base text-slate-500 max-w-[80%] mx-auto leading-relaxed">
+                  <p className="text-[13px] text-muted-foreground max-w-[80%] mx-auto leading-relaxed">
                     {t.authFlow.codeSentTo}{' '}
-                    <span className="text-slate-800 font-medium">{email}</span>{' '}
+                    <span className="text-foreground font-medium">{email}</span>{' '}
                     {t.authFlow.codeSentToSuffix}
                   </p>
                 </div>
 
                 {/* OTP Form */}
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div className="flex justify-between gap-2">
                     <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                       <InputOTPGroup className="flex justify-between gap-2 w-full">
-                         <InputOTPSlot index={0} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
-                         <InputOTPSlot index={1} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
-                         <InputOTPSlot index={2} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
-                         <InputOTPSlot index={3} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
-                         <InputOTPSlot index={4} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
-                         <InputOTPSlot index={5} className="w-full h-14 text-center text-xl font-semibold border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-slate-300 transition-all text-slate-900 bg-white" />
+                         <InputOTPSlot index={0} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={1} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={2} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={3} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={4} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={5} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
 
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center rounded-2xl py-4 text-sm font-semibold tracking-widest uppercase text-white border border-blue-400/30 hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-300/40 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(59,130,246,0.9) 0%, rgba(37,99,235,0.85) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                     {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
                   </button>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="mt-8 flex flex-col items-center gap-4 text-center">
-                  <p className="text-sm text-slate-500">
+                <div className="mt-8 flex flex-col items-center gap-3 text-center">
+                  <p className="text-[13px] text-muted-foreground">
                     {t.authFlow.noCodeReceived}
                     {resendCountdown > 0 ? <>
-                        <span className="text-slate-700 font-medium ml-1">{t.authFlow.resend}</span>
-                        <span className="ml-1 text-slate-400">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
-                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-slate-700 hover:text-slate-900 font-medium transition-colors ml-1">
+                        <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
+                        <span className="ml-1 text-muted-foreground">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
                         {t.authFlow.resend}
                       </button>}
                   </p>
 
-                  <button onClick={handleBackClick} className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors mt-2">
-                    <ArrowLeft className="w-4 h-4" />
+                  <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mt-1">
+                    <ArrowLeft className="w-3.5 h-3.5" />
                     {t.authFlow.backToLogin}
                   </button>
                 </div>
