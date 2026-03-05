@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ArrowLeft, ArrowRight, Fingerprint, ShieldCheck, Globe } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronUp, Fingerprint, ShieldCheck, Globe, Mail } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -45,6 +45,7 @@ const Auth = () => {
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const isOAuthInProgress = useRef(false);
 
@@ -494,33 +495,7 @@ const Auth = () => {
                   </p>
                 </div>
 
-                {/* Email Form */}
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                    <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-xl border border-border/60 h-12 px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-ring/30 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
-                  </div>
-
-                  <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
-                    {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                  </button>
-
-                  <p className="text-center text-[12px] text-muted-foreground leading-relaxed px-4">
-                    {t.authFlow.microcopy}
-                  </p>
-                </form>
-
-                {/* Divider */}
-                <div className="relative my-8">
-                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-border/40" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-3 text-[12px] text-muted-foreground bg-background">{t.authFlow.or}</span>
-                  </div>
-                </div>
-
-                {/* Social Logins */}
+                {/* Social Logins - Primary */}
                 <div className="space-y-3">
                   {/* Google */}
                   <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground transition-all hover:bg-muted/30 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
@@ -540,6 +515,56 @@ const Auth = () => {
                     </svg>
                     <span>{t.authFlow.continueWithApple}</span>
                   </button>
+                </div>
+
+                {/* Divider */}
+                <div className="relative my-8">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="w-full border-t border-border/40" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="px-3 text-[12px] text-muted-foreground bg-background">{t.authFlow.or}</span>
+                  </div>
+                </div>
+
+                {/* Email Accordion */}
+                <div className="w-full">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailForm(prev => !prev)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-muted-foreground transition-all hover:bg-muted/30 hover:text-foreground active:scale-[0.98] focus:outline-none"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>{'Mit E-Mail anmelden'}</span>
+                    {showEmailForm ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                  </button>
+
+                  <AnimatePresence>
+                    {showEmailForm && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <form onSubmit={handleEmailSubmit} className="space-y-4 pt-4">
+                          <div>
+                            <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
+                            <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-xl border border-border/60 h-12 px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-ring/30 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                          </div>
+
+                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
+                            {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                          </button>
+
+                          <p className="text-center text-[12px] text-muted-foreground leading-relaxed px-4">
+                            {t.authFlow.microcopy}
+                          </p>
+                        </form>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Footer Links */}
@@ -604,7 +629,7 @@ const Auth = () => {
                   </p>
 
                   <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mt-1">
-                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <ChevronLeft className="w-3.5 h-3.5" />
                     {t.authFlow.backToLogin}
                   </button>
                 </div>
