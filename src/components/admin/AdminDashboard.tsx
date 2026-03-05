@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, CheckCircle, FileText, Users, MessageCircle, TrendingUp, RefreshCw, UserPlus } from 'lucide-react';
+import { FileText, Users, MessageCircle, TrendingUp, UserPlus, Clock } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { StatsWidget } from '@/components/ui/stats-widget';
+import { cn } from '@/lib/utils';
 
 interface DashboardStats {
   totalUsers: number;
@@ -27,19 +25,38 @@ interface DashboardStats {
   revenueChartData: number[];
 }
 
-interface ExpressTaxReturn {
-  id: string;
-  user_id: string;
-  tax_year: string;
-  created_at: string;
-  workflow_step: string;
-  status: string;
-  user: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
-  daysSinceCreation: number;
+interface StatCardProps {
+  label: string;
+  value: number | string;
+  icon: React.ElementType;
+  href?: string;
+  badge?: number;
+}
+
+function StatCard({ label, value, icon: Icon, href, badge }: StatCardProps) {
+  const content = (
+    <div className="flex items-center justify-between p-5 rounded-xl border border-border/50 bg-card hover:bg-muted/30 transition-colors">
+      <div className="space-y-1">
+        <p className="text-[13px] text-muted-foreground">{label}</p>
+        <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        {badge != null && badge > 0 && (
+          <span className="text-[10px] font-semibold bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">
+            {badge}
+          </span>
+        )}
+        <div className="w-9 h-9 rounded-lg bg-muted/60 flex items-center justify-center text-muted-foreground">
+          <Icon className="h-4 w-4" />
+        </div>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return <Link to={href}>{content}</Link>;
+  }
+  return content;
 }
 
 export const AdminDashboard: React.FC = () => {
@@ -61,7 +78,6 @@ export const AdminDashboard: React.FC = () => {
     revenueChartData: [35, 40, 50, 45, 60, 55, 65]
   });
   
-  const [expressTaxReturns, setExpressTaxReturns] = useState<ExpressTaxReturn[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
@@ -73,10 +89,7 @@ export const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setRefreshing(true);
-      await Promise.all([
-        loadStats(),
-        loadExpressTaxReturns()
-      ]);
+      await loadStats();
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
@@ -116,8 +129,6 @@ export const AdminDashboard: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .eq('express_service', true)
         .neq('status', 'completed');
-
-      const incompleteExpressCount = expressCount;
 
       const { count: ticketsCount } = await supabase
         .from('support_tickets')
@@ -168,8 +179,6 @@ export const AdminDashboard: React.FC = () => {
         if (!revenueError && revenueData) {
           revenueThisMonth = revenueData.revenueThisMonth || 0;
           revenueLastMonth = revenueData.revenueLastMonth || 0;
-        } else {
-          console.warn('Failed to fetch Stripe revenue, using fallback:', revenueError);
         }
       } catch (e) {
         console.warn('Stripe revenue fetch failed:', e);
@@ -188,7 +197,7 @@ export const AdminDashboard: React.FC = () => {
         newUsersLast30Days: newUsersCount || 0,
         pendingTaxReturns: pendingCount || 0,
         expressTaxReturns: expressCount || 0,
-        incompleteTaxReturns: incompleteExpressCount || 0,
+        incompleteTaxReturns: expressCount || 0,
         openTickets: ticketsCount || 0,
         unreadMessages: messagesCount || 0,
         completedThisMonth: completedThisMonthCount || 0,
@@ -204,92 +213,27 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadExpressTaxReturns = async () => {
-    try {
-      const { data: taxReturns, error } = await supabase
-        .from('tax_returns')
-        .select(`
-          id,
-          user_id,
-          tax_year,
-          created_at,
-          workflow_step,
-          status,
-          profiles!inner (
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .eq('express_service', true)
-        .neq('status', 'completed')
-        .order('created_at', { ascending: true })
-        .limit(10);
-
-      if (error) throw error;
-
-      const expressReturns: ExpressTaxReturn[] = taxReturns?.map(tr => ({
-        id: tr.id,
-        user_id: tr.user_id,
-        tax_year: tr.tax_year,
-        created_at: tr.created_at,
-        workflow_step: tr.workflow_step,
-        status: tr.status,
-        user: {
-          first_name: tr.profiles.first_name || '',
-          last_name: tr.profiles.last_name || '',
-          email: tr.profiles.email || ''
-        },
-        daysSinceCreation: Math.floor((new Date().getTime() - new Date(tr.created_at).getTime()) / (1000 * 60 * 60 * 24))
-      })) || [];
-
-      setExpressTaxReturns(expressReturns);
-    } catch (error) {
-      console.error('Error loading express tax returns:', error);
-    }
-  };
-
-  const getWorkflowStepLabel = (step: string) => {
-    const labels: { [key: string]: string } = {
-      'data_collection': 'Datensammlung',
-      'review': 'Überprüfung',
-      'processing': 'Bearbeitung',
-      'completed': 'Abgeschlossen'
-    };
-    return labels[step] || step;
-  };
-
-  const getPriorityBadge = (daysSinceCreation: number) => {
-    if (daysSinceCreation >= 2) {
-      return <Badge variant="destructive">Überfällig</Badge>;
-    } else if (daysSinceCreation >= 1) {
-      return <Badge variant="outline" className="border-orange-500 text-orange-700">Kritisch</Badge>;
-    }
-    return <Badge variant="secondary">Normal</Badge>;
-  };
-
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-8">Lädt Dashboard...</div>
+      <div className="flex items-center justify-center py-20">
+        <p className="text-sm text-muted-foreground">Lädt Dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <AdminWelcomeHeader
-        title="Admin Dashboard"
-        subtitle="Übersicht über alle anstehenden Aufgaben und wichtige Metriken"
+        title="Dashboard"
+        subtitle="Übersicht über alle anstehenden Aufgaben und Metriken"
         badge={{
-          text: `${stats.pendingTaxReturns} Aufgaben`,
-          variant: 'secondary'
+          text: `${stats.pendingTaxReturns} offen`,
         }}
         onRefresh={loadDashboardData}
       />
 
       {/* Stats Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatsWidget
           label="Abgeschlossene Steuererklärungen"
           amount={stats.completedThisMonth}
@@ -310,113 +254,42 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Link to="/admin/tax-processing" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <FileText className="h-5 w-5" />
-                </div>
-                {stats.expressTaxReturns > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
-                    {stats.expressTaxReturns}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Offene Steuererklärungen</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingTaxReturns}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                <Clock className="h-5 w-5" />
-              </div>
-              {stats.expressTaxReturns > 0 && (
-                <div className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-orange-500/20">
-                  {stats.expressTaxReturns}
-                </div>
-              )}
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-foreground">Offene Express</h4>
-              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.expressTaxReturns}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Link to="/admin/tickets" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <MessageCircle className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Offene Tickets</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.openTickets}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/admin/definitive-tax-bills" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <FileText className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Rechnungen zur Prüfung</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingDefinitiveTaxBills}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-foreground">Diesen Monat</h4>
-              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.completedThisMonth}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Link to="/admin/users" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <UserPlus className="h-5 w-5" />
-                </div>
-                {stats.newUsersLast30Days > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
-                    +{stats.newUsersLast30Days}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Neue User (30 Tage)</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.newUsersLast30Days}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatCard
+          label="Offene Steuererklärungen"
+          value={stats.pendingTaxReturns}
+          icon={FileText}
+          href="/admin/tax-processing"
+          badge={stats.expressTaxReturns}
+        />
+        <StatCard
+          label="Offene Express"
+          value={stats.expressTaxReturns}
+          icon={Clock}
+        />
+        <StatCard
+          label="Offene Tickets"
+          value={stats.openTickets}
+          icon={MessageCircle}
+          href="/admin/tickets"
+        />
+        <StatCard
+          label="Veranlagungen zur Prüfung"
+          value={stats.pendingDefinitiveTaxBills}
+          icon={FileText}
+          href="/admin/definitive-tax-bills"
+        />
+        <StatCard
+          label="Diesen Monat abgeschlossen"
+          value={stats.completedThisMonth}
+          icon={TrendingUp}
+        />
+        <StatCard
+          label="Neue User (30 Tage)"
+          value={stats.newUsersLast30Days}
+          icon={UserPlus}
+          href="/admin/users"
+        />
       </div>
     </div>
   );
