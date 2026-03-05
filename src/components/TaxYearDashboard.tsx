@@ -119,24 +119,24 @@ export const TaxYearDashboard: React.FC = () => {
   const canSubmit = allAngabenComplete && isDocumentsComplete;
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 antialiased">
+    <div className="min-h-screen bg-background text-foreground antialiased">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white">
+      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => navigate('/')}
-            className="w-10 h-10 rounded-full bg-white border border-zinc-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center justify-center text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900 transition-all"
+            className="w-9 h-9 rounded-full border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all"
           >
-            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
           </button>
 
-          <h1 className="text-xl font-medium tracking-tight text-zinc-900">
+          <h1 className="text-base font-semibold tracking-tight text-foreground">
             {t.formDashboard.title.replace('{year}', taxYear)}
           </h1>
 
           <button
             onClick={() => navigate('/profile')}
-            className="w-10 h-10 rounded-full border border-zinc-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden bg-white shrink-0 p-0.5"
+            className="w-9 h-9 rounded-full border border-border/60 overflow-hidden bg-background shrink-0 p-0.5"
           >
             <img
               src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'}
@@ -153,72 +153,69 @@ export const TaxYearDashboard: React.FC = () => {
 
       {/* Steps */}
       <main className="max-w-lg mx-auto px-4 sm:px-6 pb-24">
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Step 1: Persönliche Angaben */}
           {allAngabenComplete && !isAngabenExpanded ? (
             /* Collapsed completed card */
             <div
               data-tour="form-step-1"
               onClick={() => setIsAngabenExpanded(true)}
-              className="group bg-white border border-zinc-200/80 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] p-6 sm:p-8 flex items-center gap-4 cursor-pointer hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all relative overflow-hidden"
+              className="group border border-border/60 rounded-2xl bg-background p-5 sm:p-6 flex items-center gap-4 cursor-pointer hover:bg-muted/20 transition-all relative overflow-hidden"
             >
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-emerald-500" />
-              <div className="w-10 h-10 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                <Check className="w-5 h-5" strokeWidth={2.5} />
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-foreground/20" />
+              <div className="w-9 h-9 shrink-0 rounded-full bg-foreground/[0.07] flex items-center justify-center text-foreground">
+                <Check className="w-4 h-4" strokeWidth={2.5} />
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-medium tracking-tight text-zinc-900">
+                <h2 className="text-[15px] font-medium tracking-tight text-foreground">
                   {t.formDashboard.personalInfo}
                 </h2>
-                <p className="text-sm text-zinc-500 mt-0.5">
+                <p className="text-[12px] text-muted-foreground mt-0.5">
                   {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
                 </p>
               </div>
-              <ChevronDown className="w-5 h-5 text-zinc-300 group-hover:text-zinc-500 transition-colors" strokeWidth={2} />
+              <ChevronDown className="w-4 h-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" strokeWidth={2} />
             </div>
           ) : (
             /* Expanded active card */
             <section
               data-tour="form-step-1"
-              className="bg-white border border-zinc-200/80 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] overflow-hidden relative"
+              className="border border-border/60 rounded-2xl bg-background overflow-hidden relative"
             >
-              {/* Blue accent line */}
-              {!allAngabenComplete && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#1d64ff]" />
-              )}
-              {allAngabenComplete && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-emerald-500" />
-              )}
+              {/* Accent line */}
+              <div className={`absolute top-0 left-0 right-0 h-[2px] ${
+                allAngabenComplete ? 'bg-foreground/20' : 'bg-foreground'
+              }`} />
 
               {/* Step header */}
               <div
                 onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-                className={`p-6 sm:p-8 pb-6 ${allAngabenComplete ? 'cursor-pointer hover:bg-zinc-50/50' : ''}`}
+                className={`p-5 sm:p-6 pb-5 ${allAngabenComplete ? 'cursor-pointer hover:bg-muted/20' : ''}`}
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-medium text-base ${
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[13px] font-semibold ${
                       allAngabenComplete
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-[#1d64ff] text-white shadow-sm'
+                        ? 'bg-foreground/[0.07] text-foreground'
+                        : 'bg-foreground text-background'
                     }`}>
-                      {allAngabenComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '1'}
+                      {allAngabenComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : '1'}
                     </div>
                     <div>
-                      <h2 className="text-lg font-medium tracking-tight text-zinc-900">
+                      <h2 className="text-[15px] font-medium tracking-tight text-foreground">
                         {t.formDashboard.personalInfo}
                       </h2>
-                      <p className="text-sm text-zinc-500 mt-0.5">
+                      <p className="text-[12px] text-muted-foreground mt-0.5">
                         {t.formDashboard.tasksCompleted
                           .replace('{completed}', String(angabenProgress.completed))
                           .replace('{total}', String(angabenProgress.total))}
                       </p>
                     </div>
                   </div>
-                  {/* Progress bar (desktop only) */}
-                  <div className="hidden sm:flex w-20 h-1.5 bg-zinc-100 rounded-full overflow-hidden mt-4">
+                  {/* Progress bar */}
+                  <div className="hidden sm:flex w-16 h-1 bg-muted rounded-full overflow-hidden mt-3">
                     <div
-                      className="h-full bg-[#1d64ff] rounded-full transition-all duration-300"
+                      className="h-full bg-foreground/40 rounded-full transition-all duration-300"
                       style={{ width: `${Math.max(angabenProgress.percentage, 5)}%` }}
                     />
                   </div>
@@ -226,7 +223,7 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
 
               {/* Section items */}
-              <div className="px-6 sm:px-8 pb-8 space-y-3">
+              <div className="px-5 sm:px-6 pb-6 space-y-2">
                 {angabenSections.map(section => {
                   const Icon = section.icon;
                   const completed = isCompleted(section.id);
@@ -235,23 +232,21 @@ export const TaxYearDashboard: React.FC = () => {
                       key={section.id}
                       onClick={() => handleSectionClick(section)}
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                      className="w-full flex items-center gap-4 p-4 rounded-xl border border-zinc-100 bg-zinc-50/50 hover:bg-white hover:border-zinc-200 hover:shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] transition-all duration-200 text-left group/item"
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-xl border border-border/40 bg-muted/20 hover:bg-muted/40 hover:border-border/60 transition-all duration-200 text-left group/item"
                     >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 ${
                         completed
-                          ? 'bg-emerald-500 text-white border border-emerald-500'
-                          : 'bg-white border border-zinc-200/60 shadow-sm text-zinc-400 group-hover/item:text-zinc-900 group-hover/item:border-zinc-300'
+                          ? 'bg-foreground/[0.07] text-foreground border border-border/40'
+                          : 'bg-background border border-border/60 text-muted-foreground group-hover/item:text-foreground'
                       }`}>
-                        {completed ? <Check className="w-4 h-4" strokeWidth={2.5} /> : <Icon className="w-5 h-5" />}
+                        {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" />}
                       </div>
-                      <span className={`flex-1 text-sm font-medium transition-colors ${
-                        completed ? 'text-zinc-500' : 'text-zinc-700 group-hover/item:text-zinc-900'
+                      <span className={`flex-1 text-[13px] font-medium transition-colors ${
+                        completed ? 'text-muted-foreground' : 'text-foreground'
                       }`}>
                         {section.title}
                       </span>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent group-hover/item:bg-zinc-50 transition-colors">
-                        <ChevronRight className="w-4 h-4 text-zinc-300 group-hover/item:text-zinc-600 transition-transform group-hover/item:translate-x-0.5" />
-                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover/item:text-muted-foreground transition-all group-hover/item:translate-x-0.5" />
                     </button>
                   );
                 })}
@@ -259,56 +254,49 @@ export const TaxYearDashboard: React.FC = () => {
             </section>
           )}
 
-          {/* Step 2: Belege & Unterlagen (inactive/active) */}
+          {/* Step 2: Belege & Unterlagen */}
           {allAngabenComplete ? (
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className={`bg-white border rounded-2xl overflow-hidden relative cursor-pointer transition-all ${
-                isDocumentsComplete
-                  ? 'border-zinc-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)]'
-                  : 'border-zinc-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)]'
-              }`}
+              className="border border-border/60 rounded-2xl bg-background overflow-hidden relative cursor-pointer hover:bg-muted/20 transition-all"
             >
-              {!isDocumentsComplete && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#1d64ff]" />
-              )}
-              {isDocumentsComplete && (
-                <div className="absolute top-0 left-0 right-0 h-[3px] bg-emerald-500" />
-              )}
-              <div className="p-6 flex items-center gap-4">
-                <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-medium text-base ${
+              <div className={`absolute top-0 left-0 right-0 h-[2px] ${
+                isDocumentsComplete ? 'bg-foreground/20' : 'bg-foreground'
+              }`} />
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
+                <div className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[13px] font-semibold ${
                   isDocumentsComplete
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-[#1d64ff] text-white shadow-sm'
+                    ? 'bg-foreground/[0.07] text-foreground'
+                    : 'bg-foreground text-background'
                 }`}>
-                  {isDocumentsComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : '2'}
+                  {isDocumentsComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : '2'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-medium tracking-tight text-zinc-900">
+                  <h2 className="text-[15px] font-medium tracking-tight text-foreground">
                     {t.formDashboard.documentsTitle}
                   </h2>
-                  <p className={`text-sm mt-0.5 ${isDocumentsComplete ? 'text-zinc-500' : 'text-[#1d64ff] font-medium'}`}>
-                    {isDocumentsComplete ? t.formDashboard.uploadDocuments : t.formDashboard.uploadDocuments}
+                  <p className={`text-[12px] mt-0.5 ${isDocumentsComplete ? 'text-muted-foreground' : 'text-foreground/70 font-medium'}`}>
+                    {t.formDashboard.uploadDocuments}
                   </p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-zinc-300 group-hover:text-zinc-600" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
               </div>
             </div>
           ) : (
             /* Inactive dashed step */
             <div
               data-tour="form-step-2"
-              className="bg-transparent border border-dashed border-zinc-200/80 rounded-2xl p-6 flex items-center gap-4 hover:bg-zinc-100/50 transition-colors duration-300"
+              className="border border-dashed border-border/60 rounded-2xl p-5 sm:p-6 flex items-center gap-3.5 transition-colors duration-300"
             >
-              <div className="w-10 h-10 shrink-0 rounded-full bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-400 font-medium text-base">
+              <div className="w-9 h-9 shrink-0 rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground/60 font-medium text-[13px]">
                 2
               </div>
               <div>
-                <h2 className="text-base font-medium tracking-tight text-zinc-500">
+                <h2 className="text-[14px] font-medium tracking-tight text-muted-foreground">
                   {t.formDashboard.documentsTitle}
                 </h2>
-                <p className="text-sm text-zinc-400 mt-0.5">
+                <p className="text-[12px] text-muted-foreground/60 mt-0.5">
                   {t.formDashboard.completeStep1First}
                 </p>
               </div>
@@ -320,38 +308,38 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-3"
               onClick={handleSubmitClick}
-              className="bg-white border border-zinc-200/80 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] overflow-hidden relative cursor-pointer hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all"
+              className="border border-border/60 rounded-2xl bg-background overflow-hidden relative cursor-pointer hover:bg-muted/20 transition-all"
             >
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#1d64ff]" />
-              <div className="p-6 flex items-center gap-4">
-                <div className="w-10 h-10 shrink-0 rounded-full bg-[#1d64ff] text-white shadow-sm flex items-center justify-center font-medium text-base">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-foreground" />
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
+                <div className="w-9 h-9 shrink-0 rounded-full bg-foreground text-background flex items-center justify-center font-semibold text-[13px]">
                   3
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-medium tracking-tight text-zinc-900">
+                  <h2 className="text-[15px] font-medium tracking-tight text-foreground">
                     {t.formDashboard.reviewAndSubmit}
                   </h2>
-                  <p className="text-sm text-[#1d64ff] font-medium mt-0.5">
+                  <p className="text-[12px] text-foreground/70 font-medium mt-0.5">
                     {t.formDashboard.completeAndPay}
                   </p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-zinc-300" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
               </div>
             </div>
           ) : (
             /* Inactive dashed step */
             <div
               data-tour="form-step-3"
-              className="bg-transparent border border-dashed border-zinc-200/80 rounded-2xl p-6 flex items-center gap-4 hover:bg-zinc-100/50 transition-colors duration-300"
+              className="border border-dashed border-border/60 rounded-2xl p-5 sm:p-6 flex items-center gap-3.5 transition-colors duration-300"
             >
-              <div className="w-10 h-10 shrink-0 rounded-full bg-zinc-100/80 border border-zinc-200/60 flex items-center justify-center text-zinc-400 font-medium text-base">
+              <div className="w-9 h-9 shrink-0 rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground/60 font-medium text-[13px]">
                 3
               </div>
               <div>
-                <h2 className="text-base font-medium tracking-tight text-zinc-500">
+                <h2 className="text-[14px] font-medium tracking-tight text-muted-foreground">
                   {t.formDashboard.reviewAndSubmit}
                 </h2>
-                <p className="text-sm text-zinc-400 mt-0.5">
+                <p className="text-[12px] text-muted-foreground/60 mt-0.5">
                   {t.formDashboard.completeSteps12First}
                 </p>
               </div>
