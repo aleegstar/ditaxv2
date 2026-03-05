@@ -498,7 +498,7 @@ const Auth = () => {
                 {/* Social Logins - Primary */}
                 <div className="space-y-3">
                   {/* Google */}
-                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground transition-all hover:bg-muted/30 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
                     <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -509,7 +509,7 @@ const Auth = () => {
                   </button>
 
                   {/* Apple */}
-                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground transition-all hover:bg-muted/30 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
                     <svg className="w-5 h-5 shrink-0 fill-current" viewBox="0 0 24 24">
                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                     </svg>
@@ -532,7 +532,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmailForm(prev => !prev)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-muted-foreground transition-all hover:bg-muted/30 hover:text-foreground active:scale-[0.98] focus:outline-none"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-muted-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:text-foreground hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none"
                   >
                     <Mail className="w-4 h-4" />
                     <span>{'Mit E-Mail anmelden'}</span>
@@ -554,7 +554,7 @@ const Auth = () => {
                             <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-xl border border-border/60 h-12 px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-ring/30 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                           </div>
 
-                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
+                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight shadow-[0_1px_3px_0_rgba(0,0,0,0.08),inset_0_1px_0_0_rgba(255,255,255,0.12)] transition-all hover:bg-foreground/90 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
                             {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                           </button>
 
