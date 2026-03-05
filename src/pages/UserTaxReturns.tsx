@@ -378,7 +378,7 @@ const UserTaxReturns = () => {
           {unpaidYears.map(year => {
           const progress = calculateProgress(year) ?? 0;
           const documentCount = getDocumentCount(year);
-          return <article key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
+          return <article key={year} data-tour="tax-year-card" onClick={() => navigate(`/form?year=${year}`)} className="group relative flex flex-col p-3 bg-background rounded-3xl shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer">
                 {/* Delete Menu */}
                 <div className="absolute top-5 right-5 z-20">
                   <DropdownMenu>
@@ -401,7 +401,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-blue-600 flex items-center justify-center">
+                <div className="relative h-48 w-full rounded-[20px] overflow-hidden bg-[#1D64FF] flex items-center justify-center">
                   <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
                     {year}
                   </span>
@@ -451,15 +451,15 @@ const UserTaxReturns = () => {
           {paidInProgressYears.map(year => {
           const taxReturn = getExistingReturn(year);
           const isExpress = taxReturn?.express_service;
-          return <article key={year} onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
-                {/* Top Image/Visual Area - Amber/Orange Gradient */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
+          return <article key={year} onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)} className="group relative flex flex-col p-3 bg-background rounded-3xl shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer">
+                {/* Top Image/Visual Area - Neutral dark */}
+                <div className="relative h-48 w-full rounded-[20px] overflow-hidden bg-slate-800 flex items-center justify-center">
+                  <span className="font-semibold text-white/90 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
                     {year}
                   </span>
                   <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
                       {t.userDashboard.processing}
                     </span>
                   </div>
@@ -480,19 +480,19 @@ const UserTaxReturns = () => {
                   {/* Bottom Action Row */}
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                          <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.expressService}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
-                          <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
+                          <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.standardService}</span>
                         </div>}
-                      {!isExpress && <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
+                      {!isExpress && <span className="text-xs text-foreground font-medium font-jakarta bg-foreground/[0.06] px-2 py-0.5 rounded-full">
                           {t.userDashboard.upgradeAvailable}
                         </span>}
                     </div>
 
-                    <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
+                    <button className="bg-foreground/[0.06] hover:bg-foreground/[0.1] text-foreground rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
                       {t.userDashboard.tracking}
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
@@ -511,8 +511,8 @@ const UserTaxReturns = () => {
             if (completedReturn?.id) {
               navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
             }
-          }} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
+          }} className="group relative flex flex-col p-3 bg-background rounded-3xl shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer">
+                <div className="relative h-48 w-full rounded-[20px] overflow-hidden bg-muted flex items-center justify-center">
                   <span className="text-7xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
                     {year}
                   </span>
@@ -560,7 +560,7 @@ const UserTaxReturns = () => {
                         </div>}
                     </div>
 
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'}`}>
+                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-foreground text-background hover:bg-foreground/90' : 'bg-background border border-border/60 hover:border-border hover:bg-muted/30 text-muted-foreground hover:text-foreground'}`}>
                       {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
@@ -578,7 +578,7 @@ const UserTaxReturns = () => {
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div className="pointer-events-auto flex items-center p-1.5 gap-2 bg-white backdrop-blur-xl border border-gray-200 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
           {/* Scanner Button */}
-          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-[0_4px_14px_0_rgba(37,99,235,0.39)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.23)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
+          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-t border-blue-400 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
               <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
