@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, ArrowLeft, MoreHorizontal, Trash2 } from 'lucide-react';
+import { User, ChevronLeft, MoreHorizontal, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -424,8 +424,8 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
       <div className="flex flex-col h-full bg-white relative overflow-hidden">
         {/* Header */}
         <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b bg-white shrink-0 border-white border-0">
-          <button onClick={handleGoBack} className="w-10 h-10 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-100 transition-all duration-300">
-            <ArrowLeft className="w-5 h-5" />
+          <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
+            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </button>
 
           <div className="flex items-center gap-3">
