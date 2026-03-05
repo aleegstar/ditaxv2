@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Clock, CheckCircle, FileText, Users, MessageCircle, TrendingUp, RefreshCw, UserPlus } from 'lucide-react';
+import { FileText, Clock, MessageCircle, TrendingUp, RefreshCw, UserPlus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
-import { AdminWelcomeHeader } from './AdminWelcomeHeader';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
@@ -27,21 +23,6 @@ interface DashboardStats {
   revenueChartData: number[];
 }
 
-interface ExpressTaxReturn {
-  id: string;
-  user_id: string;
-  tax_year: string;
-  created_at: string;
-  workflow_step: string;
-  status: string;
-  user: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
-  daysSinceCreation: number;
-}
-
 export const AdminDashboard: React.FC = () => {
   const { userId, isValid } = useAuthValidation();
   const [stats, setStats] = useState<DashboardStats>({
@@ -61,7 +42,6 @@ export const AdminDashboard: React.FC = () => {
     revenueChartData: [35, 40, 50, 45, 60, 55, 65]
   });
   
-  const [expressTaxReturns, setExpressTaxReturns] = useState<ExpressTaxReturn[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
@@ -73,10 +53,7 @@ export const AdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setRefreshing(true);
-      await Promise.all([
-        loadStats(),
-        loadExpressTaxReturns()
-      ]);
+      await loadStats();
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
@@ -116,8 +93,6 @@ export const AdminDashboard: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .eq('express_service', true)
         .neq('status', 'completed');
-
-      const incompleteExpressCount = expressCount;
 
       const { count: ticketsCount } = await supabase
         .from('support_tickets')
@@ -168,8 +143,6 @@ export const AdminDashboard: React.FC = () => {
         if (!revenueError && revenueData) {
           revenueThisMonth = revenueData.revenueThisMonth || 0;
           revenueLastMonth = revenueData.revenueLastMonth || 0;
-        } else {
-          console.warn('Failed to fetch Stripe revenue, using fallback:', revenueError);
         }
       } catch (e) {
         console.warn('Stripe revenue fetch failed:', e);
@@ -188,7 +161,7 @@ export const AdminDashboard: React.FC = () => {
         newUsersLast30Days: newUsersCount || 0,
         pendingTaxReturns: pendingCount || 0,
         expressTaxReturns: expressCount || 0,
-        incompleteTaxReturns: incompleteExpressCount || 0,
+        incompleteTaxReturns: expressCount || 0,
         openTickets: ticketsCount || 0,
         unreadMessages: messagesCount || 0,
         completedThisMonth: completedThisMonthCount || 0,
@@ -204,92 +177,42 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const loadExpressTaxReturns = async () => {
-    try {
-      const { data: taxReturns, error } = await supabase
-        .from('tax_returns')
-        .select(`
-          id,
-          user_id,
-          tax_year,
-          created_at,
-          workflow_step,
-          status,
-          profiles!inner (
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .eq('express_service', true)
-        .neq('status', 'completed')
-        .order('created_at', { ascending: true })
-        .limit(10);
-
-      if (error) throw error;
-
-      const expressReturns: ExpressTaxReturn[] = taxReturns?.map(tr => ({
-        id: tr.id,
-        user_id: tr.user_id,
-        tax_year: tr.tax_year,
-        created_at: tr.created_at,
-        workflow_step: tr.workflow_step,
-        status: tr.status,
-        user: {
-          first_name: tr.profiles.first_name || '',
-          last_name: tr.profiles.last_name || '',
-          email: tr.profiles.email || ''
-        },
-        daysSinceCreation: Math.floor((new Date().getTime() - new Date(tr.created_at).getTime()) / (1000 * 60 * 60 * 24))
-      })) || [];
-
-      setExpressTaxReturns(expressReturns);
-    } catch (error) {
-      console.error('Error loading express tax returns:', error);
-    }
-  };
-
-  const getWorkflowStepLabel = (step: string) => {
-    const labels: { [key: string]: string } = {
-      'data_collection': 'Datensammlung',
-      'review': 'Überprüfung',
-      'processing': 'Bearbeitung',
-      'completed': 'Abgeschlossen'
-    };
-    return labels[step] || step;
-  };
-
-  const getPriorityBadge = (daysSinceCreation: number) => {
-    if (daysSinceCreation >= 2) {
-      return <Badge variant="destructive">Überfällig</Badge>;
-    } else if (daysSinceCreation >= 1) {
-      return <Badge variant="outline" className="border-orange-500 text-orange-700">Kritisch</Badge>;
-    }
-    return <Badge variant="secondary">Normal</Badge>;
-  };
-
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-8">Lädt Dashboard...</div>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="text-center py-16 text-[13px] text-muted-foreground">Laden...</div>
       </div>
     );
   }
 
+  const metricCards = [
+    { label: 'Offene Steuererklärungen', value: stats.pendingTaxReturns, to: '/admin/tax-processing', icon: FileText, badge: stats.expressTaxReturns > 0 ? `${stats.expressTaxReturns} Express` : null },
+    { label: 'Offene Express', value: stats.expressTaxReturns, icon: Clock },
+    { label: 'Offene Tickets', value: stats.openTickets, to: '/admin/tickets', icon: MessageCircle },
+    { label: 'Rechnungen zur Prüfung', value: stats.pendingDefinitiveTaxBills, to: '/admin/definitive-tax-bills', icon: FileText },
+    { label: 'Diesen Monat abgeschlossen', value: stats.completedThisMonth, icon: TrendingUp },
+    { label: 'Neue User (30 Tage)', value: stats.newUsersLast30Days, to: '/admin/users', icon: UserPlus },
+  ];
+
   return (
-    <div className="space-y-10">
-      <AdminWelcomeHeader
-        title="Admin Dashboard"
-        subtitle="Übersicht über alle anstehenden Aufgaben und wichtige Metriken"
-        badge={{
-          text: `${stats.pendingTaxReturns} Aufgaben`,
-          variant: 'secondary'
-        }}
-        onRefresh={loadDashboardData}
-      />
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[20px] font-semibold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-[13px] text-muted-foreground mt-0.5">Übersicht über Aufgaben und Metriken</p>
+        </div>
+        <button
+          onClick={loadDashboardData}
+          disabled={refreshing}
+          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
 
       {/* Stats Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <StatsWidget
           label="Abgeschlossene Steuererklärungen"
           amount={stats.completedThisMonth}
@@ -309,114 +232,32 @@ export const AdminDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Link to="/admin/tax-processing" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <FileText className="h-5 w-5" />
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        {metricCards.map((card) => {
+          const content = (
+            <div className="border border-border/60 rounded-xl px-4 py-4 bg-background hover:bg-muted/20 transition-colors">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+                  <card.icon className="h-4 w-4" />
                 </div>
-                {stats.expressTaxReturns > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
-                    {stats.expressTaxReturns}
-                  </div>
+                {card.badge && (
+                  <span className="text-[10px] font-medium text-foreground bg-foreground/[0.06] px-1.5 py-0.5 rounded">
+                    {card.badge}
+                  </span>
                 )}
               </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Offene Steuererklärungen</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingTaxReturns}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                <Clock className="h-5 w-5" />
-              </div>
-              {stats.expressTaxReturns > 0 && (
-                <div className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-orange-500/20">
-                  {stats.expressTaxReturns}
-                </div>
-              )}
+              <p className="text-[11px] text-muted-foreground mb-0.5">{card.label}</p>
+              <p className="text-[26px] font-semibold text-foreground tracking-tight leading-none">{card.value}</p>
             </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-foreground">Offene Express</h4>
-              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.expressTaxReturns}</p>
-            </div>
-          </CardContent>
-        </Card>
+          );
 
-        <Link to="/admin/tickets" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <MessageCircle className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Offene Tickets</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.openTickets}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/admin/definitive-tax-bills" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <FileText className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Rechnungen zur Prüfung</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.pendingDefinitiveTaxBills}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold text-foreground">Diesen Monat</h4>
-              <p className="text-3xl tracking-tight text-foreground font-medium">{stats.completedThisMonth}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Link to="/admin/users" className="group">
-          <Card className="relative h-full border border-border/60 bg-card hover:border-border transition-colors duration-200 rounded-2xl overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                  <UserPlus className="h-5 w-5" />
-                </div>
-                {stats.newUsersLast30Days > 0 && (
-                  <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-md shadow-primary/20">
-                    +{stats.newUsersLast30Days}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-foreground">Neue User (30 Tage)</h4>
-                <p className="text-3xl tracking-tight text-foreground font-medium">{stats.newUsersLast30Days}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+          return card.to ? (
+            <Link key={card.label} to={card.to}>{content}</Link>
+          ) : (
+            <div key={card.label}>{content}</div>
+          );
+        })}
       </div>
     </div>
   );
