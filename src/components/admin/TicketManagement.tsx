@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Ticket, Search, Filter, MessageSquare, User, Calendar, FileText, ExternalLink } from 'lucide-react';
+import { Search, MessageSquare, User, Calendar, FileText, ExternalLink, RefreshCw, X } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { validateStoragePath } from '@/utils/fileValidation';
-import { TicketStatusBadge } from '@/components/tickets/TicketStatusBadge';
-import { AdminWelcomeHeader } from './AdminWelcomeHeader';
+import { cn } from '@/lib/utils';
 
 interface TicketData {
   id: string;
@@ -362,296 +358,289 @@ export const TicketManagement = () => {
     return years.sort((a, b) => b.localeCompare(a));
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'open': return 'Offen';
+      case 'in_progress': return 'In Bearbeitung';
+      case 'resolved': return 'Erledigt';
+      case 'closed': return 'Geschlossen';
+      default: return status;
+    }
+  };
+
   if (loading) {
     return (
-      <div className="text-center py-8 border border-border bg-card rounded-xl">
-        <div className="text-foreground">Lade Tickets...</div>
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="text-sm text-muted-foreground text-center py-20">Lade Tickets...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
-      <AdminWelcomeHeader
-        title="Support Tickets"
-        subtitle="Kundenanfragen verwalten und bearbeiten"
-        badge={{
-          text: `${filteredTickets.length} Tickets`,
-          variant: 'secondary'
-        }}
-        onRefresh={fetchTickets}
-      />
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Support Tickets
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {filteredTickets.length} Tickets
+          </p>
+        </div>
+        <button
+          onClick={fetchTickets}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Aktualisieren
+        </button>
+      </div>
 
-      {/* Filters */}
-      <Card className="border border-border bg-card rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-foreground">Filter & Suche</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Suche nach Titel, Beschreibung oder Nutzer..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Status</SelectItem>
-                <SelectItem value="open">Offen</SelectItem>
-                <SelectItem value="in_progress">In Bearbeitung</SelectItem>
-                <SelectItem value="resolved">Erledigt</SelectItem>
-                <SelectItem value="closed">Geschlossen</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Steuerjahr" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Jahre</SelectItem>
-                {getUniqueYears().map(year => (
-                  <SelectItem key={year} value={year}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+          <Input
+            placeholder="Suchen..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9 rounded-lg bg-background border-border/60 text-sm"
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5">
+          {[
+            { key: 'all', label: 'Alle' },
+            { key: 'open', label: 'Offen' },
+            { key: 'in_progress', label: 'Bearbeitung' },
+            { key: 'resolved', label: 'Erledigt' },
+            { key: 'closed', label: 'Geschlossen' },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                statusFilter === f.key
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        {getUniqueYears().length > 0 && (
+          <Select value={yearFilter} onValueChange={setYearFilter}>
+            <SelectTrigger className="w-[120px] h-9 text-xs rounded-lg border-border/60">
+              <SelectValue placeholder="Jahr" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Jahre</SelectItem>
+              {getUniqueYears().map(year => (
+                <SelectItem key={year} value={year}>{year}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
 
       {/* Tickets List */}
-      <div className="grid gap-4">
-        {filteredTickets.map((ticket) => (
-          <Card 
-            key={ticket.id} 
-            className="border border-border bg-card rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-300 cursor-pointer group"
-            onClick={() => openTicketDetail(ticket)}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+      {filteredTickets.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <MessageSquare className="h-10 w-10 text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">Keine Tickets</p>
+          <p className="text-xs text-muted-foreground">Keine Tickets gefunden.</p>
+        </div>
+      ) : (
+        <div className="border border-border/60 rounded-xl overflow-hidden divide-y divide-border/40">
+          {filteredTickets.map((ticket) => (
+            <div
+              key={ticket.id}
+              onClick={() => openTicketDetail(ticket)}
+              className="p-5 hover:bg-muted/30 transition-colors cursor-pointer"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <h3 className="text-sm font-medium text-foreground truncate">
                       {ticket.title}
                     </h3>
-                    <TicketStatusBadge status={ticket.status} />
+                    <span className={cn(
+                      "text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0",
+                      ticket.status === 'open'
+                        ? "bg-foreground/[0.08] text-foreground"
+                        : ticket.status === 'in_progress'
+                        ? "bg-foreground/[0.06] text-foreground"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {getStatusLabel(ticket.status)}
+                    </span>
                   </div>
-                  <p className="text-muted-foreground mb-3 line-clamp-2">{ticket.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span 
-                      className="flex items-center cursor-pointer hover:text-blue-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(`/admin/user/${ticket.user_id}`, '_blank');
-                      }}
-                    >
-                      <User className="mr-1 h-3 w-3" />
+                  <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{ticket.description}</p>
+                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
                       {ticket.user_first_name} {ticket.user_last_name}
                     </span>
-                    <span className="flex items-center">
-                      <FileText className="mr-1 h-3 w-3" />
+                    <span className="flex items-center gap-1">
+                      <FileText className="h-3 w-3" />
                       {ticket.tax_year}
                     </span>
-                    <span className="flex items-center">
-                      <Calendar className="mr-1 h-3 w-3" />
-                      {new Date(ticket.created_at).toLocaleDateString('de-DE')}
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(ticket.created_at).toLocaleDateString('de-CH')}
                     </span>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-muted-foreground hover:text-foreground transition-all"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                </Button>
+                <MessageSquare className="h-4 w-4 text-muted-foreground/30 flex-shrink-0 mt-1" />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Ticket Detail Dialog */}
       <Dialog open={showTicketDetail} onOpenChange={setShowTicketDetail}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border border-border rounded-xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {selectedTicket && (
             <>
-              <DialogHeader className="text-center pb-6">
-                <DialogTitle className="text-foreground text-xl font-semibold">
+              <DialogHeader>
+                <DialogTitle className="text-lg font-semibold text-foreground">
                   {selectedTicket.title}
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6">
-                {/* Ticket Info - Centered Layout */}
-                <div className="flex flex-col items-center space-y-4">
-                    <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
-                    <div className="text-center mb-4">
-                      <span className="text-muted-foreground text-sm font-medium">Status:</span>
-                      <div className="mt-2">
-                        <Select
-                          value={selectedTicket.status}
-                          onValueChange={(value) => updateTicketStatus(selectedTicket.id, value as 'open' | 'in_progress' | 'resolved' | 'closed')}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="open">Offen</SelectItem>
-                            <SelectItem value="in_progress">In Bearbeitung</SelectItem>
-                            <SelectItem value="resolved">Erledigt</SelectItem>
-                            <SelectItem value="closed">Geschlossen</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
-                    <div className="text-center">
-                      <span className="text-muted-foreground text-sm font-medium mb-2 block">Nutzer:</span>
-                      <div 
-                        className="cursor-pointer hover:bg-muted p-3 rounded-lg transition-colors group"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`/admin/user/${selectedTicket.user_id}`, '_blank');
-                        }}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="text-center">
-                            <p className="text-foreground group-hover:text-blue-600 transition-colors font-medium">
-                              {selectedTicket.user_first_name} {selectedTicket.user_last_name}
-                            </p>
-                            <p className="text-muted-foreground text-sm group-hover:text-blue-600/70 transition-colors">
-                              {selectedTicket.user_email}
-                            </p>
-                          </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-blue-600 transition-colors" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <div className="space-y-5 mt-4">
+                {/* Info row */}
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                  <span
+                    className="flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
+                    onClick={() => window.open(`/admin/user/${selectedTicket.user_id}`, '_blank')}
+                  >
+                    <User className="h-3 w-3" />
+                    {selectedTicket.user_first_name} {selectedTicket.user_last_name}
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </span>
+                  <span>{selectedTicket.user_email}</span>
+                  <span>{selectedTicket.tax_year}</span>
                 </div>
 
-                {/* Original Description - Centered */}
-                <div className="flex justify-center">
-                  <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
-                    <h4 className="text-foreground font-medium mb-2 text-center">Ursprüngliche Beschreibung:</h4>
-                    <p className="text-muted-foreground text-center">{selectedTicket.description}</p>
-                </div>
+                {/* Status */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground">Status:</span>
+                  <Select
+                    value={selectedTicket.status}
+                    onValueChange={(value) => updateTicketStatus(selectedTicket.id, value as any)}
+                  >
+                    <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Offen</SelectItem>
+                      <SelectItem value="in_progress">In Bearbeitung</SelectItem>
+                      <SelectItem value="resolved">Erledigt</SelectItem>
+                      <SelectItem value="closed">Geschlossen</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
+                {/* Description */}
+                <div>
+                  <h4 className="text-xs font-medium text-muted-foreground mb-1.5">Beschreibung</h4>
+                  <p className="text-sm text-foreground">{selectedTicket.description}</p>
+                </div>
+
+                {/* Attachments */}
                 {ticketAttachments.length > 0 && (
-                  <div className="flex justify-center">
-                    <div className="w-full max-w-md p-4 border border-border bg-card rounded-xl">
-                      <h4 className="text-foreground font-medium mb-2 text-center">Anhänge</h4>
-                      <div className="grid grid-cols-1 gap-3">
-                        {ticketAttachments.map((att) => (
-                          <div key={att.id} className="text-center">
-                            {att.file_type.startsWith('image/') && att.signedUrl ? (
-                              <img
-                                src={att.signedUrl}
-                                alt={att.file_name}
-                                className="mx-auto max-w-full h-auto rounded-lg border border-white/30"
-                                style={{ maxHeight: '300px' }}
-                              />
-                            ) : att.signedUrl ? (
-                              <a
-                                href={att.signedUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
-                              >
-                                <FileText className="h-4 w-4" />
-                                {att.file_name}
-                              </a>
-                            ) : (
-                              <span className="text-muted-foreground text-sm">{att.file_name} (Wird geladen...)</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                  <div>
+                    <h4 className="text-xs font-medium text-muted-foreground mb-2">Anhänge</h4>
+                    <div className="space-y-2">
+                      {ticketAttachments.map((att) => (
+                        <div key={att.id}>
+                          {att.file_type.startsWith('image/') && att.signedUrl ? (
+                            <img src={att.signedUrl} alt={att.file_name} className="max-w-full h-auto rounded-lg border border-border/60" style={{ maxHeight: '200px' }} />
+                          ) : att.signedUrl ? (
+                            <a href={att.signedUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-foreground hover:underline">
+                              <FileText className="h-3 w-3" />
+                              {att.file_name}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">{att.file_name}</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
-                {/* Messages - Centered Container */}
-                <div className="flex justify-center">
-                  <div className="w-full max-w-md space-y-2 max-h-96 overflow-y-auto">
-                    {ticketMessages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`p-3 border border-border rounded-lg ${
-                          message.is_admin_message 
-                            ? 'bg-blue-50' 
-                            : 'bg-card'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-muted-foreground text-sm font-medium">
-                            {message.sender_name}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            {new Date(message.created_at).toLocaleString('de-DE')}
-                          </span>
-                        </div>
-                        <p className="text-foreground mb-2">{message.message}</p>
-                        {message.attachments && message.attachments.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            {message.attachments.map((attachment: any) => (
-                              <div key={attachment.id}>
-                                {attachment.file_type.startsWith('image/') && attachment.signedUrl ? (
-                                  <img
-                                    src={attachment.signedUrl}
-                                    alt={attachment.file_name}
-                                    className="max-w-full h-auto rounded-lg border border-white/30"
-                                    style={{ maxHeight: '300px' }}
-                                  />
-                                ) : attachment.signedUrl ? (
-                                  <a
-                                    href={attachment.signedUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
-                                  >
-                                    <FileText className="h-4 w-4" />
-                                    {attachment.file_name}
-                                  </a>
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">{attachment.file_name} (Wird geladen...)</span>
-                                )}
-                              </div>
-                            ))}
+                {/* Messages */}
+                {ticketMessages.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-medium text-muted-foreground mb-2">Nachrichten</h4>
+                    <div className="space-y-2 max-h-80 overflow-y-auto">
+                      {ticketMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={cn(
+                            "p-3 rounded-lg text-sm",
+                            message.is_admin_message
+                              ? "bg-foreground/[0.04] border border-border/40"
+                              : "bg-muted/50"
+                          )}
+                        >
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs font-medium text-foreground">{message.sender_name}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(message.created_at).toLocaleString('de-CH')}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          <p className="text-sm text-foreground/80">{message.message}</p>
+                          {message.attachments && message.attachments.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {message.attachments.map((attachment: any) => (
+                                <div key={attachment.id}>
+                                  {attachment.file_type.startsWith('image/') && attachment.signedUrl ? (
+                                    <img src={attachment.signedUrl} alt={attachment.file_name} className="max-w-full h-auto rounded-lg border border-border/40" style={{ maxHeight: '200px' }} />
+                                  ) : attachment.signedUrl ? (
+                                    <a href={attachment.signedUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-foreground hover:underline">
+                                      <FileText className="h-3 w-3" />
+                                      {attachment.file_name}
+                                    </a>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">{attachment.file_name}</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Reply Section - Centered */}
-                <div className="flex justify-center">
-                  <div className="w-full max-w-md space-y-3">
-                    <Textarea
-                      placeholder="Antwort schreiben..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                    />
-                    <Button
-                      onClick={sendMessage}
-                      disabled={!newMessage.trim()}
-                      className="w-full"
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Antworten
-                    </Button>
-                  </div>
+                {/* Reply */}
+                <div className="space-y-2">
+                  <Textarea
+                    placeholder="Antwort schreiben..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    className="text-sm min-h-[80px] rounded-lg"
+                  />
+                  <button
+                    onClick={sendMessage}
+                    disabled={!newMessage.trim()}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                  >
+                    <MessageSquare className="h-3 w-3" />
+                    Antworten
+                  </button>
                 </div>
               </div>
             </>
