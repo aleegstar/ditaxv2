@@ -3,22 +3,18 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ShieldCheck } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
-
 interface ExpertFormContainerProps {
   children: React.ReactNode;
   title: string;
-  subtitle?: string;
   onBack?: () => void;
   onSubmit?: (e: React.FormEvent) => void;
   submitLabel?: string;
   showFooter?: boolean;
   className?: string;
 }
-
 export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
   children,
   title,
-  subtitle,
   onBack,
   onSubmit,
   submitLabel = 'Speichern',
@@ -28,45 +24,38 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
   const isAndroid = isAndroidEnvironment();
   const Container = isAndroid ? 'div' : motion.div;
   const containerProps = isAndroid ? {} : {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    transition: { duration: 0.3 }
+    initial: {
+      opacity: 0
+    },
+    animate: {
+      opacity: 1
+    },
+    transition: {
+      duration: 0.3
+    }
   };
-
-  return (
-    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+  return <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="h-screen md:max-w-4xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden shadow-none">
-        {/* Header — standard two-row */}
+        {/* Header - unified design */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-3 pb-2 flex items-start gap-3">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
             {/* Back Button */}
             {onBack ? (
-              <button
-                onClick={onBack}
-                className="mt-0.5 -ml-1 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                aria-label="Zurück"
-              >
-                <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+              <button onClick={onBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
+                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
               </button>
             ) : (
-              <div className="w-9" />
+              <div className="w-10 h-10" />
             )}
 
-            {/* Title area */}
-            <div className="flex-1 min-w-0 pt-1.5">
-              <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-tight truncate">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
-                  {subtitle}
-                </p>
-              )}
-            </div>
+            {/* Centered Title */}
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+              {title}
+            </h1>
 
             {/* Right placeholder */}
-            <div className="w-9" />
+            <div className="w-10 h-10" />
           </div>
         </header>
 
@@ -76,13 +65,8 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
         </Container>
 
         {/* Footer Action */}
-        {showFooter && (
-          <div className="absolute bottom-0 w-full z-20 p-6 bg-white">
-            <button
-              type="submit"
-              onClick={onSubmit}
-              className="w-full relative overflow-hidden rounded-xl bg-[#1D64FF] p-[1px] shadow-[0_0_20px_-5px_rgba(29,100,255,0.3)] active:scale-[0.99] transition-all duration-200 group"
-            >
+        {showFooter && <div className="absolute bottom-0 w-full z-20 p-6 bg-white">
+            <button type="submit" onClick={onSubmit} className="w-full relative overflow-hidden rounded-xl bg-[#1D64FF] p-[1px] shadow-[0_0_20px_-5px_rgba(29,100,255,0.3)] active:scale-[0.99] transition-all duration-200 group">
               <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative py-4 flex items-center justify-center gap-2 bg-[#1D64FF] rounded-xl w-full">
                 <span className="text-white font-semibold text-lg tracking-tight">{submitLabel}</span>
@@ -95,9 +79,7 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
                 Verschlüsselt & Sicher
               </p>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };

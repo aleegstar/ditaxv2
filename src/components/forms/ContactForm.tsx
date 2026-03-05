@@ -195,15 +195,17 @@ const ContactForm = ({
   const renderContactForm = () => (
     <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
-      <div className="min-h-screen md:max-w-2xl w-full max-w-[500px] mr-auto ml-auto relative flex flex-col">
-        {/* Header — sits outside content padding */}
-        <SubpageHeader
-          title="Kontaktdaten"
-          onBack={() => embedded ? handleBack() : setSearchParams({})}
-        />
-
+      <div className="min-h-screen md:max-w-2xl w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12">
         {/* Main Content */}
-        <div className="relative z-20 w-full flex-1 flex flex-col px-6 md:px-8 pb-8 md:pb-12">
+        <div className="relative z-20 w-full flex-1 flex flex-col">
+          
+          {/* Header / Navigation */}
+          <div className="mb-8">
+            <SubpageHeader
+              title="Kontaktdaten"
+              onBack={() => embedded ? handleBack() : setSearchParams({})}
+            />
+          </div>
 
           {/* Progress Bar */}
           <div className="grid grid-cols-4 gap-2 mb-10">

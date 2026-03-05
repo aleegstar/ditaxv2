@@ -8,7 +8,6 @@ import { useProfile } from '@/hooks/useProfile';
 interface SubpageHeaderProps {
   title?: string;
   titleElement?: React.ReactNode;
-  subtitle?: string;
   onBack?: () => void;
   className?: string;
   showModeToggle?: boolean;
@@ -24,7 +23,6 @@ interface SubpageHeaderProps {
 export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   title,
   titleElement,
-  subtitle,
   onBack,
   className,
   showModeToggle = false,
@@ -50,36 +48,31 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
       "sticky top-0 z-30 bg-background/95 backdrop-blur-sm",
       className
     )}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-3 pb-2 flex items-start gap-3">
-        {/* Back Button — plain icon, no circle */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+        {/* Back Button */}
         <button 
           onClick={onBack}
-          className="mt-0.5 -ml-1 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
           aria-label={mode === 'overlay' ? 'Schließen' : 'Zurück'}
         >
-          <BackIcon className="w-5 h-5" strokeWidth={2} />
+          <BackIcon className="w-[18px] h-[18px]" strokeWidth={1.5} />
         </button>
 
-        {/* Title area — left aligned, two rows */}
-        <div className="flex-1 min-w-0 pt-1.5">
+        {/* Centered Title */}
+        <div className="flex-1 min-w-0 flex justify-center">
           {titleElement ? (
             <div className="max-w-full">
               {titleElement}
             </div>
           ) : title ? (
-            <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-tight truncate">
+            <h1 className="text-[15px] font-semibold tracking-tight text-foreground text-center truncate leading-tight">
               {title}
             </h1>
           ) : null}
-          {subtitle && (
-            <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
-              {subtitle}
-            </p>
-          )}
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-2 shrink-0 pt-1.5">
+        <div className="flex items-center gap-2 shrink-0">
           {rightAction}
           
           {showModeToggle && onModeChange && (
@@ -107,7 +100,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
           {showAvatar ? (
             <button 
               onClick={() => navigate('/profile')} 
-              className="w-9 h-9 rounded-full bg-muted ring-2 ring-background overflow-hidden shrink-0 hover:ring-primary/20 transition-all"
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted ring-2 ring-background overflow-hidden shrink-0 hover:ring-primary/20 transition-all"
             >
               <img 
                 src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
@@ -119,7 +112,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               />
             </button>
           ) : !showModeToggle && !rightAction && (
-            <div className="w-9" />
+            <div className="w-10 h-10" />
           )}
         </div>
       </div>

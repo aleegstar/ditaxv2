@@ -5,17 +5,16 @@ import { ChevronLeft } from "lucide-react";
 export function FormDashboardSkeleton() {
   return (
     <div className="antialiased min-h-screen bg-background">
-      {/* Header - matches new SubpageHeader */}
+      {/* Header - matches SubpageHeader */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-3 pb-2 flex items-start gap-3">
-          <div className="mt-0.5 -ml-1 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground shrink-0">
-            <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+          <div className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground shrink-0">
+            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </div>
-          <div className="flex-1 min-w-0 pt-1.5 space-y-1.5">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-3.5 w-28" />
+          <div className="flex-1 flex justify-center">
+            <Skeleton className="h-5 w-44" />
           </div>
-          <div className="w-9" />
+          <div className="w-10 h-10" />
         </div>
       </header>
 

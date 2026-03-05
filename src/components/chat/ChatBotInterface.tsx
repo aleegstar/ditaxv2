@@ -423,9 +423,9 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   return <>
       <div className="flex flex-col h-full bg-white relative overflow-hidden">
         {/* Header */}
-        <div className="z-20 w-full px-4 sm:px-6 pt-3 pb-3 flex items-center gap-3 sm:gap-4 bg-white shrink-0">
-          <button onClick={handleGoBack} className="-ml-1 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <ChevronLeft className="w-5 h-5" strokeWidth={2} />
+        <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b bg-white shrink-0 border-white border-0">
+          <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
+            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </button>
 
           <div className="flex items-center gap-3">
