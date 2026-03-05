@@ -51,7 +51,7 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
             )}
 
             {/* Centered Title */}
-            <h1 className="text-lg font-semibold tracking-tight text-slate-900 absolute left-1/2 -translate-x-1/2">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground absolute left-1/2 -translate-x-1/2">
               {title}
             </h1>
 
