@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/contexts/I18nContext";
-import { ChevronLeft, ChevronDown, ChevronUp, Fingerprint, ShieldCheck, Globe, Mail } from "lucide-react";
+import { ChevronLeft, ChevronDown, Fingerprint, ShieldCheck, Globe, Mail } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
@@ -473,33 +473,36 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-gradient-to-b from-muted/30 via-background to-muted/20">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#f8f9fb]">
+
+      {/* Subtle top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
         {/* Card */}
-        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-2xl border-0 sm:border sm:border-border/40 px-6 py-10 sm:p-12 bg-background sm:shadow-[0_8px_40px_-12px_hsl(var(--foreground)/0.08),0_2px_12px_-4px_hsl(var(--foreground)/0.04)]">
+        <div className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-[2rem] border-0 sm:ring-1 sm:ring-black/[0.04] px-7 py-12 sm:px-10 sm:py-14 bg-background sm:shadow-[0_2px_24px_-8px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]">
 
           <AnimatePresence mode="wait">
-            {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+            {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
                 {/* Logo & Title */}
                 <div className="flex flex-col items-center text-center mb-10">
-                  <img alt="Ditax" className="w-auto h-7 object-contain mb-6" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                  <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-1.5">
+                  <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                  <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground mb-1">
                     {t.authFlow.login}
                   </h1>
-                  <p className="text-muted-foreground text-[13px]">
+                  <p className="text-muted-foreground text-[13px] font-light">
                     {t.authFlow.loginSubtitle}
                   </p>
                 </div>
 
-                {/* Social Logins - Primary */}
-                <div className="space-y-3">
+                {/* Social Logins */}
+                <div className="space-y-2.5">
                   {/* Google */}
-                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
-                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:border-border active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                    <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -509,8 +512,8 @@ const Auth = () => {
                   </button>
 
                   {/* Apple */}
-                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
-                    <svg className="w-5 h-5 shrink-0 fill-current" viewBox="0 0 24 24">
+                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:border-border active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
+                    <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
                       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                     </svg>
                     <span>{t.authFlow.continueWithApple}</span>
@@ -518,12 +521,12 @@ const Auth = () => {
                 </div>
 
                 {/* Divider */}
-                <div className="relative my-8">
+                <div className="relative my-7">
                   <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-border/40" />
+                    <div className="w-full border-t border-border/30" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="px-3 text-[12px] text-muted-foreground bg-background">{t.authFlow.or}</span>
+                    <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60 bg-background">{t.authFlow.or}</span>
                   </div>
                 </div>
 
@@ -532,11 +535,13 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmailForm(prev => !prev)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 h-12 px-4 text-[14px] font-medium text-muted-foreground shadow-[0_1px_3px_0_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.7)] transition-all hover:bg-muted/30 hover:text-foreground hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.7)] active:scale-[0.98] focus:outline-none"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-muted-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:text-foreground hover:border-border active:scale-[0.98] focus:outline-none"
                   >
                     <Mail className="w-4 h-4" />
                     <span>{'Mit E-Mail anmelden'}</span>
-                    {showEmailForm ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+                    <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                      <ChevronDown className="w-4 h-4 ml-0.5" />
+                    </motion.div>
                   </button>
 
                   <AnimatePresence>
@@ -545,20 +550,20 @@ const Auth = () => {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
+                        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
                         className="overflow-hidden"
                       >
-                        <form onSubmit={handleEmailSubmit} className="space-y-4 pt-4">
+                        <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
                           <div>
                             <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                            <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-xl border border-border/60 h-12 px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-ring/30 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                            <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl border border-border/50 h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                           </div>
 
-                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight shadow-[0_1px_3px_0_rgba(0,0,0,0.08),inset_0_1px_0_0_rgba(255,255,255,0.12)] transition-all hover:bg-foreground/90 hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
+                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
                             {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                           </button>
 
-                          <p className="text-center text-[12px] text-muted-foreground leading-relaxed px-4">
+                          <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
                             {t.authFlow.microcopy}
                           </p>
                         </form>
@@ -568,28 +573,28 @@ const Auth = () => {
                 </div>
 
                 {/* Footer Links */}
-                <div className="mt-10 flex flex-col items-center gap-3 text-[12px] text-muted-foreground">
+                <div className="mt-12 flex flex-col items-center gap-3 text-[11px] text-muted-foreground/50">
                   <div className="flex items-center gap-3">
                     <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                    <span>·</span>
+                    <span className="text-border">·</span>
                     <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
                   </div>
                   <AuthLanguageToggle />
                 </div>
 
-              </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+              </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
                 {/* Logo */}
-                <div className="flex items-center justify-center gap-3 mb-8">
-                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-8 object-contain" />
+                <div className="flex items-center justify-center gap-3 mb-10">
+                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-7 object-contain" />
                 </div>
 
                 {/* Header */}
                 <div className="text-center mb-8 space-y-1.5">
-                  <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                  <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground">
                     {t.authFlow.enterCode}
                   </h1>
-                  <p className="text-[13px] text-muted-foreground max-w-[80%] mx-auto leading-relaxed">
+                  <p className="text-[13px] text-muted-foreground font-light max-w-[85%] mx-auto leading-relaxed">
                     {t.authFlow.codeSentTo}{' '}
                     <span className="text-foreground font-medium">{email}</span>{' '}
                     {t.authFlow.codeSentToSuffix}
@@ -597,38 +602,38 @@ const Auth = () => {
                 </div>
 
                 {/* OTP Form */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div className="flex justify-between gap-2">
                     <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                       <InputOTPGroup className="flex justify-between gap-2 w-full">
-                         <InputOTPSlot index={0} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={1} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={2} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={3} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={4} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={5} className="w-full h-12 text-center text-lg font-semibold border border-border/60 rounded-xl focus:outline-none focus:ring-1 focus:ring-ring/30 focus:border-border transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={0} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={1} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={2} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={3} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={4} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
+                         <InputOTPSlot index={5} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
                       </InputOTPGroup>
                     </InputOTP>
                   </div>
 
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center bg-foreground text-background h-12 px-6 rounded-xl text-[14px] font-semibold tracking-tight transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center bg-foreground text-background h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                     {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
                   </button>
                 </div>
 
                 {/* Footer Actions */}
                 <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                  <p className="text-[13px] text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground font-light">
                     {t.authFlow.noCodeReceived}
                     {resendCountdown > 0 ? <>
                         <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
-                        <span className="ml-1 text-muted-foreground">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                        <span className="ml-1 text-muted-foreground/60">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
                       </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
                         {t.authFlow.resend}
                       </button>}
                   </p>
 
-                  <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mt-1">
+                  <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/60 hover:text-foreground transition-colors mt-1">
                     <ChevronLeft className="w-3.5 h-3.5" />
                     {t.authFlow.backToLogin}
                   </button>
