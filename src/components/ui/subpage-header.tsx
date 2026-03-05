@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, HelpCircle, List, X } from 'lucide-react';
+import { ChevronLeft, HelpCircle, List, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +41,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
     }
   };
 
-  const BackIcon = mode === 'overlay' ? X : ArrowLeft;
+  const BackIcon = mode === 'overlay' ? X : ChevronLeft;
 
   return (
     <header className={cn(
