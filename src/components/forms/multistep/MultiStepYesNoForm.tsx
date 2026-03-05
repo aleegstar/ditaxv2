@@ -584,22 +584,24 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
         <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
-            <motion.button 
-              onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 group"
-            >
-              <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            </motion.button>
+          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+              <motion.button 
+                onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 group"
+              >
+                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              </motion.button>
 
-            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-              {getSectionTitle()}
-            </h1>
+              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+                {getSectionTitle()}
+              </h1>
 
-            <div className="w-10 h-10" />
-          </div>
+              <div className="w-10 h-10" />
+            </div>
+          </header>
 
           {/* Summary Content */}
           <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
@@ -646,19 +648,21 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       <div className="min-h-screen bg-white text-slate-800 flex justify-center">
         <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto flex flex-col">
           {/* Header */}
-          <div className="flex shrink-0 w-full pt-8 pr-6 pb-4 pl-6 items-center justify-between relative">
-            <button 
-              onClick={handleHeaderBack}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground active:bg-muted"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            </button>
-            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-              {getSectionTitle()}
-            </h1>
-            <div className="w-10 h-10" />
-          </div>
+          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+              <button 
+                onClick={handleHeaderBack}
+                className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground active:bg-muted"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              </button>
+              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+                {getSectionTitle()}
+              </h1>
+              <div className="w-10 h-10" />
+            </div>
+          </header>
 
           {/* Main Content */}
           <div 
@@ -761,25 +765,27 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       {/* Mobile Container */}
       <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex shrink-0 w-full z-20 pt-8 pr-6 pb-4 pl-6 relative items-center justify-between">
-          {/* Back Button */}
-          <motion.button 
-            onClick={handleHeaderBack}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 group"
-          >
-            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
-          </motion.button>
+        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+            {/* Back Button */}
+            <motion.button 
+              onClick={handleHeaderBack}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 group"
+            >
+              <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            </motion.button>
 
-          {/* Title */}
-          <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-            {getSectionTitle()}
-          </h1>
+            {/* Title */}
+            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+              {getSectionTitle()}
+            </h1>
 
-          {/* Empty space for balance */}
-          <div className="w-10 h-10" />
-        </div>
+            {/* Empty space for balance */}
+            <div className="w-10 h-10" />
+          </div>
+        </header>
 
         {/* Main Content */}
         <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
