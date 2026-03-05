@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ShieldCheck } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
+import { Button } from '@/components/ui/button';
 interface ExpertFormContainerProps {
   children: React.ReactNode;
   title: string;
@@ -66,16 +67,13 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
 
         {/* Footer Action */}
         {showFooter && <div className="absolute bottom-0 w-full z-20 p-6 bg-white">
-            <button type="submit" onClick={onSubmit} className="w-full relative overflow-hidden rounded-xl bg-[#1D64FF] p-[1px] shadow-[0_0_20px_-5px_rgba(29,100,255,0.3)] active:scale-[0.99] transition-all duration-200 group">
-              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative py-4 flex items-center justify-center gap-2 bg-[#1D64FF] rounded-xl w-full">
-                <span className="text-white font-semibold text-lg tracking-tight">{submitLabel}</span>
-              </div>
-            </button>
+            <Button type="submit" onClick={onSubmit} size="lg" className="w-full py-4 text-lg">
+              {submitLabel}
+            </Button>
 
             <div className="mt-4 flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+              <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
                 Verschlüsselt & Sicher
               </p>
             </div>
