@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { Home } from 'lucide-react';
+import { Home, RefreshCw } from 'lucide-react';
 import { User, FormData } from '@/types';
 import TaxReturnCreation from "@/components/admin/TaxReturnCreation";
 import { TicketManagement } from "@/components/admin/TicketManagement";
@@ -248,38 +248,39 @@ const Admin: React.FC = () => {
             <EnhancedAdminChatOverview />
           } />
           <Route path="users" element={
-             <div className="container mx-auto px-4 py-8 space-y-6">
-              <AdminWelcomeHeader
-                title="Benutzer"
-                subtitle="Alle registrierten Benutzer verwalten"
-                badge={{
-                  text: `${users.length} Benutzer`,
-                  variant: 'secondary'
-                }}
-                onRefresh={fetchUsers}
-                showStats={true}
-              />
+             <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-lg font-semibold text-foreground tracking-tight">Benutzer</h1>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    {users.length} registrierte Benutzer
+                  </p>
+                </div>
+                <button
+                  onClick={fetchUsers}
+                  className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="mb-4">Lädt Benutzerdaten...</div>
-                  <div className="text-sm text-gray-600">
-                    Aktueller Status: {currentUser ? 'Angemeldet' : 'Nicht angemeldet'} | 
-                    Admin: {adminStatus === null ? 'Prüfung läuft...' : adminStatus ? 'Ja' : 'Nein'}
-                  </div>
+                <div className="flex items-center justify-center py-16">
+                  <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
                 </div>
               ) : users.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="mb-4">Keine Benutzerdaten gefunden</div>
-                  <div className="text-sm text-gray-600">
-                    RLS-Policies wurden bereinigt. Falls weiterhin keine Daten sichtbar sind, überprüfen Sie die Administratorberechtigung.
-                  </div>
-                  <Button onClick={fetchUsers} variant="outline" className="mt-4">
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <p className="text-sm font-medium text-foreground mb-1">Keine Benutzer gefunden</p>
+                  <p className="text-[13px] text-muted-foreground mb-4">
+                    Falls keine Daten sichtbar sind, überprüfen Sie die Administratorberechtigung.
+                  </p>
+                  <button onClick={fetchUsers} className="h-8 px-3 rounded-lg border border-border/60 text-[12px] font-medium text-foreground hover:bg-muted/50 transition-colors">
                     Erneut versuchen
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
                   {users.map(user => (
                     <UserCard
                       key={user.id}
