@@ -65,7 +65,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
               {titleElement}
             </div>
           ) : title ? (
-            <h1 className="text-[15px] font-semibold tracking-tight text-foreground text-center truncate leading-tight">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground text-center truncate leading-tight">
               {title}
             </h1>
           ) : null}
