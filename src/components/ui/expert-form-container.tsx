@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ShieldCheck } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 interface ExpertFormContainerProps {
   children: React.ReactNode;
@@ -42,8 +42,8 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
             {/* Back Button */}
             {onBack ? (
-              <button onClick={onBack} className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
-                <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+              <button onClick={onBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
+                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
               </button>
             ) : (
               <div className="w-10 h-10" />
