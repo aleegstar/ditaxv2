@@ -4,31 +4,17 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  AlertCircle, 
-  FileWarning, 
-  HelpCircle, 
-  ExternalLink,
+  FileText, 
   RefreshCw,
   Plus,
   CheckCircle2,
-  ClipboardCheck,
-  Eye
+  Eye,
+  User,
+  Calendar
 } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { CreateMissingItemRequestDialog } from '@/components/admin/CreateMissingItemRequestDialog';
 import { ReviewSubmittedItemsDialog } from '@/components/admin/ReviewSubmittedItemsDialog';
 import { useSubmittedMissingItems, type MissingItemRequest } from '@/hooks/useMissingItemRequests';
@@ -54,7 +40,6 @@ const MissingDocuments = () => {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [activeTab, setActiveTab] = useState<'pending' | 'submitted'>('pending');
   
-  // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MissingTaxReturn | null>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -66,13 +51,11 @@ const MissingDocuments = () => {
     requests: MissingItemRequest[];
   } | null>(null);
 
-  // Hook for submitted items
   const { submittedItems, loading: submittedLoading, refetch: refetchSubmitted } = useSubmittedMissingItems();
 
   const fetchMissingItems = async () => {
     setLoading(true);
     try {
-      // Fetch tax returns with missing status (including documents_submitted)
       const { data: taxReturns, error: taxError } = await supabase
         .from('tax_returns')
         .select('id, user_id, tax_year, status, updated_at')
@@ -89,28 +72,21 @@ const MissingDocuments = () => {
 
       const userIds = [...new Set(taxReturns.map(tr => tr.user_id))];
 
-      // Fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, first_name, last_name, email, avatar_url')
         .in('id', userIds);
 
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-      }
+      if (profilesError) console.error('Error fetching profiles:', profilesError);
 
-      // Fetch adressnummer from form_data
       const { data: formDataRecords, error: formDataError } = await supabase
         .from('form_data')
         .select('user_id, data, tax_year')
         .in('user_id', userIds)
         .eq('form_type', 'tax_form');
 
-      if (formDataError) {
-        console.error('Error fetching form data:', formDataError);
-      }
+      if (formDataError) console.error('Error fetching form data:', formDataError);
 
-      // Combine data
       const combined: MissingTaxReturn[] = taxReturns.map(tr => {
         const profile = profiles?.find(p => p.id === tr.user_id);
         const formData = formDataRecords?.find(
@@ -156,48 +132,26 @@ const MissingDocuments = () => {
     return item.status === filter;
   });
 
-  // Only show pending items (not documents_submitted) in the pending tab
   const pendingItems = filteredItems.filter(item => 
     item.status === 'missing_documents' || item.status === 'missing_information'
   );
 
   const missingDocumentsCount = items.filter(i => i.status === 'missing_documents').length;
   const missingInfoCount = items.filter(i => i.status === 'missing_information').length;
-  const documentsSubmittedCount = items.filter(i => i.status === 'documents_submitted').length;
 
-  const getStatusBadge = (status: string) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'missing_documents':
-        return (
-          <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
-            <FileWarning className="h-3 w-3 mr-1" />
-            Fehlende Unterlagen
-          </Badge>
-        );
-      case 'missing_information':
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            <HelpCircle className="h-3 w-3 mr-1" />
-            Fehlende Angaben
-          </Badge>
-        );
-      case 'documents_submitted':
-        return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-            <ClipboardCheck className="h-3 w-3 mr-1" />
-            Eingereicht
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+      case 'missing_documents': return 'Unterlagen fehlen';
+      case 'missing_information': return 'Angaben fehlen';
+      case 'documents_submitted': return 'Eingereicht';
+      default: return status;
     }
   };
 
-  const getUserInitials = (firstName: string | null, lastName: string | null) => {
-    const first = firstName?.charAt(0).toUpperCase() || '';
-    const last = lastName?.charAt(0).toUpperCase() || '';
-    return first + last || '?';
-  };
+  const getUserName = (item: MissingTaxReturn) =>
+    item.user_first_name || item.user_last_name
+      ? `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim()
+      : 'Unbekannt';
 
   const handleOpenCreateDialog = (item: MissingTaxReturn) => {
     setSelectedItem(item);
@@ -215,279 +169,252 @@ const MissingDocuments = () => {
     setReviewDialogOpen(true);
   };
 
-  const missingDocumentsStats = {
-    total: items.length,
-    missingDocs: missingDocumentsCount,
-    missingInfo: missingInfoCount,
-    submitted: documentsSubmittedCount,
-  };
+  const stats = [
+    { label: 'Gesamt', value: items.length },
+    { label: 'Unterlagen', value: missingDocumentsCount },
+    { label: 'Angaben', value: missingInfoCount },
+    { label: 'Eingereicht', value: submittedItems.length },
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <AdminWelcomeHeader
-        title="Fehlende Unterlagen"
-        subtitle="Übersicht aller Steuererklärungen mit fehlendem Status"
-        badge={{
-          text: `${missingDocumentsStats.total} offen`,
-          variant: missingDocumentsStats.total > 0 ? 'default' : 'secondary'
-        }}
-        onRefresh={handleRefresh}
-      />
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="border-border/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-                <AlertCircle className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold tracking-tight">{missingDocumentsStats.total}</div>
-                <div className="text-xs text-muted-foreground">Gesamt offen</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-orange-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
-                <FileWarning className="h-5 w-5 text-orange-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold tracking-tight text-orange-700">{missingDocumentsCount}</div>
-                <div className="text-xs text-orange-600/80">Fehlende Unterlagen</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center">
-                <HelpCircle className="h-5 w-5 text-red-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold tracking-tight text-red-700">{missingInfoCount}</div>
-                <div className="text-xs text-red-600/80">Fehlende Angaben</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200/60 shadow-[0_4px_20px_rgba(0,0,0,0.04)] rounded-2xl">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                <ClipboardCheck className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold tracking-tight text-blue-700">{submittedItems.length}</div>
-                <div className="text-xs text-blue-600/80">Zur Prüfung</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Fehlende Unterlagen
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Steuererklärungen mit ausstehenden Dokumenten oder Angaben
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Aktualisieren
+        </button>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pending' | 'submitted')}>
-        <TabsList className="bg-muted/50 rounded-xl p-1 h-auto">
-          <TabsTrigger value="pending" className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:shadow-sm">
-            <AlertCircle className="h-4 w-4" />
-            Offene Anfragen
-            {pendingItems.length > 0 && (
-              <span className="ml-1 bg-orange-100 text-orange-700 text-xs font-medium px-2 py-0.5 rounded-full">{pendingItems.length}</span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="submitted" className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm data-[state=active]:shadow-sm">
-            <ClipboardCheck className="h-4 w-4" />
-            Eingereicht
-            {submittedItems.length > 0 && (
-              <span className="ml-1 bg-primary text-white text-xs font-medium px-2 py-0.5 rounded-full">{submittedItems.length}</span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Pending Tab */}
-        <TabsContent value="pending">
-          {/* Filter */}
-          <div className="flex items-center gap-4 mb-5">
-            <Select value={filter} onValueChange={(v) => setFilter(v as FilterStatus)}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Status filtern" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle anzeigen</SelectItem>
-                <SelectItem value="missing_documents">Fehlende Unterlagen</SelectItem>
-                <SelectItem value="missing_information">Fehlende Angaben</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Aktualisieren
-            </Button>
+      {/* Stats row */}
+      <div className="flex gap-6">
+        {stats.map(s => (
+          <div key={s.label}>
+            <div className="text-xl font-semibold tracking-tight text-foreground">{s.value}</div>
+            <div className="text-[11px] text-muted-foreground">{s.label}</div>
           </div>
+        ))}
+      </div>
 
-          {/* Cards Grid */}
+      {/* Tabs + Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5">
+          {[
+            { key: 'pending' as const, label: 'Offen', count: pendingItems.length },
+            { key: 'submitted' as const, label: 'Eingereicht', count: submittedItems.length },
+          ].map(t => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                activeTab === t.key
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {t.label}
+              {t.count > 0 && (
+                <span className="ml-1.5 text-[10px] text-muted-foreground">{t.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'pending' && (
+          <div className="flex gap-1">
+            {[
+              { key: 'all' as const, label: 'Alle' },
+              { key: 'missing_documents' as const, label: 'Unterlagen' },
+              { key: 'missing_information' as const, label: 'Angaben' },
+            ].map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  "px-2.5 py-1 rounded-md text-xs transition-all",
+                  filter === f.key
+                    ? "bg-foreground/[0.06] text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pending Tab */}
+      {activeTab === 'pending' && (
+        <>
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="rounded-2xl border-border/60">
-                  <CardContent className="p-6 space-y-4">
-                    <Skeleton className="h-5 w-24 rounded-full" />
-                    <Skeleton className="h-12 w-full rounded-2xl" />
-                    <Skeleton className="h-4 w-32" />
-                  </CardContent>
-                </Card>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="border border-border/60 rounded-xl p-5">
+                  <Skeleton className="h-4 w-32 mb-3" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
               ))}
             </div>
           ) : pendingItems.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50 text-green-500" />
-              <p>Keine offenen Anfragen vorhanden.</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <CheckCircle2 className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-sm font-medium text-foreground mb-1">Alles erledigt</p>
+              <p className="text-xs text-muted-foreground">Keine offenen Anfragen vorhanden.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {pendingItems.map((item) => (
-                <Card
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {pendingItems.map(item => (
+                <div
                   key={item.id}
-                  className="rounded-2xl border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-200"
+                  className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150"
                 >
-                  <CardContent className="p-5 flex flex-col items-center text-center gap-3">
-                    {/* Status + Year */}
-                    <div className="flex items-center gap-2 w-full justify-between">
-                      {getStatusBadge(item.status)}
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {item.tax_year} · {item.adressnummer || '–'}
-                      </span>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-base font-semibold text-foreground tracking-tight">
+                        {item.tax_year}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.adressnummer ? `Nr. ${item.adressnummer}` : '–'}
+                      </p>
                     </div>
-
-                    {/* User Button */}
-                    <Link
-                      to={`/admin/user/${item.user_id}?year=${item.tax_year}`}
-                      className="w-full"
-                    >
-                      <div className="w-full bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white rounded-2xl h-12 flex items-center justify-center font-medium text-sm hover:scale-[1.02] active:scale-95 transition-transform">
-                        {item.user_first_name || item.user_last_name
-                          ? `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim()
-                          : 'Unbekannt'}
-                      </div>
-                    </Link>
-
-                    {/* Email */}
-                    <span className="text-xs text-muted-foreground truncate max-w-full">
-                      {item.user_email || 'Keine E-Mail'}
+                    <span className={cn(
+                      "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                      item.status === 'missing_information'
+                        ? "bg-foreground/[0.08] text-foreground"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {getStatusLabel(item.status)}
                     </span>
+                  </div>
 
-                    {/* Footer: date + action */}
-                    <div className="flex items-center justify-between w-full pt-1 border-t border-border/40">
-                      <span className="text-[11px] text-muted-foreground">
-                        {format(new Date(item.updated_at), 'dd.MM.yyyy', { locale: de })}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-3 text-xs rounded-xl"
-                        onClick={() => handleOpenCreateDialog(item)}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <User className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <Link
+                        to={`/admin/user/${item.user_id}?year=${item.tax_year}`}
+                        className="text-foreground font-medium hover:underline"
                       >
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        Anfrage
-                      </Button>
+                        {getUserName(item)}
+                      </Link>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span className="truncate">{item.user_email || 'Keine E-Mail'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span>{format(new Date(item.updated_at), 'dd.MM.yyyy', { locale: de })}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenCreateDialog(item)}
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Anfrage erstellen
+                  </button>
+                </div>
               ))}
             </div>
           )}
-        </TabsContent>
+        </>
+      )}
 
-        {/* Submitted Tab */}
-        <TabsContent value="submitted">
+      {/* Submitted Tab */}
+      {activeTab === 'submitted' && (
+        <>
           {submittedLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="rounded-2xl border-border/60">
-                  <CardContent className="p-6 space-y-4">
-                    <Skeleton className="h-5 w-24 rounded-full" />
-                    <Skeleton className="h-12 w-full rounded-2xl" />
-                    <Skeleton className="h-4 w-32" />
-                  </CardContent>
-                </Card>
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="border border-border/60 rounded-xl p-5">
+                  <Skeleton className="h-4 w-32 mb-3" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
               ))}
             </div>
           ) : submittedItems.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <ClipboardCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Keine eingereichten Unterlagen zur Prüfung vorhanden.</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-sm font-medium text-foreground mb-1">Keine Einreichungen</p>
+              <p className="text-xs text-muted-foreground">Keine eingereichten Unterlagen zur Prüfung.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {submittedItems.map((item) => (
-                <Card
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {submittedItems.map(item => (
+                <div
                   key={item.tax_return_id}
-                  className="rounded-2xl border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-200"
+                  className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150"
                 >
-                  <CardContent className="p-5 flex flex-col items-center text-center gap-3">
-                    {/* Status + Year */}
-                    <div className="flex items-center gap-2 w-full justify-between">
-                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-                        <ClipboardCheck className="h-3 w-3 mr-1" />
-                        {item.requests.length} Einreichung(en)
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-medium">{item.tax_year}</span>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-base font-semibold text-foreground tracking-tight">
+                        {item.tax_year}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.requests.length} Einreichung{item.requests.length !== 1 ? 'en' : ''}
+                      </p>
                     </div>
-
-                    {/* User Button */}
-                    <button
-                      onClick={() => handleOpenReviewDialog(item)}
-                      className="w-full bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white rounded-2xl h-12 flex items-center justify-center font-medium text-sm hover:scale-[1.02] active:scale-95 transition-transform"
-                    >
-                      {item.user_name || 'Unbekannt'}
-                    </button>
-
-                    {/* Email */}
-                    <span className="text-xs text-muted-foreground truncate max-w-full">
-                      {item.user_email || 'Keine E-Mail'}
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      Eingereicht
                     </span>
+                  </div>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between w-full pt-1 border-t border-border/40">
-                      <span className="text-[11px] text-muted-foreground">
-                        {format(new Date(item.submitted_at), 'dd.MM.yyyy', { locale: de })}
-                      </span>
-                      <Button
-                        size="sm"
-                        className="h-8 px-3 text-xs rounded-xl bg-gradient-to-r from-[rgb(50,120,255)] to-[rgb(20,80,220)] text-white hover:scale-[1.02] active:scale-95 transition-transform"
-                        onClick={() => handleOpenReviewDialog(item)}
-                      >
-                        <Eye className="h-3.5 w-3.5 mr-1" />
-                        Prüfen
-                      </Button>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <User className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span className="text-foreground font-medium">{item.user_name || 'Unbekannt'}</span>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span className="truncate">{item.user_email || 'Keine E-Mail'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span>{format(new Date(item.submitted_at), 'dd.MM.yyyy', { locale: de })}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenReviewDialog(item)}
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Eye className="h-3 w-3" />
+                    Prüfen
+                  </button>
+                </div>
               ))}
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </>
+      )}
 
-      {/* Create Request Dialog */}
+      {/* Dialogs */}
       {selectedItem && (
         <CreateMissingItemRequestDialog
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
           userId={selectedItem.user_id}
           taxReturnId={selectedItem.id}
-          userName={`${selectedItem.user_first_name || ''} ${selectedItem.user_last_name || ''}`.trim() || 'Benutzer'}
+          userName={getUserName(selectedItem)}
           taxYear={selectedItem.tax_year}
           onSuccess={handleRefresh}
         />
       )}
 
-      {/* Review Dialog */}
       {reviewingItem && (
         <ReviewSubmittedItemsDialog
           open={reviewDialogOpen}
