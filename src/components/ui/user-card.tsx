@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, FileText, User } from "lucide-react";
 
 interface UserCardProps {
   id: string;
@@ -28,46 +28,35 @@ export function UserCard({
   const displayName = `${firstName || ''} ${lastName || ''}`.trim() || 'Unbekannt';
 
   return (
-    <div className="w-full h-full group">
-      <div 
-        onClick={handleClick}
-        className="relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 cursor-pointer h-[180px] flex flex-col bg-card border border-border/60 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]"
-      >
-        {/* Status Badge - Top Left */}
-        <div className="absolute top-4 left-4 z-10">
-          <Badge className="bg-green-500/20 text-green-700 flex items-center gap-1.5 px-3 py-1">
-            <span className="text-xs font-medium">Aktiv</span>
-          </Badge>
-        </div>
+    <div
+      onClick={handleClick}
+      className="group flex items-center gap-4 px-5 py-4 hover:bg-muted/30 transition-colors cursor-pointer"
+    >
+      {/* Avatar */}
+      <div className="h-9 w-9 rounded-full bg-foreground/[0.06] flex items-center justify-center flex-shrink-0">
+        <User className="h-4 w-4 text-muted-foreground" />
+      </div>
 
-        {/* Tax Returns Count & Adressnummer - Top Right */}
-        <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-1">
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-medium text-foreground truncate">{displayName}</span>
           {adressnummer && (
-            <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
               Nr. {adressnummer}
             </span>
           )}
-          <span className="text-sm text-gray-600 font-medium">
-            {taxReturnsCount} Steuererklärungen
-          </span>
         </div>
+        <p className="text-[12px] text-muted-foreground truncate mt-0.5">{email}</p>
+      </div>
 
-        {/* Centered Name Pill */}
-        <div className="flex-1 flex items-center justify-center">
-          <div 
-            className="relative inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-semibold bg-[#1d64ff] text-white transition-all duration-300 group-hover:-translate-y-2 max-w-[80%]" 
-            style={{
-              boxShadow: 'hsla(221, 100%, 56.1%, 0.41) 0px 32px 32px -12px'
-            }}
-          >
-            <span className="truncate">{displayName}</span>
-          </div>
+      {/* Meta */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <FileText className="h-3 w-3" />
+          <span className="text-[11px] font-medium">{taxReturnsCount}</span>
         </div>
-
-        {/* Email - Bottom */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 truncate">{email}</p>
-        </div>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
       </div>
     </div>
   );
