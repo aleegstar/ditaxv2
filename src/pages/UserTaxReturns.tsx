@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Menu, ArrowRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap } from 'lucide-react';
+import { Plus, Menu, ChevronRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
@@ -440,7 +440,7 @@ const UserTaxReturns = () => {
 
                     <button className="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
                       {t.userDashboard.continue}
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -494,7 +494,7 @@ const UserTaxReturns = () => {
 
                     <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
                       {t.userDashboard.tracking}
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
