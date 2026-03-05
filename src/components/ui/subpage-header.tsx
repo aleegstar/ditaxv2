@@ -28,7 +28,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   showModeToggle = false,
   currentMode = 'yesno',
   onModeChange,
-  showAvatar = true,
+  showAvatar = false,
   mode = 'page',
   rightAction,
 }) => {
