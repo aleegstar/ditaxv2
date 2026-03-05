@@ -270,7 +270,7 @@ const MultiStepContactForm = ({
           <SubpageHeader
             title={t.multiStepContactForm.title}
             onBack={() => window.history.back()}
-            className="!sticky !top-0 !z-30 -mx-6 -mt-8 mb-8"
+            className="mb-8"
           />
         )}
 

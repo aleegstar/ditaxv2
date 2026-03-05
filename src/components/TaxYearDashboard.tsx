@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, ArrowLeft, LucideIcon } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, LucideIcon } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
 
 interface DashboardSection {
@@ -27,7 +27,7 @@ export const TaxYearDashboard: React.FC = () => {
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { profile } = useProfile();
+  
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
@@ -121,32 +121,10 @@ export const TaxYearDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-sm border-b border-border/40">
-        <div className="max-w-lg mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/')}
-            className="w-9 h-9 rounded-full border border-border/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all"
-          >
-            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-          </button>
-
-          <h1 className="text-base font-semibold tracking-tight text-foreground">
-            {t.formDashboard.title.replace('{year}', taxYear)}
-          </h1>
-
-          <button
-            onClick={() => navigate('/profile')}
-            className="w-9 h-9 rounded-full border border-border/60 overflow-hidden bg-background shrink-0 p-0.5"
-          >
-            <img
-              src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'}
-              alt="Profil"
-              className="w-full h-full object-cover rounded-full"
-              onError={(e) => { e.currentTarget.src = '/lovable-uploads/default-avatar.png'; }}
-            />
-          </button>
-        </div>
-      </header>
+      <SubpageHeader
+        title={t.formDashboard.title.replace('{year}', taxYear)}
+        onBack={() => navigate('/')}
+      />
 
       {/* Tax Filer Selector */}
       <TaxFilerSelector className="max-w-lg mx-auto px-4 sm:px-6 mb-8" />

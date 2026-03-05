@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useI18n } from '@/contexts/I18nContext';
-import { ArrowLeft, ChevronDown, Calendar } from 'lucide-react';
+import { ChevronDown, Calendar } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { AnimatedHeader } from '@/components/ui/animated-header';
@@ -200,15 +200,11 @@ const ContactForm = ({
         <div className="relative z-20 w-full flex-1 flex flex-col">
           
           {/* Header / Navigation */}
-          <div className="flex items-center justify-between mb-8">
-            <button 
-              onClick={() => embedded ? handleBack() : setSearchParams({})}
-              className="p-2 -ml-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" strokeWidth={1.5} />
-            </button>
-            <h1 className="font-semibold text-lg tracking-tight text-slate-800">Kontaktdaten</h1>
-            <div className="w-9"></div>
+          <div className="mb-8">
+            <SubpageHeader
+              title="Kontaktdaten"
+              onBack={() => embedded ? handleBack() : setSearchParams({})}
+            />
           </div>
 
           {/* Progress Bar */}
