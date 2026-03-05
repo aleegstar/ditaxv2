@@ -229,11 +229,12 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex min-h-screen w-full" style={{ backgroundColor: 'hsl(228 25% 97%)' }}>
       <AdminSidebar />
       
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 py-8">
+      <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+        <div className="bg-card w-full h-full rounded-[2.5rem] border border-border/80 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-y-auto p-8 lg:p-12">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -247,24 +248,33 @@ const Admin: React.FC = () => {
             <EnhancedAdminChatOverview />
           } />
           <Route path="users" element={
-             <div className="space-y-6">
+             <div className="container mx-auto px-4 py-8 space-y-6">
               <AdminWelcomeHeader
                 title="Benutzer"
                 subtitle="Alle registrierten Benutzer verwalten"
                 badge={{
                   text: `${users.length} Benutzer`,
+                  variant: 'secondary'
                 }}
                 onRefresh={fetchUsers}
+                showStats={true}
               />
 
               {loading ? (
                 <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">Lädt Benutzerdaten...</p>
+                  <div className="mb-4">Lädt Benutzerdaten...</div>
+                  <div className="text-sm text-gray-600">
+                    Aktueller Status: {currentUser ? 'Angemeldet' : 'Nicht angemeldet'} | 
+                    Admin: {adminStatus === null ? 'Prüfung läuft...' : adminStatus ? 'Ja' : 'Nein'}
+                  </div>
                 </div>
               ) : users.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground mb-4">Keine Benutzerdaten gefunden</p>
-                  <Button onClick={fetchUsers} variant="outline" size="sm">
+                  <div className="mb-4">Keine Benutzerdaten gefunden</div>
+                  <div className="text-sm text-gray-600">
+                    RLS-Policies wurden bereinigt. Falls weiterhin keine Daten sichtbar sind, überprüfen Sie die Administratorberechtigung.
+                  </div>
+                  <Button onClick={fetchUsers} variant="outline" className="mt-4">
                     Erneut versuchen
                   </Button>
                 </div>
@@ -286,21 +296,25 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="onboarding" element={
-            <div className="space-y-6">
+            <div className="container mx-auto px-4 py-8">
               <AdminWelcomeHeader
                 title="Onboarding Tour Manager"
                 subtitle="Tour-Schritte verwalten und konfigurieren"
               />
-              <OnboardingTourManager />
+              <div className="mt-6">
+                <OnboardingTourManager />
+              </div>
             </div>
           } />
           <Route path="payment-status" element={
-            <div className="space-y-6">
+            <div className="container mx-auto px-4 py-8">
               <AdminWelcomeHeader
                 title="Zahlungsstatus aktualisieren"
                 subtitle="Manuell den Zahlungsstatus für Benutzer setzen"
               />
-              <UpdatePaymentStatusForm />
+              <div className="mt-6">
+                <UpdatePaymentStatusForm />
+              </div>
             </div>
           } />
           <Route path="deletion-feedback" element={<DeletionFeedback />} />
@@ -309,6 +323,7 @@ const Admin: React.FC = () => {
           <Route path="ocr-config" element={<OcrDocumentConfigManager />} />
           <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
           </Routes>
+          </div>
         </div>
       </main>
     </div>
