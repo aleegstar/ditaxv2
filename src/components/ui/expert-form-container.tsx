@@ -42,8 +42,8 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
             {/* Back Button */}
             {onBack ? (
-              <button onClick={onBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
-                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              <button onClick={onBack} className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2">
+                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
               </button>
             ) : (
               <div className="w-10 h-10" />
