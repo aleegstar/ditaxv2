@@ -1,91 +1,114 @@
 
 
-## Performance & Stabilitaets-Analyse
+# UI Design System Audit & Consolidation Plan
 
-Nach gruendlicher Pruefung des Codes habe ich folgende Optimierungsmoeglichkeiten identifiziert, sortiert nach Impact:
+## 1. Current State — Inventory & Inconsistencies
 
----
+### Dialogs / Modals (5 competing implementations)
 
-### 1. Doppelte Auth-Listener in FormContext (Stabilitaet + Performance)
+| Component | File | Used in | Style |
+|---|---|---|---|
+| `Dialog` (base) | `ui/dialog.tsx` | 18 files | Dark theme support, `bg-black/80` overlay, `rounded-2xl` |
+| `Dialog` (modern) | `ui/modern-dialog.tsx` | 4 files | Frosted glass, `rgba(255,255,255,0.95)`, `rounded-3xl` |
+| `AlertDialog` (base) | `ui/alert-dialog.tsx` | 5 files | Frosted glass, uses `buttonVariants` |
+| `AlertDialog` (modern) | `ui/modern-alert-dialog.tsx` | 2 files | Frosted glass, `rounded-3xl` |
+| `UnifiedAlertDialog` | `ui/unified-alert-dialog.tsx` | 5 files | Centered icon, frosted glass, `rounded-3xl` |
 
-**Problem:** `FormContext.tsx` erstellt einen **eigenen** `onAuthStateChange` Listener (Zeile 137) und ruft `getSession()` auf (Zeile 117), obwohl `AuthContext` bereits die zentrale Auth-Quelle ist. Das bedeutet:
-- 2 parallele Auth-Listener laufen gleichzeitig
-- Redundanter `getSession()`-Call bei jeder FormContext-Mount
-- Session-State kann zwischen AuthContext und FormContext divergieren
+**Inconsistencies**: Different border-radius (2xl vs 3xl), different overlays (black/80 vs white/2e + blur), different close button styles (X icon vs circle bg-slate-100), different padding (p-6 vs p-8), different shadow systems.
 
-**Loesung:** Session aus `useAuth()` beziehen statt einen eigenen Listener aufzubauen. Die `session`/`sessionLoaded` States und den gesamten `useEffect` (Zeilen 109-151) entfernen. Stattdessen den `userId` aus AuthContext nutzen und bei Bedarf `supabase.auth.getSession()` einmalig fuer den Supabase-Token aufrufen.
+### Headers (1 main, inline variants)
+- `SubpageHeader` used in ~25 files — consistent but has some issues: hardcoded `bg-white`, avatar navigation baked in, no overlay-dismiss variant.
 
----
+### Bottom Sheets (2 implementations)
+- `Drawer` (Vaul) with `bottom-sheet` variant — used in ~3 files
+- Custom CSS `BottomSheet` in `add-tax-year-dropdown.tsx` — avoids Vaul for touch stability
 
-### 2. useNotifications und useUnreadMessages nutzen useAuthValidation statt useAuth (Performance)
-
-**Problem:** Beide Hooks importieren `useAuthValidation`, das intern `useIdleTimer` mit 6 globalen Event-Listenern startet. Jeder Consumer dieser Hooks erzeugt also einen **zusaetzlichen** Idle-Timer mit Mousemove/Touchstart/Scroll-Listenern — obwohl sie nur `userId` und `isValid` brauchen.
-
-**Loesung:** `useAuthValidation` durch `useAuth` ersetzen in:
-- `src/hooks/useNotifications.ts`
-- `src/hooks/useUnreadMessages.ts`
-
-Das eliminiert mindestens 12 unnoetige globale Event-Listener.
-
----
-
-### 3. EnhancedSecurityService startet permanenten Realtime-Channel beim App-Start (Performance)
-
-**Problem:** In `main.tsx` wird `EnhancedSecurityService.applySecurity()` aufgerufen, das `startRealTimeMonitoring()` startet — einen permanenten Supabase Realtime-Channel auf `security_audit_logs`. Das laeuft fuer **jeden User**, auch fuer normale Benutzer die keine Security-Alerts brauchen. Zusaetzlich wird der Channel nie aufgeraeumt (kein Cleanup).
-
-**Loesung:** Den `startRealTimeMonitoring()` Call aus `applySecurity()` entfernen. Security-Monitoring gehoert nur ins Admin-Panel (`useSecurityMonitoring` macht das bereits). Die `applySecurity()` Methode sollte nur die Input-Validation und Header-Logik behalten.
+### Buttons (2+ systems)
+- `Button` component with 6 variants (default, destructive, outline, secondary, ghost, link) and 4 sizes
+- `RainbowButton` — separate component, not using Button system
+- `UnifiedAlertDialogAction` — its own button styling, not using `buttonVariants`
+- Inline button styles scattered across pages (e.g., Auth page custom buttons)
 
 ---
 
-### 4. Doppelte Security-Header Initialisierung (Stabilitaet)
+## 2. Design Standard — Single Source of Truth
 
-**Problem:** `securityHeaders.ts` hat doppelte Initialisierung:
-- Zeile 266-271: `DOMContentLoaded` Listener wird immer registriert
-- Zeile 274-284: Gleiche Logik nochmal mit `readyState` Check
-- Resultat: `applyToDocument()` und `CSRFProtection.initialize()` werden 2x ausgefuehrt
+### A) `AppHeader`
+- Consolidate into enhanced `SubpageHeader` (rename to `AppHeader`)
+- Fixed height: `h-14` (56px)
+- Padding: `px-4 py-3`
+- Background: `bg-background` (not hardcoded white)
+- Left: Back button `w-10 h-10 rounded-full bg-muted/50 border border-border/40`, min touch target 44px
+- Center: Title `text-[15px] font-semibold text-foreground`, single line with `truncate`
+- Right: Optional action slot, same 44px touch target
+- Sticky with `backdrop-blur-sm`
+- New prop: `mode: 'page' | 'overlay'` — overlay mode calls `onClose` instead of navigate
 
-**Loesung:** Die doppelte Registrierung auf eine einzige, saubere Initialisierung reduzieren.
+### B) `AppDialog`
+- Merge all 5 dialog/alert implementations into 2 components:
+  - `AppDialog` (general content dialogs) — replaces `dialog.tsx` + `modern-dialog.tsx`
+  - `AppAlertDialog` (confirmations/destructive) — replaces `alert-dialog.tsx` + `modern-alert-dialog.tsx` + `unified-alert-dialog.tsx`
+- Unified styling:
+  - Overlay: `bg-black/40 backdrop-blur-sm`
+  - Container: `rounded-2xl`, `bg-background`, `border border-border/40`
+  - Shadow: `shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)]`
+  - Padding: `p-6`
+  - Close button: `w-10 h-10 rounded-full bg-muted/50` top-right
+  - Sizes: `sm` (max-w-sm), `default` (max-w-md), `lg` (max-w-lg), `xl` (max-w-4xl)
+- `AppAlertDialog` keeps the centered icon pattern from `UnifiedAlertDialog` (it works well)
+- Buttons use the `AppButton` system (see below)
+
+### C) `AppBottomSheet`
+- Keep Vaul `Drawer` as the base, with the `bottom-sheet` variant as default
+- Standardize:
+  - `rounded-t-[24px]`
+  - Drag handle: `h-1 w-10 rounded-full bg-muted-foreground/20`, centered, `mt-3 mb-2`
+  - Padding: `px-5 pb-6`
+  - Max height: `max-h-[85vh]`
+  - Overlay: frosted (`backdrop-blur-sm`)
+- Keep the custom CSS fallback for touch-critical flows (per memory note)
+
+### D) `AppButton` (Button System)
+- Extend existing `Button` component — it's already well-structured
+- Adjustments needed:
+  - Remove gradient from `default` variant → use solid `bg-primary text-primary-foreground`
+  - Remove gradient from `destructive` → solid `bg-destructive text-destructive-foreground`
+  - Standardize sizes to 3: `sm` (h-9), `default` (h-11), `lg` (h-13)
+  - Add `loading` prop with spinner
+  - Add `icon` size (w-10 h-10, min 44px touch target)
+  - Ensure all touch targets meet 44px minimum
+- Retire `RainbowButton` — replace with `variant="primary"` or remove usage
+- Migrate `UnifiedAlertDialogAction/Cancel` to use `buttonVariants` internally
 
 ---
 
-### 5. useProfile ruft redundant getUser() auf (Performance)
+## 3. Implementation Plan
 
-**Problem:** `useProfile.ts` ruft bei jedem `fetchProfile()` zuerst `supabase.auth.getUser()` auf (Server-Call), obwohl die userId bereits aus `AuthContext` verfuegbar ist. Auch `updateFirstName` und `updateAvatar` machen jeweils eigene `getUser()` Calls.
+### Phase 1: Create unified components
+1. **Enhance `Button`** — add loading state, adjust variants to solid colors, standardize sizes
+2. **Create `AppDialog`** — single dialog component with size variants, unified overlay/shadow
+3. **Create `AppAlertDialog`** — confirmation dialog with icon support, using `Button` for actions
+4. **Enhance `SubpageHeader`** → rename conceptually but keep file, add `mode` prop, use design tokens
 
-**Loesung:** `userId` aus `useAuth()` verwenden (ist bereits importiert aber nur fuer `isValid`/`authLoading` genutzt). Die 3 redundanten `getUser()` Calls eliminieren.
+### Phase 2: Migration
+5. **Migrate all dialog imports** — 18 files using `ui/dialog`, 4 using `modern-dialog`, 5 using `alert-dialog`, 2 using `modern-alert-dialog`, 5 using `unified-alert-dialog` → point to new unified components
+6. **Migrate all header usages** — update 25 SubpageHeader consumers to use new props/tokens
+7. **Migrate inline button styles** — Auth page, form pages, admin pages
+8. **Remove deprecated files** — `modern-dialog.tsx`, `modern-alert-dialog.tsx` (keep `unified-alert-dialog.tsx` as alias or merge)
 
----
-
-### 6. Console-Logging in Produktion (Performance)
-
-**Problem:** Hunderte `console.log` Statements laufen in Produktion mit. Besonders problematisch:
-- Realtime-Subscriptions loggen bei jedem Event
-- FormContext loggt bei jedem Save/Load detailliert
-- Auth-Events werden geloggt
-
-**Loesung:** Ein `devLog` Utility existiert bereits in FormContext (Zeile 16) wird aber kaum genutzt. Alle `console.log` in kritischen Pfaden (Realtime-Callbacks, Load/Save-Operationen) durch `devLog` oder Build-time Stripping ersetzen.
-
----
-
-### 7. useFormDataOperations ist toter Code (Codebase-Hygiene)
-
-**Problem:** `src/contexts/form/useFormDataOperations.tsx` (310 Zeilen) scheint nicht mehr aktiv verwendet zu werden. `FormContext.tsx` implementiert die gleiche Logik direkt (eigenes `loadFormDataFromDatabase`, `loadDocuments`, Session-Handling). Der alte Hook hat zudem eigene Session-Refresh-Logik die vom AuthContext divergiert.
-
-**Loesung:** Verifizieren ob der Hook noch importiert wird. Falls nicht, entfernen.
+### Phase 3: Consistency pass
+9. **Audit every screen** for remaining hardcoded colors, inconsistent spacing, one-off styles
 
 ---
 
-### Zusammenfassung nach Prioritaet
+## 4. Scope & Risk
 
-| # | Aenderung | Impact | Risiko | Dateien |
-|---|-----------|--------|--------|---------|
-| 1 | Auth-Listener in FormContext deduplizieren | Hoch | Mittel | FormContext.tsx |
-| 2 | useAuth statt useAuthValidation in Hooks | Hoch | Niedrig | useNotifications.ts, useUnreadMessages.ts |
-| 3 | Security Realtime-Channel nur fuer Admins | Mittel | Niedrig | EnhancedSecurityService.ts, main.tsx |
-| 4 | Doppelte Security-Header-Init fixen | Niedrig | Niedrig | securityHeaders.ts |
-| 5 | Redundante getUser() Calls entfernen | Mittel | Niedrig | useProfile.ts |
-| 6 | Console-Logging in Produktion reduzieren | Mittel | Niedrig | Mehrere Dateien |
-| 7 | Toten Code entfernen | Niedrig | Niedrig | useFormDataOperations.tsx |
+This is a **large refactor touching 40+ files**. To manage risk:
+- Phase 1 (components) can be done without breaking anything — new components alongside old
+- Phase 2 (migration) should be done per-component-type to keep changes reviewable
+- Phase 3 is a polish pass
 
-Ich empfehle mit **Punkt 2** (einfachste Aenderung, hoher Impact) und **Punkt 3** (unnoetige Realtime-Verbindung fuer alle User) zu starten, dann **Punkt 1** und **5** anzugehen.
+**Estimated scope**: ~15-20 file edits for Phase 1, ~35+ for Phase 2.
+
+I recommend starting with **Phase 1** (creating the unified components) and then migrating incrementally. Shall I proceed with Phase 1 first?
 
