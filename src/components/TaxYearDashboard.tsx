@@ -33,7 +33,7 @@ export const TaxYearDashboard: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
 
-  const { activeTaxFilerId } = useTaxFiler();
+  const { activeTaxFilerId, activeTaxFiler } = useTaxFiler();
   const formTour = useFormTourSafe();
 
   // Load payment status
@@ -136,6 +136,7 @@ export const TaxYearDashboard: React.FC = () => {
       {/* Header */}
       <SubpageHeader
         title={t.formDashboard.title.replace('{year}', taxYear)}
+        subtitle={activeTaxFiler ? `${activeTaxFiler.first_name} ${activeTaxFiler.last_name}` : undefined}
         onBack={() => navigate('/')}
       />
 
