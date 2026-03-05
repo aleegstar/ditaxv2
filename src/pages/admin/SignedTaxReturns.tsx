@@ -3,25 +3,20 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { validateStoragePath } from '@/utils/fileValidation';
-import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   FileText, 
   ExternalLink, 
   CheckCircle2, 
-  Clock, 
   Send,
   Eye,
-  RefreshCw
+  RefreshCw,
+  User,
+  Calendar
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface SignedTaxReturn {
   id: string;
@@ -56,7 +51,6 @@ const SignedTaxReturns: React.FC = () => {
   const fetchSignedReturns = async () => {
     setLoading(true);
     try {
-      // Fetch tax return signatures with related data
       const { data: signatures, error: sigError } = await supabase
         .from('tax_return_signatures')
         .select(`
@@ -72,10 +66,7 @@ const SignedTaxReturns: React.FC = () => {
         .eq('status', 'signed')
         .order('signed_at', { ascending: false });
 
-      if (sigError) {
-        console.error('Error fetching signatures:', sigError);
-        throw sigError;
-      }
+      if (sigError) throw sigError;
 
       if (!signatures || signatures.length === 0) {
         setSignedReturns([]);
@@ -83,49 +74,35 @@ const SignedTaxReturns: React.FC = () => {
         return;
       }
 
-      // Get unique completed_tax_return_ids
       const completedReturnIds = [...new Set(signatures.map(s => s.completed_tax_return_id))];
       
-      // Fetch completed tax returns
       const { data: completedReturns, error: ctrError } = await supabase
         .from('completed_tax_returns')
         .select('id, status, signed_pdf_path')
         .in('id', completedReturnIds);
 
-      if (ctrError) {
-        console.error('Error fetching completed returns:', ctrError);
-      }
+      if (ctrError) console.error('Error fetching completed returns:', ctrError);
 
-      // Get unique user_ids
       const userIds = [...new Set(signatures.map(s => s.user_id))];
 
-      // Fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, first_name, last_name, avatar_url')
         .in('id', userIds);
 
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-      }
+      if (profilesError) console.error('Error fetching profiles:', profilesError);
 
-      // Fetch adressnummer from form_data for each user
       const { data: formDataRecords, error: formDataError } = await supabase
         .from('form_data')
         .select('user_id, data, tax_year')
         .in('user_id', userIds)
         .eq('form_type', 'tax_form');
 
-      if (formDataError) {
-        console.error('Error fetching form data:', formDataError);
-      }
+      if (formDataError) console.error('Error fetching form data:', formDataError);
 
-      // Combine data
       const combined: SignedTaxReturn[] = signatures.map(sig => {
         const ctr = completedReturns?.find(c => c.id === sig.completed_tax_return_id);
         const profile = profiles?.find(p => p.id === sig.user_id);
-        
-        // Find adressnummer for this user and tax year
         const formData = formDataRecords?.find(
           fd => fd.user_id === sig.user_id && fd.tax_year === sig.tax_year
         );
@@ -174,20 +151,11 @@ const SignedTaxReturns: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
-        title: 'Erfolgreich',
-        description: 'Steuererklärung wurde als übermittelt markiert.',
-      });
-
-      // Refresh data
+      toast({ title: 'Erfolgreich', description: 'Als übermittelt markiert.' });
       await fetchSignedReturns();
     } catch (error) {
       console.error('Error marking as submitted:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Status konnte nicht aktualisiert werden.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Fehler', description: 'Status konnte nicht aktualisiert werden.', variant: 'destructive' });
     } finally {
       setUpdatingId(null);
     }
@@ -203,19 +171,11 @@ const SignedTaxReturns: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
-        title: 'Erfolgreich',
-        description: 'Steuererklärung wurde als abgeschlossen markiert.',
-      });
-
+      toast({ title: 'Erfolgreich', description: 'Als abgeschlossen markiert.' });
       await fetchSignedReturns();
     } catch (error) {
       console.error('Error marking as completed:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Status konnte nicht aktualisiert werden.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Fehler', description: 'Status konnte nicht aktualisiert werden.', variant: 'destructive' });
     } finally {
       setUpdatingId(null);
     }
@@ -223,14 +183,9 @@ const SignedTaxReturns: React.FC = () => {
 
   const openPdf = async (signedPdfPath: string | null) => {
     if (!signedPdfPath) {
-      toast({
-        title: 'Fehler',
-        description: 'Kein unterschriebenes PDF vorhanden.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Fehler', description: 'Kein unterschriebenes PDF vorhanden.', variant: 'destructive' });
       return;
     }
-
     if (!validateStoragePath(signedPdfPath)) {
       toast({ title: 'Fehler', description: 'Ungültiger Dateipfad.', variant: 'destructive' });
       return;
@@ -239,53 +194,20 @@ const SignedTaxReturns: React.FC = () => {
       const { data, error } = await supabase.storage
         .from('completed-tax-returns')
         .createSignedUrl(signedPdfPath, 3600);
-
       if (error) throw error;
-
       window.open(data.signedUrl, '_blank');
     } catch (error) {
       console.error('Error opening PDF:', error);
-      toast({
-        title: 'Fehler',
-        description: 'PDF konnte nicht geöffnet werden.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Fehler', description: 'PDF konnte nicht geöffnet werden.', variant: 'destructive' });
     }
   };
 
-  const getStatusBadge = (taxReturnStatus: string | null) => {
-    switch (taxReturnStatus) {
-      case 'submitted':
-        return (
-          <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-            <Send className="h-3 w-3 mr-1" />
-            Übermittelt
-          </Badge>
-        );
-      case 'completed':
-        return (
-          <Badge className="bg-green-100 text-green-700 border-green-200">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
-            Abgeschlossen
-          </Badge>
-        );
-      default:
-        return (
-          <Badge className="bg-amber-100 text-amber-700 border-amber-200">
-            <Clock className="h-3 w-3 mr-1" />
-            Bereit
-          </Badge>
-        );
+  const getStatusLabel = (status: string | null) => {
+    switch (status) {
+      case 'submitted': return 'Übermittelt';
+      case 'completed': return 'Abgeschlossen';
+      default: return 'Bereit';
     }
-  };
-
-  const getInitials = (firstName: string | null, lastName: string | null, email: string | null) => {
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`.toUpperCase();
-    }
-    if (firstName) return firstName[0].toUpperCase();
-    if (email) return email[0].toUpperCase();
-    return '?';
   };
 
   const filteredReturns = signedReturns.filter(item => {
@@ -304,202 +226,180 @@ const SignedTaxReturns: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <AdminWelcomeHeader
-        title="Zur Übermittlung"
-        subtitle="Unterschriebene Steuererklärungen bereit zur Übermittlung an das Steueramt"
-        badge={{
-          text: `${stats.ready} bereit`,
-          variant: stats.ready > 0 ? 'default' : 'secondary'
-        }}
-        onRefresh={fetchSignedReturns}
-      />
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Zur Übermittlung
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Unterschriebene Steuererklärungen zur Übermittlung an das Steueramt
+          </p>
+        </div>
+        <button
+          onClick={fetchSignedReturns}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Aktualisieren
+        </button>
+      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 mb-6">
-        <Card className="bg-muted">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-sm text-muted-foreground">Gesamt unterschrieben</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-amber-50 border-amber-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-amber-700">{stats.ready}</div>
-            <div className="text-sm text-amber-600">Bereit zur Übermittlung</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-700">{stats.submitted}</div>
-            <div className="text-sm text-blue-600">Übermittelt</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-50 border-green-200">
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-700">{stats.completed}</div>
-            <div className="text-sm text-green-600">Abgeschlossen</div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="flex gap-6">
+        {[
+          { label: 'Gesamt', value: stats.total },
+          { label: 'Bereit', value: stats.ready },
+          { label: 'Übermittelt', value: stats.submitted },
+          { label: 'Abgeschlossen', value: stats.completed },
+        ].map(s => (
+          <div key={s.label}>
+            <div className="text-xl font-semibold tracking-tight text-foreground">{s.value}</div>
+            <div className="text-[11px] text-muted-foreground">{s.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filter */}
-      <div className="flex items-center gap-4 mb-4">
-        <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v as FilterStatus)}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Status filtern" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle anzeigen</SelectItem>
-            <SelectItem value="ready">Bereit zur Übermittlung</SelectItem>
-            <SelectItem value="submitted">Übermittelt</SelectItem>
-            <SelectItem value="completed">Abgeschlossen</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button variant="outline" size="sm" onClick={fetchSignedReturns}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Aktualisieren
-        </Button>
+      <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5 w-fit">
+        {[
+          { key: 'all' as const, label: 'Alle' },
+          { key: 'ready' as const, label: 'Bereit' },
+          { key: 'submitted' as const, label: 'Übermittelt' },
+          { key: 'completed' as const, label: 'Abgeschlossen' },
+        ].map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilterStatus(f.key)}
+            className={cn(
+              "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+              filterStatus === f.key
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Unterschriebene Steuererklärungen
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-3 w-[150px]" />
-                  </div>
-                  <Skeleton className="h-8 w-[100px]" />
-                </div>
-              ))}
+      {/* Content */}
+      {loading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="border border-border/60 rounded-xl p-5">
+              <Skeleton className="h-4 w-40 mb-3" />
+              <Skeleton className="h-3 w-56" />
             </div>
-          ) : filteredReturns.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Keine unterschriebenen Steuererklärungen gefunden.</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Benutzer</TableHead>
-                  <TableHead>Adressnr.</TableHead>
-                  <TableHead>Steuerjahr</TableHead>
-                  <TableHead>Unterschrieben am</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReturns.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          {item.user_avatar_url ? (
-                            <AvatarImage src={item.user_avatar_url} />
-                          ) : null}
-                          <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                            {getInitials(item.user_first_name, item.user_last_name, item.user_email)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">
-                            {item.signer_name || `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim() || 'Unbekannt'}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {item.signer_email || item.user_email}
-                          </div>
-                        </div>
+          ))}
+        </div>
+      ) : filteredReturns.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">Keine Ergebnisse</p>
+          <p className="text-xs text-muted-foreground">Keine unterschriebenen Steuererklärungen gefunden.</p>
+        </div>
+      ) : (
+        <div className="border border-border/60 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border/60">
+                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Benutzer</th>
+                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Nr.</th>
+                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Jahr</th>
+                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Unterschrieben</th>
+                <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="text-right py-3 px-5 text-xs font-medium text-muted-foreground">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredReturns.map((item) => (
+                <tr key={item.id} className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors">
+                  <td className="py-3 px-5">
+                    <div>
+                      <div className="text-sm font-medium text-foreground">
+                        {item.signer_name || `${item.user_first_name || ''} ${item.user_last_name || ''}`.trim() || 'Unbekannt'}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {item.adressnummer ? (
-                        <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
-                          {item.adressnummer}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{item.tax_year}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(item.signed_at), 'dd.MM.yyyy HH:mm', { locale: de })}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(item.tax_return_status)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {item.signed_pdf_path && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openPdf(item.signed_pdf_path)}
-                            title="PDF anzeigen"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        )}
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          asChild
-                          title="Benutzer anzeigen"
+                      <div className="text-xs text-muted-foreground">
+                        {item.signer_email || item.user_email}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3 px-5">
+                    <span className="text-xs text-muted-foreground">
+                      {item.adressnummer || '–'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-5">
+                    <span className="text-xs font-medium text-foreground">{item.tax_year}</span>
+                  </td>
+                  <td className="py-3 px-5">
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(item.signed_at), 'dd.MM.yyyy', { locale: de })}
+                    </span>
+                  </td>
+                  <td className="py-3 px-5">
+                    <span className={cn(
+                      "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                      item.tax_return_status === 'completed'
+                        ? "bg-foreground/[0.06] text-foreground"
+                        : item.tax_return_status === 'submitted'
+                        ? "bg-foreground/[0.06] text-foreground"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {getStatusLabel(item.tax_return_status)}
+                    </span>
+                  </td>
+                  <td className="py-3 px-5 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {item.signed_pdf_path && (
+                        <button
+                          onClick={() => openPdf(item.signed_pdf_path)}
+                          className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                          title="PDF anzeigen"
                         >
-                          <Link to={`/admin/user/${item.user_id}`}>
-                            <ExternalLink className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                          <Eye className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      
+                      <Link
+                        to={`/admin/user/${item.user_id}`}
+                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                        title="Benutzer anzeigen"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
 
-                        {(!item.tax_return_status || item.tax_return_status === 'available') && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
-                            disabled={updatingId === item.id}
-                          >
-                            <Send className="h-4 w-4 mr-1" />
-                            Übermittelt
-                          </Button>
-                        )}
+                      {(!item.tax_return_status || item.tax_return_status === 'available') && (
+                        <button
+                          onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
+                          disabled={updatingId === item.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                        >
+                          <Send className="h-3 w-3" />
+                          Übermittelt
+                        </button>
+                      )}
 
-                        {item.tax_return_status === 'submitted' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => markAsCompleted(item.id, item.completed_tax_return_id)}
-                            disabled={updatingId === item.id}
-                            className="border-green-300 text-green-700 hover:bg-green-50"
-                          >
-                            <CheckCircle2 className="h-4 w-4 mr-1" />
-                            Abschliessen
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                      {item.tax_return_status === 'submitted' && (
+                        <button
+                          onClick={() => markAsCompleted(item.id, item.completed_tax_return_id)}
+                          disabled={updatingId === item.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border border-border text-foreground hover:bg-muted/50 disabled:opacity-50 transition-all"
+                        >
+                          <CheckCircle2 className="h-3 w-3" />
+                          Abschliessen
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
