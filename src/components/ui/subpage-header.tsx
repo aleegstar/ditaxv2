@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, HelpCircle, List } from 'lucide-react';
+import { ArrowLeft, HelpCircle, List, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,10 @@ interface SubpageHeaderProps {
   currentMode?: 'standard' | 'yesno';
   onModeChange?: (mode: 'standard' | 'yesno') => void;
   showAvatar?: boolean;
+  /** 'page' navigates back, 'overlay' dismisses via onBack */
+  mode?: 'page' | 'overlay';
+  /** Optional right-side action slot */
+  rightAction?: React.ReactNode;
 }
 
 export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
@@ -24,7 +28,9 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
   showModeToggle = false,
   currentMode = 'yesno',
   onModeChange,
-  showAvatar = true
+  showAvatar = true,
+  mode = 'page',
+  rightAction,
 }) => {
   const navigate = useNavigate();
   const { profile } = useProfile();
@@ -35,42 +41,47 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
     }
   };
 
+  const BackIcon = mode === 'overlay' ? X : ArrowLeft;
+
   return (
     <header className={cn(
-      "sticky top-0 z-30 bg-white",
+      "sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border/40",
       className
     )}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-        {/* Back Button - fixed width */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+        {/* Back Button */}
         <button 
           onClick={onBack}
-          className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
+          className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+          aria-label={mode === 'overlay' ? 'Schließen' : 'Zurück'}
         >
-          <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+          <BackIcon className="w-[18px] h-[18px]" strokeWidth={1.5} />
         </button>
 
-        {/* Centered Title or Custom Element - flex-1 to take remaining space */}
+        {/* Centered Title */}
         <div className="flex-1 min-w-0 flex justify-center">
           {titleElement ? (
             <div className="max-w-full">
               {titleElement}
             </div>
           ) : title ? (
-            <h1 className="text-base font-semibold tracking-tight text-slate-900 text-center line-clamp-2 leading-tight">
+            <h1 className="text-[15px] font-semibold tracking-tight text-foreground text-center truncate leading-tight">
               {title}
             </h1>
           ) : null}
         </div>
 
-        {/* Right side: Mode Toggle, Avatar, or Placeholder - fixed width */}
+        {/* Right side */}
         <div className="flex items-center gap-2 shrink-0">
+          {rightAction}
+          
           {showModeToggle && onModeChange && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={handleToggle}
-              className="flex items-center gap-2 text-xs rounded-full h-8 px-3 text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2 text-xs rounded-full h-8 px-3 text-muted-foreground hover:text-foreground"
             >
               {currentMode === 'yesno' ? (
                 <>
@@ -89,9 +100,9 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
           {showAvatar ? (
             <button 
               onClick={() => navigate('/profile')} 
-              className="w-10 h-10 rounded-full bg-slate-200 ring-2 ring-white shadow-sm overflow-hidden shrink-0 hover:ring-blue-100 transition-all"
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted ring-2 ring-background overflow-hidden shrink-0 hover:ring-primary/20 transition-all"
             >
-            <img 
+              <img 
                 src={profile?.avatar_url || '/lovable-uploads/default-avatar.png'} 
                 alt="Profil" 
                 className="w-full h-full object-cover"
@@ -100,7 +111,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
                 }}
               />
             </button>
-          ) : !showModeToggle && (
+          ) : !showModeToggle && !rightAction && (
             <div className="w-10 h-10" />
           )}
         </div>

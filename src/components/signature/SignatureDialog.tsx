@@ -125,7 +125,6 @@ E-Mail: ${userProfile.email}`;
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          variant="light"
           hideCloseButton
           className="w-[92vw] max-w-[420px] rounded-[20px] border-0 p-0 shadow-[0_8px_40px_rgba(0,0,0,0.12)] gap-0 overflow-hidden"
         >

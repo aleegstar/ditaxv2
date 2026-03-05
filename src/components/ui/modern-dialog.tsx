@@ -1,55 +1,15 @@
-"use client";
+// Backward-compatible re-export from unified AppDialog
+// All new code should import from '@/components/ui/app-dialog' directly
 
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-import * as React from "react";
-import { Cross2Icon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
-const Dialog = DialogPrimitive.Root;
-const DialogTrigger = DialogPrimitive.Trigger;
-const DialogPortal = DialogPrimitive.Portal;
-const DialogClose = DialogPrimitive.Close;
-const DialogOverlay = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Overlay>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>>(({
-  className,
-  ...props
-}, ref) => <DialogPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-[101] backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", className)} style={{ backgroundColor: '#ffffff2e' }} {...props} />);
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
-const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>>(({
-  className,
-  children,
-  ...props
-}, ref) => <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content ref={ref} className={cn("fixed left-[50%] top-[50%] z-[101] translate-x-[-50%] translate-y-[-50%]", "w-[95vw] max-w-4xl h-[90vh] max-h-[900px]", "overflow-y-auto border border-white/20 shadow-lg duration-200 rounded-3xl p-8", "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0", "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95", "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]", "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]", className)} style={{
-    background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
-    boxShadow: 'inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.3)'
-  }} {...props}>
-      {children}
-      <DialogPrimitive.Close aria-label="Schließen" className="group absolute right-6 top-6 flex size-8 items-center justify-center rounded-lg outline-offset-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none hover:bg-gray-100 cursor-pointer z-10">
-        <Cross2Icon width={16} height={16} strokeWidth={2} className="opacity-60 transition-opacity group-hover:opacity-100" style={{ color: 'rgb(26, 32, 44)' }} />
-        <span className="sr-only">Schließen</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>);
-DialogContent.displayName = DialogPrimitive.Content.displayName;
-const DialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left mb-6", className)} {...props} />;
-DialogHeader.displayName = "DialogHeader";
-const DialogFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3 mt-8", className)} {...props} />;
-DialogFooter.displayName = "DialogFooter";
-const DialogTitle = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>>(({
-  className,
-  ...props
-}, ref) => <DialogPrimitive.Title ref={ref} className={cn("text-lg font-semibold tracking-tight text-gray-900", className)} {...props} />);
-DialogTitle.displayName = DialogPrimitive.Title.displayName;
-const DialogDescription = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Description>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>>(({
-  className,
-  ...props
-}, ref) => <DialogPrimitive.Description ref={ref} className={cn("text-sm text-gray-600", className)} {...props} />);
-DialogDescription.displayName = DialogPrimitive.Description.displayName;
-export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger };
+export {
+  AppDialog as Dialog,
+  AppDialogPortal as DialogPortal,
+  AppDialogOverlay as DialogOverlay,
+  AppDialogClose as DialogClose,
+  AppDialogTrigger as DialogTrigger,
+  AppDialogContent as DialogContent,
+  AppDialogHeader as DialogHeader,
+  AppDialogFooter as DialogFooter,
+  AppDialogTitle as DialogTitle,
+  AppDialogDescription as DialogDescription,
+} from "@/components/ui/app-dialog";
