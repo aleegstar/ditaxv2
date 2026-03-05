@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { RefreshCw, UserMinus, TrendingDown, Calendar, MessageSquare } from 'lucide-react';
-import { AdminWelcomeHeader } from '@/components/admin/AdminWelcomeHeader';
+import { RefreshCw, UserMinus } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
-interface DeletionFeedback {
+interface DeletionFeedbackItem {
   id: string;
   user_email: string;
   reason: string;
@@ -32,252 +22,143 @@ interface ReasonStats {
 }
 
 const DeletionFeedback = () => {
-  const [feedbacks, setFeedbacks] = useState<DeletionFeedback[]>([]);
+  const [feedbacks, setFeedbacks] = useState<DeletionFeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterReason, setFilterReason] = useState<string>('all');
   const [reasonStats, setReasonStats] = useState<ReasonStats[]>([]);
 
-  useEffect(() => {
-    loadFeedbacks();
-  }, []);
+  useEffect(() => { loadFeedbacks(); }, []);
 
   const loadFeedbacks = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('account_deletion_feedback')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await supabase.from('account_deletion_feedback').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-
       setFeedbacks(data || []);
       calculateStats(data || []);
     } catch (error) {
       console.error('Error loading deletion feedbacks:', error);
-      toast({
-        title: "Fehler",
-        description: "Feedbacks konnten nicht geladen werden.",
-        variant: "destructive"
-      });
+      toast({ title: "Fehler", description: "Feedbacks konnten nicht geladen werden.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const calculateStats = (data: DeletionFeedback[]) => {
+  const calculateStats = (data: DeletionFeedbackItem[]) => {
     const reasonCounts: Record<string, number> = {};
-    
-    data.forEach(feedback => {
-      const reason = feedback.reason;
-      reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
-    });
-
+    data.forEach(f => { reasonCounts[f.reason] = (reasonCounts[f.reason] || 0) + 1; });
     const total = data.length;
-    const stats: ReasonStats[] = Object.entries(reasonCounts)
-      .map(([reason, count]) => ({
-        reason,
-        count,
-        percentage: total > 0 ? Math.round((count / total) * 100) : 0
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    setReasonStats(stats);
+    setReasonStats(
+      Object.entries(reasonCounts)
+        .map(([reason, count]) => ({ reason, count, percentage: total > 0 ? Math.round((count / total) * 100) : 0 }))
+        .sort((a, b) => b.count - a.count)
+    );
   };
 
-  const getReasonBadgeColor = (reason: string): string => {
-    const colors: Record<string, string> = {
-      'Ich nutze den Service nicht mehr': 'bg-gray-100 text-gray-700',
-      'Zu teuer': 'bg-amber-100 text-amber-700',
-      'Datenschutzbedenken': 'bg-purple-100 text-purple-700',
-      'Schlechte Benutzererfahrung': 'bg-red-100 text-red-700',
-      'Andere Steuerlösung gefunden': 'bg-blue-100 text-blue-700',
-      'Sonstiges': 'bg-slate-100 text-slate-700',
-    };
-    return colors[reason] || 'bg-slate-100 text-slate-700';
-  };
+  const filteredFeedbacks = filterReason === 'all' ? feedbacks : feedbacks.filter(f => f.reason === filterReason);
+  const uniqueReasons = ['all', ...new Set(feedbacks.map(f => f.reason))];
+  const withFeedbackCount = feedbacks.filter(f => f.additional_feedback).length;
 
-  const filteredFeedbacks = filterReason === 'all' 
-    ? feedbacks 
-    : feedbacks.filter(f => f.reason === filterReason);
-
-  const uniqueReasons = [...new Set(feedbacks.map(f => f.reason))];
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-center py-16">
+        <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <AdminWelcomeHeader
-        title="Lösch-Feedback"
-        subtitle="Feedback von Nutzern, die ihr Konto gelöscht haben"
-        badge={{
-          text: `${feedbacks.length} Löschungen`,
-          variant: 'secondary'
-        }}
-        onRefresh={loadFeedbacks}
-      />
+    <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground tracking-tight">Lösch-Feedback</h1>
+          <p className="text-[13px] text-muted-foreground mt-0.5">{feedbacks.length} Löschungen</p>
+        </div>
+        <button onClick={loadFeedbacks} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+          <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+      </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 mb-8">
-        <Card className="bg-white border border-slate-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <UserMinus className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Gesamt Löschungen</p>
-                <p className="text-2xl font-semibold text-slate-900">{feedbacks.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-slate-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <TrendingDown className="h-5 w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Häufigster Grund</p>
-                <p className="text-sm font-medium text-slate-900 truncate max-w-[150px]">
-                  {reasonStats[0]?.reason || '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-slate-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Letzte Löschung</p>
-                <p className="text-sm font-medium text-slate-900">
-                  {feedbacks[0] 
-                    ? format(new Date(feedbacks[0].created_at), 'dd.MM.yyyy', { locale: de })
-                    : '-'
-                  }
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border border-slate-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <MessageSquare className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Mit Feedback</p>
-                <p className="text-2xl font-semibold text-slate-900">
-                  {feedbacks.filter(f => f.additional_feedback).length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Gesamt', value: String(feedbacks.length) },
+          { label: 'Häufigster Grund', value: reasonStats[0]?.reason || '–' },
+          { label: 'Letzte Löschung', value: feedbacks[0] ? format(new Date(feedbacks[0].created_at), 'dd.MM.yyyy', { locale: de }) : '–' },
+          { label: 'Mit Feedback', value: String(withFeedbackCount) },
+        ].map(stat => (
+          <div key={stat.label} className="border border-border/60 rounded-xl p-4">
+            <p className="text-[11px] font-medium text-muted-foreground mb-1">{stat.label}</p>
+            <p className="text-[13px] font-semibold text-foreground truncate">{stat.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* Reason Distribution */}
       {reasonStats.length > 0 && (
-        <Card className="bg-white border border-slate-200 mb-6">
-          <CardHeader>
-            <CardTitle className="text-slate-800 text-lg">Gründe-Verteilung</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {reasonStats.map((stat) => (
-                <div key={stat.reason} className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-slate-700">{stat.reason}</span>
-                      <span className="text-sm font-medium text-slate-900">{stat.count} ({stat.percentage}%)</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${stat.percentage}%` }}
-                      />
-                    </div>
-                  </div>
+        <div className="border border-border/60 rounded-xl p-5">
+          <h2 className="text-[13px] font-medium text-muted-foreground mb-3">Gründe-Verteilung</h2>
+          <div className="space-y-2">
+            {reasonStats.map(stat => (
+              <div key={stat.reason} className="flex items-center gap-3">
+                <span className="text-[12px] text-foreground w-48 truncate flex-shrink-0">{stat.reason}</span>
+                <div className="flex-1 h-2 bg-muted/40 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-foreground/20 transition-all duration-500" style={{ width: `${stat.percentage}%` }} />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <span className="text-[11px] text-muted-foreground w-16 text-right flex-shrink-0">{stat.count} ({stat.percentage}%)</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Filter */}
-      <div className="flex items-center gap-4 mb-6">
-        <Select value={filterReason} onValueChange={setFilterReason}>
-          <SelectTrigger className="w-[280px] bg-white">
-            <SelectValue placeholder="Nach Grund filtern" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Gründe</SelectItem>
-            {uniqueReasons.map((reason) => (
-              <SelectItem key={reason} value={reason}>{reason}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={loadFeedbacks}
-          disabled={loading}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Aktualisieren
-        </Button>
+      <div className="flex gap-0.5 bg-muted/40 rounded-lg p-0.5 flex-wrap">
+        {uniqueReasons.map(reason => (
+          <button
+            key={reason}
+            onClick={() => setFilterReason(reason)}
+            className={cn(
+              "px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all whitespace-nowrap",
+              filterReason === reason ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {reason === 'all' ? 'Alle' : reason}
+          </button>
+        ))}
       </div>
 
-      {/* Feedback List */}
-      {loading ? (
-        <div className="text-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-slate-400" />
-          <p className="mt-2 text-slate-500">Lade Feedbacks...</p>
+      {/* List */}
+      {filteredFeedbacks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <UserMinus className="w-8 h-8 text-muted-foreground/40 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">Keine Feedbacks</p>
+          <p className="text-[13px] text-muted-foreground">Keine Lösch-Feedbacks vorhanden.</p>
         </div>
-      ) : filteredFeedbacks.length === 0 ? (
-        <Card className="bg-white border border-slate-200">
-          <CardContent className="py-12 text-center">
-            <UserMinus className="h-12 w-12 mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500">Keine Lösch-Feedbacks vorhanden.</p>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="space-y-4">
-          {filteredFeedbacks.map((feedback) => (
-            <Card key={feedback.id} className="bg-white border border-slate-200">
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-slate-700 font-medium">{feedback.user_email}</span>
-                      <Badge className={getReasonBadgeColor(feedback.reason)}>
-                        {feedback.reason}
-                      </Badge>
-                    </div>
-                    
-                    {feedback.additional_feedback && (
-                      <div className="bg-slate-50 rounded-lg p-3 mt-2">
-                        <p className="text-sm text-slate-500 mb-1">Zusätzliches Feedback:</p>
-                        <p className="text-slate-700">{feedback.additional_feedback}</p>
-                      </div>
-                    )}
+        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+          {filteredFeedbacks.map(feedback => (
+            <div key={feedback.id} className="p-4 hover:bg-muted/30 transition-colors">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[13px] font-medium text-foreground">{feedback.user_email}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
+                      {feedback.reason}
+                    </span>
                   </div>
-
-                  <div className="text-sm text-slate-500 whitespace-nowrap">
-                    {format(new Date(feedback.created_at), 'dd.MM.yyyy HH:mm', { locale: de })}
-                  </div>
+                  {feedback.additional_feedback && (
+                    <p className="text-[12px] text-foreground leading-relaxed bg-muted/20 rounded-lg px-3 py-2">
+                      {feedback.additional_feedback}
+                    </p>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+                <span className="text-[11px] text-muted-foreground whitespace-nowrap flex-shrink-0">
+                  {format(new Date(feedback.created_at), 'dd.MM.yyyy HH:mm', { locale: de })}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       )}
