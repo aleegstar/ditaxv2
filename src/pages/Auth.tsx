@@ -472,13 +472,13 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-background">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-gradient-to-b from-muted/30 via-background to-muted/20">
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
         {/* Card */}
-        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-2xl border-0 sm:border sm:border-border/60 px-6 py-10 sm:p-12 sm:shadow-sm bg-background">
+        <div className="w-full min-h-screen sm:min-h-0 max-w-lg rounded-none sm:rounded-2xl border-0 sm:border sm:border-border/40 px-6 py-10 sm:p-12 bg-background sm:shadow-[0_8px_40px_-12px_hsl(var(--foreground)/0.08),0_2px_12px_-4px_hsl(var(--foreground)/0.04)]">
 
           <AnimatePresence mode="wait">
             {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
