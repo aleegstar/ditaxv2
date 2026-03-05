@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { RainbowButton } from "@/components/ui/rainbow-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/modern-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, User, DollarSign, FileText, CheckCircle, Upload, PenTool, Zap, Search, Filter, X } from 'lucide-react';
+import { Calendar, User, CheckCircle, FileText, Zap, Search, X, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { AdminWelcomeHeader } from './AdminWelcomeHeader';
+import { cn } from '@/lib/utils';
 
 interface PaidTaxReturn {
   id: string;
@@ -393,160 +389,152 @@ const TaxReturnCreation: React.FC = () => {
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
-      <AdminWelcomeHeader
-        title="Steuererklärung bearbeiten"
-        subtitle={`Bezahlte Steuererklärungen bearbeiten und abschließen (${paidTaxReturns.length})`}
-        badge={{
-          text: `${paidTaxReturns.length} Aufträge`,
-          variant: 'secondary'
-        }}
-        onRefresh={fetchPaidTaxReturns}
-      />
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Steuererklärungen
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {paidTaxReturns.length} bezahlte Aufträge zur Bearbeitung
+          </p>
+        </div>
+        <button
+          onClick={fetchPaidTaxReturns}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Aktualisieren
+        </button>
+      </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
-            placeholder="Name, E-Mail oder Steuerjahr suchen..."
+            placeholder="Suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-11 rounded-xl bg-card border-border/60"
+            className="pl-9 h-9 rounded-lg bg-background border-border/60 text-sm"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant={statusFilter === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setStatusFilter('all')}
-            className="rounded-xl h-11 px-4"
-          >
-            Alle
-          </Button>
-          <Button
-            variant={statusFilter === 'pending' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setStatusFilter('pending')}
-            className="rounded-xl h-11 px-4"
-          >
-            Bereit
-          </Button>
-          <Button
-            variant={statusFilter === 'processing' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setStatusFilter('processing')}
-            className="rounded-xl h-11 px-4"
-          >
-            In Bearbeitung
-          </Button>
-          <Button
-            variant={expressFilter ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setExpressFilter(!expressFilter)}
-            className="rounded-xl h-11 px-4 gap-1.5"
-          >
-            <Zap className="h-3.5 w-3.5" />
-            Express
-          </Button>
+        <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5">
+          {[
+            { key: 'all' as const, label: 'Alle' },
+            { key: 'pending' as const, label: 'Bereit' },
+            { key: 'processing' as const, label: 'In Bearbeitung' },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                statusFilter === f.key
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
+        <button
+          onClick={() => setExpressFilter(!expressFilter)}
+          className={cn(
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all border",
+            expressFilter
+              ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Zap className="h-3 w-3" />
+          Express
+        </button>
       </div>
 
       {hasActiveFilters && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{filteredTaxReturns.length} von {paidTaxReturns.length} Ergebnissen</span>
-          <button onClick={() => { setSearchQuery(''); setStatusFilter('all'); setExpressFilter(false); }} className="text-primary hover:underline ml-1">
-            Filter zurücksetzen
+        <p className="text-xs text-muted-foreground">
+          {filteredTaxReturns.length} von {paidTaxReturns.length} Ergebnissen
+          <button onClick={() => { setSearchQuery(''); setStatusFilter('all'); setExpressFilter(false); }} className="text-foreground hover:underline ml-2">
+            Zurücksetzen
           </button>
-        </div>
+        </p>
       )}
 
+      {/* Content */}
       {paidTaxReturns.length === 0 ? (
-        <Card className="w-full border border-border bg-card rounded-xl shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              Keine bezahlten Steuererklärungen vorhanden
-            </h3>
-            <p className="text-muted-foreground text-center">
-              Es gibt derzeit keine bezahlten Steuererklärungen, die zur Bearbeitung bereit sind.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">Keine Aufträge</p>
+          <p className="text-xs text-muted-foreground">
+            Es gibt derzeit keine bezahlten Steuererklärungen zur Bearbeitung.
+          </p>
+        </div>
       ) : filteredTaxReturns.length === 0 ? (
-        <Card className="w-full border border-border bg-card rounded-xl shadow-sm">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Search className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              Keine Ergebnisse gefunden
-            </h3>
-            <p className="text-muted-foreground text-center">
-              Versuche einen anderen Suchbegriff oder setze die Filter zurück.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Search className="h-10 w-10 text-muted-foreground/30 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">Keine Ergebnisse</p>
+          <p className="text-xs text-muted-foreground">
+            Versuche einen anderen Suchbegriff oder setze die Filter zurück.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredTaxReturns.map((taxReturn) => (
-            <Card 
-              key={taxReturn.id} 
-              className="w-full border border-border/60 bg-card rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5"
+            <Link
+              key={taxReturn.id}
+              to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`}
+              className="group block"
             >
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-foreground text-lg">
-                    Steuerjahr {taxReturn.tax_year}
-                  </CardTitle>
-                  <Badge className="bg-primary text-white rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
+              <div className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground tracking-tight">
+                      {taxReturn.tax_year}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {taxReturn.tax_filer_name}
+                    </p>
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                    taxReturn.status === 'processing'
+                      ? "bg-foreground/[0.06] text-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}>
                     {getStatusText(taxReturn.status)}
-                  </Badge>
+                  </span>
                 </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4 relative overflow-hidden">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <User className="h-4 w-4 shrink-0" />
-                    <div>
-                      <p className="font-medium text-foreground">{taxReturn.tax_filer_name}</p>
-                      <p className="text-sm text-muted-foreground">{taxReturn.user_email}</p>
-                    </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <User className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <span className="truncate">{taxReturn.user_email}</span>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="h-4 w-4 shrink-0" />
-                    <span className="text-sm">
-                      Bezahlt am: {new Date(taxReturn.payment_date).toLocaleDateString('de-DE')}
-                    </span>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <span>Bezahlt am {new Date(taxReturn.payment_date).toLocaleDateString('de-CH')}</span>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span className="text-sm text-muted-foreground">Bezahlung bestätigt</span>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <CheckCircle className="h-3.5 w-3.5 text-emerald-500/70" />
+                    <span>Zahlung bestätigt</span>
                   </div>
-                  
                   {taxReturn.express_service && (
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-amber-500 fill-amber-500/20 shrink-0" />
-                      <span className="text-sm font-semibold text-amber-600">Express-Service</span>
+                    <div className="flex items-center gap-2 text-xs text-foreground/70">
+                      <Zap className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="font-medium">Express</span>
                     </div>
                   )}
                 </div>
-
-                <div className="pt-4">
-                  <Link to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`} className="w-full">
-                    <Button className="w-full h-12 rounded-full shadow-lg shadow-primary/25 text-sm font-semibold">
-                      Benutzer ansehen
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
           ))}
         </div>
       )}
@@ -555,15 +543,14 @@ const TaxReturnCreation: React.FC = () => {
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Fertige Steuererklärung hochladen</DialogTitle>
+            <DialogTitle>Steuererklärung hochladen</DialogTitle>
             <DialogDescription>
-              Laden Sie die fertige Steuererklärung für {selectedTaxReturn?.user_name} ({selectedTaxReturn?.tax_year}) hoch.
-              Nach dem Upload wird die Steuererklärung als abgeschlossen markiert.
+              Fertige Steuererklärung für {selectedTaxReturn?.user_name} ({selectedTaxReturn?.tax_year}) hochladen.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="file" className="text-right text-gray-900">
+              <Label htmlFor="file" className="text-right text-sm">
                 PDF-Datei
               </Label>
               <Input
@@ -575,18 +562,25 @@ const TaxReturnCreation: React.FC = () => {
               />
             </div>
             {selectedFile && (
-              <div className="text-sm text-gray-600">
-                Ausgewählte Datei: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-              </div>
+              <p className="text-xs text-muted-foreground">
+                {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+              </p>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+            <button
+              onClick={() => setUploadDialogOpen(false)}
+              className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Abbrechen
-            </Button>
-            <Button onClick={handleUploadComplete} disabled={uploading || !selectedFile}>
-              {uploading ? 'Wird hochgeladen...' : 'Hochladen & Abschließen'}
-            </Button>
+            </button>
+            <button
+              onClick={handleUploadComplete}
+              disabled={uploading || !selectedFile}
+              className="px-4 py-2 text-sm font-medium bg-foreground text-background rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
+            >
+              {uploading ? 'Lädt...' : 'Hochladen'}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
