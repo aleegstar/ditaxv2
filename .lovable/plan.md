@@ -1,91 +1,44 @@
 
 
-## Performance & Stabilitaets-Analyse
+## Modernisierung der Hauptseite `/` (UserTaxReturns)
 
-Nach gruendlicher Pruefung des Codes habe ich folgende Optimierungsmoeglichkeiten identifiziert, sortiert nach Impact:
+### Analyse
 
----
+Die Seite nutzt zwei saturierte Gradient-Blöcke (Blau für aktiv, Orange für "in Bearbeitung") die visuell konkurrieren. Für eine Fintech-App braucht es mehr Ruhe und Fokus.
 
-### 1. Doppelte Auth-Listener in FormContext (Stabilitaet + Performance)
+### Änderungen
 
-**Problem:** `FormContext.tsx` erstellt einen **eigenen** `onAuthStateChange` Listener (Zeile 137) und ruft `getSession()` auf (Zeile 117), obwohl `AuthContext` bereits die zentrale Auth-Quelle ist. Das bedeutet:
-- 2 parallele Auth-Listener laufen gleichzeitig
-- Redundanter `getSession()`-Call bei jeder FormContext-Mount
-- Session-State kann zwischen AuthContext und FormContext divergieren
+**Datei: `src/pages/UserTaxReturns.tsx`**
 
-**Loesung:** Session aus `useAuth()` beziehen statt einen eigenen Listener aufzubauen. Die `session`/`sessionLoaded` States und den gesamten `useEffect` (Zeilen 109-151) entfernen. Stattdessen den `userId` aus AuthContext nutzen und bei Bedarf `supabase.auth.getSession()` einmalig fuer den Supabase-Token aufrufen.
+1. **Aktive Steuerjahr-Karten (unpaid):**
+   - Oberer Bereich: `bg-blue-600` → Subtilerer Look mit `bg-[#1D64FF]` (Brand-Blau), Radius von `rounded-[2.5rem]` → `rounded-3xl` (24px)
+   - Äussere Card: `rounded-[2.5rem]` → `rounded-3xl`, Ring/Shadow vereinfachen zu `ring-1 ring-border/60 shadow-sm`
+   - Gradient `from-white to-slate-50/80` → flaches `bg-background`
 
----
+2. **Bezahlte/In-Bearbeitung-Karten (paid):**
+   - Orange-Gradient `from-amber-500 to-orange-500` → Neutrales `bg-slate-800` oder `bg-zinc-100` mit dunklem Text
+   - Badge: `text-amber-700` → neutraler Status-Pill wie im Admin
+   - Button: `bg-amber-100 text-amber-900` → `bg-foreground/[0.06] text-foreground`
 
-### 2. useNotifications und useUnreadMessages nutzen useAuthValidation statt useAuth (Performance)
+3. **Abgeschlossene Karten (completed):**
+   - Bereits relativ neutral (`bg-gray-100`), nur Radius anpassen auf `rounded-3xl`
+   - Signature-Pending Button: Blauer Gradient-Shadow entfernen → `bg-foreground text-background`
 
-**Problem:** Beide Hooks importieren `useAuthValidation`, das intern `useIdleTimer` mit 6 globalen Event-Listenern startet. Jeder Consumer dieser Hooks erzeugt also einen **zusaetzlichen** Idle-Timer mit Mousemove/Touchstart/Scroll-Listenern — obwohl sie nur `userId` und `isValid` brauchen.
+4. **Bottom Navigation Dock:**
+   - Scanner-Button: Gradient beibehalten (primäre Aktion), aber `shadow-blue` reduzieren
+   - Gesamter Dock: Bestehend lassen, ist bereits clean
 
-**Loesung:** `useAuthValidation` durch `useAuth` ersetzen in:
-- `src/hooks/useNotifications.ts`
-- `src/hooks/useUnreadMessages.ts`
+5. **Allgemeine Anpassungen:**
+   - Alle Card-Radien einheitlich auf `rounded-3xl` (statt `rounded-[2.5rem]`)
+   - Shadows vereinheitlichen: `shadow-sm` + `hover:shadow-md` statt lange custom Shadows
+   - Ring: `ring-1 ring-slate-200/60` → `ring-1 ring-border/60` für Token-Konsistenz
 
-Das eliminiert mindestens 12 unnoetige globale Event-Listener.
+### Nicht ändern
+- Header (Logo + Avatar) — bereits clean
+- Greeting Section — bereits neutral
+- Bottom Dock Grundstruktur — funktioniert gut
+- TaxFilerSelector — bereits modernisiert
 
----
-
-### 3. EnhancedSecurityService startet permanenten Realtime-Channel beim App-Start (Performance)
-
-**Problem:** In `main.tsx` wird `EnhancedSecurityService.applySecurity()` aufgerufen, das `startRealTimeMonitoring()` startet — einen permanenten Supabase Realtime-Channel auf `security_audit_logs`. Das laeuft fuer **jeden User**, auch fuer normale Benutzer die keine Security-Alerts brauchen. Zusaetzlich wird der Channel nie aufgeraeumt (kein Cleanup).
-
-**Loesung:** Den `startRealTimeMonitoring()` Call aus `applySecurity()` entfernen. Security-Monitoring gehoert nur ins Admin-Panel (`useSecurityMonitoring` macht das bereits). Die `applySecurity()` Methode sollte nur die Input-Validation und Header-Logik behalten.
-
----
-
-### 4. Doppelte Security-Header Initialisierung (Stabilitaet)
-
-**Problem:** `securityHeaders.ts` hat doppelte Initialisierung:
-- Zeile 266-271: `DOMContentLoaded` Listener wird immer registriert
-- Zeile 274-284: Gleiche Logik nochmal mit `readyState` Check
-- Resultat: `applyToDocument()` und `CSRFProtection.initialize()` werden 2x ausgefuehrt
-
-**Loesung:** Die doppelte Registrierung auf eine einzige, saubere Initialisierung reduzieren.
-
----
-
-### 5. useProfile ruft redundant getUser() auf (Performance)
-
-**Problem:** `useProfile.ts` ruft bei jedem `fetchProfile()` zuerst `supabase.auth.getUser()` auf (Server-Call), obwohl die userId bereits aus `AuthContext` verfuegbar ist. Auch `updateFirstName` und `updateAvatar` machen jeweils eigene `getUser()` Calls.
-
-**Loesung:** `userId` aus `useAuth()` verwenden (ist bereits importiert aber nur fuer `isValid`/`authLoading` genutzt). Die 3 redundanten `getUser()` Calls eliminieren.
-
----
-
-### 6. Console-Logging in Produktion (Performance)
-
-**Problem:** Hunderte `console.log` Statements laufen in Produktion mit. Besonders problematisch:
-- Realtime-Subscriptions loggen bei jedem Event
-- FormContext loggt bei jedem Save/Load detailliert
-- Auth-Events werden geloggt
-
-**Loesung:** Ein `devLog` Utility existiert bereits in FormContext (Zeile 16) wird aber kaum genutzt. Alle `console.log` in kritischen Pfaden (Realtime-Callbacks, Load/Save-Operationen) durch `devLog` oder Build-time Stripping ersetzen.
-
----
-
-### 7. useFormDataOperations ist toter Code (Codebase-Hygiene)
-
-**Problem:** `src/contexts/form/useFormDataOperations.tsx` (310 Zeilen) scheint nicht mehr aktiv verwendet zu werden. `FormContext.tsx` implementiert die gleiche Logik direkt (eigenes `loadFormDataFromDatabase`, `loadDocuments`, Session-Handling). Der alte Hook hat zudem eigene Session-Refresh-Logik die vom AuthContext divergiert.
-
-**Loesung:** Verifizieren ob der Hook noch importiert wird. Falls nicht, entfernen.
-
----
-
-### Zusammenfassung nach Prioritaet
-
-| # | Aenderung | Impact | Risiko | Dateien |
-|---|-----------|--------|--------|---------|
-| 1 | Auth-Listener in FormContext deduplizieren | Hoch | Mittel | FormContext.tsx |
-| 2 | useAuth statt useAuthValidation in Hooks | Hoch | Niedrig | useNotifications.ts, useUnreadMessages.ts |
-| 3 | Security Realtime-Channel nur fuer Admins | Mittel | Niedrig | EnhancedSecurityService.ts, main.tsx |
-| 4 | Doppelte Security-Header-Init fixen | Niedrig | Niedrig | securityHeaders.ts |
-| 5 | Redundante getUser() Calls entfernen | Mittel | Niedrig | useProfile.ts |
-| 6 | Console-Logging in Produktion reduzieren | Mittel | Niedrig | Mehrere Dateien |
-| 7 | Toten Code entfernen | Niedrig | Niedrig | useFormDataOperations.tsx |
-
-Ich empfehle mit **Punkt 2** (einfachste Aenderung, hoher Impact) und **Punkt 3** (unnoetige Realtime-Verbindung fuer alle User) zu starten, dann **Punkt 1** und **5** anzugehen.
+### Ergebnis
+Ruhigeres, fokussiertes Layout mit einem klaren visuellen Fokus auf die aktive Steuererklärung. Keine konkurrierenden Farben mehr. Professioneller Fintech-Look konsistent mit dem modernisierten Admin-Bereich.
 
