@@ -151,7 +151,7 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-1"
               onClick={() => setIsAngabenExpanded(true)}
-              className="group rounded-2xl bg-background border border-border/50 p-4 sm:p-5 flex items-center gap-3.5 cursor-pointer hover:border-primary/20 hover:shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.08)] transition-all duration-200"
+              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
             >
               <StepBadge step={1} active={false} done />
               <div className="flex-1 min-w-0">
@@ -165,13 +165,13 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <section
               data-tour="form-step-1"
-              className="rounded-2xl bg-background border border-border/50 overflow-hidden transition-all duration-200"
+              className="rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
             >
               {/* Step header */}
               <div
                 onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
                 className={cn(
-                  "p-4 sm:p-5",
+                  "p-5 sm:p-6",
                   allAngabenComplete && "cursor-pointer hover:bg-muted/30"
                 )}
               >
@@ -203,7 +203,7 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
 
               {/* Section items */}
-              <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-1.5">
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-1.5">
                 {angabenSections.map(section => {
                   const Icon = section.icon;
                   const completed = isCompleted(section.id);
@@ -241,9 +241,9 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className="group rounded-2xl bg-background border border-border/50 overflow-hidden cursor-pointer hover:border-primary/20 hover:shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.08)] transition-all duration-200"
+              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
             >
-              <div className="p-4 sm:p-5 flex items-center gap-3.5">
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.documentsTitle}</h2>
@@ -255,7 +255,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-2"
-              className="rounded-2xl border border-dashed border-border/50 p-4 sm:p-5 flex items-center gap-3.5 opacity-60"
+              className="rounded-[2rem] ring-1 ring-black/[0.04] ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]"
             >
               <StepBadge step={2} active={false} done={false} />
               <div>
@@ -271,9 +271,9 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-3"
               onClick={handleSubmitClick}
-              className="group rounded-2xl bg-background border border-border/50 overflow-hidden cursor-pointer hover:border-primary/20 hover:shadow-[0_2px_12px_-4px_hsl(var(--primary)/0.08)] transition-all duration-200"
+              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
             >
-              <div className="p-4 sm:p-5 flex items-center gap-3.5">
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={3} active done={false} />
                 <div className="flex-1 min-w-0">
                   <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.reviewAndSubmit}</h2>
@@ -285,7 +285,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-3"
-              className="rounded-2xl border border-dashed border-border/50 p-4 sm:p-5 flex items-center gap-3.5 opacity-60"
+              className="rounded-[2rem] ring-1 ring-black/[0.04] ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]"
             >
               <StepBadge step={3} active={false} done={false} />
               <div>
