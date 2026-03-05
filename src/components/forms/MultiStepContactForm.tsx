@@ -264,15 +264,16 @@ const MultiStepContactForm = ({
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
-      <div className="relative z-10 px-6 py-8 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <SubpageHeader
             title={t.multiStepContactForm.title}
             onBack={() => window.history.back()}
-            className="mb-8"
           />
         )}
+
+        <div className="px-6 pt-6">
 
         {/* 4-Segment Progress Bar */}
         <div className="flex gap-2 mb-8">
@@ -646,6 +647,7 @@ const MultiStepContactForm = ({
             )}
           </div>
         </form>
+        </div>
       </div>
     </div>
   );
