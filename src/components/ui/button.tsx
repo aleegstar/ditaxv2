@@ -11,9 +11,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05),inset_0_1px_0_0_rgba(255,255,255,0.12)] hover:brightness-110 active:scale-[0.97] active:brightness-95",
+        default: "bg-gradient-to-b from-primary to-[hsl(var(--primary)/0.85)] text-white shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_2px_8px_-2px_hsl(var(--primary)/0.25),inset_0_1px_0_0_rgba(255,255,255,0.16)] hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.1),0_4px_12px_-2px_hsl(var(--primary)/0.3),inset_0_1px_0_0_rgba(255,255,255,0.2)] hover:brightness-[1.04] active:scale-[0.97] active:brightness-95 active:shadow-[0_1px_2px_0_rgba(0,0,0,0.06),inset_0_1px_0_0_rgba(255,255,255,0.1)]",
         destructive:
-          "bg-destructive text-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05),inset_0_1px_0_0_rgba(255,255,255,0.12)] hover:brightness-110 active:scale-[0.97] active:brightness-95",
+          "bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] text-white shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_2px_8px_-2px_hsl(var(--destructive)/0.25),inset_0_1px_0_0_rgba(255,255,255,0.16)] hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.1),0_4px_12px_-2px_hsl(var(--destructive)/0.3),inset_0_1px_0_0_rgba(255,255,255,0.2)] hover:brightness-[1.04] active:scale-[0.97] active:brightness-95",
         outline:
           "bg-background border border-border text-foreground shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] hover:bg-muted/50 active:scale-[0.97]",
         secondary:
