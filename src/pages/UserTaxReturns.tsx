@@ -503,13 +503,38 @@ const UserTaxReturns = () => {
           {paidInProgressYears.map(year => {
           const taxReturn = getExistingReturn(year);
           const isExpress = taxReturn?.express_service;
-          return <article key={year} onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
+          return <motion.article
+                key={year}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
+                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
+                style={{
+                  background: 'hsla(var(--background) / 0.6)',
+                  backdropFilter: 'blur(40px) saturate(1.8)',
+                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
+                }}
+              >
+                {/* Glass shimmer */}
+                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
+                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
+                }} />
+
                 {/* Top Image/Visual Area - Amber/Orange Gradient */}
                 <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
                   <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
                     {year}
                   </span>
-                  <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                  <div
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5"
+                    style={{
+                      background: 'hsla(0 0% 100% / 0.85)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
+                    }}
+                  >
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
                     <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
                       {t.userDashboard.processing}
@@ -518,14 +543,14 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
+                <div className="relative flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-tight text-gray-900 font-jakarta">
+                    <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground font-jakarta">
                       {t.userDashboard.taxReturn}
                     </h2>
                   </div>
 
-                  <p className="text-gray-500 text-sm leading-relaxed font-jakarta line-clamp-2">
+                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2">
                     {t.userDashboard.processingDescription}
                   </p>
 
@@ -535,22 +560,28 @@ const UserTaxReturns = () => {
                       {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                           <span>{t.userDashboard.expressService}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-gray-600 font-medium text-sm font-jakarta">
-                          <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
+                          <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                           <span>{t.userDashboard.standardService}</span>
                         </div>}
-                      {!isExpress && <span className="text-xs text-blue-600 font-medium font-jakarta bg-blue-50 px-2 py-0.5 rounded-full">
+                      {!isExpress && <span className="text-xs text-primary font-medium font-jakarta bg-primary/10 px-2 py-0.5 rounded-full">
                           {t.userDashboard.upgradeAvailable}
                         </span>}
                     </div>
 
-                    <button className="bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-colors flex items-center gap-1.5 font-jakarta group/btn">
+                    <button
+                      className="rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta group/btn"
+                      style={{
+                        background: 'hsla(var(--foreground) / 0.06)',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    >
                       {t.userDashboard.tracking}
                       <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
-              </article>;
+              </motion.article>;
         })}
 
           {/* Completed Tax Returns (Archived Style) */}
