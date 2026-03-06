@@ -101,10 +101,10 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
   };
 
   return (
-    <div className="p-4 space-y-3">
+    <div className="px-4 pb-4 pt-2 space-y-2">
       {/* File Preview */}
       {selectedFile && (
-        <div className="rounded-lg p-3 bg-muted border border-border">
+        <div className="rounded-xl p-3 bg-muted/60 border border-border/50 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             {getFileIcon(selectedFile)}
             <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
               variant="ghost"
               size="sm"
               onClick={removeFile}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground h-7 w-7 p-0 rounded-full"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -126,71 +126,77 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
         </div>
       )}
 
-      {/* Input Area */}
-      <form onSubmit={handleSubmit} className="relative w-full max-w-2xl mx-auto">
-        <div className="rounded-2xl bg-gray-50 border border-gray-200 p-2 transition-all duration-300 hover:border-gray-300 focus-within:border-gray-400">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*,.pdf"
-            className="hidden"
-          />
-          
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled || uploading}
-            className="flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none"
-            rows={1}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            style={{
-              height: 'auto',
-              maxHeight: '240px'
-            }}
-            onInput={(e) => {
-              const textarea = e.target as HTMLTextAreaElement;
-              textarea.style.height = 'auto';
-              textarea.style.height = Math.min(textarea.scrollHeight, 240) + 'px';
-            }}
-          />
-          
-          <div className="flex items-center justify-between gap-2 p-0 pt-2">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="sm"
-              onClick={handleFileClick}
+      {/* Lovable-style Input */}
+      <form onSubmit={handleSubmit} className="w-full">
+        <div className="rounded-2xl border border-border/60 bg-muted/40 backdrop-blur-sm transition-all duration-200 focus-within:border-border focus-within:bg-muted/60 hover:border-border/80">
+          {/* Textarea */}
+          <div className="px-4 pt-3 pb-1">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={placeholder}
               disabled={disabled || uploading}
-              className="flex h-8 w-8 text-gray-500 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-200 hover:text-gray-700"
-            >
-              <Paperclip className="h-5 w-5" />
-            </Button>
+              className="flex w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 min-h-[24px] resize-none leading-relaxed"
+              rows={1}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              style={{ height: 'auto', maxHeight: '200px' }}
+              onInput={(e) => {
+                const textarea = e.target as HTMLTextAreaElement;
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+              }}
+            />
+          </div>
 
-            <Button
-              type="submit" 
-              size="sm"
-              disabled={(!message.trim() && !selectedFile) || disabled || uploading}
-              className={`h-8 w-8 rounded-full transition-all duration-200 ${
-                (message.trim() || selectedFile) && !disabled && !uploading
-                  ? 'bg-gray-900 hover:bg-gray-800 text-white'
-                  : 'bg-transparent hover:bg-gray-200 text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+          {/* Bottom toolbar */}
+          <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
+            {/* Left: + button and attachment */}
+            <div className="flex items-center gap-1">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*,.pdf"
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleFileClick}
+                disabled={disabled || uploading}
+                className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <Paperclip className="h-[18px] w-[18px]" />
+              </Button>
+            </div>
+
+            {/* Right: send button */}
+            <div className="flex items-center gap-1">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={(!message.trim() && !selectedFile) || disabled || uploading}
+                className={`h-8 w-8 p-0 rounded-full transition-all duration-200 ${
+                  (message.trim() || selectedFile) && !disabled && !uploading
+                    ? 'bg-foreground hover:bg-foreground/90 text-background shadow-sm'
+                    : 'bg-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                }`}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-        
+
         {uploading && (
           <div className="text-center mt-2">
-            <span className="text-xs text-muted-foreground">Nachricht wird gesendet...</span>
+            <span className="text-xs text-muted-foreground animate-pulse">Nachricht wird gesendet...</span>
           </div>
         )}
       </form>
