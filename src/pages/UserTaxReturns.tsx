@@ -372,12 +372,12 @@ const UserTaxReturns = () => {
         {/* Greeting Section */}
         <section className="pb-6">
           <div className="flex flex-col gap-1">
-            <p className="font-medium text-gray-500 font-jakarta text-sm">
+            <p className="font-medium text-muted-foreground font-jakarta text-sm">
               {getGreeting()}
             </p>
-            <h1 className="text-gray-900 font-medium tracking-tight font-jakarta leading-none text-2xl">
+            <h1 className="text-foreground font-medium tracking-[-0.02em] font-jakarta leading-none text-2xl">
               {getUserDisplayName() ?? (
-                <span className="inline-block bg-gray-200 rounded-md animate-pulse w-28 h-7" />
+                <span className="inline-block bg-muted rounded-md animate-pulse w-28 h-7" />
               )}
             </h1>
           </div>
