@@ -113,30 +113,42 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
               onClick={removeFile}
-              className="text-muted-foreground hover:text-foreground h-7 w-7 p-0 rounded-full"
+              className="flex items-center justify-center h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
             >
-              <X className="h-4 w-4" />
-            </Button>
+              <X className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       )}
 
       {/* Lovable-style Input */}
       <form onSubmit={handleSubmit} className="w-full">
-        <div className="rounded-2xl border border-border/60 bg-muted/40 backdrop-blur-sm transition-all duration-200 focus-within:border-border focus-within:bg-muted/60 hover:border-border/80">
+        <div
+          className="rounded-2xl transition-all duration-200"
+          style={{
+            background: 'hsl(40 30% 96%)',
+            border: '1px solid hsl(40 20% 90%)',
+          }}
+        >
           {/* Textarea */}
           <div className="px-4 pt-3 pb-1">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*,.pdf"
+              className="hidden"
+            />
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={placeholder}
               disabled={disabled || uploading}
-              className="flex w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 min-h-[24px] resize-none leading-relaxed"
+              className="flex w-full bg-transparent text-[15px] text-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 min-h-[24px] resize-none leading-relaxed"
+              style={{ color: 'hsl(30 10% 25%)' }}
               rows={1}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -144,48 +156,52 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
                   handleSubmit(e);
                 }
               }}
-              style={{ height: 'auto', maxHeight: '200px' }}
               onInput={(e) => {
                 const textarea = e.target as HTMLTextAreaElement;
                 textarea.style.height = 'auto';
                 textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
               }}
+              
             />
           </div>
 
           {/* Bottom toolbar */}
-          <div className="flex items-center justify-between px-2.5 pb-2.5 pt-1">
+          <div className="flex items-center justify-between px-2.5 pb-2 pt-0.5">
             {/* Left: + button */}
-            <div className="flex items-center gap-1.5">
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*,.pdf"
-                className="hidden"
-              />
+            <div className="flex items-center">
               <button
                 type="button"
                 onClick={handleFileClick}
                 disabled={disabled || uploading}
-                className="flex items-center justify-center h-8 w-8 rounded-full border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center h-7 w-7 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  border: '1.5px solid hsl(30 10% 78%)',
+                  color: 'hsl(30 10% 45%)',
+                }}
               >
-                <Plus className="h-4 w-4" strokeWidth={2} />
+                <Plus className="h-3.5 w-3.5" strokeWidth={2} />
               </button>
             </div>
 
             {/* Right: send button */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center">
               <button
                 type="submit"
                 disabled={(!message.trim() && !selectedFile) || disabled || uploading}
-                className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 ${
-                  (message.trim() || selectedFile) && !disabled && !uploading
-                    ? 'bg-foreground text-background hover:bg-foreground/90 shadow-sm active:scale-95'
-                    : 'bg-muted-foreground/15 text-muted-foreground/40 cursor-not-allowed'
-                }`}
+                className="flex items-center justify-center h-7 w-7 rounded-full transition-all duration-200 active:scale-95"
+                style={{
+                  background: (message.trim() || selectedFile) && !disabled && !uploading
+                    ? 'hsl(30 5% 25%)'
+                    : 'hsl(30 8% 82%)',
+                  color: (message.trim() || selectedFile) && !disabled && !uploading
+                    ? 'hsl(0 0% 100%)'
+                    : 'hsl(30 5% 55%)',
+                  cursor: (!message.trim() && !selectedFile) || disabled || uploading
+                    ? 'not-allowed'
+                    : 'pointer',
+                }}
               >
-                <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+                <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.5} />
               </button>
             </div>
           </div>
