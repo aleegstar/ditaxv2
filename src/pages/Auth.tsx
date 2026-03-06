@@ -473,176 +473,242 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#f8f9fb]">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-muted/30">
 
-      {/* Subtle top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      {/* Animated gradient background blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ x: [0, 30, -20, 0], y: [0, -40, 20, 0], scale: [1, 1.1, 0.95, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/4 -left-1/4 w-[60%] h-[60%] rounded-full opacity-[0.07]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
+        />
+        <motion.div
+          animate={{ x: [0, -25, 15, 0], y: [0, 30, -25, 0], scale: [1, 0.95, 1.1, 1] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-1/4 -right-1/4 w-[50%] h-[50%] rounded-full opacity-[0.05]"
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
+        />
+      </div>
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
-        {/* Card */}
-        <div className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-[2rem] border-0 sm:ring-1 sm:ring-black/[0.04] px-7 py-12 sm:px-10 sm:py-14 bg-background sm:shadow-[0_2px_24px_-8px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.02)]">
+        {/* Liquid Glass Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-[2.5rem] px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden"
+          style={{
+            background: 'hsla(var(--background) / 0.65)',
+            backdropFilter: 'blur(40px) saturate(1.8)',
+            WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
+            boxShadow: '0 8px 60px -12px hsla(var(--primary) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.04), inset 0 1px 0 0 hsla(0 0% 100% / 0.5), inset 0 -1px 0 0 hsla(0 0% 0% / 0.02)',
+          }}
+        >
+          {/* Inner glass shimmer edge */}
+          <div className="absolute inset-0 rounded-none sm:rounded-[2.5rem] pointer-events-none" style={{
+            background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.2) 0%, transparent 40%, transparent 60%, hsla(0 0% 100% / 0.05) 100%)',
+          }} />
 
-          <AnimatePresence mode="wait">
-            {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
+          <div className="relative z-10">
+            <AnimatePresence mode="wait">
+              {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
-                {/* Logo & Title */}
-                <div className="flex flex-col items-center text-center mb-10">
-                  <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                  <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground mb-1">
-                    {t.authFlow.login}
-                  </h1>
-                  <p className="text-muted-foreground text-[13px] font-light">
-                    {t.authFlow.loginSubtitle}
-                  </p>
-                </div>
-
-                {/* Social Logins */}
-                <div className="space-y-2.5">
-                  {/* Google */}
-                  <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:border-border active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
-                    <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                    </svg>
-                    <span>{t.authFlow.continueWithGoogle}</span>
-                  </button>
-
-                  {/* Apple */}
-                  <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:border-border active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none">
-                    <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
-                      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
-                    </svg>
-                    <span>{t.authFlow.continueWithApple}</span>
-                  </button>
-                </div>
-
-                {/* Divider */}
-                <div className="relative my-7">
-                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-border/30" />
+                  {/* Logo & Title */}
+                  <div className="flex flex-col items-center text-center mb-10">
+                    <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
+                    <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground mb-1">
+                      {t.authFlow.login}
+                    </h1>
+                    <p className="text-muted-foreground text-[13px] font-light">
+                      {t.authFlow.loginSubtitle}
+                    </p>
                   </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60 bg-background">{t.authFlow.or}</span>
+
+                  {/* Social Logins */}
+                  <div className="space-y-2.5">
+                    {/* Google */}
+                    <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none" style={{
+                      background: 'hsla(var(--background) / 0.6)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      border: '1px solid hsla(var(--foreground) / 0.06)',
+                      boxShadow: '0 1px 3px hsla(var(--foreground) / 0.04), inset 0 1px 0 hsla(0 0% 100% / 0.4)',
+                    }}>
+                      <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                      </svg>
+                      <span>{t.authFlow.continueWithGoogle}</span>
+                    </button>
+
+                    {/* Apple */}
+                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none" style={{
+                      background: 'hsla(var(--background) / 0.6)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      border: '1px solid hsla(var(--foreground) / 0.06)',
+                      boxShadow: '0 1px 3px hsla(var(--foreground) / 0.04), inset 0 1px 0 hsla(0 0% 100% / 0.4)',
+                    }}>
+                      <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
+                        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
+                      </svg>
+                      <span>{t.authFlow.continueWithApple}</span>
+                    </button>
                   </div>
-                </div>
 
-                {/* Email Accordion */}
-                <div className="w-full">
-                  <button
-                    type="button"
-                    onClick={() => setShowEmailForm(prev => !prev)}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 h-[52px] px-4 text-[14px] font-medium text-muted-foreground bg-background transition-all duration-200 hover:bg-muted/40 hover:text-foreground hover:border-border active:scale-[0.98] focus:outline-none"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>{'Mit E-Mail anmelden'}</span>
-                    <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                      <ChevronDown className="w-4 h-4 ml-0.5" />
-                    </motion.div>
-                  </button>
+                  {/* Divider */}
+                  <div className="relative my-7">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div className="w-full" style={{ borderTop: '1px solid hsla(var(--foreground) / 0.06)' }} />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60" style={{ background: 'hsla(var(--background) / 0.65)' }}>{t.authFlow.or}</span>
+                    </div>
+                  </div>
 
-                  <AnimatePresence>
-                    {showEmailForm && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
-                          <div>
-                            <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                            <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl border border-border/50 h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-background" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
-                          </div>
-
-                          <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 bg-foreground text-background h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:bg-foreground/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50">
-                            {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                          </button>
-
-                          <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
-                            {t.authFlow.microcopy}
-                          </p>
-                        </form>
+                  {/* Email Accordion */}
+                  <div className="w-full">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailForm(prev => !prev)}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:scale-[1.01] active:scale-[0.98] focus:outline-none"
+                      style={{
+                        background: 'hsla(var(--background) / 0.6)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        border: '1px solid hsla(var(--foreground) / 0.06)',
+                        boxShadow: '0 1px 3px hsla(var(--foreground) / 0.04), inset 0 1px 0 hsla(0 0% 100% / 0.4)',
+                      }}
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>{'Mit E-Mail anmelden'}</span>
+                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronDown className="w-4 h-4 ml-0.5" />
                       </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                    </button>
 
-                {/* Footer Links */}
-                <div className="mt-12 flex flex-col items-center gap-3 text-[11px] text-muted-foreground/50">
-                  <div className="flex items-center gap-3">
-                    <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                    <span className="text-border">·</span>
-                    <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
-                  </div>
-                  <AuthLanguageToggle />
-                </div>
+                    <AnimatePresence>
+                      {showEmailForm && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
+                            <div>
+                              <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
+                              <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all" style={{
+                                background: 'hsla(var(--background) / 0.5)',
+                                backdropFilter: 'blur(8px)',
+                                WebkitBackdropFilter: 'blur(8px)',
+                                border: '1px solid hsla(var(--foreground) / 0.06)',
+                                boxShadow: 'inset 0 2px 4px hsla(var(--foreground) / 0.02)',
+                              }} placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                            </div>
 
-              </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
+                            <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50" style={{
+                              background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsla(var(--foreground) / 0.85) 100%)',
+                              color: 'hsl(var(--background))',
+                              boxShadow: '0 4px 14px -4px hsla(var(--foreground) / 0.3), inset 0 1px 0 hsla(0 0% 100% / 0.1)',
+                            }}>
+                              {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                            </button>
 
-                {/* Logo */}
-                <div className="flex items-center justify-center gap-3 mb-10">
-                  <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-7 object-contain" />
-                </div>
-
-                {/* Header */}
-                <div className="text-center mb-8 space-y-1.5">
-                  <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground">
-                    {t.authFlow.enterCode}
-                  </h1>
-                  <p className="text-[13px] text-muted-foreground font-light max-w-[85%] mx-auto leading-relaxed">
-                    {t.authFlow.codeSentTo}{' '}
-                    <span className="text-foreground font-medium">{email}</span>{' '}
-                    {t.authFlow.codeSentToSuffix}
-                  </p>
-                </div>
-
-                {/* OTP Form */}
-                <div className="space-y-5">
-                  <div className="flex justify-between gap-2">
-                    <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
-                      <InputOTPGroup className="flex justify-between gap-2 w-full">
-                         <InputOTPSlot index={0} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={1} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={2} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={3} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={4} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                         <InputOTPSlot index={5} className="w-full h-[52px] text-center text-lg font-semibold border border-border/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 transition-all text-foreground bg-background" />
-                      </InputOTPGroup>
-                    </InputOTP>
+                            <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
+                              {t.authFlow.microcopy}
+                            </p>
+                          </form>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
-                  <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center bg-foreground text-background h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
-                    {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
-                  </button>
-                </div>
+                  {/* Footer Links */}
+                  <div className="mt-12 flex flex-col items-center gap-3 text-[11px] text-muted-foreground/50">
+                    <div className="flex items-center gap-3">
+                      <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
+                      <span className="text-border">·</span>
+                      <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
+                    </div>
+                    <AuthLanguageToggle />
+                  </div>
 
-                {/* Footer Actions */}
-                <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                  <p className="text-[13px] text-muted-foreground font-light">
-                    {t.authFlow.noCodeReceived}
-                    {resendCountdown > 0 ? <>
-                        <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
-                        <span className="ml-1 text-muted-foreground/60">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
-                      </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
-                        {t.authFlow.resend}
-                      </button>}
-                  </p>
+                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
-                  <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/60 hover:text-foreground transition-colors mt-1">
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                    {t.authFlow.backToLogin}
-                  </button>
-                </div>
+                  {/* Logo */}
+                  <div className="flex items-center justify-center gap-3 mb-10">
+                    <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-7 object-contain" />
+                  </div>
 
-              </motion.div>}
-          </AnimatePresence>
+                  {/* Header */}
+                  <div className="text-center mb-8 space-y-1.5">
+                    <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground">
+                      {t.authFlow.enterCode}
+                    </h1>
+                    <p className="text-[13px] text-muted-foreground font-light max-w-[85%] mx-auto leading-relaxed">
+                      {t.authFlow.codeSentTo}{' '}
+                      <span className="text-foreground font-medium">{email}</span>{' '}
+                      {t.authFlow.codeSentToSuffix}
+                    </p>
+                  </div>
 
-        </div>
+                  {/* OTP Form */}
+                  <div className="space-y-5">
+                    <div className="flex justify-between gap-2">
+                      <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
+                        <InputOTPGroup className="flex justify-between gap-2 w-full">
+                           {[0,1,2,3,4,5].map(i => (
+                             <InputOTPSlot key={i} index={i} className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground" style={{
+                               background: 'hsla(var(--background) / 0.5)',
+                               backdropFilter: 'blur(8px)',
+                               WebkitBackdropFilter: 'blur(8px)',
+                               border: '1px solid hsla(var(--foreground) / 0.06)',
+                               boxShadow: 'inset 0 2px 4px hsla(var(--foreground) / 0.02)',
+                             }} />
+                           ))}
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+
+                    <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none" style={{
+                      background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsla(var(--foreground) / 0.85) 100%)',
+                      color: 'hsl(var(--background))',
+                      boxShadow: '0 4px 14px -4px hsla(var(--foreground) / 0.3), inset 0 1px 0 hsla(0 0% 100% / 0.1)',
+                    }}>
+                      {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
+                    </button>
+                  </div>
+
+                  {/* Footer Actions */}
+                  <div className="mt-8 flex flex-col items-center gap-3 text-center">
+                    <p className="text-[13px] text-muted-foreground font-light">
+                      {t.authFlow.noCodeReceived}
+                      {resendCountdown > 0 ? <>
+                          <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
+                          <span className="ml-1 text-muted-foreground/60">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                        </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
+                          {t.authFlow.resend}
+                        </button>}
+                    </p>
+
+                    <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/60 hover:text-foreground transition-colors mt-1">
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      {t.authFlow.backToLogin}
+                    </button>
+                  </div>
+
+                </motion.div>}
+            </AnimatePresence>
+          </div>
+
+        </motion.div>
       </div>
 
     </div>;
