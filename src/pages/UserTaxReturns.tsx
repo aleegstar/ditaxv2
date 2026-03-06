@@ -329,16 +329,35 @@ const UserTaxReturns = () => {
     return t.userDashboard.greeting;
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-gray-100 selection:text-gray-900 pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-gray-900 bg-white"
+    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
+    style={{ background: 'hsl(var(--background))' }}
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
+      {/* Animated background blobs */}
+      <motion.div
+        className="fixed top-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
+        }}
+        animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="fixed bottom-[-15%] left-[-15%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 15, 0], scale: [1, 1.05, 1] }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
       {/* Pull-to-Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4 relative">
+      <main className="relative z-10 min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4">
         {/* Header */}
         <header className="flex pb-8 items-center justify-between">
           <div className="flex items-center">
