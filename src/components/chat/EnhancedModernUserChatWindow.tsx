@@ -13,14 +13,12 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const isChatActiveRef = useRef(true);
 
-  // Mark messages as read whenever new unread messages arrive while chat is open
   useEffect(() => {
     if (!isValid || !userId) return;
     if (unreadCount > 0 && isChatActiveRef.current) {
       console.log('Chat is active, marking messages as read:', unreadCount);
       markAsRead();
       
-      // Also mark chat-related in-app notifications as read
       supabase
         .from('user_notifications')
         .update({ read: true })
@@ -33,7 +31,6 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
     }
   }, [userId, isValid, unreadCount, markAsRead]);
 
-  // Track component mount/unmount for active state
   useEffect(() => {
     isChatActiveRef.current = true;
     return () => {
@@ -79,7 +76,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
 
   if (!isValid || !userId) {
     return (
-      <div className="flex items-center justify-center h-full bg-white text-slate-500">
+      <div className="flex items-center justify-center h-full text-muted-foreground">
         <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -93,7 +90,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-white text-slate-500">
+      <div className="flex items-center justify-center h-full text-muted-foreground">
         <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -106,7 +103,7 @@ export const EnhancedModernUserChatWindow: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col">
       <ChatBotInterface
         userId={userId}
         onEscalate={handleEscalate}

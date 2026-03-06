@@ -421,23 +421,30 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
     });
   };
   return <>
-      <div className="flex flex-col h-full bg-white relative overflow-hidden">
-        {/* Header */}
-        <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b bg-white shrink-0 border-white border-0">
-          <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-muted/50 border border-border/40 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0">
+      <div className="flex flex-col h-full relative overflow-hidden">
+        {/* Glass Header */}
+        <div
+          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0"
+          style={{
+            background: 'hsla(var(--background) / 0.7)',
+            backdropFilter: 'blur(40px) saturate(1.8)',
+            borderBottom: '1px solid hsla(var(--foreground) / 0.06)',
+          }}
+        >
+          <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0" style={{ background: 'hsla(var(--foreground) / 0.05)', border: '1px solid hsla(var(--foreground) / 0.08)' }}>
             <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </button>
 
           <div className="flex items-center gap-3">
             {/* Bot Avatar */}
             <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden" style={{
-            background: escalatedMode ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
+            background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
           }}>
               {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
             </div>
 
             <div className="flex flex-col">
-              <h1 className="font-semibold text-base tracking-tight text-slate-800 leading-tight">
+              <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight">
                 {escalatedMode ? 'Support-Team' : 'Steuer-Assistent'}
               </h1>
               <div className="flex items-center gap-1.5">
@@ -451,12 +458,12 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="ml-auto w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors">
+              <button className="ml-auto w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-lg z-50">
-              <DropdownMenuItem onClick={handleDeleteClick} disabled={isDeleting} className="flex items-center gap-2 text-red-500 hover:bg-red-50 cursor-pointer">
+            <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg z-50">
+              <DropdownMenuItem onClick={handleDeleteClick} disabled={isDeleting} className="flex items-center gap-2 text-destructive hover:bg-destructive/10 cursor-pointer">
                 <Trash2 className="h-4 w-4" />
                 Chat löschen
               </DropdownMenuItem>
@@ -464,18 +471,24 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Messages Area - add bottom padding for fixed input on mobile */}
-        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white pb-[160px] md:pb-6">
-          {isLoadingHistory ? <div className="flex items-center justify-center h-64 text-slate-500">
+        {/* Messages Area */}
+        <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth pb-[160px] md:pb-6">
+          {isLoadingHistory ? <div className="flex items-center justify-center h-64 text-muted-foreground">
               Chat wird geladen...
             </div> : messages.length === 0 ? <ChatEmptyState userId={userId} /> : <div className="max-w-2xl mx-auto space-y-4">
-              {/* Missing Items Panel - Show if user has pending requests */}
-              {/* Note: taxFilerId would need to be passed from parent if filtering per filer is needed in chat */}
+              {/* Missing Items Panel */}
               <MissingItemsPanel userId={userId} onSubmitted={loadChatHistory} />
               
               {/* Time Divider */}
               <div className="flex justify-center mb-4">
-                <span className="text-[10px] font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
+                <span
+                  className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full"
+                  style={{
+                    background: 'hsla(var(--background) / 0.8)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid hsla(var(--foreground) / 0.08)',
+                  }}
+                >
                   Heute
                 </span>
               </div>
@@ -483,15 +496,33 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               {messages.map(message => <div key={message.id} className={`flex ${message.isBot || message.isAdmin ? 'items-start gap-3' : 'flex-col items-end'} ${message.isBot || message.isAdmin ? 'max-w-[90%]' : 'ml-auto max-w-[85%]'}`}>
                   {/* Bot/Admin Avatar */}
                   {(message.isBot || message.isAdmin) && <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden" style={{
-              background: message.isAdmin ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)'
+              background: message.isAdmin ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
             }}>
                       {message.isAdmin ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
                     </div>}
 
                   <div className="flex flex-col gap-1">
-                    {message.isAdmin && message.senderName && <p className="text-xs font-medium text-slate-500 ml-1">{message.senderName}</p>}
-                    <div className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${message.isBot || message.isAdmin ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'}`}>
-                      {message.content && <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-[#1d283a]' : 'text-white'}`}>{message.content}</p>}
+                    {message.isAdmin && message.senderName && <p className="text-xs font-medium text-muted-foreground ml-1">{message.senderName}</p>}
+                    <div
+                      className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
+                        message.isBot || message.isAdmin
+                          ? 'text-foreground'
+                          : 'text-white shadow-md'
+                      }`}
+                      style={
+                        message.isBot || message.isAdmin
+                          ? {
+                              background: 'hsla(var(--background) / 0.75)',
+                              backdropFilter: 'blur(40px) saturate(1.8)',
+                              boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
+                            }
+                          : {
+                              background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))',
+                              boxShadow: '0 4px 20px -4px hsla(var(--primary) / 0.35)',
+                            }
+                      }
+                    >
+                      {message.content && <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-foreground' : 'text-white'}`}>{message.content}</p>}
                       {message.attachment && (
                         <div className={message.content ? 'mt-2' : ''}>
                           <ChatAttachment
@@ -505,28 +536,30 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                         </div>
                       )}
                     </div>
-                    <span className={`text-[10px] text-slate-400 font-medium ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1'}`}>
+                    <span className={`text-[10px] text-muted-foreground font-medium ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1'}`}>
                       {formatTime(message.timestamp)}
                     </span>
                   </div>
                 </div>)}
 
               {isLoading && <div className="flex items-start gap-3 max-w-[90%]">
-                  <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-md border mt-1 overflow-hidden" style={{
-              background: escalatedMode ? 'linear-gradient(to bottom right, #059669, #047857)' : 'linear-gradient(to bottom right, #1D64FF, #0B2566)',
-              borderColor: escalatedMode ? 'rgba(5, 150, 105, 0.3)' : 'rgba(29, 100, 255, 0.3)'
+                  <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden" style={{
+              background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
             }}>
                     {escalatedMode ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
                   </div>
-                  <div className="bg-white border border-slate-200 px-4 py-3.5 rounded-[24px] shadow-sm">
+                  <div
+                    className="px-4 py-3.5 rounded-[24px]"
+                    style={{
+                      background: 'hsla(var(--background) / 0.75)',
+                      backdropFilter: 'blur(40px) saturate(1.8)',
+                      boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
+                    }}
+                  >
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" />
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{
-                  animationDelay: '0.1s'
-                }} />
-                      <div className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{
-                  animationDelay: '0.2s'
-                }} />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0.1s' }} />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0.2s' }} />
                     </div>
                   </div>
                 </div>}
@@ -535,12 +568,24 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             </div>}
         </div>
 
-        {/* Footer Input Area - fixed to bottom on mobile */}
-        <div className="z-20 p-4 w-full bg-white shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4 md:border-t md:border-slate-100">
+        {/* Glass Footer Input Area */}
+        <div
+          className="z-20 p-4 w-full shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4"
+          style={{
+            background: 'hsla(var(--background) / 0.7)',
+            backdropFilter: 'blur(40px) saturate(1.8)',
+            borderTop: '1px solid hsla(var(--foreground) / 0.06)',
+          }}
+        >
           <div className="max-w-2xl mx-auto">
-            <PromptInputBox onSend={sendMessage} isLoading={isLoading} placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."} className="!bg-slate-50 !border-slate-200 hover:!border-slate-300 focus-within:!border-[#1D64FF]/50 focus-within:!ring-1 focus-within:!ring-[#1D64FF]/20 shadow-sm" />
+            <PromptInputBox
+              onSend={sendMessage}
+              isLoading={isLoading}
+              placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."}
+              className="!bg-[hsla(var(--foreground)/0.04)] !border-[hsla(var(--foreground)/0.08)] !rounded-[1.5rem] shadow-none hover:!border-[hsla(var(--foreground)/0.12)] focus-within:!border-primary/30 focus-within:!ring-1 focus-within:!ring-primary/15"
+            />
             <div className="text-center mt-3">
-              <p className="text-[10px] text-slate-500 font-medium">
+              <p className="text-[10px] text-muted-foreground font-medium">
                 Ditax AI kann Fehler machen. Überprüfe wichtige Infos.
               </p>
             </div>
