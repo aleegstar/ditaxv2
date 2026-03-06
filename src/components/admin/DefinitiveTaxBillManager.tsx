@@ -140,21 +140,19 @@ export function DefinitiveTaxBillManager() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { label: 'Ausstehend', variant: 'secondary' as const, icon: Clock },
-      under_review: { label: 'In Prüfung', variant: 'default' as const, icon: Eye },
-      approved: { label: 'Genehmigt', variant: 'default' as const, icon: CheckCircle },
-      rejected: { label: 'Abgelehnt', variant: 'destructive' as const, icon: XCircle },
-      revision_required: { label: 'Überarbeitung nötig', variant: 'secondary' as const, icon: AlertCircle },
+      pending: { label: 'Ausstehend', className: 'bg-foreground/[0.06] text-muted-foreground' },
+      under_review: { label: 'In Prüfung', className: 'bg-foreground/[0.06] text-muted-foreground' },
+      approved: { label: 'Genehmigt', className: 'bg-foreground/[0.08] text-foreground' },
+      rejected: { label: 'Abgelehnt', className: 'bg-destructive/10 text-destructive' },
+      revision_required: { label: 'Überarbeitung nötig', className: 'bg-foreground/[0.06] text-muted-foreground' },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
-        <Icon className="h-3 w-3" />
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}>
         {config.label}
-      </Badge>
+      </span>
     );
   };
 
@@ -330,7 +328,7 @@ export function DefinitiveTaxBillManager() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-white min-h-screen">
+    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
       <AdminWelcomeHeader
         title="Definitive Steuerrechnungen"
         subtitle="Verwalten Sie definitive Steuerrechnungen für alle Benutzer"
@@ -343,12 +341,7 @@ export function DefinitiveTaxBillManager() {
       <div className="flex justify-end">
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
-            <Button 
-              className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 lg:px-[20px] py-3 lg:py-[10px] h-12 lg:h-14 text-sm lg:text-base font-medium border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 lg:gap-[10px]"
-              style={{
-                boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px'
-              }}
-            >
+            <Button variant="outline" className="rounded-xl">
               <Upload className="h-4 w-4 mr-2" />
               Hochladen
             </Button>
@@ -408,82 +401,78 @@ export function DefinitiveTaxBillManager() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4">
-        {bills.map((bill) => (
-          <Card key={bill.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
+      {/* Bills List */}
+      <div className="rounded-xl border border-border/40 bg-card overflow-hidden">
+        <div className="divide-y divide-border/40">
+          {bills.map((bill) => (
+            <div key={bill.id} className="group flex items-center justify-between px-5 py-4 hover:bg-muted/30 transition-colors">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/50">
+                  <FileText className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {bill.tax_filer 
                       ? `${bill.tax_filer.first_name} ${bill.tax_filer.last_name}` 
-                      : `${bill.profiles?.first_name} ${bill.profiles?.last_name}`} - {bill.tax_year}
-                  </CardTitle>
-                  <CardDescription>
-                    {bill.profiles?.email} 
-                    {bill.tax_filer && ` • Tax Filer: ${bill.tax_filer.first_name} ${bill.tax_filer.last_name}`}
-                    {' • Hochgeladen am '}{new Date(bill.upload_date).toLocaleDateString('de-DE')}
-                    {bill.uploaded_by_admin_id ? ' (von Admin)' : ' (von Benutzer)'}
-                  </CardDescription>
+                      : `${bill.profiles?.first_name} ${bill.profiles?.last_name}`}
+                    <span className="ml-2 text-muted-foreground font-normal">· {bill.tax_year}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {bill.file_name}
+                    <span className="mx-1.5">·</span>
+                    {new Date(bill.upload_date).toLocaleDateString('de-DE')}
+                    {bill.uploaded_by_admin_id ? ' · Admin' : ''}
+                    {bill.admin_notes && (
+                      <span className="mx-1.5">· {bill.admin_notes}</span>
+                    )}
+                  </p>
                 </div>
-                {getStatusBadge(bill.status)}
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">{bill.file_name}</p>
-                  {bill.admin_notes && (
-                    <p className="text-sm text-muted-foreground">
-                      Notizen: {bill.admin_notes}
-                    </p>
-                  )}
-                </div>
-                <div className="flex space-x-2">
+              <div className="flex items-center gap-3 shrink-0">
+                {getStatusBadge(bill.status)}
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="h-8 w-8 p-0 rounded-lg"
                     onClick={() => handleDownload(bill)}
                   >
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
+                    <Download className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   {bill.status !== 'approved' && bill.status !== 'rejected' && (
                     <Button
+                      variant="ghost"
                       size="sm"
+                      className="h-8 w-8 p-0 rounded-lg"
                       onClick={() => {
                         setSelectedBill(bill);
                         setReviewDialogOpen(true);
                       }}
                     >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Prüfen
+                      <Eye className="h-4 w-4" strokeWidth={1.5} />
                     </Button>
                   )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          ))}
 
-        {bills.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Keine definitiven Steuerrechnungen vorhanden.</p>
-            </CardContent>
-          </Card>
-        )}
+          {bills.length === 0 && (
+            <div className="text-center py-16">
+              <FileText className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" strokeWidth={1.5} />
+              <p className="text-sm text-muted-foreground">Keine definitiven Steuerrechnungen vorhanden.</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Review Dialog */}
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Definitive Steuerrechnung prüfen</DialogTitle>
+            <DialogTitle>Steuerrechnung prüfen</DialogTitle>
             <DialogDescription>
-              Bewerten Sie die definitive Steuerrechnung für {selectedBill?.profiles?.first_name} {selectedBill?.profiles?.last_name} ({selectedBill?.tax_year})
+              {selectedBill?.profiles?.first_name} {selectedBill?.profiles?.last_name} · {selectedBill?.tax_year}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
