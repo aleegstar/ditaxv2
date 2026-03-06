@@ -6,6 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Plus, ChevronRight } from 'lucide-react';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { motion } from 'framer-motion';
 
 const getRelationshipLabel = (relationship: string, t: any): string => {
   const labels: Record<string, string> = {
