@@ -590,41 +590,65 @@ const UserTaxReturns = () => {
           const completedReturn = completedTaxReturns?.[year];
           const isSigned = completedReturn?.signature_status === 'signed';
           const needsSignature = completedReturn && !isSigned;
-          return <article key={year} onClick={() => {
-            if (completedReturn?.id) {
-              navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
-            }
-          }} className="group relative flex flex-col p-3 bg-gradient-to-b from-white to-slate-50/80 rounded-[2.5rem] shadow-[0_4px_14px_0_rgba(100,116,139,0.12),0_20px_40px_-12px_rgba(0,0,0,0.06)] ring-1 ring-slate-200/60 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(100,116,139,0.18),0_25px_50px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-1 cursor-pointer">
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-gray-300 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
+          return <motion.article
+                key={year}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => {
+                  if (completedReturn?.id) {
+                    navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
+                  }
+                }}
+                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
+                style={{
+                  background: 'hsla(var(--background) / 0.6)',
+                  backdropFilter: 'blur(40px) saturate(1.8)',
+                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
+                }}
+              >
+                {/* Glass shimmer */}
+                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
+                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
+                }} />
+
+                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-muted flex items-center justify-center">
+                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50/90 ring-1 ring-amber-200' : 'bg-white/90'}`}>
+                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 ${needsSignature ? 'ring-1 ring-amber-200' : ''}`}
+                    style={{
+                      background: needsSignature ? 'hsla(40 100% 96% / 0.9)' : 'hsla(0 0% 100% / 0.85)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
+                    }}
+                  >
                     {needsSignature ? <>
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
                         <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
                           {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
-                        <Check className="w-3.5 h-3.5 text-gray-400" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-gray-500 font-jakarta tracking-wide uppercase">
+                        <Check className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
                           {t.userDashboard.finished}
                         </span>
                       </>}
                   </div>
                 </div>
 
-                <div className="px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
+                <div className="relative px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className={`text-xl font-medium tracking-tight font-jakarta ${needsSignature ? 'text-gray-700' : 'text-gray-400'}`}>
+                    <h2 className={`text-xl font-medium tracking-[-0.02em] font-jakarta ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {t.userDashboard.taxReturn}
                     </h2>
-                    {isSigned && <div className="text-gray-300 bg-gray-50 p-0.5 rounded-full">
+                    {isSigned && <div className="text-muted-foreground/40 bg-muted p-0.5 rounded-full">
                         <Check className="w-3.5 h-3.5" strokeWidth={2} />
                       </div>}
                   </div>
 
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-gray-400'}`}>
+                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-muted-foreground'}`}>
                     {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
@@ -637,19 +661,24 @@ const UserTaxReturns = () => {
                       {needsSignature ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
                           <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                           <span>{t.userDashboard.actionRequired}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-gray-400 font-medium text-sm font-jakarta">
-                          <Check className="w-4 h-4 text-gray-300" strokeWidth={1.5} />
+                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
+                          <Check className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                           <span>100%</span>
                         </div>}
                     </div>
 
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-[#1D64FF] text-white hover:bg-[#1854D9] shadow-lg shadow-blue-500/25' : 'bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-500 hover:text-gray-900'}`}>
+                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : ''}`}
+                      style={!needsSignature ? {
+                        background: 'hsla(var(--foreground) / 0.06)',
+                        color: 'hsl(var(--foreground))',
+                      } : undefined}
+                    >
                       {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
                       <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
-              </article>;
+              </motion.article>;
         })}
 
           {/* New Year Action Card */}
