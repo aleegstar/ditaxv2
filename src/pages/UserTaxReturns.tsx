@@ -741,10 +741,10 @@ const UserTaxReturns = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
-            <AlertDialogCancel disabled={isDeleting} className="w-full bg-white hover:bg-gray-50 border border-gray-200 font-medium h-12 rounded-full text-gray-900">
+            <AlertDialogCancel disabled={isDeleting} className="w-full bg-background hover:bg-muted border border-border font-medium h-12 rounded-full text-foreground">
               {t.userDashboard.cancelDelete}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full h-12 bg-red-500 hover:bg-red-600 text-white border-0 rounded-full font-medium">
+            <AlertDialogAction onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full h-12 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-0 rounded-full font-medium">
               {isDeleting ? t.userDashboard.deleting : t.userDashboard.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
