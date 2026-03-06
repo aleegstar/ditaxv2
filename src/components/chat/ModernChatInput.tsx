@@ -154,9 +154,9 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
           </div>
 
           {/* Bottom toolbar */}
-          <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-            {/* Left: + button and attachment */}
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between px-2.5 pb-2.5 pt-1">
+            {/* Left: + button */}
+            <div className="flex items-center gap-1.5">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -164,32 +164,29 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
                 accept="image/*,.pdf"
                 className="hidden"
               />
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={handleFileClick}
                 disabled={disabled || uploading}
-                className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="flex items-center justify-center h-8 w-8 rounded-full border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Paperclip className="h-[18px] w-[18px]" />
-              </Button>
+                <Plus className="h-4 w-4" strokeWidth={2} />
+              </button>
             </div>
 
             {/* Right: send button */}
-            <div className="flex items-center gap-1">
-              <Button
+            <div className="flex items-center gap-1.5">
+              <button
                 type="submit"
-                size="sm"
                 disabled={(!message.trim() && !selectedFile) || disabled || uploading}
-                className={`h-8 w-8 p-0 rounded-full transition-all duration-200 ${
+                className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 ${
                   (message.trim() || selectedFile) && !disabled && !uploading
-                    ? 'bg-foreground hover:bg-foreground/90 text-background shadow-sm'
-                    : 'bg-muted-foreground/20 text-muted-foreground/40 cursor-not-allowed'
+                    ? 'bg-foreground text-background hover:bg-foreground/90 shadow-sm active:scale-95'
+                    : 'bg-muted-foreground/15 text-muted-foreground/40 cursor-not-allowed'
                 }`}
               >
-                <Send className="h-4 w-4" />
-              </Button>
+                <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+              </button>
             </div>
           </div>
         </div>
