@@ -6,6 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Plus, ChevronRight } from 'lucide-react';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { motion } from 'framer-motion';
 
 const getRelationshipLabel = (relationship: string, t: any): string => {
   const labels: Record<string, string> = {
@@ -50,94 +51,152 @@ const SelectPerson: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background antialiased">
-      <div className="max-w-lg mx-auto px-5 pt-10 pb-12">
+    <div className="min-h-screen bg-background antialiased relative overflow-hidden">
+      {/* Animated background blobs */}
+      <motion.div
+        className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
+        }}
+        animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.08, 1] }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="fixed bottom-[-15%] right-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
+        }}
+        animate={{ x: [0, -20, 0], y: [0, -15, 0], scale: [1, 1.05, 1] }}
+        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}
-        <div className="flex justify-center mb-14">
+        <motion.div
+          className="flex justify-center mb-14"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <img src={ditaxLogoFull} alt="ditax" className="h-9" />
-        </div>
+        </motion.div>
 
         {/* Header */}
-        <div className="text-center mb-10 animate-fade-in">
-          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-tight mb-3">
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-[-0.02em] mb-3">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
-          <p className="text-[1.1rem] leading-relaxed text-muted-foreground">
+          <p className="text-[1.05rem] leading-relaxed text-muted-foreground">
             {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
           </p>
-        </div>
+        </motion.div>
 
         {/* Person Cards */}
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {taxFilers.map((filer, index) => (
-            <button
+            <motion.button
               key={filer.id}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
+              className="w-full group relative overflow-hidden rounded-[2rem] p-6 text-left transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
+              style={{
+                background: 'hsla(var(--background) / 0.6)',
+                backdropFilter: 'blur(40px) saturate(1.8)',
+                boxShadow: '0 4px 32px -8px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.04), inset 0 1px 0 0 hsla(0 0% 100% / 0.45)',
+              }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
             >
-              <div className="flex items-center gap-5">
-                <Avatar className="w-16 h-16 ring-1 ring-primary/10 flex-shrink-0">
+              {/* Glass shimmer */}
+              <div
+                className="absolute inset-0 pointer-events-none rounded-[2rem]"
+                style={{
+                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.18) 0%, transparent 50%)',
+                }}
+              />
+
+              <div className="relative flex items-center gap-5">
+                <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
                   <AvatarImage
                     src={getAvatarUrl(filer)}
                     alt={`${filer.first_name} ${filer.last_name}`}
                     className="object-cover"
                   />
                   <AvatarFallback
-                    className="text-xl font-semibold"
+                    className="text-lg font-semibold"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 100%)',
-                      color: 'hsl(var(--primary))'
+                      background: 'hsla(var(--primary) / 0.08)',
+                      color: 'hsl(var(--primary))',
                     }}
                   >
                     {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="flex-1 text-left">
-                  <h3 className="text-[1.25rem] font-medium text-foreground tracking-tight mb-1">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[1.15rem] font-medium text-foreground tracking-[-0.01em] mb-0.5">
                     {filer.first_name} {filer.last_name}
                   </h3>
-                  <p className="text-[0.95rem] text-muted-foreground font-medium tracking-wide">
+                  <p className="text-sm text-muted-foreground">
                     {getRelationshipLabel(filer.relationship, t)}
                     {filer.is_primary && (
-                      <span className="ml-2 text-primary">
-                        • {t.taxFilers?.primary || 'Primär'}
+                      <span className="ml-1.5 text-primary/70">
+                        · {t.taxFilers?.primary || 'Primär'}
                       </span>
                     )}
                   </p>
                 </div>
 
-                <div className="bg-primary/5 rounded-full w-10 h-10 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                  style={{
+                    background: 'hsla(var(--foreground) / 0.04)',
+                  }}
+                >
                   <ChevronRight
-                    className="w-5 h-5 text-primary group-hover:translate-x-0.5 transition-transform"
+                    className="w-4.5 h-4.5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all"
                     strokeWidth={2}
                   />
                 </div>
               </div>
-            </button>
+            </motion.button>
           ))}
 
           {/* Add Person Button */}
-          <button
+          <motion.button
             onClick={handleAddPerson}
-            className="w-full overflow-hidden rounded-[2.2rem] p-7 border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-300 animate-fade-in"
-            style={{ animationDelay: `${taxFilers.length * 100}ms`, animationFillMode: 'both' }}
+            className="w-full overflow-hidden rounded-[2rem] p-6 transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
+            style={{
+              background: 'hsla(var(--background) / 0.35)',
+              backdropFilter: 'blur(20px) saturate(1.4)',
+              boxShadow: '0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.2)',
+            }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 + taxFilers.length * 0.08 }}
           >
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
-                <Plus className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'hsla(var(--foreground) / 0.04)' }}
+              >
+                <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
               </div>
               <div className="flex-1 text-left">
-                <h3 className="text-[1.1rem] font-medium text-muted-foreground tracking-tight mb-1">
+                <h3 className="text-[1.05rem] font-medium text-muted-foreground tracking-[-0.01em] mb-0.5">
                   {t.taxFilers?.addPerson || 'Person hinzufügen'}
                 </h3>
-                <p className="text-[0.9rem] text-muted-foreground/70">
+                <p className="text-[0.85rem] text-muted-foreground/60">
                   {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
                 </p>
               </div>
             </div>
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>
