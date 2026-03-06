@@ -161,7 +161,7 @@ const ModernChatInput: React.FC<ModernChatInputProps> = ({
                 textarea.style.height = 'auto';
                 textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
               }}
-              style-={{}}
+              
             />
           </div>
 
