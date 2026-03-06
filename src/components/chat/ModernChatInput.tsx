@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Send, Paperclip, X, FileText, Image } from 'lucide-react';
+import { ArrowUp, Plus, X, FileText, Image } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { EncryptedChatService } from '@/services/EncryptedChatService';
