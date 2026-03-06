@@ -582,12 +582,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               onSend={sendMessage}
               isLoading={isLoading}
               placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."}
-              className="!bg-transparent !border-0 shadow-none"
-              style={{
-                background: 'hsla(var(--foreground) / 0.04)',
-                border: '1px solid hsla(var(--foreground) / 0.08)',
-                borderRadius: '1.5rem',
-              }}
+              className="!bg-[hsla(var(--foreground)/0.04)] !border-[hsla(var(--foreground)/0.08)] !rounded-[1.5rem] shadow-none hover:!border-[hsla(var(--foreground)/0.12)] focus-within:!border-primary/30 focus-within:!ring-1 focus-within:!ring-primary/15"
             />
             <div className="text-center mt-3">
               <p className="text-[10px] text-muted-foreground font-medium">
