@@ -702,10 +702,10 @@ const UserTaxReturns = () => {
               <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
             <div className="text-left">
-              <span className="block text-xs font-semibold text-primary-foreground font-jakarta tracking-wide">
+              <span className="block text-xs font-semibold font-jakarta tracking-wide" style={{ color: 'hsl(0 0% 100%)' }}>
                 {t.userDashboard.documents}
               </span>
-              <span className="block text-[10px] text-primary-foreground/80 font-medium">
+              <span className="block text-[10px] font-medium" style={{ color: 'hsl(0 0% 100% / 0.8)' }}>
                 {t.userDashboard.uploadDocuments}
               </span>
             </div>
