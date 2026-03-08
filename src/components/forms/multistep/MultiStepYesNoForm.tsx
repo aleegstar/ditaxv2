@@ -214,10 +214,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     // Mark as checked
     initialCheckDoneRef.current = true;
 
-    // If section is completed, switch to expert mode immediately
+    // If section is completed, show summary instead of expert mode
     if (sectionProgress) {
-      console.debug('Section completed previously. Switching to expert mode.', { section });
-      onModeSwitch();
+      console.debug('Section completed previously. Showing summary.', { section });
+      dispatchViewState({ type: 'SET_SUMMARY', show: true });
+      // Set to last question index so summary has all data
+      setFormState(prev => ({ ...prev, currentQuestionIndex: questions.length - 1 }));
       return;
     }
     
