@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { EnhancedModernUserChatWindow } from '@/components/chat/EnhancedModernUserChatWindow';
 import { useI18n } from '@/contexts/I18nContext';
-import { motion } from 'framer-motion';
+
 
 const Chat: React.FC = () => {
   const {
