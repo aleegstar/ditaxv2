@@ -263,12 +263,7 @@ const MultiStepContactForm = ({
   const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex justify-center" style={{ background: 'linear-gradient(145deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%)' }}>
-      {/* Animated background blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-[0.07] animate-pulse" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '6s' }} />
-        <div className="absolute -bottom-48 -left-24 w-[500px] h-[500px] rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '8s' }} />
-      </div>
+    <div className="min-h-screen bg-background relative overflow-hidden flex justify-center">
 
       <div className="relative z-10 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}
