@@ -478,11 +478,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               <div className="flex justify-center mb-4">
                 <span
                   className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full"
-                  style={{
-                    background: 'hsla(var(--background) / 0.8)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid hsla(var(--foreground) / 0.08)',
-                  }}
+                  className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full bg-muted border border-border"
                 >
                   Heute
                 </span>
