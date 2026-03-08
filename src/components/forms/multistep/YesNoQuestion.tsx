@@ -67,10 +67,8 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(true)}
           className={cn(
             "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300",
-            "border-2",
-            answer === true
-              ? "bg-primary/[0.06] border-primary/30 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.2)]"
-              : "bg-muted/20 border-border/30 hover:border-primary/20 hover:bg-primary/[0.03]"
+            "bg-primary/[0.05] border-2 border-primary/20",
+            answer === true && "border-primary/40 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.2)] scale-[1.02]"
           )}
         >
           <div className={cn(
