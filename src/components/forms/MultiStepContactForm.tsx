@@ -258,8 +258,8 @@ const MultiStepContactForm = ({
 
 
   // Liquid glass theme classes
-  const lightInputClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 focus:bg-white/80 transition-all duration-300 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)]";
-  const lightSelectTriggerClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)] transition-all duration-300 hover:bg-white/80";
+  const lightInputClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-background border border-border text-foreground placeholder:text-muted-foreground/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all duration-300 shadow-sm";
+  const lightSelectTriggerClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-background border border-border text-foreground shadow-sm transition-all duration-300 hover:border-primary/30";
   const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
