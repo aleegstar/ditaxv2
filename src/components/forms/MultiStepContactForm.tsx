@@ -595,12 +595,12 @@ const MultiStepContactForm = ({
                         <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Religion auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-slate-200">
-                          <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-100">Katholisch</SelectItem>
-                          <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-100">Reformiert</SelectItem>
-                          <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-100">Christkatholisch</SelectItem>
-                          <SelectItem value="other" className="text-slate-800 hover:bg-slate-100">Andere</SelectItem>
-                          <SelectItem value="none" className="text-slate-800 hover:bg-slate-100">Keine</SelectItem>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                          <SelectItem value="catholic" className="text-foreground hover:bg-muted/60 rounded-lg">Katholisch</SelectItem>
+                          <SelectItem value="reformed" className="text-foreground hover:bg-muted/60 rounded-lg">Reformiert</SelectItem>
+                          <SelectItem value="christCatholic" className="text-foreground hover:bg-muted/60 rounded-lg">Christkatholisch</SelectItem>
+                          <SelectItem value="other" className="text-foreground hover:bg-muted/60 rounded-lg">Andere</SelectItem>
+                          <SelectItem value="none" className="text-foreground hover:bg-muted/60 rounded-lg">Keine</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
