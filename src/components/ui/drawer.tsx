@@ -13,7 +13,7 @@ const DrawerClose = DrawerPrimitive.Close;
 const DrawerOverlay = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.Overlay>, React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>>(({
   className,
   ...props
-}, ref) => <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 drawer-overlay-frosted", className)} {...props} />);
+}, ref) => <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-[60] drawer-overlay-frosted", className)} {...props} />);
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { variant?: 'fullscreen' | 'bottom-sheet' }>(({
   className,
@@ -25,7 +25,7 @@ const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.C
   return <DrawerPortal>
       <DrawerOverlay />
       <DrawerPrimitive.Content ref={ref} className={cn(
-        "z-50 flex flex-col border bg-background",
+        "z-[60] flex flex-col border bg-background",
         isBottomSheet
           ? "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
           : "fixed left-0 top-0 w-full h-full",
