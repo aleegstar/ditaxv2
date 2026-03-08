@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Info, ChevronDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
@@ -60,25 +60,26 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
         </div>
       )}
 
-      {/* Yes/No Cards — side by side */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Yes/No Cards */}
+      <div className="grid grid-cols-2 gap-4">
         {/* YES */}
         <button
           onClick={() => onAnswer(true)}
           className={cn(
-            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300 border",
-            "bg-emerald-50/60 border-emerald-200/40",
-            answer === true && "ring-2 ring-emerald-400/50 border-emerald-300 shadow-md",
-            answer === undefined && "hover:border-emerald-300 hover:shadow-sm"
+            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300",
+            "border-2",
+            answer === true
+              ? "bg-primary/[0.06] border-primary/30 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.2)]"
+              : "bg-muted/20 border-border/30 hover:border-primary/20 hover:bg-primary/[0.03]"
           )}
         >
           <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
+            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === true
-              ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-              : "bg-emerald-100 text-emerald-500"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "bg-primary/10 text-primary"
           )}>
-            <Check className="w-5 h-5" strokeWidth={2.5} />
+            <ThumbsUp className="w-5 h-5" strokeWidth={2} />
           </div>
           <span className="block text-base font-semibold text-foreground mb-0.5">
             {t.yesNoForm.yes}
@@ -92,19 +93,20 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
         <button
           onClick={() => onAnswer(false)}
           className={cn(
-            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300 border",
-            "bg-rose-50/60 border-rose-200/40",
-            answer === false && "ring-2 ring-rose-400/50 border-rose-300 shadow-md",
-            answer === undefined && "hover:border-rose-300 hover:shadow-sm"
+            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300",
+            "border-2",
+            answer === false
+              ? "bg-destructive/[0.06] border-destructive/30 shadow-[0_4px_20px_-4px_hsl(var(--destructive)/0.2)]"
+              : "bg-muted/20 border-border/30 hover:border-destructive/20 hover:bg-destructive/[0.03]"
           )}
         >
           <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
+            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === false
-              ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
-              : "bg-rose-100 text-rose-500"
+              ? "bg-destructive text-destructive-foreground shadow-md"
+              : "bg-destructive/10 text-destructive"
           )}>
-            <X className="w-5 h-5" strokeWidth={2.5} />
+            <ThumbsDown className="w-5 h-5" strokeWidth={2} />
           </div>
           <span className="block text-base font-semibold text-foreground mb-0.5">
             {t.yesNoForm.no}
