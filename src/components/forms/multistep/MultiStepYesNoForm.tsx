@@ -797,10 +797,10 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+              <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-[#1D64FF] rounded-full" />
-                  <div className="text-sm text-slate-600">
+                  <div className="w-2 h-2 bg-primary rounded-full" />
+                  <div className="text-sm text-muted-foreground">
                     Du warst bei Frage {(questionProgress[section]! + 1)} von {questions.length}.
                   </div>
                 </div>
@@ -811,7 +811,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                       setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
                       dispatchViewState({ type: 'RESET_VIEW' });
                     }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 transition-all"
+                    className="text-xs px-3 py-1.5 rounded-xl border border-border/50 bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all"
                   >
                     Neu beginnen
                   </button>
