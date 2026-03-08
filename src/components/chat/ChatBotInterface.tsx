@@ -534,14 +534,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             }}>
                     {escalatedMode ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
                   </div>
-                  <div
-                    className="px-4 py-3.5 rounded-[24px]"
-                    style={{
-                      background: 'hsla(var(--background) / 0.75)',
-                      backdropFilter: 'blur(40px) saturate(1.8)',
-                      boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                    }}
-                  >
+                   <div className="px-4 py-3.5 rounded-[24px] bg-muted">
                     <div className="flex gap-1">
                       <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" />
                       <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0.1s' }} />
