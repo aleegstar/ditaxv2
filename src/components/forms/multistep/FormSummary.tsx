@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Check, Edit, ChevronRight } from 'lucide-react';
+import { Check, X, Pencil, ArrowRight } from 'lucide-react';
 import { FormSummaryItem } from '@/types/multiStepYesNo';
+import { cn } from '@/lib/utils';
 import { Capacitor } from '@capacitor/core';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
+import { useI18n } from '@/contexts/I18nContext';
+
 interface FormSummaryProps {
   title: string;
   summaryItems: FormSummaryItem[];
@@ -15,6 +15,7 @@ interface FormSummaryProps {
   onConfirm: () => void;
   onBack: () => void;
 }
+
 export const FormSummary: React.FC<FormSummaryProps> = ({
   title,
   summaryItems,
@@ -24,6 +25,8 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
 }) => {
   const isAndroid = isAndroidEnvironment();
   const reduceMotion = Capacitor.getPlatform() === 'android' || isAndroid;
+  const { t } = useI18n();
+
   React.useEffect(() => {
     NativeErrorMonitor.addBreadcrumb('system', 'FormSummary mounted', {
       title,
@@ -31,227 +34,120 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
       isAndroid
     });
   }, [title, summaryItems.length, isAndroid]);
+
   const yesAnswers = summaryItems.filter(item => item.answer === true);
   const noAnswers = summaryItems.filter(item => item.answer === false);
 
-  // Android-safe rendering without complex effects
-  if (isAndroid) {
-    return <div className="w-full max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <Card className="bg-white border-slate-200 shadow-sm">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-slate-900">
-              <Check className="w-6 h-6 text-[#1d64ff]" />
-              {title} - Zusammenfassung
-            </CardTitle>
-            <p className="text-slate-500">
-              Überprüfe deine Angaben bevor du fortfährst
-            </p>
-          </CardHeader>
-        </Card>
+  const Wrapper = reduceMotion ? 'div' : motion.div;
+  const wrapperProps = reduceMotion ? {} : {
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] }
+  };
 
-        {/* Statistics */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-emerald-50 border-emerald-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-emerald-600">{yesAnswers.length}</div>
-              <div className="text-sm text-slate-600">Ja-Antworten</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-slate-50 border-slate-200">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-slate-600">{noAnswers.length}</div>
-              <div className="text-sm text-slate-500">Nein-Antworten</div>
-            </CardContent>
-          </Card>
+  const ItemWrapper = reduceMotion ? 'div' : motion.div;
+
+  return (
+    <Wrapper {...wrapperProps} className="w-full space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-center">
+          <div className="text-2xl font-bold text-primary">{yesAnswers.length}</div>
+          <div className="text-xs text-muted-foreground font-medium mt-0.5">Zutreffend</div>
         </div>
-
-        {/* Yes Answers (Relevant Items) */}
-        {yesAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg text-emerald-600">
-                Deine relevanten Angaben (Ja-Antworten)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {yesAnswers.map((item, index) => {
-            try {
-              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-600" />
-                          <span className="font-medium text-slate-800">{item.questionText}</span>
-                          <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                            Ja
-                          </Badge>
-                        </div>
-                        {item.repeaterData && Array.isArray(item.repeaterData) && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-slate-500">
-                            {item.repeaterTitle}: {item.repeaterData.length} Eintrag(e) erfasst
-                          </div>}
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-emerald-100 text-slate-600">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>;
-            } catch (error) {
-              console.error('Error rendering yes item:', error);
-              return null;
-            }
-          })}
-            </CardContent>
-          </Card>}
-
-        {/* No Answers (Not Relevant Items) */}
-        {noAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg text-slate-500">
-                Nicht zutreffende Angaben (Nein-Antworten)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {noAnswers.map((item, index) => {
-            try {
-              return <div key={item.questionId} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <ChevronRight className="w-4 h-4 text-slate-400 rotate-45" />
-                          <span className="font-medium text-slate-600">{item.questionText}</span>
-                          <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300">
-                            Nein
-                          </Badge>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-slate-100 text-slate-500">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>;
-            } catch (error) {
-              console.error('Error rendering no item:', error);
-              return null;
-            }
-          })}
-            </CardContent>
-          </Card>}
-
-        {/* Action Buttons */}
-        <div className="flex justify-center pt-4 px-4 pb-6">
-          <Button onClick={onConfirm} className="w-full max-w-sm">
-            <Check className="w-5 h-5 mr-2" />
-            Bestätigen & Weiter
-          </Button>
+        <div className="rounded-2xl border border-border/40 bg-muted/20 p-4 text-center">
+          <div className="text-2xl font-bold text-muted-foreground">{noAnswers.length}</div>
+          <div className="text-xs text-muted-foreground font-medium mt-0.5">Nicht zutreffend</div>
         </div>
-      </div>;
-  }
-  return <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} transition={{
-    duration: reduceMotion ? 0.01 : 0.4
-  }} className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <Card className="bg-white border-slate-200 shadow-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-slate-900">
-            <Check className="w-6 h-6 text-[#1d64ff]" />
-            {title} - Zusammenfassung
-          </CardTitle>
-          <p className="text-slate-500">Überprüfe deine Angaben bevor du fortfährst</p>
-        </CardHeader>
-      </Card>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="bg-emerald-50 border-emerald-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-emerald-600">{yesAnswers.length}</div>
-            <div className="text-sm text-slate-600">Ja-Antworten</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-slate-50 border-slate-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-slate-600">{noAnswers.length}</div>
-            <div className="text-sm text-slate-500">Nein-Antworten</div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Yes Answers (Relevant Items) */}
-      {yesAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg text-emerald-600">Deine relevanten Angaben (Ja-Antworten)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {yesAnswers.map((item, index) => <motion.div key={item.questionId} initial={{
-          opacity: 0,
-          x: -20
-        }} animate={{
-          opacity: 1,
-          x: 0
-        }} transition={{
-          delay: reduceMotion ? 0 : index * 0.1,
-          duration: reduceMotion ? 0.01 : 0.2
-        }} className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span className="font-medium text-slate-800">{item.questionText}</span>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                      Ja
-                    </Badge>
-                  </div>
-                  {item.repeaterData && item.repeaterData.length > 0 && <div className="mt-2 text-sm text-slate-500">
-                      {item.repeaterTitle}: {item.repeaterData.length} Eintrag(e) erfasst
-                    </div>}
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-emerald-100 text-slate-600">
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </motion.div>)}
-          </CardContent>
-        </Card>}
+      {/* Yes Answers */}
+      {yesAnswers.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-foreground px-1 mb-3">Deine Angaben</h3>
+          {yesAnswers.map((item, index) => (
+            <ItemWrapper
+              key={item.questionId}
+              {...(reduceMotion ? {} : {
+                initial: { opacity: 0, y: 8 },
+                animate: { opacity: 1, y: 0 },
+                transition: { delay: index * 0.05, duration: 0.25 }
+              })}
+              className="flex items-center gap-3 p-3.5 rounded-2xl border border-primary/15 bg-primary/[0.03] group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Check className="w-4 h-4 text-primary" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-foreground leading-snug line-clamp-2">
+                  {item.questionText}
+                </span>
+                {item.repeaterData && Array.isArray(item.repeaterData) && item.repeaterData.length > 0 && (
+                  <span className="block text-xs text-muted-foreground mt-0.5">
+                    {item.repeaterTitle}: {item.repeaterData.length} Einträge
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => onEdit(item.questionId)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-colors shrink-0"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </ItemWrapper>
+          ))}
+        </div>
+      )}
 
-      {/* No Answers (Not Relevant Items) */}
-      {noAnswers.length > 0 && <Card className="bg-white border-slate-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg text-slate-500">
-              Nicht zutreffende Angaben (Nein-Antworten)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {noAnswers.map((item, index) => <motion.div key={item.questionId} initial={{
-          opacity: 0,
-          x: -20
-        }} animate={{
-          opacity: 1,
-          x: 0
-        }} transition={{
-          delay: (yesAnswers.length + index) * 0.1
-        }} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <ChevronRight className="w-4 h-4 text-slate-400 rotate-45" />
-                    <span className="font-medium text-slate-600">{item.questionText}</span>
-                    <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-300">
-                      Nein
-                    </Badge>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => onEdit(item.questionId)} className="hover:bg-slate-100 text-slate-500">
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </motion.div>)}
-          </CardContent>
-        </Card>}
+      {/* No Answers */}
+      {noAnswers.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-muted-foreground px-1 mb-3">Nicht zutreffend</h3>
+          {noAnswers.map((item, index) => (
+            <ItemWrapper
+              key={item.questionId}
+              {...(reduceMotion ? {} : {
+                initial: { opacity: 0, y: 8 },
+                animate: { opacity: 1, y: 0 },
+                transition: { delay: (yesAnswers.length + index) * 0.05, duration: 0.25 }
+              })}
+              className="flex items-center gap-3 p-3.5 rounded-2xl border border-border/30 bg-muted/10 group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-muted/40 flex items-center justify-center shrink-0">
+                <X className="w-4 h-4 text-muted-foreground/50" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-muted-foreground leading-snug line-clamp-2">
+                  {item.questionText}
+                </span>
+              </div>
+              <button
+                onClick={() => onEdit(item.questionId)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground/30 hover:text-foreground hover:bg-muted/40 transition-colors shrink-0"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </ItemWrapper>
+          ))}
+        </div>
+      )}
 
-      {/* Action Buttons */}
-      <div className="flex justify-center pt-4 px-4 pb-6">
-        <Button onClick={onConfirm} className="w-full max-w-sm">
-          <Check className="w-5 h-5 mr-2" />
+      {/* Confirm Button */}
+      <div className="pt-2 pb-4">
+        <button
+          onClick={onConfirm}
+          className={cn(
+            "w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-semibold text-base transition-all duration-200",
+            "bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98]"
+          )}
+          style={{ touchAction: 'manipulation' }}
+        >
           Bestätigen & Weiter
-        </Button>
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
-    </motion.div>;
+    </Wrapper>
+  );
 };
