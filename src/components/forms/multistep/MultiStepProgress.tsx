@@ -18,15 +18,15 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
   const safeCurrent = Math.min(Math.max(0, currentStep), safeTotal - 1);
 
   return (
-    <div className={cn("flex items-center justify-center gap-2 mb-12 px-4", className)}>
+    <div className={cn("flex items-center justify-center gap-2 mb-10 px-4", className)}>
       {Array.from({ length: safeTotal }).map((_, index) => (
         <div
           key={index}
           className={cn(
-            "h-1 flex-1 rounded-full transition-all duration-300",
+            "h-1 flex-1 rounded-full transition-all duration-500",
             index <= safeCurrent
-              ? "bg-[#1D64FF]"
-              : "bg-slate-200"
+              ? "bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.35)]"
+              : "bg-foreground/[0.08]"
           )}
         />
       ))}

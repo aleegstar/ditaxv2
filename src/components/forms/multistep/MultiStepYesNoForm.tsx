@@ -759,26 +759,21 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    <div className="min-h-screen bg-background text-foreground antialiased flex justify-center">
       {/* Mobile Container */}
-      <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
+      <div className="h-screen md:max-w-4xl bg-background w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-            {/* Back Button */}
             <button 
               onClick={handleHeaderBack}
               className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
             >
               <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
             </button>
-
-            {/* Title */}
-            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+            <h1 className="font-semibold text-lg tracking-tight text-foreground leading-tight absolute left-1/2 -translate-x-1/2">
               {getSectionTitle()}
             </h1>
-
-            {/* Empty space for balance */}
             <div className="w-10 h-10" />
           </div>
         </header>
@@ -802,10 +797,10 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+              <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-[#1D64FF] rounded-full" />
-                  <div className="text-sm text-slate-600">
+                  <div className="w-2 h-2 bg-primary rounded-full" />
+                  <div className="text-sm text-muted-foreground">
                     Du warst bei Frage {(questionProgress[section]! + 1)} von {questions.length}.
                   </div>
                 </div>
@@ -816,7 +811,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                       setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
                       dispatchViewState({ type: 'RESET_VIEW' });
                     }}
-                    className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-800 transition-all"
+                    className="text-xs px-3 py-1.5 rounded-xl border border-border/50 bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all"
                   >
                     Neu beginnen
                   </button>
@@ -832,11 +827,11 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-4"
             >
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+              <div className="bg-amber-50/60 border border-amber-200/40 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                  <div className="text-sm text-slate-600">
-                    <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
+                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-amber-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
                   </div>
                 </div>
               </div>
@@ -869,25 +864,14 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* Footer Info */}
+        {/* Footer */}
         <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="12" 
-              height="12" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="text-emerald-500"
-            >
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
               <path d="m9 12 2 2 4-4" />
             </svg>
-            <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
               Verschlüsselt &amp; Sicher
             </p>
           </div>
