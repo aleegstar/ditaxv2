@@ -139,13 +139,12 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
         <button
           onClick={onConfirm}
           className={cn(
-            "w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-semibold text-base transition-all duration-200",
-            "bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98]"
+            "w-full flex items-center justify-center py-4 px-6 rounded-2xl font-semibold text-base transition-all duration-200",
+            "bg-primary text-white hover:opacity-90 active:scale-[0.98]"
           )}
           style={{ touchAction: 'manipulation' }}
         >
           Bestätigen & Weiter
-          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </Wrapper>
