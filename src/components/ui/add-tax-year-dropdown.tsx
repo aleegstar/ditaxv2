@@ -29,7 +29,7 @@ function BottomSheet({ isOpen, onClose, children }: { isOpen: boolean; onClose: 
 
   if (!mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[10002]">
       {/* Backdrop */}
       <div
@@ -44,7 +44,8 @@ function BottomSheet({ isOpen, onClose, children }: { isOpen: boolean; onClose: 
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
