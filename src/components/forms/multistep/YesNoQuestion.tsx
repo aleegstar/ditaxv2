@@ -63,7 +63,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.94, y: 20 }}
+      initial={{ opacity: 0 }}
       animate={
         exitDir
           ? {
@@ -77,21 +77,17 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
             }
           : {
               opacity: 1,
-              y: 0,
-              scale: 1,
               x: 0,
               rotate: 0,
               transition: {
-                duration: 0.4,
-                ease: [0.16, 1, 0.3, 1],
-                opacity: { duration: 0.25, delay: 0.05 },
+                duration: 0.3,
+                ease: 'easeOut',
               },
             }
       }
       exit={{
         opacity: 0,
-        scale: 0.92,
-        transition: { duration: 0.2 },
+        transition: { duration: 0.15 },
       }}
       style={exitDir ? undefined : { x, rotate }}
       drag={exitDir ? false : 'x'}
