@@ -841,29 +841,27 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           )}
 
           {/* Question Content */}
-          <AnimatePresence mode="wait">
-            {!currentQuestion ? (
-              <div className="flex-1 flex items-center justify-center text-slate-500">
-                Keine Frage verfügbar. Bitte versuche es erneut.
-              </div>
-            ) : viewState.showRepeater ? (
-              <RepeaterStep
-                key="repeater"
-                question={currentQuestion}
-                data={formState.repeaterData[currentQuestion.id] || []}
-                onDataChange={handleRepeaterDataChange}
-                onContinue={handleContinue}
-                canContinue={canContinueFromRepeater()}
-              />
-            ) : (
-              <YesNoQuestion
-                key={`${currentQuestion.id}-${viewState.isEditing ? 'editing' : 'normal'}-${viewState.editingQuestionId || 'none'}`}
-                question={currentQuestion}
-                answer={formState.answers[currentQuestion.id]}
-                onAnswer={handleAnswer}
-              />
-            )}
-          </AnimatePresence>
+          {!currentQuestion ? (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              Keine Frage verfügbar. Bitte versuche es erneut.
+            </div>
+          ) : viewState.showRepeater ? (
+            <RepeaterStep
+              key="repeater"
+              question={currentQuestion}
+              data={formState.repeaterData[currentQuestion.id] || []}
+              onDataChange={handleRepeaterDataChange}
+              onContinue={handleContinue}
+              canContinue={canContinueFromRepeater()}
+            />
+          ) : (
+            <YesNoQuestion
+              key={`${currentQuestion.id}-${viewState.isEditing ? 'edit' : 'q'}`}
+              question={currentQuestion}
+              answer={formState.answers[currentQuestion.id]}
+              onAnswer={handleAnswer}
+            />
+          )}
         </div>
 
         {/* Footer */}
