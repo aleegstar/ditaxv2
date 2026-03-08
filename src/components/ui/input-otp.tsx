@@ -41,13 +41,13 @@ const InputOTPSlot = React.forwardRef<
       ref={ref}
       className={cn(
         // Mobile-first responsive design with larger touch targets
-        "relative flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center text-base sm:text-lg font-medium transition-all rounded-lg bg-background",
+        "relative flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center text-base sm:text-lg font-medium transition-all rounded-lg bg-background text-foreground",
         // Active state with better visual feedback
         isActive 
-          ? "border border-primary ring-2 ring-primary/20 scale-105" 
-          : "border border-gray-200",
+          ? "border-2 border-primary ring-2 ring-primary/20 scale-105" 
+          : "border-2 border-border",
         // Hover state
-        !isActive && "hover:border-gray-300",
+        !isActive && "hover:border-muted-foreground/40",
         // Better mobile touch feedback
         "active:scale-95 touch-manipulation",
         className
