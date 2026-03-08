@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from 'framer-motion';
 import { ThumbsUp, ThumbsDown, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
@@ -11,109 +12,196 @@ interface YesNoQuestionProps {
   className?: string;
 }
 
+const SWIPE_THRESHOLD = 80;
+
+// Inner card that handles drag and exit animation
+const SwipeCard: React.FC<{
+  question: YesNoQuestionType;
+  onAnswer: (answer: boolean) => void;
+  isExpanded: boolean;
+  setIsExpanded: (v: boolean) => void;
+  t: any;
+}> = ({ question, onAnswer, isExpanded, setIsExpanded, t }) => {
+  const [exitDir, setExitDir] = useState<'left' | 'right' | null>(null);
+  const answeredRef = useRef(false);
+
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const yesOpacity = useTransform(x, [0, 80], [0, 1]);
+  const noOpacity = useTransform(x, [-80, 0], [1, 0]);
+
+  const triggerAnswer = useCallback((direction: 'left' | 'right') => {
+    if (answeredRef.current) return;
+    answeredRef.current = true;
+    setExitDir(direction);
+    // Delay answer so exit animation plays first
+    setTimeout(() => {
+      onAnswer(direction === 'right');
+    }, 280);
+  }, [onAnswer]);
+
+  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    if (answeredRef.current) return;
+    const offset = info.offset.x;
+    const velocity = info.velocity.x;
+
+    if (offset > SWIPE_THRESHOLD || velocity > 500) {
+      triggerAnswer('right');
+    } else if (offset < -SWIPE_THRESHOLD || velocity < -500) {
+      triggerAnswer('left');
+    }
+    // If not past threshold, framer-motion snaps back via dragConstraints
+  }, [triggerAnswer]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={
+        exitDir
+          ? {
+              x: exitDir === 'right' ? 320 : -320,
+              rotate: exitDir === 'right' ? 16 : -16,
+              opacity: 0,
+              transition: { duration: 0.3, ease: [0.4, 0, 1, 1] },
+            }
+          : {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+            }
+      }
+      style={exitDir ? undefined : { x, rotate }}
+      drag={exitDir ? false : 'x'}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.65}
+      onDragEnd={handleDragEnd}
+      whileDrag={{ scale: 1.02 }}
+      className="w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
+    >
+      <div className="relative rounded-3xl border-2 border-border/30 bg-card p-6 pb-8 shadow-lg overflow-hidden">
+        {/* Swipe Indicators */}
+        <motion.div
+          style={{ opacity: yesOpacity }}
+          className="absolute top-5 left-5 z-10 px-3.5 py-1.5 rounded-xl border-2 border-primary bg-primary/10 rotate-[-12deg]"
+        >
+          <span className="text-primary font-black text-xl tracking-wide uppercase">
+            {t.yesNoForm.yes}
+          </span>
+        </motion.div>
+        <motion.div
+          style={{ opacity: noOpacity }}
+          className="absolute top-5 right-5 z-10 px-3.5 py-1.5 rounded-xl border-2 border-destructive bg-destructive/10 rotate-[12deg]"
+        >
+          <span className="text-destructive font-black text-xl tracking-wide uppercase">
+            {t.yesNoForm.no}
+          </span>
+        </motion.div>
+
+        {/* Question Content */}
+        <div className="pt-4 text-center">
+          <h2 className="text-xl md:text-2xl text-foreground tracking-tight font-semibold leading-tight mb-4 pointer-events-none">
+            {question.text}
+          </h2>
+
+          {question.explanation && (
+            <div className="mt-4 pointer-events-auto">
+              <details
+                className="group rounded-2xl overflow-hidden border border-border/40 bg-muted/20 text-left"
+                open={isExpanded}
+                onToggle={(e) => setIsExpanded((e.target as HTMLDetailsElement).open)}
+              >
+                <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none hover:bg-muted/40 transition-colors text-muted-foreground font-medium text-sm list-none [&::-webkit-details-marker]:hidden">
+                  <div className="p-1.5 rounded-xl bg-muted/60 text-muted-foreground group-open:bg-primary/10 group-open:text-primary transition-colors">
+                    <Info className="w-4 h-4" />
+                  </div>
+                  <span>{t.yesNoForm.moreInfo}</span>
+                  <ChevronDown className="w-4 h-4 ml-auto text-muted-foreground/50 transition-transform duration-300 group-open:rotate-180" />
+                </summary>
+                <div className="px-4 pb-3 text-sm text-muted-foreground leading-relaxed border-t border-border/20">
+                  <div className="pt-3">
+                    <p>{question.explanation}</p>
+                  </div>
+                </div>
+              </details>
+            </div>
+          )}
+        </div>
+
+        {/* Swipe hint */}
+        <div className="mt-6 flex items-center justify-center gap-3 text-muted-foreground/30 pointer-events-none">
+          <ThumbsDown className="w-4 h-4" />
+          <div className="w-8 h-[1.5px] bg-muted-foreground/15 rounded-full" />
+          <ThumbsUp className="w-4 h-4" />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   question,
   answer,
   onAnswer,
-  className
+  className,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useI18n();
 
+  const handleButtonAnswer = useCallback(
+    (isYes: boolean) => {
+      // We create a synthetic "answer" by letting the SwipeCard handle the exit
+      // For button presses, we wrap in the same component via key change
+      onAnswer(isYes);
+    },
+    [onAnswer]
+  );
+
   return (
-    <div
-      key={question.id}
-      className={cn(
-        "flex-1 flex flex-col animate-fade-in",
-        className
-      )}
-    >
-      {/* Question */}
-      <div className="mb-8 text-center md:text-left">
-        <h2 className="text-2xl md:text-3xl text-foreground tracking-tight font-semibold leading-tight">
-          {question.text}
-        </h2>
+    <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
+      {/* Card area */}
+      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-hidden">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <SwipeCard
+            key={question.id}
+            question={question}
+            onAnswer={onAnswer}
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+            t={t}
+          />
+        </AnimatePresence>
       </div>
 
-      {/* Info Accordion */}
-      {question.explanation && (
-        <div className="mb-8">
-          <details
-            className="group rounded-2xl overflow-hidden border border-border/40 bg-muted/20"
-            open={isExpanded}
-            onToggle={(e) => setIsExpanded((e.target as HTMLDetailsElement).open)}
-          >
-            <summary className="flex items-center gap-3 px-5 py-4 cursor-pointer select-none hover:bg-muted/40 transition-colors text-muted-foreground font-medium text-sm list-none [&::-webkit-details-marker]:hidden">
-              <div className="p-1.5 rounded-xl bg-muted/60 text-muted-foreground group-open:bg-primary/10 group-open:text-primary transition-colors">
-                <Info className="w-4 h-4" />
-              </div>
-              <span>{t.yesNoForm.moreInfo}</span>
-              <ChevronDown className="w-4 h-4 ml-auto text-muted-foreground/50 transition-transform duration-300 group-open:rotate-180" />
-            </summary>
-            <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border/20">
-              <div className="pt-3">
-                <p>{question.explanation}</p>
-              </div>
-            </div>
-          </details>
-        </div>
-      )}
-
-      {/* Yes/No Buttons */}
-      <div className="grid grid-cols-2 gap-4 mt-auto">
-        {/* YES */}
-        <button
-          onClick={() => onAnswer(true)}
+      {/* Action Buttons */}
+      <div className="flex items-center justify-center gap-8 mt-6 mb-4 shrink-0">
+        <motion.button
+          onClick={() => handleButtonAnswer(false)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className={cn(
-            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-200",
-            "bg-primary/[0.05] border-2 border-primary/20",
-            "active:scale-[0.97]",
-            answer === true && "border-primary/40 bg-primary/[0.1]"
+            'w-16 h-16 rounded-full flex items-center justify-center',
+            'border-2 border-destructive/25 bg-background shadow-sm',
+            'hover:bg-destructive/8 hover:border-destructive/40',
+            'transition-colors duration-200'
           )}
-          style={{ touchAction: 'manipulation' }}
         >
-          <div className={cn(
-            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-200",
-            answer === true
-              ? "bg-primary text-primary-foreground"
-              : "bg-primary/10 text-primary"
-          )}>
-            <ThumbsUp className="w-5 h-5" strokeWidth={2} />
-          </div>
-          <span className="block text-base font-semibold text-foreground mb-0.5">
-            {t.yesNoForm.yes}
-          </span>
-          <span className="block text-xs text-muted-foreground leading-relaxed">
-            {t.yesNoForm.yesDescription}
-          </span>
-        </button>
+          <ThumbsDown className="w-6 h-6 text-destructive" strokeWidth={2.5} />
+        </motion.button>
 
-        {/* NO */}
-        <button
-          onClick={() => onAnswer(false)}
+        <motion.button
+          onClick={() => handleButtonAnswer(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className={cn(
-            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-200",
-            "bg-destructive/[0.05] border-2 border-destructive/20",
-            "active:scale-[0.97]",
-            answer === false && "border-destructive/40 bg-destructive/[0.1]"
+            'w-16 h-16 rounded-full flex items-center justify-center',
+            'border-2 border-primary/25 bg-background shadow-sm',
+            'hover:bg-primary/8 hover:border-primary/40',
+            'transition-colors duration-200'
           )}
-          style={{ touchAction: 'manipulation' }}
         >
-          <div className={cn(
-            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-colors duration-200",
-            answer === false
-              ? "bg-destructive text-destructive-foreground"
-              : "bg-destructive/10 text-destructive"
-          )}>
-            <ThumbsDown className="w-5 h-5" strokeWidth={2} />
-          </div>
-          <span className="block text-base font-semibold text-foreground mb-0.5">
-            {t.yesNoForm.no}
-          </span>
-          <span className="block text-xs text-muted-foreground leading-relaxed">
-            {t.yesNoForm.noDescription}
-          </span>
-        </button>
+          <ThumbsUp className="w-6 h-6 text-primary" strokeWidth={2.5} />
+        </motion.button>
       </div>
     </div>
   );
