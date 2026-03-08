@@ -539,9 +539,9 @@ const MultiStepContactForm = ({
                         <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Kanton auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-slate-200">
-                          <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
-                          <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                          <SelectItem value="AG" className="text-foreground hover:bg-muted/60 rounded-lg">Aargau (AG)</SelectItem>
+                          <SelectItem value="ZH" className="text-foreground hover:bg-muted/60 rounded-lg">Zürich (ZH)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
