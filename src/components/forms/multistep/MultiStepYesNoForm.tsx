@@ -827,11 +827,11 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="mb-4"
             >
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+              <div className="bg-amber-50/60 border border-amber-200/40 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                  <div className="text-sm text-slate-600">
-                    <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
+                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium text-amber-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
                   </div>
                 </div>
               </div>
