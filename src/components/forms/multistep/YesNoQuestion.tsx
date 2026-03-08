@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Info, ChevronDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
@@ -30,7 +30,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       className={cn("flex-1 flex flex-col", className)}
     >
       {/* Question */}
-      <div className="mb-6 text-center md:text-left">
+      <div className="mb-8 text-center md:text-left">
         <h2 className="text-2xl md:text-3xl text-foreground tracking-tight font-semibold leading-tight">
           {question.text}
         </h2>
@@ -38,7 +38,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
 
       {/* Info Accordion */}
       {question.explanation && (
-        <div className="mb-6">
+        <div className="mb-8">
           <details 
             className="group rounded-2xl overflow-hidden border border-border/40 bg-muted/20"
             open={isExpanded}
@@ -60,62 +60,56 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
         </div>
       )}
 
-      {/* Yes/No Options — list style */}
-      <div className="space-y-3">
+      {/* Yes/No Cards */}
+      <div className="grid grid-cols-2 gap-4">
         {/* YES */}
         <button
           onClick={() => onAnswer(true)}
           className={cn(
-            "w-full flex items-center justify-between rounded-2xl p-4 transition-all duration-300 cursor-pointer text-left",
-            answer === true
-              ? "border border-emerald-400/60 bg-emerald-50/60 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)]"
-              : "border border-emerald-200/60 bg-emerald-50/30 hover:border-emerald-400/50 hover:bg-emerald-50/50"
+            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300",
+            "bg-primary/[0.05] border-2 border-primary/20",
+            answer === true && "border-primary/40 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.2)] scale-[1.02]"
           )}
         >
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-emerald-900">
-              {t.yesNoForm.yes}
-            </span>
-            <span className="mt-0.5 text-xs text-emerald-700/70">
-              {t.yesNoForm.yesDescription}
-            </span>
-          </div>
           <div className={cn(
-            "w-6 h-6 rounded-full ml-4 shrink-0 flex items-center justify-center transition-all duration-300",
+            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === true
-              ? "bg-emerald-500 text-white"
-              : "border border-emerald-300"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "bg-primary/10 text-primary"
           )}>
-            {answer === true && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+            <ThumbsUp className="w-5 h-5" strokeWidth={2} />
           </div>
+          <span className="block text-base font-semibold text-foreground mb-0.5">
+            {t.yesNoForm.yes}
+          </span>
+          <span className="block text-xs text-muted-foreground leading-relaxed">
+            {t.yesNoForm.yesDescription}
+          </span>
         </button>
 
         {/* NO */}
         <button
           onClick={() => onAnswer(false)}
           className={cn(
-            "w-full flex items-center justify-between rounded-2xl p-4 transition-all duration-300 cursor-pointer text-left",
-            answer === false
-              ? "border border-rose-400/60 bg-rose-50/60 shadow-[0_4px_20px_-4px_rgba(244,63,94,0.15)]"
-              : "border border-rose-200/60 bg-rose-50/30 hover:border-rose-400/50 hover:bg-rose-50/50"
+            "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300",
+            "bg-destructive/[0.05] border-2 border-destructive/20",
+            answer === false && "border-destructive/40 shadow-[0_4px_20px_-4px_hsl(var(--destructive)/0.2)] scale-[1.02]"
           )}
         >
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-rose-900">
-              {t.yesNoForm.no}
-            </span>
-            <span className="mt-0.5 text-xs text-rose-700/70">
-              {t.yesNoForm.noDescription}
-            </span>
-          </div>
           <div className={cn(
-            "w-6 h-6 rounded-full ml-4 shrink-0 flex items-center justify-center transition-all duration-300",
+            "w-11 h-11 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === false
-              ? "bg-rose-500 text-white"
-              : "border border-rose-300"
+              ? "bg-destructive text-destructive-foreground shadow-md"
+              : "bg-destructive/10 text-destructive"
           )}>
-            {answer === false && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+            <ThumbsDown className="w-5 h-5" strokeWidth={2} />
           </div>
+          <span className="block text-base font-semibold text-foreground mb-0.5">
+            {t.yesNoForm.no}
+          </span>
+          <span className="block text-xs text-muted-foreground leading-relaxed">
+            {t.yesNoForm.noDescription}
+          </span>
         </button>
       </div>
     </motion.div>

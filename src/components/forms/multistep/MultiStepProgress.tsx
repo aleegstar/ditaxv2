@@ -16,16 +16,20 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
 }) => {
   const safeTotal = Math.max(1, totalSteps);
   const safeCurrent = Math.min(Math.max(0, currentStep), safeTotal - 1);
-  const progressPercent = ((safeCurrent + 1) / safeTotal) * 100;
 
   return (
-    <div className={cn("mb-8", className)}>
-      <div className="w-full bg-muted/40 rounded-full h-1 overflow-hidden">
-        <div 
-          className="bg-gradient-to-r from-primary to-primary/70 h-1 rounded-full transition-all duration-500 ease-out"
-          style={{ width: `${progressPercent}%` }}
+    <div className={cn("flex items-center justify-center gap-2 mb-10 px-4", className)}>
+      {Array.from({ length: safeTotal }).map((_, index) => (
+        <div
+          key={index}
+          className={cn(
+            "h-1 flex-1 rounded-full transition-all duration-500",
+            index <= safeCurrent
+              ? "bg-primary"
+              : "bg-foreground/[0.08]"
+          )}
         />
-      </div>
+      ))}
     </div>
   );
 };
