@@ -759,26 +759,21 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    <div className="min-h-screen bg-background text-foreground antialiased flex justify-center">
       {/* Mobile Container */}
-      <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
+      <div className="h-screen md:max-w-4xl bg-background w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-            {/* Back Button */}
             <button 
               onClick={handleHeaderBack}
               className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
             >
               <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
             </button>
-
-            {/* Title */}
-            <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
+            <h1 className="font-semibold text-lg tracking-tight text-foreground leading-tight absolute left-1/2 -translate-x-1/2">
               {getSectionTitle()}
             </h1>
-
-            {/* Empty space for balance */}
             <div className="w-10 h-10" />
           </div>
         </header>
