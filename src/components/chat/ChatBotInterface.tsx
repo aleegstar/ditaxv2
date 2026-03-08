@@ -424,12 +424,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
       <div className="flex flex-col h-full relative overflow-hidden">
         {/* Glass Header */}
         <div
-          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0"
-          style={{
-            background: 'hsla(var(--background) / 0.7)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            borderBottom: '1px solid hsla(var(--foreground) / 0.06)',
-          }}
+          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0 bg-background border-b border-border"
         >
           <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0" style={{ background: 'hsla(var(--foreground) / 0.05)', border: '1px solid hsla(var(--foreground) / 0.08)' }}>
             <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -482,12 +477,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               {/* Time Divider */}
               <div className="flex justify-center mb-4">
                 <span
-                  className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full"
-                  style={{
-                    background: 'hsla(var(--background) / 0.8)',
-                    backdropFilter: 'blur(12px)',
-                    border: '1px solid hsla(var(--foreground) / 0.08)',
-                  }}
+                  className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full bg-muted border border-border"
                 >
                   Heute
                 </span>
@@ -506,19 +496,14 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                     <div
                       className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
                         message.isBot || message.isAdmin
-                          ? 'text-foreground'
+                          ? 'bg-muted text-foreground'
                           : 'text-white shadow-md'
                       }`}
                       style={
                         message.isBot || message.isAdmin
-                          ? {
-                              background: 'hsla(var(--background) / 0.75)',
-                              backdropFilter: 'blur(40px) saturate(1.8)',
-                              boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                            }
+                          ? undefined
                           : {
                               background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))',
-                              boxShadow: '0 4px 20px -4px hsla(var(--primary) / 0.35)',
                             }
                       }
                     >
@@ -548,14 +533,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
             }}>
                     {escalatedMode ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
                   </div>
-                  <div
-                    className="px-4 py-3.5 rounded-[24px]"
-                    style={{
-                      background: 'hsla(var(--background) / 0.75)',
-                      backdropFilter: 'blur(40px) saturate(1.8)',
-                      boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                    }}
-                  >
+                   <div className="px-4 py-3.5 rounded-[24px] bg-muted">
                     <div className="flex gap-1">
                       <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" />
                       <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -570,19 +548,13 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
 
         {/* Glass Footer Input Area */}
         <div
-          className="z-20 p-4 w-full shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4"
-          style={{
-            background: 'hsla(var(--background) / 0.7)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            borderTop: '1px solid hsla(var(--foreground) / 0.06)',
-          }}
+          className="z-20 p-4 w-full shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4 bg-background border-t border-border"
         >
           <div className="max-w-2xl mx-auto">
             <PromptInputBox
               onSend={sendMessage}
               isLoading={isLoading}
               placeholder={escalatedMode ? "Schreibe dem Support-Team..." : "Schreib eine Nachricht..."}
-              className="!bg-[hsla(var(--foreground)/0.04)] !border-[hsla(var(--foreground)/0.08)] !rounded-[1.5rem] shadow-none hover:!border-[hsla(var(--foreground)/0.12)] focus-within:!border-primary/30 focus-within:!ring-1 focus-within:!ring-primary/15"
             />
             <div className="text-center mt-3">
               <p className="text-[10px] text-muted-foreground font-medium">
