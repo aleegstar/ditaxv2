@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from 'framer-motion';
 import { ThumbsUp, ThumbsDown, Info, ChevronDown } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
@@ -12,71 +12,93 @@ interface YesNoQuestionProps {
   className?: string;
 }
 
-const SWIPE_THRESHOLD = 80;
+const SWIPE_THRESHOLD = 60;
+const EXIT_DURATION = 0.32;
+
+export interface SwipeCardHandle {
+  triggerExit: (direction: 'left' | 'right') => void;
+}
 
 // Inner card that handles drag and exit animation
-const SwipeCard: React.FC<{
+const SwipeCard = forwardRef<SwipeCardHandle, {
   question: YesNoQuestionType;
   onAnswer: (answer: boolean) => void;
   isExpanded: boolean;
   setIsExpanded: (v: boolean) => void;
   t: any;
-}> = ({ question, onAnswer, isExpanded, setIsExpanded, t }) => {
+}>(({ question, onAnswer, isExpanded, setIsExpanded, t }, ref) => {
   const [exitDir, setExitDir] = useState<'left' | 'right' | null>(null);
   const answeredRef = useRef(false);
 
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
-  const yesOpacity = useTransform(x, [0, 80], [0, 1]);
-  const noOpacity = useTransform(x, [-80, 0], [1, 0]);
+  const rotate = useTransform(x, [-200, 0, 200], [-10, 0, 10]);
+  const yesOpacity = useTransform(x, [0, 60], [0, 1]);
+  const noOpacity = useTransform(x, [-60, 0], [1, 0]);
 
   const triggerAnswer = useCallback((direction: 'left' | 'right') => {
     if (answeredRef.current) return;
     answeredRef.current = true;
     setExitDir(direction);
-    // Delay answer so exit animation plays first
     setTimeout(() => {
       onAnswer(direction === 'right');
-    }, 280);
+    }, EXIT_DURATION * 1000 + 20);
   }, [onAnswer]);
+
+  // Expose triggerExit so buttons can animate the card out
+  useImperativeHandle(ref, () => ({
+    triggerExit: triggerAnswer,
+  }), [triggerAnswer]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (answeredRef.current) return;
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    if (offset > SWIPE_THRESHOLD || velocity > 500) {
+    if (offset > SWIPE_THRESHOLD || velocity > 400) {
       triggerAnswer('right');
-    } else if (offset < -SWIPE_THRESHOLD || velocity < -500) {
+    } else if (offset < -SWIPE_THRESHOLD || velocity < -400) {
       triggerAnswer('left');
     }
-    // If not past threshold, framer-motion snaps back via dragConstraints
   }, [triggerAnswer]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      initial={{ opacity: 0, scale: 0.94, y: 20 }}
       animate={
         exitDir
           ? {
-              x: exitDir === 'right' ? 320 : -320,
-              rotate: exitDir === 'right' ? 16 : -16,
+              x: exitDir === 'right' ? 340 : -340,
+              rotate: exitDir === 'right' ? 14 : -14,
               opacity: 0,
-              transition: { duration: 0.3, ease: [0.4, 0, 1, 1] },
+              transition: {
+                duration: EXIT_DURATION,
+                ease: [0.4, 0, 0.8, 0.2],
+              },
             }
           : {
               opacity: 1,
               y: 0,
               scale: 1,
-              transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+              x: 0,
+              rotate: 0,
+              transition: {
+                duration: 0.4,
+                ease: [0.16, 1, 0.3, 1],
+                opacity: { duration: 0.25, delay: 0.05 },
+              },
             }
       }
+      exit={{
+        opacity: 0,
+        scale: 0.92,
+        transition: { duration: 0.2 },
+      }}
       style={exitDir ? undefined : { x, rotate }}
       drag={exitDir ? false : 'x'}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.65}
+      dragElastic={0.55}
       onDragEnd={handleDragEnd}
-      whileDrag={{ scale: 1.02 }}
+      whileDrag={{ scale: 1.015 }}
       className="w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
     >
       <div className="relative rounded-3xl border-2 border-border/30 bg-card p-6 pb-8 shadow-lg overflow-hidden">
@@ -137,7 +159,9 @@ const SwipeCard: React.FC<{
       </div>
     </motion.div>
   );
-};
+});
+
+SwipeCard.displayName = 'SwipeCard';
 
 export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   question,
@@ -147,22 +171,23 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useI18n();
+  const cardRef = useRef<SwipeCardHandle>(null);
 
   const handleButtonAnswer = useCallback(
     (isYes: boolean) => {
-      // We create a synthetic "answer" by letting the SwipeCard handle the exit
-      // For button presses, we wrap in the same component via key change
-      onAnswer(isYes);
+      // Trigger the card's exit animation instead of calling onAnswer directly
+      cardRef.current?.triggerExit(isYes ? 'right' : 'left');
     },
-    [onAnswer]
+    []
   );
 
   return (
     <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
       {/* Card area */}
       <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-hidden">
-        <AnimatePresence mode="popLayout" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <SwipeCard
+            ref={cardRef}
             key={question.id}
             question={question}
             onAnswer={onAnswer}
