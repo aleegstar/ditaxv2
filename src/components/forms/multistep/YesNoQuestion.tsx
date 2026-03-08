@@ -67,16 +67,16 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(true)}
           className={cn(
             "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300 border",
-            answer === true
-              ? "bg-emerald-50/70 border-emerald-200/50 shadow-sm"
-              : "bg-background border-border/30 hover:border-emerald-200/50 hover:bg-emerald-50/30"
+            "bg-emerald-50/60 border-emerald-200/40",
+            answer === true && "ring-2 ring-emerald-400/50 border-emerald-300 shadow-md",
+            answer === undefined && "hover:border-emerald-300 hover:shadow-sm"
           )}
         >
           <div className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === true
               ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-              : "bg-muted/60 text-muted-foreground group-hover:bg-emerald-100 group-hover:text-emerald-600"
+              : "bg-emerald-100 text-emerald-500"
           )}>
             <Check className="w-5 h-5" strokeWidth={2.5} />
           </div>
@@ -93,16 +93,16 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
           onClick={() => onAnswer(false)}
           className={cn(
             "group cursor-pointer text-left p-5 rounded-2xl transition-all duration-300 border",
-            answer === false
-              ? "bg-rose-50/70 border-rose-200/50 shadow-sm"
-              : "bg-background border-border/30 hover:border-rose-200/50 hover:bg-rose-50/30"
+            "bg-rose-50/60 border-rose-200/40",
+            answer === false && "ring-2 ring-rose-400/50 border-rose-300 shadow-md",
+            answer === undefined && "hover:border-rose-300 hover:shadow-sm"
           )}
         >
           <div className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
             answer === false
               ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
-              : "bg-muted/60 text-muted-foreground group-hover:bg-rose-100 group-hover:text-rose-600"
+              : "bg-rose-100 text-rose-500"
           )}>
             <X className="w-5 h-5" strokeWidth={2.5} />
           </div>
