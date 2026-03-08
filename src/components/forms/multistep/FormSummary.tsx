@@ -144,7 +144,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
           )}
           style={{ touchAction: 'manipulation' }}
         >
-          Bestätigen & Weiter
+          Speichern
         </button>
       </div>
     </Wrapper>
