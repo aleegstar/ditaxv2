@@ -263,7 +263,13 @@ const MultiStepContactForm = ({
   const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
+    <div className="min-h-screen relative overflow-hidden flex justify-center" style={{ background: 'linear-gradient(145deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%)' }}>
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-[0.07] animate-pulse" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '6s' }} />
+        <div className="absolute -bottom-48 -left-24 w-[500px] h-[500px] rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '8s' }} />
+      </div>
+
       <div className="relative z-10 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
@@ -275,22 +281,24 @@ const MultiStepContactForm = ({
 
         <div className="px-6 pt-6">
 
-        {/* 4-Segment Progress Bar */}
-        <div className="flex gap-2 mb-8">
+        {/* 4-Segment Progress Bar — glass style */}
+        <div className="flex gap-2.5 mb-10">
           {steps.map((step, index) => (
             <div
               key={step.id}
               className={cn(
-                "h-1.5 flex-1 rounded-full transition-colors",
-                index < currentStep ? "bg-[#1D64FF]" : "bg-slate-200"
+                "h-1 flex-1 rounded-full transition-all duration-500",
+                index < currentStep 
+                  ? "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                  : "bg-foreground/[0.08]"
               )}
             />
           ))}
         </div>
 
         {/* Section Heading */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-800">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground tracking-tight">
             {steps.find(step => step.id === currentStep)?.title || t.multiStepContactForm.title}
           </h2>
         </div>
