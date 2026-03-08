@@ -257,10 +257,10 @@ const MultiStepContactForm = ({
   };
 
 
-  // Light theme classes
-  const lightInputClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20";
-  const lightSelectTriggerClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800";
-  const lightLabelClass = "block mb-3 text-slate-600 text-base font-medium";
+  // Liquid glass theme classes
+  const lightInputClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 focus:bg-white/80 transition-all duration-300 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)]";
+  const lightSelectTriggerClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)] transition-all duration-300 hover:bg-white/80";
+  const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
