@@ -440,33 +440,33 @@ const MultiStepContactForm = ({
                     <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder={t.multiStepContactForm.selectCanton} />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200 max-h-[300px]">
-                      <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
-                      <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
-                      <SelectItem value="AI" disabled className="text-slate-400 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="AR" disabled className="text-slate-400 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BE" disabled className="text-slate-400 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BL" disabled className="text-slate-400 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BS" disabled className="text-slate-400 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="FR" disabled className="text-slate-400 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GE" disabled className="text-slate-400 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GL" disabled className="text-slate-400 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GR" disabled className="text-slate-400 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="JU" disabled className="text-slate-400 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="LU" disabled className="text-slate-400 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NE" disabled className="text-slate-400 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NW" disabled className="text-slate-400 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="OW" disabled className="text-slate-400 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SG" disabled className="text-slate-400 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SH" disabled className="text-slate-400 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SO" disabled className="text-slate-400 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SZ" disabled className="text-slate-400 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TG" disabled className="text-slate-400 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TI" disabled className="text-slate-400 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="UR" disabled className="text-slate-400 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VD" disabled className="text-slate-400 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VS" disabled className="text-slate-400 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="ZG" disabled className="text-slate-400 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl max-h-[300px]">
+                      <SelectItem value="AG" className="text-foreground hover:bg-muted/60 rounded-lg">Aargau (AG)</SelectItem>
+                      <SelectItem value="ZH" className="text-foreground hover:bg-muted/60 rounded-lg">Zürich (ZH)</SelectItem>
+                      <SelectItem value="AI" disabled className="text-muted-foreground/50 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="AR" disabled className="text-muted-foreground/50 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BE" disabled className="text-muted-foreground/50 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BL" disabled className="text-muted-foreground/50 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BS" disabled className="text-muted-foreground/50 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="FR" disabled className="text-muted-foreground/50 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GE" disabled className="text-muted-foreground/50 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GL" disabled className="text-muted-foreground/50 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GR" disabled className="text-muted-foreground/50 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="JU" disabled className="text-muted-foreground/50 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="LU" disabled className="text-muted-foreground/50 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NE" disabled className="text-muted-foreground/50 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NW" disabled className="text-muted-foreground/50 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="OW" disabled className="text-muted-foreground/50 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SG" disabled className="text-muted-foreground/50 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SH" disabled className="text-muted-foreground/50 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SO" disabled className="text-muted-foreground/50 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SZ" disabled className="text-muted-foreground/50 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TG" disabled className="text-muted-foreground/50 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TI" disabled className="text-muted-foreground/50 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="UR" disabled className="text-muted-foreground/50 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VD" disabled className="text-muted-foreground/50 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VS" disabled className="text-muted-foreground/50 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="ZG" disabled className="text-muted-foreground/50 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
