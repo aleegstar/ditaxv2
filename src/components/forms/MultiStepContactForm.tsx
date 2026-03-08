@@ -486,7 +486,7 @@ const MultiStepContactForm = ({
                 </div>
 
                 {hadDifferentAddressEnd && (
-                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="space-y-4 p-5 rounded-2xl border border-white/60 bg-white/40 backdrop-blur-md shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.08)]">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="col-span-2">
                         <Label htmlFor="endYearAddress" className={lightLabelClass}>Strasse per 31.12.</Label>
