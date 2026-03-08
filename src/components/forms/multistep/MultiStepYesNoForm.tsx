@@ -581,28 +581,26 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const summaryItems = generateSummaryItems();
     
     return (
-      <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
+      <div className="min-h-screen bg-background text-foreground antialiased flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-background/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-border/40 overflow-hidden flex flex-col relative">
           {/* Header */}
-          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+          <div className="px-6 sm:px-8 pt-6 pb-4">
+            <div className="flex items-center justify-between mb-4">
               <button 
                 onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
-                className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
+                className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-2 py-1 -ml-2 hover:bg-muted/50"
               >
-                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
+                <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={2} />
+                Zurück
               </button>
-
-              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-                {getSectionTitle()}
-              </h1>
-
-              <div className="w-10 h-10" />
+              <span className="text-xs font-medium text-muted-foreground tracking-wider uppercase">
+                Zusammenfassung
+              </span>
             </div>
-          </header>
+          </div>
 
           {/* Summary Content */}
-          <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
+          <div className="px-6 sm:px-8 pb-6 flex-grow overflow-y-auto max-h-[70vh]">
             <FormSummary
               title={getSectionTitle()}
               summaryItems={summaryItems}
@@ -611,30 +609,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               onBack={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
             />
           </div>
+        </div>
 
-          {/* Footer Info */}
-          <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="12" 
-                height="12" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="1.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="text-emerald-500"
-              >
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
-                Verschlüsselt &amp; Sicher
-              </p>
-            </div>
-          </div>
+        {/* Security Note */}
+        <div className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/60">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span>Deine Daten werden verschlüsselt übertragen.</span>
         </div>
       </div>
     );
@@ -643,46 +626,45 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   // Android-safe rendering without any framer-motion elements that could block touch events
   if (isAndroid) {
     return (
-      <div className="min-h-screen bg-white text-slate-800 flex justify-center">
-        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto flex flex-col">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-background/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-border/40 overflow-hidden flex flex-col">
           {/* Header */}
-          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+          <div className="px-6 sm:px-8 pt-6 pb-4">
+            <div className="flex items-center justify-between mb-6">
               <button 
                 onClick={handleHeaderBack}
-                className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
+                className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-2 py-1 -ml-2"
                 style={{ touchAction: 'manipulation' }}
               >
-                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
+                <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={2} />
+                Zurück
               </button>
-              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-                {getSectionTitle()}
-              </h1>
-              <div className="w-10 h-10" />
+              <span className="text-xs font-medium text-muted-foreground tracking-wider uppercase">
+                {formState.currentQuestionIndex + 1} von {questions.length}
+              </span>
             </div>
-          </header>
-
-          {/* Main Content */}
-          <div 
-            className="flex-1 flex flex-col px-6 pb-8 overflow-y-auto pt-4"
-            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
-          >
             <MultiStepProgress
               currentStep={formState.currentQuestionIndex}
               totalSteps={questions.length}
               sectionTitle={getSectionTitle()}
             />
+          </div>
 
+          {/* Content */}
+          <div 
+            className="px-6 sm:px-8 pb-6 flex-grow overflow-y-auto"
+            style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          >
             {/* Resume Message */}
             {questionProgress[section] !== undefined && 
              questionProgress[section]! > 0 && 
              !viewState.showSummary && 
              formState.currentQuestionIndex !== questionProgress[section] && (
-              <div className="mb-8">
-                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+              <div className="mb-6">
+                <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-[#1D64FF] rounded-full" />
-                    <div className="text-sm text-slate-600">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    <div className="text-sm text-muted-foreground">
                       Du warst bei Frage {(questionProgress[section]! + 1)} von {questions.length}.
                     </div>
                   </div>
@@ -693,7 +675,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                         setFormState(prev => ({ ...prev, currentQuestionIndex: 0 }));
                         dispatchViewState({ type: 'RESET_VIEW' });
                       }}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 active:bg-slate-50"
+                      className="text-xs px-3 py-1.5 rounded-xl border border-border/50 bg-background text-muted-foreground active:bg-muted/50"
                       style={{ touchAction: 'manipulation' }}
                     >
                       Neu beginnen
@@ -703,23 +685,23 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               </div>
             )}
 
-            {/* Editing Mode Indicator */}
+            {/* Editing Mode */}
             {viewState.isEditing && (
               <div className="mb-4">
-                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+                <div className="bg-amber-50/60 border border-amber-200/40 rounded-2xl p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <div className="text-sm text-slate-600">
-                      <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
+                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                    <div className="text-sm text-muted-foreground">
+                      <span className="font-medium text-amber-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Question Content - no AnimatePresence, no motion */}
+            {/* Question Content */}
             {!currentQuestion ? (
-              <div className="flex-1 flex items-center justify-center text-slate-500">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground py-12">
                 Keine Frage verfügbar. Bitte versuche es erneut.
               </div>
             ) : viewState.showRepeater ? (
@@ -740,53 +722,50 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               />
             )}
           </div>
+        </div>
 
-          {/* Footer Info - NOT absolute, just at the bottom */}
-          <div className="py-4 text-center shrink-0">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
-                Verschlüsselt &amp; Sicher
-              </p>
-            </div>
-          </div>
+        {/* Security Note */}
+        <div className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/60">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span>Deine Daten werden verschlüsselt übertragen.</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased flex justify-center">
-      {/* Mobile Container */}
-      <div className="h-screen md:max-w-4xl bg-background w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
+    <div className="min-h-screen bg-background text-foreground antialiased flex flex-col justify-center items-center p-4 sm:p-6">
+      {/* Glass Card Container */}
+      <div className="w-full max-w-md bg-background/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-border/40 overflow-hidden flex flex-col relative">
+        
+        {/* Header: Back + Progress */}
+        <div className="px-6 sm:px-8 pt-6 pb-4">
+          <div className="flex items-center justify-between mb-6">
             <button 
               onClick={handleHeaderBack}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
+              className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-2 py-1 -ml-2 hover:bg-muted/50"
             >
-              <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
+              <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={2} />
+              Zurück
             </button>
-            <h1 className="font-semibold text-lg tracking-tight text-foreground leading-tight absolute left-1/2 -translate-x-1/2">
-              {getSectionTitle()}
-            </h1>
-            <div className="w-10 h-10" />
+            <span className="text-xs font-medium text-muted-foreground tracking-wider uppercase">
+              {formState.currentQuestionIndex + 1} von {questions.length}
+            </span>
           </div>
-        </header>
 
-        {/* Main Content */}
-        <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
           {/* Progress Bar */}
           <MultiStepProgress
             currentStep={formState.currentQuestionIndex}
             totalSteps={questions.length}
             sectionTitle={getSectionTitle()}
           />
+        </div>
 
+        {/* Content Area */}
+        <div className="px-6 sm:px-8 pb-6 flex-grow overflow-y-auto">
           {/* Resume Message */}
           {questionProgress[section] !== undefined && 
            questionProgress[section]! > 0 && 
@@ -795,7 +774,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              className="mb-6"
             >
               <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4">
                 <div className="flex items-center gap-3">
@@ -841,7 +820,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           {/* Question Content */}
           <AnimatePresence mode="wait">
             {!currentQuestion ? (
-              <div className="flex-1 flex items-center justify-center text-slate-500">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground py-12">
                 Keine Frage verfügbar. Bitte versuche es erneut.
               </div>
             ) : viewState.showRepeater ? (
@@ -863,19 +842,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
-            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-              Verschlüsselt &amp; Sicher
-            </p>
-          </div>
-        </div>
+      {/* Security Note */}
+      <div className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/60">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <span>Deine Daten werden verschlüsselt übertragen.</span>
       </div>
     </div>
   );
