@@ -371,11 +371,11 @@ const MultiStepContactForm = ({
                     <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder={t.contact.maritalStatus} />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      <SelectItem value="ledig" className="text-slate-800 hover:bg-slate-100">Ledig</SelectItem>
-                      <SelectItem value="verheiratet" className="text-slate-800 hover:bg-slate-100">Verheiratet</SelectItem>
-                      <SelectItem value="geschieden" className="text-slate-800 hover:bg-slate-100">Geschieden</SelectItem>
-                      <SelectItem value="verwitwet" className="text-slate-800 hover:bg-slate-100">Verwitwet</SelectItem>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                      <SelectItem value="ledig" className="text-foreground hover:bg-muted/60 rounded-lg">Ledig</SelectItem>
+                      <SelectItem value="verheiratet" className="text-foreground hover:bg-muted/60 rounded-lg">Verheiratet</SelectItem>
+                      <SelectItem value="geschieden" className="text-foreground hover:bg-muted/60 rounded-lg">Geschieden</SelectItem>
+                      <SelectItem value="verwitwet" className="text-foreground hover:bg-muted/60 rounded-lg">Verwitwet</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
