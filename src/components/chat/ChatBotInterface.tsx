@@ -424,12 +424,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
       <div className="flex flex-col h-full relative overflow-hidden">
         {/* Glass Header */}
         <div
-          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0"
-          style={{
-            background: 'hsla(var(--background) / 0.7)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            borderBottom: '1px solid hsla(var(--foreground) / 0.06)',
-          }}
+          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0 bg-background border-b border-border"
         >
           <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0" style={{ background: 'hsla(var(--foreground) / 0.05)', border: '1px solid hsla(var(--foreground) / 0.08)' }}>
             <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
