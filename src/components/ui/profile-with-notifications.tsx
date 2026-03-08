@@ -100,7 +100,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
           />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full ring-2 ring-background flex items-center justify-center">
-              <span className="text-[10px] font-bold text-primary-foreground">
+              <span className="text-[10px] font-bold text-white">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             </span>
