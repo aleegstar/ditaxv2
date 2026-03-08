@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, ChevronLeft, MoreHorizontal, Trash2 } from 'lucide-react';
+import { User, MoreHorizontal, Trash2 } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';

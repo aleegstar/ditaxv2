@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { Button } from '@/components/ui/button';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 interface ExpertFormContainerProps {
   children: React.ReactNode;
   title: string;
@@ -38,27 +39,8 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
   return <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="h-screen md:max-w-4xl bg-white w-full max-w-[500px] mr-auto ml-auto relative flex flex-col overflow-hidden shadow-none">
-        {/* Header - unified design */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-            {/* Back Button */}
-            {onBack ? (
-              <button onClick={onBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2 bg-muted/60 border border-border/50">
-                <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
-              </button>
-            ) : (
-              <div className="w-10 h-10" />
-            )}
-
-            {/* Centered Title */}
-            <h1 className="text-lg font-semibold tracking-tight text-foreground absolute left-1/2 -translate-x-1/2">
-              {title}
-            </h1>
-
-            {/* Right placeholder */}
-            <div className="w-10 h-10" />
-          </div>
-        </header>
+        {/* Header - unified SubpageHeader */}
+        <SubpageHeader title={title} onBack={onBack} />
 
         {/* Main Content / List */}
         <Container {...containerProps} className={cn("z-10 flex-1 flex flex-col px-4 pb-32 relative overflow-y-auto pt-6 no-scrollbar space-y-3", className)}>

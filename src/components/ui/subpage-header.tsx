@@ -48,7 +48,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
       "sticky top-0 z-30 bg-background/95 backdrop-blur-sm",
       className
     )}>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
         {/* Back Button */}
         <button 
           onClick={onBack}

@@ -8,8 +8,8 @@ export function FormDashboardSkeleton() {
       {/* Header - matches SubpageHeader */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-          <div className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground shrink-0 -ml-2">
-            <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
+          <div className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground shrink-0 -ml-2 bg-muted/60 border border-border/50">
+            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </div>
           <div className="flex-1 flex justify-center">
             <Skeleton className="h-5 w-44" />
