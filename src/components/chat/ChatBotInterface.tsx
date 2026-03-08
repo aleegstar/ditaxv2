@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, ChevronLeft, MoreHorizontal, Trash2 } from 'lucide-react';
+import { User, MoreHorizontal, Trash2 } from 'lucide-react';
+import { SubpageHeader } from '@/components/ui/subpage-header';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -422,49 +423,46 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
   };
   return <>
       <div className="flex flex-col h-full relative overflow-hidden">
-        {/* Glass Header */}
-        <div
-          className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 shrink-0 bg-background border-b border-border"
-        >
-          <button onClick={handleGoBack} className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0" style={{ background: 'hsla(var(--foreground) / 0.05)', border: '1px solid hsla(var(--foreground) / 0.08)' }}>
-            <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
-          </button>
-
-          <div className="flex items-center gap-3">
-            {/* Bot Avatar */}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden" style={{
-            background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
-          }}>
-              {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
-            </div>
-
-            <div className="flex flex-col">
-              <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight">
-                {escalatedMode ? 'Support-Team' : 'Steuer-Assistent'}
-              </h1>
-              <div className="flex items-center gap-1.5">
-                <div className="relative w-2 h-2 bg-emerald-500 rounded-full">
-                  <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-40" />
+        {/* Unified Header via SubpageHeader */}
+        <SubpageHeader
+          onBack={handleGoBack}
+          className="border-b border-border shrink-0"
+          titleElement={
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden" style={{
+                background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
+              }}>
+                {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
+              </div>
+              <div className="flex flex-col">
+                <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight">
+                  {escalatedMode ? 'Support-Team' : 'Steuer-Assistent'}
+                </h1>
+                <div className="flex items-center gap-1.5">
+                  <div className="relative w-2 h-2 bg-emerald-500 rounded-full">
+                    <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-40" />
+                  </div>
+                  <span className="text-xs font-medium text-emerald-600">Online</span>
                 </div>
-                <span className="text-xs font-medium text-emerald-600">Online</span>
               </div>
             </div>
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="ml-auto w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg z-50">
-              <DropdownMenuItem onClick={handleDeleteClick} disabled={isDeleting} className="flex items-center gap-2 text-destructive hover:bg-destructive/10 cursor-pointer">
-                <Trash2 className="h-4 w-4" />
-                Chat löschen
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          }
+          rightAction={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover border border-border shadow-lg z-50">
+                <DropdownMenuItem onClick={handleDeleteClick} disabled={isDeleting} className="flex items-center gap-2 text-destructive hover:bg-destructive/10 cursor-pointer">
+                  <Trash2 className="h-4 w-4" />
+                  Chat löschen
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+        />
 
         {/* Messages Area */}
         <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth pb-[160px] md:pb-6">
