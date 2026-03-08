@@ -477,7 +477,6 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               {/* Time Divider */}
               <div className="flex justify-center mb-4">
                 <span
-                  className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full"
                   className="text-[10px] font-medium text-muted-foreground px-3 py-1 rounded-full bg-muted border border-border"
                 >
                   Heute
