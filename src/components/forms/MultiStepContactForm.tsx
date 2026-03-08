@@ -284,7 +284,7 @@ const MultiStepContactForm = ({
               className={cn(
                 "h-1 flex-1 rounded-full transition-all duration-500",
                 index < currentStep 
-                  ? "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                  ? "bg-primary" 
                   : "bg-foreground/[0.08]"
               )}
             />
