@@ -502,14 +502,9 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                       }`}
                       style={
                         message.isBot || message.isAdmin
-                          ? {
-                              background: 'hsla(var(--background) / 0.75)',
-                              backdropFilter: 'blur(40px) saturate(1.8)',
-                              boxShadow: '0 2px 16px -4px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                            }
+                          ? undefined
                           : {
                               background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))',
-                              boxShadow: '0 4px 20px -4px hsla(var(--primary) / 0.35)',
                             }
                       }
                     >
