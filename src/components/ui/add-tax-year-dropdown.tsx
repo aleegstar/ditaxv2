@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from '@/contexts/I18nContext';
