@@ -25,7 +25,7 @@ const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.C
   return <DrawerPortal>
       <DrawerOverlay />
       <DrawerPrimitive.Content ref={ref} className={cn(
-        "z-[60] flex flex-col border bg-background",
+        "z-[10000] flex flex-col border bg-background",
         isBottomSheet
           ? "fixed inset-x-0 bottom-0 rounded-t-[28px] max-h-[85vh] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.15)]"
           : "fixed left-0 top-0 w-full h-full",
