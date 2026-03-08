@@ -563,8 +563,8 @@ const MultiStepContactForm = ({
             {currentStep === 4 && (
               <div className="space-y-6">
                 {maritalStatus === 'verheiratet' && (
-                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <h3 className="text-lg font-medium text-slate-800">{t.multiStepContactForm.spouseTitle}</h3>
+                  <div className="space-y-4 p-5 rounded-2xl border border-white/60 bg-white/40 backdrop-blur-md shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.08)]">
+                    <h3 className="text-lg font-medium text-foreground">{t.multiStepContactForm.spouseTitle}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="spouseFirstName" className={lightLabelClass}>Vorname</Label>
