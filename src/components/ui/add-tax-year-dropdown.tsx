@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useI18n } from '@/contexts/I18nContext';
@@ -28,7 +29,7 @@ function BottomSheet({ isOpen, onClose, children }: { isOpen: boolean; onClose: 
 
   if (!mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[10002]">
       {/* Backdrop */}
       <div
@@ -43,7 +44,8 @@ function BottomSheet({ isOpen, onClose, children }: { isOpen: boolean; onClose: 
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
