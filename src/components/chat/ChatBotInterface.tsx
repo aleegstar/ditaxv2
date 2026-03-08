@@ -497,7 +497,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                     <div
                       className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
                         message.isBot || message.isAdmin
-                          ? 'text-foreground'
+                          ? 'bg-muted text-foreground'
                           : 'text-white shadow-md'
                       }`}
                       style={
