@@ -120,60 +120,7 @@ export default function TaxReturnTracking() {
         onBack={() => navigate('/')} 
       />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-
-        {/* Glassy Detail Card */}
-        <div className="relative mb-16">
-          {/* Decorative blur */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-50 to-slate-50 rounded-[2.5rem] blur-2xl opacity-50 -z-10" />
-
-          <div className="bg-white/60 backdrop-blur-xl border border-slate-100 rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.06)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-              {/* Name */}
-              <div className="space-y-2">
-                <span className="block text-sm font-medium text-slate-400">Name</span>
-                <p className="text-lg text-slate-900 font-medium tracking-tight">{profile.first_name}</p>
-              </div>
-
-              {/* Steuerjahr */}
-              <div className="space-y-2">
-                <span className="block text-sm font-medium text-slate-400">Steuerjahr</span>
-                <p className="text-lg text-slate-900 font-medium tracking-tight">{taxReturn.tax_year}</p>
-              </div>
-
-              {/* Service */}
-              <div className="space-y-2">
-                <span className="block text-sm font-medium text-slate-400">Service</span>
-                <div className="flex items-center gap-2">
-                  {taxReturn.express_service && (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                    </span>
-                  )}
-                  <p className="text-lg text-slate-900 font-medium tracking-tight">
-                    {taxReturn.express_service ? 'Express-Service' : 'Standard-Service'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Lieferung */}
-              <div className="space-y-2">
-                <span className="block text-sm font-medium text-slate-400">Voraussichtliche Lieferung</span>
-                <p className="text-lg text-slate-900 font-medium tracking-tight">{getEstimatedDeliveryDate()}</p>
-              </div>
-
-              {/* Status */}
-              <div className="md:col-span-2 space-y-2">
-                <span className="block text-sm font-medium text-slate-400">Status</span>
-                <button className="inline-flex items-center gap-1.5 text-lg text-blue-600 font-medium tracking-tight hover:text-blue-700 hover:gap-2 transition-all group">
-                  {getStatusText()}
-                  <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Timeline */}
         <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
