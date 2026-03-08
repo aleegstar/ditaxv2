@@ -257,13 +257,19 @@ const MultiStepContactForm = ({
   };
 
 
-  // Light theme classes
-  const lightInputClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#1D64FF] focus:ring-[#1D64FF]/20";
-  const lightSelectTriggerClass = "min-h-[56px] px-6 py-4 text-base rounded-xl bg-slate-50 border border-slate-200 text-slate-800";
-  const lightLabelClass = "block mb-3 text-slate-600 text-base font-medium";
+  // Liquid glass theme classes
+  const lightInputClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 focus:bg-white/80 transition-all duration-300 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)]";
+  const lightSelectTriggerClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white/60 backdrop-blur-sm border border-white/80 text-foreground shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.06),inset_0_1px_0_0_rgba(255,255,255,0.8)] transition-all duration-300 hover:bg-white/80";
+  const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden flex justify-center">
+    <div className="min-h-screen relative overflow-hidden flex justify-center" style={{ background: 'linear-gradient(145deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%)' }}>
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-[0.07] animate-pulse" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '6s' }} />
+        <div className="absolute -bottom-48 -left-24 w-[500px] h-[500px] rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, hsl(var(--primary)), transparent 70%)', animationDuration: '8s' }} />
+      </div>
+
       <div className="relative z-10 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
@@ -275,22 +281,24 @@ const MultiStepContactForm = ({
 
         <div className="px-6 pt-6">
 
-        {/* 4-Segment Progress Bar */}
-        <div className="flex gap-2 mb-8">
+        {/* 4-Segment Progress Bar — glass style */}
+        <div className="flex gap-2.5 mb-10">
           {steps.map((step, index) => (
             <div
               key={step.id}
               className={cn(
-                "h-1.5 flex-1 rounded-full transition-colors",
-                index < currentStep ? "bg-[#1D64FF]" : "bg-slate-200"
+                "h-1 flex-1 rounded-full transition-all duration-500",
+                index < currentStep 
+                  ? "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.4)]" 
+                  : "bg-foreground/[0.08]"
               )}
             />
           ))}
         </div>
 
         {/* Section Heading */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-800">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-foreground tracking-tight">
             {steps.find(step => step.id === currentStep)?.title || t.multiStepContactForm.title}
           </h2>
         </div>
@@ -347,12 +355,12 @@ const MultiStepContactForm = ({
                     <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder="Religion auswählen" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-100">Katholisch</SelectItem>
-                      <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-100">Reformiert</SelectItem>
-                      <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-100">Christkatholisch</SelectItem>
-                      <SelectItem value="other" className="text-slate-800 hover:bg-slate-100">Andere</SelectItem>
-                      <SelectItem value="none" className="text-slate-800 hover:bg-slate-100">Keine</SelectItem>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                      <SelectItem value="catholic" className="text-foreground hover:bg-muted/60 rounded-lg">Katholisch</SelectItem>
+                      <SelectItem value="reformed" className="text-foreground hover:bg-muted/60 rounded-lg">Reformiert</SelectItem>
+                      <SelectItem value="christCatholic" className="text-foreground hover:bg-muted/60 rounded-lg">Christkatholisch</SelectItem>
+                      <SelectItem value="other" className="text-foreground hover:bg-muted/60 rounded-lg">Andere</SelectItem>
+                      <SelectItem value="none" className="text-foreground hover:bg-muted/60 rounded-lg">Keine</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -363,11 +371,11 @@ const MultiStepContactForm = ({
                     <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder={t.contact.maritalStatus} />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      <SelectItem value="ledig" className="text-slate-800 hover:bg-slate-100">Ledig</SelectItem>
-                      <SelectItem value="verheiratet" className="text-slate-800 hover:bg-slate-100">Verheiratet</SelectItem>
-                      <SelectItem value="geschieden" className="text-slate-800 hover:bg-slate-100">Geschieden</SelectItem>
-                      <SelectItem value="verwitwet" className="text-slate-800 hover:bg-slate-100">Verwitwet</SelectItem>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                      <SelectItem value="ledig" className="text-foreground hover:bg-muted/60 rounded-lg">Ledig</SelectItem>
+                      <SelectItem value="verheiratet" className="text-foreground hover:bg-muted/60 rounded-lg">Verheiratet</SelectItem>
+                      <SelectItem value="geschieden" className="text-foreground hover:bg-muted/60 rounded-lg">Geschieden</SelectItem>
+                      <SelectItem value="verwitwet" className="text-foreground hover:bg-muted/60 rounded-lg">Verwitwet</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -432,33 +440,33 @@ const MultiStepContactForm = ({
                     <SelectTrigger className={lightSelectTriggerClass}>
                       <SelectValue placeholder={t.multiStepContactForm.selectCanton} />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200 max-h-[300px]">
-                      <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
-                      <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
-                      <SelectItem value="AI" disabled className="text-slate-400 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="AR" disabled className="text-slate-400 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BE" disabled className="text-slate-400 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BL" disabled className="text-slate-400 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="BS" disabled className="text-slate-400 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="FR" disabled className="text-slate-400 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GE" disabled className="text-slate-400 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GL" disabled className="text-slate-400 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="GR" disabled className="text-slate-400 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="JU" disabled className="text-slate-400 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="LU" disabled className="text-slate-400 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NE" disabled className="text-slate-400 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="NW" disabled className="text-slate-400 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="OW" disabled className="text-slate-400 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SG" disabled className="text-slate-400 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SH" disabled className="text-slate-400 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SO" disabled className="text-slate-400 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="SZ" disabled className="text-slate-400 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TG" disabled className="text-slate-400 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="TI" disabled className="text-slate-400 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="UR" disabled className="text-slate-400 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VD" disabled className="text-slate-400 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="VS" disabled className="text-slate-400 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
-                      <SelectItem value="ZG" disabled className="text-slate-400 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl max-h-[300px]">
+                      <SelectItem value="AG" className="text-foreground hover:bg-muted/60 rounded-lg">Aargau (AG)</SelectItem>
+                      <SelectItem value="ZH" className="text-foreground hover:bg-muted/60 rounded-lg">Zürich (ZH)</SelectItem>
+                      <SelectItem value="AI" disabled className="text-muted-foreground/50 cursor-not-allowed">Appenzell Innerrhoden (AI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="AR" disabled className="text-muted-foreground/50 cursor-not-allowed">Appenzell Ausserrhoden (AR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BE" disabled className="text-muted-foreground/50 cursor-not-allowed">Bern (BE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BL" disabled className="text-muted-foreground/50 cursor-not-allowed">Basel-Landschaft (BL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="BS" disabled className="text-muted-foreground/50 cursor-not-allowed">Basel-Stadt (BS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="FR" disabled className="text-muted-foreground/50 cursor-not-allowed">Freiburg (FR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GE" disabled className="text-muted-foreground/50 cursor-not-allowed">Genf (GE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GL" disabled className="text-muted-foreground/50 cursor-not-allowed">Glarus (GL) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="GR" disabled className="text-muted-foreground/50 cursor-not-allowed">Graubünden (GR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="JU" disabled className="text-muted-foreground/50 cursor-not-allowed">Jura (JU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="LU" disabled className="text-muted-foreground/50 cursor-not-allowed">Luzern (LU) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NE" disabled className="text-muted-foreground/50 cursor-not-allowed">Neuenburg (NE) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="NW" disabled className="text-muted-foreground/50 cursor-not-allowed">Nidwalden (NW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="OW" disabled className="text-muted-foreground/50 cursor-not-allowed">Obwalden (OW) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SG" disabled className="text-muted-foreground/50 cursor-not-allowed">St. Gallen (SG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SH" disabled className="text-muted-foreground/50 cursor-not-allowed">Schaffhausen (SH) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SO" disabled className="text-muted-foreground/50 cursor-not-allowed">Solothurn (SO) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="SZ" disabled className="text-muted-foreground/50 cursor-not-allowed">Schwyz (SZ) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TG" disabled className="text-muted-foreground/50 cursor-not-allowed">Thurgau (TG) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="TI" disabled className="text-muted-foreground/50 cursor-not-allowed">Tessin (TI) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="UR" disabled className="text-muted-foreground/50 cursor-not-allowed">Uri (UR) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VD" disabled className="text-muted-foreground/50 cursor-not-allowed">Waadt (VD) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="VS" disabled className="text-muted-foreground/50 cursor-not-allowed">Wallis (VS) - noch nicht verfügbar</SelectItem>
+                      <SelectItem value="ZG" disabled className="text-muted-foreground/50 cursor-not-allowed">Zug (ZG) - noch nicht verfügbar</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -478,7 +486,7 @@ const MultiStepContactForm = ({
                 </div>
 
                 {hadDifferentAddressEnd && (
-                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="space-y-4 p-5 rounded-2xl border border-white/60 bg-white/40 backdrop-blur-md shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.08)]">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="col-span-2">
                         <Label htmlFor="endYearAddress" className={lightLabelClass}>Strasse per 31.12.</Label>
@@ -531,9 +539,9 @@ const MultiStepContactForm = ({
                         <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Kanton auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-slate-200">
-                          <SelectItem value="AG" className="text-slate-800 hover:bg-slate-100">Aargau (AG)</SelectItem>
-                          <SelectItem value="ZH" className="text-slate-800 hover:bg-slate-100">Zürich (ZH)</SelectItem>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                          <SelectItem value="AG" className="text-foreground hover:bg-muted/60 rounded-lg">Aargau (AG)</SelectItem>
+                          <SelectItem value="ZH" className="text-foreground hover:bg-muted/60 rounded-lg">Zürich (ZH)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -555,8 +563,8 @@ const MultiStepContactForm = ({
             {currentStep === 4 && (
               <div className="space-y-6">
                 {maritalStatus === 'verheiratet' && (
-                  <div className="space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <h3 className="text-lg font-medium text-slate-800">{t.multiStepContactForm.spouseTitle}</h3>
+                  <div className="space-y-4 p-5 rounded-2xl border border-white/60 bg-white/40 backdrop-blur-md shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.08)]">
+                    <h3 className="text-lg font-medium text-foreground">{t.multiStepContactForm.spouseTitle}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="spouseFirstName" className={lightLabelClass}>Vorname</Label>
@@ -587,12 +595,12 @@ const MultiStepContactForm = ({
                         <SelectTrigger className={lightSelectTriggerClass}>
                           <SelectValue placeholder="Religion auswählen" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-slate-200">
-                          <SelectItem value="catholic" className="text-slate-800 hover:bg-slate-100">Katholisch</SelectItem>
-                          <SelectItem value="reformed" className="text-slate-800 hover:bg-slate-100">Reformiert</SelectItem>
-                          <SelectItem value="christCatholic" className="text-slate-800 hover:bg-slate-100">Christkatholisch</SelectItem>
-                          <SelectItem value="other" className="text-slate-800 hover:bg-slate-100">Andere</SelectItem>
-                          <SelectItem value="none" className="text-slate-800 hover:bg-slate-100">Keine</SelectItem>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50 rounded-xl shadow-xl">
+                          <SelectItem value="catholic" className="text-foreground hover:bg-muted/60 rounded-lg">Katholisch</SelectItem>
+                          <SelectItem value="reformed" className="text-foreground hover:bg-muted/60 rounded-lg">Reformiert</SelectItem>
+                          <SelectItem value="christCatholic" className="text-foreground hover:bg-muted/60 rounded-lg">Christkatholisch</SelectItem>
+                          <SelectItem value="other" className="text-foreground hover:bg-muted/60 rounded-lg">Andere</SelectItem>
+                          <SelectItem value="none" className="text-foreground hover:bg-muted/60 rounded-lg">Keine</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -626,12 +634,12 @@ const MultiStepContactForm = ({
           </motion.div>
 
           {/* Navigation Buttons */}
-          <div className="flex flex-col gap-3 pt-6">
+          <div className="flex flex-col gap-3 pt-8 pb-4">
             <Button
               type="button"
               onClick={handleNext}
               size="lg"
-              className="w-full"
+              className="w-full rounded-2xl h-14 text-[15px] font-semibold shadow-[0_4px_16px_-2px_hsl(var(--primary)/0.3)] hover:shadow-[0_6px_24px_-2px_hsl(var(--primary)/0.4)] transition-all duration-300"
             >
               {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
             </Button>
@@ -640,7 +648,7 @@ const MultiStepContactForm = ({
               <button
                 type="button"
                 onClick={handleBack}
-                className="w-full py-3 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors duration-200"
+                className="w-full py-3 text-muted-foreground hover:text-foreground font-medium text-sm transition-colors duration-200"
               >
                 {t.multiStepContactForm.back}
               </button>
