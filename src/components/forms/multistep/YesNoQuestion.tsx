@@ -28,14 +28,14 @@ const cardVariants = {
     scale: 1,
     x: 0,
     rotate: 0,
-    transition: { duration: 0.25, ease: 'easeOut' },
+    transition: { duration: 0.25, ease: 'easeOut' as const },
   },
   exit: (direction: number) => ({
     x: direction * 350,
     opacity: 0,
     scale: 0.85,
     rotate: direction * 18,
-    transition: { duration: 0.35, ease: [0.36, 0, 0.66, -0.56] },
+    transition: { duration: 0.35, ease: [0.36, 0, 0.66, -0.56] as const },
   }),
 };
 
