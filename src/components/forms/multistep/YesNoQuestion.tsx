@@ -66,11 +66,13 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
         rotate: 0,
         transition: { duration: 0.25, ease: 'easeOut' },
       }}
-      exit={{
+      exit={(custom: string) => ({
+        x: custom === 'right' ? 300 : custom === 'left' ? -300 : 0,
         opacity: 0,
-        scale: 0.95,
-        transition: { duration: 0.15 },
-      }}
+        scale: 0.9,
+        rotate: custom === 'right' ? 15 : custom === 'left' ? -15 : 0,
+        transition: { duration: 0.35, ease: 'easeIn' },
+      })}
       style={{ x, rotate }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
