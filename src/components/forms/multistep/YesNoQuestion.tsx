@@ -38,10 +38,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   const triggerAnswer = useCallback((direction: 'left' | 'right') => {
     if (answeredRef.current) return;
     answeredRef.current = true;
-    setExitDir(direction);
-    setTimeout(() => {
-      onAnswer(direction === 'right');
-    }, EXIT_DURATION * 1000 + 20);
+    onAnswer(direction === 'right');
   }, [onAnswer]);
 
   // Expose triggerExit so buttons can animate the card out
