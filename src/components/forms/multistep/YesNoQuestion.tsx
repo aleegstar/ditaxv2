@@ -18,14 +18,36 @@ export interface SwipeCardHandle {
   triggerExit: (direction: 'left' | 'right') => void;
 }
 
+const cardVariants = {
+  enter: {
+    opacity: 0,
+    scale: 0.97,
+  },
+  center: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    rotate: 0,
+    transition: { duration: 0.25, ease: 'easeOut' as const },
+  },
+  exit: (direction: number) => ({
+    x: direction * 350,
+    opacity: 0,
+    scale: 0.85,
+    rotate: direction * 18,
+    transition: { duration: 0.35, ease: [0.36, 0, 0.66, -0.56] as const },
+  }),
+};
+
 // Inner card that handles drag and exit animation
 const SwipeCard = forwardRef<SwipeCardHandle, {
   question: YesNoQuestionType;
   onAnswer: (answer: boolean) => void;
+  onSetDirection: (dir: number) => void;
   isExpanded: boolean;
   setIsExpanded: (v: boolean) => void;
   t: any;
-}>(({ question, onAnswer, isExpanded, setIsExpanded, t }, ref) => {
+}>(({ question, onAnswer, onSetDirection, isExpanded, setIsExpanded, t }, ref) => {
   const answeredRef = useRef(false);
 
   const x = useMotionValue(0);
@@ -36,10 +58,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   const triggerAnswer = useCallback((direction: 'left' | 'right') => {
     if (answeredRef.current) return;
     answeredRef.current = true;
+    onSetDirection(direction === 'right' ? 1 : -1);
     onAnswer(direction === 'right');
-  }, [onAnswer]);
+  }, [onAnswer, onSetDirection]);
 
-  // Expose triggerExit so buttons can animate the card out
   useImperativeHandle(ref, () => ({
     triggerExit: triggerAnswer,
   }), [triggerAnswer]);
@@ -58,19 +80,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{
-        opacity: 1,
-        scale: 1,
-        x: 0,
-        rotate: 0,
-        transition: { duration: 0.25, ease: 'easeOut' },
-      }}
-      exit={{
-        opacity: 0,
-        scale: 0.95,
-        transition: { duration: 0.15 },
-      }}
+      variants={cardVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
       style={{ x, rotate }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -148,12 +161,12 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   className,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [exitDirection, setExitDirection] = useState(1);
   const { t } = useI18n();
   const cardRef = useRef<SwipeCardHandle>(null);
 
   const handleButtonAnswer = useCallback(
     (isYes: boolean) => {
-      // Trigger the card's exit animation instead of calling onAnswer directly
       cardRef.current?.triggerExit(isYes ? 'right' : 'left');
     },
     []
@@ -162,13 +175,14 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   return (
     <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
       {/* Card area */}
-      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-hidden">
-        <AnimatePresence mode="popLayout" initial={false}>
+      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-visible">
+        <AnimatePresence mode="popLayout" initial={false} custom={exitDirection}>
           <SwipeCard
             ref={cardRef}
             key={question.id}
             question={question}
             onAnswer={onAnswer}
+            onSetDirection={setExitDirection}
             isExpanded={isExpanded}
             setIsExpanded={setIsExpanded}
             t={t}
