@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useReducer, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
 import { useFormContext } from '@/contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
@@ -15,6 +14,8 @@ import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
 import { Capacitor } from '@capacitor/core';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { useI18n } from '@/contexts/I18nContext';
+import { SubpageHeader } from '@/components/ui/subpage-header';
+import { ShieldCheck } from 'lucide-react';
 
 interface MultiStepYesNoFormProps {
   section: 'income' | 'assets' | 'deductions';
@@ -583,28 +584,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const summaryItems = generateSummaryItems();
     
     return (
-      <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
-        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-              <button 
-                onClick={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
-                className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
-              >
-                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-
-              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-                {getSectionTitle()}
-              </h1>
-
-              <div className="w-10 h-10" />
-            </div>
-          </header>
+      <div className="min-h-screen bg-background text-foreground antialiased">
+        <div className="h-screen w-full relative flex flex-col overflow-hidden">
+          <SubpageHeader 
+            title={getSectionTitle()} 
+            onBack={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })} 
+          />
 
           {/* Summary Content */}
-          <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
+          <div className="z-10 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-16 relative overflow-y-auto pt-4">
             <FormSummary
               title={getSectionTitle()}
               summaryItems={summaryItems}
@@ -615,24 +603,10 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           </div>
 
           {/* Footer Info */}
-          <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="12" 
-                height="12" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="1.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="text-emerald-500"
-              >
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+          <div className="py-4 text-center shrink-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
+              <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
+              <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
                 Verschlüsselt &amp; Sicher
               </p>
             </div>
@@ -645,28 +619,13 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   // Android-safe rendering without any framer-motion elements that could block touch events
   if (isAndroid) {
     return (
-      <div className="min-h-screen bg-white text-slate-800 flex justify-center">
-        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto flex flex-col">
-          {/* Header */}
-          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-              <button 
-                onClick={handleHeaderBack}
-                className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
-                style={{ touchAction: 'manipulation' }}
-              >
-                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-                {getSectionTitle()}
-              </h1>
-              <div className="w-10 h-10" />
-            </div>
-          </header>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="h-screen w-full flex flex-col">
+          <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
           {/* Main Content */}
           <div 
-            className="flex-1 flex flex-col px-6 pb-8 overflow-y-auto pt-4"
+            className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-8 overflow-y-auto pt-4"
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
           >
             <MultiStepProgress
@@ -743,14 +702,11 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
             )}
           </div>
 
-          {/* Footer Info - NOT absolute, just at the bottom */}
+          {/* Footer Info */}
           <div className="py-4 text-center shrink-0">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
+              <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
+              <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
                 Verschlüsselt &amp; Sicher
               </p>
             </div>
@@ -761,27 +717,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased flex justify-center">
-      {/* Mobile Container */}
-      <div className="h-screen md:max-w-4xl bg-background w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-            <button 
-              onClick={handleHeaderBack}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
-            >
-              <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
-            </button>
-            <h1 className="font-semibold text-lg tracking-tight text-foreground leading-tight absolute left-1/2 -translate-x-1/2">
-              {getSectionTitle()}
-            </h1>
-            <div className="w-10 h-10" />
-          </div>
-        </header>
+    <div className="min-h-screen bg-background text-foreground antialiased">
+      <div className="h-screen w-full relative flex flex-col overflow-hidden">
+        <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
         {/* Main Content */}
-        <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
+        <div className="z-10 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-16 relative overflow-y-auto pt-4">
           {/* Progress Bar */}
           <MultiStepProgress
             currentStep={formState.currentQuestionIndex}
@@ -865,12 +806,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-6 w-full text-center z-20 pointer-events-none">
+        <div className="py-4 text-center shrink-0">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
-              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
+            <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
             <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
               Verschlüsselt &amp; Sicher
             </p>
