@@ -460,8 +460,8 @@ serve(async (req) => {
           requestId 
         });
         
-        // Payment methods: card + Klarna (TWINT temporarily disabled - not yet qualified in Stripe)
-        const paymentMethodTypes = ["card", "klarna"];
+        // Payment methods: card, Klarna, and TWINT
+        const paymentMethodTypes = ["card", "klarna", "twint"];
         
         logStep("Payment methods configured - all methods enabled", { 
           paymentMethodTypes,
