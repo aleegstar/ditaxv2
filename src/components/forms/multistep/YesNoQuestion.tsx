@@ -13,7 +13,6 @@ interface YesNoQuestionProps {
 }
 
 const SWIPE_THRESHOLD = 60;
-const EXIT_DURATION = 0.32;
 
 export interface SwipeCardHandle {
   triggerExit: (direction: 'left' | 'right') => void;
@@ -27,7 +26,6 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   setIsExpanded: (v: boolean) => void;
   t: any;
 }>(({ question, onAnswer, isExpanded, setIsExpanded, t }, ref) => {
-  const [exitDir, setExitDir] = useState<'left' | 'right' | null>(null);
   const answeredRef = useRef(false);
 
   const x = useMotionValue(0);
@@ -38,10 +36,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   const triggerAnswer = useCallback((direction: 'left' | 'right') => {
     if (answeredRef.current) return;
     answeredRef.current = true;
-    setExitDir(direction);
-    setTimeout(() => {
-      onAnswer(direction === 'right');
-    }, EXIT_DURATION * 1000 + 20);
+    onAnswer(direction === 'right');
   }, [onAnswer]);
 
   // Expose triggerExit so buttons can animate the card out
@@ -63,34 +58,21 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={
-        exitDir
-          ? {
-              x: exitDir === 'right' ? 340 : -340,
-              rotate: exitDir === 'right' ? 14 : -14,
-              opacity: 0,
-              transition: {
-                duration: EXIT_DURATION,
-                ease: [0.4, 0, 0.8, 0.2],
-              },
-            }
-          : {
-              opacity: 1,
-              x: 0,
-              rotate: 0,
-              transition: {
-                duration: 0.3,
-                ease: 'easeOut',
-              },
-            }
-      }
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        rotate: 0,
+        transition: { duration: 0.25, ease: 'easeOut' },
+      }}
       exit={{
         opacity: 0,
+        scale: 0.95,
         transition: { duration: 0.15 },
       }}
-      style={exitDir ? undefined : { x, rotate }}
-      drag={exitDir ? false : 'x'}
+      style={{ x, rotate }}
+      drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.55}
       onDragEnd={handleDragEnd}
