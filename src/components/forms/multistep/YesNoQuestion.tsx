@@ -162,7 +162,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   return (
     <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
       {/* Card area */}
-      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-hidden">
+      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-visible">
         <AnimatePresence mode="popLayout" initial={false}>
           <SwipeCard
             ref={cardRef}
