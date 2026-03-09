@@ -13,7 +13,6 @@ interface YesNoQuestionProps {
 }
 
 const SWIPE_THRESHOLD = 60;
-const EXIT_DURATION = 0.32;
 
 export interface SwipeCardHandle {
   triggerExit: (direction: 'left' | 'right') => void;
