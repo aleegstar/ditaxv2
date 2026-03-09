@@ -26,7 +26,6 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
   setIsExpanded: (v: boolean) => void;
   t: any;
 }>(({ question, onAnswer, isExpanded, setIsExpanded, t }, ref) => {
-  const [exitDir, setExitDir] = useState<'left' | 'right' | null>(null);
   const answeredRef = useRef(false);
 
   const x = useMotionValue(0);
