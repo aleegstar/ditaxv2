@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useReducer, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
 import { useFormContext } from '@/contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { YesNoQuestion } from './YesNoQuestion';
@@ -15,6 +14,8 @@ import { NativeErrorMonitor } from '@/utils/nativeErrorMonitor';
 import { Capacitor } from '@capacitor/core';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { useI18n } from '@/contexts/I18nContext';
+import { SubpageHeader } from '@/components/ui/subpage-header';
+import { ShieldCheck } from 'lucide-react';
 
 interface MultiStepYesNoFormProps {
   section: 'income' | 'assets' | 'deductions';
