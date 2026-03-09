@@ -619,28 +619,13 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   // Android-safe rendering without any framer-motion elements that could block touch events
   if (isAndroid) {
     return (
-      <div className="min-h-screen bg-white text-slate-800 flex justify-center">
-        <div className="h-screen md:max-w-4xl bg-white w-full max-w-4xl mr-auto ml-auto flex flex-col">
-          {/* Header */}
-          <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-              <button 
-                onClick={handleHeaderBack}
-                className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
-                style={{ touchAction: 'manipulation' }}
-              >
-                <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-              <h1 className="font-medium text-lg tracking-tight text-slate-800 leading-tight absolute left-1/2 -translate-x-1/2">
-                {getSectionTitle()}
-              </h1>
-              <div className="w-10 h-10" />
-            </div>
-          </header>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="h-screen w-full flex flex-col">
+          <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
           {/* Main Content */}
           <div 
-            className="flex-1 flex flex-col px-6 pb-8 overflow-y-auto pt-4"
+            className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-8 overflow-y-auto pt-4"
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
           >
             <MultiStepProgress
