@@ -717,27 +717,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased flex justify-center">
-      {/* Mobile Container */}
-      <div className="h-screen md:max-w-4xl bg-background w-full max-w-4xl mr-auto ml-auto relative flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm shrink-0">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between relative">
-            <button 
-              onClick={handleHeaderBack}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2"
-            >
-              <ChevronLeft className="w-5 h-5" strokeWidth={1.8} />
-            </button>
-            <h1 className="font-semibold text-lg tracking-tight text-foreground leading-tight absolute left-1/2 -translate-x-1/2">
-              {getSectionTitle()}
-            </h1>
-            <div className="w-10 h-10" />
-          </div>
-        </header>
+    <div className="min-h-screen bg-background text-foreground antialiased">
+      <div className="h-screen w-full relative flex flex-col overflow-hidden">
+        <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
         {/* Main Content */}
-        <div className="z-10 flex-1 flex flex-col px-6 pb-8 relative overflow-y-auto pt-4">
+        <div className="z-10 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-16 relative overflow-y-auto pt-4">
           {/* Progress Bar */}
           <MultiStepProgress
             currentStep={formState.currentQuestionIndex}
