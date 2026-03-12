@@ -580,12 +580,7 @@ const UserTaxReturns = () => {
       {/* ═══════════════════════════════════════════════════ */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div
-          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full"
-          style={{
-            background: 'hsla(var(--background) / 0.7)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            boxShadow: '0 8px 40px -8px hsla(var(--foreground) / 0.1), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-          }}
+          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-2xl border border-border bg-background/80 backdrop-blur-lg shadow-lg shadow-foreground/[0.04]"
         >
           {/* Scanner Button */}
           <button
