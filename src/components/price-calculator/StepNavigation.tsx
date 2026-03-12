@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface StepNavigationProps {
@@ -18,18 +17,22 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
       <button
         onClick={onBack}
         disabled={!canGoBack}
-        className="flex items-center gap-2 bg-white text-black border border-[#E2E8F0] hover:bg-gray-50 font-medium px-6 py-4 min-h-[56px] text-base rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-none"
+        className="group flex items-center gap-3 rounded-full bg-gradient-to-b from-card to-muted border border-border px-5 py-3 font-medium text-base text-foreground transition-all shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Zurück
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover:bg-accent">
+          <ArrowLeft className="h-4 w-4 stroke-[1.5] group-hover:-translate-x-0.5 transition-transform" />
+        </div>
+        <span>Zurück</span>
       </button>
       
       <button
         onClick={onNext}
-        className="flex items-center gap-2 bg-[#1d64ff] text-white hover:bg-[#1d64ff]/90 font-medium px-6 py-4 min-h-[56px] text-base rounded-xl transition-colors duration-200 shadow-none"
+        className="group flex items-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-5 py-3 font-medium text-base text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97]"
       >
-        Weiter
-        <ArrowRight className="w-4 h-4" />
+        <span>Weiter</span>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+          <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
+        </div>
       </button>
     </div>
   );
