@@ -4,7 +4,6 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 
 const AppAlertDialog = AlertDialogPrimitive.Root;
 const AppAlertDialogTrigger = AlertDialogPrimitive.Trigger;
@@ -158,8 +157,11 @@ const AppAlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      buttonVariants({ variant, size: "default" }),
-      "w-full",
+      "group w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all active:scale-[0.97]",
+      variant === "destructive"
+        ? "bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] text-white shadow-[0_2px_8px_hsl(var(--destructive)/0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(var(--destructive)/0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110"
+        : "bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110",
+      "disabled:opacity-50 disabled:pointer-events-none",
       className
     )}
     {...props}
@@ -174,8 +176,10 @@ const AppAlertDialogCancel = React.forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      buttonVariants({ variant: "secondary", size: "default" }),
-      "w-full",
+      "w-full inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-semibold transition-all active:scale-[0.97]",
+      "bg-gradient-to-b from-card to-muted border border-border text-foreground",
+      "shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)]",
+      "hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]",
       className
     )}
     {...props}
