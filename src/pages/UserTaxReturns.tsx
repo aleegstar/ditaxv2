@@ -476,33 +476,18 @@ const UserTaxReturns = () => {
                 key={year}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
                 {/* Top Image/Visual Area - Amber/Orange Gradient */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                  <span className="font-semibold text-white tracking-tight font-jakarta text-4xl">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                    style={{
-                      background: 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
                   >
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
                     <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
