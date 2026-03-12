@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { ChecklistItem } from '../types';
-import { Check, ChevronUp, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X, Zap, ArrowRight, Clock, Calendar } from 'lucide-react';
+import { Check, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X, Zap, ArrowRight, Clock, Calendar } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -519,103 +519,85 @@ const DocumentChecklist: React.FC = () => {
           return <Collapsible key={category} open={isOpen} onOpenChange={open => {
             setOpenCategories(prev => ({ ...prev, [category]: open }));
           }}>
-              {/* Liquid card wrapper */}
-              <div 
-                className={cn(
-                  "rounded-3xl p-[1px] transition-all",
-                  !isComplete && isOpen ? "shadow-lg shadow-slate-200/50" : "",
-                  isComplete && !isOpen ? "opacity-90 hover:opacity-100" : ""
-                )}
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.6)',
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.6)'
-                }}
-              >
-                <div className="bg-white/50 rounded-[1.3rem] p-6 sm:p-8">
+              {/* Card wrapper — matching TaxYearDashboard style */}
+              <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200">
+                <div className="p-5 sm:p-6">
                   {/* Section Header */}
                   <CollapsibleTrigger className="group w-full text-left">
-                    <div className={cn("flex items-start justify-between", isOpen && "mb-6")}>
-                      <div className="flex gap-5">
-                        <div className={cn(
-                          "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm",
-                          isComplete 
-                            ? "bg-emerald-50 text-emerald-500 ring-1 ring-emerald-100" 
-                            : "bg-slate-100 text-slate-500 ring-1 ring-slate-200/60"
-                        )}>
-                          {isComplete 
-                            ? <Check className="w-6 h-6" strokeWidth={1.5} /> 
-                            : <Icon className="w-6 h-6" />
-                          }
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-medium text-slate-800 tracking-tight">
-                            {categoryMap[category]}
-                          </h2>
-                          <p className={cn(
-                            "text-base mt-0.5",
-                            isComplete ? "text-emerald-600 font-medium" : "text-slate-500"
-                          )}>
-                            {isComplete ? 'Vollständig' : `${uploadedCount} von ${items.length} erledigt`}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-3.5">
+                      <div className={cn(
+                        "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
+                        isComplete 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-muted text-muted-foreground"
+                      )}>
+                        {isComplete 
+                          ? <Check className="w-5 h-5" strokeWidth={2.5} /> 
+                          : <Icon className="w-5 h-5" />
+                        }
                       </div>
-                      <div className="flex items-center gap-4 mt-1">
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-[14px] font-semibold text-foreground tracking-tight">
+                          {categoryMap[category]}
+                        </h2>
+                        <p className={cn(
+                          "text-[12px] mt-0.5",
+                          isComplete ? "text-primary font-medium" : "text-muted-foreground"
+                        )}>
+                          {isComplete ? 'Vollständig' : `${uploadedCount} von ${items.length} erledigt`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
                         {!isComplete && openCount > 0 && (
-                          <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium tracking-wide uppercase shadow-sm ring-1 ring-blue-100">
+                          <span className="px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
                             {openCount} Offen
                           </span>
                         )}
-                        {isOpen 
-                          ? <ChevronUp className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
-                          : <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
-                        }
+                        <ChevronRight className={cn(
+                          "w-4 h-4 text-muted-foreground/40 transition-transform duration-200",
+                          isOpen && "rotate-90"
+                        )} strokeWidth={2} />
                       </div>
                     </div>
                   </CollapsibleTrigger>
 
                   <CollapsibleContent>
-                    <div className="flex flex-col">
-                      {/* Active / pending items first */}
-                      {pendingItems.map((item, idx) => {
+                    <div className="mt-5 space-y-2">
+                      {/* Pending items */}
+                      {pendingItems.map((item) => {
                         const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
                         
-                        return <div key={item.id}>
-                          <div className="bg-white rounded-2xl p-5 shadow-sm ring-1 ring-slate-200 mb-4 transition-all hover:shadow-md hover:ring-blue-100">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-                              <div className="flex items-center gap-4">
-                                <h3 className="text-lg font-medium text-slate-800">{item.title}</h3>
-                              </div>
-                              <div className="flex items-center gap-3 w-full md:w-auto">
-                                {hasUnassignedDocs && (
-                                  <Button 
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                                    className="flex-1 md:flex-none"
-                                  >
-                                    <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
-                                    {t.documentChecklist.assign}
-                                  </Button>
-                                )}
+                        return <div key={item.id} className="rounded-xl bg-muted/40 ring-1 ring-border p-4 transition-all hover:ring-primary/20">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                              {hasUnassignedDocs && (
                                 <Button 
+                                  variant="secondary"
                                   size="sm"
-                                  onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                                  className="flex-1 md:flex-none"
+                                  onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
+                                  className="flex-1 sm:flex-none"
                                 >
-                                  <Plus className="w-4 h-4" strokeWidth={1.5} />
-                                  Hochladen
+                                  <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+                                  {t.documentChecklist.assign}
                                 </Button>
-                              </div>
+                              )}
+                              <Button 
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                                className="flex-1 sm:flex-none"
+                              >
+                                <Plus className="w-4 h-4" strokeWidth={1.5} />
+                                Hochladen
+                              </Button>
                             </div>
                           </div>
                         </div>;
                       })}
 
-                      {/* Dotted separator between pending and completed */}
+                      {/* Separator */}
                       {pendingItems.length > 0 && completedItems.length > 0 && (
-                        <div className="border-t-2 border-dotted border-slate-200 my-4" />
+                        <div className="border-t border-border my-2" />
                       )}
 
                       {/* Completed items */}
@@ -623,35 +605,35 @@ const DocumentChecklist: React.FC = () => {
                         const itemFiles = getUserDocumentsForItem(item.id);
                         
                         return <div key={item.id}>
-                          {idx > 0 && <div className="border-t border-slate-100 my-3" />}
-                          <div className="group flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
-                            <div className="flex items-start gap-4 opacity-50 hover:opacity-100 transition-opacity">
+                          {idx > 0 && <div className="border-t border-border my-1" />}
+                          <div className="group flex flex-col sm:flex-row sm:items-center justify-between py-2.5 gap-3">
+                            <div className="flex items-start gap-3 opacity-50 hover:opacity-100 transition-opacity">
                               <div>
-                                <h3 className="text-lg text-slate-500 line-through decoration-slate-300">
+                                <h3 className="text-sm text-muted-foreground line-through">
                                   {item.title}
                                 </h3>
                                 {itemFiles.length > 0 && (
-                                  <div className="flex items-center gap-1.5 mt-1 text-emerald-600">
-                                    <FileCheck className="w-4 h-4" strokeWidth={1.5} />
-                                    <span className="text-sm font-medium">
+                                  <div className="flex items-center gap-1.5 mt-0.5 text-primary">
+                                    <FileCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                    <span className="text-xs font-medium">
                                       {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
                                     </span>
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 pl-10 sm:pl-0">
+                            <div className="flex items-center gap-2 pl-0 sm:pl-0">
                               <button 
                                 onClick={() => handleViewDocuments(item.id, 0)} 
-                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                                className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                               >
-                                <Eye className="w-5 h-5" strokeWidth={1.5} />
+                                <Eye className="w-4 h-4" strokeWidth={1.5} />
                               </button>
                               <button 
                                 onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} 
-                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                                className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                               >
-                                <Trash2 className="w-5 h-5" strokeWidth={1.5} />
+                                <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                               </button>
                             </div>
                           </div>
