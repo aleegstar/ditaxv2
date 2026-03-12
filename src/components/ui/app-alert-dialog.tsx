@@ -4,7 +4,6 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 const AppAlertDialog = AlertDialogPrimitive.Root;
 const AppAlertDialogTrigger = AlertDialogPrimitive.Trigger;
