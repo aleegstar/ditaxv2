@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, ArrowRight } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { Button } from '@/components/ui/button';
 import { SubpageHeader } from '@/components/ui/subpage-header';
