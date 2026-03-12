@@ -613,12 +613,11 @@ const Auth = () => {
                               }} placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                             </div>
 
-                            <button type="submit" disabled={isLoading} className="flex w-full items-center justify-center gap-2 h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50" style={{
-                              background: 'linear-gradient(135deg, hsl(var(--foreground)) 0%, hsla(var(--foreground) / 0.85) 100%)',
-                              color: 'hsl(var(--background))',
-                              boxShadow: '0 4px 14px -4px hsla(var(--foreground) / 0.3), inset 0 1px 0 hsla(0 0% 100% / 0.1)',
-                            }}>
-                              {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
+                            <button type="submit" disabled={isLoading} className="group flex w-full items-center justify-center gap-3 h-[52px] px-6 rounded-full text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110">
+                              <span>{isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}</span>
+                              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                              </div>
                             </button>
 
                             <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
