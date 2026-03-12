@@ -567,17 +567,6 @@ const UserTaxReturns = () => {
               </motion.article>
             );
           })}
-                        <span className="font-jakarta">{t.userDashboard.details}</span>
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover/btn:bg-accent">
-                          <ExternalLink className="h-3.5 w-3.5 stroke-[1.5]" />
-                        </div>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.article>
-            );
-          })}
 
           {/* New Year Action Card */}
           {availableYears.length < 7 && (
