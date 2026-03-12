@@ -413,13 +413,13 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-primary flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-4xl" style={{ color: 'hsl(0 0% 100%)' }}>
+                {/* Top Visual Area */}
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
+                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
                   >
                     <div className="w-2 h-2 rounded-full bg-primary"></div>
                     <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
