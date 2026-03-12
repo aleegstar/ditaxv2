@@ -613,13 +613,7 @@ const Auth = () => {
                       <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                         <InputOTPGroup className="flex justify-between gap-2 w-full">
                            {[0,1,2,3,4,5].map(i => (
-                             <InputOTPSlot key={i} index={i} className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground" style={{
-                               background: 'hsla(var(--background) / 0.5)',
-                               backdropFilter: 'blur(8px)',
-                               WebkitBackdropFilter: 'blur(8px)',
-                               border: '1px solid hsla(var(--foreground) / 0.06)',
-                               boxShadow: 'inset 0 2px 4px hsla(var(--foreground) / 0.02)',
-                             }} />
+                             <InputOTPSlot key={i} index={i} className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground bg-background border border-border shadow-sm" />
                            ))}
                         </InputOTPGroup>
                       </InputOTP>

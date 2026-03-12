@@ -335,23 +335,7 @@ const UserTaxReturns = () => {
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
-      {/* Animated background blobs */}
-      <motion.div
-        className="fixed top-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed bottom-[-15%] left-[-15%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, -20, 0], y: [0, 15, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-      />
+
 
       {/* Pull-to-Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
