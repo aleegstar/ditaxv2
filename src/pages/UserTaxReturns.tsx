@@ -372,23 +372,23 @@ const UserTaxReturns = () => {
                 transition={{ duration: 0.35, delay: (unpaidYears.length + i) * 0.06 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative rounded-[24px] cursor-pointer overflow-hidden bg-card border border-border/50"
+                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
                 style={{
-                  boxShadow: '0 2px 12px -4px hsla(var(--foreground) / 0.06), 0 0 0 0.5px hsla(var(--foreground) / 0.04)',
+                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
                 }}
               >
                 {/* Hero area */}
-                <div className="relative h-40 bg-gradient-to-br from-amber-500 to-orange-500 flex items-end p-5 overflow-hidden">
-                  <span className="absolute -top-3 -right-2 text-[96px] font-bold text-white/[0.08] leading-none tracking-tighter font-jakarta select-none pointer-events-none transition-transform duration-500 group-hover:scale-105">
+                <div className="relative h-36 bg-gradient-to-br from-[hsl(30,100%,60%)] to-[hsl(24,100%,50%)] flex items-end p-6 overflow-hidden">
+                  <span className="absolute -top-2 -right-3 text-[88px] font-bold text-white/[0.06] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2">
-                    <span className="text-[32px] font-bold text-white tracking-tight leading-none font-jakarta">
+                  <div className="relative z-10 flex flex-col gap-2.5">
+                    <span className="text-[28px] font-bold text-white tracking-tight leading-none font-jakarta">
                       {year}
                     </span>
-                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md">
+                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/12 backdrop-blur-md">
                       <Clock className="w-3 h-3 text-white/80" strokeWidth={2} />
-                      <span className="text-[11px] font-semibold text-white/90 uppercase tracking-wider font-jakarta">
+                      <span className="text-[11px] font-semibold text-white/85 uppercase tracking-wider font-jakarta">
                         {t.userDashboard.processing}
                       </span>
                     </div>
@@ -396,7 +396,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-4">
                   <div>
                     <h2 className="text-base font-semibold text-foreground font-jakarta tracking-tight">
                       {t.userDashboard.taxReturn}
