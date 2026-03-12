@@ -475,22 +475,6 @@ const Auth = () => {
   };
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-muted/30">
 
-      {/* Animated gradient background blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ x: [0, 30, -20, 0], y: [0, -40, 20, 0], scale: [1, 1.1, 0.95, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-1/4 -left-1/4 w-[60%] h-[60%] rounded-full opacity-[0.07]"
-          style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
-        />
-        <motion.div
-          animate={{ x: [0, -25, 15, 0], y: [0, 30, -25, 0], scale: [1, 0.95, 1.1, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-1/4 -right-1/4 w-[50%] h-[50%] rounded-full opacity-[0.05]"
-          style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }}
-        />
-      </div>
-
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
