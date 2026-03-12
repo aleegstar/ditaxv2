@@ -625,15 +625,10 @@ const UserTaxReturns = () => {
         </div>
       </main>
 
-      {/* Bottom Navigation — Liquid Glass */}
+      {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div
-          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full"
-          style={{
-            background: 'hsla(var(--background) / 0.65)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            boxShadow: '0 8px 40px -8px hsla(var(--foreground) / 0.1), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-          }}
+          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full bg-card border border-border shadow-lg"
         >
           {/* Scanner Button */}
           <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-primary border-t border-primary/80 shadow-[0_4px_14px_0_hsla(var(--primary)/0.35)] hover:shadow-[0_6px_20px_hsla(var(--primary)/0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
