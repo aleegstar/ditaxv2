@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Menu, ChevronRight, Check, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap, ArrowRight } from 'lucide-react';
+import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap, ArrowRight } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
@@ -254,7 +254,7 @@ const UserTaxReturns = () => {
         <MissingItemsAlert pendingDocuments={pendingDocuments} pendingInformation={pendingInformation} />
 
         {/* Cards */}
-        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6">
+        <div className="flex flex-col gap-5 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6">
 
           {/* ═══════════════════════════════════════════════════ */}
           {/* Active (Unpaid) Tax Returns */}
@@ -271,16 +271,16 @@ const UserTaxReturns = () => {
                 transition={{ duration: 0.35, delay: i * 0.06 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative rounded-[24px] cursor-pointer overflow-hidden bg-card border border-border/50"
+                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
                 style={{
-                  boxShadow: '0 2px 12px -4px hsla(var(--foreground) / 0.06), 0 0 0 0.5px hsla(var(--foreground) / 0.04)',
+                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
                 }}
               >
                 {/* Delete Menu */}
                 <div className="absolute top-4 right-4 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/60 hover:text-white hover:bg-white/20 rounded-full">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/15 rounded-full">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -294,19 +294,19 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Hero area with year */}
-                <div className="relative h-40 bg-primary flex items-end p-5 overflow-hidden">
-                  {/* Large year as visual anchor */}
-                  <span className="absolute -top-3 -right-2 text-[96px] font-bold text-white/[0.08] leading-none tracking-tighter font-jakarta select-none pointer-events-none transition-transform duration-500 group-hover:scale-105">
+                <div className="relative h-36 bg-gradient-to-br from-[hsl(222,100%,59%)] to-[hsl(222,100%,46%)] flex items-end p-6 overflow-hidden">
+                  {/* Large year as decorative anchor */}
+                  <span className="absolute -top-2 -right-3 text-[88px] font-bold text-white/[0.06] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2">
-                    <span className="text-[32px] font-bold text-white tracking-tight leading-none font-jakarta">
+                  <div className="relative z-10 flex flex-col gap-2.5">
+                    <span className="text-[28px] font-bold text-white tracking-tight leading-none font-jakarta">
                       {year}
                     </span>
                     {/* Active badge */}
-                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md">
+                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/12 backdrop-blur-md">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[11px] font-semibold text-white/90 uppercase tracking-wider font-jakarta">
+                      <span className="text-[11px] font-semibold text-white/85 uppercase tracking-wider font-jakarta">
                         {t.userDashboard.active}
                       </span>
                     </div>
@@ -314,12 +314,12 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-4">
                   <div>
-                    <h2 className="text-base font-semibold text-foreground font-jakarta tracking-tight">
+                    <h2 className="text-[15px] font-semibold text-foreground font-jakarta tracking-tight">
                       {t.userDashboard.taxReturn}
                     </h2>
-                    <p className="text-sm text-muted-foreground font-jakarta mt-1 leading-relaxed line-clamp-2">
+                    <p className="text-[13px] text-muted-foreground font-jakarta mt-1.5 leading-relaxed line-clamp-2">
                       {t.userDashboard.activeDescription}
                     </p>
                   </div>
@@ -328,9 +328,9 @@ const UserTaxReturns = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-muted-foreground font-jakarta">Fortschritt</span>
-                      <span className="text-xs font-semibold text-foreground font-jakarta tabular-nums">{progress}%</span>
+                      <span className="text-xs font-semibold text-foreground font-jakarta tabular-nums">{progress}% abgeschlossen</span>
                     </div>
-                    <div className="h-2 bg-muted/60 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-primary rounded-full"
                         initial={{ width: 0 }}
@@ -341,15 +341,15 @@ const UserTaxReturns = () => {
                   </div>
 
                   {/* Bottom row */}
-                  <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium font-jakarta">
-                      <Files className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      <span>{documentCount} {documentCount === 1 ? 'Dokument' : 'Dokumente'}</span>
+                      <span>📄</span>
+                      <span>{documentCount === 0 ? 'Noch keine Dokumente' : `${documentCount} ${documentCount === 1 ? 'Dokument' : 'Dokumente'} hochgeladen`}</span>
                     </div>
-                    <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] pl-4 pr-2 py-2 text-sm font-semibold text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_14px_hsl(222,100%,56%,0.4)] active:scale-[0.97]">
+                    <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] pl-4 pr-2 py-2 text-sm font-semibold text-white transition-all shadow-[0_1px_6px_hsl(222,100%,56%,0.25),inset_0_1px_0_rgba(255,255,255,0.15)] hover:shadow-[0_3px_12px_hsl(222,100%,56%,0.35)] active:scale-[0.97]">
                       <span className="font-jakarta">{t.userDashboard.continue}</span>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
-                        <ArrowRight className="h-3.5 w-3.5 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
+                        <ArrowRight className="h-3 w-3 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
                       </div>
                     </button>
                   </div>
@@ -372,23 +372,23 @@ const UserTaxReturns = () => {
                 transition={{ duration: 0.35, delay: (unpaidYears.length + i) * 0.06 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative rounded-[24px] cursor-pointer overflow-hidden bg-card border border-border/50"
+                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
                 style={{
-                  boxShadow: '0 2px 12px -4px hsla(var(--foreground) / 0.06), 0 0 0 0.5px hsla(var(--foreground) / 0.04)',
+                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
                 }}
               >
                 {/* Hero area */}
-                <div className="relative h-40 bg-gradient-to-br from-amber-500 to-orange-500 flex items-end p-5 overflow-hidden">
-                  <span className="absolute -top-3 -right-2 text-[96px] font-bold text-white/[0.08] leading-none tracking-tighter font-jakarta select-none pointer-events-none transition-transform duration-500 group-hover:scale-105">
+                <div className="relative h-36 bg-gradient-to-br from-[hsl(30,100%,60%)] to-[hsl(24,100%,50%)] flex items-end p-6 overflow-hidden">
+                  <span className="absolute -top-2 -right-3 text-[88px] font-bold text-white/[0.06] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2">
-                    <span className="text-[32px] font-bold text-white tracking-tight leading-none font-jakarta">
+                  <div className="relative z-10 flex flex-col gap-2.5">
+                    <span className="text-[28px] font-bold text-white tracking-tight leading-none font-jakarta">
                       {year}
                     </span>
-                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md">
+                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/12 backdrop-blur-md">
                       <Clock className="w-3 h-3 text-white/80" strokeWidth={2} />
-                      <span className="text-[11px] font-semibold text-white/90 uppercase tracking-wider font-jakarta">
+                      <span className="text-[11px] font-semibold text-white/85 uppercase tracking-wider font-jakarta">
                         {t.userDashboard.processing}
                       </span>
                     </div>
@@ -396,7 +396,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-4">
                   <div>
                     <h2 className="text-base font-semibold text-foreground font-jakarta tracking-tight">
                       {t.userDashboard.taxReturn}
@@ -458,26 +458,26 @@ const UserTaxReturns = () => {
                 onClick={() => {
                   if (completedReturn?.id) navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }}
-                className="group relative rounded-[24px] cursor-pointer overflow-hidden bg-card border border-border/50"
+                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
                 style={{
-                  boxShadow: '0 2px 12px -4px hsla(var(--foreground) / 0.06), 0 0 0 0.5px hsla(var(--foreground) / 0.04)',
+                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
                 }}
               >
                 {/* Hero area */}
                 <div className={cn(
-                  "relative h-40 flex items-end p-5 overflow-hidden",
-                  needsSignature ? "bg-gradient-to-br from-amber-50 to-orange-50" : "bg-muted/40"
+                  "relative h-36 flex items-end p-6 overflow-hidden",
+                  needsSignature ? "bg-gradient-to-br from-amber-50 to-orange-50" : "bg-muted/30"
                 )}>
                   <span className={cn(
-                    "absolute -top-3 -right-2 text-[96px] font-bold leading-none tracking-tighter font-jakarta select-none pointer-events-none transition-transform duration-500 group-hover:scale-105",
-                    needsSignature ? "text-amber-500/10" : "text-foreground/[0.04]"
+                    "absolute -top-2 -right-3 text-[88px] font-bold leading-none tracking-tighter font-jakarta select-none pointer-events-none",
+                    needsSignature ? "text-amber-500/[0.07]" : "text-foreground/[0.03]"
                   )}>
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2">
+                  <div className="relative z-10 flex flex-col gap-2.5">
                     <span className={cn(
-                      "text-[32px] font-bold tracking-tight leading-none font-jakarta",
-                      needsSignature ? "text-amber-900" : "text-muted-foreground/60"
+                      "text-[28px] font-bold tracking-tight leading-none font-jakarta",
+                      needsSignature ? "text-amber-900" : "text-muted-foreground/50"
                     )}>
                       {year}
                     </span>
@@ -507,11 +507,11 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-3">
+                <div className="p-6 flex flex-col gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className={cn(
-                        "text-base font-semibold font-jakarta tracking-tight",
+                        "text-[15px] font-semibold font-jakarta tracking-tight",
                         needsSignature ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {t.userDashboard.taxReturn}
