@@ -682,54 +682,53 @@ const DocumentChecklist: React.FC = () => {
             onClick={() => setShowCompletionDialog(false)}
           />
           {/* Sheet */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 p-8 pb-10 max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 p-8 pb-10 max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
             {/* Handle */}
-            <div className="w-10 h-1 rounded-full bg-slate-200 mx-auto mb-6" />
+            <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-6" />
 
             <div className="flex flex-col items-center">
               {/* Success Icon */}
               <div className="mb-6 relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200/50 text-white">
-                  <Check className="w-8 h-8" strokeWidth={3} />
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <Check className="w-7 h-7" strokeWidth={2.5} />
                 </div>
               </div>
 
               {/* Title */}
-              <h2 className="text-2xl font-semibold text-slate-900 text-center tracking-tight mb-3">
+              <h2 className="text-2xl font-semibold text-foreground text-center tracking-tight mb-3">
                 {t.documentChecklist.dialogTitle}
               </h2>
 
               {/* Tax year badge */}
               <div className="mb-6">
-                <span className="inline-flex items-center gap-1.5 text-emerald-600/90 font-medium text-sm tracking-tight bg-emerald-50/80 px-4 py-1.5 rounded-full border border-emerald-100/60">
+                <span className="inline-flex items-center gap-1.5 text-muted-foreground font-medium text-sm tracking-tight bg-muted px-4 py-1.5 rounded-full">
                   <Calendar className="w-3.5 h-3.5" strokeWidth={2.5} />
                   {t.documentChecklist.taxReturnYear} {taxYear}
                 </span>
               </div>
 
               {/* Description */}
-              <p className="text-center text-[15px] text-slate-500 leading-relaxed mb-8 font-normal max-w-sm">
+              <p className="text-center text-[15px] text-muted-foreground leading-relaxed mb-8 font-normal max-w-sm">
                 {t.documentChecklist.dialogDescription}
               </p>
 
-              {/* Buttons */}
+              {/* Buttons — Landing Page Style */}
               <div className="w-full flex flex-col gap-3">
-                <Button
+                <button
                   onClick={() => navigate(`/payment?year=${taxYear}`)}
-                  className="w-full"
+                  className="group relative flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] px-6 py-3 font-semibold text-sm text-white transition-all shadow-[0_4px_20px_-4px_rgba(29,100,255,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_6px_28px_-4px_rgba(29,100,255,0.6)] hover:scale-[1.02] active:scale-[0.97]"
                 >
                   <Zap className="w-[18px] h-[18px]" />
                   {t.documentChecklist.createNow}
-                </Button>
+                </button>
 
-                <Button
-                  variant="secondary"
+                <button
                   onClick={() => setShowCompletionDialog(false)}
-                  className="w-full"
+                  className="group flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-b from-muted to-muted/80 px-6 py-3 font-semibold text-sm text-foreground transition-all border border-border hover:shadow-sm active:scale-[0.97]"
                 >
                   <Clock className="w-[18px] h-[18px]" />
                   {t.documentChecklist.later}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
