@@ -515,13 +515,7 @@ const Auth = () => {
                     </button>
 
                     {/* Apple */}
-                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none" style={{
-                      background: 'hsla(var(--background) / 0.6)',
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      border: '1px solid hsla(var(--foreground) / 0.06)',
-                      boxShadow: '0 1px 3px hsla(var(--foreground) / 0.04), inset 0 1px 0 hsla(0 0% 100% / 0.4)',
-                    }}>
+                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:bg-muted/50 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none bg-background border border-border shadow-sm">
                       <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                       </svg>
