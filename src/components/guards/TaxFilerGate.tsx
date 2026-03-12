@@ -40,8 +40,12 @@ const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Redirect to person selection before rendering any route content
+  // Also check sessionStorage as fallback — React state may not have committed yet after navigate()
   if (hasMultipleFilers && !selectionConfirmed) {
-    return <Navigate to="/select-person" replace />;
+    const storedId = sessionStorage.getItem('ditax_selected_tax_filer');
+    if (!storedId) {
+      return <Navigate to="/select-person" replace />;
+    }
   }
 
   return <>{children}</>;
