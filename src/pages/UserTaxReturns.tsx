@@ -396,7 +396,7 @@ const UserTaxReturns = () => {
                 <div className="absolute top-5 right-5 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/20 rounded-full">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-foreground/10 rounded-full">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -413,13 +413,13 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-primary flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-4xl" style={{ color: 'hsl(0 0% 100%)' }}>
+                {/* Top Visual Area */}
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
+                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
                   >
                     <div className="w-2 h-2 rounded-full bg-primary"></div>
                     <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
@@ -481,16 +481,16 @@ const UserTaxReturns = () => {
                 className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
 
-                {/* Top Image/Visual Area - Amber/Orange Gradient */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <span className="font-semibold text-white tracking-tight font-jakarta text-4xl">
+                {/* Top Visual Area */}
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
+                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
                   >
-                    <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
                       {t.userDashboard.processing}
                     </span>
                   </div>
@@ -511,14 +511,14 @@ const UserTaxReturns = () => {
                   {/* Bottom Action Row */}
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                          <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.expressService}</span>
                         </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
                           <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                           <span>{t.userDashboard.standardService}</span>
                         </div>}
-                      {!isExpress && <span className="text-xs text-primary font-medium font-jakarta bg-primary/10 px-2 py-0.5 rounded-full">
+                      {!isExpress && <span className="text-xs text-foreground font-medium font-jakarta bg-muted px-2 py-0.5 rounded-full">
                           {t.userDashboard.upgradeAvailable}
                         </span>}
                     </div>
@@ -557,15 +557,15 @@ const UserTaxReturns = () => {
                 className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
 
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center">
+                  <span className="text-5xl font-semibold text-foreground/10 tracking-tight font-jakarta">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50 ring-1 ring-amber-200' : 'bg-background/90'}`}
+                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm bg-background ring-1 ring-border`}
                   >
                     {needsSignature ? <>
-                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                        <PenTool className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
                           {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
@@ -587,7 +587,7 @@ const UserTaxReturns = () => {
                       </div>}
                   </div>
 
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
                     {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
@@ -597,8 +597,8 @@ const UserTaxReturns = () => {
 
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-4">
-                      {needsSignature ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                      {needsSignature ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                          <AlertCircle className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.actionRequired}</span>
                         </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
                           <Check className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
