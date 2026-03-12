@@ -587,7 +587,7 @@ const UserTaxReturns = () => {
                       </div>}
                   </div>
 
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
                     {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
