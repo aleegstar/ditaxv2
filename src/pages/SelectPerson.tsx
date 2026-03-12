@@ -52,23 +52,6 @@ const SelectPerson: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background antialiased relative overflow-hidden">
-      {/* Animated background blobs */}
-      <motion.div
-        className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed bottom-[-15%] right-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, -20, 0], y: [0, -15, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-      />
 
       <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}
@@ -102,23 +85,11 @@ const SelectPerson: React.FC = () => {
             <motion.button
               key={filer.id}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden rounded-[2rem] p-6 text-left transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
-              style={{
-                background: 'hsla(var(--background) / 0.6)',
-                backdropFilter: 'blur(40px) saturate(1.8)',
-                boxShadow: '0 4px 32px -8px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.04), inset 0 1px 0 0 hsla(0 0% 100% / 0.45)',
-              }}
+              className="w-full group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card border border-border shadow-sm"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
             >
-              {/* Glass shimmer */}
-              <div
-                className="absolute inset-0 pointer-events-none rounded-[2rem]"
-                style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.18) 0%, transparent 50%)',
-                }}
-              />
 
               <div className="relative flex items-center gap-5">
                 <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
@@ -170,12 +141,7 @@ const SelectPerson: React.FC = () => {
           {/* Add Person Button */}
           <motion.button
             onClick={handleAddPerson}
-            className="w-full overflow-hidden rounded-[2rem] p-6 transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
-            style={{
-              background: 'hsla(var(--background) / 0.35)',
-              backdropFilter: 'blur(20px) saturate(1.4)',
-              boxShadow: '0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.2)',
-            }}
+            className="w-full overflow-hidden rounded-2xl p-6 transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card/50 border border-dashed border-border"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 + taxFilers.length * 0.08 }}

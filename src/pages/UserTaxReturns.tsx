@@ -335,23 +335,7 @@ const UserTaxReturns = () => {
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
-      {/* Animated background blobs */}
-      <motion.div
-        className="fixed top-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed bottom-[-15%] left-[-15%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, -20, 0], y: [0, 15, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-      />
+
 
       {/* Pull-to-Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
@@ -403,20 +387,10 @@ const UserTaxReturns = () => {
                 data-tour="tax-year-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
                 {/* Delete Menu */}
                 <div className="absolute top-5 right-5 z-20">
@@ -440,19 +414,14 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-primary flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl" style={{ color: 'hsl(0 0% 100%)' }}>
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-primary flex items-center justify-center">
+                  <span className="font-semibold tracking-tight font-jakarta text-4xl" style={{ color: 'hsl(0 0% 100%)' }}>
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                    style={{
-                      background: 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
                   >
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
                     <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
                       {t.userDashboard.active}
                     </span>
@@ -507,33 +476,18 @@ const UserTaxReturns = () => {
                 key={year}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
                 {/* Top Image/Visual Area - Amber/Orange Gradient */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <span className="font-semibold text-white tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                  <span className="font-semibold text-white tracking-tight font-jakarta text-4xl">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                    style={{
-                      background: 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
                   >
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
                     <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
@@ -594,35 +548,20 @@ const UserTaxReturns = () => {
                 key={year}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => {
                   if (completedReturn?.id) {
                     navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                   }
                 }}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-muted flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 ${needsSignature ? 'ring-1 ring-amber-200' : ''}`}
-                    style={{
-                      background: needsSignature ? 'hsla(40 100% 96% / 0.9)' : 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50 ring-1 ring-amber-200' : 'bg-background/90'}`}
                   >
                     {needsSignature ? <>
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
@@ -686,15 +625,10 @@ const UserTaxReturns = () => {
         </div>
       </main>
 
-      {/* Bottom Navigation — Liquid Glass */}
+      {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div
-          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full"
-          style={{
-            background: 'hsla(var(--background) / 0.65)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            boxShadow: '0 8px 40px -8px hsla(var(--foreground) / 0.1), 0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-          }}
+          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full bg-card border border-border shadow-lg"
         >
           {/* Scanner Button */}
           <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-primary border-t border-primary/80 shadow-[0_4px_14px_0_hsla(var(--primary)/0.35)] hover:shadow-[0_6px_20px_hsla(var(--primary)/0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
