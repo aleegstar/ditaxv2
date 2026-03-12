@@ -507,11 +507,11 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-3">
+                <div className="p-6 flex flex-col gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className={cn(
-                        "text-base font-semibold font-jakarta tracking-tight",
+                        "text-[15px] font-semibold font-jakarta tracking-tight",
                         needsSignature ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {t.userDashboard.taxReturn}
