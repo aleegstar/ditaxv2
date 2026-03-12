@@ -387,20 +387,10 @@ const UserTaxReturns = () => {
                 data-tour="tax-year-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
                 {/* Delete Menu */}
                 <div className="absolute top-5 right-5 z-20">
