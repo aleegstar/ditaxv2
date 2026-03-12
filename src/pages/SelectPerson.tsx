@@ -141,12 +141,7 @@ const SelectPerson: React.FC = () => {
           {/* Add Person Button */}
           <motion.button
             onClick={handleAddPerson}
-            className="w-full overflow-hidden rounded-[2rem] p-6 transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
-            style={{
-              background: 'hsla(var(--background) / 0.35)',
-              backdropFilter: 'blur(20px) saturate(1.4)',
-              boxShadow: '0 0 0 1px hsla(var(--foreground) / 0.06), inset 0 1px 0 0 hsla(0 0% 100% / 0.2)',
-            }}
+            className="w-full overflow-hidden rounded-2xl p-6 transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card/50 border border-dashed border-border"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 + taxFilers.length * 0.08 }}

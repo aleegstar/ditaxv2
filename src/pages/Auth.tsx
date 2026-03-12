@@ -483,18 +483,8 @@ const Auth = () => {
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-[2.5rem] px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden"
-          style={{
-            background: 'hsla(var(--background) / 0.65)',
-            backdropFilter: 'blur(40px) saturate(1.8)',
-            WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
-            boxShadow: '0 8px 60px -12px hsla(var(--primary) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.04), inset 0 1px 0 0 hsla(0 0% 100% / 0.5), inset 0 -1px 0 0 hsla(0 0% 0% / 0.02)',
-          }}
+          className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-2xl px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden bg-card border border-border shadow-lg"
         >
-          {/* Inner glass shimmer edge */}
-          <div className="absolute inset-0 rounded-none sm:rounded-[2.5rem] pointer-events-none" style={{
-            background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.2) 0%, transparent 40%, transparent 60%, hsla(0 0% 100% / 0.05) 100%)',
-          }} />
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
