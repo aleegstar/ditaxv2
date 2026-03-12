@@ -511,14 +511,14 @@ const UserTaxReturns = () => {
                   {/* Bottom Action Row */}
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <Zap className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                          <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.expressService}</span>
                         </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
                           <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
                           <span>{t.userDashboard.standardService}</span>
                         </div>}
-                      {!isExpress && <span className="text-xs text-primary font-medium font-jakarta bg-primary/10 px-2 py-0.5 rounded-full">
+                      {!isExpress && <span className="text-xs text-foreground font-medium font-jakarta bg-muted px-2 py-0.5 rounded-full">
                           {t.userDashboard.upgradeAvailable}
                         </span>}
                     </div>
