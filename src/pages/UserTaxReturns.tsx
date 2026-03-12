@@ -548,35 +548,20 @@ const UserTaxReturns = () => {
                 key={year}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => {
                   if (completedReturn?.id) {
                     navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                   }
                 }}
-                className="group relative flex flex-col p-3 rounded-[2.5rem] cursor-pointer overflow-hidden"
-                style={{
-                  background: 'hsla(var(--background) / 0.6)',
-                  backdropFilter: 'blur(40px) saturate(1.8)',
-                  boxShadow: '0 8px 40px -12px hsla(var(--foreground) / 0.08), 0 0 0 1px hsla(var(--foreground) / 0.05), inset 0 1px 0 0 hsla(0 0% 100% / 0.5)',
-                }}
+                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Glass shimmer */}
-                <div className="absolute inset-0 pointer-events-none rounded-[2.5rem]" style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.15) 0%, transparent 40%)',
-                }} />
 
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-muted flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 ${needsSignature ? 'ring-1 ring-amber-200' : ''}`}
-                    style={{
-                      background: needsSignature ? 'hsla(40 100% 96% / 0.9)' : 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50 ring-1 ring-amber-200' : 'bg-background/90'}`}
                   >
                     {needsSignature ? <>
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
