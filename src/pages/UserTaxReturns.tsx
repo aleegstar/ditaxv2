@@ -557,15 +557,15 @@ const UserTaxReturns = () => {
                 className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
 
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted flex items-center justify-center">
-                  <span className="text-7xl font-semibold text-muted-foreground/20 tracking-tight font-jakarta">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center">
+                  <span className="text-5xl font-semibold text-foreground/10 tracking-tight font-jakarta">
                     {year}
                   </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm ${needsSignature ? 'bg-amber-50 ring-1 ring-amber-200' : 'bg-background/90'}`}
+                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm bg-background ring-1 ring-border`}
                   >
                     {needsSignature ? <>
-                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                        <PenTool className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
                           {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
