@@ -52,23 +52,6 @@ const SelectPerson: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background antialiased relative overflow-hidden">
-      {/* Animated background blobs */}
-      <motion.div
-        className="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.06) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.08, 1] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed bottom-[-15%] right-[-10%] w-[50vw] h-[50vw] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, hsla(var(--primary) / 0.04) 0%, transparent 70%)',
-        }}
-        animate={{ x: [0, -20, 0], y: [0, -15, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-      />
 
       <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}
