@@ -271,16 +271,13 @@ const UserTaxReturns = () => {
                 transition={{ duration: 0.35, delay: i * 0.06 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
-                style={{
-                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
-                }}
+                className="group relative rounded-2xl cursor-pointer bg-card border border-border shadow-lg shadow-foreground/[0.03] hover:shadow-xl hover:shadow-foreground/[0.06] transition-shadow"
               >
                 {/* Delete Menu */}
                 <div className="absolute top-4 right-4 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/15 rounded-full">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -293,65 +290,71 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Hero area with year */}
-                <div className="relative h-36 bg-gradient-to-br from-[hsl(222,100%,59%)] to-[hsl(222,100%,46%)] flex items-end p-6 overflow-hidden">
-                  {/* Large year as decorative anchor */}
-                  <span className="absolute -top-2 -right-3 text-[88px] font-bold text-white/[0.06] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
+                <div className="p-6 relative overflow-hidden">
+                  {/* Large decorative year */}
+                  <span className="absolute -top-4 -right-2 text-[96px] font-bold text-foreground/[0.03] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2.5">
-                    <span className="text-[28px] font-bold text-white tracking-tight leading-none font-jakarta">
-                      {year}
-                    </span>
-                    {/* Active badge */}
-                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/12 backdrop-blur-md">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[11px] font-semibold text-white/85 uppercase tracking-wider font-jakarta">
-                        {t.userDashboard.active}
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Content */}
-                <div className="p-6 flex flex-col gap-4">
-                  <div>
-                    <h2 className="text-[15px] font-semibold text-foreground font-jakarta tracking-tight">
-                      {t.userDashboard.taxReturn}
-                    </h2>
-                    <p className="text-[13px] text-muted-foreground font-jakarta mt-1.5 leading-relaxed line-clamp-2">
-                      {t.userDashboard.activeDescription}
-                    </p>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground font-jakarta">Fortschritt</span>
-                      <span className="text-xs font-semibold text-foreground font-jakarta tabular-nums">{progress}% abgeschlossen</span>
-                    </div>
-                    <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-primary rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bottom row */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium font-jakarta">
-                      <span>📄</span>
-                      <span>{documentCount === 0 ? 'Noch keine Dokumente' : `${documentCount} ${documentCount === 1 ? 'Dokument' : 'Dokumente'} hochgeladen`}</span>
-                    </div>
-                    <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] pl-4 pr-2 py-2 text-sm font-semibold text-white transition-all shadow-[0_1px_6px_hsl(222,100%,56%,0.25),inset_0_1px_0_rgba(255,255,255,0.15)] hover:shadow-[0_3px_12px_hsl(222,100%,56%,0.35)] active:scale-[0.97]">
-                      <span className="font-jakarta">{t.userDashboard.continue}</span>
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
-                        <ArrowRight className="h-3 w-3 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
+                  {/* Header */}
+                  <div className="relative z-10 flex flex-col gap-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[32px] font-semibold text-foreground tracking-tight leading-none font-jakarta">
+                          {year}
+                        </span>
+                        <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full border border-border bg-muted/50">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[11px] font-semibold text-foreground/70 uppercase tracking-wider font-jakarta">
+                            {t.userDashboard.active}
+                          </span>
+                        </div>
                       </div>
-                    </button>
+                    </div>
+
+                    {/* Section title & description */}
+                    <div>
+                      <h2 className="text-[15px] font-semibold text-foreground font-jakarta tracking-tight">
+                        {t.userDashboard.taxReturn}
+                      </h2>
+                      <p className="text-[13px] text-muted-foreground font-jakarta mt-1 leading-relaxed line-clamp-2">
+                        {t.userDashboard.activeDescription}
+                      </p>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-muted-foreground font-jakarta">Fortschritt</span>
+                        <span className="text-xs font-semibold text-foreground font-jakarta tabular-nums">{progress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ background: 'rgb(29, 100, 255)' }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-border" />
+
+                    {/* Bottom row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium font-jakarta">
+                        <span>📄</span>
+                        <span>{documentCount === 0 ? 'Noch keine Dokumente' : `${documentCount} ${documentCount === 1 ? 'Dokument' : 'Dokumente'}`}</span>
+                      </div>
+                      <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-4 pr-2 py-2 text-sm font-medium text-white transition-all shadow-[0_2px_8px_rgba(29,100,255,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_rgba(29,100,255,0.45)] hover:brightness-110 active:scale-[0.97]">
+                        <span className="font-jakarta">{t.userDashboard.continue}</span>
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
+                          <ArrowRight className="h-3 w-3 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.article>
@@ -372,68 +375,68 @@ const UserTaxReturns = () => {
                 transition={{ duration: 0.35, delay: (unpaidYears.length + i) * 0.06 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
-                style={{
-                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
-                }}
+                className="group relative rounded-2xl cursor-pointer bg-card border border-border shadow-lg shadow-foreground/[0.03] hover:shadow-xl hover:shadow-foreground/[0.06] transition-shadow"
               >
-                {/* Hero area */}
-                <div className="relative h-36 bg-gradient-to-br from-[hsl(30,100%,60%)] to-[hsl(24,100%,50%)] flex items-end p-6 overflow-hidden">
-                  <span className="absolute -top-2 -right-3 text-[88px] font-bold text-white/[0.06] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
+                <div className="p-6 relative overflow-hidden">
+                  {/* Large decorative year */}
+                  <span className="absolute -top-4 -right-2 text-[96px] font-bold text-foreground/[0.03] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2.5">
-                    <span className="text-[28px] font-bold text-white tracking-tight leading-none font-jakarta">
-                      {year}
-                    </span>
-                    <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-white/12 backdrop-blur-md">
-                      <Clock className="w-3 h-3 text-white/80" strokeWidth={2} />
-                      <span className="text-[11px] font-semibold text-white/85 uppercase tracking-wider font-jakarta">
-                        {t.userDashboard.processing}
+
+                  <div className="relative z-10 flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[32px] font-semibold text-foreground tracking-tight leading-none font-jakarta">
+                        {year}
                       </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col gap-4">
-                  <div>
-                    <h2 className="text-base font-semibold text-foreground font-jakarta tracking-tight">
-                      {t.userDashboard.taxReturn}
-                    </h2>
-                    <p className="text-sm text-muted-foreground font-jakarta mt-1 leading-relaxed line-clamp-2">
-                      {t.userDashboard.processingDescription}
-                    </p>
-                  </div>
-
-                  {/* Service info */}
-                  <div className="flex items-center gap-2">
-                    {isExpress ? (
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/50 text-amber-700 text-xs font-semibold font-jakarta">
-                        <Zap className="w-3 h-3" strokeWidth={2} />
-                        {t.userDashboard.expressService}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/50 text-muted-foreground text-xs font-medium font-jakarta">
-                          <Clock className="w-3 h-3" strokeWidth={1.5} />
-                          {t.userDashboard.standardService}
-                        </div>
-                        <span className="text-xs text-primary font-medium font-jakarta bg-primary/8 px-2 py-0.5 rounded-full">
-                          {t.userDashboard.upgradeAvailable}
+                      <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full border border-amber-200/60 bg-amber-50">
+                        <Clock className="w-3 h-3 text-amber-600" strokeWidth={2} />
+                        <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider font-jakarta">
+                          {t.userDashboard.processing}
                         </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Bottom row */}
-                  <div className="flex items-center justify-end pt-1">
-                    <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-card to-muted border border-border pl-4 pr-2 py-2 text-sm font-semibold text-foreground transition-all shadow-[0_2px_6px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] active:scale-[0.97]">
-                      <span className="font-jakarta">{t.userDashboard.tracking}</span>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover/btn:bg-accent">
-                        <ArrowRight className="h-3.5 w-3.5 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
                       </div>
-                    </button>
+                    </div>
+
+                    <div>
+                      <h2 className="text-[15px] font-semibold text-foreground font-jakarta tracking-tight">
+                        {t.userDashboard.taxReturn}
+                      </h2>
+                      <p className="text-[13px] text-muted-foreground font-jakarta mt-1 leading-relaxed line-clamp-2">
+                        {t.userDashboard.processingDescription}
+                      </p>
+                    </div>
+
+                    {/* Service info */}
+                    <div className="flex items-center gap-2">
+                      {isExpress ? (
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/50 text-amber-700 text-xs font-semibold font-jakarta">
+                          <Zap className="w-3 h-3" strokeWidth={2} />
+                          {t.userDashboard.expressService}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium font-jakarta border border-border">
+                            <Clock className="w-3 h-3" strokeWidth={1.5} />
+                            {t.userDashboard.standardService}
+                          </div>
+                          <span className="text-xs font-medium font-jakarta px-2 py-0.5 rounded-full border border-border" style={{ color: 'rgb(29, 100, 255)' }}>
+                            {t.userDashboard.upgradeAvailable}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-border" />
+
+                    {/* Bottom row */}
+                    <div className="flex items-center justify-end">
+                      <button className="group/btn inline-flex items-center gap-2 rounded-full bg-card border border-border pl-4 pr-2 py-2 text-sm font-medium text-foreground transition-all hover:bg-muted active:scale-[0.97]">
+                        <span className="font-jakarta">{t.userDashboard.tracking}</span>
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover/btn:bg-accent">
+                          <ArrowRight className="h-3 w-3 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.article>
@@ -458,107 +461,112 @@ const UserTaxReturns = () => {
                 onClick={() => {
                   if (completedReturn?.id) navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }}
-                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
-                style={{
-                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
-                }}
+                className="group relative rounded-2xl cursor-pointer bg-card border border-border shadow-lg shadow-foreground/[0.03] hover:shadow-xl hover:shadow-foreground/[0.06] transition-shadow"
               >
-                {/* Hero area */}
-                <div className={cn(
-                  "relative h-36 flex items-end p-6 overflow-hidden",
-                  needsSignature ? "bg-gradient-to-br from-amber-50 to-orange-50" : "bg-muted/30"
-                )}>
-                  <span className={cn(
-                    "absolute -top-2 -right-3 text-[88px] font-bold leading-none tracking-tighter font-jakarta select-none pointer-events-none",
-                    needsSignature ? "text-amber-500/[0.07]" : "text-foreground/[0.03]"
-                  )}>
+                <div className="p-6 relative overflow-hidden">
+                  {/* Large decorative year */}
+                  <span className="absolute -top-4 -right-2 text-[96px] font-bold text-foreground/[0.03] leading-none tracking-tighter font-jakarta select-none pointer-events-none">
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2.5">
-                    <span className={cn(
-                      "text-[28px] font-bold tracking-tight leading-none font-jakarta",
-                      needsSignature ? "text-amber-900" : "text-muted-foreground/50"
-                    )}>
-                      {year}
-                    </span>
-                    <div className={cn(
-                      "inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full",
-                      needsSignature
-                        ? "bg-amber-100/80 border border-amber-200/50"
-                        : "bg-background/80 border border-border/40"
-                    )}>
+
+                  <div className="relative z-10 flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <span className={cn(
+                        "text-[32px] font-semibold tracking-tight leading-none font-jakarta",
+                        needsSignature ? "text-foreground" : "text-muted-foreground/50"
+                      )}>
+                        {year}
+                      </span>
+                      <div className={cn(
+                        "inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full border",
+                        needsSignature
+                          ? "bg-amber-50 border-amber-200/60"
+                          : "bg-muted/50 border-border"
+                      )}>
+                        {needsSignature ? (
+                          <>
+                            <PenTool className="w-3 h-3 text-amber-600" strokeWidth={1.5} />
+                            <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider font-jakarta">
+                              {t.userDashboard.signaturePending}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3 h-3 text-muted-foreground" strokeWidth={2} />
+                            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider font-jakarta">
+                              {t.userDashboard.finished}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className={cn(
+                          "text-[15px] font-semibold font-jakarta tracking-tight",
+                          needsSignature ? "text-foreground" : "text-muted-foreground"
+                        )}>
+                          {t.userDashboard.taxReturn}
+                        </h2>
+                        {isSigned && (
+                          <div className="text-muted-foreground/40 bg-muted p-0.5 rounded-full">
+                            <Check className="w-3 h-3" strokeWidth={2.5} />
+                          </div>
+                        )}
+                      </div>
+                      <p className={cn(
+                        "text-[13px] font-jakarta mt-1 leading-relaxed line-clamp-2",
+                        needsSignature ? "text-amber-600" : "text-muted-foreground"
+                      )}>
+                        {needsSignature
+                          ? t.userDashboard.signatureRequired
+                          : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at
+                            ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                            : '–'
+                          )
+                        }
+                      </p>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-border" />
+
+                    {/* Bottom row */}
+                    <div className="flex items-center justify-between">
                       {needsSignature ? (
-                        <>
-                          <PenTool className="w-3 h-3 text-amber-600" strokeWidth={1.5} />
-                          <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider font-jakarta">
-                            {t.userDashboard.signaturePending}
-                          </span>
-                        </>
+                        <div className="flex items-center gap-1.5 text-amber-600 text-xs font-semibold font-jakarta">
+                          <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+                          {t.userDashboard.actionRequired}
+                        </div>
                       ) : (
-                        <>
-                          <Check className="w-3 h-3 text-muted-foreground" strokeWidth={2} />
-                          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider font-jakarta">
-                            {t.userDashboard.finished}
-                          </span>
-                        </>
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium font-jakarta">
+                          <Check className="w-3.5 h-3.5" strokeWidth={1.5} />
+                          <span>100%</span>
+                        </div>
+                      )}
+
+                      {needsSignature ? (
+                        <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] pl-4 pr-2 py-2 text-sm font-medium text-white transition-all shadow-[0_2px_8px_rgba(29,100,255,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_rgba(29,100,255,0.45)] hover:brightness-110 active:scale-[0.97]">
+                          <span className="font-jakarta">{t.userDashboard.sign}</span>
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
+                            <ArrowRight className="h-3 w-3 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
+                          </div>
+                        </button>
+                      ) : (
+                        <button className="group/btn inline-flex items-center gap-2 rounded-full bg-card border border-border pl-4 pr-2 py-2 text-sm font-medium text-foreground transition-all hover:bg-muted active:scale-[0.97]">
+                          <span className="font-jakarta">{t.userDashboard.details}</span>
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover/btn:bg-accent">
+                            <ExternalLink className="h-3 w-3 stroke-[1.5]" />
+                          </div>
+                        </button>
                       )}
                     </div>
                   </div>
                 </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className={cn(
-                        "text-[15px] font-semibold font-jakarta tracking-tight",
-                        needsSignature ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {t.userDashboard.taxReturn}
-                      </h2>
-                      {isSigned && (
-                        <div className="text-muted-foreground/40 bg-muted p-0.5 rounded-full">
-                          <Check className="w-3 h-3" strokeWidth={2.5} />
-                        </div>
-                      )}
-                    </div>
-                    <p className={cn(
-                      "text-sm font-jakarta mt-1 leading-relaxed line-clamp-2",
-                      needsSignature ? "text-amber-600" : "text-muted-foreground"
-                    )}>
-                      {needsSignature
-                        ? t.userDashboard.signatureRequired
-                        : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at
-                          ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                          : '–'
-                        )
-                      }
-                    </p>
-                  </div>
-
-                  {/* Bottom row */}
-                  <div className="flex items-center justify-between pt-1">
-                    {needsSignature ? (
-                      <div className="flex items-center gap-1.5 text-amber-600 text-xs font-semibold font-jakarta">
-                        <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
-                        {t.userDashboard.actionRequired}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium font-jakarta">
-                        <Check className="w-3.5 h-3.5" strokeWidth={1.5} />
-                        <span>100%</span>
-                      </div>
-                    )}
-
-                    {needsSignature ? (
-                      <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] pl-4 pr-2 py-2 text-sm font-semibold text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_14px_hsl(222,100%,56%,0.4)] active:scale-[0.97]">
-                        <span className="font-jakarta">{t.userDashboard.sign}</span>
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-colors group-hover/btn:bg-white/25">
-                          <ArrowRight className="h-3.5 w-3.5 stroke-[1.5] transition-transform group-hover/btn:translate-x-0.5" />
-                        </div>
-                      </button>
-                    ) : (
-                      <button className="group/btn inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-card to-muted border border-border pl-4 pr-2 py-2 text-sm font-semibold text-foreground transition-all shadow-[0_2px_6px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] active:scale-[0.97]">
+              </motion.article>
+            );
+          })}
                         <span className="font-jakarta">{t.userDashboard.details}</span>
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground transition-colors group-hover/btn:bg-accent">
                           <ExternalLink className="h-3.5 w-3.5 stroke-[1.5]" />
