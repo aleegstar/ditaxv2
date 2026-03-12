@@ -8,7 +8,7 @@ import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import { User, MapPin, FileText, Users } from 'lucide-react';
+import { User, MapPin, FileText, Users, ArrowRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChildrenRepeater } from './ChildrenRepeater';
@@ -630,20 +630,22 @@ const MultiStepContactForm = ({
 
           {/* Navigation Buttons */}
           <div className="flex flex-col gap-3 pt-8 pb-4">
-            <Button
+            <button
               type="button"
               onClick={handleNext}
-              size="lg"
-              className="w-full rounded-2xl h-14 text-[15px] font-semibold shadow-[0_4px_16px_-2px_hsl(var(--primary)/0.3)] hover:shadow-[0_6px_24px_-2px_hsl(var(--primary)/0.4)] transition-all duration-300"
+              className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-[15px] text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97]"
             >
-              {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
-            </Button>
+              <span>{currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+                <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </button>
 
             {(currentStep > 1 || embedded) && (
               <button
                 type="button"
                 onClick={handleBack}
-                className="w-full py-3 text-muted-foreground hover:text-foreground font-medium text-sm transition-colors duration-200"
+                className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-card to-muted border border-border px-6 py-3.5 font-medium text-sm text-foreground transition-all shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97]"
               >
                 {t.multiStepContactForm.back}
               </button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, ArrowRight } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { Button } from '@/components/ui/button';
 import { SubpageHeader } from '@/components/ui/subpage-header';
@@ -49,9 +49,16 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
         {/* Footer Action */}
         {showFooter && <div className="absolute bottom-0 left-0 right-0 z-20 bg-background">
             <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-6">
-              <Button type="submit" onClick={onSubmit} size="lg" className="w-full">
-                {submitLabel}
-              </Button>
+              <button
+                type="submit"
+                onClick={onSubmit}
+                className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-base text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97]"
+              >
+                <span>{submitLabel}</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+                  <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </button>
 
               <div className="mt-4 flex items-center justify-center gap-1.5">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />

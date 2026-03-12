@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Check } from 'lucide-react';
+import { AlertCircle, Check, ArrowRight } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { EmployerRepeater } from '../repeaters/EmployerRepeater';
 import { RentalIncomeRepeater } from '../repeaters/RentalIncomeRepeater';
@@ -64,12 +64,18 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
 
         {/* Continue Button */}
         <div className="flex justify-center pt-4">
-          <Button onClick={onContinue} disabled={!canContinue} className="w-full">
-            {canContinue ? <>
-                <Check className="w-5 h-5 mr-2" />
-                Weiter
-              </> : 'Mindestens 1 Eintrag erforderlich'}
-          </Button>
+          <button
+            onClick={onContinue}
+            disabled={!canContinue}
+            className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-base text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none"
+          >
+            <span>{canContinue ? 'Weiter' : 'Mindestens 1 Eintrag erforderlich'}</span>
+            {canContinue && (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+                <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            )}
+          </button>
         </div>
       </div>;
   }
@@ -106,12 +112,18 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
 
       {/* Continue Button */}
       <div className="flex justify-center pt-4">
-        <Button onClick={onContinue} disabled={!canContinue} className="w-full">
-          {canContinue ? <>
-              <Check className="w-5 h-5 mr-2" />
-              Weiter
-            </> : 'Mindestens 1 Eintrag erforderlich'}
-        </Button>
+        <button
+          onClick={onContinue}
+          disabled={!canContinue}
+          className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-base text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none"
+        >
+          <span>{canContinue ? 'Weiter' : 'Mindestens 1 Eintrag erforderlich'}</span>
+          {canContinue && (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
+              <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          )}
+        </button>
       </div>
     </motion.div>;
 };
