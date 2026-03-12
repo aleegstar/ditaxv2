@@ -529,7 +529,7 @@ const Auth = () => {
                       <div className="w-full" style={{ borderTop: '1px solid hsla(var(--foreground) / 0.06)' }} />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60" style={{ background: 'hsla(var(--background) / 0.65)' }}>{t.authFlow.or}</span>
+                      <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60 bg-card">{t.authFlow.or}</span>
                     </div>
                   </div>
 
