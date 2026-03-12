@@ -559,13 +559,7 @@ const Auth = () => {
                           <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
                             <div>
                               <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                              <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all" style={{
-                                background: 'hsla(var(--background) / 0.5)',
-                                backdropFilter: 'blur(8px)',
-                                WebkitBackdropFilter: 'blur(8px)',
-                                border: '1px solid hsla(var(--foreground) / 0.06)',
-                                boxShadow: 'inset 0 2px 4px hsla(var(--foreground) / 0.02)',
-                              }} placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                              <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all bg-background border border-border shadow-sm focus:ring-2 focus:ring-primary/20" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
                             </div>
 
                             <button type="submit" disabled={isLoading} className="group flex w-full items-center justify-center gap-3 h-[52px] px-6 rounded-full text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110">
