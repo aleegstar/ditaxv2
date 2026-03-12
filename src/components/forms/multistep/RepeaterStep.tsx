@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Check } from 'lucide-react';
+import { AlertCircle, Check, ArrowRight } from 'lucide-react';
 import { isAndroidEnvironment } from '@/utils/platform';
 import { EmployerRepeater } from '../repeaters/EmployerRepeater';
 import { RentalIncomeRepeater } from '../repeaters/RentalIncomeRepeater';
