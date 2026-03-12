@@ -414,7 +414,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Top Image/Visual Area */}
-                <div className="relative h-48 w-full rounded-[2rem] overflow-hidden bg-primary flex items-center justify-center">
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-primary flex items-center justify-center">
                   <span className="font-semibold tracking-tight font-jakarta transition-transform duration-500 group-hover:scale-110 text-4xl" style={{ color: 'hsl(0 0% 100%)' }}>
                     {year}
                   </span>
