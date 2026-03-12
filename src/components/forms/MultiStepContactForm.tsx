@@ -8,7 +8,7 @@ import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import { User, MapPin, FileText, Users } from 'lucide-react';
+import { User, MapPin, FileText, Users, ArrowRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChildrenRepeater } from './ChildrenRepeater';
