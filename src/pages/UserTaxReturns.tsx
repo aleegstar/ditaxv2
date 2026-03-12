@@ -419,14 +419,9 @@ const UserTaxReturns = () => {
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                    style={{
-                      background: 'hsla(0 0% 100% / 0.85)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 2px 8px hsla(var(--foreground) / 0.06)',
-                    }}
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
                   >
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
                     <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
                       {t.userDashboard.active}
                     </span>
