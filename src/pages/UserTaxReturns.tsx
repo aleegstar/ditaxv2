@@ -458,26 +458,26 @@ const UserTaxReturns = () => {
                 onClick={() => {
                   if (completedReturn?.id) navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }}
-                className="group relative rounded-[24px] cursor-pointer overflow-hidden bg-card border border-border/50"
+                className="group relative rounded-[20px] cursor-pointer overflow-hidden bg-card border border-border/40"
                 style={{
-                  boxShadow: '0 2px 12px -4px hsla(var(--foreground) / 0.06), 0 0 0 0.5px hsla(var(--foreground) / 0.04)',
+                  boxShadow: '0 4px 16px -6px hsla(var(--foreground) / 0.07), 0 0 0 0.5px hsla(var(--foreground) / 0.03)',
                 }}
               >
                 {/* Hero area */}
                 <div className={cn(
-                  "relative h-40 flex items-end p-5 overflow-hidden",
-                  needsSignature ? "bg-gradient-to-br from-amber-50 to-orange-50" : "bg-muted/40"
+                  "relative h-36 flex items-end p-6 overflow-hidden",
+                  needsSignature ? "bg-gradient-to-br from-amber-50 to-orange-50" : "bg-muted/30"
                 )}>
                   <span className={cn(
-                    "absolute -top-3 -right-2 text-[96px] font-bold leading-none tracking-tighter font-jakarta select-none pointer-events-none transition-transform duration-500 group-hover:scale-105",
-                    needsSignature ? "text-amber-500/10" : "text-foreground/[0.04]"
+                    "absolute -top-2 -right-3 text-[88px] font-bold leading-none tracking-tighter font-jakarta select-none pointer-events-none",
+                    needsSignature ? "text-amber-500/[0.07]" : "text-foreground/[0.03]"
                   )}>
                     {year}
                   </span>
-                  <div className="relative z-10 flex flex-col gap-2">
+                  <div className="relative z-10 flex flex-col gap-2.5">
                     <span className={cn(
-                      "text-[32px] font-bold tracking-tight leading-none font-jakarta",
-                      needsSignature ? "text-amber-900" : "text-muted-foreground/60"
+                      "text-[28px] font-bold tracking-tight leading-none font-jakarta",
+                      needsSignature ? "text-amber-900" : "text-muted-foreground/50"
                     )}>
                       {year}
                     </span>
