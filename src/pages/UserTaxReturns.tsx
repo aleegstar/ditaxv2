@@ -597,8 +597,8 @@ const UserTaxReturns = () => {
 
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <div className="flex items-center gap-4">
-                      {needsSignature ? <div className="flex items-center gap-1.5 text-amber-600 font-medium text-sm font-jakarta">
-                          <AlertCircle className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                      {needsSignature ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                          <AlertCircle className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
                           <span>{t.userDashboard.actionRequired}</span>
                         </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
                           <Check className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
