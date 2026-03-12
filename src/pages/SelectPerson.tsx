@@ -85,23 +85,11 @@ const SelectPerson: React.FC = () => {
             <motion.button
               key={filer.id}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden rounded-[2rem] p-6 text-left transition-all duration-300 hover:scale-[1.015] active:scale-[0.98]"
-              style={{
-                background: 'hsla(var(--background) / 0.6)',
-                backdropFilter: 'blur(40px) saturate(1.8)',
-                boxShadow: '0 4px 32px -8px hsla(var(--foreground) / 0.06), 0 0 0 1px hsla(var(--foreground) / 0.04), inset 0 1px 0 0 hsla(0 0% 100% / 0.45)',
-              }}
+              className="w-full group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card border border-border shadow-sm"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
             >
-              {/* Glass shimmer */}
-              <div
-                className="absolute inset-0 pointer-events-none rounded-[2rem]"
-                style={{
-                  background: 'linear-gradient(135deg, hsla(0 0% 100% / 0.18) 0%, transparent 50%)',
-                }}
-              />
 
               <div className="relative flex items-center gap-5">
                 <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
