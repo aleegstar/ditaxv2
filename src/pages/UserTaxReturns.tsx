@@ -481,16 +481,16 @@ const UserTaxReturns = () => {
                 className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
               >
 
-                {/* Top Image/Visual Area - Amber/Orange Gradient */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                  <span className="font-semibold text-white tracking-tight font-jakarta text-4xl">
+                {/* Top Visual Area */}
+                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
+                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
                     {year}
                   </span>
                   <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background/90 shadow-sm"
+                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
                   >
-                    <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-amber-700 font-jakarta tracking-wide uppercase">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
                       {t.userDashboard.processing}
                     </span>
                   </div>
