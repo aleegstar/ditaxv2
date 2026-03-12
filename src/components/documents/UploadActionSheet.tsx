@@ -57,8 +57,8 @@ const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
               transition={{ type: 'spring', damping: 25, stiffness: 400 }}
               className="pointer-events-auto"
             >
-              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden min-w-[220px]">
-                <div className="py-2">
+              <div className="bg-card rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] border border-border/40 overflow-hidden min-w-[240px] backdrop-blur-sm">
+                <div className="py-2 px-1.5 space-y-1">
                   {actions.map((action, index) => (
                     <button
                       key={index}
@@ -66,12 +66,12 @@ const UploadActionSheet: React.FC<UploadActionSheetProps> = ({
                         action.onClick();
                         onClose();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                      className="group w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-primary/[0.06] transition-all duration-200 text-left active:scale-[0.97]"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                        <action.icon className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] flex items-center justify-center shadow-[0_2px_6px_hsl(222,100%,56%,0.3)]">
+                        <action.icon className="w-4 h-4 text-white" strokeWidth={1.5} />
                       </div>
-                      <span className="text-sm font-medium text-slate-700">{action.label}</span>
+                      <span className="text-sm font-semibold text-foreground">{action.label}</span>
                     </button>
                   ))}
                 </div>
