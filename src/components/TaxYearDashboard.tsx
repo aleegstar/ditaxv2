@@ -151,11 +151,11 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-1"
               onClick={() => setIsAngabenExpanded(true)}
-              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
+              className="group rounded-2xl bg-card ring-1 ring-border p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <StepBadge step={1} active={false} done />
               <div className="flex-1 min-w-0">
-                <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.personalInfo}</h2>
+                <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
                   {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
                 </p>
@@ -165,7 +165,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <section
               data-tour="form-step-1"
-              className="rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
+              className="rounded-2xl bg-card ring-1 ring-border overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               {/* Step header */}
               <div
@@ -179,7 +179,7 @@ export const TaxYearDashboard: React.FC = () => {
                   <div className="flex items-center gap-3.5">
                     <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
                     <div>
-                      <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.personalInfo}</h2>
+                      <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
                       <p className="text-[12px] text-muted-foreground mt-0.5">
                         {t.formDashboard.tasksCompleted
                           .replace('{completed}', String(angabenProgress.completed))
@@ -203,7 +203,7 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
 
               {/* Section items */}
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-1.5">
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-1">
                 {angabenSections.map(section => {
                   const Icon = section.icon;
                   const completed = isCompleted(section.id);
@@ -212,20 +212,17 @@ export const TaxYearDashboard: React.FC = () => {
                       key={section.id}
                       onClick={() => handleSectionClick(section)}
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-all duration-150 text-left group/item"
+                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all duration-150 text-left group/item active:scale-[0.98]"
                     >
                       <div className={cn(
                         "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
                         completed
                           ? "bg-primary/10 text-primary"
-                          : "bg-muted/60 text-muted-foreground group-hover/item:text-foreground group-hover/item:bg-muted"
+                          : "bg-muted text-muted-foreground group-hover/item:text-foreground"
                       )}>
                         {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" strokeWidth={1.5} />}
                       </div>
-                      <span className={cn(
-                        "flex-1 text-[13px] font-medium transition-colors",
-                        completed ? "text-foreground" : "text-foreground"
-                      )}>
+                      <span className="flex-1 text-[13px] font-medium text-foreground tracking-tight">
                         {section.title}
                       </span>
                       <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover/item:text-muted-foreground group-hover/item:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -241,12 +238,12 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
+              className="group rounded-2xl bg-card ring-1 ring-border overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.documentsTitle}</h2>
+                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
                   <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.uploadDocuments}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -255,7 +252,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-2"
-              className="rounded-[2rem] ring-1 ring-black/[0.04] ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]"
+              className="rounded-2xl ring-1 ring-border ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
             >
               <StepBadge step={2} active={false} done={false} />
               <div>
@@ -271,12 +268,12 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-3"
               onClick={handleSubmitClick}
-              className="group rounded-[2rem] bg-[#FDFDFD] ring-1 ring-black/[0.04] overflow-hidden cursor-pointer hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] transition-all duration-200"
+              className="group rounded-2xl bg-card ring-1 ring-border overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={3} active done={false} />
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-[14px] font-semibold text-foreground">{t.formDashboard.reviewAndSubmit}</h2>
+                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
                   <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.completeAndPay}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -285,7 +282,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-3"
-              className="rounded-[2rem] ring-1 ring-black/[0.04] ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-60 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]"
+              className="rounded-2xl ring-1 ring-border ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
             >
               <StepBadge step={3} active={false} done={false} />
               <div>
