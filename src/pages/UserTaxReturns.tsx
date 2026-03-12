@@ -586,16 +586,16 @@ const UserTaxReturns = () => {
           <button
             data-tour="floating-document-button"
             onClick={handleDocumentsClick}
-            className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-primary border-t border-primary/80 shadow-[0_4px_14px_0_hsla(var(--primary)/0.35)] hover:shadow-[0_6px_20px_hsla(var(--primary)/0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
+            className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-xl bg-gradient-to-b from-[rgb(50,120,255)] to-[rgb(20,80,220)] shadow-[0_2px_8px_rgba(29,100,255,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_rgba(29,100,255,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 group"
           >
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+              <img src={uploadIcon} alt="Upload" className="w-4.5 h-4.5" />
             </div>
             <div className="text-left">
-              <span className="block text-xs font-semibold font-jakarta tracking-wide text-white">
+              <span className="block text-xs font-medium font-jakarta tracking-wide text-white">
                 {t.userDashboard.documents}
               </span>
-              <span className="block text-[10px] font-medium text-white/80">
+              <span className="block text-[10px] font-medium text-white/70">
                 {t.userDashboard.uploadDocuments}
               </span>
             </div>
