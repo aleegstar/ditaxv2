@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Menu, ChevronRight, Check, PieChart, Files, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, AlertCircle, Clock, Zap } from 'lucide-react';
+import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
@@ -329,12 +329,17 @@ const UserTaxReturns = () => {
     return t.userDashboard.greeting;
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
-    style={{ background: 'hsl(var(--background))' }}
+    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden bg-[hsl(220_20%_95%)]"
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
+      {/* Subtle background glow effects */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-10 -left-10 w-60 h-60 bg-purple-100/30 blur-3xl rounded-full" />
+        <div className="absolute top-1/3 -right-10 w-72 h-72 bg-blue-100/30 blur-3xl rounded-full" />
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-rose-100/20 blur-3xl rounded-full" />
+      </div>
 
 
       {/* Pull-to-Refresh Indicator */}
@@ -389,14 +394,17 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
               >
+                {/* Glass sphere details */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
 
                 {/* Delete Menu */}
-                <div className="absolute top-5 right-5 z-20">
+                <div className="absolute top-4 right-4 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-foreground/10 rounded-full">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/40 hover:text-foreground hover:bg-white/40 rounded-full">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -413,55 +421,28 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Top Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
-                    {year}
-                  </span>
-                  <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                    <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
-                      {t.userDashboard.active}
-                    </span>
-                  </div>
+                {/* Content */}
+                <div className="relative z-10">
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
                 </div>
 
-                {/* Content Area */}
-                <div className="relative flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground font-jakarta">
-                      {t.userDashboard.taxReturn}
-                    </h2>
+                <div className="relative z-10 flex flex-col gap-5 mt-8">
+                  {/* Progress Section */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-end">
+                      <span className="text-base font-medium text-foreground/60">{t.userDashboard.taxReturn}</span>
+                      <span className="text-sm font-medium text-foreground/50">{progress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-white/60 rounded-full overflow-hidden backdrop-blur-sm border border-white/40 shadow-inner">
+                      <div className="h-full bg-foreground rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+                    </div>
                   </div>
 
-                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2">
-                    {t.userDashboard.activeDescription}
-                  </p>
-
-                  {/* Bottom Action Row */}
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                        <PieChart className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                        <Files className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                        <span>{documentCount}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      className="rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta group/btn"
-                      style={{
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                    >
-                      {t.userDashboard.continue}
-                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                  {/* Button */}
+                  <div className="flex mt-1">
+                    <button className="bg-white/90 backdrop-blur-md hover:bg-white text-foreground font-medium text-base py-2.5 px-5 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 transition-all active:scale-[0.98] flex items-center gap-2">
+                      <span>{t.userDashboard.continue}</span>
+                      <ChevronRight className="w-4 h-4 text-foreground/40" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -478,60 +459,42 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
               >
+                {/* Glass sphere details */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
 
-                {/* Top Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
-                    {year}
-                  </span>
-                  <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
-                  >
-                    <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
+                  <div className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm border border-white/40 px-3 py-1.5 rounded-full">
+                    <Clock className="w-3.5 h-3.5 text-foreground/50" strokeWidth={2} />
+                    <span className="text-xs font-semibold text-foreground/60 tracking-wide uppercase">
                       {t.userDashboard.processing}
                     </span>
                   </div>
                 </div>
 
-                {/* Content Area */}
-                <div className="relative flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground font-jakarta">
-                      {t.userDashboard.taxReturn}
-                    </h2>
-                  </div>
-
-                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2">
+                <div className="relative z-10 flex flex-col gap-5 mt-8">
+                  <p className="text-foreground/60 text-sm leading-relaxed">
                     {t.userDashboard.processingDescription}
                   </p>
 
-                  {/* Bottom Action Row */}
-                  <div className="flex items-center justify-between mt-auto pt-3">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
-                          <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground/70 font-medium text-sm">
+                          <Zap className="w-4 h-4" strokeWidth={1.5} />
                           <span>{t.userDashboard.expressService}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                          <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
+                        </div> : <div className="flex items-center gap-1.5 text-foreground/50 font-medium text-sm">
+                          <Clock className="w-4 h-4" strokeWidth={1.5} />
                           <span>{t.userDashboard.standardService}</span>
                         </div>}
-                      {!isExpress && <span className="text-xs text-foreground font-medium font-jakarta bg-muted px-2 py-0.5 rounded-full">
-                          {t.userDashboard.upgradeAvailable}
-                        </span>}
                     </div>
 
-                    <button
-                      className="rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta group/btn"
-                      style={{
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                    >
-                      {t.userDashboard.tracking}
-                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                    <button className="bg-white/90 backdrop-blur-md hover:bg-white text-foreground font-medium text-base py-2.5 px-5 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 transition-all active:scale-[0.98] flex items-center gap-2">
+                      <span>{t.userDashboard.tracking}</span>
+                      <ChevronRight className="w-4 h-4 text-foreground/40" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
@@ -554,40 +517,32 @@ const UserTaxReturns = () => {
                     navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                   }
                 }}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
               >
+                {/* Glass sphere details */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
 
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center">
-                  <span className="text-5xl font-semibold text-foreground/10 tracking-tight font-jakarta">
-                    {year}
-                  </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm bg-background ring-1 ring-border`}
-                  >
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
+                  <div className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm border border-white/40 px-3 py-1.5 rounded-full">
                     {needsSignature ? <>
-                        <PenTool className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
+                        <PenTool className="w-3.5 h-3.5 text-foreground/70" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground/70 tracking-wide uppercase">
                           {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
-                        <Check className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
+                        <Check className="w-3.5 h-3.5 text-foreground/50" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground/50 tracking-wide uppercase">
                           {t.userDashboard.finished}
                         </span>
                       </>}
                   </div>
                 </div>
 
-                <div className="relative px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className={`text-xl font-medium tracking-[-0.02em] font-jakarta ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {t.userDashboard.taxReturn}
-                    </h2>
-                    {isSigned && <div className="text-muted-foreground/40 bg-muted p-0.5 rounded-full">
-                        <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                      </div>}
-                  </div>
-
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <div className="relative z-10 flex flex-col gap-5 mt-8">
+                  <p className="text-foreground/60 text-sm leading-relaxed">
                     {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
@@ -595,25 +550,11 @@ const UserTaxReturns = () => {
                 }) : '–')}
                   </p>
 
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      {needsSignature ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
-                          <AlertCircle className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                          <span>{t.userDashboard.actionRequired}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                          <Check className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                          <span>100%</span>
-                        </div>}
-                    </div>
-
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : ''}`}
-                      style={!needsSignature ? {
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      } : undefined}
-                    >
-                      {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
-                      <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
+                  {/* Button */}
+                  <div className="flex mt-1">
+                    <button className={`backdrop-blur-md font-medium text-base py-2.5 px-5 rounded-full transition-all active:scale-[0.98] flex items-center gap-2 ${needsSignature ? 'bg-foreground text-background shadow-[0_4px_14px_rgba(0,0,0,0.15)]' : 'bg-white/90 hover:bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60'}`}>
+                      <span>{needsSignature ? t.userDashboard.sign : t.userDashboard.details}</span>
+                      <ExternalLink className="w-4 h-4 opacity-40" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
