@@ -381,8 +381,16 @@ const UserTaxReturns = () => {
           pendingInformation={pendingInformation} 
         />
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Outer Glass Container */}
+        <div className="bg-white/60 backdrop-blur-2xl rounded-[3rem] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white relative overflow-hidden">
+          {/* Subtle background glow effects */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[3rem] z-0">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-100/40 blur-3xl rounded-full" />
+            <div className="absolute top-1/2 -right-10 w-48 h-48 bg-blue-100/40 blur-3xl rounded-full" />
+          </div>
+
+          {/* Cards Grid */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Unpaid In-Progress Tax Returns (Active Style - leads to form) */}
           {unpaidYears.map(year => {
           const progress = calculateProgress(year) ?? 0;
@@ -563,6 +571,7 @@ const UserTaxReturns = () => {
 
           {/* New Year Action Card */}
           {availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} variant="card" />}
+          </div>
         </div>
       </main>
 
