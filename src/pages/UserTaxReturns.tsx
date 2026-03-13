@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap } from 'lucide-react';
+import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, CloudUpload } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
@@ -578,35 +578,48 @@ const UserTaxReturns = () => {
       {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
         <div
-          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full bg-card border border-border shadow-lg"
+          className="pointer-events-auto flex items-center justify-between p-2 rounded-full bg-white/50 border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] backdrop-blur-xl transition-all duration-300 hover:bg-white/60 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
         >
-          {/* Scanner Button */}
-          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full bg-primary border-t border-primary/80 shadow-[0_4px_14px_0_hsla(var(--primary)/0.35)] hover:shadow-[0_6px_20px_hsla(var(--primary)/0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group">
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
+          {/* Primary Upload Button */}
+          <button 
+            data-tour="floating-document-button" 
+            onClick={handleDocumentsClick} 
+            className="flex items-center gap-3 pl-2 pr-6 py-2 rounded-full shadow-[0_4px_16px_rgba(109,161,255,0.3)] hover:opacity-90 active:scale-[0.98] transition-all group"
+            style={{
+              background: 'radial-gradient(100% 100% at 100% 0%, #6da1ff 0%, transparent 80%), radial-gradient(100% 100% at 0% 100%, #fbd5a4 0%, transparent 80%), radial-gradient(100% 100% at 100% 100%, #ebdffd 0%, transparent 80%), #fdfcfe'
+            }}
+          >
+            <div className="w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-105">
+              <CloudUpload className="w-5 h-5 stroke-[1.5]" style={{ color: 'rgb(17, 24, 39)' }} />
             </div>
-            <div className="text-left">
-              <span className="block text-xs font-semibold font-jakarta tracking-wide" style={{ color: 'hsl(0 0% 100%)' }}>
+            <div className="flex flex-col items-start justify-center">
+              <span className="text-gray-900 font-medium text-lg leading-tight">
                 {t.userDashboard.documents}
               </span>
-              <span className="block text-[10px] font-medium" style={{ color: 'hsl(0 0% 100% / 0.8)' }}>
+              <span className="text-gray-600 text-base font-normal leading-tight">
                 {t.userDashboard.uploadDocuments}
               </span>
             </div>
           </button>
 
-          <div className="w-px h-8 bg-border/40"></div>
+          {/* Secondary Icon Actions */}
+          <div className="flex items-center gap-1.5 pr-2">
+            <button 
+              data-tour="chat-header-icon" 
+              onClick={() => navigate('/chat')} 
+              className="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-gray-900 hover:bg-white/80 transition-all active:scale-95 relative"
+            >
+              <Inbox className="w-5 h-5 stroke-[1.5]" style={{ color: 'rgb(17, 24, 39)' }} />
+              {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full ring-2 ring-white"></span>}
+            </button>
 
-          {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="p-3 text-muted-foreground rounded-full hover:text-foreground hover:bg-foreground/[0.06] transition-colors relative">
-            <Inbox className="w-6 h-6" strokeWidth={1.5} />
-            {unreadCount > 0 && <span className="absolute top-3 right-3 w-2 h-2 bg-destructive rounded-full ring-2 ring-background"></span>}
-          </button>
-
-          {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="p-3 text-muted-foreground rounded-full hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
-            <Menu className="w-6 h-6" strokeWidth={1.5} />
-          </button>
+            <button 
+              onClick={() => setMenuSheetOpen(true)} 
+              className="w-11 h-11 flex items-center justify-center rounded-full text-gray-600 hover:text-gray-900 hover:bg-white/80 transition-all active:scale-95"
+            >
+              <Menu className="w-5 h-5 stroke-[1.5]" />
+            </button>
+          </div>
         </div>
       </div>
 
