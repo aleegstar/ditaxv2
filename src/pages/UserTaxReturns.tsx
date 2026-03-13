@@ -473,7 +473,7 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col rounded-2xl cursor-pointer overflow-hidden bg-card border border-border/60 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300"
+                className="group relative flex flex-col rounded-2xl cursor-pointer overflow-hidden bg-card border border-border/20 shadow-[0_2px_12px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] transition-all duration-300"
               >
                 <div className="p-6 pb-4">
                   {/* Icon + Status */}
