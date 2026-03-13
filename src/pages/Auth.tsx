@@ -473,18 +473,23 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-muted/30">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#f0f2f5]">
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
         {/* Liquid Glass Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-2xl px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden bg-card border border-border shadow-lg"
+          className="w-full max-w-[440px] rounded-[3rem] px-8 py-12 sm:px-12 sm:py-14 relative overflow-hidden bg-white/70 backdrop-blur-2xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
         >
+          {/* Subtle background glow effects */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[3rem] z-0">
+            <div className="absolute -top-10 -left-10 w-48 h-48 bg-blue-100/40 blur-3xl rounded-full" />
+            <div className="absolute bottom-10 -right-10 w-48 h-48 bg-purple-100/40 blur-3xl rounded-full" />
+          </div>
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
