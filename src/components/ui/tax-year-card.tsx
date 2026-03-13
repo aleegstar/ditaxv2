@@ -98,8 +98,8 @@ export function TaxYearCard({
 
   return <>
     <Card className={`w-full transition-all duration-300 shadow-lg ${!isPaid || isCompleted ? 'cursor-pointer hover:shadow-xl' : ''} group`} style={{
-      background: 'hsl(0, 0%, 95.7%)',
-      border: '1px solid rgb(238, 238, 238)',
+      background: 'linear-gradient(135deg, hsla(220, 80%, 85%, 0.7) 0%, hsla(200, 90%, 88%, 0.6) 30%, hsla(30, 80%, 90%, 0.5) 70%, hsla(330, 60%, 90%, 0.4) 100%)',
+      border: '1px solid rgba(255, 255, 255, 0.8)',
       borderRadius: '20px'
     }} onClick={isCompleted || !isPaid ? handleEdit : undefined}>
         <CardContent className="p-6 relative overflow-hidden" style={{
