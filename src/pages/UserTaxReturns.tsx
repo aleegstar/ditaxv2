@@ -517,40 +517,32 @@ const UserTaxReturns = () => {
                     navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                   }
                 }}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
               >
+                {/* Glass sphere details */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
 
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center">
-                  <span className="text-5xl font-semibold text-foreground/10 tracking-tight font-jakarta">
-                    {year}
-                  </span>
-                  <div className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm bg-background ring-1 ring-border`}
-                  >
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
+                  <div className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm border border-white/40 px-3 py-1.5 rounded-full">
                     {needsSignature ? <>
-                        <PenTool className="w-3.5 h-3.5 text-foreground" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
+                        <PenTool className="w-3.5 h-3.5 text-foreground/70" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground/70 tracking-wide uppercase">
                           {t.userDashboard.signaturePending}
                         </span>
                       </> : <>
-                        <Check className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
+                        <Check className="w-3.5 h-3.5 text-foreground/50" strokeWidth={1.5} />
+                        <span className="text-xs font-semibold text-foreground/50 tracking-wide uppercase">
                           {t.userDashboard.finished}
                         </span>
                       </>}
                   </div>
                 </div>
 
-                <div className="relative px-2 pt-5 pb-2 flex flex-col min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className={`text-xl font-medium tracking-[-0.02em] font-jakarta ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {t.userDashboard.taxReturn}
-                    </h2>
-                    {isSigned && <div className="text-muted-foreground/40 bg-muted p-0.5 rounded-full">
-                        <Check className="w-3.5 h-3.5" strokeWidth={2} />
-                      </div>}
-                  </div>
-
-                  <p className={`text-sm leading-relaxed font-jakarta line-clamp-2 ${needsSignature ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <div className="relative z-10 flex flex-col gap-5 mt-8">
+                  <p className="text-foreground/60 text-sm leading-relaxed">
                     {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
@@ -558,25 +550,11 @@ const UserTaxReturns = () => {
                 }) : '–')}
                   </p>
 
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      {needsSignature ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
-                          <AlertCircle className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                          <span>{t.userDashboard.actionRequired}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                          <Check className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                          <span>100%</span>
-                        </div>}
-                    </div>
-
-                    <button className={`rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta ${needsSignature ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : ''}`}
-                      style={!needsSignature ? {
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      } : undefined}
-                    >
-                      {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
-                      <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
+                  {/* Button */}
+                  <div className="flex mt-1">
+                    <button className={`backdrop-blur-md font-medium text-base py-2.5 px-5 rounded-full transition-all active:scale-[0.98] flex items-center gap-2 ${needsSignature ? 'bg-foreground text-background shadow-[0_4px_14px_rgba(0,0,0,0.15)]' : 'bg-white/90 hover:bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60'}`}>
+                      <span>{needsSignature ? t.userDashboard.sign : t.userDashboard.details}</span>
+                      <ExternalLink className="w-4 h-4 opacity-40" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
