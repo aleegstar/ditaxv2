@@ -17,18 +17,20 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border border-border/60 bg-background">
+    <div className="inline-flex items-center gap-2.5 text-xs border border-gray-200/80 rounded-full py-1.5 px-3.5 bg-white/60 backdrop-blur-md shadow-sm">
       <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-      <button
-        onClick={() => switchLanguage('de')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-        DE
-      </button>
-      <button
-        onClick={() => switchLanguage('en')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-        EN
-      </button>
+      <div className="flex gap-2 font-medium">
+        <button
+          onClick={() => switchLanguage('de')}
+          className={`transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+          DE
+        </button>
+        <button
+          onClick={() => switchLanguage('en')}
+          className={`transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+          EN
+        </button>
+      </div>
     </div>);
 };
 
