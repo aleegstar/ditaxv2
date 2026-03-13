@@ -580,10 +580,10 @@ const Auth = () => {
                   </div>
 
                   {/* Footer Links */}
-                  <div className="mt-12 flex flex-col items-center gap-3 text-[11px] text-muted-foreground/50">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-10 flex flex-col items-center gap-6 w-full">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                      <span className="text-border">·</span>
+                      <span className="text-muted-foreground/40">·</span>
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
