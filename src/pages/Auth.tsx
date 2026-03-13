@@ -17,18 +17,20 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 border border-border/60 bg-background">
+    <div className="inline-flex items-center gap-2.5 text-xs border border-gray-200/80 rounded-full py-1.5 px-3.5 bg-white/60 backdrop-blur-md shadow-sm">
       <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-      <button
-        onClick={() => switchLanguage('de')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-        DE
-      </button>
-      <button
-        onClick={() => switchLanguage('en')}
-        className={`text-xs font-medium px-1 transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-        EN
-      </button>
+      <div className="flex gap-2 font-medium">
+        <button
+          onClick={() => switchLanguage('de')}
+          className={`transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+          DE
+        </button>
+        <button
+          onClick={() => switchLanguage('en')}
+          className={`transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+          EN
+        </button>
+      </div>
     </div>);
 };
 
@@ -473,18 +475,23 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-muted/30">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#f0f2f5]">
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
         {/* Liquid Glass Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full min-h-screen sm:min-h-0 max-w-[420px] rounded-none sm:rounded-2xl px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden bg-card border border-border shadow-lg"
+          className="w-full max-w-[440px] rounded-[3rem] px-8 py-12 sm:px-12 sm:py-14 relative overflow-hidden bg-white/70 backdrop-blur-2xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
         >
+          {/* Subtle background glow effects */}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[3rem] z-0">
+            <div className="absolute -top-10 -left-10 w-48 h-48 bg-blue-100/40 blur-3xl rounded-full" />
+            <div className="absolute bottom-10 -right-10 w-48 h-48 bg-purple-100/40 blur-3xl rounded-full" />
+          </div>
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
@@ -493,19 +500,18 @@ const Auth = () => {
                   {/* Logo & Title */}
                   <div className="flex flex-col items-center text-center mb-10">
                     <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                    <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground mb-1">
+                    <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-3">
                       {t.authFlow.login}
                     </h1>
-                    <p className="text-muted-foreground text-[13px] font-light">
+                    <p className="text-base text-muted-foreground">
                       {t.authFlow.loginSubtitle}
                     </p>
                   </div>
 
-                  {/* Social Logins */}
-                  <div className="space-y-2.5">
+                  <div className="flex flex-col gap-3.5 w-full mb-8">
                     {/* Google */}
-                    <button onClick={handleGoogleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:bg-muted/50 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none bg-background border border-border shadow-sm">
-                      <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
+                    <button onClick={handleGoogleAuth} disabled={isLoading} className="w-full bg-white/90 hover:bg-white backdrop-blur-md text-foreground font-medium text-base py-3.5 px-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none">
+                      <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -515,8 +521,8 @@ const Auth = () => {
                     </button>
 
                     {/* Apple */}
-                    <button onClick={handleAppleAuth} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-foreground transition-all duration-200 hover:bg-muted/50 active:scale-[0.98] focus:outline-none disabled:opacity-50 disabled:pointer-events-none bg-background border border-border shadow-sm">
-                      <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
+                    <button onClick={handleAppleAuth} disabled={isLoading} className="w-full bg-white/90 hover:bg-white backdrop-blur-md text-foreground font-medium text-base py-3.5 px-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none">
+                      <svg className="w-5 h-5 shrink-0 fill-current" viewBox="0 0 24 24">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                       </svg>
                       <span>{t.authFlow.continueWithApple}</span>
@@ -524,13 +530,10 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="relative my-7">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full" style={{ borderTop: '1px solid hsla(var(--foreground) / 0.06)' }} />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60 bg-card">{t.authFlow.or}</span>
-                    </div>
+                  <div className="w-full flex items-center gap-4 mb-8">
+                    <div className="h-px bg-gray-200/80 flex-1" />
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{t.authFlow.or}</span>
+                    <div className="h-px bg-gray-200/80 flex-1" />
                   </div>
 
                   {/* Email Accordion */}
@@ -538,12 +541,12 @@ const Auth = () => {
                     <button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/50 active:scale-[0.98] focus:outline-none bg-background border border-border shadow-sm"
+                      className="w-full bg-white/90 hover:bg-white backdrop-blur-md text-muted-foreground font-medium text-base py-3.5 px-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 transition-all active:scale-[0.98] relative flex items-center justify-center"
                     >
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-5 h-5 text-muted-foreground absolute left-5" />
                       <span>{'Mit E-Mail anmelden'}</span>
-                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                        <ChevronDown className="w-4 h-4 ml-0.5" />
+                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }} className="absolute right-5">
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
                       </motion.div>
                     </button>
 
@@ -579,10 +582,10 @@ const Auth = () => {
                   </div>
 
                   {/* Footer Links */}
-                  <div className="mt-12 flex flex-col items-center gap-3 text-[11px] text-muted-foreground/50">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-10 flex flex-col items-center gap-6 w-full">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                      <span className="text-border">·</span>
+                      <span className="text-muted-foreground/40">·</span>
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
