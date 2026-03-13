@@ -394,14 +394,17 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
               >
+                {/* Glass sphere details */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
 
                 {/* Delete Menu */}
-                <div className="absolute top-5 right-5 z-20">
+                <div className="absolute top-4 right-4 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-foreground/10 rounded-full">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/40 hover:text-foreground hover:bg-white/40 rounded-full">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -418,55 +421,28 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Top Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
-                    {year}
-                  </span>
-                  <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                    <span className="text-xs font-semibold text-foreground font-jakarta tracking-wide uppercase">
-                      {t.userDashboard.active}
-                    </span>
-                  </div>
+                {/* Content */}
+                <div className="relative z-10">
+                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
                 </div>
 
-                {/* Content Area */}
-                <div className="relative flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground font-jakarta">
-                      {t.userDashboard.taxReturn}
-                    </h2>
+                <div className="relative z-10 flex flex-col gap-5 mt-8">
+                  {/* Progress Section */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-end">
+                      <span className="text-base font-medium text-foreground/60">{t.userDashboard.taxReturn}</span>
+                      <span className="text-sm font-medium text-foreground/50">{progress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-white/60 rounded-full overflow-hidden backdrop-blur-sm border border-white/40 shadow-inner">
+                      <div className="h-full bg-foreground rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+                    </div>
                   </div>
 
-                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2">
-                    {t.userDashboard.activeDescription}
-                  </p>
-
-                  {/* Bottom Action Row */}
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                        <PieChart className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
-                        <Files className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                        <span>{documentCount}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      className="rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta group/btn"
-                      style={{
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                    >
-                      {t.userDashboard.continue}
-                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
+                  {/* Button */}
+                  <div className="flex mt-1">
+                    <button className="bg-white/90 backdrop-blur-md hover:bg-white text-foreground font-medium text-base py-2.5 px-5 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 transition-all active:scale-[0.98] flex items-center gap-2">
+                      <span>{t.userDashboard.continue}</span>
+                      <ChevronRight className="w-4 h-4 text-foreground/40" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
