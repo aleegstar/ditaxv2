@@ -528,13 +528,10 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="relative my-7">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full" style={{ borderTop: '1px solid hsla(var(--foreground) / 0.06)' }} />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="px-3 text-[11px] uppercase tracking-widest text-muted-foreground/60 bg-card">{t.authFlow.or}</span>
-                    </div>
+                  <div className="w-full flex items-center gap-4 mb-8">
+                    <div className="h-px bg-gray-200/80 flex-1" />
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{t.authFlow.or}</span>
+                    <div className="h-px bg-gray-200/80 flex-1" />
                   </div>
 
                   {/* Email Accordion */}
