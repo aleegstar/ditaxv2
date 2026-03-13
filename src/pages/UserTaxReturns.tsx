@@ -571,6 +571,7 @@ const UserTaxReturns = () => {
 
           {/* New Year Action Card */}
           {availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} variant="card" />}
+          </div>
         </div>
       </main>
 
