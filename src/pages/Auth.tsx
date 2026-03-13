@@ -539,7 +539,7 @@ const Auth = () => {
                     <button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl h-[52px] px-4 text-[14px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted/50 active:scale-[0.98] focus:outline-none bg-background border border-border shadow-sm"
+                      className="w-full bg-white/90 hover:bg-white backdrop-blur-md text-muted-foreground font-medium text-base py-3.5 px-5 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 transition-all active:scale-[0.98] relative flex items-center justify-center"
                     >
                       <Mail className="w-4 h-4" />
                       <span>{'Mit E-Mail anmelden'}</span>
