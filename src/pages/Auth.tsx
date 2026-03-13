@@ -498,10 +498,10 @@ const Auth = () => {
                   {/* Logo & Title */}
                   <div className="flex flex-col items-center text-center mb-10">
                     <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                    <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground mb-1">
+                    <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-3">
                       {t.authFlow.login}
                     </h1>
-                    <p className="text-muted-foreground text-[13px] font-light">
+                    <p className="text-base text-muted-foreground">
                       {t.authFlow.loginSubtitle}
                     </p>
                   </div>
