@@ -439,7 +439,7 @@ const UserTaxReturns = () => {
                   {/* Inner Content Blocks */}
                   <div className="grid grid-cols-2 gap-2.5">
                     <div className="rounded-xl bg-muted/50 border border-border/40 p-3.5">
-                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider font-jakarta">{t.userDashboard.progress || 'Fortschritt'}</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider font-jakarta">Fortschritt</span>
                       <div className="flex items-baseline gap-1 mt-1.5">
                         <span className="text-2xl font-semibold text-foreground font-jakarta tracking-tight">{progress}</span>
                         <span className="text-sm text-muted-foreground font-jakarta">%</span>
