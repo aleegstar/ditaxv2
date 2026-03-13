@@ -329,12 +329,17 @@ const UserTaxReturns = () => {
     return t.userDashboard.greeting;
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
-    style={{ background: 'hsl(var(--background))' }}
+    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden bg-[hsl(220_20%_95%)]"
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
+      {/* Subtle background glow effects */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-10 -left-10 w-60 h-60 bg-purple-100/30 blur-3xl rounded-full" />
+        <div className="absolute top-1/3 -right-10 w-72 h-72 bg-blue-100/30 blur-3xl rounded-full" />
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-rose-100/20 blur-3xl rounded-full" />
+      </div>
 
 
       {/* Pull-to-Refresh Indicator */}
