@@ -473,62 +473,51 @@ const UserTaxReturns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col p-3 rounded-2xl cursor-pointer overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow"
+                className="group relative flex flex-col rounded-2xl cursor-pointer overflow-hidden bg-card border border-border/60 shadow-[0_1px_4px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
-
-                {/* Top Visual Area */}
-                <div className="relative h-48 w-full rounded-xl overflow-hidden bg-muted/60 flex items-center justify-center">
-                  <span className="font-semibold tracking-tight font-jakarta text-5xl text-foreground/10">
-                    {year}
-                  </span>
-                  <div
-                    className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-background ring-1 ring-border shadow-sm"
-                  >
-                    <Clock className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
-                      {t.userDashboard.processing}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div className="relative flex flex-col pt-5 pr-2 pb-2 pl-2 min-h-[140px]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-xl font-medium tracking-[-0.02em] text-foreground font-jakarta">
-                      {t.userDashboard.taxReturn}
-                    </h2>
+                <div className="p-6 pb-4">
+                  {/* Icon + Status */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-muted/70 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted border border-border/40">
+                      <Clock className="w-3 h-3 text-muted-foreground" strokeWidth={2} />
+                      <span className="text-[11px] font-semibold text-muted-foreground font-jakarta tracking-wide uppercase">
+                        {t.userDashboard.processing}
+                      </span>
+                    </div>
                   </div>
 
-                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2">
+                  <h2 className="text-lg font-semibold tracking-[-0.02em] text-foreground font-jakarta mb-1">
+                    {t.userDashboard.taxReturn} {year}
+                  </h2>
+                  <p className="text-muted-foreground text-sm leading-relaxed font-jakarta line-clamp-2 mb-5">
                     {t.userDashboard.processingDescription}
                   </p>
 
-                  {/* Bottom Action Row */}
-                  <div className="flex items-center justify-between mt-auto pt-3">
-                    <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground font-medium text-sm font-jakarta">
+                  {/* Inner Content Block */}
+                  <div className="rounded-xl bg-muted/50 border border-border/40 p-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {isExpress ? <>
                           <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                          <span>{t.userDashboard.expressService}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-muted-foreground font-medium text-sm font-jakarta">
+                          <span className="text-sm font-medium text-foreground font-jakarta">{t.userDashboard.expressService}</span>
+                        </> : <>
                           <Clock className="w-4 h-4 text-muted-foreground/60" strokeWidth={1.5} />
-                          <span>{t.userDashboard.standardService}</span>
-                        </div>}
-                      {!isExpress && <span className="text-xs text-foreground font-medium font-jakarta bg-muted px-2 py-0.5 rounded-full">
-                          {t.userDashboard.upgradeAvailable}
-                        </span>}
+                          <span className="text-sm font-medium text-muted-foreground font-jakarta">{t.userDashboard.standardService}</span>
+                        </>}
+                      </div>
+                      {!isExpress && <span className="text-[11px] text-foreground font-medium font-jakarta bg-muted px-2 py-0.5 rounded-full border border-border/40">
+                        {t.userDashboard.upgradeAvailable}
+                      </span>}
                     </div>
-
-                    <button
-                      className="rounded-full pl-4 pr-3 py-2 text-sm font-semibold transition-all flex items-center gap-1.5 font-jakarta group/btn"
-                      style={{
-                        background: 'hsla(var(--foreground) / 0.06)',
-                        color: 'hsl(var(--foreground))',
-                      }}
-                    >
-                      {t.userDashboard.tracking}
-                      <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" strokeWidth={1.5} />
-                    </button>
                   </div>
+                </div>
+
+                <div className="px-6 py-4 border-t border-border/40 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground font-jakarta">{t.userDashboard.tracking}</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
                 </div>
               </motion.article>;
         })}
