@@ -251,7 +251,7 @@ const PrivacySettings = () => {
   }
 
   return (
-    <div className="antialiased min-h-screen flex flex-col text-foreground bg-white">
+    <div className="antialiased min-h-screen flex flex-col text-foreground">
       {/* Header / Navigation */}
       <SubpageHeader
         title={t.privacySettingsPage.title}
