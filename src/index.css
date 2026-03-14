@@ -443,9 +443,6 @@
   background-image: linear-gradient(#fff,#fff),linear-gradient(#fff 50%,#fff9 80%,#12121300),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)));
 }
 
-  .text-primary-foreground {
-    color: hsl(var(--foreground));
-  }
 
 .before\:\[filter\:blur\(calc\(0\.8\*1rem\)\)\]::before {
   content: var(--tw-content);
