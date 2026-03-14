@@ -98,7 +98,7 @@ export function TaxYearCard({
 
   return <>
     <Card className={`w-full transition-all duration-300 shadow-lg ${!isPaid || isCompleted ? 'cursor-pointer hover:shadow-xl' : ''} group`} style={{
-      background: 'linear-gradient(135deg, hsla(220, 80%, 85%, 0.7) 0%, hsla(200, 90%, 88%, 0.6) 30%, hsla(30, 80%, 90%, 0.5) 70%, hsla(330, 60%, 90%, 0.4) 100%)',
+      background: 'linear-gradient(135deg, hsla(270, 40%, 92%, 0.8) 0%, hsla(220, 60%, 92%, 0.7) 20%, hsla(200, 70%, 90%, 0.8) 45%, hsla(190, 60%, 88%, 0.9) 70%, hsla(260, 30%, 92%, 0.7) 100%)',
       border: '1px solid rgba(255, 255, 255, 0.8)',
       borderRadius: '20px'
     }} onClick={isCompleted || !isPaid ? handleEdit : undefined}>
