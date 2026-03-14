@@ -65,7 +65,7 @@ const Tickets = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-white">
         <SubpageHeader 
           title="Meine Support-Tickets"
           onBack={() => navigate(-1)}
@@ -78,7 +78,7 @@ const Tickets = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Meine Support-Tickets"
         onBack={() => navigate(-1)}

@@ -462,7 +462,7 @@ const DocumentsContent: React.FC<{
 
   // Show uploader view (light theme)
   if (showUploader || hasFilesInUploader) {
-    return <div className="min-h-screen text-foreground antialiased overflow-x-hidden">
+    return <div className="min-h-screen bg-white text-slate-800 antialiased overflow-x-hidden">
         <div className="min-h-screen flex flex-col w-full relative">
           
           {/* Header */}
@@ -495,12 +495,12 @@ const DocumentsContent: React.FC<{
   }
   // Show white screen during transition until content is ready
   if (isTransitionEntry && !showContent) {
-    return <div className="min-h-screen" />;
+    return <div className="min-h-screen bg-white" />;
   }
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen text-foreground antialiased", isTransitionEntry && "animate-fade-in")}>
+      <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <SubpageHeader 
           onBack={() => navigate(-1)}

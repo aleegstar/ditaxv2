@@ -48,7 +48,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">{t.profile.loading}</p>
@@ -58,7 +58,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen text-foreground flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-white text-slate-800 flex flex-col overflow-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}

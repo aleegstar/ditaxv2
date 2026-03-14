@@ -7,7 +7,7 @@ const Help = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Hilfe & Support" 
         onBack={() => navigate(-1)} 

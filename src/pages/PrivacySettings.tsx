@@ -244,14 +244,14 @@ const PrivacySettings = () => {
 
   if (!isValid) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <p className="text-muted-foreground">{t.privacySettingsPage.pleaseLogin}</p>
       </div>
     );
   }
 
   return (
-    <div className="antialiased min-h-screen flex flex-col text-foreground">
+    <div className="antialiased min-h-screen flex flex-col text-foreground bg-white">
       {/* Header / Navigation */}
       <SubpageHeader
         title={t.privacySettingsPage.title}

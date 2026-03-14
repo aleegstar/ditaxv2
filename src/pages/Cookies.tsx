@@ -37,7 +37,7 @@ privacy@ditax.ch</p>
   `;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <SubpageHeader 
         title="Cookie-Richtlinie" 
         onBack={() => navigate(-1)} 

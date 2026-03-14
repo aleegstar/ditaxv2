@@ -106,7 +106,7 @@ export default function TaxReturnTracking() {
   };
 
   if (loading) {
-    return <div className="min-h-screen" />;
+    return <div className="min-h-screen bg-white" />;
   }
 
   if (!taxReturn || !profile) {
@@ -114,7 +114,7 @@ export default function TaxReturnTracking() {
   }
 
   return (
-    <div className="min-h-screen text-foreground antialiased">
+    <div className="min-h-screen bg-white text-slate-600 antialiased">
       <SubpageHeader 
         title={`Steuererklärung ${taxReturn.tax_year}`} 
         onBack={() => navigate('/')} 

@@ -148,7 +148,7 @@ const IndexContent = () => {
   };
 
   return (
-    <AnimatedPageContainer className="min-h-screen">
+    <AnimatedPageContainer className="min-h-screen bg-white">
       {renderContent()}
 
       {/* Import wizard overlay - renders as bottom sheet over the form */}

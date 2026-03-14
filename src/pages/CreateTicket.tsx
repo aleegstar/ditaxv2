@@ -173,7 +173,7 @@ const CreateTicket = () => {
 
   if (isCheckingSignature) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <Loader2 className="h-8 w-8 animate-spin text-[#1D64FF]" />
       </div>
     );

@@ -211,8 +211,7 @@
   body {
     font-family: var(--font-sans);
     color: hsl(var(--foreground));
-    background: linear-gradient(135deg, hsl(225 60% 97%), hsl(240 20% 98%), hsl(270 30% 97%));
-    background-attachment: fixed;
+    background-color: white;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -.01em;
