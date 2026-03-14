@@ -461,26 +461,43 @@ const UserTaxReturns = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-              className="group relative overflow-hidden rounded-[2rem] p-6 md:p-8 bg-white/60 hover:bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white/50 hover:border-white transition-all duration-300 cursor-pointer"
+              className="group relative overflow-hidden rounded-[2rem] bg-white p-7 md:p-9 shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)]"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
-                  {year}
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                  <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-                    {t.userDashboard.processing}
-                  </span>
+              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                      {year}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                      <span className="text-base text-muted-foreground font-normal">
+                        {t.userDashboard.processing}
+                      </span>
+                    </div>
+                    {isExpress && <div className="flex items-center gap-1 text-muted-foreground">
+                      <Zap className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      <span className="text-xs font-medium">{t.userDashboard.expressService}</span>
+                    </div>}
+                  </div>
                 </div>
-                {isExpress && <div className="flex items-center gap-1 text-muted-foreground">
-                  <Zap className="w-3.5 h-3.5" strokeWidth={1.5} />
-                  <span className="text-xs font-medium">{t.userDashboard.expressService}</span>
-                </div>}
+
+                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
+                  {t.userDashboard.processingDescription}
+                </h2>
+
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                  Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-6">
+                  <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
+                    {t.userDashboard.tracking}
+                  </button>
+                </div>
               </div>
-              <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3">
-                {t.userDashboard.processingDescription}
-              </h2>
             </motion.article>;
           })}
 
@@ -500,36 +517,52 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[2rem] p-6 md:p-8 bg-white/60 hover:bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white/50 hover:border-white transition-all duration-300 cursor-pointer"
+              className="group relative overflow-hidden rounded-[2rem] bg-white p-7 md:p-9 shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)]"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
-                  {year}
-                </span>
-                <div className="flex items-center gap-1.5">
-                  {needsSignature ? <>
-                    <PenTool className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
-                    <span className="text-sm text-foreground/70 font-medium uppercase tracking-wide">
-                      {t.userDashboard.signaturePending}
+              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-emerald-50/50 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                      {year}
                     </span>
-                  </> : <>
-                    <Check className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                    <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-                      {t.userDashboard.finished}
-                    </span>
-                  </>}
+                    <div className="flex items-center gap-1.5">
+                      {needsSignature ? <>
+                        <PenTool className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
+                        <span className="text-base text-foreground/70 font-normal">
+                          {t.userDashboard.signaturePending}
+                        </span>
+                      </> : <>
+                        <Check className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                        <span className="text-base text-muted-foreground font-normal">
+                          {t.userDashboard.finished}
+                        </span>
+                      </>}
+                    </div>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
+                  {needsSignature ? t.userDashboard.signatureRequired : `Steuererklärung ${year}`}
+                </h2>
+
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                  {needsSignature 
+                    ? 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.' 
+                    : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      }) : '–')}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-6">
+                  <button className={`px-8 py-3.5 rounded-full text-lg font-medium shadow-lg transition-all w-full sm:w-auto text-center active:scale-[0.97] ${needsSignature ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/25' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/25'}`}>
+                    {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
+                  </button>
                 </div>
               </div>
-              <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3">
-                {needsSignature ? t.userDashboard.signatureRequired : `${t.userDashboard.finished} ${year}`}
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric'
-                }) : '–')}
-              </p>
             </motion.article>;
           })}
 
