@@ -376,7 +376,6 @@ const UserTaxReturns = () => {
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
-            const isFirst = index === 0 && paidInProgressYears.length === 0 && completedYears.length === 0;
             return <motion.article
               key={year}
               data-tour="tax-year-card"
@@ -384,10 +383,10 @@ const UserTaxReturns = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => navigate(`/form?year=${year}`)}
-              className={`group relative overflow-hidden rounded-[2rem] shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)] ${isFirst ? 'bg-white p-7 md:p-9' : 'bg-white/60 hover:bg-white p-6 md:p-8 border-white/50 hover:border-white'}`}
+              className="group relative overflow-hidden rounded-[2rem] bg-white p-7 md:p-9 shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)]"
             >
-              {/* Subtle pink glow for first card */}
-              {isFirst && <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-pink-50/50 rounded-full blur-3xl pointer-events-none" />}
+              {/* Subtle pink glow */}
+              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-pink-50/50 rounded-full blur-3xl pointer-events-none" />
 
               {/* Delete Menu */}
               <div className="absolute top-5 right-5 z-20">
@@ -412,36 +411,42 @@ const UserTaxReturns = () => {
 
               <div className="relative z-10">
                 {/* Year Badge + Status */}
-                <div className="flex justify-between items-center mb-5">
+                <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
                     <span className="bg-foreground text-background text-sm font-medium px-3 py-1 rounded-full">
                       {year}
                     </span>
-                    {isFirst && <span className="text-base text-muted-foreground font-normal">
+                    <span className="text-base text-muted-foreground font-normal">
                       {t.userDashboard.taxReturn}
-                    </span>}
+                    </span>
                   </div>
                   <span className="text-base text-primary font-medium">{progress}%</span>
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3 leading-tight">
-                  {t.userDashboard.continue} {year}
+                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
+                  Steuererklärung fortsetzen
                 </h2>
 
-                {isFirst && <>
-                  {/* Progress Bar */}
-                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-8">
-                    <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
-                  </div>
+                {/* Description */}
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                  Deine Dokumente werden aktuell verarbeitet. Bitte überprüfe die letzten Angaben, um den Prozess abzuschliessen.
+                </p>
 
-                  {/* Buttons */}
-                  <div className="flex flex-wrap items-center gap-6">
-                    <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
-                      {t.userDashboard.continue}
-                    </button>
-                  </div>
-                </>}
+                {/* Progress Bar */}
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-10">
+                  <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex flex-wrap items-center gap-6">
+                  <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
+                    Auswählen
+                  </button>
+                  <button className="text-primary hover:text-primary/80 text-lg font-medium transition-colors w-full sm:w-auto text-center">
+                    Mehr Infos
+                  </button>
+                </div>
               </div>
             </motion.article>;
           })}
