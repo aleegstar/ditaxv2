@@ -544,7 +544,7 @@ const UserTaxReturns = () => {
           className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full bg-card border border-border shadow-lg"
         >
           {/* Scanner Button */}
-          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full border-t border-white/10 shadow-[0_4px_14px_0_rgba(0,0,0,0.3)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group" style={{ background: 'linear-gradient(to bottom, hsl(220, 15%, 22%), hsl(220, 15%, 16%))' }}>
+          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full border-t border-primary/20 shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group bg-primary hover:bg-primary/90">
             <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
               <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
             </div>
