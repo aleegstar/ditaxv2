@@ -475,7 +475,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#f0f2f5]">
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
