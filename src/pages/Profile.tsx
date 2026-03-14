@@ -58,7 +58,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 flex flex-col overflow-hidden">
+    <div className="min-h-screen text-foreground flex flex-col overflow-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}

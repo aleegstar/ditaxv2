@@ -421,7 +421,7 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-white text-slate-800 antialiased">
+      <div className="min-h-screen text-foreground antialiased">
         <SubpageHeader 
           title={`${t.taxReturnActions.title} ${taxYear}`} 
           onBack={() => navigate('/')} 
