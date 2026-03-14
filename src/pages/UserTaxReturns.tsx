@@ -329,7 +329,7 @@ const UserTaxReturns = () => {
     return t.userDashboard.greeting;
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden bg-gradient-to-br from-[hsl(225,60%,97%)] via-[hsl(240,20%,98%)] to-[hsl(270,30%,97%)]"
+    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
