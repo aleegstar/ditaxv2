@@ -495,7 +495,7 @@ const DocumentsContent: React.FC<{
   }
   // Show white screen during transition until content is ready
   if (isTransitionEntry && !showContent) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen" />;
   }
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
