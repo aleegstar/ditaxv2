@@ -264,7 +264,7 @@ const DocumentUploadPageContent: React.FC = () => {
         </Button>
       </div>;
   }
-  return <div className="min-h-screen bg-white">
+  return <div className="min-h-screen">
       <SubpageHeader title={selectedItem.title} onBack={handleBack} />
       
       <div className="flex flex-col items-center p-4 pb-24 md:pb-6">
