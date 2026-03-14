@@ -329,50 +329,40 @@ const UserTaxReturns = () => {
     return t.userDashboard.greeting;
   };
   return <div 
-    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden bg-[#f0f2f5]"
+    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden bg-gradient-to-br from-[hsl(225,60%,97%)] via-[hsl(240,20%,98%)] to-[hsl(270,30%,97%)]"
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
   >
-      {/* Subtle background glow effects */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-10 -left-10 w-60 h-60 bg-purple-100/30 blur-3xl rounded-full" />
-        <div className="absolute top-1/3 -right-10 w-72 h-72 bg-blue-100/30 blur-3xl rounded-full" />
-        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-rose-100/20 blur-3xl rounded-full" />
-      </div>
-
 
       {/* Pull-to-Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="relative z-10 min-h-screen sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pt-6 pr-4 pl-4">
+      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
         {/* Header */}
         <header className="flex pb-8 items-center justify-between">
           <div className="flex items-center">
-            {/* Logo */}
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
-
-          {/* Profile with Notifications */}
           <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
         </header>
 
         {/* Greeting Section */}
-        <section className="pb-6">
-          <div className="flex flex-col gap-1">
-            <p className="font-medium text-muted-foreground font-jakarta text-sm">
+        <section className="pb-8">
+          <div className="flex flex-col gap-1 mb-4">
+            <p className="text-lg md:text-xl text-muted-foreground font-normal">
               {getGreeting()}
             </p>
-            <h1 className="text-foreground font-medium tracking-[-0.02em] font-jakarta leading-none text-2xl">
+            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-tight">
               {getUserDisplayName() ?? (
-                <span className="inline-block bg-muted rounded-md animate-pulse w-28 h-7" />
+                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-10" />
               )}
             </h1>
           </div>
           
-          {/* Tax Filer Selector - shows if multiple persons exist */}
-          <TaxFilerSelector className="mt-4" />
+          {/* Tax Filer Selector */}
+          <TaxFilerSelector className="mt-2" />
         </section>
 
         {/* Missing Items Alert */}
@@ -381,197 +371,165 @@ const UserTaxReturns = () => {
           pendingInformation={pendingInformation} 
         />
 
-        {/* Outer Glass Container */}
-        <div className="bg-white/60 backdrop-blur-2xl rounded-[3rem] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border border-white relative overflow-hidden">
-          {/* Subtle background glow effects */}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[3rem] z-0">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-100/40 blur-3xl rounded-full" />
-            <div className="absolute top-1/2 -right-10 w-48 h-48 bg-blue-100/40 blur-3xl rounded-full" />
-          </div>
+        {/* Cards - Timeline Layout */}
+        <div className="flex flex-col gap-5">
+          {/* Unpaid In-Progress Tax Returns */}
+          {unpaidYears.map((year, index) => {
+            const progress = calculateProgress(year) ?? 0;
+            const isFirst = index === 0 && paidInProgressYears.length === 0 && completedYears.length === 0;
+            return <motion.article
+              key={year}
+              data-tour="tax-year-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => navigate(`/form?year=${year}`)}
+              className={`group relative overflow-hidden rounded-[2rem] shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)] ${isFirst ? 'bg-white p-7 md:p-9' : 'bg-white/60 hover:bg-white p-6 md:p-8 border-white/50 hover:border-white'}`}
+            >
+              {/* Subtle pink glow for first card */}
+              {isFirst && <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-pink-50/50 rounded-full blur-3xl pointer-events-none" />}
 
-          {/* Cards Grid */}
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Unpaid In-Progress Tax Returns (Active Style - leads to form) */}
-          {unpaidYears.map(year => {
-          const progress = calculateProgress(year) ?? 0;
-          const documentCount = getDocumentCount(year);
-          return <motion.article
-                key={year}
-                data-tour="tax-year-card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => navigate(`/form?year=${year}`)}
-                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
-              >
-                {/* Glass sphere details */}
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
+              {/* Delete Menu */}
+              <div className="absolute top-5 right-5 z-20">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/30 hover:text-foreground hover:bg-muted/50 rounded-full">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={e => {
+                      e.stopPropagation();
+                      setYearToDelete(year);
+                      setDeleteDialogOpen(true);
+                    }} className="text-destructive hover:text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t.userDashboard.delete}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-                {/* Delete Menu */}
-                <div className="absolute top-4 right-4 z-20">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/40 hover:text-foreground hover:bg-white/40 rounded-full">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={e => {
-                    e.stopPropagation();
-                    setYearToDelete(year);
-                    setDeleteDialogOpen(true);
-                  }} className="text-destructive hover:text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t.userDashboard.delete}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
-                </div>
-
-                <div className="relative z-10 flex flex-col gap-5 mt-8">
-                  {/* Progress Section */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-end">
-                      <span className="text-base font-medium text-foreground/60">{t.userDashboard.taxReturn}</span>
-                      <span className="text-sm font-medium text-foreground/50">{progress}%</span>
-                    </div>
-                    <div className="w-full h-2.5 bg-white/60 rounded-full overflow-hidden backdrop-blur-sm border border-white/40 shadow-inner">
-                      <div className="h-full bg-foreground rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
-                    </div>
-                  </div>
-
-                  {/* Button */}
-                  <div className="flex mt-1">
-                    <button className="bg-white/90 backdrop-blur-md hover:bg-white text-foreground font-medium text-base py-2.5 px-5 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 transition-all active:scale-[0.98] flex items-center gap-2">
-                      <span>{t.userDashboard.continue}</span>
-                      <ChevronRight className="w-4 h-4 text-foreground/40" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                </div>
-              </motion.article>;
-        })}
-
-          {/* Paid In-Progress Tax Returns (Processing Style - leads to tracking) */}
-          {paidInProgressYears.map(year => {
-          const taxReturn = getExistingReturn(year);
-          const isExpress = taxReturn?.express_service;
-          return <motion.article
-                key={year}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
-              >
-                {/* Glass sphere details */}
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
-
-                {/* Content */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
-                  <div className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm border border-white/40 px-3 py-1.5 rounded-full">
-                    <Clock className="w-3.5 h-3.5 text-foreground/50" strokeWidth={2} />
-                    <span className="text-xs font-semibold text-foreground/60 tracking-wide uppercase">
-                      {t.userDashboard.processing}
+              <div className="relative z-10">
+                {/* Year Badge + Status */}
+                <div className="flex justify-between items-center mb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-foreground text-background text-sm font-medium px-3 py-1 rounded-full">
+                      {year}
                     </span>
+                    {isFirst && <span className="text-base text-muted-foreground font-normal">
+                      {t.userDashboard.taxReturn}
+                    </span>}
                   </div>
+                  <span className="text-base text-primary font-medium">{progress}%</span>
                 </div>
 
-                <div className="relative z-10 flex flex-col gap-5 mt-8">
-                  <p className="text-foreground/60 text-sm leading-relaxed">
-                    {t.userDashboard.processingDescription}
-                  </p>
+                {/* Title */}
+                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3 leading-tight">
+                  {t.userDashboard.continue} {year}
+                </h2>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {isExpress ? <div className="flex items-center gap-1.5 text-foreground/70 font-medium text-sm">
-                          <Zap className="w-4 h-4" strokeWidth={1.5} />
-                          <span>{t.userDashboard.expressService}</span>
-                        </div> : <div className="flex items-center gap-1.5 text-foreground/50 font-medium text-sm">
-                          <Clock className="w-4 h-4" strokeWidth={1.5} />
-                          <span>{t.userDashboard.standardService}</span>
-                        </div>}
-                    </div>
+                {isFirst && <>
+                  {/* Progress Bar */}
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-8">
+                    <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+                  </div>
 
-                    <button className="bg-white/90 backdrop-blur-md hover:bg-white text-foreground font-medium text-base py-2.5 px-5 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60 transition-all active:scale-[0.98] flex items-center gap-2">
-                      <span>{t.userDashboard.tracking}</span>
-                      <ChevronRight className="w-4 h-4 text-foreground/40" strokeWidth={1.5} />
+                  {/* Buttons */}
+                  <div className="flex flex-wrap items-center gap-6">
+                    <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
+                      {t.userDashboard.continue}
                     </button>
                   </div>
-                </div>
-              </motion.article>;
-        })}
+                </>}
+              </div>
+            </motion.article>;
+          })}
 
-          {/* Completed Tax Returns (Archived Style) */}
+          {/* Paid In-Progress Tax Returns (Processing) */}
+          {paidInProgressYears.map(year => {
+            const taxReturn = getExistingReturn(year);
+            const isExpress = taxReturn?.express_service;
+            return <motion.article
+              key={year}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
+              className="group relative overflow-hidden rounded-[2rem] p-6 md:p-8 bg-white/60 hover:bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white/50 hover:border-white transition-all duration-300 cursor-pointer"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                  {year}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                  <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
+                    {t.userDashboard.processing}
+                  </span>
+                </div>
+                {isExpress && <div className="flex items-center gap-1 text-muted-foreground">
+                  <Zap className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <span className="text-xs font-medium">{t.userDashboard.expressService}</span>
+                </div>}
+              </div>
+              <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3">
+                {t.userDashboard.processingDescription}
+              </h2>
+            </motion.article>;
+          })}
+
+          {/* Completed Tax Returns */}
           {completedYears.map(year => {
-          const existingReturn = getExistingReturn(year);
-          const completedReturn = completedTaxReturns?.[year];
-          const isSigned = completedReturn?.signature_status === 'signed';
-          const needsSignature = completedReturn && !isSigned;
-          return <motion.article
-                key={year}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => {
-                  if (completedReturn?.id) {
-                    navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
-                  }
-                }}
-                className="group relative flex flex-col overflow-hidden rounded-[2rem] p-6 bg-gradient-to-br from-indigo-100/70 via-white/40 to-rose-100/60 shadow-sm border border-white/80 backdrop-blur-md min-h-[14rem] justify-between cursor-pointer transition-all duration-300 hover:shadow-md"
-              >
-                {/* Glass sphere details */}
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/50 blur-2xl rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute top-4 -left-4 w-20 h-20 bg-blue-100/30 blur-xl rounded-full pointer-events-none" />
-
-                {/* Content */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">{year}</h2>
-                  <div className="flex items-center gap-1.5 bg-white/60 backdrop-blur-sm border border-white/40 px-3 py-1.5 rounded-full">
-                    {needsSignature ? <>
-                        <PenTool className="w-3.5 h-3.5 text-foreground/70" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground/70 tracking-wide uppercase">
-                          {t.userDashboard.signaturePending}
-                        </span>
-                      </> : <>
-                        <Check className="w-3.5 h-3.5 text-foreground/50" strokeWidth={1.5} />
-                        <span className="text-xs font-semibold text-foreground/50 tracking-wide uppercase">
-                          {t.userDashboard.finished}
-                        </span>
-                      </>}
-                  </div>
+            const existingReturn = getExistingReturn(year);
+            const completedReturn = completedTaxReturns?.[year];
+            const isSigned = completedReturn?.signature_status === 'signed';
+            const needsSignature = completedReturn && !isSigned;
+            return <motion.article
+              key={year}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => {
+                if (completedReturn?.id) {
+                  navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
+                }
+              }}
+              className="group relative overflow-hidden rounded-[2rem] p-6 md:p-8 bg-white/60 hover:bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white/50 hover:border-white transition-all duration-300 cursor-pointer"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                  {year}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {needsSignature ? <>
+                    <PenTool className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
+                    <span className="text-sm text-foreground/70 font-medium uppercase tracking-wide">
+                      {t.userDashboard.signaturePending}
+                    </span>
+                  </> : <>
+                    <Check className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                    <span className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
+                      {t.userDashboard.finished}
+                    </span>
+                  </>}
                 </div>
-
-                <div className="relative z-10 flex flex-col gap-5 mt-8">
-                  <p className="text-foreground/60 text-sm leading-relaxed">
-                    {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
+              </div>
+              <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-3">
+                {needsSignature ? t.userDashboard.signatureRequired : `${t.userDashboard.finished} ${year}`}
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                {needsSignature ? t.userDashboard.signatureRequired : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
                   day: '2-digit',
                   month: '2-digit',
                   year: 'numeric'
                 }) : '–')}
-                  </p>
-
-                  {/* Button */}
-                  <div className="flex mt-1">
-                    <button className={`backdrop-blur-md font-medium text-base py-2.5 px-5 rounded-full transition-all active:scale-[0.98] flex items-center gap-2 ${needsSignature ? 'bg-foreground text-background shadow-[0_4px_14px_rgba(0,0,0,0.15)]' : 'bg-white/90 hover:bg-white text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-white/60'}`}>
-                      <span>{needsSignature ? t.userDashboard.sign : t.userDashboard.details}</span>
-                      <ExternalLink className="w-4 h-4 opacity-40" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                </div>
-              </motion.article>;
-        })}
+              </p>
+            </motion.article>;
+          })}
 
           {/* New Year Action Card */}
           {availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} variant="card" />}
-          </div>
         </div>
       </main>
 
