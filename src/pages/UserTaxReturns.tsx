@@ -420,7 +420,7 @@ const UserTaxReturns = () => {
                       {t.userDashboard.taxReturn}
                     </span>
                   </div>
-                  <span className="text-base text-primary font-medium">{progress}%</span>
+                  
                 </div>
 
                 {/* Title */}
