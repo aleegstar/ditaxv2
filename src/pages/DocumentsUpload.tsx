@@ -21,7 +21,7 @@ const DocumentsUploadContent: React.FC = () => {
 
   return (
     <AnimatedPageContainer>
-      <div className="min-h-screen bg-[rgb(244,244,244)] pb-24">
+      <div className="min-h-screen pb-24">
         <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
           <div className="flex items-center gap-4 mb-6">
             <Button

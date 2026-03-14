@@ -163,7 +163,7 @@ const NativeCallback = () => {
   }, [deeplinkScheme, navigate]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 bg-white">
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6">
       {/* Clean white background */}
 
       {/* Glass card */}

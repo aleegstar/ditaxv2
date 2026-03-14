@@ -149,7 +149,7 @@ privacyofficer@ditax.ch
   `;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <SubpageHeader 
         title={t.privacyPolicyPage.title}
         onBack={() => navigate(-1)} 
