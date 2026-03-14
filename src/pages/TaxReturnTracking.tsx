@@ -106,7 +106,7 @@ export default function TaxReturnTracking() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen" />;
   }
 
   if (!taxReturn || !profile) {
