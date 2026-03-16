@@ -45,7 +45,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
 
   return (
     <header className={cn(
-      "sticky top-0 z-30 bg-background/95 backdrop-blur-sm",
+      "sticky top-0 z-30 bg-transparent",
       className
     )}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
