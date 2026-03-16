@@ -389,7 +389,7 @@ return <div className="min-h-screen">
   }
 
   if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-    return <div className="min-h-screen bg-[#fafafa]">
+return <div className="min-h-screen">
         <div className="p-6 pt-24">
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
