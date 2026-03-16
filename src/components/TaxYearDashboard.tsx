@@ -132,7 +132,7 @@ export const TaxYearDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased">
+    <div className="min-h-screen text-foreground antialiased">
       {/* Header */}
       <SubpageHeader
         title={t.formDashboard.title.replace('{year}', taxYear)}
