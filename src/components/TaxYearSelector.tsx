@@ -115,7 +115,7 @@ export const TaxYearSelector: React.FC<TaxYearSelectorProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative" data-tax-year-selector>
+    <div className="min-h-screen flex items-center justify-center p-6 relative" data-tax-year-selector>
       <style>{`
         .hide-bottom-navbar [data-bottom-navbar]{display:none !important;}
         .hide-sidebar [data-sidebar]{display:none !important;}

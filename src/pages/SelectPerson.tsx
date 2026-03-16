@@ -51,7 +51,7 @@ const SelectPerson: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background antialiased relative overflow-hidden">
+    <div className="min-h-screen antialiased relative overflow-hidden">
 
       <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}

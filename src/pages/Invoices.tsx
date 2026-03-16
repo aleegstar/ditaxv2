@@ -68,7 +68,7 @@ const Invoices: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <SubpageHeader
         title="Rechnungen"
         onBack={() => navigate(-1)}

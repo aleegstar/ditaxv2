@@ -52,14 +52,14 @@ const Chat: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
+      <div className="flex items-center justify-center h-screen">
         <p className="text-muted-foreground">{t.common.loading}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
+    <div className="flex h-screen w-full overflow-hidden">
       <div className="flex-1 flex flex-col h-full">
         <EnhancedModernUserChatWindow />
       </div>

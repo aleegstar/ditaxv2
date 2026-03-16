@@ -263,7 +263,7 @@ const MultiStepContactForm = ({
   const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex justify-center">
+    <div className="min-h-screen relative overflow-hidden flex justify-center">
 
       <div className="relative z-10 w-full max-w-4xl">
         {/* Header with back arrow and centered title */}

@@ -117,7 +117,7 @@ const GoogleAuth = () => {
 
    
   return (
-     <div className="min-h-screen flex items-center justify-center bg-background overflow-hidden">
+     <div className="min-h-screen flex items-center justify-center overflow-hidden">
        <motion.div 
          className="w-full max-w-md space-y-8 text-center px-6"
          initial={{ opacity: 0 }}
