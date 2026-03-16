@@ -584,7 +584,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     const summaryItems = generateSummaryItems();
     
     return (
-      <div className="min-h-screen bg-background text-foreground antialiased">
+      <div className="min-h-screen text-foreground antialiased">
         <div className="h-screen w-full relative flex flex-col overflow-hidden">
           <SubpageHeader 
             title={getSectionTitle()} 
