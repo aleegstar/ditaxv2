@@ -98,7 +98,7 @@ const Feedback = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <SubpageHeader title={t.feedbackPage.title} onBack={() => navigate(-1)} />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex flex-col items-center justify-center text-center space-y-6">
