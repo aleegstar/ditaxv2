@@ -97,7 +97,7 @@ const AuthBridge = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-[40px]">
+      <div className="min-h-screen flex items-center justify-center px-[40px]">
         <div className="w-full max-w-md space-y-6 text-center">
           <div className="flex justify-center mb-8">
             <img src="/ditax-logo-new.svg" alt="Ditax Logo" className="h-10 w-auto" />
