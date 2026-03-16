@@ -366,7 +366,7 @@ return <div className="min-h-screen">
   }
 
   if (!isAuthValid) {
-    return <div className="min-h-screen bg-[#fafafa]">
+return <div className="min-h-screen">
         <div className="p-6 pt-24">
           <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
