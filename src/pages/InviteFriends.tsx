@@ -28,7 +28,7 @@ const InviteFriends: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SubpageHeader 
         title={t.inviteFriends.title}
         onBack={() => navigate(-1)}

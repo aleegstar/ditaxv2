@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 
 export function FormDashboardSkeleton() {
   return (
-    <div className="antialiased min-h-screen bg-background">
+    <div className="antialiased min-h-screen">
       {/* Header - matches SubpageHeader */}
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
