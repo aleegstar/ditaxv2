@@ -356,7 +356,7 @@ const DocumentChecklist: React.FC = () => {
   };
 
   if (isAuthLoading) {
-    return <div className="min-h-screen bg-[#fafafa]">
+return <div className="min-h-screen">
         <div className="p-6 pt-24">
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
@@ -366,7 +366,7 @@ const DocumentChecklist: React.FC = () => {
   }
 
   if (!isAuthValid) {
-    return <div className="min-h-screen bg-[#fafafa]">
+return <div className="min-h-screen">
         <div className="p-6 pt-24">
           <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertTriangle className="h-4 w-4 text-red-600" />
@@ -389,7 +389,7 @@ const DocumentChecklist: React.FC = () => {
   }
 
   if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-    return <div className="min-h-screen bg-[#fafafa]">
+return <div className="min-h-screen">
         <div className="p-6 pt-24">
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
           <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
@@ -398,7 +398,7 @@ const DocumentChecklist: React.FC = () => {
       </div>;
   }
 
-  return <div className="min-h-screen bg-white flex flex-col items-center">
+  return <div className="min-h-screen flex flex-col items-center">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" />
 
       <main className="w-full max-w-[880px] space-y-8 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
