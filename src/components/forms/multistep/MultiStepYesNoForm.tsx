@@ -619,7 +619,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   // Android-safe rendering without any framer-motion elements that could block touch events
   if (isAndroid) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="min-h-screen text-foreground">
         <div className="h-screen w-full flex flex-col">
           <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
