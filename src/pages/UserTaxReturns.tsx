@@ -403,86 +403,82 @@ const UserTaxReturns = () => {
               { label: 'Zahlung', done: false },
             ];
             const completedSteps = steps.filter(s => s.done).length;
-            return <motion.article
+            return <motion.div
               key={year}
               data-tour="tax-year-card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => navigate(`/form?year=${year}`)}
-              className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 p-7 md:p-9 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 cursor-pointer transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]"
+              className="relative cursor-pointer pt-8"
             >
-
-              {/* Delete Menu */}
-              <div className="absolute top-5 right-5 z-20">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/30 hover:text-foreground hover:bg-muted/50 rounded-full">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={e => {
-                      e.stopPropagation();
-                      setYearToDelete(year);
-                      setDeleteDialogOpen(true);
-                    }} className="text-destructive hover:text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {t.userDashboard.delete}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* Background Card — Overall Progress */}
+              <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/20 border-t-muted-foreground animate-spin" style={{ animationDuration: '3s' }} />
+                    <span className="text-sm font-normal">Overall progress</span>
+                  </div>
+                  <span className="text-sm font-normal">{Math.round(progress)}%</span>
+                </div>
               </div>
 
-              <div className="relative z-10">
-                {/* Year Badge + Status */}
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-foreground text-background text-sm font-medium px-3 py-1 rounded-full">
-                      {year}
-                    </span>
-                    <span className="text-base text-muted-foreground font-normal">
-                      {t.userDashboard.taxReturn}
-                    </span>
-                  </div>
-                  
+              {/* Main Card */}
+              <div className="z-10 relative -mt-14 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]">
+                
+                {/* Delete Menu */}
+                <div className="absolute top-5 right-5 z-20">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/30 hover:text-foreground hover:bg-muted/50 rounded-full">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={e => {
+                        e.stopPropagation();
+                        setYearToDelete(year);
+                        setDeleteDialogOpen(true);
+                      }} className="text-destructive hover:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t.userDashboard.delete}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
-                {/* Title */}
-                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
-                  Steuererklärung fortsetzen
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t.userDashboard.taxReturn}
+                  </span>
+                </div>
+
+                {/* Year */}
+                <h2 className="text-4xl font-normal tracking-tight text-foreground mb-3">
+                  {year}
                 </h2>
 
+                {/* Description */}
+                <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+                  {completedSteps === 0 
+                    ? 'Beginne damit deine Angaben zu erfassen.'
+                    : `${completedSteps} von ${steps.length} Schritten erledigt.`
+                  }
+                </p>
 
-                {/* Step Progress */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-foreground">{completedSteps} von {steps.length} Schritten</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                    {steps.map((step, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                        <div className={cn(
-                          "h-1.5 w-full rounded-full transition-all duration-500",
-                          step.done ? "bg-primary" : "bg-muted"
-                        )} />
-                        <span className={cn(
-                          "text-[10px] font-medium transition-colors",
-                          step.done ? "text-primary" : "text-muted-foreground/60"
-                        )}>{step.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex flex-wrap items-center gap-6">
-                  <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
-                    Auswählen
+                {/* Action */}
+                <div className="flex items-center justify-between">
+                  <button className="flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3 font-semibold text-sm text-primary-foreground transition-all shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:scale-[1.02] active:scale-[0.97]">
+                    {completedSteps === 0 ? 'Starten' : 'Fortsetzen'}
                   </button>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Clock className="w-4 h-4" strokeWidth={1.5} />
+                    <span className="text-sm">~2h</span>
+                  </div>
                 </div>
               </div>
-            </motion.article>;
+            </motion.div>;
           })}
 
           {/* Paid In-Progress Tax Returns (Processing) */}
