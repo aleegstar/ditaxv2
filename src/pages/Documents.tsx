@@ -148,8 +148,6 @@ const DocumentsContent: React.FC<{
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [contentReady, setContentReady] = useState(false);
-  const [showContent, setShowContent] = useState(!isTransitionEntry);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'type'>('date_desc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
