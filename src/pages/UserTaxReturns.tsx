@@ -514,9 +514,8 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[2rem] bg-white p-7 md:p-9 shadow-[0_8px_40px_rgba(59,130,246,0.06)] border border-white cursor-pointer transition-all duration-300 hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)]"
+              className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 p-7 md:p-9 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 cursor-pointer transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]"
             >
-              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-emerald-50/50 rounded-full blur-3xl pointer-events-none" />
 
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-6">
