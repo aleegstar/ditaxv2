@@ -426,10 +426,6 @@ const UserTaxReturns = () => {
                   Steuererklärung fortsetzen
                 </h2>
 
-                {/* Description */}
-                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                  Deine Dokumente werden aktuell verarbeitet. Bitte überprüfe die letzten Angaben, um den Prozess abzuschliessen.
-                </p>
 
                 {/* Progress Bar */}
                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-10">
