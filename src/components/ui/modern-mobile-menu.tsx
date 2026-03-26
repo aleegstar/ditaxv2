@@ -516,7 +516,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
               {/* Home Button */}
               <motion.button onClick={() => navigate('/')} whileTap={{
             scale: 0.95
-          }} className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/' ? 'bg-primary text-white shadow-sm shadow-primary/20 px-5 py-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 px-4 py-2.5'}`}>
+          }} className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/' ? 'text-white px-5 py-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 px-4 py-2.5'}`}>
                 <CustomHomeIcon className="w-5 h-5" />
               </motion.button>
 
