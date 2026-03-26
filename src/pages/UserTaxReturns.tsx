@@ -480,9 +480,9 @@ const UserTaxReturns = () => {
 
                 {/* Action */}
                 <div className="flex items-center justify-between">
-                  <Button size="lg">
+                  <button className="flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3 font-semibold text-sm text-primary-foreground transition-all shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:scale-[1.02] active:scale-[0.97]">
                     {completedSteps === 0 ? 'Starten' : 'Fortsetzen'}
-                  </Button>
+                  </button>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Clock className="w-4 h-4" strokeWidth={1.5} />
                     <span className="text-sm">~2h</span>
