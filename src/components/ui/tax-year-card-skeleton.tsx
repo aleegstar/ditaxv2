@@ -3,24 +3,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function TaxYearCardSkeleton() {
   return (
-    <div className="w-full max-w-[320px] mx-auto">
-      <div className="relative overflow-hidden rounded-[2.5rem] p-6 bg-muted/60 ring-1 ring-border/30 animate-pulse">
-        {/* Three Dots Menu Skeleton */}
-        <div className="absolute top-4 right-4">
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
-
-        {/* Top Content */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex-shrink-0">
-            <Skeleton className="size-16 rounded-full" />
-          </div>
-          <div className="flex-1 min-w-0 space-y-2">
-            <Skeleton className="h-5 w-16" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        </div>
+    <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-5">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-8 w-8 rounded-full" />
       </div>
+
+      {/* Year */}
+      <Skeleton className="h-10 w-24 mb-3" />
+
+      {/* Description */}
+      <Skeleton className="h-4 w-48 mb-5" />
+
+      {/* Progress Steps */}
+      <div className="flex gap-1.5 mb-8">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="flex-1 h-1.5 rounded-full" />
+        ))}
+      </div>
+
+      {/* Button */}
+      <Skeleton className="h-11 w-32 rounded-full" />
     </div>
   );
 }
