@@ -472,14 +472,10 @@ const DocumentsContent: React.FC<{
         </div>
       </div>;
   }
-  // Show white screen during transition until content is ready
-  if (isTransitionEntry && !showContent) {
-    return <div className="min-h-screen bg-white" />;
-  }
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+      <div className={cn("min-h-screen text-zinc-900 antialiased")}>
         {/* Top Navigation */}
         <SubpageHeader 
           onBack={() => navigate(-1)}
