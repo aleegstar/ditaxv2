@@ -410,32 +410,9 @@ const UserTaxReturns = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => navigate(`/form?year=${year}`)}
-              className="relative cursor-pointer pt-8"
+              className="cursor-pointer"
             >
-              {/* Background Card — Overall Progress with step segments */}
-              <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
-                <div className="flex items-center justify-between text-muted-foreground mb-4">
-                  <span className="text-sm font-medium">{completedSteps} von {steps.length} Schritten</span>
-                  <span className="text-sm font-medium">{Math.round(progress)}%</span>
-                </div>
-                <div className="flex gap-1.5">
-                  {steps.map((step, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                      <div className={cn(
-                        "h-1.5 w-full rounded-full transition-all duration-500",
-                        step.done ? "bg-primary" : "bg-muted"
-                      )} />
-                      <span className={cn(
-                        "text-[10px] font-medium transition-colors",
-                        step.done ? "text-primary" : "text-muted-foreground/60"
-                      )}>{step.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Main Card */}
-              <div className="z-10 relative -mt-14 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]">
+              <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]">
                 
                 {/* Delete Menu */}
                 <div className="absolute top-5 right-5 z-20">
@@ -471,12 +448,28 @@ const UserTaxReturns = () => {
                 </h2>
 
                 {/* Description */}
-                <p className="text-[15px] text-muted-foreground mb-8 leading-relaxed">
+                <p className="text-[15px] text-muted-foreground mb-5 leading-relaxed">
                   {completedSteps === 0 
                     ? 'Beginne damit deine Angaben zu erfassen.'
                     : `${completedSteps} von ${steps.length} Schritten erledigt.`
                   }
                 </p>
+
+                {/* Progress Steps */}
+                <div className="flex gap-1.5 mb-8">
+                  {steps.map((step, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                      <div className={cn(
+                        "h-1.5 w-full rounded-full transition-all duration-500",
+                        step.done ? "bg-primary" : "bg-muted"
+                      )} />
+                      <span className={cn(
+                        "text-[10px] font-medium transition-colors",
+                        step.done ? "text-primary" : "text-muted-foreground/60"
+                      )}>{step.label}</span>
+                    </div>
+                  ))}
+                </div>
 
                 {/* Action */}
                 <div className="flex items-center justify-between">
