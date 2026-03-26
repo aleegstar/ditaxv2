@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { ChecklistItem } from '../types';
-import { Check, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X, Zap, ArrowRight, Clock, Calendar } from 'lucide-react';
+import { Check, ChevronRight, RefreshCw, AlertTriangle, Eye, Trash2, User, Briefcase, Home, Calculator, FolderSearch, FileCheck, FolderOpen, Plus, X, ArrowRight, Calendar } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
