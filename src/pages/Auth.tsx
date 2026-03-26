@@ -568,7 +568,7 @@ const Auth = () => {
 
                             <Button type="submit" disabled={isLoading} className="w-full shadow-none hover:shadow-none">
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                            </button>
+                            </Button>
 
                             <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
