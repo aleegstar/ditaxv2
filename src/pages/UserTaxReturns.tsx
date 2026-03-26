@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/modern-alert-dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
@@ -622,25 +622,37 @@ const UserTaxReturns = () => {
       backgroundColor: 'hsl(var(--background))'
     }} />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.userDashboard.deleteDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.userDashboard.deleteDialogDescription.replace('{year}', yearToDelete || '')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-3 sm:flex-col">
-            <AlertDialogCancel disabled={isDeleting} className="w-full bg-background hover:bg-muted border border-border font-medium h-12 rounded-full text-foreground">
-              {t.userDashboard.cancelDelete}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full h-12 bg-destructive hover:bg-destructive/90 text-destructive-foreground border-0 rounded-full font-medium">
-              {isDeleting ? t.userDashboard.deleting : t.userDashboard.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Confirmation Bottom Sheet */}
+      <Drawer open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-lg px-6 pb-8">
+            <DrawerHeader className="text-center pt-6 pb-2">
+              <DrawerTitle className="text-xl font-semibold">{t.userDashboard.deleteDialogTitle}</DrawerTitle>
+              <DrawerDescription className="text-muted-foreground mt-2">
+                {t.userDashboard.deleteDialogDescription.replace('{year}', yearToDelete || '')}
+              </DrawerDescription>
+            </DrawerHeader>
+            <DrawerFooter className="flex flex-col gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={isDeleting}
+                className="w-full"
+              >
+                {t.userDashboard.cancelDelete}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)}
+                disabled={isDeleting}
+                className="w-full"
+              >
+                {isDeleting ? t.userDashboard.deleting : t.userDashboard.delete}
+              </Button>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       {/* Signature Dialog - auto-opens when signature is pending */}
       {userProfile && unsignedTaxReturn && <SignatureDialog open={signatureDialogOpen} onOpenChange={setSignatureDialogOpen} completedTaxReturn={{
