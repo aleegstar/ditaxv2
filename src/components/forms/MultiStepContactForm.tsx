@@ -630,13 +630,13 @@ const MultiStepContactForm = ({
 
           {/* Navigation Buttons */}
           <div className="flex flex-col gap-3 pt-8 pb-4">
-            <button
+            <Button
               type="button"
               onClick={handleNext}
-              className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-[15px] text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110 active:scale-[0.97]"
+              className="w-full shadow-none hover:shadow-none"
             >
-              <span>{currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}</span>
-            </button>
+              {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
+            </Button>
 
             {(currentStep > 1 || embedded) && (
               <button
