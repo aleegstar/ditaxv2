@@ -422,42 +422,39 @@ return <div className="min-h-screen">
         );
         const incompleteCategoryName = firstIncompleteCategory ? categoryMap[firstIncompleteCategory[0]] : '';
         
-        return <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 sm:p-8 shadow-2xl shadow-blue-900/20">
-              {/* Background blurs */}
-              <div className="absolute top-0 right-0 -mr-24 -mt-24 h-80 w-80 rounded-full bg-blue-600 opacity-20 blur-[80px]" />
-              <div className="absolute bottom-0 left-0 -ml-24 -mb-24 h-80 w-80 rounded-full bg-indigo-600 opacity-20 blur-[80px]" />
+        return <div className="relative overflow-hidden rounded-[2rem] bg-card ring-1 ring-border p-6 sm:p-8 shadow-[0_8px_40px_rgba(59,130,246,0.06)]">
 
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-8">
                   <div>
-                    <p className="text-sm font-medium text-blue-300 uppercase tracking-wider mb-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                       Gesamtfortschritt
                     </p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">
+                      <span className="text-4xl font-semibold tracking-tight text-foreground">
                         {progressPercent}%
                       </span>
-                      <span className="text-base font-medium text-slate-400">
+                      <span className="text-base font-medium text-muted-foreground">
                         erledigt
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 px-3 py-1.5 rounded-full shadow-lg shadow-black/10">
-                    <FileCheck className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm font-medium text-blue-100">{currentCount} / {totalCount}</span>
+                  <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full">
+                    <FileCheck className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">{currentCount} / {totalCount}</span>
                   </div>
                 </div>
 
                 {/* Segmented progress bar */}
-                <div className="flex gap-1.5 h-2.5 w-full mb-5">
+                <div className="flex gap-1.5 h-2 w-full mb-5">
                   {Array.from({ length: totalCount }).map((_, i) => (
                     <div 
                       key={i}
                       className={cn(
                         "flex-1 rounded-full transition-all duration-500",
                         i < currentCount 
-                          ? "bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]" 
-                          : "bg-slate-800 border border-slate-700/50"
+                          ? "bg-primary" 
+                          : "bg-muted"
                       )}
                     />
                   ))}
@@ -465,16 +462,16 @@ return <div className="min-h-screen">
 
                 {/* Hint text */}
                 {!isComplete && remaining > 0 && (
-                  <div className="flex items-start gap-3 text-sm text-slate-400">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
+                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
                     <span className="leading-relaxed">
-                      Nur noch <span className="text-blue-200 font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span>
-                      {incompleteCategoryName && <> im Bereich <span className="text-white">{incompleteCategoryName}</span></>} hochladen.
+                      Nur noch <span className="text-primary font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span>
+                      {incompleteCategoryName && <> im Bereich <span className="text-foreground font-medium">{incompleteCategoryName}</span></>} hochladen.
                     </span>
                   </div>
                 )}
                 {isComplete && (
-                  <div className="flex items-start gap-3 text-sm text-emerald-400">
+                  <div className="flex items-start gap-3 text-sm text-emerald-600">
                     <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span className="leading-relaxed font-medium">{t.documentChecklist.allMandatoryPresent}</span>
                   </div>
