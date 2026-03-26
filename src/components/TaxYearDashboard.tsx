@@ -215,7 +215,7 @@ export const TaxYearDashboard: React.FC = () => {
                       className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all duration-150 text-left group/item active:scale-[0.98]"
                     >
                       <div className={cn(
-                        "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200",
+                        "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200",
                         completed
                           ? "bg-primary/10 text-primary"
                           : "bg-muted text-muted-foreground group-hover/item:text-foreground"
