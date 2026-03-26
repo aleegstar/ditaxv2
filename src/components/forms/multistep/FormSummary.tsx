@@ -142,9 +142,6 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
           style={{ touchAction: 'manipulation' }}
         >
           <span>Speichern</span>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
-            <ArrowRight className="h-4 w-4 stroke-[1.5] group-hover:translate-x-0.5 transition-transform" />
-          </div>
         </button>
       </div>
     </Wrapper>
