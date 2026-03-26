@@ -327,7 +327,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   className={`relative w-full overflow-hidden rounded-2xl border-2 p-4 sm:p-5 flex items-center justify-between transition-all active:scale-[0.99] ${
                     expressService
                       ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      : 'border-white/60 bg-white/40 hover:border-white/80 hover:bg-white/50'
                   }`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
