@@ -393,21 +393,21 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   ))}
                 </div>
                 {/* Total */}
-                <div className="bg-slate-50/80 px-3 sm:px-6 py-4 sm:py-5 border-t border-slate-100">
+                <div className="bg-white/20 px-3 sm:px-6 py-4 sm:py-5 border-t border-white/40">
                   {hasAnyPromo && (
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-slate-500">Zwischensumme</span>
-                      <span className="text-xs text-slate-400 line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
+                      <span className="text-xs text-muted-foreground">Zwischensumme</span>
+                      <span className="text-xs text-muted-foreground line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col">
-                      <span className="text-slate-900 font-semibold text-base tracking-tight">
+                      <span className="text-foreground font-semibold text-base tracking-tight">
                         {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
                       </span>
-                      <span className="text-[11px] text-slate-400 font-normal uppercase tracking-wide">inkl. MwSt.</span>
+                      <span className="text-[11px] text-muted-foreground font-normal uppercase tracking-wide">inkl. MwSt.</span>
                     </div>
-                    <span className="text-slate-900 font-semibold text-xl tracking-tight tabular-nums">
+                    <span className="text-foreground font-semibold text-xl tracking-tight tabular-nums">
                       CHF {formatPrice(priceAfterDiscount)}
                     </span>
                   </div>
