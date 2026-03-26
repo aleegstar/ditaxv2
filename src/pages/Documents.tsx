@@ -179,24 +179,6 @@ const DocumentsContent: React.FC<{
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
 
-  // Handle transition entry - wait for content to load then fade in
-  useEffect(() => {
-    if (isTransitionEntry && contentReady && !showContent) {
-      // Small delay to ensure everything is painted
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isTransitionEntry, contentReady, showContent]);
-
-  // Mark content as ready when documents are loaded
-  useEffect(() => {
-    if (!loading) {
-      setContentReady(true);
-    }
-  }, [loading]);
-
   // Generate year options (2024-2034) - memoized to prevent infinite loops
   const allYears = React.useMemo(() => Array.from({
     length: 11
