@@ -660,9 +660,7 @@ const DocumentsContent: React.FC<{
         {!isLocked && (
           <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2">
             <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg gap-2">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-current">
-                <Plus className="w-3 h-3" strokeWidth={2.5} />
-              </span>
+              <Plus className="w-5 h-5" strokeWidth={2.5} />
               {t.documentsPage.upload}
             </Button>
           </div>
