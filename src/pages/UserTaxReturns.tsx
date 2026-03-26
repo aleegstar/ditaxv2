@@ -198,10 +198,7 @@ const UserTaxReturns = () => {
     }
   };
   const handleDocumentsClick = useCallback(() => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      navigate('/documents?transition=true');
-    }, 600);
+    navigate('/documents');
   }, [navigate]);
   useEffect(() => {
     if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {

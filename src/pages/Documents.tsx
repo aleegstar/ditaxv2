@@ -128,11 +128,9 @@ const DocumentThumbnail = memo<{
 const DocumentsContent: React.FC<{
   selectedYear: string;
   onYearChange: (year: string) => void;
-  isTransitionEntry: boolean;
 }> = ({
   selectedYear,
   onYearChange,
-  isTransitionEntry
 }) => {
   const { t, language } = useI18n();
   const [documents, setDocuments] = useState<any[]>([]);
@@ -150,8 +148,6 @@ const DocumentsContent: React.FC<{
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [contentReady, setContentReady] = useState(false);
-  const [showContent, setShowContent] = useState(!isTransitionEntry);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc' | 'type'>('date_desc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -182,24 +178,6 @@ const DocumentsContent: React.FC<{
 
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
-
-  // Handle transition entry - wait for content to load then fade in
-  useEffect(() => {
-    if (isTransitionEntry && contentReady && !showContent) {
-      // Small delay to ensure everything is painted
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isTransitionEntry, contentReady, showContent]);
-
-  // Mark content as ready when documents are loaded
-  useEffect(() => {
-    if (!loading) {
-      setContentReady(true);
-    }
-  }, [loading]);
 
   // Generate year options (2024-2034) - memoized to prevent infinite loops
   const allYears = React.useMemo(() => Array.from({
@@ -494,14 +472,10 @@ const DocumentsContent: React.FC<{
         </div>
       </div>;
   }
-  // Show white screen during transition until content is ready
-  if (isTransitionEntry && !showContent) {
-    return <div className="min-h-screen bg-white" />;
-  }
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+      <div className={cn("min-h-screen text-zinc-900 antialiased")}>
         {/* Top Navigation */}
         <SubpageHeader 
           onBack={() => navigate(-1)}
@@ -697,7 +671,6 @@ const Documents: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>(
     yearFromUrl || currentYear.toString()
   );
-  const isTransitionEntry = searchParams.get('transition') === 'true';
   
   // Handler für Jahreswechsel - aktualisiert auch die URL
   const handleYearChange = (newYear: string) => {
@@ -718,7 +691,7 @@ const Documents: React.FC = () => {
   }
 
   return <FormProvider taxYear={selectedYear}>
-      <DocumentsContent selectedYear={selectedYear} onYearChange={handleYearChange} isTransitionEntry={isTransitionEntry} />
+      <DocumentsContent selectedYear={selectedYear} onYearChange={handleYearChange} />
     </FormProvider>;
 };
 export default Documents;
