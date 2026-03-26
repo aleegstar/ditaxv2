@@ -52,7 +52,7 @@ export const SubpageHeader: React.FC<SubpageHeaderProps> = ({
         {/* Back Button */}
         <button 
           onClick={onBack}
-          className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2 bg-muted/60 border border-border/50"
+          className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2 bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
           aria-label={mode === 'overlay' ? 'Schließen' : 'Zurück'}
         >
           <BackIcon className="w-[18px] h-[18px]" strokeWidth={1.5} />
