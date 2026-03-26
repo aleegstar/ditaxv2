@@ -121,7 +121,7 @@ export function BlueTaxYearCard({
           </div>
 
           {/* Title & Desc */}
-          <h2 className="text-[1.85rem] leading-[1.15] font-medium text-slate-900 tracking-tight mb-4">
+          <h2 className="text-4xl font-normal tracking-tight text-slate-900 mb-3">
             {taxYear}
           </h2>
           <p className="text-[1.1rem] leading-relaxed text-slate-500 mb-8">
