@@ -420,6 +420,23 @@ const UserTaxReturns = () => {
                   <span className="text-sm font-medium text-muted-foreground">
                     {t.userDashboard.taxReturn}
                   </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={e => {
+                        e.stopPropagation();
+                        setYearToDelete(year);
+                        setDeleteDialogOpen(true);
+                      }} className="text-red-600 hover:text-red-700">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t.common.delete}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Year */}
