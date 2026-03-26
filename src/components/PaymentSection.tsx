@@ -439,14 +439,13 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Primary Action */}
               <div className="pt-2">
-                <Button
+                <button
                   onClick={handlePayment}
                   disabled={isLoading || !priceBreakdown || !isValid || authLoading}
-                  size="lg"
-                  className="w-full"
+                  className="flex w-full items-center justify-center rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 font-semibold text-sm text-primary-foreground transition-all shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {isLoading ? 'Lädt…' : authLoading ? 'Sitzung wird geprüft…' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'}
-                </Button>
+                </button>
               </div>
 
               {/* Trust Badge */}
