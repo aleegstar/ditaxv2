@@ -191,34 +191,22 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-center gap-8 mt-6 mb-4 shrink-0">
-        <motion.button
+      <div className="flex items-center justify-center gap-4 mt-6 mb-4 shrink-0 w-full max-w-sm mx-auto px-4">
+        <button
           onClick={() => handleButtonAnswer(false)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={cn(
-            'w-16 h-16 rounded-full flex items-center justify-center',
-            'border-2 border-destructive/25 bg-background shadow-sm',
-            'hover:bg-destructive/8 hover:border-destructive/40',
-            'transition-colors duration-200'
-          )}
+          className="flex-1 flex items-center justify-center gap-2 rounded-full border border-destructive/20 bg-destructive/5 px-6 py-3.5 text-sm font-semibold text-destructive transition-all hover:bg-destructive/10 hover:border-destructive/30 active:scale-[0.97]"
         >
-          <ThumbsDown className="w-6 h-6 text-destructive" strokeWidth={2.5} />
-        </motion.button>
+          <ThumbsDown className="w-4 h-4" strokeWidth={2} />
+          <span>{t.yesNoForm.no}</span>
+        </button>
 
-        <motion.button
+        <button
           onClick={() => handleButtonAnswer(true)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={cn(
-            'w-16 h-16 rounded-full flex items-center justify-center',
-            'border-2 border-primary/25 bg-background shadow-sm',
-            'hover:bg-primary/8 hover:border-primary/40',
-            'transition-colors duration-200'
-          )}
+          className="flex-1 flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 text-sm font-semibold text-white transition-all shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45)] hover:brightness-110 active:scale-[0.97]"
         >
-          <ThumbsUp className="w-6 h-6 text-primary" strokeWidth={2.5} />
-        </motion.button>
+          <ThumbsUp className="w-4 h-4" strokeWidth={2} />
+          <span>{t.yesNoForm.yes}</span>
+        </button>
       </div>
     </div>
   );
