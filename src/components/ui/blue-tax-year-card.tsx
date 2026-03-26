@@ -109,8 +109,8 @@ export function BlueTaxYearCard({
           </div>
 
           {/* Header of Card */}
-          <div className="flex justify-between items-center mb-5">
-            <span className="text-[0.95rem] font-medium text-slate-400 tracking-wide">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-sm font-medium text-slate-400">
               Steuererklärung
             </span>
             <img 
