@@ -412,14 +412,25 @@ const UserTaxReturns = () => {
               onClick={() => navigate(`/form?year=${year}`)}
               className="relative cursor-pointer pt-8"
             >
-              {/* Background Card — Overall Progress */}
+              {/* Background Card — Overall Progress with step segments */}
               <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/20 border-t-muted-foreground animate-spin" style={{ animationDuration: '3s' }} />
-                    <span className="text-sm font-normal">Overall progress</span>
-                  </div>
-                  <span className="text-sm font-normal">{Math.round(progress)}%</span>
+                <div className="flex items-center justify-between text-muted-foreground mb-4">
+                  <span className="text-sm font-medium">{completedSteps} von {steps.length} Schritten</span>
+                  <span className="text-sm font-medium">{Math.round(progress)}%</span>
+                </div>
+                <div className="flex gap-1.5">
+                  {steps.map((step, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                      <div className={cn(
+                        "h-1.5 w-full rounded-full transition-all duration-500",
+                        step.done ? "bg-primary" : "bg-muted"
+                      )} />
+                      <span className={cn(
+                        "text-[10px] font-medium transition-colors",
+                        step.done ? "text-primary" : "text-muted-foreground/60"
+                      )}>{step.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -448,19 +459,19 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-5">
                   <span className="text-sm font-medium text-muted-foreground">
                     {t.userDashboard.taxReturn}
                   </span>
                 </div>
 
                 {/* Year */}
-                <h2 className="text-4xl font-normal tracking-tight text-foreground mb-3">
+                <h2 className="text-4xl font-semibold tracking-tight text-foreground mb-3">
                   {year}
                 </h2>
 
                 {/* Description */}
-                <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+                <p className="text-[15px] text-muted-foreground mb-8 leading-relaxed">
                   {completedSteps === 0 
                     ? 'Beginne damit deine Angaben zu erfassen.'
                     : `${completedSteps} von ${steps.length} Schritten erledigt.`
