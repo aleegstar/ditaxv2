@@ -130,13 +130,11 @@ export function BlueTaxYearCard({
 
           {/* Actions */}
           <div className="flex items-center justify-between">
-            <button onClick={handleContinue} className="flex shadow-[#1d64ff]/25 hover:scale-[1.02] active:scale-95 transition-transform group text-white bg-[#1d64ff] rounded-full py-4 pr-6 pl-5 shadow-xl space-x-3 items-center">
-              <div className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                <Play className="w-3 h-3 fill-white text-white ml-0.5" strokeWidth={1.5} />
+            <button onClick={handleContinue} className="flex items-center space-x-3 bg-primary text-white rounded-full px-5 py-3 shadow-lg shadow-primary/25 hover:scale-[1.02] transition-transform active:scale-95">
+              <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center">
+                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" strokeWidth={1.5} />
               </div>
-              <span className="text-[0.95rem] font-medium">
-                Fortsetzen
-              </span>
+              <span className="text-sm font-medium pr-1">Fortsetzen</span>
             </button>
             <div className="flex items-center text-slate-400 space-x-2 mr-1">
               <Clock className="w-5 h-5" strokeWidth={1.5} />
