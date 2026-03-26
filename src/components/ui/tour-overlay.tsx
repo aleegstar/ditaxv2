@@ -252,19 +252,17 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
               <div className="flex gap-2 justify-center">
                 {currentStep === 0 ? (
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size={isMobile ? "sm" : "default"}
                     onClick={onSkip}
-                    className="text-slate-400 hover:text-slate-600 rounded-xl"
                   >
                     {skipLabel}
                   </Button>
                 ) : (
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size={isMobile ? "sm" : "default"}
                     onClick={onBack || (() => {})}
-                    className="text-slate-400 hover:text-slate-600 rounded-xl"
                   >
                     {backLabel}
                   </Button>
@@ -272,7 +270,6 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({
                 <Button
                   size={isMobile ? "sm" : "default"}
                   onClick={onNext}
-                  className="bg-[#1D64FF] hover:bg-[#1854D9] text-white rounded-xl"
                 >
                   {isLastStep ? finishLabel : nextLabel}
                 </Button>
