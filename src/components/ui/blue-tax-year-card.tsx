@@ -14,7 +14,6 @@ import {
   UnifiedAlertDialogIcon,
   UnifiedAlertDialogTitle,
 } from "@/components/ui/unified-alert-dialog";
-import { BorderBeam } from "@/components/ui/border-beam";
 import ditaxLogoIcon from "@/assets/ditax-logo.svg";
 interface BlueTaxYearCardProps {
   id: string;
@@ -74,37 +73,20 @@ export function BlueTaxYearCard({
   return <>
       <div className="mb-8 relative blue-tax-year-card" data-tour="tax-year-card">
         {/* Background Transparent Card (Overall Progress) */}
-        <div className="shadow-black/5 z-0 border-white/10 border rounded-[2.5rem] mx-1 pt-6 px-7 pb-32 relative shadow-lg backdrop-blur-xl translate-y-11 bg-primary">
-          <div className="flex flex-col gap-3 text-white">
-            <div className="flex items-center justify-between">
-              <span className="text-[1.05rem] font-medium tracking-wide text-white/95">
-                Fortschritt
-              </span>
-              <span className="text-[1.05rem] font-medium tracking-wide text-white/95">
-                {progress}%
-              </span>
+        <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
+          <div className="flex items-center justify-between text-slate-600">
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 rounded-full border-2 border-slate-600/20 border-t-slate-600 animate-spin-slow" />
+              <span className="text-sm font-normal">Fortschritt</span>
             </div>
-            {/* Animated Progress Bar */}
-            <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full transition-all duration-700 ease-out" style={{
-              width: `${progress}%`
-            }} />
-            </div>
+            <span className="text-sm font-normal">{progress}%</span>
           </div>
         </div>
 
         {/* Main Card Wrapper for Border Effect */}
-        <div className="z-10 -mt-[54px] relative rounded-[2.2rem]">
-          {/* Orange animated border for unsubmitted tax returns */}
-          <BorderBeam 
-            size={300} 
-            duration={8} 
-            colorFrom="#F97316" 
-            colorTo="#FBBF24" 
-            borderWidth={2}
-          />
+        <div className="z-10 -mt-14 relative rounded-[2rem]">
           {/* Main Card */}
-          <div className="overflow-hidden bg-[#FDFDFD] ring-black/5 ring-1 rounded-[2.2rem] p-7 relative shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)]">
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 relative">
           {/* Three Dots Menu - Top Right */}
           <div className="absolute top-5 right-5 z-20">
             <DropdownMenu>
@@ -126,8 +108,8 @@ export function BlueTaxYearCard({
           </div>
 
           {/* Header of Card */}
-          <div className="flex justify-between items-center mb-5">
-            <span className="text-[0.95rem] font-medium text-slate-400 tracking-wide">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-sm font-medium text-slate-400">
               Steuererklärung
             </span>
             <img 
@@ -138,7 +120,7 @@ export function BlueTaxYearCard({
           </div>
 
           {/* Title & Desc */}
-          <h2 className="text-[1.85rem] leading-[1.15] font-medium text-slate-900 tracking-tight mb-4">
+          <h2 className="text-4xl font-normal tracking-tight text-slate-900 mb-3">
             {taxYear}
           </h2>
           <p className="text-[1.1rem] leading-relaxed text-slate-500 mb-8">
@@ -147,13 +129,11 @@ export function BlueTaxYearCard({
 
           {/* Actions */}
           <div className="flex items-center justify-between">
-            <button onClick={handleContinue} className="flex shadow-[#1d64ff]/25 hover:scale-[1.02] active:scale-95 transition-transform group text-white bg-[#1d64ff] rounded-full py-4 pr-6 pl-5 shadow-xl space-x-3 items-center">
-              <div className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                <Play className="w-3 h-3 fill-white text-white ml-0.5" strokeWidth={1.5} />
+            <button onClick={handleContinue} className="flex items-center space-x-3 bg-primary text-white rounded-full px-5 py-3 shadow-lg shadow-primary/25 hover:scale-[1.02] transition-transform active:scale-95">
+              <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center">
+                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" strokeWidth={1.5} />
               </div>
-              <span className="text-[0.95rem] font-medium">
-                Fortsetzen
-              </span>
+              <span className="text-sm font-medium pr-1">Fortsetzen</span>
             </button>
             <div className="flex items-center text-slate-400 space-x-2 mr-1">
               <Clock className="w-5 h-5" strokeWidth={1.5} />
