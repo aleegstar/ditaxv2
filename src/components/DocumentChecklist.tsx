@@ -435,7 +435,7 @@ return <div className="min-h-screen">
                 </div>
 
                 {/* Segmented progress bar */}
-                <div className="flex gap-1.5 h-2 w-full mb-5">
+                <div className="flex gap-1.5 h-1.5 w-full mb-5">
                   {Array.from({ length: totalCount }).map((_, i) => (
                     <div 
                       key={i}
