@@ -377,13 +377,29 @@ const UserTaxReturns = () => {
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
-            const yearProgress = formProgress[year]?.form_sections;
+            const yearProgressSections = formProgress[year]?.form_sections;
+            const yearFormDataItems = formData[year] || [];
+            
+            // Helper: check completion from form_progress.form_sections OR form_data records
+            const isSectionDone = (sectionKey: string, formType: string) => {
+              // Check form_sections first
+              if (yearProgressSections?.[sectionKey]) return true;
+              // Fallback: check if form_data has a record with _completed flag
+              const record = yearFormDataItems.find((r: any) => r.form_type === formType);
+              if (record?.data?._completed) return true;
+              // For non-multistep sections, existence of form_data record means done
+              if (record && !['income', 'assets', 'deductions', 'contactInfo'].includes(formType)) return true;
+              return false;
+            };
+            
+            const hasDocuments = (uploadedDocuments[year] || []).length > 0;
+            
             const steps = [
-              { label: 'Angaben', done: !!(yearProgress?.contactInfo) },
-              { label: 'Einkommen', done: !!(yearProgress?.income) },
-              { label: 'Abzüge', done: !!(yearProgress?.deductions) },
-              { label: 'Vermögen', done: !!(yearProgress?.assets) },
-              { label: 'Belege', done: !!(yearProgress?.documents) },
+              { label: 'Angaben', done: isSectionDone('contactInfo', 'contactInfo') },
+              { label: 'Einkommen', done: isSectionDone('income', 'income') },
+              { label: 'Abzüge', done: isSectionDone('deductions', 'deductions') },
+              { label: 'Vermögen', done: isSectionDone('assets', 'assets') },
+              { label: 'Belege', done: hasDocuments || isSectionDone('documents', 'documents') },
               { label: 'Zahlung', done: false },
             ];
             const completedSteps = steps.filter(s => s.done).length;
