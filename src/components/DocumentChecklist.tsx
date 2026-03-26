@@ -432,16 +432,12 @@ return <div className="min-h-screen">
                     </p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-semibold tracking-tight text-foreground">
-                        {progressPercent}%
+                        {currentCount} / {totalCount}
                       </span>
                       <span className="text-base font-medium text-muted-foreground">
-                        erledigt
+                        hochgeladen
                       </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full">
-                    
-                    <span className="text-sm font-medium text-foreground">{currentCount} / {totalCount}</span>
                   </div>
                 </div>
 
