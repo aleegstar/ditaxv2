@@ -74,22 +74,13 @@ export function BlueTaxYearCard({
   return <>
       <div className="mb-8 relative blue-tax-year-card" data-tour="tax-year-card">
         {/* Background Transparent Card (Overall Progress) */}
-        <div className="shadow-black/5 z-0 border-white/10 border rounded-[2.5rem] mx-1 pt-6 px-7 pb-32 relative shadow-lg backdrop-blur-xl translate-y-11 bg-primary">
-          <div className="flex flex-col gap-3 text-white">
-            <div className="flex items-center justify-between">
-              <span className="text-[1.05rem] font-medium tracking-wide text-white/95">
-                Fortschritt
-              </span>
-              <span className="text-[1.05rem] font-medium tracking-wide text-white/95">
-                {progress}%
-              </span>
+        <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
+          <div className="flex items-center justify-between text-slate-600">
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 rounded-full border-2 border-slate-600/20 border-t-slate-600 animate-spin-slow" />
+              <span className="text-sm font-normal">Fortschritt</span>
             </div>
-            {/* Animated Progress Bar */}
-            <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full transition-all duration-700 ease-out" style={{
-              width: `${progress}%`
-            }} />
-            </div>
+            <span className="text-sm font-normal">{progress}%</span>
           </div>
         </div>
 
