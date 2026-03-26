@@ -252,7 +252,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-2"
-              className="rounded-2xl ring-1 ring-border ring-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
+              className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
             >
               <StepBadge step={2} active={false} done={false} />
               <div>
