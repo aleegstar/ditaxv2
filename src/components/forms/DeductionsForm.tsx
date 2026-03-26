@@ -48,7 +48,7 @@ const DeductionsForm = ({
 
   // Form mode state
   const [formMode, setFormMode] = useState<'standard' | 'yesno'>(() => {
-    return formData?.deductions?._completed ? 'standard' : 'yesno';
+    return (formData?.deductions as any)?._completed ? 'standard' : 'yesno';
   });
   const currentDeductionsData = useMemo(() => ({
     hasPillar3a,
