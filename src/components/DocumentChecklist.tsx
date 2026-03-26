@@ -422,7 +422,7 @@ return <div className="min-h-screen">
         );
         const incompleteCategoryName = firstIncompleteCategory ? categoryMap[firstIncompleteCategory[0]] : '';
         
-        return <div className="relative overflow-hidden rounded-[2rem] bg-card ring-1 ring-border p-6 sm:p-8 shadow-[0_8px_40px_rgba(59,130,246,0.06)]">
+        return <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] transition-all duration-300">
 
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-8">
