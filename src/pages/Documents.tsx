@@ -560,7 +560,7 @@ const DocumentsContent: React.FC<{
               <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-zinc-400 group-focus-within:text-blue-500 transition-colors" strokeWidth={1.5} />
               </div>
-              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-14 py-5 bg-zinc-50/50 hover:bg-zinc-50 border border-zinc-200 rounded-3xl text-lg font-normal text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-300 shadow-sm" />
+              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-14 py-5 bg-white hover:bg-white border border-zinc-200 rounded-3xl text-lg font-normal text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-300 shadow-sm" />
               <div className="absolute inset-y-0 right-0 pr-5 flex items-center gap-1">
                 {searchQuery && <button onClick={() => setSearchQuery('')} className="p-2 rounded-xl hover:bg-zinc-200/50 transition-colors">
                     <X className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
