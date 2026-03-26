@@ -501,7 +501,7 @@ const DocumentsContent: React.FC<{
   return <>
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
       
-      <div className={cn("min-h-screen bg-white text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
+      <div className={cn("min-h-screen text-zinc-900 antialiased", isTransitionEntry && "animate-fade-in")}>
         {/* Top Navigation */}
         <SubpageHeader 
           onBack={() => navigate(-1)}
@@ -542,7 +542,7 @@ const DocumentsContent: React.FC<{
         />
 
         {/* Main Content */}
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-32 bg-white min-h-screen">
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-32 min-h-screen">
 
           {/* Locked Banner */}
           {isLocked && (
