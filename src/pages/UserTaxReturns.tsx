@@ -595,7 +595,7 @@ const UserTaxReturns = () => {
         {/* Navigation Pill */}
         <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-slate-900/90 border border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
           {/* Home - Active */}
-          <button className="bg-primary text-white shadow-sm shadow-primary/20 rounded-full px-5 py-2.5 transition-all active:scale-95 flex items-center justify-center">
+          <button className="text-white rounded-full px-5 py-2.5 transition-all active:scale-95 flex items-center justify-center">
             <Home className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
