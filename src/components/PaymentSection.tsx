@@ -305,7 +305,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const hasAnyPromo = !!activePromo || !!manualPromoResult;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col text-slate-800">
+    <div className="min-h-screen flex flex-col text-foreground">
       {/* Header */}
       <SubpageHeader
         title="Zahlung"
@@ -316,7 +316,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         <div className="max-w-[640px] mx-auto">
 
           {/* Main Card Container */}
-          <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 p-1.5 sm:p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-50">
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1.5 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
             <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
 
               {/* Express Service Toggle */}
