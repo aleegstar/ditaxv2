@@ -626,7 +626,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full !bg-[#1D64FF] hover:!bg-[#1a5ae6] !text-white transition-all duration-200 disabled:!bg-[#1D64FF] disabled:!opacity-70 disabled:cursor-not-allowed"
+              className="h-8 w-8 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:scale-[1.02] !text-white transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
               onClick={() => {
                 if (hasContent) handleSubmit();
               }}
