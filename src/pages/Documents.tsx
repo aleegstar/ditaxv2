@@ -128,11 +128,9 @@ const DocumentThumbnail = memo<{
 const DocumentsContent: React.FC<{
   selectedYear: string;
   onYearChange: (year: string) => void;
-  isTransitionEntry: boolean;
 }> = ({
   selectedYear,
   onYearChange,
-  isTransitionEntry
 }) => {
   const { t, language } = useI18n();
   const [documents, setDocuments] = useState<any[]>([]);
