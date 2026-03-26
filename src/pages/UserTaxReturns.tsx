@@ -526,9 +526,9 @@ const UserTaxReturns = () => {
                 </p>
 
                 <div className="flex flex-wrap items-center gap-6">
-                  <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
+                  <Button className="px-6 py-3 text-sm w-full sm:w-auto">
                     {t.userDashboard.tracking}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </motion.article>;
