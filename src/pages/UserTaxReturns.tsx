@@ -376,6 +376,16 @@ const UserTaxReturns = () => {
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
+            const yearProgress = formProgress[year]?.form_sections;
+            const steps = [
+              { label: 'Angaben', done: !!(yearProgress?.contactInfo) },
+              { label: 'Einkommen', done: !!(yearProgress?.income) },
+              { label: 'Abzüge', done: !!(yearProgress?.deductions) },
+              { label: 'Vermögen', done: !!(yearProgress?.assets) },
+              { label: 'Belege', done: !!(yearProgress?.documents) },
+              { label: 'Zahlung', done: false },
+            ];
+            const completedSteps = steps.filter(s => s.done).length;
             return <motion.article
               key={year}
               data-tour="tax-year-card"
