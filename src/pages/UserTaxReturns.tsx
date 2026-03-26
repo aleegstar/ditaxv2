@@ -572,38 +572,30 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div
-          className="pointer-events-auto flex items-center p-1.5 gap-2 rounded-full bg-card border border-border shadow-lg"
-        >
-          {/* Scanner Button */}
-          <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full border-t border-primary/20 shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group bg-primary hover:bg-primary/90">
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <img src={uploadIcon} alt="Upload" className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <span className="block text-xs font-semibold font-jakarta tracking-wide" style={{ color: 'hsl(0 0% 100%)' }}>
-                {t.userDashboard.documents}
-              </span>
-              <span className="block text-[10px] font-medium" style={{ color: 'hsl(0 0% 100% / 0.8)' }}>
-                {t.userDashboard.uploadDocuments}
-              </span>
-            </div>
+      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center gap-3 pointer-events-none">
+        {/* Navigation Pill */}
+        <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-white/70 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          {/* Home - Active */}
+          <button className="bg-primary text-white shadow-sm shadow-primary/20 rounded-full px-5 py-2.5 transition-all active:scale-95 flex items-center justify-center">
+            <Home className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
-          <div className="w-px h-8 bg-border/40"></div>
-
           {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="p-3 text-muted-foreground rounded-full hover:text-foreground hover:bg-foreground/[0.06] transition-colors relative">
-            <Inbox className="w-6 h-6" strokeWidth={1.5} />
-            {unreadCount > 0 && <span className="absolute top-3 right-3 w-2 h-2 bg-destructive rounded-full ring-2 ring-background"></span>}
+          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full px-4 py-2.5 transition-all active:scale-95 flex items-center justify-center relative">
+            <Inbox className="w-5 h-5" strokeWidth={1.5} />
+            {unreadCount > 0 && <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-white"></span>}
           </button>
 
           {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="p-3 text-muted-foreground rounded-full hover:text-foreground hover:bg-foreground/[0.06] transition-colors">
-            <Menu className="w-6 h-6" strokeWidth={1.5} />
+          <button onClick={() => setMenuSheetOpen(true)} className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full px-4 py-2.5 transition-all active:scale-95 flex items-center justify-center">
+            <Menu className="w-5 h-5" strokeWidth={1.5} />
           </button>
-        </div>
+        </nav>
+
+        {/* Floating Action Button - Documents */}
+        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto backdrop-blur-xl bg-white/70 border border-white text-muted-foreground hover:text-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all">
+          <Plus className="w-6 h-6" strokeWidth={1.5} />
+        </button>
       </div>
 
       {/* White Overlay for Transition */}

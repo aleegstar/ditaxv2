@@ -512,42 +512,26 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
     }} className="fixed left-4 right-4 bottom-4 z-[9999]">
           {/* Navbar with Fortsetzen Button Design */}
           <nav role="navigation" data-bottom-navbar style={navStyle} className="relative flex justify-center">
-            <div className="inline-flex items-center gap-1 rounded-full px-1.5 py-1.5 backdrop-blur-xl bg-white/80 ring-1 ring-black/5" style={{
-          boxShadow: '0 8px 32px -8px rgba(0, 0, 0, 0.12)'
-        }}>
+            <div className="inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-white/70 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               {/* Home Button */}
-              <motion.button onClick={() => navigate('/')} whileHover={{
-            scale: 1.02
-          }} whileTap={{
+              <motion.button onClick={() => navigate('/')} whileTap={{
             scale: 0.95
-          }} className={`flex items-center gap-2 rounded-full transition-all ${location.pathname === '/' ? 'bg-slate-100/80 px-4 py-2.5' : 'w-10 h-10 justify-center hover:bg-slate-100/50'}`}>
-                <CustomHomeIcon className="w-5 h-5" style={{
-              color: location.pathname === '/' ? '#0f172a' : 'rgba(100, 116, 139, 0.7)'
-            }} />
-                {location.pathname === '/' && <span className="text-slate-900 text-sm font-medium">Steuern</span>}
+          }} className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/' ? 'bg-primary text-white shadow-sm shadow-primary/20 px-5 py-2.5' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 px-4 py-2.5'}`}>
+                <CustomHomeIcon className="w-5 h-5" strokeWidth={1.5} />
               </motion.button>
 
               {/* Documents Button */}
-              <motion.button onClick={() => navigate('/documents')} whileHover={{
-            scale: 1.02
-          }} whileTap={{
+              <motion.button onClick={() => navigate('/documents')} whileTap={{
             scale: 0.95
-          }} data-tour="documents-nav" className={`flex items-center gap-2 rounded-full transition-all ${location.pathname === '/documents' ? 'bg-slate-100/80 px-4 py-2.5' : 'w-10 h-10 justify-center hover:bg-slate-100/50'}`}>
-                <CustomFolderIcon className={`w-5 h-5`} style={{
-              color: location.pathname === '/documents' ? '#0f172a' : 'rgba(100, 116, 139, 0.7)'
-            }} />
-                {location.pathname === '/documents' && <span className="text-slate-900 text-sm font-medium">Dokumente</span>}
+          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/documents' ? 'bg-primary text-white shadow-sm shadow-primary/20 px-5 py-2.5' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 px-4 py-2.5'}`}>
+                <CustomFolderIcon className="w-5 h-5" strokeWidth={1.5} />
               </motion.button>
 
               {/* Menu Button */}
-              <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileHover={{
-            scale: 1.02
-          }} whileTap={{
+              <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{
             scale: 0.95
-          }} className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100/50 transition-all">
-                <Menu className="w-5 h-5" style={{
-              color: 'rgba(100, 116, 139, 0.7)'
-            }} />
+          }} className="flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 px-4 py-2.5 transition-all">
+                <Menu className="w-5 h-5" strokeWidth={1.5} />
               </motion.button>
             </div>
           </nav>
