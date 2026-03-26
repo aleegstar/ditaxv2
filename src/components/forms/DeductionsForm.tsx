@@ -125,7 +125,7 @@ const DeductionsForm = ({
         <MultiStepYesNoForm section="deductions" onComplete={handleYesNoComplete} onModeSwitch={handleModeSwitch} />
       </ErrorBoundary>;
   }
-  const renderDeductionsForm = () => <ExpertFormContainer title={t.deductions.title} onBack={() => setSearchParams({ year: taxYear })} onSubmit={handleSubmit} submitLabel={t.forms.save} showFooter={!embedded} className="bg-white">
+  const renderDeductionsForm = () => <ExpertFormContainer title={t.deductions.title} onBack={() => setSearchParams({ year: taxYear })} onSubmit={handleSubmit} submitLabel={t.forms.save} showFooter={!embedded}>
       {/* Checkbox List */}
       <div className="animate-fade-in opacity-0" style={{
       animationDelay: '0ms',

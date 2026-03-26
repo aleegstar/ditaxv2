@@ -36,7 +36,7 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
       duration: 0.3
     }
   };
-  return <div className="min-h-screen text-foreground antialiased selection:bg-primary/30">
+  return <div className="min-h-screen text-foreground antialiased selection:bg-primary/30 bg-transparent">
       <div className="h-screen w-full relative flex flex-col overflow-hidden">
         {/* Header - unified SubpageHeader */}
         <SubpageHeader title={title} onBack={onBack} />
