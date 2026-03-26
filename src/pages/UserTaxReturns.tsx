@@ -441,9 +441,6 @@ const UserTaxReturns = () => {
                   <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3.5 rounded-full text-lg font-medium shadow-lg shadow-primary/25 transition-all w-full sm:w-auto text-center active:scale-[0.97]">
                     Auswählen
                   </button>
-                  <button className="text-primary hover:text-primary/80 text-lg font-medium transition-colors w-full sm:w-auto text-center">
-                    Mehr Infos
-                  </button>
                 </div>
               </div>
             </motion.article>;
