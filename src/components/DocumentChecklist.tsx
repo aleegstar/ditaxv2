@@ -425,20 +425,13 @@ return <div className="min-h-screen">
         return <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] transition-all duration-300">
 
               <div className="relative z-10">
-                <div className="flex justify-between items-start mb-8">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                      Gesamtfortschritt
-                    </p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-semibold tracking-tight text-foreground">
-                        {currentCount} / {totalCount}
-                      </span>
-                      <span className="text-base font-medium text-muted-foreground">
-                        hochgeladen
-                      </span>
-                    </div>
-                  </div>
+                <div className="mb-5">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Gesamtfortschritt
+                  </span>
+                  <p className="text-[15px] text-muted-foreground mt-3 leading-relaxed">
+                    {currentCount} von {totalCount} hochgeladen
+                  </p>
                 </div>
 
                 {/* Segmented progress bar */}
