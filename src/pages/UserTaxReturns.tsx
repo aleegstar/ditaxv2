@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -376,6 +377,16 @@ const UserTaxReturns = () => {
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
+            const yearProgress = formProgress[year]?.form_sections;
+            const steps = [
+              { label: 'Angaben', done: !!(yearProgress?.contactInfo) },
+              { label: 'Einkommen', done: !!(yearProgress?.income) },
+              { label: 'Abzüge', done: !!(yearProgress?.deductions) },
+              { label: 'Vermögen', done: !!(yearProgress?.assets) },
+              { label: 'Belege', done: !!(yearProgress?.documents) },
+              { label: 'Zahlung', done: false },
+            ];
+            const completedSteps = steps.filter(s => s.done).length;
             return <motion.article
               key={year}
               data-tour="tax-year-card"
@@ -427,9 +438,25 @@ const UserTaxReturns = () => {
                 </h2>
 
 
-                {/* Progress Bar */}
-                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-10">
-                  <div className="h-full bg-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
+                {/* Step Progress */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-foreground">{completedSteps} von {steps.length} Schritten</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    {steps.map((step, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                        <div className={cn(
+                          "h-1.5 w-full rounded-full transition-all duration-500",
+                          step.done ? "bg-primary" : "bg-muted"
+                        )} />
+                        <span className={cn(
+                          "text-[10px] font-medium transition-colors",
+                          step.done ? "text-primary" : "text-muted-foreground/60"
+                        )}>{step.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Buttons */}
