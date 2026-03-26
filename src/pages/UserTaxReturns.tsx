@@ -577,7 +577,7 @@ const UserTaxReturns = () => {
                 </p>
 
                 <div className="flex flex-wrap items-center gap-6">
-                  <button className={`px-8 py-3.5 rounded-full text-lg font-medium shadow-lg transition-all w-full sm:w-auto text-center active:scale-[0.97] ${needsSignature ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/25' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/25'}`}>
+                  <button className={`px-8 py-3.5 rounded-full text-lg font-medium transition-all w-full sm:w-auto text-center ${needsSignature ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-primary hover:bg-primary/90 text-primary-foreground'}`}>
                     {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
                   </button>
                 </div>
