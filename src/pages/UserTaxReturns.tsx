@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home } from 'lucide-react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
