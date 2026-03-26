@@ -238,7 +238,7 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className="group rounded-2xl bg-card ring-1 ring-border overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
