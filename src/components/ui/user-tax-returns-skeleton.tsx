@@ -93,12 +93,12 @@ export function UserTaxReturnsSkeleton() {
 
       {/* Bottom Navigation Skeleton */}
       <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center gap-3 pointer-events-none">
-        <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-white/70 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <Skeleton className="w-10 h-10 rounded-full" />
-          <Skeleton className="w-10 h-10 rounded-full" />
-          <Skeleton className="w-10 h-10 rounded-full" />
+        <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-slate-900/90 border border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+          <Skeleton className="w-10 h-10 rounded-full bg-slate-700" />
+          <Skeleton className="w-10 h-10 rounded-full bg-slate-700" />
+          <Skeleton className="w-10 h-10 rounded-full bg-slate-700" />
         </div>
-        <Skeleton className="w-14 h-14 rounded-full" />
+        <Skeleton className="w-14 h-14 rounded-full bg-primary/50" />
       </div>
     </div>
   );
