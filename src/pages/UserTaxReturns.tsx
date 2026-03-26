@@ -438,16 +438,10 @@ const UserTaxReturns = () => {
                 {/* Progress Steps */}
                 <div className="flex gap-1.5 mb-8">
                   {steps.map((step, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                      <div className={cn(
-                        "h-1.5 w-full rounded-full transition-all duration-500",
-                        step.done ? "bg-primary" : "bg-muted"
-                      )} />
-                      <span className={cn(
-                        "text-[10px] font-medium transition-colors",
-                        step.done ? "text-primary" : "text-muted-foreground/60"
-                      )}>{step.label}</span>
-                    </div>
+                    <div key={i} className={cn(
+                      "flex-1 h-1.5 rounded-full transition-all duration-500",
+                      step.done ? "bg-primary" : "bg-muted"
+                    )} />
                   ))}
                 </div>
 
