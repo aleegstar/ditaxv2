@@ -451,9 +451,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Trust Badge */}
               <div className="flex justify-center pb-2">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50/50 rounded-full border border-slate-100">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/30 rounded-full border border-white/40">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span className="text-sm text-slate-500 font-normal">Sichere Zahlung mit Stripe</span>
+                  <span className="text-sm text-muted-foreground font-normal">Sichere Zahlung mit Stripe</span>
                 </div>
               </div>
 
