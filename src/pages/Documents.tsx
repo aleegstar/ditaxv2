@@ -671,7 +671,6 @@ const Documents: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>(
     yearFromUrl || currentYear.toString()
   );
-  const isTransitionEntry = searchParams.get('transition') === 'true';
   
   // Handler für Jahreswechsel - aktualisiert auch die URL
   const handleYearChange = (newYear: string) => {
@@ -692,7 +691,7 @@ const Documents: React.FC = () => {
   }
 
   return <FormProvider taxYear={selectedYear}>
-      <DocumentsContent selectedYear={selectedYear} onYearChange={handleYearChange} isTransitionEntry={isTransitionEntry} />
+      <DocumentsContent selectedYear={selectedYear} onYearChange={handleYearChange} />
     </FormProvider>;
 };
 export default Documents;
