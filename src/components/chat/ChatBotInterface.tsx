@@ -546,7 +546,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
 
         {/* Glass Footer Input Area */}
         <div
-          className="z-20 p-4 w-full shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4 bg-background border-t border-border"
+          className="z-20 p-4 w-full shrink-0 fixed bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,8px)] md:relative md:pb-4 border-t border-border bg-white/[0.11]"
         >
           <div className="max-w-2xl mx-auto">
             <PromptInputBox
