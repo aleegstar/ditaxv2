@@ -632,7 +632,7 @@ const UserTaxReturns = () => {
         </nav>
 
         {/* Floating Action Button - Documents */}
-        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto bg-primary hover:bg-primary/90 border border-primary/80 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_8px_30px_rgb(59,130,246,0.3)] hover:shadow-[0_12px_40px_rgb(59,130,246,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all">
+        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_8px_30px_hsl(222,100%,50%/0.3)] hover:shadow-[0_12px_40px_hsl(222,100%,50%/0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all">
           <Plus className="w-6 h-6" strokeWidth={1.5} />
         </button>
       </div>
