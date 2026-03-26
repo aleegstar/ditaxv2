@@ -47,7 +47,9 @@ const DeductionsForm = ({
   const [maintenancePayments, setMaintenancePayments] = useState<any[]>([]);
 
   // Form mode state
-  const [formMode, setFormMode] = useState<'standard' | 'yesno'>('yesno');
+  const [formMode, setFormMode] = useState<'standard' | 'yesno'>(() => {
+    return formData?.deductions?._completed ? 'standard' : 'yesno';
+  });
   const currentDeductionsData = useMemo(() => ({
     hasPillar3a,
     hasBVGPurchase,
