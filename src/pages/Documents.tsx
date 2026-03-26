@@ -542,7 +542,7 @@ const DocumentsContent: React.FC<{
         />
 
         {/* Main Content */}
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-32 bg-white min-h-screen">
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-32 min-h-screen">
 
           {/* Locked Banner */}
           {isLocked && (
