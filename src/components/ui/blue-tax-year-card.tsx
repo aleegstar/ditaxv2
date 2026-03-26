@@ -14,7 +14,6 @@ import {
   UnifiedAlertDialogIcon,
   UnifiedAlertDialogTitle,
 } from "@/components/ui/unified-alert-dialog";
-import { BorderBeam } from "@/components/ui/border-beam";
 import ditaxLogoIcon from "@/assets/ditax-logo.svg";
 interface BlueTaxYearCardProps {
   id: string;
