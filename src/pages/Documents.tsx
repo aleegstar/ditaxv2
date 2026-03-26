@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
+import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -658,14 +659,9 @@ const DocumentsContent: React.FC<{
         {/* Floating Upload Button - only show if not locked */}
         {!isLocked && (
           <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2">
-            <button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="flex items-center gap-3 pl-4 pr-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-2xl shadow-blue-600/30 hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group backdrop-blur-md border border-blue-400/20">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
-                <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="text-lg font-medium tracking-tight">
-                {t.documentsPage.upload}
-              </span>
-            </button>
+            <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg">
+              {t.documentsPage.upload}
+            </Button>
           </div>
         )}
 
