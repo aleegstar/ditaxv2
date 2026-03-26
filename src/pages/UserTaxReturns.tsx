@@ -414,26 +414,6 @@ const UserTaxReturns = () => {
             >
               <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]">
                 
-                {/* Delete Menu */}
-                <div className="absolute top-5 right-5 z-20">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-foreground/30 hover:text-foreground hover:bg-muted/50 rounded-full">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={e => {
-                        e.stopPropagation();
-                        setYearToDelete(year);
-                        setDeleteDialogOpen(true);
-                      }} className="text-destructive hover:text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t.userDashboard.delete}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-5">
