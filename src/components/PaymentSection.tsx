@@ -293,7 +293,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   if (!priceBreakdown) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen" />;
   }
 
   const finalPrice = priceBreakdown.totalPrice;
