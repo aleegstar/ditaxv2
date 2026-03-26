@@ -56,13 +56,6 @@ export const ExpertFormContainer: React.FC<ExpertFormContainerProps> = ({
               >
                 <span>{submitLabel}</span>
               </button>
-
-              <div className="mt-4 flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
-                <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-                  Verschlüsselt & Sicher
-                </p>
-              </div>
             </div>
           </div>}
       </div>
