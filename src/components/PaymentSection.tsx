@@ -380,11 +380,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
 
               {/* Cost Breakdown */}
-              <div className="rounded-2xl border border-slate-100 bg-slate-50/50 overflow-hidden">
-                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50/80">
-                  <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Kostenaufstellung</h4>
+              <div className="rounded-2xl border border-white/60 bg-white/30 overflow-hidden">
+                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/40 bg-white/20">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Kostenaufstellung</h4>
                 </div>
-                <div className="bg-white divide-y divide-slate-50">
+                <div className="bg-white/20 divide-y divide-white/30">
                   {priceBreakdown.items.map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 hover:bg-slate-50/50 transition-colors gap-2">
                       <span className="text-slate-600 font-normal text-sm sm:text-base truncate min-w-0">{item.label}</span>
