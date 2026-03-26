@@ -293,7 +293,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   };
 
   if (!priceBreakdown) {
-    return <div className="min-h-screen bg-white" />;
+    return <div className="min-h-screen" />;
   }
 
   const finalPrice = priceBreakdown.totalPrice;
@@ -305,7 +305,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const hasAnyPromo = !!activePromo || !!manualPromoResult;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col text-slate-800">
+    <div className="min-h-screen flex flex-col text-foreground">
       {/* Header */}
       <SubpageHeader
         title="Zahlung"
@@ -316,7 +316,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         <div className="max-w-[640px] mx-auto">
 
           {/* Main Card Container */}
-          <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 p-1.5 sm:p-2 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] ring-1 ring-slate-50">
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1.5 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
             <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
 
               {/* Express Service Toggle */}
@@ -327,7 +327,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   className={`relative w-full overflow-hidden rounded-2xl border-2 p-4 sm:p-5 flex items-center justify-between transition-all active:scale-[0.99] ${
                     expressService
                       ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      : 'border-white/60 bg-white/40 hover:border-white/80 hover:bg-white/50'
                   }`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -380,34 +380,34 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
 
               {/* Cost Breakdown */}
-              <div className="rounded-2xl border border-slate-100 bg-slate-50/50 overflow-hidden">
-                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50/80">
-                  <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Kostenaufstellung</h4>
+              <div className="rounded-2xl border border-white/60 bg-white/30 overflow-hidden">
+                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/40 bg-white/20">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Kostenaufstellung</h4>
                 </div>
-                <div className="bg-white divide-y divide-slate-50">
+                <div className="bg-white/20 divide-y divide-white/30">
                   {priceBreakdown.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 hover:bg-slate-50/50 transition-colors gap-2">
-                      <span className="text-slate-600 font-normal text-sm sm:text-base truncate min-w-0">{item.label}</span>
-                      <span className="text-slate-900 font-medium tabular-nums text-sm sm:text-base whitespace-nowrap shrink-0">CHF {formatPrice(item.amount)}</span>
+                    <div key={idx} className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 hover:bg-white/20 transition-colors gap-2">
+                      <span className="text-foreground/70 font-normal text-sm sm:text-base truncate min-w-0">{item.label}</span>
+                      <span className="text-foreground font-medium tabular-nums text-sm sm:text-base whitespace-nowrap shrink-0">CHF {formatPrice(item.amount)}</span>
                     </div>
                   ))}
                 </div>
                 {/* Total */}
-                <div className="bg-slate-50/80 px-3 sm:px-6 py-4 sm:py-5 border-t border-slate-100">
+                <div className="bg-white/20 px-3 sm:px-6 py-4 sm:py-5 border-t border-white/40">
                   {hasAnyPromo && (
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-slate-500">Zwischensumme</span>
-                      <span className="text-xs text-slate-400 line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
+                      <span className="text-xs text-muted-foreground">Zwischensumme</span>
+                      <span className="text-xs text-muted-foreground line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col">
-                      <span className="text-slate-900 font-semibold text-base tracking-tight">
+                      <span className="text-foreground font-semibold text-base tracking-tight">
                         {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
                       </span>
-                      <span className="text-[11px] text-slate-400 font-normal uppercase tracking-wide">inkl. MwSt.</span>
+                      <span className="text-[11px] text-muted-foreground font-normal uppercase tracking-wide">inkl. MwSt.</span>
                     </div>
-                    <span className="text-slate-900 font-semibold text-xl tracking-tight tabular-nums">
+                    <span className="text-foreground font-semibold text-xl tracking-tight tabular-nums">
                       CHF {formatPrice(priceAfterDiscount)}
                     </span>
                   </div>
@@ -416,22 +416,22 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Payment Methods */}
               <div className="space-y-4">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-1">Zahlungsmethoden</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Zahlungsmethoden</h4>
                 <div className="flex gap-3 flex-wrap">
                   {/* TWINT */}
-                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
-                    <span className="font-bold text-slate-900 text-sm italic tracking-tighter">TWINT</span>
+                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
+                    <span className="font-bold text-foreground text-sm italic tracking-tighter">TWINT</span>
                   </div>
                   {/* VISA */}
-                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
                     <img src={paymentVisa} alt="Visa" className="h-5 object-contain" />
                   </div>
                   {/* Mastercard */}
-                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
                     <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" />
                   </div>
                   {/* Klarna */}
-                  <div className="h-12 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:border-slate-300 transition-colors cursor-pointer min-w-[80px]">
+                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
                     <span className="font-bold text-[#FFB3C7] text-sm tracking-tight">Klarna.</span>
                   </div>
                 </div>
@@ -451,9 +451,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* Trust Badge */}
               <div className="flex justify-center pb-2">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50/50 rounded-full border border-slate-100">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/30 rounded-full border border-white/40">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span className="text-sm text-slate-500 font-normal">Sichere Zahlung mit Stripe</span>
+                  <span className="text-sm text-muted-foreground font-normal">Sichere Zahlung mit Stripe</span>
                 </div>
               </div>
 
