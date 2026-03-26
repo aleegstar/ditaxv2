@@ -476,10 +476,6 @@ const UserTaxReturns = () => {
                   <Button>
                     {completedSteps === 0 ? 'Starten' : 'Fortsetzen'}
                   </Button>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Clock className="w-4 h-4" strokeWidth={1.5} />
-                    <span className="text-sm">~2h</span>
-                  </div>
                 </div>
               </div>
             </motion.div>;
