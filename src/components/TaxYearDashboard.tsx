@@ -140,7 +140,7 @@ export const TaxYearDashboard: React.FC = () => {
       />
 
       {/* Tax Filer Selector */}
-      <TaxFilerSelector className="max-w-lg mx-auto px-4 sm:px-6 mb-6" />
+      <TaxFilerSelector className="max-w-xl mx-auto px-4 sm:px-6 mb-6" />
 
       {/* Steps */}
       <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
