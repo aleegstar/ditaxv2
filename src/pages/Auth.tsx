@@ -539,7 +539,7 @@ const Auth = () => {
                       onClick={() => setShowEmailForm(prev => !prev)}
                       className="w-full bg-white hover:bg-gray-50 text-muted-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-border transition-all duration-200 active:scale-[0.97] relative flex items-center justify-center"
                     >
-                      <Mail className="w-5 h-5 text-muted-foreground absolute left-5" />
+                      
                       <span>{'Mit E-Mail anmelden'}</span>
                       <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }} className="absolute right-5">
                         <ChevronDown className="w-4 h-4 text-muted-foreground" />
