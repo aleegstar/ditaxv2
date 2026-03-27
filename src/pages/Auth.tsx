@@ -541,9 +541,6 @@ const Auth = () => {
                     >
                       <Mail className="w-5 h-5 text-muted-foreground absolute left-5" />
                       <span>{'Mit E-Mail anmelden'}</span>
-                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }} className="absolute right-5">
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                      </motion.div>
                     </button>
 
                     <AnimatePresence>
