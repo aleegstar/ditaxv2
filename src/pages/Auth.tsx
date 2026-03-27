@@ -488,11 +488,6 @@ const Auth = () => {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="w-full max-w-[440px] rounded-[3rem] px-8 py-12 sm:px-12 sm:py-14 relative overflow-hidden bg-white/70 backdrop-blur-2xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
         >
-          {/* Subtle background glow effects */}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-[3rem] z-0">
-            <div className="absolute -top-10 -left-10 w-48 h-48 bg-blue-100/40 blur-3xl rounded-full" />
-            <div className="absolute bottom-10 -right-10 w-48 h-48 bg-purple-100/40 blur-3xl rounded-full" />
-          </div>
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
