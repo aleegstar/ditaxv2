@@ -1,57 +1,48 @@
 
 
-## Plan: KI-Assistent mit User-Status-Kontext (OpenAI beibehalten)
+## Plan: Fix Chatbot Status-Daten für Multi-Personen-Architektur
 
-### Zusammenfassung
-Die bestehende `chatbot-response` Edge Function wird erweitert, sodass der Bot den anonymisierten Fortschrittsstatus des Users kennt und kontextbezogene Hilfe geben kann. OpenAI (`gpt-4o-mini`) bleibt als Modell bestehen.
+### Problem
+Der Chatbot liest den Fortschritt aus `form_progress.form_sections`, wo nur `contactInfo: true` steht. Die echten Completion-Daten liegen aber in der `form_data` Tabelle (pro `form_type` mit `_completed: true` im JSON `data`-Feld). Ausserdem wird die Multi-Personen-Architektur (`tax_filer_id`) ignoriert.
 
-### Änderungen
+**Ist-Zustand für Steuerjahr 2025, Sandro (primary):**
+- `form_data`: contactInfo ✓, income ✓, assets ✓, deductions ✓ — alles ausgefüllt
+- `form_progress`: zeigt nur `{contactInfo: true}` — veraltet/unvollständig
+- Dokumente: 2 hochgeladen
+- **Chatbot sagt fälschlicherweise**: "Persönliche Angaben, Einkommen, Vermögen und Abzüge sind noch nicht ausgefüllt"
 
-#### 1. Edge Function erweitern (`supabase/functions/chatbot-response/index.ts`)
+### Änderung
 
-**Neuer Block: Status-Daten laden** (nach Authentifizierung, vor OpenAI-Aufruf)
+**Datei: `supabase/functions/chatbot-response/index.ts`**
 
-Folgende Metadaten werden abgefragt (nur Zähler/Booleans, keine Inhalte):
+Die `loadUserStatusContext`-Funktion wird komplett überarbeitet:
 
-| Abfrage | Tabelle | Was wird geladen |
-|---|---|---|
-| Aktive Steuerjahre | `tax_returns` | `tax_year`, `status`, `workflow_step` |
-| Formular-Fortschritt | `form_progress` | Welche Sektionen erledigt (boolean-Felder) |
-| Dokumente | `uploaded_documents` | `COUNT(*)` pro Steuerjahr |
-| Offene Nachforderungen | `missing_item_requests` | `COUNT(*)` nach Status (`pending`/`submitted`) |
-| Fertige Steuererklärungen | `completed_tax_returns` | `status`, `tax_year` |
+1. **Tax Filers laden** — Alle steuerpflichtigen Personen des Users abfragen (`tax_filers` Tabelle)
 
-**Dynamischer Kontext-Block im System-Prompt:**
+2. **Completion aus `form_data` statt `form_progress`** — Für jeden Tax Filer und jedes Steuerjahr prüfen, ob `form_data` Einträge mit `_completed: true` existieren für die 4 Formularbereiche (contactInfo, income, assets, deductions)
 
+3. **Dokumente per `tax_filer_id` zählen** — `uploaded_documents` mit `tax_filer_id` filtern
+
+4. **Status pro Tax Filer ausgeben** — z.B.:
 ```text
-AKTUELLER STATUS DES USERS (nur Metadaten):
-- Steuerjahr 2024:
-  - Persönliche Angaben: ✓
-  - Einkommen: ✗
-  - Vermögen: ✗
-  - Abzüge: ✓
-  - Dokumente hochgeladen: 3
-  - Status: data_collection
-  - Offene Nachforderungen: 1
+AKTUELLER STATUS DES USERS:
+- Steuerpflichtige Person: Sandro (Hauptperson)
+  - Steuerjahr 2025:
+    - Persönliche Angaben: ✓
+    - Einkommen: ✓
+    - Vermögen: ✓
+    - Abzüge: ✓
+    - Dokumente: 2
+    - Bezahlung: ✗
+- Steuerpflichtige Person: Amelia (Kind)
+  - Steuerjahr 2025:
+    - ...
 ```
-
-**Erweiterter System-Prompt:**
-- Neuer Abschnitt mit Navigations-Hinweisen basierend auf Status
-- Bot kann sagen: "Du hast den Bereich Einkommen noch nicht ausgefüllt. Tippe auf dein Steuerjahr 2024 und dann auf 'Einkommen'."
-- Hinweis: "Wenn alle 4 Formulare ausgefüllt und Dokumente hochgeladen sind, kannst du die Steuererklärung einreichen."
-
-#### 2. Keine Frontend-Änderungen nötig
-- Die bestehende `ChatBotInterface` ruft weiterhin `chatbot-response` auf
-- Der Bot wird durch den erweiterten Kontext automatisch intelligenter
-
-### Datenschutz
-- **Geladen**: Nur booleans (`contactInfo: true/false`), Zähler, Status-Strings
-- **Nicht geladen**: Formularinhalte, Dokumentinhalte, persönliche Daten, verschlüsselte Felder
-- **OpenAI**: Erhält nur Status-Metadaten, keine personenbezogenen Daten
 
 ### Technische Details
 
-- Modell bleibt `gpt-4o-mini` (OPENAI_API_KEY bereits konfiguriert)
-- Alle Datenbankabfragen nutzen den bestehenden `supabase` Service-Role-Client
-- `max_tokens` wird von 500 auf 700 erhöht, da der Bot nun ausführlichere Navigations-Hilfe geben kann
+- Query `form_data` mit `SELECT form_type, (data->>'_completed')::boolean` statt `form_progress.form_sections`
+- Gruppierung per `tax_filer_id` für korrekte Multi-Personen-Darstellung
+- Nur die 4 relevanten `form_type` Werte prüfen: `contactInfo`, `income`, `assets`, `deductions` (nicht `*_progress` Einträge)
+- Kein Frontend-Umbau nötig
 
