@@ -1,27 +1,57 @@
 
 
-## Problem
+## Plan: KI-Assistent mit User-Status-Kontext (OpenAI beibehalten)
 
-Der "Fortsetzen"-Button auf Zeile 476 ist ein hardcodierter `<button>` mit eigenen Inline-Styles — er nutzt **nicht** die globale `Button`-Komponente. Zudem gibt es kleine Unterschiede zwischen dem hardcodierten Button und dem globalen Design:
+### Zusammenfassung
+Die bestehende `chatbot-response` Edge Function wird erweitert, sodass der Bot den anonymisierten Fortschrittsstatus des Users kennt und kontextbezogene Hilfe geben kann. OpenAI (`gpt-4o-mini`) bleibt als Modell bestehen.
 
-| Eigenschaft | Globaler Button (`button.tsx`) | Hardcodierter Button (Zeile 476) |
+### Änderungen
+
+#### 1. Edge Function erweitern (`supabase/functions/chatbot-response/index.ts`)
+
+**Neuer Block: Status-Daten laden** (nach Authentifizierung, vor OpenAI-Aufruf)
+
+Folgende Metadaten werden abgefragt (nur Zähler/Booleans, keine Inhalte):
+
+| Abfrage | Tabelle | Was wird geladen |
 |---|---|---|
-| Font-Grösse | `text-base` | `text-sm` |
-| Höhe | `h-11` (fest) | keine feste Höhe, `py-3` |
-| Padding | `px-5 py-2.5` | `px-6 py-3` |
-| Hover | `hover:brightness-[1.04]` | `hover:scale-[1.02]` |
+| Aktive Steuerjahre | `tax_returns` | `tax_year`, `status`, `workflow_step` |
+| Formular-Fortschritt | `form_progress` | Welche Sektionen erledigt (boolean-Felder) |
+| Dokumente | `uploaded_documents` | `COUNT(*)` pro Steuerjahr |
+| Offene Nachforderungen | `missing_item_requests` | `COUNT(*)` nach Status (`pending`/`submitted`) |
+| Fertige Steuererklärungen | `completed_tax_returns` | `status`, `tax_year` |
 
-## Plan
+**Dynamischer Kontext-Block im System-Prompt:**
 
-### 1. Globales Button-Design anpassen (`src/components/ui/button.tsx`)
+```text
+AKTUELLER STATUS DES USERS (nur Metadaten):
+- Steuerjahr 2024:
+  - Persönliche Angaben: ✓
+  - Einkommen: ✗
+  - Vermögen: ✗
+  - Abzüge: ✓
+  - Dokumente hochgeladen: 3
+  - Status: data_collection
+  - Offene Nachforderungen: 1
+```
 
-Die default-Variante und default-Grösse aktualisieren, damit sie dem Screenshot-Button entsprechen:
+**Erweiterter System-Prompt:**
+- Neuer Abschnitt mit Navigations-Hinweisen basierend auf Status
+- Bot kann sagen: "Du hast den Bereich Einkommen noch nicht ausgefüllt. Tippe auf dein Steuerjahr 2024 und dann auf 'Einkommen'."
+- Hinweis: "Wenn alle 4 Formulare ausgefüllt und Dokumente hochgeladen sind, kannst du die Steuererklärung einreichen."
 
-- **Default size**: `h-11 px-5 py-2.5` → `px-6 py-3` (keine feste Höhe, grösseres Padding)
-- **Font**: `text-base` → `text-sm` in der Basis-Klasse
-- **Hover**: `hover:brightness-[1.04]` beibehalten, zusätzlich `hover:scale-[1.02]` hinzufügen
+#### 2. Keine Frontend-Änderungen nötig
+- Die bestehende `ChatBotInterface` ruft weiterhin `chatbot-response` auf
+- Der Bot wird durch den erweiterten Kontext automatisch intelligenter
 
-### 2. Hardcodierten Button ersetzen (`src/pages/UserTaxReturns.tsx`)
+### Datenschutz
+- **Geladen**: Nur booleans (`contactInfo: true/false`), Zähler, Status-Strings
+- **Nicht geladen**: Formularinhalte, Dokumentinhalte, persönliche Daten, verschlüsselte Felder
+- **OpenAI**: Erhält nur Status-Metadaten, keine personenbezogenen Daten
 
-Zeile 476: Den `<button>` durch die globale `<Button>`-Komponente ersetzen, damit die Exklusivitäts-Richtlinie eingehalten wird.
+### Technische Details
+
+- Modell bleibt `gpt-4o-mini` (OPENAI_API_KEY bereits konfiguriert)
+- Alle Datenbankabfragen nutzen den bestehenden `supabase` Service-Role-Client
+- `max_tokens` wird von 500 auf 700 erhöht, da der Bot nun ausführlichere Navigations-Hilfe geben kann
 
