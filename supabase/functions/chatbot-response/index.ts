@@ -24,6 +24,127 @@ const chatRequestSchema = z.object({
     .nullable()
 })
 
+/**
+ * Load anonymized user status metadata (no personal data, only progress booleans/counts).
+ */
+async function loadUserStatusContext(supabase: any, userId: string): Promise<string> {
+  try {
+    // 1. Active tax returns
+    const { data: taxReturns } = await supabase
+      .from('tax_returns')
+      .select('tax_year, status, workflow_step, payment_status')
+      .eq('user_id', userId)
+      .order('tax_year', { ascending: false })
+
+    if (!taxReturns || taxReturns.length === 0) {
+      return `\nAKTUELLER STATUS DES USERS (nur Metadaten):\n- Kein Steuerjahr angelegt. Der User hat noch nicht begonnen.\n`
+    }
+
+    let statusLines: string[] = []
+
+    for (const tr of taxReturns) {
+      const year = tr.tax_year
+
+      // 2. Form progress for this tax year
+      const { data: formProgress } = await supabase
+        .from('form_progress')
+        .select('form_sections')
+        .eq('user_id', userId)
+        .eq('tax_year', year)
+        .maybeSingle()
+
+      const sections = formProgress?.form_sections as Record<string, boolean> | null
+      const contactDone = sections?.contactInfo === true
+      const incomeDone = sections?.income === true
+      const assetsDone = sections?.assets === true
+      const deductionsDone = sections?.deductions === true
+
+      // 3. Document count for this tax year
+      const { count: docCount } = await supabase
+        .from('uploaded_documents')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('tax_year', year)
+
+      // 4. Missing item requests
+      const { data: missingItems } = await supabase
+        .from('missing_item_requests')
+        .select('status')
+        .eq('user_id', userId)
+        .in('tax_return_id', 
+          (taxReturns.filter((t: any) => t.tax_year === year).map(() => 
+            // We need the tax_return id, get it from a subquery approach
+            'dummy'
+          ))
+        )
+
+      // Better approach: query missing items by tax_return_id
+      const { count: pendingMissing } = await supabase
+        .from('missing_item_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('status', 'pending')
+
+      const { count: submittedMissing } = await supabase
+        .from('missing_item_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('status', 'submitted')
+
+      // 5. Completed tax returns
+      const { data: completedReturns } = await supabase
+        .from('completed_tax_returns')
+        .select('status, tax_year')
+        .eq('user_id', userId)
+        .eq('tax_year', year)
+
+      const check = (v: boolean) => v ? '✓ Ausgefüllt' : '✗ Noch nicht ausgefüllt'
+      const workflowLabel = getWorkflowLabel(tr.workflow_step)
+      const paymentLabel = tr.payment_status === 'paid' ? '✓ Bezahlt' : '✗ Noch nicht bezahlt'
+
+      let yearBlock = `- Steuerjahr ${year}:
+  - Persönliche Angaben: ${check(contactDone)}
+  - Einkommen: ${check(incomeDone)}
+  - Vermögen: ${check(assetsDone)}
+  - Abzüge: ${check(deductionsDone)}
+  - Dokumente hochgeladen: ${docCount || 0}
+  - Workflow-Schritt: ${workflowLabel}
+  - Bezahlung: ${paymentLabel}`
+
+      if ((pendingMissing || 0) > 0) {
+        yearBlock += `\n  - Offene Nachforderungen: ${pendingMissing} (noch ausstehend)`
+      }
+      if ((submittedMissing || 0) > 0) {
+        yearBlock += `\n  - Eingereichte Nachforderungen: ${submittedMissing}`
+      }
+      if (completedReturns && completedReturns.length > 0) {
+        yearBlock += `\n  - Fertige Steuererklärung: ✓ Vorhanden (Status: ${completedReturns[0].status})`
+      }
+
+      statusLines.push(yearBlock)
+    }
+
+    return `
+AKTUELLER STATUS DES USERS (nur Metadaten, keine persönlichen Daten):
+${statusLines.join('\n')}`
+
+  } catch (error) {
+    console.error('Error loading user status:', error)
+    return '\nAKTUELLER STATUS: Konnte nicht geladen werden.\n'
+  }
+}
+
+function getWorkflowLabel(step: string | null): string {
+  switch (step) {
+    case 'data_collection': return 'Daten erfassen'
+    case 'document_upload': return 'Dokumente hochladen'
+    case 'submission': return 'Bereit zum Einreichen'
+    case 'creation_in_progress': return 'Steuererklärung wird erstellt'
+    case 'completed': return 'Abgeschlossen'
+    default: return step || 'Nicht gestartet'
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -106,11 +227,9 @@ serve(async (req) => {
       console.error('Error checking bot handover:', handoverError)
     } else if (handoverCheck && handoverCheck.length > 0) {
       const handover = handoverCheck[0]
-      // Only reset if this is an ADMIN handover (sender_id exists and is not the user)
       if (handover.sender_id && handover.sender_id !== userId) {
         console.log('Admin bot handover detected - resetting escalation flags')
         
-        // Reset escalation flags only for this specific handover
         const { error: resetError } = await supabase
           .from('chat_messages')
           .update({ 
@@ -159,7 +278,6 @@ serve(async (req) => {
       attachment_id: attachmentId || null
     }
     
-    console.log('User message data to save:', userMessageData)
     const { error: userMessageError, data: savedUserMessage } = await supabase
       .from('chat_messages')
       .insert(userMessageData)
@@ -170,7 +288,7 @@ serve(async (req) => {
       console.error('ERROR saving user message:', userMessageError)
       throw new Error(`Failed to save user message: ${userMessageError.message}`)
     } else {
-      console.log('✓ User message saved successfully:', savedUserMessage)
+      console.log('✓ User message saved successfully')
     }
 
     if (shouldEscalate) {
@@ -186,7 +304,6 @@ serve(async (req) => {
         bot_session_id: sessionId || null
       }
       
-      console.log('Saving bot escalation response:', botMessageData)
       const { error: botResponseError } = await supabase
         .from('chat_messages')
         .insert(botMessageData)
@@ -194,8 +311,6 @@ serve(async (req) => {
       if (botResponseError) {
         console.error('ERROR saving bot escalation response:', botResponseError)
         throw new Error(`Failed to save bot response: ${botResponseError.message}`)
-      } else {
-        console.log('✓ Bot escalation response saved successfully')
       }
 
       return new Response(
@@ -208,6 +323,11 @@ serve(async (req) => {
         }
       )
     }
+
+    // Load user status context (anonymized metadata only)
+    console.log('=== LOADING USER STATUS CONTEXT ===')
+    const userStatusContext = await loadUserStatusContext(supabase, userId)
+    console.log('User status context loaded')
 
     // Get recent conversation context (last 10 messages)
     console.log('=== LOADING CONVERSATION CONTEXT ===')
@@ -227,8 +347,6 @@ serve(async (req) => {
       role: msg.chat_type === 'bot' ? 'assistant' : 'user',
       content: msg.content || ''
     })) || []
-
-    console.log('Conversation history:', conversationHistory)
 
     // System prompt for the DiTax assistant bot
     const systemPrompt = `Du bist der KI-Assistent von DiTax, der digitalen Steuerplattform für die Schweiz.
@@ -292,10 +410,21 @@ APP-VERFÜGBARKEIT:
 - Android: Im Google Play Store verfügbar
 - Web: www.ditax.ch
 
+${userStatusContext}
+
+KONTEXTBASIERTE HILFE (nutze den obigen Status, um dem User gezielt zu helfen):
+- Wenn Formulare fehlen: Sage dem User welche Bereiche noch nicht ausgefüllt sind und wie er dorthin navigiert (z.B. "Tippe auf dein Steuerjahr und dann auf 'Einkommen'")
+- Wenn alle Formulare ausgefüllt aber keine Dokumente hochgeladen: Weise auf den Dokumenten-Upload hin
+- Wenn Dokumente hochgeladen aber nicht eingereicht: Erkläre wie die Einreichung funktioniert
+- Wenn offene Nachforderungen vorhanden: Informiere den User und erkläre wie er diese bearbeiten kann
+- Wenn Steuererklärung fertig: Gratuliere und weise auf den Download hin
+- Wenn kein Steuerjahr angelegt: Führe den User durch den ersten Schritt
+
 WICHTIGE REGELN:
 - Du hilfst bei allgemeinen Steuerfragen und bei der Bedienung der DiTax-App
 - Du gibst KEINE spezifische Steuerberatung (z.B. "Sie sollten X abziehen")
 - Du hast KEINEN Zugriff auf persönliche Daten oder hochgeladene Dokumente
+- Du kennst nur den Fortschrittsstatus (welche Bereiche ausgefüllt sind, Anzahl Dokumente etc.)
 - Bei Navigationsfragen gibst du konkrete Hinweise (z.B. "Gehen Sie auf die Startseite und tippen Sie auf '+' um ein neues Steuerjahr hinzuzufügen")
 - Antworte immer auf Deutsch
 - Sei freundlich und professionell
@@ -321,7 +450,7 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
           ...conversationHistory,
           { role: 'user', content: message }
         ],
-        max_tokens: 500,
+        max_tokens: 700,
         temperature: 0.7,
       }),
     })
@@ -353,8 +482,7 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
       escalation_requested: botSuggestsEscalation
     }
     
-    console.log('Bot message data to save:', botMessageData)
-    const { error: botMessageError, data: savedBotMessage } = await supabase
+    const { error: botMessageError } = await supabase
       .from('chat_messages')
       .insert(botMessageData)
       .select()
@@ -364,7 +492,7 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
       console.error('ERROR saving bot message:', botMessageError)
       throw new Error(`Failed to save bot message: ${botMessageError.message}`)
     } else {
-      console.log('✓ Bot message saved successfully:', savedBotMessage)
+      console.log('✓ Bot message saved successfully')
     }
 
     console.log('=== CHATBOT REQUEST END ===')
