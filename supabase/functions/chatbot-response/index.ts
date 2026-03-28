@@ -29,10 +29,20 @@ const chatRequestSchema = z.object({
  */
 async function loadUserStatusContext(supabase: any, userId: string): Promise<string> {
   try {
-    // 1. Active tax returns
+    // 1. Load all tax filers for this user
+    const { data: taxFilers } = await supabase
+      .from('tax_filers')
+      .select('id, first_name, relationship, is_primary')
+      .eq('user_id', userId)
+
+    if (!taxFilers || taxFilers.length === 0) {
+      return `\nAKTUELLER STATUS DES USERS (nur Metadaten):\n- Keine steuerpflichtigen Personen angelegt. Der User hat noch nicht begonnen.\n`
+    }
+
+    // 2. Load all tax returns
     const { data: taxReturns } = await supabase
       .from('tax_returns')
-      .select('tax_year, status, workflow_step, payment_status')
+      .select('id, tax_year, status, workflow_step, payment_status, tax_filer_id')
       .eq('user_id', userId)
       .order('tax_year', { ascending: false })
 
@@ -40,88 +50,111 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
       return `\nAKTUELLER STATUS DES USERS (nur Metadaten):\n- Kein Steuerjahr angelegt. Der User hat noch nicht begonnen.\n`
     }
 
+    // 3. Load form_data completion status (the real source of truth)
+    const { data: formDataRecords } = await supabase
+      .from('form_data')
+      .select('form_type, tax_year, tax_filer_id, data')
+      .eq('user_id', userId)
+      .in('form_type', ['contactInfo', 'income', 'assets', 'deductions'])
+
+    // 4. Load document counts per tax_filer_id and tax_year
+    const { data: documents } = await supabase
+      .from('uploaded_documents')
+      .select('id, tax_filer_id, tax_year')
+      .eq('user_id', userId)
+
+    // 5. Load missing item requests
+    const { data: missingItems } = await supabase
+      .from('missing_item_requests')
+      .select('status, tax_filer_id, tax_return_id')
+      .eq('user_id', userId)
+
+    // 6. Load completed tax returns
+    const { data: completedReturns } = await supabase
+      .from('completed_tax_returns')
+      .select('status, tax_year, tax_filer_id')
+      .eq('user_id', userId)
+
+    // Build status per tax filer
     let statusLines: string[] = []
 
-    for (const tr of taxReturns) {
-      const year = tr.tax_year
+    for (const filer of taxFilers) {
+      const filerLabel = filer.is_primary
+        ? `${filer.first_name} (Hauptperson)`
+        : `${filer.first_name} (${filer.relationship || 'Weitere Person'})`
 
-      // 2. Form progress for this tax year
-      const { data: formProgress } = await supabase
-        .from('form_progress')
-        .select('form_sections')
-        .eq('user_id', userId)
-        .eq('tax_year', year)
-        .maybeSingle()
+      const filerReturns = taxReturns.filter((tr: any) =>
+        tr.tax_filer_id === filer.id || (!tr.tax_filer_id && filer.is_primary)
+      )
 
-      const sections = formProgress?.form_sections as Record<string, boolean> | null
-      const contactDone = sections?.contactInfo === true
-      const incomeDone = sections?.income === true
-      const assetsDone = sections?.assets === true
-      const deductionsDone = sections?.deductions === true
+      if (filerReturns.length === 0) continue
 
-      // 3. Document count for this tax year
-      const { count: docCount } = await supabase
-        .from('uploaded_documents')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('tax_year', year)
+      let filerBlock = `- Steuerpflichtige Person: ${filerLabel}`
 
-      // 4. Missing item requests
-      const { data: missingItems } = await supabase
-        .from('missing_item_requests')
-        .select('status')
-        .eq('user_id', userId)
-        .in('tax_return_id', 
-          (taxReturns.filter((t: any) => t.tax_year === year).map(() => 
-            // We need the tax_return id, get it from a subquery approach
-            'dummy'
-          ))
+      for (const tr of filerReturns) {
+        const year = tr.tax_year
+
+        // Check form_data completion (real source of truth)
+        const isFormCompleted = (formType: string): boolean => {
+          const record = formDataRecords?.find((fd: any) =>
+            fd.form_type === formType &&
+            fd.tax_year === year &&
+            (fd.tax_filer_id === filer.id || (!fd.tax_filer_id && filer.is_primary))
+          )
+          return record?.data?._completed === true
+        }
+
+        const contactDone = isFormCompleted('contactInfo')
+        const incomeDone = isFormCompleted('income')
+        const assetsDone = isFormCompleted('assets')
+        const deductionsDone = isFormCompleted('deductions')
+
+        // Count documents for this filer + year
+        const docCount = documents?.filter((d: any) =>
+          d.tax_year === year &&
+          (d.tax_filer_id === filer.id || (!d.tax_filer_id && filer.is_primary))
+        ).length || 0
+
+        // Missing items for this filer
+        const filerReturnIds = filerReturns.map((r: any) => r.id)
+        const pendingMissing = missingItems?.filter((m: any) =>
+          filerReturnIds.includes(m.tax_return_id) && m.status === 'pending'
+        ).length || 0
+        const submittedMissing = missingItems?.filter((m: any) =>
+          filerReturnIds.includes(m.tax_return_id) && m.status === 'submitted'
+        ).length || 0
+
+        // Completed returns for this filer + year
+        const completed = completedReturns?.find((c: any) =>
+          c.tax_year === year &&
+          (c.tax_filer_id === filer.id || (!c.tax_filer_id && filer.is_primary))
         )
 
-      // Better approach: query missing items by tax_return_id
-      const { count: pendingMissing } = await supabase
-        .from('missing_item_requests')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'pending')
+        const check = (v: boolean) => v ? '✓ Ausgefüllt' : '✗ Noch nicht ausgefüllt'
+        const workflowLabel = getWorkflowLabel(tr.workflow_step)
+        const paymentLabel = tr.payment_status === 'paid' ? '✓ Bezahlt' : '✗ Noch nicht bezahlt'
 
-      const { count: submittedMissing } = await supabase
-        .from('missing_item_requests')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'submitted')
+        filerBlock += `\n  - Steuerjahr ${year}:
+    - Persönliche Angaben: ${check(contactDone)}
+    - Einkommen: ${check(incomeDone)}
+    - Vermögen: ${check(assetsDone)}
+    - Abzüge: ${check(deductionsDone)}
+    - Dokumente hochgeladen: ${docCount}
+    - Workflow-Schritt: ${workflowLabel}
+    - Bezahlung: ${paymentLabel}`
 
-      // 5. Completed tax returns
-      const { data: completedReturns } = await supabase
-        .from('completed_tax_returns')
-        .select('status, tax_year')
-        .eq('user_id', userId)
-        .eq('tax_year', year)
-
-      const check = (v: boolean) => v ? '✓ Ausgefüllt' : '✗ Noch nicht ausgefüllt'
-      const workflowLabel = getWorkflowLabel(tr.workflow_step)
-      const paymentLabel = tr.payment_status === 'paid' ? '✓ Bezahlt' : '✗ Noch nicht bezahlt'
-
-      let yearBlock = `- Steuerjahr ${year}:
-  - Persönliche Angaben: ${check(contactDone)}
-  - Einkommen: ${check(incomeDone)}
-  - Vermögen: ${check(assetsDone)}
-  - Abzüge: ${check(deductionsDone)}
-  - Dokumente hochgeladen: ${docCount || 0}
-  - Workflow-Schritt: ${workflowLabel}
-  - Bezahlung: ${paymentLabel}`
-
-      if ((pendingMissing || 0) > 0) {
-        yearBlock += `\n  - Offene Nachforderungen: ${pendingMissing} (noch ausstehend)`
-      }
-      if ((submittedMissing || 0) > 0) {
-        yearBlock += `\n  - Eingereichte Nachforderungen: ${submittedMissing}`
-      }
-      if (completedReturns && completedReturns.length > 0) {
-        yearBlock += `\n  - Fertige Steuererklärung: ✓ Vorhanden (Status: ${completedReturns[0].status})`
+        if (pendingMissing > 0) {
+          filerBlock += `\n    - Offene Nachforderungen: ${pendingMissing} (noch ausstehend)`
+        }
+        if (submittedMissing > 0) {
+          filerBlock += `\n    - Eingereichte Nachforderungen: ${submittedMissing}`
+        }
+        if (completed) {
+          filerBlock += `\n    - Fertige Steuererklärung: ✓ Vorhanden (Status: ${completed.status})`
+        }
       }
 
-      statusLines.push(yearBlock)
+      statusLines.push(filerBlock)
     }
 
     return `
