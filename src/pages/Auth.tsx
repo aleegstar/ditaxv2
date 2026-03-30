@@ -486,7 +486,7 @@ const Auth = () => {
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full max-w-[440px] rounded-[3rem] px-8 py-12 sm:px-12 sm:py-14 relative overflow-hidden bg-white/70 backdrop-blur-2xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.04)]"
+          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden bg-transparent sm:bg-white/70 sm:backdrop-blur-2xl sm:border sm:border-white sm:shadow-[0_8px_32px_rgba(0,0,0,0.04)] sm:rounded-[3rem]"
         >
 
           <div className="relative z-10">
