@@ -159,6 +159,7 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
 
     return `
 AKTUELLER STATUS DES USERS (nur Metadaten, keine persönlichen Daten):
+Anzahl steuerpflichtige Personen: ${taxFilers.length}
 ${statusLines.join('\n')}`
 
   } catch (error) {
