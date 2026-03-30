@@ -1,48 +1,28 @@
 
 
-## Plan: Fix Chatbot Status-Daten für Multi-Personen-Architektur
+## Plan: Chatbot soll bei mehreren Tax Filern nachfragen
 
 ### Problem
-Der Chatbot liest den Fortschritt aus `form_progress.form_sections`, wo nur `contactInfo: true` steht. Die echten Completion-Daten liegen aber in der `form_data` Tabelle (pro `form_type` mit `_completed: true` im JSON `data`-Feld). Ausserdem wird die Multi-Personen-Architektur (`tax_filer_id`) ignoriert.
+Wenn ein User mehrere steuerpflichtige Personen hat (z.B. Hauptperson + Ehepartner + Kind), weiss der Bot nicht, über welche Person der User spricht. Der Bot listet zwar den Status aller Personen auf, aber der User muss die Person nicht spezifizieren.
 
-**Ist-Zustand für Steuerjahr 2025, Sandro (primary):**
-- `form_data`: contactInfo ✓, income ✓, assets ✓, deductions ✓ — alles ausgefüllt
-- `form_progress`: zeigt nur `{contactInfo: true}` — veraltet/unvollständig
-- Dokumente: 2 hochgeladen
-- **Chatbot sagt fälschlicherweise**: "Persönliche Angaben, Einkommen, Vermögen und Abzüge sind noch nicht ausgefüllt"
-
-### Änderung
+### Lösung
+Den System-Prompt in der Edge Function erweitern mit einer klaren Anweisung:
 
 **Datei: `supabase/functions/chatbot-response/index.ts`**
 
-Die `loadUserStatusContext`-Funktion wird komplett überarbeitet:
+Im System-Prompt (ab Zeile 448, Abschnitt "KONTEXTBASIERTE HILFE") eine neue Regel hinzufügen:
 
-1. **Tax Filers laden** — Alle steuerpflichtigen Personen des Users abfragen (`tax_filers` Tabelle)
-
-2. **Completion aus `form_data` statt `form_progress`** — Für jeden Tax Filer und jedes Steuerjahr prüfen, ob `form_data` Einträge mit `_completed: true` existieren für die 4 Formularbereiche (contactInfo, income, assets, deductions)
-
-3. **Dokumente per `tax_filer_id` zählen** — `uploaded_documents` mit `tax_filer_id` filtern
-
-4. **Status pro Tax Filer ausgeben** — z.B.:
-```text
-AKTUELLER STATUS DES USERS:
-- Steuerpflichtige Person: Sandro (Hauptperson)
-  - Steuerjahr 2025:
-    - Persönliche Angaben: ✓
-    - Einkommen: ✓
-    - Vermögen: ✓
-    - Abzüge: ✓
-    - Dokumente: 2
-    - Bezahlung: ✗
-- Steuerpflichtige Person: Amelia (Kind)
-  - Steuerjahr 2025:
-    - ...
+```
+MULTI-PERSONEN-REGELN:
+- Wenn der User mehrere steuerpflichtige Personen hat, frage IMMER nach, auf welche Person sich die Frage bezieht, bevor du eine statusbezogene Antwort gibst.
+- Nenne dabei die verfügbaren Personen mit Vorname und Beziehung (z.B. "Meinst du Sandro (Hauptperson) oder Amelia (Kind)?")
+- Wenn der User nur eine steuerpflichtige Person hat, antworte direkt ohne Nachfrage.
+- Wenn der User bereits eine Person namentlich erwähnt hat, beziehe dich auf diese Person.
 ```
 
-### Technische Details
+Zusätzlich wird im Status-Kontext die Anzahl der Tax Filer als Meta-Info ergänzt (z.B. `Anzahl steuerpflichtige Personen: 3`), damit der Bot einfach entscheiden kann, ob er nachfragen muss.
 
-- Query `form_data` mit `SELECT form_type, (data->>'_completed')::boolean` statt `form_progress.form_sections`
-- Gruppierung per `tax_filer_id` für korrekte Multi-Personen-Darstellung
-- Nur die 4 relevanten `form_type` Werte prüfen: `contactInfo`, `income`, `assets`, `deductions` (nicht `*_progress` Einträge)
+### Umfang
+- Nur die Edge Function wird angepasst (System-Prompt + eine Zeile im Status-Output)
 - Kein Frontend-Umbau nötig
 
