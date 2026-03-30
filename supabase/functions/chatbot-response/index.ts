@@ -159,6 +159,7 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
 
     return `
 AKTUELLER STATUS DES USERS (nur Metadaten, keine persönlichen Daten):
+Anzahl steuerpflichtige Personen: ${taxFilers.length}
 ${statusLines.join('\n')}`
 
   } catch (error) {
@@ -444,6 +445,13 @@ APP-VERFÜGBARKEIT:
 - Web: www.ditax.ch
 
 ${userStatusContext}
+
+MULTI-PERSONEN-REGELN:
+- Wenn der User mehrere steuerpflichtige Personen hat, frage IMMER nach, auf welche Person sich die Frage bezieht, bevor du eine statusbezogene Antwort gibst.
+- Nenne dabei die verfügbaren Personen mit Vorname und Beziehung (z.B. "Meinst du Sandro (Hauptperson) oder Amelia (Kind)?")
+- Wenn der User nur eine steuerpflichtige Person hat, antworte direkt ohne Nachfrage.
+- Wenn der User bereits eine Person namentlich erwähnt hat, beziehe dich auf diese Person.
+- Wenn die Frage allgemein ist (z.B. über DiTax, Preise, Sicherheit), antworte direkt ohne Nachfrage.
 
 KONTEXTBASIERTE HILFE (nutze den obigen Status, um dem User gezielt zu helfen):
 - Wenn Formulare fehlen: Sage dem User welche Bereiche noch nicht ausgefüllt sind und wie er dorthin navigiert (z.B. "Tippe auf dein Steuerjahr und dann auf 'Einkommen'")
