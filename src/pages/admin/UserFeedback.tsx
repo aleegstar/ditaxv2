@@ -106,7 +106,7 @@ const UserFeedback = () => {
           { label: 'Kategorien', value: `${categoryCounts.bug} Bug · ${categoryCounts.feature} Feature · ${categoryCounts.praise} Lob` },
           { label: 'Kontakt erlaubt', value: `${consentPercent}% (${consentCount})` },
         ].map((stat) => (
-          <div key={stat.label} className="border border-border/60 rounded-xl p-4">
+          <div key={stat.label} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-4 shadow-sm">
             <p className="text-[11px] font-medium text-muted-foreground mb-1">{stat.label}</p>
             <p className="text-[13px] font-semibold text-foreground">{stat.value}</p>
           </div>
