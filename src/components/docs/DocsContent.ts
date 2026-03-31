@@ -39,31 +39,23 @@ export const docsCategories: DocsCategory[] = [
         subtitle: 'In wenigen Minuten startklar – sicher und unkompliziert.',
         content: `## Konto erstellen
 
-Dein Weg zur Steuererklärung beginnt hier. Die Registrierung dauert weniger als 2 Minuten:
+Die Registrierung dauert weniger als 2 Minuten:
 
-1. Öffne die Ditax App auf deinem Smartphone
+1. Öffne die Ditax App
 2. Tippe auf **«Konto erstellen»**
-3. Gib deine E-Mail-Adresse ein und wähle ein sicheres Passwort
+3. Gib deine E-Mail-Adresse ein und wähle ein Passwort
 4. Bestätige deine E-Mail über den zugesendeten Link
 5. Fertig – du kannst dich jetzt einloggen
 
-> **Tipp:** Verwende deine alltägliche E-Mail-Adresse. Darüber erhältst du alle wichtigen Updates zu deiner Steuererklärung.
+> **Tipp:** Verwende deine alltägliche E-Mail-Adresse. Darüber erhältst du alle Updates zu deiner Steuererklärung.
 
 ## Anmelden
 
-Melde dich mit deiner E-Mail und deinem Passwort an. Für noch mehr Komfort und Sicherheit empfehlen wir dir, **Passkeys** zu aktivieren – dann loggst du dich einfach per Face ID oder Touch ID ein, ohne jedes Mal dein Passwort einzugeben.
+Melde dich mit E-Mail und Passwort an. Optional kannst du **Passkeys** aktivieren – dann reicht Face ID oder Touch ID zum Einloggen.
 
 ## Passwort vergessen?
 
-Kein Problem – tippe auf dem Login-Bildschirm auf **«Passwort vergessen»**. Du erhältst sofort eine E-Mail mit einem Link zum Zurücksetzen. Der Link ist aus Sicherheitsgründen 60 Minuten gültig.
-
-## Sicherheit beim Login
-
-Dein Konto ist durch modernste Sicherheitsstandards geschützt:
-
-- **Zwei-Faktor-Authentifizierung (2FA)** – aktiviere sie unter Profil → Sicherheit
-- **Passkeys** – Face ID, Touch ID oder Windows Hello
-- **Automatische Sperrung** nach mehreren Fehlversuchen`,
+Tippe auf **«Passwort vergessen»** auf dem Login-Bildschirm. Du erhältst eine E-Mail mit einem Link zum Zurücksetzen.`,
         keywords: ['registrierung', 'login', 'anmelden', 'konto', 'passwort', 'email', 'passkey', '2fa'],
       },
       {
