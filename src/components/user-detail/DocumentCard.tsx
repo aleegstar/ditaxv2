@@ -12,11 +12,7 @@ interface DocumentCardProps {
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
   return (
-    <Card className="border border-white/20 hover:bg-white/30 transition-colors shadow-sm" style={{
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      backdropFilter: 'blur(15px)',
-      borderRadius: '16px'
-    }}>
+    <Card className="border border-white/40 hover:bg-white/50 transition-colors shadow-sm bg-white/30 backdrop-blur-lg rounded-2xl">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-1 min-w-0">
