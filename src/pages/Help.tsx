@@ -7,6 +7,10 @@ import { DocsArticleContent } from '@/components/docs/DocsArticleContent';
 import { DocsChatBot } from '@/components/docs/DocsChatBot';
 import { docsCategories, getAllArticles } from '@/components/docs/DocsContent';
 
+const HEADER_H = 'h-14';
+const HEADER_TOP = 'top-14';
+const HEADER_CALC = 'h-[calc(100vh-3.5rem)]';
+
 const Help = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -16,6 +20,7 @@ const Help = () => {
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const allArticles = useMemo(() => getAllArticles(), []);
 
@@ -34,9 +39,9 @@ const Help = () => {
     setSelectedArticle({ articleId, categoryId });
     setSearch('');
     setSidebarOpen(false);
+    setMobileSearchOpen(false);
   };
 
-  // Flat article list for prev/next
   const flatArticles = useMemo(() => {
     return docsCategories.flatMap(cat =>
       cat.articles.map(a => ({ articleId: a.id, categoryId: cat.id, title: a.title, categoryTitle: cat.title }))
@@ -51,28 +56,27 @@ const Help = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* ══════ Top Header Bar ══════ */}
+      {/* ══════ Header ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
-        {/* Row 1: Logo — Search — Ask AI */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-16 gap-4">
-          {/* Mobile menu */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-3">
+          {/* Mobile: hamburger */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-muted transition-colors"
+            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {/* Logo with full branding */}
+          {/* Logo */}
           <button onClick={() => navigate('/')} className="shrink-0">
-            <img src={ditaxLogo} alt="DiTax" className="h-8" />
+            <img src={ditaxLogo} alt="DiTax" className="h-7 sm:h-8" />
           </button>
 
           <div className="flex-1" />
 
-          {/* Search + Ask AI centered group */}
-          <div className="flex items-center gap-2">
-            <div className="relative w-52 sm:w-64">
+          {/* Desktop: Search + Ask AI centered */}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="relative w-64">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
               <input
                 value={search}
@@ -84,21 +88,36 @@ const Help = () => {
                 Ctrl+K
               </span>
             </div>
-
             <button
               onClick={() => setChatOpen(true)}
               className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors shrink-0"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">Ask AI</span>
+              Ask AI
             </button>
           </div>
 
-          <div className="flex-1" />
+          {/* Mobile: search icon + AI icon */}
+          <div className="flex sm:hidden items-center gap-1">
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
+            >
+              <Search className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => setChatOpen(true)}
+              className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
+            >
+              <Sparkles className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="hidden sm:block flex-1" />
         </div>
 
-        {/* Row 2: Navigation tabs */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+        {/* Row 2: Nav tabs (hidden on very small screens to save space) */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 hidden sm:block">
           <nav className="flex items-center gap-6 -mb-px">
             <span className="text-sm font-medium text-primary border-b-2 border-primary pb-2.5 pt-1 cursor-default">
               Documentation
@@ -114,11 +133,35 @@ const Help = () => {
             </span>
           </nav>
         </div>
+
+        {/* Mobile search bar (expandable) */}
+        {mobileSearchOpen && (
+          <div className="sm:hidden px-4 pb-3 pt-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Dokumentation durchsuchen..."
+                autoFocus
+                className="w-full h-10 pl-10 pr-10 rounded-xl border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 bg-background placeholder:text-muted-foreground/40"
+              />
+              {search && (
+                <button
+                  onClick={() => { setSearch(''); setMobileSearchOpen(false); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 touch-manipulation"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ══════ Body ══════ */}
       <div className="flex-1 flex max-w-[1400px] mx-auto w-full">
-        {/* Mobile overlay */}
+        {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black/20 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
@@ -127,7 +170,7 @@ const Help = () => {
         <aside
           className={`
             fixed lg:sticky top-14 left-0 z-40 lg:z-auto
-            w-60 h-[calc(100vh-3.5rem)] overflow-y-auto
+            w-[280px] sm:w-60 h-[calc(100vh-3.5rem)] overflow-y-auto
             border-r border-border/40 bg-background
             transition-transform duration-200 ease-in-out
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -142,8 +185,7 @@ const Help = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-w-0 px-6 sm:px-10 lg:px-16 py-8 pb-24 max-w-3xl">
-          {/* Search results */}
+        <main className="flex-1 min-w-0 px-4 sm:px-10 lg:px-16 py-6 sm:py-8 pb-24 max-w-3xl">
           {filteredResults !== null ? (
             <div>
               <p className="text-xs text-muted-foreground mb-4">
@@ -160,7 +202,7 @@ const Help = () => {
                     <button
                       key={article.id}
                       onClick={() => handleSelectArticle(article.id, article.categoryId)}
-                      className="w-full text-left rounded-xl border border-border/40 p-4 hover:bg-muted/30 transition-colors group"
+                      className="w-full text-left rounded-xl border border-border/40 p-4 hover:bg-muted/30 transition-colors group touch-manipulation"
                     >
                       <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{article.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{article.categoryTitle}</p>
@@ -176,14 +218,14 @@ const Help = () => {
                 categoryId={selectedArticle.categoryId}
               />
 
-              {/* Prev / Next Navigation */}
-              <div className="mt-14 pt-6 border-t border-border/40 flex items-center justify-between gap-4">
+              {/* Prev / Next */}
+              <div className="mt-14 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
                 {prevArticle ? (
                   <button
                     onClick={() => handleSelectArticle(prevArticle.articleId, prevArticle.categoryId)}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors group touch-manipulation"
                   >
-                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform shrink-0" />
                     <div className="text-left">
                       <p className="text-[11px] text-muted-foreground/60 mb-0.5">Zurück</p>
                       <p className="font-medium text-foreground">{prevArticle.title}</p>
@@ -193,26 +235,28 @@ const Help = () => {
                 {nextArticle ? (
                   <button
                     onClick={() => handleSelectArticle(nextArticle.articleId, nextArticle.categoryId)}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors text-right ml-auto group"
+                    className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors sm:text-right sm:ml-auto group touch-manipulation"
                   >
+                    <div className="sm:order-1">
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0 sm:hidden" />
+                    </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground/60 mb-0.5">Weiter</p>
                       <p className="font-medium text-foreground">{nextArticle.title}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0 hidden sm:block" />
                   </button>
                 ) : <div />}
               </div>
 
-              {/* Footer */}
-              <div className="mt-8 pt-6 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground/50">
+              <div className="mt-8 pt-6 border-t border-border/40 text-[11px] text-muted-foreground/50">
                 <span>DiTax Dokumentation</span>
               </div>
             </>
           )}
         </main>
 
-        {/* Right sidebar - Table of Contents (desktop only) */}
+        {/* Right TOC (desktop only) */}
         <aside className="hidden xl:block w-52 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-8 pr-4">
           <DocsTableOfContents
             articleId={selectedArticle.articleId}
@@ -221,19 +265,17 @@ const Help = () => {
         </aside>
       </div>
 
-      {/* Chat Bot */}
       <DocsChatBot open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };
 
-/* ── Right-side "On this page" TOC ── */
+/* ── Right-side TOC ── */
 const DocsTableOfContents: React.FC<{ articleId: string; categoryId: string }> = ({ articleId, categoryId }) => {
   const category = docsCategories.find(c => c.id === categoryId);
   const article = category?.articles.find(a => a.id === articleId);
   if (!article) return null;
 
-  // Extract ## and ### headings from markdown
   const headings = article.content
     .split('\n')
     .filter(line => /^#{2,3}\s/.test(line))
