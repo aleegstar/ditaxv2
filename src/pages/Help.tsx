@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Sparkles, Menu, X, ChevronRight, ChevronLeft, Settings } from 'lucide-react';
+import ditaxLogo from '@/assets/ditax-logo-icon.png';
 import { DocsSidebar } from '@/components/docs/DocsSidebar';
 import { DocsArticleContent } from '@/components/docs/DocsArticleContent';
 import { DocsChatBot } from '@/components/docs/DocsChatBot';
