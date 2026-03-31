@@ -55,7 +55,7 @@ const Help = () => {
   const nextArticle = currentIndex < flatArticles.length - 1 ? flatArticles[currentIndex + 1] : null;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* ══════ Header ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-3">
