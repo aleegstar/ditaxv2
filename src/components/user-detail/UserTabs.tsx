@@ -308,7 +308,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 isAdmin={true} 
               />
             ) : (
-              <Card className="border-border/30 shadow-sm">
+              <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
                 <CardContent className="py-10">
                   <div className="text-center">
                     <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
