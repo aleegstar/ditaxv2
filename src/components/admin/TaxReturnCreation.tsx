@@ -389,7 +389,7 @@ const TaxReturnCreation: React.FC = () => {
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
