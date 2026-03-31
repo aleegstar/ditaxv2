@@ -457,8 +457,19 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] cursor-pointer"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 border border-white/70 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] cursor-pointer overflow-hidden"
+                style={{
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(240,243,255,0.85) 40%, rgba(255,255,255,0.88) 70%, rgba(235,240,255,0.82) 100%)',
+                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.03)',
+                }}
               >
+                {/* Liquid glass shimmer overlay */}
+                <div 
+                  className="absolute inset-0 rounded-[2rem] pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.5) 45%, transparent 55%)',
+                  }}
+                />
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-5">
