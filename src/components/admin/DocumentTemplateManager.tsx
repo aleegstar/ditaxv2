@@ -230,7 +230,7 @@ export const DocumentTemplateManager: React.FC = () => {
         <h2 className="text-[13px] font-medium text-muted-foreground mb-3">Verfügbare Vorlagen</h2>
         
         {templates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center border border-border/60 rounded-xl">
+          <div className="flex flex-col items-center justify-center py-12 text-center bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm">
             <FileText className="w-8 h-8 text-muted-foreground/40 mb-3" />
             <p className="text-sm font-medium text-foreground mb-1">Keine Vorlagen</p>
             <p className="text-[13px] text-muted-foreground">Laden Sie eine Vorlage hoch, um zu beginnen.</p>
