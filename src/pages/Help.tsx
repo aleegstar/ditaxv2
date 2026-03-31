@@ -112,8 +112,6 @@ const Help = () => {
             </span>
           </nav>
         </div>
-          </button>
-        </div>
       </header>
 
       {/* ══════ Body ══════ */}
