@@ -3,6 +3,7 @@ import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield } from 'luc
 export interface DocsArticle {
   id: string;
   title: string;
+  subtitle?: string;
   content: string;
   keywords: string[];
 }
@@ -22,6 +23,13 @@ export const docsCategories: DocsCategory[] = [
     description: 'Registrierung, Login und Steuerjahr anlegen',
     icon: BookOpen,
     articles: [
+      {
+        id: 'introduction',
+        title: 'Einführung',
+        subtitle: 'Entdecke DiTax – die einfachste Art deine Schweizer Steuererklärung zu erledigen.',
+        content: '',
+        keywords: ['einführung', 'übersicht', 'introduction', 'start', 'ditax'],
+      },
       {
         id: 'registration',
         title: 'Registrierung & Login',
