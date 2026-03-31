@@ -1,4 +1,4 @@
-import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield } from 'lucide-react';
+import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield, Home, Zap, LogIn, CalendarPlus, User, Wallet, PiggyBank, Receipt, ClipboardCheck, ScanLine, Send, BarChart3, FileCheck, DollarSign, CreditCard as CardIcon, Lock, UserCog, HelpCircle } from 'lucide-react';
 
 export interface DocsArticle {
   id: string;
@@ -6,6 +6,7 @@ export interface DocsArticle {
   subtitle?: string;
   content: string;
   keywords: string[];
+  icon: typeof BookOpen;
 }
 
 export interface DocsCategory {
@@ -25,6 +26,7 @@ export const docsCategories: DocsCategory[] = [
     articles: [
       {
         id: 'introduction',
+        icon: Home,
         title: 'Einführung',
         subtitle: 'Entdecke DiTax – die einfachste Art deine Schweizer Steuererklärung zu erledigen.',
         content: '',
@@ -32,6 +34,7 @@ export const docsCategories: DocsCategory[] = [
       },
       {
         id: 'registration',
+        icon: LogIn,
         title: 'Registrierung & Login',
         content: `## Registrierung
 
@@ -54,6 +57,7 @@ Falls du dein Passwort vergessen hast, tippe auf dem Login-Bildschirm auf **"Pas
       },
       {
         id: 'create-tax-year',
+        icon: CalendarPlus,
         title: 'Steuerjahr anlegen',
         content: `## Steuerjahr anlegen
 
@@ -83,6 +87,7 @@ Falls du die Steuererklärung auch für andere Personen einreichen möchtest (z.
     articles: [
       {
         id: 'personal-data',
+        icon: User,
         title: 'Persönliche Angaben',
         content: `## Persönliche Angaben
 
@@ -107,6 +112,7 @@ Du kannst jederzeit zwischen den Modi wechseln über den Button oben rechts im F
       },
       {
         id: 'income',
+        icon: Wallet,
         title: 'Einkommen erfassen',
         content: `## Einkommen erfassen
 
@@ -131,6 +137,7 @@ Falls du bei mehreren Arbeitgebern beschäftigt warst, erfasse jeden Lohnausweis
       },
       {
         id: 'assets',
+        icon: PiggyBank,
         title: 'Vermögen erfassen',
         content: `## Vermögen erfassen
 
@@ -151,6 +158,7 @@ Für jeden Kontostand solltest du einen Bankbeleg (Kontoauszug per 31.12.) als D
       },
       {
         id: 'deductions',
+        icon: Receipt,
         title: 'Abzüge erfassen',
         content: `## Abzüge erfassen
 
@@ -181,6 +189,7 @@ Für alle Abzüge solltest du die entsprechenden Belege hochladen. Bei einer Üb
     articles: [
       {
         id: 'document-checklist',
+        icon: ClipboardCheck,
         title: 'Dokumenten-Checkliste',
         content: `## Dokumenten-Checkliste
 
@@ -204,6 +213,7 @@ Jedes Dokument hat einen Status:
       },
       {
         id: 'upload-methods',
+        icon: ScanLine,
         title: 'Upload-Methoden',
         content: `## Dokumente hochladen
 
@@ -238,6 +248,7 @@ Nach dem Upload werden deine Dokumente automatisch analysiert:
     articles: [
       {
         id: 'submit',
+        icon: Send,
         title: 'Steuererklärung einreichen',
         content: `## Steuererklärung einreichen
 
@@ -256,6 +267,7 @@ Unsere eidgenössisch diplomierten Treuhänder prüfen deine Angaben, optimieren
       },
       {
         id: 'status',
+        icon: BarChart3,
         title: 'Status verfolgen',
         content: `## Status deiner Steuererklärung
 
@@ -275,6 +287,7 @@ Du erhältst Push-Benachrichtigungen und E-Mails bei Statusänderungen.`,
       },
       {
         id: 'completed',
+        icon: FileCheck,
         title: 'Fertige Steuererklärung',
         content: `## Fertige Steuererklärung
 
@@ -305,6 +318,7 @@ Falls du mit der Veranlagung nicht einverstanden bist, kannst du über die App e
     articles: [
       {
         id: 'pricing',
+        icon: DollarSign,
         title: 'Preise & Services',
         content: `## Preise
 
@@ -328,6 +342,7 @@ Falls du mit der Veranlagung nicht einverstanden bist, kannst du über die App e
       },
       {
         id: 'payment-methods',
+        icon: CardIcon,
         title: 'Zahlungsmethoden',
         content: `## Zahlungsmethoden
 
@@ -353,6 +368,7 @@ Alle Zahlungen werden über verschlüsselte Verbindungen abgewickelt. DiTax spei
     articles: [
       {
         id: 'security',
+        icon: Lock,
         title: 'Datensicherheit',
         content: `## Datensicherheit
 
@@ -377,6 +393,7 @@ Noch sicherer und bequemer: Nutze **Passkeys** (Face ID, Touch ID, Windows Hello
       },
       {
         id: 'profile',
+        icon: UserCog,
         title: 'Profil verwalten',
         content: `## Profil verwalten
 
@@ -399,6 +416,7 @@ Unter **Profil → Konto löschen** kannst du dein Konto und alle zugehörigen D
       },
       {
         id: 'faq',
+        icon: HelpCircle,
         title: 'Häufige Fragen (FAQ)',
         content: `## Häufige Fragen
 
