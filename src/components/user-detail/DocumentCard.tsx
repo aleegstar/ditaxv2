@@ -12,18 +12,14 @@ interface DocumentCardProps {
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
   return (
-    <Card className="border border-white/20 hover:bg-white/30 transition-colors shadow-sm" style={{
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      backdropFilter: 'blur(15px)',
-      borderRadius: '16px'
-    }}>
+    <Card className="border border-white/40 hover:bg-white/50 transition-colors shadow-sm bg-white/30 backdrop-blur-lg rounded-2xl">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-1 min-w-0">
-            <FileIcon className="h-8 w-8 text-black/70 flex-shrink-0" />
+            <FileIcon className="h-8 w-8 text-foreground/70 flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-black font-medium text-sm truncate">{document.fileName}</p>
-              <p className="text-black/60 text-xs">
+              <p className="text-foreground font-medium text-sm truncate">{document.fileName}</p>
+              <p className="text-muted-foreground text-xs">
                 {document.uploadDate.toLocaleDateString('de-DE')}
               </p>
             </div>
@@ -32,7 +28,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
             onClick={() => onPreview(document)}
             variant="outline"
             size="sm"
-            className="bg-white/20 border-white/30 text-black hover:bg-white/30 flex-shrink-0 ml-2"
+            className="bg-white/40 border-white/60 text-foreground hover:bg-white/60 flex-shrink-0 ml-2"
           >
             <Eye className="h-4 w-4" />
           </Button>

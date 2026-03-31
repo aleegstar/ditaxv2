@@ -295,7 +295,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
           </TabsList>
           
           {/* Content Container - Connected to Tabs */}
-          <div className="relative mt-4 bg-background border border-border/40 rounded-xl shadow-sm">
+          <div className="relative mt-4 bg-white/60 backdrop-blur-xl border border-white/40 rounded-xl shadow-sm">
             <div className="p-5">
               <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
@@ -308,7 +308,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 isAdmin={true} 
               />
             ) : (
-              <Card className="border-border/30 shadow-sm">
+              <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
                 <CardContent className="py-10">
                   <div className="text-center">
                     <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
@@ -325,7 +325,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-            <Card className="border-border/30 shadow-sm">
+            <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
                 <CardDescription className="text-xs">
@@ -454,7 +454,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
             {/* Year Selector */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 bg-slate-50 rounded-full px-4 py-2 border border-slate-200">
+                <div className="flex items-center gap-2 bg-white/50 rounded-full px-4 py-2 border border-white/60">
                   <Calendar className="h-4 w-4 text-slate-500" />
                   <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
@@ -503,7 +503,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
-                      className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer" 
+                      className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
                       <div className="flex items-center gap-4">
@@ -560,7 +560,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <div className="flex flex-col items-center justify-center py-12 bg-white/30 backdrop-blur-lg rounded-2xl border border-dashed border-white/60">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
                   <FileIcon className="h-8 w-8 text-slate-400" />
                 </div>
@@ -580,7 +580,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
           
               <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
-                <Card className="border-border/50">
+                <Card className="border-white/40 bg-white/40 backdrop-blur-lg">
                   <CardHeader>
                     <CardTitle className="text-xl">
                       Nachrichten mit {user.firstName} {user.lastName}

@@ -10,7 +10,7 @@ interface UserInfoCardProps {
 
 const UserInfoCard: React.FC<UserInfoCardProps> = ({ user }) => {
   return (
-    <Card className="shadow-sm border-border/50">
+    <Card className="shadow-sm border-white/40 bg-white/60 backdrop-blur-xl rounded-2xl">
       <CardHeader className="pb-4">
         <div className="flex items-center space-x-4">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border border-primary/20">

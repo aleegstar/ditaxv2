@@ -557,13 +557,13 @@ const UserDetail: React.FC = () => {
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
   return (
-    <div className="flex min-h-screen w-full" style={{ backgroundColor: 'rgb(244 244 244 / var(--tw-bg-opacity, 1))' }}>
+    <div className="flex min-h-screen w-full">
       <AdminSidebar />
       
       <main className="flex-1 p-4 lg:p-5">
-        <div className="bg-white rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
           {/* Refined Header */}
-          <div className="px-5 py-3 border-b border-border/30">
+          <div className="px-5 py-3 border-b border-white/30">
             {/* Main Header Row */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
               {/* Left: Back + Client Identity (Primary Focus) */}
@@ -571,7 +571,7 @@ const UserDetail: React.FC = () => {
                 {/* Back Button */}
                 <Link 
                   to="/admin" 
-                  className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors flex-shrink-0"
+                  className="w-9 h-9 rounded-full bg-white/50 border border-white/60 flex items-center justify-center hover:bg-white/70 transition-colors flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4 text-slate-500" />
                 </Link>
@@ -608,7 +608,7 @@ const UserDetail: React.FC = () => {
                 <div className="hidden lg:flex items-center gap-1.5">
                   {/* Tax Filer Selector - Only show if multiple filers exist */}
                   {taxFilers.length > 1 && (
-                    <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                    <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
                       <Users className="h-3.5 w-3.5" />
                       <select
                         value={selectedTaxFilerId || ''}
@@ -626,7 +626,7 @@ const UserDetail: React.FC = () => {
                   )}
                   
                   {/* Year Selector - Subdued */}
-                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     <select
                       value={selectedYear}
@@ -669,14 +669,14 @@ const UserDetail: React.FC = () => {
                 {/* Primary Action - Prominent */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
-                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs shadow-sm border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="h-9 rounded-full px-4 font-medium gap-1.5 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-[1.04] text-white text-xs shadow-sm border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                 >
                   <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
                 </Button>
                 
                 {/* Secondary Actions - Subdued */}
-                <div className="flex items-center gap-0.5 border-l border-border/40 pl-2 ml-1">
+                <div className="flex items-center gap-0.5 border-l border-white/40 pl-2 ml-1">
                   <FormDataPdfDownloader 
                     userId={user.id} 
                     taxYear={selectedYear}
@@ -701,7 +701,7 @@ const UserDetail: React.FC = () => {
             <div className="flex flex-wrap items-center gap-1.5 mt-2 lg:hidden">
               {/* Tax Filer Selector - Mobile */}
               {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
                   <Users className="h-3.5 w-3.5" />
                   <select
                     value={selectedTaxFilerId || ''}
@@ -719,7 +719,7 @@ const UserDetail: React.FC = () => {
               )}
               
               {/* Year Selector */}
-              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
                 <Calendar className="h-3.5 w-3.5" />
                 <select
                   value={selectedYear}
