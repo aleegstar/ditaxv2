@@ -24,6 +24,13 @@ export const docsCategories: DocsCategory[] = [
     icon: BookOpen,
     articles: [
       {
+        id: 'introduction',
+        title: 'Einführung',
+        subtitle: 'Entdecke DiTax – die einfachste Art deine Schweizer Steuererklärung zu erledigen.',
+        content: '',
+        keywords: ['einführung', 'übersicht', 'introduction', 'start', 'ditax'],
+      },
+      {
         id: 'registration',
         title: 'Registrierung & Login',
         content: `## Registrierung
