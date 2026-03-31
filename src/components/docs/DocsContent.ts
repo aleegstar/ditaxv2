@@ -479,31 +479,21 @@ Alle Zahlungen werden **verschlüsselt** und über zertifizierte Zahlungsanbiete
         subtitle: 'Bankensichere Verschlüsselung für deine sensibelsten Daten.',
         content: `## Deine Daten sind sicher
 
-Steuerdaten gehören zu den sensibelsten Informationen überhaupt. Deshalb hat Datenschutz bei Ditax höchste Priorität.
-
-## Verschlüsselung
-
-Deine Daten werden auf mehreren Ebenen geschützt:
-
-- **Ende-zu-Ende-Verschlüsselung** für besonders sensible Daten wie AHV-Nummer und Bankdaten – selbst wir können diese nicht im Klartext einsehen
-- **TLS/SSL** für alle Datenübertragungen zwischen App und Server
-- **Verschlüsselung at rest** für alle gespeicherten Dokumente und Daten
-
-## Datenspeicherort
+Steuerdaten sind hochsensibel. Bei Ditax hat Datenschutz deshalb höchste Priorität:
 
 - Alle Daten werden in der **Schweiz und/oder EU** gespeichert
 - Vollständig **DSGVO-konform** und nach Schweizer Datenschutzgesetz (nDSG)
-- Regelmässige Sicherheitsaudits durch externe Experten
+- Sensible Daten wie AHV-Nummer und Bankdaten sind zusätzlich verschlüsselt
 
-## Dein Schutz
+## Dein Konto schützen
 
-Aktiviere diese Funktionen für maximalen Schutz deines Kontos:
+Für zusätzlichen Schutz empfehlen wir:
 
-**Zwei-Faktor-Authentifizierung (2FA)** – Ein zusätzlicher Code bei jedem Login. Aktiviere 2FA unter Profil → Sicherheit.
+**Passkeys** – Logge dich per Face ID oder Touch ID ein, ohne Passwort. Schnell, sicher und komfortabel.
 
-**Passkeys** – Logge dich komfortabel und sicher mit Face ID, Touch ID oder Windows Hello ein. Passkeys sind phishing-resistent und deutlich sicherer als Passwörter.
+**Zwei-Faktor-Authentifizierung (2FA)** – Aktiviere unter Profil → Sicherheit einen zusätzlichen Code beim Login.
 
-> **Empfehlung:** Aktiviere mindestens eine der beiden Optionen. Zusammen bieten sie den bestmöglichen Schutz für dein Konto.`,
+> **Tipp:** Aktiviere mindestens eine der beiden Optionen für den bestmöglichen Schutz.`,
         keywords: ['sicherheit', 'verschlüsselung', '2fa', 'passwort', 'datenschutz', 'dsgvo', 'passkey', 'ndsg'],
       },
       {
