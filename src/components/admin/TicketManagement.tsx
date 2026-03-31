@@ -636,7 +636,7 @@ export const TicketManagement = () => {
                   <button
                     onClick={sendMessage}
                     disabled={!newMessage.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white hover:brightness-[1.04] disabled:opacity-50 transition-all"
                   >
                     <MessageSquare className="h-3 w-3" />
                     Antworten

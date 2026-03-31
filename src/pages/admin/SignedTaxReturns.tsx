@@ -375,7 +375,7 @@ const SignedTaxReturns: React.FC = () => {
                         <button
                           onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
                           disabled={updatingId === item.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white hover:brightness-[1.04] disabled:opacity-50 transition-all"
                         >
                           <Send className="h-3 w-3" />
                           Übermittelt

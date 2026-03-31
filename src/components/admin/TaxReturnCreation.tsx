@@ -577,7 +577,7 @@ const TaxReturnCreation: React.FC = () => {
             <button
               onClick={handleUploadComplete}
               disabled={uploading || !selectedFile}
-              className="px-4 py-2 text-sm font-medium bg-foreground text-background rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
+              className="px-4 py-2 text-sm font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full hover:brightness-[1.04] disabled:opacity-50 transition-all"
             >
               {uploading ? 'Lädt...' : 'Hochladen'}
             </button>

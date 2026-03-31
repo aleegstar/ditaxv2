@@ -280,7 +280,7 @@ const Admin: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+                <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
                   {users.map(user => (
                     <UserCard
                       key={user.id}

@@ -276,7 +276,7 @@ export function OcrDocumentConfigManager() {
           </div>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEditDialog({ open: false, config: null })}>Abbrechen</Button>
-            <button onClick={saveConfig} className="h-8 px-4 rounded-lg bg-foreground text-background text-[12px] font-medium hover:bg-foreground/90 transition-colors">Speichern</button>
+            <button onClick={saveConfig} className="h-8 px-4 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold hover:brightness-[1.04] transition-all">Speichern</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
