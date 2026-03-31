@@ -157,7 +157,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
             placeholder="Suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
           />
         </div>
         <div className="flex gap-0.5 bg-muted/40 rounded-lg p-0.5">

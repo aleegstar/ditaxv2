@@ -108,7 +108,7 @@ export function OcrUnrecognizedUploads() {
         </div>
         <button
           onClick={fetchUploads}
-          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>
