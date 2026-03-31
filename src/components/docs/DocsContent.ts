@@ -39,31 +39,23 @@ export const docsCategories: DocsCategory[] = [
         subtitle: 'In wenigen Minuten startklar – sicher und unkompliziert.',
         content: `## Konto erstellen
 
-Dein Weg zur Steuererklärung beginnt hier. Die Registrierung dauert weniger als 2 Minuten:
+Die Registrierung dauert weniger als 2 Minuten:
 
-1. Öffne die Ditax App auf deinem Smartphone
+1. Öffne die Ditax App
 2. Tippe auf **«Konto erstellen»**
-3. Gib deine E-Mail-Adresse ein und wähle ein sicheres Passwort
+3. Gib deine E-Mail-Adresse ein und wähle ein Passwort
 4. Bestätige deine E-Mail über den zugesendeten Link
 5. Fertig – du kannst dich jetzt einloggen
 
-> **Tipp:** Verwende deine alltägliche E-Mail-Adresse. Darüber erhältst du alle wichtigen Updates zu deiner Steuererklärung.
+> **Tipp:** Verwende deine alltägliche E-Mail-Adresse. Darüber erhältst du alle Updates zu deiner Steuererklärung.
 
 ## Anmelden
 
-Melde dich mit deiner E-Mail und deinem Passwort an. Für noch mehr Komfort und Sicherheit empfehlen wir dir, **Passkeys** zu aktivieren – dann loggst du dich einfach per Face ID oder Touch ID ein, ohne jedes Mal dein Passwort einzugeben.
+Melde dich mit E-Mail und Passwort an. Optional kannst du **Passkeys** aktivieren – dann reicht Face ID oder Touch ID zum Einloggen.
 
 ## Passwort vergessen?
 
-Kein Problem – tippe auf dem Login-Bildschirm auf **«Passwort vergessen»**. Du erhältst sofort eine E-Mail mit einem Link zum Zurücksetzen. Der Link ist aus Sicherheitsgründen 60 Minuten gültig.
-
-## Sicherheit beim Login
-
-Dein Konto ist durch modernste Sicherheitsstandards geschützt:
-
-- **Zwei-Faktor-Authentifizierung (2FA)** – aktiviere sie unter Profil → Sicherheit
-- **Passkeys** – Face ID, Touch ID oder Windows Hello
-- **Automatische Sperrung** nach mehreren Fehlversuchen`,
+Tippe auf **«Passwort vergessen»** auf dem Login-Bildschirm. Du erhältst eine E-Mail mit einem Link zum Zurücksetzen.`,
         keywords: ['registrierung', 'login', 'anmelden', 'konto', 'passwort', 'email', 'passkey', '2fa'],
       },
       {
@@ -103,120 +95,103 @@ Musst du noch Steuererklärungen aus Vorjahren nachreichen? Kein Problem – leg
         id: 'personal-data',
         icon: User,
         title: 'Persönliche Angaben',
-        subtitle: 'Deine Grunddaten – nur einmal ausfüllen, dann ist es erledigt.',
-        content: `## Deine persönlichen Daten
+        subtitle: 'Deine Grunddaten – einmal ausfüllen, bei Wiederkehr automatisch übernommen.',
+        content: `## Was wird abgefragt?
 
-Im ersten Schritt hinterlegst du deine Grunddaten. Diese brauchen wir, um deine Steuererklärung korrekt zu erstellen:
+Im ersten Schritt gibst du deine persönlichen Daten ein. Der Assistent führt dich mit einfachen Fragen durch den Prozess:
 
 - **Name und Vorname**
 - **Geburtsdatum**
 - **Adresse** (Strasse, PLZ, Ort)
-- **AHV-Nummer** (wird Ende-zu-Ende verschlüsselt)
+- **AHV-Nummer**
 - **Zivilstand und Konfession**
 
-> **Gut zu wissen:** Deine AHV-Nummer wird mit modernster Verschlüsselung geschützt – selbst wir können sie nicht im Klartext einsehen.
-
-## Zwei Erfassungsmodi
-
-Du wählst, wie du deine Daten eingeben möchtest:
-
-**Geführter Modus** – Der Assistent stellt dir einfache Fragen und leitet dich Schritt für Schritt durch den Prozess. Perfekt, wenn du zum ersten Mal eine Steuererklärung machst oder dir unsicher bist.
-
-**Experten-Modus** – Alle Eingabefelder sind auf einen Blick sichtbar. Ideal für erfahrene Nutzer, die schnell durchkommen wollen.
-
-Du kannst jederzeit zwischen den beiden Modi wechseln – deine bereits eingegebenen Daten bleiben erhalten.
+Der Assistent stellt dir die Fragen Schritt für Schritt – du beantwortest sie einfach nacheinander. So ist sichergestellt, dass nichts vergessen geht.
 
 ## Daten aus dem Vorjahr
 
-Hast du Ditax schon letztes Jahr genutzt? Dann werden deine persönlichen Angaben automatisch vorausgefüllt. Du musst nur noch prüfen, ob sich etwas geändert hat.`,
-        keywords: ['persönlich', 'angaben', 'name', 'adresse', 'ahv', 'zivilstand', 'modus'],
+Hast du Ditax schon letztes Jahr genutzt? Dann sind deine persönlichen Angaben bereits vorausgefüllt. Du musst nur noch prüfen, ob sich etwas geändert hat – z.B. ein Umzug oder eine Heirat.
+
+> **Tipp:** Halte deinen Lohnausweis und deine AHV-Nummer bereit, bevor du loslegst. So geht es am schnellsten.`,
+        keywords: ['persönlich', 'angaben', 'name', 'adresse', 'ahv', 'zivilstand'],
       },
       {
         id: 'income',
         icon: Wallet,
         title: 'Einkommen erfassen',
         subtitle: 'Lohn, Nebeneinkünfte, Renten – alles an einem Ort.',
-        content: `## Dein Einkommen angeben
+        content: `## Welche Einkommen gehören hierhin?
 
-Hier erfasst du alle Einkommensquellen. Je vollständiger deine Angaben, desto genauer und besser kann deine Steuererklärung optimiert werden.
+Gib alle Einkommensquellen des Steuerjahres an:
 
-### Typische Einkommensarten
-
-- **Lohn** aus unselbständiger Erwerbstätigkeit
-- **Selbständige Erwerbstätigkeit**
-- **Nebeneinkünfte** (z.B. Freelancing, Nachhilfe)
-- **Renten und Pensionen** (AHV, IV, Pensionskasse)
-- **Taggelder** (ALV, KTG, Unfallversicherung)
-- **Mieteinnahmen** aus Liegenschaften
+- **Lohn** aus Anstellung
+- **Nebeneinkünfte** (z.B. Freelancing, Vermietung)
+- **Renten und Pensionen** (AHV, Pensionskasse)
+- **Taggelder** (Arbeitslosigkeit, Krankentaggeld)
 - **Wertschriftenertrag** (Dividenden, Zinsen)
 
-> **Beispiel:** Du bist Angestellte/r mit einem Nebenjob als Freelancer? Erfasse zuerst deinen Hauptlohn und füge dann die Nebeneinkünfte separat hinzu. So können unsere Experten alle Abzüge optimal berechnen.
+## Lohnausweis hochladen
 
-## Automatische Erkennung
-
-Wenn du deinen **Lohnausweis als PDF** hochlädst, erkennt Ditax die wichtigsten Daten automatisch und füllt die Felder für dich aus. Du sparst Zeit und reduzierst Tippfehler.
+Lade deinen **Lohnausweis als PDF** hoch – Ditax erkennt die wichtigsten Angaben automatisch und füllt die Felder für dich aus. Das spart Zeit und verhindert Tippfehler.
 
 ## Mehrere Arbeitgeber
 
-Hast du im Laufe des Jahres den Job gewechselt oder mehrere Arbeitgeber gehabt? Erfasse einfach jeden Lohnausweis einzeln – die Summe wird automatisch berechnet.`,
+Hast du den Job gewechselt oder mehrere Arbeitgeber? Erfasse jeden Lohnausweis einzeln. Die App rechnet alles zusammen.
+
+> **Tipp:** Auch kleine Nebeneinkünfte solltest du angeben. Unsere Experten können so alle legalen Abzüge optimal nutzen.`,
         keywords: ['einkommen', 'lohn', 'gehalt', 'rente', 'pension', 'lohnausweis', 'nebeneinkünfte', 'freelancer'],
       },
       {
         id: 'assets',
         icon: PiggyBank,
         title: 'Vermögen erfassen',
-        subtitle: 'Bankkonten, Wertschriften, Immobilien – alles per 31.12.',
-        content: `## Dein Vermögen angeben
+        subtitle: 'Bankkonten, Wertschriften, Immobilien – Stichtag 31.12.',
+        content: `## Was zählt zum Vermögen?
 
-Erfasse dein gesamtes Vermögen per **31. Dezember** des Steuerjahres. Das Steueramt benötigt eine vollständige Übersicht:
+Erfasse dein gesamtes Vermögen per **31. Dezember** des Steuerjahres:
 
-- **Bankkonten** – Spar-, Privat-, Lohnkonto
-- **Wertschriften** – Aktien, Obligationen, Fonds, ETFs
-- **Immobilien** – Eigentumswohnungen, Häuser, Grundstücke
+- **Bankkonten** – Spar-, Privat-, Lohnkonto (Saldo per 31.12.)
+- **Wertschriften** – Aktien, Fonds, ETFs, Obligationen
+- **Immobilien** – Eigentumswohnungen, Häuser
 - **Fahrzeuge** – Zeitwert per 31.12.
-- **Lebensversicherungen** – Rückkaufswert
 - **Kryptowährungen** – Marktwert per 31.12.
-- **Übrige Vermögenswerte**
+- **Lebensversicherungen** – Rückkaufswert
 
-> **Tipp:** Die eidgenössische Steuerverwaltung veröffentlicht jährlich die offiziellen Kurslisten für Wertschriften und Kryptowährungen. Unsere Experten verwenden automatisch die korrekten Bewertungen.
+## Belege hochladen
 
-## Belege nicht vergessen
+Lade für jedes Konto den **Kontoauszug per 31.12.** hoch. Je vollständiger deine Belege, desto schneller die Bearbeitung.
 
-Für jeden Kontostand brauchst du einen **Bankbeleg** (Saldo per 31.12.). Lade die Kontoauszüge einfach als Dokument hoch – je vollständiger, desto reibungsloser die Bearbeitung.
+## Schulden nicht vergessen
 
-## Schulden angeben
+Hypotheken, Privatkredite und andere Schulden werden vom Vermögen abgezogen und senken deine Vermögenssteuer.
 
-Vergiss nicht, auch deine **Schulden** anzugeben (z.B. Hypotheken, Privatkredite). Diese werden vom Vermögen abgezogen und reduzieren die Vermögenssteuer.`,
+> **Tipp:** Die korrekten Bewertungen für Wertschriften und Kryptowährungen kennen unsere Experten – du musst nur die Bestände angeben.`,
         keywords: ['vermögen', 'bank', 'konto', 'wertschriften', 'aktien', 'immobilien', 'auto', 'krypto', 'schulden'],
       },
       {
         id: 'deductions',
         icon: Receipt,
         title: 'Abzüge erfassen',
-        subtitle: 'Hier holst du dir bares Geld zurück – kein Abzug geht verloren.',
-        content: `## Spare Steuern mit den richtigen Abzügen
+        subtitle: 'Hier sparst du Steuern – unsere Experten maximieren jeden Abzug.',
+        content: `## Welche Abzüge gibt es?
 
-Abzüge sind der Schlüssel zu einer tieferen Steuerrechnung. Unsere Experten kennen jeden Abzug und sorgen dafür, dass nichts vergessen geht.
+Abzüge senken dein steuerbares Einkommen. Je mehr du angibst, desto weniger Steuern zahlst du:
 
-### Die wichtigsten Abzüge
-
-- **Berufsauslagen** – Arbeitsweg, Verpflegung, Berufskleidung, Home-Office
-- **Weiterbildungskosten** – bis CHF 12'000 pro Jahr absetzbar
+- **Berufsauslagen** – Arbeitsweg, Verpflegung, Homeoffice
+- **Weiterbildung** – bis CHF 12'000 pro Jahr
 - **Versicherungsprämien** – Krankenkasse, Unfall, Haftpflicht
 - **Krankheitskosten** – Zahnarzt, Brille, Medikamente (über Selbstbehalt)
 - **Säule 3a** – bis CHF 7'056 (Angestellte) bzw. CHF 35'280 (Selbständige)
-- **Schuldzinsen** – Hypothekarzinsen, Konsumkreditzinsen
+- **Schuldzinsen** – Hypothekarzinsen
 - **Spenden** – an steuerbefreite Organisationen (ab CHF 100)
 - **Kinderbetreuung** – Krippe, Tagesmutter, Mittagstisch
 - **Liegenschaftsunterhalt** – Reparaturen, Renovationen
 
-> **Beispiel Säule 3a:** Du hast CHF 7'056 in die Säule 3a einbezahlt? Je nach Kanton und Einkommen sparst du damit zwischen CHF 1'500 und CHF 3'000 Steuern. Lade einfach die Bescheinigung hoch.
+## Belege bereithalten
 
-> **Beispiel Homeoffice:** Seit der Pandemie akzeptieren viele Kantone einen Abzug für Home-Office. Unsere Experten prüfen automatisch, ob dir dieser Abzug zusteht.
+Für jeden Abzug brauchst du einen Beleg. Lade die Nachweise direkt als Dokument hoch – so bist du bei einer Prüfung auf der sicheren Seite.
 
-## Belege sind Pflicht
-
-Lade für jeden Abzug den passenden Beleg hoch. Bei einer Prüfung durch das Steueramt müssen alle Abzüge nachgewiesen werden können. Mit vollständigen Belegen bist du auf der sicheren Seite.`,
+> **Beispiel:** Du hast CHF 7'056 in die Säule 3a einbezahlt? Damit sparst du je nach Kanton **CHF 1'500 bis 3'000** Steuern. Lade einfach die Bescheinigung hoch.`,
         keywords: ['abzüge', 'berufsauslagen', 'versicherung', 'krankenkasse', '3a', 'säule', 'spenden', 'schuldzinsen', 'homeoffice', 'kinderbetreuung'],
       },
     ],
@@ -504,31 +479,21 @@ Alle Zahlungen werden **verschlüsselt** und über zertifizierte Zahlungsanbiete
         subtitle: 'Bankensichere Verschlüsselung für deine sensibelsten Daten.',
         content: `## Deine Daten sind sicher
 
-Steuerdaten gehören zu den sensibelsten Informationen überhaupt. Deshalb hat Datenschutz bei Ditax höchste Priorität.
-
-## Verschlüsselung
-
-Deine Daten werden auf mehreren Ebenen geschützt:
-
-- **Ende-zu-Ende-Verschlüsselung** für besonders sensible Daten wie AHV-Nummer und Bankdaten – selbst wir können diese nicht im Klartext einsehen
-- **TLS/SSL** für alle Datenübertragungen zwischen App und Server
-- **Verschlüsselung at rest** für alle gespeicherten Dokumente und Daten
-
-## Datenspeicherort
+Steuerdaten sind hochsensibel. Bei Ditax hat Datenschutz deshalb höchste Priorität:
 
 - Alle Daten werden in der **Schweiz und/oder EU** gespeichert
 - Vollständig **DSGVO-konform** und nach Schweizer Datenschutzgesetz (nDSG)
-- Regelmässige Sicherheitsaudits durch externe Experten
+- Sensible Daten wie AHV-Nummer und Bankdaten sind zusätzlich verschlüsselt
 
-## Dein Schutz
+## Dein Konto schützen
 
-Aktiviere diese Funktionen für maximalen Schutz deines Kontos:
+Für zusätzlichen Schutz empfehlen wir:
 
-**Zwei-Faktor-Authentifizierung (2FA)** – Ein zusätzlicher Code bei jedem Login. Aktiviere 2FA unter Profil → Sicherheit.
+**Passkeys** – Logge dich per Face ID oder Touch ID ein, ohne Passwort. Schnell, sicher und komfortabel.
 
-**Passkeys** – Logge dich komfortabel und sicher mit Face ID, Touch ID oder Windows Hello ein. Passkeys sind phishing-resistent und deutlich sicherer als Passwörter.
+**Zwei-Faktor-Authentifizierung (2FA)** – Aktiviere unter Profil → Sicherheit einen zusätzlichen Code beim Login.
 
-> **Empfehlung:** Aktiviere mindestens eine der beiden Optionen. Zusammen bieten sie den bestmöglichen Schutz für dein Konto.`,
+> **Tipp:** Aktiviere mindestens eine der beiden Optionen für den bestmöglichen Schutz.`,
         keywords: ['sicherheit', 'verschlüsselung', '2fa', 'passwort', 'datenschutz', 'dsgvo', 'passkey', 'ndsg'],
       },
       {
