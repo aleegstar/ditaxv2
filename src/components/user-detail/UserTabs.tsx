@@ -295,7 +295,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
           </TabsList>
           
           {/* Content Container - Connected to Tabs */}
-          <div className="relative mt-4 bg-background border border-border/40 rounded-xl shadow-sm">
+          <div className="relative mt-4 bg-white/60 backdrop-blur-xl border border-white/40 rounded-xl shadow-sm">
             <div className="p-5">
               <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
