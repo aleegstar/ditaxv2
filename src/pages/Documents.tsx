@@ -599,25 +599,15 @@ const DocumentsContent: React.FC<{
             })}
               </div>
             </div>) : (/* Empty State */
-        <div className="bg-zinc-50/70 rounded-2xl p-8">
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="text-center space-y-6 relative">
-                  <div className="relative mx-auto w-24 h-24 mb-4">
-                    <div className="absolute inset-0 bg-blue-500 rounded-full blur-[40px] opacity-10" />
-                    <div className="relative w-full h-full rounded-[32px] bg-white border border-zinc-200 shadow-lg flex items-center justify-center">
-                      <FolderOpen strokeWidth={1.5} className="w-10 h-10 text-blue-500" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 bg-white border border-zinc-200 p-1.5 rounded-full shadow-lg">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold text-zinc-900 tracking-tight">{t.documentsPage.collectReceipts}</h2>
-                    <p className="text-sm text-zinc-500 max-w-[280px] mx-auto leading-relaxed">
-                      {t.documentsPage.collectReceiptsDescription}
-                    </p>
-                  </div>
+        <div className="rounded-[2rem] border border-border/40 bg-background p-8 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)]">
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(221,100%,42%)] flex items-center justify-center mb-5 shadow-[0_8px_24px_-6px_rgba(29,100,255,0.3)]">
+                  <FolderOpen strokeWidth={1.5} className="w-7 h-7 text-primary-foreground" />
                 </div>
+                <h2 className="text-lg font-semibold text-foreground tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
+                <p className="text-sm text-muted-foreground max-w-[260px] mx-auto text-center leading-relaxed">
+                  {t.documentsPage.collectReceiptsDescription}
+                </p>
               </div>
             </div>)}
         </main>
