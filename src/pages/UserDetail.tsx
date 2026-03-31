@@ -701,7 +701,7 @@ const UserDetail: React.FC = () => {
             <div className="flex flex-wrap items-center gap-1.5 mt-2 lg:hidden">
               {/* Tax Filer Selector - Mobile */}
               {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-slate-50/80 border border-slate-200/80 text-slate-600">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
                   <Users className="h-3.5 w-3.5" />
                   <select
                     value={selectedTaxFilerId || ''}
