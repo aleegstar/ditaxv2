@@ -88,7 +88,7 @@ const DeletionFeedback = () => {
           { label: 'Letzte Löschung', value: feedbacks[0] ? format(new Date(feedbacks[0].created_at), 'dd.MM.yyyy', { locale: de }) : '–' },
           { label: 'Mit Feedback', value: String(withFeedbackCount) },
         ].map(stat => (
-          <div key={stat.label} className="border border-border/60 rounded-xl p-4">
+          <div key={stat.label} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-4 shadow-sm">
             <p className="text-[11px] font-medium text-muted-foreground mb-1">{stat.label}</p>
             <p className="text-[13px] font-semibold text-foreground truncate">{stat.value}</p>
           </div>
