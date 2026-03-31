@@ -400,17 +400,60 @@ const UserTaxReturns = () => {
               { label: 'Zahlung', done: false },
             ];
             const completedSteps = steps.filter(s => s.done).length;
+            // Find the next incomplete step
+            const nextStep = steps.find(s => !s.done);
+            const nextStepIndex = nextStep ? steps.indexOf(nextStep) : -1;
+            const nextStepLabel = nextStep?.label || '';
+            
+            // Map step labels to navigation routes
+            const getStepRoute = (label: string) => {
+              switch (label) {
+                case 'Angaben': return `/form?year=${year}&section=kontakt`;
+                case 'Einkommen': return `/form?year=${year}&section=einkommen`;
+                case 'Abzüge': return `/form?year=${year}&section=abzuege`;
+                case 'Vermögen': return `/form?year=${year}&section=vermoegen`;
+                case 'Belege': return `/form?year=${year}&section=unterlagen`;
+                case 'Zahlung': return `/payment?year=${year}`;
+                default: return `/form?year=${year}`;
+              }
+            };
+
             return <motion.div
               key={year}
               data-tour="tax-year-card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              onClick={() => navigate(`/form?year=${year}`)}
-              className="cursor-pointer"
+              className="relative mb-4"
             >
-              <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]">
-                
+              {/* Background next-step card (peeks out below) */}
+              {nextStep && (
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(getStepRoute(nextStepLabel));
+                  }}
+                  className="absolute bottom-0 left-3 right-3 translate-y-6 z-0 bg-gradient-to-br from-white/40 to-white/15 backdrop-blur-xl border border-white/30 rounded-[1.5rem] px-6 py-4 pb-5 cursor-pointer hover:from-white/50 hover:to-white/25 transition-all duration-200 shadow-[0_8px_24px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="flex items-center justify-between pt-6">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-[11px] font-semibold text-primary">{nextStepIndex + 1}</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground">
+                        {nextStepLabel}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                  </div>
+                </div>
+              )}
+
+              {/* Main Card */}
+              <div 
+                onClick={() => navigate(`/form?year=${year}`)}
+                className="relative z-10 bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] cursor-pointer"
+              >
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-5">
