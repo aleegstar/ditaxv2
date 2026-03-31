@@ -505,10 +505,10 @@ const UserTaxReturns = () => {
 
                 {/* Progress Steps */}
                 <div className="flex gap-1.5 mb-8">
-                  {steps.map((step, i) => (
+                  {steps.map((_, i) => (
                     <div key={i} className={cn(
                       "flex-1 h-1.5 rounded-full transition-all duration-500",
-                      step.done ? "bg-primary" : "bg-muted"
+                      i < completedSteps ? "bg-primary" : "bg-muted"
                     )} />
                   ))}
                 </div>
