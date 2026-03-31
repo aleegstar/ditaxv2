@@ -433,7 +433,7 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-14 left-1 right-1 z-0 rounded-b-[1.5rem] rounded-t-none px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-16 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+                  className="absolute -bottom-14 left-2 right-2 z-0 rounded-[1.5rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-16 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
                   style={{
                     background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
                   }}
@@ -457,19 +457,12 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] p-7 md:p-8 border border-white/70 transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] cursor-pointer overflow-hidden"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 border border-white/60 transition-all duration-300 cursor-pointer"
                 style={{
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(240,243,255,0.85) 40%, rgba(255,255,255,0.88) 70%, rgba(235,240,255,0.82) 100%)',
-                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.03)',
+                  background: 'linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(245,247,255,0.9) 50%, rgba(255,255,255,0.93) 100%)',
+                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08)',
                 }}
               >
-                {/* Liquid glass shimmer overlay */}
-                <div 
-                  className="absolute inset-0 rounded-[2rem] pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.5) 45%, transparent 55%)',
-                  }}
-                />
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-5">
