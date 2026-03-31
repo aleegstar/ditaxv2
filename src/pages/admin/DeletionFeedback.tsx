@@ -97,7 +97,7 @@ const DeletionFeedback = () => {
 
       {/* Reason Distribution */}
       {reasonStats.length > 0 && (
-        <div className="border border-border/60 rounded-xl p-5">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
           <h2 className="text-[13px] font-medium text-muted-foreground mb-3">Gründe-Verteilung</h2>
           <div className="space-y-2">
             {reasonStats.map(stat => (
