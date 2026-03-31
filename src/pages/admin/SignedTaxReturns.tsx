@@ -301,7 +301,7 @@ const SignedTaxReturns: React.FC = () => {
           <p className="text-xs text-muted-foreground">Keine unterschriebenen Steuererklärungen gefunden.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border/60">
