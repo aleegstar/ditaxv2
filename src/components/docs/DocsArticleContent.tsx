@@ -316,6 +316,46 @@ const SecurityMockup = () => (
   </MockupFrame>
 );
 
+/* ── Document Collection Mockup ── */
+const DocumentCollectionMockup = () => (
+  <MockupFrame title="Dokumentensammlung">
+    <div className="space-y-2">
+      {/* Search bar */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/40 bg-muted/20 mb-1">
+        <Search className="w-3.5 h-3.5 text-muted-foreground/40" />
+        <span className="text-[11px] text-muted-foreground/40">Dokument suchen...</span>
+      </div>
+      {/* Documents */}
+      {[
+        { name: 'Lohnausweis_2025.pdf', date: '15. Jan 2026', assigned: true },
+        { name: 'Kontoauszug_UBS.pdf', date: '20. Jan 2026', assigned: true },
+        { name: 'Krankenkasse_CSS.pdf', date: '02. Feb 2026', assigned: false },
+        { name: 'Spende_WWF.pdf', date: '10. Mär 2026', assigned: false },
+      ].map((doc, i) => (
+        <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center shrink-0">
+            <File className="w-4 h-4 text-primary/60" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-foreground truncate">{doc.name}</p>
+            <p className="text-[10px] text-muted-foreground">{doc.date}</p>
+          </div>
+          {doc.assigned ? (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 shrink-0">Zugewiesen</span>
+          ) : (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">Nicht zugewiesen</span>
+          )}
+        </div>
+      ))}
+      {/* Upload button */}
+      <div className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-dashed border-primary/20 text-primary/50 mt-1">
+        <Upload className="w-4 h-4" />
+        <span className="text-xs font-medium">Dokument hinzufügen</span>
+      </div>
+    </div>
+  </MockupFrame>
+);
+
 /* ── Checklist Mockup ── */
 const ChecklistMockup = () => (
   <MockupFrame title="Dokumenten-Checkliste">
@@ -362,6 +402,7 @@ const articleMockups: Record<string, React.FC> = {
   'personal-data': FormMockup,
   'income': FormMockup,
   'deductions': FormMockup,
+  'document-collection': DocumentCollectionMockup,
   'document-checklist': ChecklistMockup,
   'upload-methods': UploadMockup,
   'submit': PaymentMockup,

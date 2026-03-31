@@ -228,6 +228,45 @@ Lade für jeden Abzug den passenden Beleg hoch. Bei einer Prüfung durch das Ste
     icon: Upload,
     articles: [
       {
+        id: 'document-collection',
+        icon: Upload,
+        title: 'Dokumentensammlung',
+        subtitle: 'Sammle deine Dokumente flexibel – ordne sie später der Checkliste zu.',
+        content: `## Dein zentraler Ablageort für alle Steuerunterlagen
+
+Die Dokumentensammlung unter **«Dokumente»** ist dein persönlicher Sammelordner. Hier lädst du alle relevanten Unterlagen hoch – auch wenn du noch nicht genau weisst, wohin sie gehören. So geht garantiert kein Dokument verloren.
+
+## So funktioniert es
+
+1. Öffne den Bereich **«Dokumente»** über das Hauptmenü
+2. Tippe auf das **«+»**-Symbol, um ein neues Dokument hochzuladen
+3. Fotografiere das Dokument oder wähle eine Datei von deinem Gerät
+4. Das Dokument wird sicher gespeichert und ist jederzeit abrufbar
+
+> **Tipp:** Lade Dokumente hoch, sobald du sie erhältst – z.B. den Lohnausweis direkt nach Erhalt im Januar. So hast du am Ende alles beisammen.
+
+## Dokumente der Checkliste zuordnen
+
+Wenn du deine Steuererklärung ausfüllst, zeigt dir die **Dokumenten-Checkliste** genau, welche Belege benötigt werden. Du kannst dann:
+
+- Bereits hochgeladene Dokumente aus der Sammlung **direkt zuordnen**
+- Neue Dokumente hochladen und sie **sofort einer Kategorie zuweisen**
+- Die **automatische Erkennung (OCR)** ordnet viele Dokumente von selbst zu
+
+So trennst du das Sammeln vom Zuordnen – das macht den Prozess entspannter und flexibler.
+
+## Suchen & Filtern
+
+Nutze die **Suchfunktion** oben auf der Dokumenten-Seite, um ein bestimmtes Dokument schnell zu finden. Alle Dokumente werden mit Datum und Dateiname angezeigt, sodass du immer den Überblick behältst.
+
+## Vorschau & Löschen
+
+Tippe auf ein Dokument, um eine **Vorschau** zu öffnen. Von dort aus kannst du es herunterladen oder bei Bedarf löschen. Gelöschte Dokumente werden endgültig entfernt und können nicht wiederhergestellt werden.
+
+> **Wichtig:** Dokumente, die bereits der Checkliste zugewiesen sind, solltest du nur löschen, wenn du sie durch eine aktuellere Version ersetzt.`,
+        keywords: ['dokumente', 'sammlung', 'ablage', 'hochladen', 'zuordnen', 'checkliste', 'collection', 'documents'],
+      },
+      {
         id: 'document-checklist',
         icon: ClipboardCheck,
         title: 'Dokumenten-Checkliste',
