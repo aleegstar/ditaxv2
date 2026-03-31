@@ -69,7 +69,7 @@ const Help = () => {
 
           {/* Logo */}
           <button onClick={() => navigate('/')} className="shrink-0">
-            <img src={ditaxLogo} alt="DiTax" className="h-7 sm:h-8" />
+            <img src={ditaxLogo} alt="Ditax" className="h-7 sm:h-8" />
           </button>
 
           <div className="flex-1" />
