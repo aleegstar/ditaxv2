@@ -3,6 +3,7 @@ import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield } from 'luc
 export interface DocsArticle {
   id: string;
   title: string;
+  subtitle?: string;
   content: string;
   keywords: string[];
 }
