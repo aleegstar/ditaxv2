@@ -1,56 +1,46 @@
 
 
-## Plan: Dokumentationsseite mit KI-Chatbot (OpenAI)
+## Plan: Dokumentation verbessern -- aussagekräftiger Inhalt mit visuellen UI-Mockups
 
-### Übersicht
-`/help` wird von einem iframe zu einer nativen Dokumentationsseite mit integriertem Chatbot umgebaut. Der Chatbot nutzt den bestehenden `OPENAI_API_KEY` (gpt-4o-mini).
+### Problem
+Die aktuelle Dokumentation ist textlastig, funktionsbasiert und nicht anschaulich. Es fehlen visuelle Elemente, die dem User zeigen, wie die App aussieht und wie die Schritte ablaufen.
 
-### Neue Dateien
+### Ansatz
+Da zur Build-Time keine echten Screenshots erstellt werden können, baue ich **illustrative UI-Mockups als React-Komponenten** direkt in die Artikel ein. Diese zeigen stilisierte App-Screens (Dashboard, Upload, Formulare etc.) und machen die Dokumentation visuell ansprechend und verständlich.
 
-| Datei | Beschreibung |
-|-------|-------------|
-| `src/components/docs/DocsContent.ts` | Strukturierter Dokumentationsinhalt (Kategorien, Artikel) |
-| `src/components/docs/DocsCategory.tsx` | Kategorie-Card mit Icon und Artikelliste |
-| `src/components/docs/DocsArticle.tsx` | Artikel-Detailansicht |
-| `src/components/docs/DocsChatBot.tsx` | Chat-Sheet das OpenAI via neue Edge Function nutzt |
-| `supabase/functions/docs-chatbot/index.ts` | Edge Function mit OpenAI API + Doku-Kontext als System-Prompt |
+### Änderungen
 
-### Geänderte Dateien
+**1. `src/components/docs/DocsContent.ts`** -- Inhalte komplett überarbeiten
+- Texte umschreiben: weniger Aufzählungslisten, mehr erklärende Absätze mit konkreten Beispielen
+- Subtitles für alle Artikel hinzufügen (kurzer Nutzen-Satz)
+- Markdown-Inhalte mit Tipps, Hinweisen und konkreten Szenarien anreichern (z.B. "Du bist Arbeitnehmer und hast eine Säule 3a? So gehst du vor...")
+- Callout-Boxen via Markdown-Konvention (z.B. `> **Tipp:**`)
 
-| Datei | Änderung |
-|-------|----------|
-| `src/pages/Help.tsx` | Komplett umgeschrieben: Suchfeld, Kategorien-Grid, FAB für Chatbot |
+**2. `src/components/docs/DocsArticleContent.tsx`** -- Visuelle UI-Mockups einbauen
+- Neue interne Komponenten für illustrative App-Mockups:
+  - `DashboardMockup` -- zeigt stilisierten Dashboard-Screen mit Steuerjahr-Card, Fortschrittsanzeige
+  - `UploadMockup` -- zeigt Dokumenten-Upload-Bereich mit Drag&Drop und Status-Icons
+  - `FormMockup` -- zeigt ein Formularfeld-Beispiel (Einkommen/Abzüge)
+  - `StatusMockup` -- zeigt die Status-Timeline (Erfassung → Eingereicht → Fertig)
+  - `PaymentMockup` -- zeigt Zahlungs-Screen mit TWINT/Kreditkarte
+- Jeder Mockup ist eine leichte, stilisierte Darstellung im Ditax-Design (primary color, rounded corners, border)
+- Mockups werden per `articleId` in die passenden Artikel eingebettet
+- Rich-Layout (wie bei Introduction) für die wichtigsten Artikel: Registration, Upload, Status
 
-### Dokumentations-Kategorien
+**3. `src/components/docs/DocsArticleContent.tsx`** -- Callout/Tipp-Komponente
+- Wiederverwendbare `DocsTip` und `DocsWarning` Komponenten für Hinweisboxen
+- Werden in den Markdown-Renderer als Custom-Elemente oder direkt in die Rich-Layouts integriert
 
-1. **Erste Schritte** - Registrierung, Login, Steuerjahr anlegen
-2. **Angaben erfassen** - Persönliche Daten, Einkommen, Vermögen, Abzüge
-3. **Dokumente hochladen** - Checkliste, Upload-Methoden, OCR-Scan
-4. **Steuererklärung** - Einreichen, Status, Fertige Erklärung
-5. **Bezahlung** - Preise, Express-Service, Zahlungsmethoden (TWINT, Karte)
-6. **Sicherheit & Konto** - Verschlüsselung, 2FA, Profil
-
-### Edge Function: `docs-chatbot`
-
-- Nutzt bestehenden `OPENAI_API_KEY` mit `gpt-4o-mini`
-- System-Prompt enthält den gesamten Dokumentationsinhalt als Kontext
-- Streaming-Response (SSE) für flüssige Antworten
-- CORS-Headers, Input-Validierung mit Zod
-- Conversation-History wird vom Client mitgeschickt (kein DB-Persist nötig)
-
-### UI-Design
-
-- Weisser Hintergrund, `SubpageHeader` oben
-- Suchfeld filtert Artikel clientseitig
-- Kategorien als Cards mit Icons im bestehenden Design (rounded-[2rem], Schatten)
-- Artikel-Detailansicht als Slide-In
-- Floating Action Button (blauer Gradient) unten rechts öffnet Chat-Sheet
-- Chat-Sheet: Markdown-Rendering der Antworten via `react-markdown`
-- Illustrative Platzhalter-Icons statt echte Screenshots (da Build-Time keine Screenshots möglich)
+### Betroffene Dateien
+| Datei | Aktion |
+|-------|--------|
+| `src/components/docs/DocsContent.ts` | Alle Artikel-Texte überarbeiten |
+| `src/components/docs/DocsArticleContent.tsx` | UI-Mockup-Komponenten + Rich-Layouts für mehr Artikel |
+| `src/pages/Help.tsx` | TOC-Headings ggf. anpassen |
 
 ### Technische Details
-
-- `react-markdown` wird als Dependency hinzugefügt
-- Chat streamt Tokens via SSE (gleiche Parsing-Logik wie in den AI Gateway docs)
-- Kein JWT-Check nötig (öffentliche Doku), aber optional Auth-Header für Rate-Limiting
+- Mockups sind reine React/Tailwind-Komponenten, keine externen Bilder
+- Nutzen die bestehenden Farben (primary, border, muted) und das Ditax-Logo aus `src/assets/`
+- Kein neuer Dependency-Bedarf
+- Die Mockups sind responsive und passen sich an die Dokumentations-Breite an
 
