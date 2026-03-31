@@ -615,11 +615,8 @@ const Auth = () => {
                       </InputOTP>
                     </div>
 
-                    <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="group flex w-full items-center justify-center gap-3 h-[52px] px-6 rounded-full text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110">
-                      <span>{isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}</span>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors group-hover:bg-white/25">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                      </div>
+                    <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center h-[52px] px-6 rounded-full text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110">
+                      {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
                     </button>
                   </div>
 
