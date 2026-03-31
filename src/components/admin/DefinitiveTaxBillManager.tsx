@@ -328,7 +328,7 @@ export function DefinitiveTaxBillManager() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6 bg-background min-h-screen">
+    <div className="container mx-auto px-4 py-8 space-y-6 min-h-screen">
       <AdminWelcomeHeader
         title="Definitive Steuerrechnungen"
         subtitle="Verwalten Sie definitive Steuerrechnungen für alle Benutzer"
