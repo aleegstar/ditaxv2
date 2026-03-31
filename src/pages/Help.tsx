@@ -276,33 +276,63 @@ const DocsTableOfContents: React.FC<{ articleId: string; categoryId: string }> =
   const article = category?.articles.find(a => a.id === articleId);
   if (!article) return null;
 
-  const headings = article.content
-    .split('\n')
-    .filter(line => /^#{2,3}\s/.test(line))
-    .map(line => {
-      const level = line.startsWith('###') ? 3 : 2;
-      const text = line.replace(/^#{2,3}\s+/, '');
-      return { level, text };
-    });
+  // For introduction, extract headings from the rich component
+  const headings = articleId === 'introduction'
+    ? [
+        { level: 2, text: 'Übersicht' },
+        { level: 2, text: 'Hauptfunktionen' },
+        { level: 2, text: 'So funktioniert\'s' },
+        { level: 2, text: 'Verfügbarkeit' },
+        { level: 2, text: 'Häufig gestellte Fragen' },
+      ]
+    : article.content
+        .split('\n')
+        .filter(line => /^#{2,3}\s/.test(line))
+        .map(line => {
+          const level = line.startsWith('###') ? 3 : 2;
+          const text = line.replace(/^#{2,3}\s+/, '');
+          return { level, text };
+        });
 
   if (headings.length === 0) return null;
 
+  const handleCopyPage = () => {
+    const text = article.content || article.title;
+    navigator.clipboard.writeText(text);
+  };
+
   return (
-    <div>
-      <p className="text-xs font-semibold text-foreground/70 mb-3 flex items-center gap-1.5">
-        <span className="text-muted-foreground">📋</span> Auf dieser Seite
-      </p>
-      <div className="space-y-1 border-l-2 border-border/30 ml-0.5">
-        {headings.map((h, i) => (
-          <p
-            key={i}
-            className={`text-[13px] leading-snug transition-colors cursor-default ${
-              h.level === 3 ? 'pl-5 text-muted-foreground/60' : 'pl-3 text-muted-foreground hover:text-foreground'
-            } ${i === 0 ? 'font-medium text-foreground' : ''}`}
-          >
-            {h.text}
-          </p>
-        ))}
+    <div className="space-y-5">
+      {/* Copy page button */}
+      <button
+        onClick={handleCopyPage}
+        className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground border border-border/50 rounded-lg px-3 py-1.5 hover:bg-muted/40 transition-colors"
+      >
+        <Copy className="w-3.5 h-3.5" />
+        <span>Copy page</span>
+        <ChevronDown className="w-3.5 h-3.5 ml-auto text-muted-foreground/50" />
+      </button>
+
+      {/* On this page heading */}
+      <div>
+        <p className="text-xs font-medium text-foreground/60 mb-3 flex items-center gap-1.5 uppercase tracking-wide">
+          <AlignLeft className="w-3.5 h-3.5" />
+          On this page
+        </p>
+        <div className="border-l-2 border-border/30">
+          {headings.map((h, i) => (
+            <p
+              key={i}
+              className={`text-[13px] leading-relaxed py-0.5 transition-colors cursor-default ${
+                h.level === 3
+                  ? 'pl-5 text-muted-foreground/50 hover:text-muted-foreground'
+                  : 'pl-3 text-muted-foreground hover:text-foreground'
+              } ${i === 0 ? 'font-medium text-foreground border-l-2 border-foreground -ml-[2px]' : ''}`}
+            >
+              {h.text}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
   );
