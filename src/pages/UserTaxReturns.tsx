@@ -433,18 +433,24 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute bottom-0 left-3 right-3 translate-y-6 z-0 bg-gradient-to-br from-white/40 to-white/15 backdrop-blur-xl border border-white/30 rounded-[1.5rem] px-6 py-4 pb-5 cursor-pointer hover:from-white/50 hover:to-white/25 transition-all duration-200 shadow-[0_8px_24px_rgba(0,0,0,0.04)]"
+                  className="absolute bottom-0 left-3 right-3 translate-y-10 z-0 rounded-[1.5rem] px-6 pt-8 pb-5 cursor-pointer transition-all duration-200 hover:translate-y-12 border border-white/50 shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.45) 100%)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                  }}
                 >
-                  <div className="flex items-center justify-between pt-6">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-[11px] font-semibold text-primary">{nextStepIndex + 1}</span>
+                      <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center">
+                        <span className="text-xs font-bold text-primary">{nextStepIndex + 1}</span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">
-                        {nextStepLabel}
-                      </span>
+                      <div>
+                        <span className="text-[13px] font-semibold text-foreground">
+                          Nächster Schritt: {nextStepLabel}
+                        </span>
+                      </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" strokeWidth={2} />
                   </div>
                 </div>
               )}
