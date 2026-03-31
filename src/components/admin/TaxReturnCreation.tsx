@@ -389,7 +389,7 @@ const TaxReturnCreation: React.FC = () => {
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -493,7 +493,7 @@ const TaxReturnCreation: React.FC = () => {
               to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`}
               className="group block"
             >
-              <div className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150">
+              <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-base font-semibold text-foreground tracking-tight">
@@ -577,7 +577,7 @@ const TaxReturnCreation: React.FC = () => {
             <button
               onClick={handleUploadComplete}
               disabled={uploading || !selectedFile}
-              className="px-4 py-2 text-sm font-medium bg-foreground text-background rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
+              className="px-4 py-2 text-sm font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full hover:brightness-[1.04] disabled:opacity-50 transition-all"
             >
               {uploading ? 'Lädt...' : 'Hochladen'}
             </button>

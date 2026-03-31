@@ -108,7 +108,7 @@ export function OcrUnrecognizedUploads() {
         </div>
         <button
           onClick={fetchUploads}
-          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>
@@ -122,7 +122,7 @@ export function OcrUnrecognizedUploads() {
           { label: 'Gelöst', value: stats.resolved },
           { label: 'Ignoriert', value: stats.ignored },
         ].map((stat) => (
-          <div key={stat.label} className="border border-border/60 rounded-xl px-4 py-3 bg-background">
+          <div key={stat.label} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl px-4 py-3 shadow-sm">
             <p className="text-[11px] text-muted-foreground">{stat.label}</p>
             <p className="text-[22px] font-semibold text-foreground tracking-tight mt-0.5">{stat.value}</p>
           </div>
@@ -150,12 +150,12 @@ export function OcrUnrecognizedUploads() {
       {loading ? (
         <div className="text-center py-16 text-[13px] text-muted-foreground">Laden...</div>
       ) : uploads.length === 0 ? (
-        <div className="border border-border/60 rounded-xl bg-background py-16 text-center">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm py-16 text-center">
           <FileQuestion className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
           <p className="text-[13px] text-muted-foreground">Keine Einträge vorhanden.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {uploads.map((upload) => (
             <div key={upload.id} className="p-4 hover:bg-muted/20 transition-colors">
               <div className="flex items-start justify-between gap-4">

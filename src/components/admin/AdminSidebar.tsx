@@ -192,7 +192,7 @@ export function AdminSidebar() {
       </div>
 
       {/* User Profile */}
-      <div className="pt-3 border-t border-border/30">
+      <div className="pt-3 border-t border-white/30">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-foreground/[0.04] transition-colors cursor-pointer">

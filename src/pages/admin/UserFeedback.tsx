@@ -106,7 +106,7 @@ const UserFeedback = () => {
           { label: 'Kategorien', value: `${categoryCounts.bug} Bug · ${categoryCounts.feature} Feature · ${categoryCounts.praise} Lob` },
           { label: 'Kontakt erlaubt', value: `${consentPercent}% (${consentCount})` },
         ].map((stat) => (
-          <div key={stat.label} className="border border-border/60 rounded-xl p-4">
+          <div key={stat.label} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-4 shadow-sm">
             <p className="text-[11px] font-medium text-muted-foreground mb-1">{stat.label}</p>
             <p className="text-[13px] font-semibold text-foreground">{stat.value}</p>
           </div>
@@ -114,7 +114,7 @@ const UserFeedback = () => {
       </div>
 
       {/* Rating Distribution */}
-      <div className="border border-border/60 rounded-xl p-5">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
         <h2 className="text-[13px] font-medium text-muted-foreground mb-3">Bewertungsverteilung</h2>
         <div className="space-y-2">
           {ratingDistribution.map(({ rating, count, percentage }) => (
@@ -181,7 +181,7 @@ const UserFeedback = () => {
           <p className="text-[13px] text-muted-foreground">Keine Feedbacks für die aktuelle Filterauswahl.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filteredFeedbacks.map((feedback) => (
             <div key={feedback.id} className="p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-start justify-between gap-4">

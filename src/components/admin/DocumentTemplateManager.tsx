@@ -199,7 +199,7 @@ export const DocumentTemplateManager: React.FC = () => {
       </div>
 
       {/* Upload Section */}
-      <div className="border border-border/60 rounded-xl bg-background p-5 space-y-4">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5 space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="template-upload" className="text-[13px] font-medium text-foreground">
             Neue Vorlage hochladen
@@ -230,13 +230,13 @@ export const DocumentTemplateManager: React.FC = () => {
         <h2 className="text-[13px] font-medium text-muted-foreground mb-3">Verfügbare Vorlagen</h2>
         
         {templates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center border border-border/60 rounded-xl">
+          <div className="flex flex-col items-center justify-center py-12 text-center bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm">
             <FileText className="w-8 h-8 text-muted-foreground/40 mb-3" />
             <p className="text-sm font-medium text-foreground mb-1">Keine Vorlagen</p>
             <p className="text-[13px] text-muted-foreground">Laden Sie eine Vorlage hoch, um zu beginnen.</p>
           </div>
         ) : (
-          <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
             {templates.map((template) => (
               <div
                 key={template.id}
@@ -315,7 +315,7 @@ export const DocumentTemplateManager: React.FC = () => {
       </div>
 
       {/* Placeholders */}
-      <div className="border border-border/60 rounded-xl bg-muted/20 p-5">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5">
         <h3 className="text-[13px] font-medium text-foreground mb-3">Verfügbare Platzhalter</h3>
         <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
           {[

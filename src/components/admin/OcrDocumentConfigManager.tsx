@@ -143,11 +143,11 @@ export function OcrDocumentConfigManager() {
           <button onClick={fetchConfigs} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
-          <button onClick={syncFromHardcoded} disabled={syncing} className="h-8 px-3 rounded-lg border border-border/60 text-[12px] font-medium text-foreground hover:bg-muted/50 transition-colors flex items-center gap-1.5 disabled:opacity-50">
+          <button onClick={syncFromHardcoded} disabled={syncing} className="h-8 px-3 rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-[12px] font-medium text-foreground hover:bg-white/80 transition-colors flex items-center gap-1.5 disabled:opacity-50">
             <Upload className="h-3.5 w-3.5" />
             {syncing ? 'Importiere...' : 'Aus Code importieren'}
           </button>
-          <button onClick={() => openEdit(null)} className="h-8 px-3 rounded-lg bg-foreground text-background text-[12px] font-medium flex items-center gap-1.5 hover:bg-foreground/90 transition-colors">
+          <button onClick={() => openEdit(null)} className="h-8 px-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold flex items-center gap-1.5 hover:brightness-[1.04] transition-all">
             <Plus className="h-3.5 w-3.5" />
             Neu
           </button>
@@ -161,7 +161,7 @@ export function OcrDocumentConfigManager() {
           placeholder="Suchen..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
+          className="w-full h-9 pl-9 pr-3 rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
         />
       </div>
 
@@ -181,7 +181,7 @@ export function OcrDocumentConfigManager() {
           </p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filtered.map(config => (
             <div key={config.id} className={cn("group p-4 hover:bg-muted/30 transition-colors", !config.is_active && "opacity-50")}>
               <div className="flex items-start justify-between gap-4">
@@ -276,7 +276,7 @@ export function OcrDocumentConfigManager() {
           </div>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEditDialog({ open: false, config: null })}>Abbrechen</Button>
-            <button onClick={saveConfig} className="h-8 px-4 rounded-lg bg-foreground text-background text-[12px] font-medium hover:bg-foreground/90 transition-colors">Speichern</button>
+            <button onClick={saveConfig} className="h-8 px-4 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold hover:brightness-[1.04] transition-all">Speichern</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

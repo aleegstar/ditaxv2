@@ -288,7 +288,7 @@ const SignedTaxReturns: React.FC = () => {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
-            <div key={i} className="border border-border/60 rounded-xl p-5">
+            <div key={i} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
               <Skeleton className="h-4 w-40 mb-3" />
               <Skeleton className="h-3 w-56" />
             </div>
@@ -301,10 +301,10 @@ const SignedTaxReturns: React.FC = () => {
           <p className="text-xs text-muted-foreground">Keine unterschriebenen Steuererklärungen gefunden.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border/60">
+              <tr className="border-b border-white/30">
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Benutzer</th>
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Nr.</th>
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Jahr</th>
@@ -315,7 +315,7 @@ const SignedTaxReturns: React.FC = () => {
             </thead>
             <tbody>
               {filteredReturns.map((item) => (
-                <tr key={item.id} className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors">
+                <tr key={item.id} className="border-b border-white/20 last:border-0 hover:bg-white/40 transition-colors">
                   <td className="py-3 px-5">
                     <div>
                       <div className="text-sm font-medium text-foreground">
@@ -375,7 +375,7 @@ const SignedTaxReturns: React.FC = () => {
                         <button
                           onClick={() => markAsSubmitted(item.id, item.completed_tax_return_id)}
                           disabled={updatingId === item.id}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white hover:brightness-[1.04] disabled:opacity-50 transition-all"
                         >
                           <Send className="h-3 w-3" />
                           Übermittelt

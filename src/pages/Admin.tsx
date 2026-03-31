@@ -229,12 +229,12 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full" style={{ backgroundColor: 'hsl(228 25% 97%)' }}>
+    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
       <AdminSidebar />
       
       <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
-        <div className="bg-card w-full h-full rounded-[2.5rem] border border-border/80 shadow-sm overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-y-auto p-8 lg:p-12">
+        <div className="w-full h-full overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-y-auto p-4 lg:p-8">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -280,7 +280,7 @@ const Admin: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+                <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
                   {users.map(user => (
                     <UserCard
                       key={user.id}

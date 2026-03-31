@@ -377,7 +377,7 @@ export const TicketManagement = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 bg-background min-h-screen">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -458,7 +458,7 @@ export const TicketManagement = () => {
           <p className="text-xs text-muted-foreground">Keine Tickets gefunden.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl overflow-hidden divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden divide-y divide-white/30">
           {filteredTickets.map((ticket) => (
             <div
               key={ticket.id}
@@ -636,7 +636,7 @@ export const TicketManagement = () => {
                   <button
                     onClick={sendMessage}
                     disabled={!newMessage.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-all"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white hover:brightness-[1.04] disabled:opacity-50 transition-all"
                   >
                     <MessageSquare className="h-3 w-3" />
                     Antworten

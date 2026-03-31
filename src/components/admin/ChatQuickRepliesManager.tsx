@@ -141,7 +141,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
           </button>
           <button
             onClick={handleOpenCreate}
-            className="h-8 px-3 rounded-lg bg-foreground text-background text-[12px] font-medium flex items-center gap-1.5 hover:bg-foreground/90 transition-colors"
+             className="h-8 px-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold flex items-center gap-1.5 hover:brightness-[1.04] transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             Neue Vorlage
@@ -157,7 +157,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
             placeholder="Suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 transition-colors"
           />
         </div>
         <div className="flex gap-0.5 bg-muted/40 rounded-lg p-0.5">
@@ -205,7 +205,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
           </p>
           <button
             onClick={handleOpenCreate}
-            className="h-8 px-3 rounded-lg bg-foreground text-background text-[12px] font-medium flex items-center gap-1.5 hover:bg-foreground/90 transition-colors"
+            className="h-8 px-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold flex items-center gap-1.5 hover:brightness-[1.04] transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             Erste Vorlage erstellen
@@ -215,7 +215,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
 
       {/* List */}
       {!loading && filteredReplies.length > 0 && (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filteredReplies.map((reply) => (
             <div key={reply.id} className="group p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-start justify-between gap-4">
