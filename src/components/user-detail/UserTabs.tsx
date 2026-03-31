@@ -325,7 +325,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-            <Card className="border-border/30 shadow-sm">
+            <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
                 <CardDescription className="text-xs">
