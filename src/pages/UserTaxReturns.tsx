@@ -424,7 +424,7 @@ const UserTaxReturns = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="relative mb-4"
+              className="relative mb-16"
             >
               {/* Background next-step card (peeks out below) */}
               {nextStep && (
@@ -433,24 +433,23 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute bottom-0 left-3 right-3 translate-y-10 z-0 rounded-[1.5rem] px-6 pt-8 pb-5 cursor-pointer transition-all duration-200 hover:translate-y-12 border border-white/50 shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
+                  className="absolute bottom-0 left-3 right-3 translate-y-10 z-0 rounded-[1.5rem] px-6 pt-8 pb-5 cursor-pointer transition-all duration-200 hover:translate-y-12 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.45) 100%)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
+                    background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
                   }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center">
-                        <span className="text-xs font-bold text-primary">{nextStepIndex + 1}</span>
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">{nextStepIndex + 1}</span>
                       </div>
                       <div>
-                        <span className="text-[13px] font-semibold text-foreground">
+                        <span className="text-[13px] font-semibold text-white">
                           Nächster Schritt: {nextStepLabel}
                         </span>
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" strokeWidth={2} />
+                    <ChevronRight className="w-4 h-4 text-white/70" strokeWidth={2} />
                   </div>
                 </div>
               )}
