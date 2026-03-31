@@ -21,14 +21,14 @@ export const docsCategories: DocsCategory[] = [
   {
     id: 'getting-started',
     title: 'Erste Schritte',
-    description: 'Registrierung, Login und Steuerjahr anlegen',
+    description: 'Alles was du brauchst, um loszulegen',
     icon: BookOpen,
     articles: [
       {
         id: 'introduction',
         icon: Home,
         title: 'Einführung',
-        subtitle: 'Entdecke DiTax – die einfachste Art deine Schweizer Steuererklärung zu erledigen.',
+        subtitle: 'Deine Steuererklärung – einfach, sicher und von Experten erstellt.',
         content: '',
         keywords: ['einführung', 'übersicht', 'introduction', 'start', 'ditax'],
       },
@@ -36,45 +36,45 @@ export const docsCategories: DocsCategory[] = [
         id: 'registration',
         icon: LogIn,
         title: 'Registrierung & Login',
-        content: `## Registrierung
+        content: `## Konto erstellen
 
-So erstellst du dein DiTax-Konto:
+In wenigen Schritten bist du startklar:
 
-1. Öffne die DiTax-App oder besuche die Website
+1. Öffne die Ditax App auf deinem Smartphone
 2. Tippe auf **"Konto erstellen"**
 3. Gib deine E-Mail-Adresse ein und wähle ein sicheres Passwort
-4. Bestätige deine E-Mail-Adresse über den Link in der Bestätigungsmail
-5. Melde dich mit deinen Zugangsdaten an
+4. Bestätige deine E-Mail über den zugesendeten Link
+5. Fertig – du kannst dich jetzt einloggen
 
-### Login
+### Anmelden
 
-Nach der Registrierung kannst du dich jederzeit mit deiner E-Mail und deinem Passwort anmelden. Optional kannst du auch **Passkeys** oder **Zwei-Faktor-Authentifizierung (2FA)** einrichten für zusätzliche Sicherheit.
+Melde dich mit deiner E-Mail und deinem Passwort an. Für noch mehr Komfort kannst du **Passkeys** (Face ID / Touch ID) oder die **Zwei-Faktor-Authentifizierung** aktivieren.
 
 ### Passwort vergessen?
 
-Falls du dein Passwort vergessen hast, tippe auf dem Login-Bildschirm auf **"Passwort vergessen"** und folge den Anweisungen in der E-Mail.`,
+Tippe auf dem Login-Bildschirm auf **"Passwort vergessen"** – du erhältst eine E-Mail mit einem Link zum Zurücksetzen.`,
         keywords: ['registrierung', 'login', 'anmelden', 'konto', 'passwort', 'email'],
       },
       {
         id: 'create-tax-year',
         icon: CalendarPlus,
         title: 'Steuerjahr anlegen',
-        content: `## Steuerjahr anlegen
+        content: `## Dein erstes Steuerjahr starten
 
-Nach dem Login siehst du das Dashboard. Um mit deiner Steuererklärung zu beginnen:
+Nach dem Login landest du auf dem Dashboard. So legst du los:
 
-1. Tippe auf **"Steuerjahr hinzufügen"** auf dem Dashboard
-2. Wähle das gewünschte Steuerjahr aus (z.B. 2024)
-3. Wähle ob du den **Express-Service** (10 Arbeitstage) oder den **Standard-Service** (60 Arbeitstage) möchtest
-4. Dein Steuerjahr wird erstellt und du kannst mit der Erfassung beginnen
+1. Tippe auf **"Steuerjahr hinzufügen"**
+2. Wähle das gewünschte Jahr (z.B. 2024)
+3. Entscheide dich zwischen **Express** (10 Arbeitstage) oder **Standard** (60 Arbeitstage)
+4. Dein Steuerjahr ist bereit – du kannst sofort mit der Erfassung beginnen
 
-### Mehrere Steuerjahre
+### Für die ganze Familie
 
-Du kannst mehrere Steuerjahre gleichzeitig bearbeiten. Jedes Steuerjahr wird als eigene Karte auf dem Dashboard angezeigt.
+Du kannst die Steuererklärung auch für weitere Personen einreichen – zum Beispiel für deinen Ehepartner oder deine Kinder. Füge sie einfach unter **Profil → Steuerpflichtige Personen** hinzu.
 
-### Steuerpflichtige Personen
+### Mehrere Jahre gleichzeitig
 
-Falls du die Steuererklärung auch für andere Personen einreichen möchtest (z.B. Ehepartner, Kinder), kannst du unter **Profil → Steuerpflichtige Personen** weitere Personen hinzufügen.`,
+Falls du Steuererklärungen für verschiedene Jahre brauchst, lege einfach mehrere Steuerjahre an. Jedes wird separat auf dem Dashboard angezeigt.`,
         keywords: ['steuerjahr', 'anlegen', 'hinzufügen', 'dashboard', 'express', 'standard'],
       },
     ],
@@ -82,87 +82,86 @@ Falls du die Steuererklärung auch für andere Personen einreichen möchtest (z.
   {
     id: 'data-entry',
     title: 'Angaben erfassen',
-    description: 'Persönliche Daten, Einkommen, Vermögen & Abzüge',
+    description: 'Schritt für Schritt zur vollständigen Steuererklärung',
     icon: FileText,
     articles: [
       {
         id: 'personal-data',
         icon: User,
         title: 'Persönliche Angaben',
-        content: `## Persönliche Angaben
+        content: `## Deine persönlichen Daten
 
-Im ersten Schritt erfasst du deine persönlichen Daten:
+Im ersten Schritt hinterlegst du deine Grunddaten. Diese werden für die Steuererklärung benötigt:
 
 - **Name und Vorname**
 - **Geburtsdatum**
 - **Adresse** (Strasse, PLZ, Ort)
 - **AHV-Nummer** (wird verschlüsselt gespeichert)
-- **Zivilstand**
-- **Konfession**
+- **Zivilstand und Konfession**
 
-### Ja/Nein-Modus vs. Experten-Modus
+### Zwei Erfassungsmodi
 
-Du kannst zwischen zwei Erfassungsmodi wählen:
+Wähle den Modus, der zu dir passt:
 
-- **Ja/Nein-Modus**: Einfache Fragen die mit Ja oder Nein beantwortet werden – ideal für Einsteiger
-- **Experten-Modus**: Direktes Formular mit allen Feldern – für erfahrene Nutzer
+- **Geführter Modus** – einfache Ja/Nein-Fragen führen dich durch den Prozess. Ideal, wenn du zum ersten Mal eine Steuererklärung machst.
+- **Experten-Modus** – alle Felder auf einen Blick. Für erfahrene Nutzer, die schnell vorankommen wollen.
 
-Du kannst jederzeit zwischen den Modi wechseln über den Button oben rechts im Formular.`,
+Du kannst jederzeit zwischen den Modi wechseln.`,
         keywords: ['persönlich', 'angaben', 'name', 'adresse', 'ahv', 'zivilstand'],
       },
       {
         id: 'income',
         icon: Wallet,
         title: 'Einkommen erfassen',
-        content: `## Einkommen erfassen
+        content: `## Dein Einkommen angeben
 
-Im Bereich Einkommen gibst du alle Einkommensquellen an:
+Gib hier alle Einkommensquellen an, damit unsere Experten deine Steuererklärung korrekt erstellen können:
 
-- **Lohn aus unselbständiger Erwerbstätigkeit** (gemäss Lohnausweis)
-- **Einkommen aus selbständiger Erwerbstätigkeit**
+- **Lohn** aus unselbständiger Erwerbstätigkeit
+- **Selbständige Erwerbstätigkeit**
 - **Nebeneinkünfte**
 - **Renten und Pensionen** (AHV, IV, Pensionskasse)
 - **Taggelder** (ALV, KTG, Unfallversicherung)
 - **Mieteinnahmen**
 - **Wertschriftenertrag** (Dividenden, Zinsen)
 
-### Lohnausweis
+### Automatische Erkennung
 
-Falls du einen Lohnausweis hast, kannst du diesen als Dokument hochladen. Die wichtigsten Daten werden automatisch erkannt (OCR).
+Wenn du deinen Lohnausweis als Dokument hochlädst, werden die wichtigsten Daten automatisch erkannt und vorausgefüllt – du sparst dir die manuelle Eingabe.
 
 ### Mehrere Arbeitgeber
 
-Falls du bei mehreren Arbeitgebern beschäftigt warst, erfasse jeden Lohnausweis einzeln.`,
+Warst du bei mehreren Arbeitgebern beschäftigt? Kein Problem – erfasse jeden Lohnausweis einzeln.`,
         keywords: ['einkommen', 'lohn', 'gehalt', 'rente', 'pension', 'lohnausweis', 'nebeneinkünfte'],
       },
       {
         id: 'assets',
         icon: PiggyBank,
         title: 'Vermögen erfassen',
-        content: `## Vermögen erfassen
+        content: `## Dein Vermögen angeben
 
-Im Bereich Vermögen gibst du dein gesamtes Vermögen per 31. Dezember an:
+Erfasse dein gesamtes Vermögen per 31. Dezember des Steuerjahres:
 
 - **Bankkonten** (Spar-, Privat-, Lohnkonto)
 - **Wertschriften** (Aktien, Obligationen, Fonds)
 - **Immobilien** (Eigentumswohnungen, Häuser)
-- **Fahrzeuge** (Auto, Motorrad)
+- **Fahrzeuge**
 - **Lebensversicherungen** (Rückkaufswert)
 - **Kryptowährungen**
-- **Bargeld und übrige Vermögenswerte**
+- **Übrige Vermögenswerte**
 
-### Bankbelege
+### Belege nicht vergessen
 
-Für jeden Kontostand solltest du einen Bankbeleg (Kontoauszug per 31.12.) als Dokument hochladen.`,
+Für jeden Kontostand brauchst du einen Bankbeleg (Kontoauszug per 31.12.). Lade diese einfach als Dokument hoch.`,
         keywords: ['vermögen', 'bank', 'konto', 'wertschriften', 'aktien', 'immobilien', 'auto'],
       },
       {
         id: 'deductions',
         icon: Receipt,
         title: 'Abzüge erfassen',
-        content: `## Abzüge erfassen
+        content: `## Spare Steuern mit den richtigen Abzügen
 
-Hier kannst du alle steuerlich abzugsfähigen Ausgaben angeben:
+Unsere Experten sorgen dafür, dass kein Abzug vergessen geht. Gib hier deine abzugsfähigen Ausgaben an:
 
 - **Berufsauslagen** (Fahrkosten, Verpflegung, Berufskleidung)
 - **Weiterbildungskosten**
@@ -170,72 +169,69 @@ Hier kannst du alle steuerlich abzugsfähigen Ausgaben angeben:
 - **Krankheitskosten** (über dem Selbstbehalt)
 - **Säule 3a Einzahlungen**
 - **Schuldzinsen**
-- **Spenden** (an gemeinnützige Organisationen)
+- **Spenden** an gemeinnützige Organisationen
 - **Kinderbetreuungskosten**
 - **Liegenschaftsunterhalt**
 
-### Belege aufbewahren
+### Warum Belege wichtig sind
 
-Für alle Abzüge solltest du die entsprechenden Belege hochladen. Bei einer Überprüfung durch das Steueramt müssen die Abzüge nachgewiesen werden können.`,
+Lade für jeden Abzug den passenden Beleg hoch. Bei einer Überprüfung durch das Steueramt müssen alle Abzüge nachgewiesen werden können. So bist du auf der sicheren Seite.`,
         keywords: ['abzüge', 'berufsauslagen', 'versicherung', 'krankenkasse', '3a', 'säule', 'spenden', 'schuldzinsen'],
       },
     ],
   },
   {
     id: 'documents',
-    title: 'Dokumente hochladen',
-    description: 'Checkliste, Upload-Methoden & OCR-Scan',
+    title: 'Dokumente',
+    description: 'Dokumente hochladen und verwalten',
     icon: Upload,
     articles: [
       {
         id: 'document-checklist',
         icon: ClipboardCheck,
         title: 'Dokumenten-Checkliste',
-        content: `## Dokumenten-Checkliste
+        content: `## Alles im Blick mit der Checkliste
 
-Die Checkliste zeigt dir alle Dokumente die du für deine Steuererklärung benötigst:
+Die Checkliste zeigt dir genau, welche Dokumente du noch brauchst. So vergisst du nichts:
 
-- ✅ **Lohnausweis** – Von deinem Arbeitgeber
+- ✅ **Lohnausweis** – von deinem Arbeitgeber
 - ✅ **Bankbelege** – Kontoauszüge per 31.12.
-- ✅ **Wertschriftenverzeichnis** – Von der Bank
+- ✅ **Wertschriftenverzeichnis** – von der Bank
 - ✅ **Krankenkassenprämie** – Jahresabrechnung
-- ✅ **Säule 3a Bescheinigung** – Von der Vorsorgeeinrichtung
-- ✅ **Nebenkostenabrechnung** – Bei Liegenschaftsbesitz
-- ✅ **Spendenbescheinigungen** – Bei Spenden über CHF 100
+- ✅ **Säule 3a Bescheinigung** – von der Vorsorgeeinrichtung
+- ✅ **Nebenkostenabrechnung** – bei Liegenschaftsbesitz
+- ✅ **Spendenbescheinigungen** – bei Spenden über CHF 100
 
-### Status
+### Status auf einen Blick
 
-Jedes Dokument hat einen Status:
-- 🔴 **Fehlend** – Noch nicht hochgeladen
-- 🟡 **Hochgeladen** – Noch nicht zugewiesen
-- 🟢 **Zugewiesen** – Erfolgreich verarbeitet`,
+Jedes Dokument zeigt dir seinen Status:
+- 🔴 **Fehlend** – muss noch hochgeladen werden
+- 🟡 **Hochgeladen** – wartet auf Zuordnung
+- 🟢 **Zugewiesen** – alles in Ordnung`,
         keywords: ['checkliste', 'dokumente', 'lohnausweis', 'bankbeleg', 'krankenkasse'],
       },
       {
         id: 'upload-methods',
         icon: ScanLine,
-        title: 'Upload-Methoden',
-        content: `## Dokumente hochladen
+        title: 'Hochladen & Scannen',
+        content: `## So lädst du Dokumente hoch
 
-Es gibt mehrere Wege, Dokumente hochzuladen:
+Es gibt mehrere bequeme Wege:
 
 ### 📸 Foto aufnehmen
-Nutze die Kamera deines Smartphones um Dokumente direkt abzufotografieren. Die App optimiert das Bild automatisch.
+Fotografiere dein Dokument direkt mit der Smartphone-Kamera. Die App optimiert das Bild automatisch für eine optimale Lesbarkeit.
 
 ### 📁 Datei auswählen
-Wähle PDF-, JPG- oder PNG-Dateien von deinem Gerät aus. Maximal 10 MB pro Datei.
+Wähle eine bereits vorhandene Datei von deinem Gerät – ideal für PDFs die du per E-Mail erhalten hast.
 
-### 🔍 OCR-Scan (automatische Texterkennung)
-Nach dem Upload werden deine Dokumente automatisch analysiert:
-- Der **Dokumententyp** wird erkannt (z.B. Lohnausweis, Bankbeleg)
-- Das Dokument wird der **passenden Kategorie** zugeordnet
-- Relevante **Daten werden extrahiert** und vorausgefüllt
+### 🔍 Automatische Erkennung
+Nach dem Upload analysiert Ditax dein Dokument automatisch:
+- Der **Dokumententyp** wird erkannt (z.B. Lohnausweis)
+- Das Dokument wird der **richtigen Kategorie** zugeordnet
+- Wichtige **Daten werden extrahiert** und vorausgefüllt
 
 ### Unterstützte Formate
-- PDF (empfohlen)
-- JPG / JPEG
-- PNG
-- HEIC (iPhone-Fotos)`,
+PDF (empfohlen), JPG, PNG, HEIC, DOC, XLS, CSV, ZIP und TXT – maximal 10 MB pro Datei.`,
         keywords: ['upload', 'hochladen', 'foto', 'kamera', 'scan', 'ocr', 'pdf', 'datei'],
       },
     ],
@@ -243,69 +239,68 @@ Nach dem Upload werden deine Dokumente automatisch analysiert:
   {
     id: 'tax-return',
     title: 'Steuererklärung',
-    description: 'Einreichen, Status verfolgen & Download',
+    description: 'Einreichen, Status und fertige Erklärung',
     icon: CheckCircle,
     articles: [
       {
         id: 'submit',
         icon: Send,
-        title: 'Steuererklärung einreichen',
+        title: 'Einreichen & Bezahlen',
         content: `## Steuererklärung einreichen
 
-Wenn du alle Angaben erfasst und Dokumente hochgeladen hast:
+Wenn alle Angaben erfasst und Dokumente hochgeladen sind, geht es ganz schnell:
 
-1. Gehe zum **Dashboard** und tippe auf dein Steuerjahr
+1. Öffne dein Steuerjahr auf dem Dashboard
 2. Überprüfe den Fortschritt – alle Bereiche sollten abgeschlossen sein
 3. Tippe auf **"Bezahlen & Einreichen"**
 4. Wähle deine Zahlungsmethode (TWINT oder Kreditkarte)
-5. Nach der Bezahlung wird deine Steuererklärung an unsere Treuhänder übermittelt
+5. Nach der Bezahlung übernehmen unsere Steuerexperten
 
-### Was passiert nach dem Einreichen?
+### Was passiert dann?
 
-Unsere eidgenössisch diplomierten Treuhänder prüfen deine Angaben, optimieren deine Steuererklärung und erstellen die offizielle Steuererklärung. Du wirst benachrichtigt sobald sie fertig ist.`,
+Unsere eidgenössisch diplomierten Treuhänder prüfen deine Angaben, optimieren deine Abzüge und erstellen die offizielle Steuererklärung. Du wirst benachrichtigt, sobald sie fertig ist.`,
         keywords: ['einreichen', 'abschicken', 'bezahlen', 'submit', 'fertig'],
       },
       {
         id: 'status',
         icon: BarChart3,
         title: 'Status verfolgen',
-        content: `## Status deiner Steuererklärung
+        content: `## Immer wissen, wo du stehst
 
-Auf dem Dashboard siehst du jederzeit den aktuellen Status:
+Auf dem Dashboard siehst du jederzeit den aktuellen Stand deiner Steuererklärung:
 
-- **Erfassung** – Du bist noch bei der Dateneingabe
-- **Dokumente** – Dokumente werden noch benötigt
-- **Eingereicht** – Die Steuererklärung wurde bezahlt und eingereicht
-- **In Bearbeitung** – Unsere Treuhänder arbeiten daran
-- **Fehlende Unterlagen** – Wir benötigen weitere Informationen von dir
-- **Fertig** – Deine Steuererklärung ist bereit zum Download
+- **Erfassung** – du bist noch bei der Dateneingabe
+- **Dokumente** – es werden noch Dokumente benötigt
+- **Eingereicht** – bezahlt und bei unseren Experten
+- **In Bearbeitung** – unsere Treuhänder arbeiten daran
+- **Fehlende Unterlagen** – wir brauchen noch etwas von dir
+- **Fertig** – deine Steuererklärung ist bereit
 
 ### Benachrichtigungen
 
-Du erhältst Push-Benachrichtigungen und E-Mails bei Statusänderungen.`,
+Du erhältst automatisch Push-Benachrichtigungen und E-Mails bei jeder Statusänderung – du verpasst nichts.`,
         keywords: ['status', 'fortschritt', 'bearbeitung', 'fertig', 'benachrichtigung'],
       },
       {
         id: 'completed',
         icon: FileCheck,
         title: 'Fertige Steuererklärung',
-        content: `## Fertige Steuererklärung
+        content: `## Deine Steuererklärung ist fertig
 
-Wenn deine Steuererklärung fertig ist:
+Sobald unsere Experten fertig sind, wirst du benachrichtigt. So geht es weiter:
 
-1. Du erhältst eine **Benachrichtigung**
-2. Öffne die Steuererklärung auf dem Dashboard
-3. Prüfe die erstellte Steuererklärung als **PDF**
-4. **Unterschreibe digital** die Steuererklärung
-5. Die Steuererklärung wird beim Steueramt eingereicht
+1. Öffne die Steuererklärung auf dem Dashboard
+2. Prüfe das erstellte PDF
+3. **Unterschreibe digital** – einfach und rechtsgültig
+4. Die Steuererklärung wird beim Steueramt eingereicht
 
 ### Download
 
-Du kannst die fertige Steuererklärung als PDF herunterladen und für deine Unterlagen speichern.
+Du kannst deine fertige Steuererklärung jederzeit als PDF herunterladen und für deine Unterlagen speichern.
 
 ### Einspruch
 
-Falls du mit der Veranlagung nicht einverstanden bist, kannst du über die App einen **Einspruch** erstellen. Wir unterstützen dich dabei.`,
+Nicht einverstanden mit der Veranlagung? Über die App kannst du einen **Einspruch** erstellen – wir unterstützen dich dabei.`,
         keywords: ['fertig', 'download', 'unterschrift', 'signatur', 'pdf', 'einspruch'],
       },
     ],
@@ -313,14 +308,14 @@ Falls du mit der Veranlagung nicht einverstanden bist, kannst du über die App e
   {
     id: 'payment',
     title: 'Bezahlung',
-    description: 'Preise, Express-Service & Zahlungsmethoden',
+    description: 'Preise, Services und Zahlungsmethoden',
     icon: CreditCard,
     articles: [
       {
         id: 'pricing',
         icon: DollarSign,
         title: 'Preise & Services',
-        content: `## Preise
+        content: `## Transparente Preise
 
 ### Standard-Service
 - **Ab CHF 150** pro Steuererklärung
@@ -332,30 +327,28 @@ Falls du mit der Veranlagung nicht einverstanden bist, kannst du über die App e
 - Bearbeitungszeit: **ca. 10 Arbeitstage**
 - Prioritäre Bearbeitung
 
-### Was ist im Preis enthalten?
-- ✅ Professionelle Steuererklärung
-- ✅ Optimierung deiner Steuerbelastung
+### Das ist im Preis enthalten
+- ✅ Professionelle Steuererklärung durch zertifizierte Treuhänder
+- ✅ Maximale Optimierung deiner Abzüge
 - ✅ Digitale Einreichung beim Steueramt
-- ✅ Support bei Rückfragen des Steueramts
-- ✅ Sichere digitale Aufbewahrung`,
+- ✅ Unterstützung bei Rückfragen des Steueramts
+- ✅ Sichere digitale Aufbewahrung deiner Daten`,
         keywords: ['preis', 'kosten', 'express', 'standard', 'service', 'chf'],
       },
       {
         id: 'payment-methods',
         icon: CardIcon,
         title: 'Zahlungsmethoden',
-        content: `## Zahlungsmethoden
-
-Folgende Zahlungsmethoden stehen zur Verfügung:
+        content: `## Bequem bezahlen
 
 ### TWINT
-Bezahle bequem mit TWINT – scanne einfach den QR-Code oder nutze die direkte TWINT-Integration.
+Bezahle schnell und einfach mit TWINT – scanne den QR-Code oder nutze die direkte Integration in der App.
 
 ### Kreditkarte
-Visa, Mastercard und weitere Kreditkarten werden akzeptiert. Die Zahlung wird sicher über **Stripe** abgewickelt.
+Visa, Mastercard und weitere Kreditkarten werden akzeptiert. Die Zahlung erfolgt sicher über **Stripe**.
 
 ### Sicherheit
-Alle Zahlungen werden über verschlüsselte Verbindungen abgewickelt. DiTax speichert keine Kreditkartendaten.`,
+Alle Zahlungen werden verschlüsselt abgewickelt. Ditax speichert keine Kreditkartendaten – deine Zahlungsinformationen sind zu jeder Zeit geschützt.`,
         keywords: ['zahlung', 'bezahlen', 'twint', 'kreditkarte', 'visa', 'mastercard', 'stripe'],
       },
     ],
@@ -363,81 +356,79 @@ Alle Zahlungen werden über verschlüsselte Verbindungen abgewickelt. DiTax spei
   {
     id: 'security-account',
     title: 'Sicherheit & Konto',
-    description: 'Verschlüsselung, 2FA & Profil verwalten',
+    description: 'Datenschutz, Sicherheitseinstellungen und Profil',
     icon: Shield,
     articles: [
       {
         id: 'security',
         icon: Lock,
         title: 'Datensicherheit',
-        content: `## Datensicherheit
+        content: `## Deine Daten sind sicher
 
-DiTax nimmt den Schutz deiner Daten sehr ernst:
+Datenschutz hat für uns höchste Priorität. So schützen wir deine Informationen:
 
 ### Verschlüsselung
-- **Ende-zu-Ende-Verschlüsselung** für sensible Daten (AHV-Nummer, Bankdaten)
+- **Ende-zu-Ende-Verschlüsselung** für sensible Daten wie AHV-Nummer und Bankdaten
 - **TLS/SSL** für alle Datenübertragungen
 - **Verschlüsselung at rest** für gespeicherte Dokumente
 
 ### Datenspeicherort
 - Alle Daten werden in der **Schweiz und/oder EU** gespeichert
-- **DSGVO-konform**
+- Vollständig **DSGVO-konform**
 - Regelmässige Sicherheitsaudits
 
-### Zwei-Faktor-Authentifizierung (2FA)
-Aktiviere 2FA unter **Profil → Sicherheit** für zusätzlichen Schutz. Du benötigst dann bei jedem Login einen Code aus deiner Authenticator-App.
-
-### Passkeys
-Noch sicherer und bequemer: Nutze **Passkeys** (Face ID, Touch ID, Windows Hello) zum Einloggen.`,
+### Zusätzlicher Schutz
+- **Zwei-Faktor-Authentifizierung (2FA)** – aktiviere sie unter Profil → Sicherheit für einen zusätzlichen Login-Schutz
+- **Passkeys** – logge dich komfortabel mit Face ID, Touch ID oder Windows Hello ein`,
         keywords: ['sicherheit', 'verschlüsselung', '2fa', 'passwort', 'datenschutz', 'dsgvo', 'passkey'],
       },
       {
         id: 'profile',
         icon: UserCog,
         title: 'Profil verwalten',
-        content: `## Profil verwalten
+        content: `## Dein Profil
 
-Unter **Profil** kannst du folgende Einstellungen vornehmen:
+Unter **Profil** kannst du deine Einstellungen verwalten:
 
 ### Persönliche Daten
-- Name, E-Mail, Telefonnummer ändern
+- Name, E-Mail und Telefonnummer ändern
 - Profilbild hochladen
 - Adresse aktualisieren
 
 ### Steuerpflichtige Personen
-Füge weitere steuerpflichtige Personen hinzu:
-- **Ehepartner/in** – Für gemeinsame Veranlagung
-- **Kinder** – Für Kinderzulagen und Kinderabzüge
-- **Weitere Personen** – Für Vollmachten
+Verwalte alle Personen, für die du Steuererklärungen einreichen möchtest:
+- **Ehepartner/in** – für die gemeinsame Veranlagung
+- **Kinder** – für Kinderzulagen und Kinderabzüge
+- **Weitere Personen** – für Vollmachten
 
 ### Konto löschen
-Unter **Profil → Konto löschen** kannst du dein Konto und alle zugehörigen Daten unwiderruflich löschen. Diese Aktion kann nicht rückgängig gemacht werden.`,
+Unter **Profil → Konto löschen** kannst du dein Konto und alle Daten unwiderruflich löschen. Diese Aktion kann nicht rückgängig gemacht werden.`,
         keywords: ['profil', 'konto', 'einstellungen', 'steuerpflichtig', 'person', 'löschen'],
       },
       {
         id: 'faq',
         icon: HelpCircle,
-        title: 'Häufige Fragen (FAQ)',
+        title: 'Häufige Fragen',
         content: `## Häufige Fragen
 
 ### Wer erstellt meine Steuererklärung?
-Deine Steuererklärung wird von **Treuhändern mit eidgenössischem Fachausweis** erstellt. DiTax wurde von Sandro Graber gegründet.
+Deine Steuererklärung wird von **eidgenössisch diplomierten Treuhändern** erstellt – keine Software, echte Experten.
 
 ### Wie lange dauert die Bearbeitung?
 - **Standard-Service**: ca. 60 Arbeitstage
 - **Express-Service**: ca. 10 Arbeitstage
 
-### Kann ich meine Daten aus dem Vorjahr importieren?
-Ja! Wenn du bereits letztes Jahr DiTax genutzt hast, werden deine Daten automatisch vorausgefüllt.
+### Kann ich Daten aus dem Vorjahr übernehmen?
+Ja! Wenn du Ditax bereits letztes Jahr genutzt hast, werden deine Daten automatisch vorausgefüllt.
 
-### Was passiert wenn mir Dokumente fehlen?
-Unsere Treuhänder benachrichtigen dich über die App, falls Dokumente fehlen. Du kannst diese dann direkt nachreichen.
+### Was passiert, wenn mir Dokumente fehlen?
+Kein Stress – unsere Treuhänder benachrichtigen dich über die App und du kannst fehlende Dokumente einfach nachreichen.
 
-### Ist DiTax für alle Kantone verfügbar?
+### Ist Ditax für alle Kantone verfügbar?
 Kontaktiere uns für Details zur Verfügbarkeit in deinem Kanton.
 
-### Wie kann ich den Support kontaktieren?
-Nutze den **Chat** in der App oder schreibe uns eine E-Mail. Unser Support-Team hilft dir gerne weiter.`,
+### Wie erreiche ich den Support?
+Nutze den **Chat** in der App oder schreibe uns eine E-Mail – wir helfen dir gerne.`,
         keywords: ['faq', 'fragen', 'hilfe', 'support', 'kontakt', 'dauer', 'vorjahr'],
       },
     ],
