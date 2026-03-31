@@ -122,7 +122,7 @@ export function OcrUnrecognizedUploads() {
           { label: 'Gelöst', value: stats.resolved },
           { label: 'Ignoriert', value: stats.ignored },
         ].map((stat) => (
-          <div key={stat.label} className="border border-border/60 rounded-xl px-4 py-3 bg-background">
+          <div key={stat.label} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl px-4 py-3 shadow-sm">
             <p className="text-[11px] text-muted-foreground">{stat.label}</p>
             <p className="text-[22px] font-semibold text-foreground tracking-tight mt-0.5">{stat.value}</p>
           </div>
