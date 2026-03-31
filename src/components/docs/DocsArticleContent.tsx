@@ -402,6 +402,7 @@ const articleMockups: Record<string, React.FC> = {
   'personal-data': FormMockup,
   'income': FormMockup,
   'deductions': FormMockup,
+  'document-collection': DocumentCollectionMockup,
   'document-checklist': ChecklistMockup,
   'upload-methods': UploadMockup,
   'submit': PaymentMockup,
