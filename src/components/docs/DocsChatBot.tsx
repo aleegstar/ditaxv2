@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { X, Send, Sparkles, Loader2 } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Maximize2, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
@@ -50,30 +50,51 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
     }
   };
 
+  const handleClear = () => {
+    setMessages([]);
+  };
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/20" onClick={() => onOpenChange(false)} />
-      <div className="relative w-full sm:max-w-md h-[70vh] sm:h-[500px] bg-background border border-border/60 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <>
+      {/* Backdrop for mobile */}
+      <div
+        className="fixed inset-0 bg-black/10 z-40 lg:hidden"
+        onClick={() => onOpenChange(false)}
+      />
+
+      {/* Side panel */}
+      <aside className="fixed top-14 right-0 z-50 h-[calc(100vh-3.5rem)] w-full sm:w-[380px] bg-background border-l border-border/50 shadow-xl flex flex-col animate-in slide-in-from-right duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 shrink-0">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Ditax KI-Assistent</span>
+            <span className="text-sm font-semibold text-foreground">AI Assistant</span>
           </div>
-          <button onClick={() => onOpenChange(false)} className="p-1 rounded-lg hover:bg-muted transition-colors">
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleClear}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+              title="Chat leeren"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {messages.length === 0 && (
-            <div className="text-center py-8">
-              <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Frag mich etwas zur Ditax App!</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">z.B. &quot;Wie lade ich Dokumente hoch?&quot;</p>
+            <div className="text-center py-12">
+              <p className="text-sm font-medium text-foreground mb-1">How can I help you today?</p>
+              <p className="text-xs text-muted-foreground">Frag mich etwas zur Ditax Dokumentation</p>
             </div>
           )}
           {messages.map((msg, i) => (
@@ -105,7 +126,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
         </div>
 
         {/* Input */}
-        <div className="p-3 border-t border-border/40">
+        <div className="p-3 border-t border-border/40 shrink-0">
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
             className="flex items-center gap-2"
@@ -113,7 +134,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Frage stellen..."
+              placeholder="Write a message..."
               className="flex-1 h-10 px-4 rounded-xl bg-muted/50 border border-border/40 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
               disabled={loading}
             />
@@ -126,7 +147,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
             </button>
           </form>
         </div>
-      </div>
-    </div>
+      </aside>
+    </>
   );
 };
