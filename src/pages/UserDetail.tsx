@@ -563,7 +563,7 @@ const UserDetail: React.FC = () => {
       <main className="flex-1 p-4 lg:p-5">
         <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
           {/* Refined Header */}
-          <div className="px-5 py-3 border-b border-border/30">
+          <div className="px-5 py-3 border-b border-white/30">
             {/* Main Header Row */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
               {/* Left: Back + Client Identity (Primary Focus) */}
