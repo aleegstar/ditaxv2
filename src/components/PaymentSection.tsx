@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import paymentVisa from '@/assets/payment-visa.png';
 import paymentMastercard from '@/assets/payment-mastercard.png';
+import paymentTwint from '@/assets/payment-twint.png';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -312,48 +313,50 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         onBack={() => navigate(-1)}
       />
 
-      <main className="flex-grow pt-8 pb-16 px-2 sm:px-6">
+      <main className="flex-grow pt-4 sm:pt-8 pb-16 px-3 sm:px-6">
         <div className="max-w-[640px] mx-auto">
 
           {/* Main Card Container */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1.5 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
-            <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
+            <div className="p-4 sm:p-8 space-y-5 sm:space-y-8">
 
               {/* Express Service Toggle */}
               {!isUpgrade && (
                 <button
                   type="button"
                   onClick={() => setExpressService(!expressService)}
-                  className={`relative w-full overflow-hidden rounded-2xl border-2 p-4 sm:p-5 flex items-center justify-between transition-all active:scale-[0.99] ${
+                  className={`relative w-full overflow-hidden rounded-2xl border-2 p-3.5 sm:p-5 transition-all active:scale-[0.99] ${
                     expressService
                       ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
                       : 'border-white/60 bg-white/40 hover:border-white/80 hover:bg-white/50'
                   }`}
                 >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${
-                      expressService
-                        ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                        : 'bg-slate-100 text-slate-400'
-                    }`}>
-                      <Zap className="w-5 h-5 fill-current" />
-                    </div>
-                    <div className="flex flex-col items-start text-left">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-base font-semibold text-slate-900 tracking-tight">Express-Service</h3>
-                        <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-bold tracking-wide uppercase">Empfohlen</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                        expressService
+                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                          : 'bg-slate-100 text-slate-400'
+                      }`}>
+                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                       </div>
-                      <p className="text-sm text-slate-500 font-normal mt-0.5">Bearbeitung in 10 Arbeitstagen</p>
+                      <div className="flex flex-col items-start text-left min-w-0">
+                        <h3 className="text-sm sm:text-base font-semibold text-slate-900 tracking-tight">Express-Service</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] sm:text-[10px] font-bold tracking-wide uppercase">Empfohlen</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">Bearbeitung in 10 Arbeitstagen</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                    <span className="text-base font-semibold text-slate-900 tabular-nums whitespace-nowrap">+100.00</span>
-                    <div className={`w-12 h-7 rounded-full transition-all relative ${
-                      expressService ? 'bg-primary' : 'bg-slate-200'
-                    }`}>
-                      <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all ${
-                        expressService ? 'left-[calc(100%-1.625rem)]' : 'left-0.5'
-                      }`} />
+                    <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+                      <span className="text-sm sm:text-base font-semibold text-slate-900 tabular-nums whitespace-nowrap">+100.00</span>
+                      <div className={`w-11 sm:w-12 h-6 sm:h-7 rounded-full transition-all relative ${
+                        expressService ? 'bg-primary' : 'bg-slate-200'
+                      }`}>
+                        <div className={`absolute top-0.5 w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-white shadow-md transition-all ${
+                          expressService ? 'left-[calc(100%-1.375rem)] sm:left-[calc(100%-1.625rem)]' : 'left-0.5'
+                        }`} />
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -415,23 +418,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               </div>
 
               {/* Payment Methods */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Zahlungsmethoden</h4>
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-2.5 flex-wrap">
                   {/* TWINT */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <span className="font-bold text-foreground text-sm italic tracking-tighter">TWINT</span>
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentTwint} alt="TWINT" className="h-5 object-contain" loading="lazy" />
                   </div>
                   {/* VISA */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" />
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" loading="lazy" />
                   </div>
                   {/* Mastercard */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" />
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" loading="lazy" />
                   </div>
                   {/* Klarna */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
                     <span className="font-bold text-[#FFB3C7] text-sm tracking-tight">Klarna.</span>
                   </div>
                 </div>
