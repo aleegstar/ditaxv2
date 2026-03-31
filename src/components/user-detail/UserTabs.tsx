@@ -560,7 +560,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <div className="flex flex-col items-center justify-center py-12 bg-white/30 backdrop-blur-lg rounded-2xl border border-dashed border-white/60">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
                   <FileIcon className="h-8 w-8 text-slate-400" />
                 </div>
