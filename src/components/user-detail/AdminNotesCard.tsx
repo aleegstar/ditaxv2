@@ -102,7 +102,7 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
             placeholder="Notizen zum Benutzer hinzufügen..." 
             value={adminNotes} 
             onChange={(e) => setAdminNotes(e.target.value)} 
-            className="min-h-[180px] resize-none rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white focus:border-[#1d64ff] focus:ring-1 focus:ring-[#1d64ff]/20 transition-all text-slate-700 placeholder:text-slate-400" 
+            className="min-h-[180px] resize-none rounded-xl border-white/60 bg-white/30 focus:bg-white/60 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground" 
           />
         </div>
 
