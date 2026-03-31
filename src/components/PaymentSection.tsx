@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import paymentVisa from '@/assets/payment-visa.png';
 import paymentMastercard from '@/assets/payment-mastercard.png';
+import paymentTwint from '@/assets/payment-twint.png';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
