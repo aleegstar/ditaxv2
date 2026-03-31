@@ -118,7 +118,7 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
               flex items-center justify-center gap-2
               ${saved 
                 ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                : 'bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white disabled:bg-slate-100 disabled:text-slate-400'
+                : 'bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-[1.04] text-white disabled:bg-muted disabled:text-muted-foreground'
               }
             `}
           >

@@ -28,7 +28,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
             onClick={() => onPreview(document)}
             variant="outline"
             size="sm"
-            className="bg-white/20 border-white/30 text-black hover:bg-white/30 flex-shrink-0 ml-2"
+            className="bg-white/40 border-white/60 text-foreground hover:bg-white/60 flex-shrink-0 ml-2"
           >
             <Eye className="h-4 w-4" />
           </Button>

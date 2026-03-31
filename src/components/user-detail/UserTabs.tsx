@@ -580,7 +580,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
           
               <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
-                <Card className="border-border/50">
+                <Card className="border-white/40 bg-white/40 backdrop-blur-lg">
                   <CardHeader>
                     <CardTitle className="text-xl">
                       Nachrichten mit {user.firstName} {user.lastName}
