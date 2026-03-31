@@ -279,7 +279,7 @@ const MissingDocuments = () => {
               {pendingItems.map(item => (
                 <div
                   key={item.id}
-                  className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150"
+                   className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
