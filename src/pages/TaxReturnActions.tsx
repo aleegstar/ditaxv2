@@ -397,7 +397,7 @@ export default function TaxReturnActions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -405,7 +405,7 @@ export default function TaxReturnActions() {
 
   if (!completedTaxReturn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4 text-foreground">{t.taxReturnActions.notFound}</h1>
           <Button 
@@ -421,7 +421,7 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen bg-white text-slate-800 antialiased">
+      <div className="min-h-screen text-foreground antialiased">
         <SubpageHeader 
           title={`${t.taxReturnActions.title} ${taxYear}`} 
           onBack={() => navigate('/')} 
