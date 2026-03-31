@@ -1,4 +1,4 @@
-import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield } from 'lucide-react';
+import { BookOpen, FileText, Upload, CheckCircle, CreditCard, Shield, Home, Zap, LogIn, CalendarPlus, User, Wallet, PiggyBank, Receipt, ClipboardCheck, ScanLine, Send, BarChart3, FileCheck, DollarSign, CreditCard as CardIcon, Lock, UserCog, HelpCircle } from 'lucide-react';
 
 export interface DocsArticle {
   id: string;
@@ -6,6 +6,7 @@ export interface DocsArticle {
   subtitle?: string;
   content: string;
   keywords: string[];
+  icon: typeof BookOpen;
 }
 
 export interface DocsCategory {
