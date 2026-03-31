@@ -141,7 +141,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
           </button>
           <button
             onClick={handleOpenCreate}
-            className="h-8 px-3 rounded-lg bg-foreground text-background text-[12px] font-medium flex items-center gap-1.5 hover:bg-foreground/90 transition-colors"
+             className="h-8 px-3 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white text-[12px] font-semibold flex items-center gap-1.5 hover:brightness-[1.04] transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             Neue Vorlage
