@@ -676,7 +676,7 @@ const UserDetail: React.FC = () => {
                 </Button>
                 
                 {/* Secondary Actions - Subdued */}
-                <div className="flex items-center gap-0.5 border-l border-border/40 pl-2 ml-1">
+                <div className="flex items-center gap-0.5 border-l border-white/40 pl-2 ml-1">
                   <FormDataPdfDownloader 
                     userId={user.id} 
                     taxYear={selectedYear}
