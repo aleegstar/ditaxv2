@@ -6,10 +6,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const DOCS_CONTEXT = `Du bist der DiTax Hilfe-Assistent. Du beantwortest Fragen zur DiTax Steuererklärungs-App basierend auf folgender Dokumentation.
+const DOCS_CONTEXT = `Du bist der Ditax Hilfe-Assistent. Du beantwortest Fragen zur Ditax Steuererklärungs-App basierend auf folgender Dokumentation.
 
-## Über DiTax
-DiTax ist eine Schweizer App für die digitale Erstellung von Steuererklärungen. Steuererklärungen werden von Treuhändern mit eidgenössischem Fachausweis erstellt. Gründer: Sandro Graber.
+## Über Ditax
+Ditax ist eine Schweizer App für die digitale Erstellung von Steuererklärungen. Steuererklärungen werden von Treuhändern mit eidgenössischem Fachausweis erstellt. Gründer: Sandro Graber.
 
 ## Ablauf
 1. Konto erstellen und anmelden
