@@ -54,7 +54,7 @@ const Help = () => {
       {/* ══════ Top Header Bar ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
         {/* Row 1: Logo — Search — Ask AI */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-16 gap-4">
           {/* Mobile menu */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -63,36 +63,38 @@ const Help = () => {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {/* Logo */}
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 shrink-0">
-            <img src={ditaxLogo} alt="DiTax" className="w-8 h-8" />
-            <span className="font-bold text-foreground text-[17px] tracking-tight">ditax</span>
+          {/* Logo with full branding */}
+          <button onClick={() => navigate('/')} className="shrink-0">
+            <img src={ditaxLogo} alt="DiTax" className="h-8" />
           </button>
 
           <div className="flex-1" />
 
-          {/* Search */}
-          <div className="relative w-52 sm:w-64">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search"
-              className="w-full h-10 pl-10 pr-16 rounded-lg border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-muted-foreground/40 bg-background"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5 font-medium">
-              Ctrl+K
-            </span>
+          {/* Search + Ask AI centered group */}
+          <div className="flex items-center gap-2">
+            <div className="relative w-52 sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search"
+                className="w-full h-10 pl-10 pr-16 rounded-lg border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-muted-foreground/40 bg-background"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5 font-medium">
+                Ctrl+K
+              </span>
+            </div>
+
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors shrink-0"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="hidden sm:inline">Ask AI</span>
+            </button>
           </div>
 
-          {/* Ask AI */}
-          <button
-            onClick={() => setChatOpen(true)}
-            className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline">Ask AI</span>
-          </button>
+          <div className="flex-1" />
         </div>
 
         {/* Row 2: Navigation tabs */}
