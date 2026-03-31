@@ -433,9 +433,10 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-14 left-0 right-0 z-0 rounded-[1.5rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-16 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+                  className="absolute -bottom-14 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-16"
                   style={{
                     background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
+                    boxShadow: '0 20px 40px -8px rgba(29, 100, 255, 0.35)',
                   }}
                 >
                   <div className="flex items-center justify-between">
@@ -457,10 +458,11 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] p-7 md:p-8 border border-white/80 transition-all duration-300 cursor-pointer"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer"
                 style={{
                   background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
-                  boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08)',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                  border: '1px solid rgba(0,0,0,0.06)',
                 }}
               >
 
