@@ -236,7 +236,7 @@ export const DocumentTemplateManager: React.FC = () => {
             <p className="text-[13px] text-muted-foreground">Laden Sie eine Vorlage hoch, um zu beginnen.</p>
           </div>
         ) : (
-          <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+          <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
             {templates.map((template) => (
               <div
                 key={template.id}
