@@ -571,7 +571,7 @@ const UserDetail: React.FC = () => {
                 {/* Back Button */}
                 <Link 
                   to="/admin" 
-                  className="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors flex-shrink-0"
+                  className="w-9 h-9 rounded-full bg-white/50 border border-white/60 flex items-center justify-center hover:bg-white/70 transition-colors flex-shrink-0"
                 >
                   <ArrowLeft className="h-4 w-4 text-slate-500" />
                 </Link>
