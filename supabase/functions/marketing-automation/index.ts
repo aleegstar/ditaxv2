@@ -116,16 +116,16 @@ const handler = async (req: Request): Promise<Response> => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'DiTax <noreply@ditax.ch>',
+            from: 'Ditax <noreply@ditax.ch>',
             to: [email],
-            subject: 'Willkommen bei DiTax!',
+            subject: 'Willkommen bei Ditax!',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h1 style="color: #1d64ff; text-align: center;">Willkommen bei DiTax!</h1>
-                <p>Vielen Dank für Ihre Anmeldung. Wir freuen uns, Sie bei DiTax begrüßen zu dürfen.</p>
+                <h1 style="color: #1d64ff; text-align: center;">Willkommen bei Ditax!</h1>
+                <p>Vielen Dank für Ihre Anmeldung. Wir freuen uns, Sie bei Ditax begrüßen zu dürfen.</p>
                 <p>Ihre Steuererklärung war noch nie so einfach!</p>
                 <p>Falls Sie Fragen haben, können Sie uns jederzeit über den Chat in der App kontaktieren.</p>
-                <p>Viele Grüße,<br>Ihr DiTax Team</p>
+                <p>Viele Grüße,<br>Ihr Ditax Team</p>
               </div>
             `,
           }),

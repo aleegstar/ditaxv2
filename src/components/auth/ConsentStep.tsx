@@ -156,7 +156,7 @@ export const ConsentStep: React.FC<ConsentStepProps> = ({
       <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
         <CardHeader className="text-center pb-4">
           <CardTitle className="text-2xl font-bold text-gray-900">
-            Willkommen bei DiTax!
+            Willkommen bei Ditax!
           </CardTitle>
           <p className="text-gray-600 mt-2">
             Bitte bestätige deine Einstellungen, um fortzufahren.

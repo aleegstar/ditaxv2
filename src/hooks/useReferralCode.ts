@@ -136,14 +136,14 @@ export const useReferralCode = () => {
 
   const shareViaWhatsApp = useCallback(() => {
     const url = getShareUrl();
-    const text = `Erstelle deine Steuererklärung mit DiTax und spare CHF 20.-! Nutze meinen Code: ${referralCode?.code}\n${url}`;
+    const text = `Erstelle deine Steuererklärung mit Ditax und spare CHF 20.-! Nutze meinen Code: ${referralCode?.code}\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }, [referralCode?.code, getShareUrl]);
 
   const shareViaEmail = useCallback(() => {
     const url = getShareUrl();
     const subject = 'CHF 20.- Rabatt für deine Steuererklärung';
-    const body = `Hallo!\n\nIch nutze DiTax für meine Steuererklärung und möchte dir einen CHF 20.- Rabatt teilen.\n\nNutze meinen Code: ${referralCode?.code}\n\nHier gehts zur Registrierung: ${url}\n\nViele Grüße`;
+    const body = `Hallo!\n\nIch nutze Ditax für meine Steuererklärung und möchte dir einen CHF 20.- Rabatt teilen.\n\nNutze meinen Code: ${referralCode?.code}\n\nHier gehts zur Registrierung: ${url}\n\nViele Grüße`;
     window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
   }, [referralCode?.code, getShareUrl]);
 

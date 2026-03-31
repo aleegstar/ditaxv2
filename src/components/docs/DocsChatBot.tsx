@@ -60,7 +60,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">DiTax KI-Assistent</span>
+            <span className="text-sm font-semibold text-foreground">Ditax KI-Assistent</span>
           </div>
           <button onClick={() => onOpenChange(false)} className="p-1 rounded-lg hover:bg-muted transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
@@ -72,7 +72,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
           {messages.length === 0 && (
             <div className="text-center py-8">
               <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Frag mich etwas zur DiTax App!</p>
+              <p className="text-sm text-muted-foreground">Frag mich etwas zur Ditax App!</p>
               <p className="text-xs text-muted-foreground/60 mt-1">z.B. &quot;Wie lade ich Dokumente hoch?&quot;</p>
             </div>
           )}

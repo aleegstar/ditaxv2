@@ -83,7 +83,7 @@ export function useEnhancedWebAuthn() {
       const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions = {
         challenge,
         rp: {
-          name: 'DiTax',
+          name: 'Ditax',
           id: window.location.hostname,
         },
         user: {

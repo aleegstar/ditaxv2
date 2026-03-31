@@ -69,7 +69,7 @@ const Help = () => {
 
           {/* Logo */}
           <button onClick={() => navigate('/')} className="shrink-0">
-            <img src={ditaxLogo} alt="DiTax" className="h-7 sm:h-8" />
+            <img src={ditaxLogo} alt="Ditax" className="h-7 sm:h-8" />
           </button>
 
           <div className="flex-1" />
@@ -250,7 +250,7 @@ const Help = () => {
               </div>
 
               <div className="mt-8 pt-6 border-t border-border/40 text-[11px] text-muted-foreground/50">
-                <span>DiTax Dokumentation</span>
+                <span>Ditax Dokumentation</span>
               </div>
             </>
           )}
@@ -280,10 +280,10 @@ const DocsTableOfContents: React.FC<{ articleId: string; categoryId: string }> =
   const headings = articleId === 'introduction'
     ? [
         { level: 2, text: 'Übersicht' },
-        { level: 2, text: 'Hauptfunktionen' },
+        { level: 2, text: 'Warum Ditax?' },
         { level: 2, text: 'So funktioniert\'s' },
         { level: 2, text: 'Verfügbarkeit' },
-        { level: 2, text: 'Häufig gestellte Fragen' },
+        { level: 2, text: 'Nächste Schritte' },
       ]
     : article.content
         .split('\n')
