@@ -150,7 +150,7 @@ export function OcrUnrecognizedUploads() {
       {loading ? (
         <div className="text-center py-16 text-[13px] text-muted-foreground">Laden...</div>
       ) : uploads.length === 0 ? (
-        <div className="border border-border/60 rounded-xl bg-background py-16 text-center">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm py-16 text-center">
           <FileQuestion className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
           <p className="text-[13px] text-muted-foreground">Keine Einträge vorhanden.</p>
         </div>
