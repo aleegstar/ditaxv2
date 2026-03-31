@@ -18,8 +18,8 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
           <div className="flex items-center space-x-2 flex-1 min-w-0">
             <FileIcon className="h-8 w-8 text-foreground/70 flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-black font-medium text-sm truncate">{document.fileName}</p>
-              <p className="text-black/60 text-xs">
+              <p className="text-foreground font-medium text-sm truncate">{document.fileName}</p>
+              <p className="text-muted-foreground text-xs">
                 {document.uploadDate.toLocaleDateString('de-DE')}
               </p>
             </div>
