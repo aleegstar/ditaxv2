@@ -41,7 +41,7 @@ function StatCard({ label, value, change, icon: Icon, to, changeLabel = 'vs. let
   const isPositive = (change ?? 0) >= 0;
 
   return (
-    <div className="bg-card rounded-xl border border-border/60 p-5 flex flex-col justify-between h-full">
+    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5 flex flex-col justify-between h-full">
       <div className="flex items-start justify-between mb-4">
         <p className="text-[13px] text-muted-foreground font-medium">{label}</p>
         <div className="w-9 h-9 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
