@@ -73,7 +73,7 @@ function StatCard({ label, value, change, icon: Icon, to, changeLabel = 'vs. let
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-card border border-border/60 rounded-lg px-3 py-2 shadow-lg">
+    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm px-3 py-2">
       <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-[12px] font-medium text-foreground">
