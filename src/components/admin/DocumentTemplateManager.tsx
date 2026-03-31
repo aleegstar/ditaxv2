@@ -315,7 +315,7 @@ export const DocumentTemplateManager: React.FC = () => {
       </div>
 
       {/* Placeholders */}
-      <div className="border border-border/60 rounded-xl bg-muted/20 p-5">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5">
         <h3 className="text-[13px] font-medium text-foreground mb-3">Verfügbare Platzhalter</h3>
         <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
           {[

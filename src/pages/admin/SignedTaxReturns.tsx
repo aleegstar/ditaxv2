@@ -315,7 +315,7 @@ const SignedTaxReturns: React.FC = () => {
             </thead>
             <tbody>
               {filteredReturns.map((item) => (
-                <tr key={item.id} className="border-b border-border/40 last:border-0 hover:bg-muted/30 transition-colors">
+                <tr key={item.id} className="border-b border-white/20 last:border-0 hover:bg-white/40 transition-colors">
                   <td className="py-3 px-5">
                     <div>
                       <div className="text-sm font-medium text-foreground">

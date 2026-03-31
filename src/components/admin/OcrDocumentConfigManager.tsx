@@ -181,7 +181,7 @@ export function OcrDocumentConfigManager() {
           </p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filtered.map(config => (
             <div key={config.id} className={cn("group p-4 hover:bg-muted/30 transition-colors", !config.is_active && "opacity-50")}>
               <div className="flex items-start justify-between gap-4">

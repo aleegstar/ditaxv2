@@ -215,7 +215,7 @@ export const ChatQuickRepliesManager: React.FC = () => {
 
       {/* List */}
       {!loading && filteredReplies.length > 0 && (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filteredReplies.map((reply) => (
             <div key={reply.id} className="group p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-start justify-between gap-4">

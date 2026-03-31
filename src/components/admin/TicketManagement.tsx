@@ -458,7 +458,7 @@ export const TicketManagement = () => {
           <p className="text-xs text-muted-foreground">Keine Tickets gefunden.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl overflow-hidden divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden divide-y divide-white/30">
           {filteredTickets.map((ticket) => (
             <div
               key={ticket.id}

@@ -402,8 +402,8 @@ export function DefinitiveTaxBillManager() {
       </div>
 
       {/* Bills List */}
-      <div className="rounded-xl border border-border/40 bg-card overflow-hidden">
-        <div className="divide-y divide-border/40">
+       <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden">
+         <div className="divide-y divide-white/30">
           {bills.map((bill) => (
             <div key={bill.id} className="group flex items-center justify-between px-5 py-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-center gap-4 min-w-0">

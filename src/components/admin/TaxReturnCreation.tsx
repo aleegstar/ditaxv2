@@ -493,7 +493,7 @@ const TaxReturnCreation: React.FC = () => {
               to={`/admin/user/${taxReturn.user_id}?year=${taxReturn.tax_year}${taxReturn.tax_filer_id ? `&filer=${taxReturn.tax_filer_id}` : ''}`}
               className="group block"
             >
-              <div className="border border-border/60 rounded-xl p-5 bg-card hover:border-border hover:shadow-sm transition-all duration-150">
+              <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm hover:bg-white/80 transition-all duration-150">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-base font-semibold text-foreground tracking-tight">
