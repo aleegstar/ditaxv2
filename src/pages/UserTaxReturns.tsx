@@ -433,7 +433,7 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-6 left-1 right-1 z-0 rounded-b-[1.5rem] rounded-t-none px-6 pt-10 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-8 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+                  className="absolute -bottom-10 left-1 right-1 z-0 rounded-b-[1.5rem] rounded-t-none px-6 pt-14 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-12 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
                   style={{
                     background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
                   }}
