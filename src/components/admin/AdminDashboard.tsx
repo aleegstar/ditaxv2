@@ -293,7 +293,7 @@ export const AdminDashboard: React.FC = () => {
         <button
           onClick={loadDashboardData}
           disabled={refreshing}
-          className="h-8 w-8 flex items-center justify-center rounded-lg border border-border/60 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors disabled:opacity-50"
+          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
         </button>

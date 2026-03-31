@@ -181,7 +181,7 @@ const UserFeedback = () => {
           <p className="text-[13px] text-muted-foreground">Keine Feedbacks für die aktuelle Filterauswahl.</p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-xl bg-background divide-y divide-border/40">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
           {filteredFeedbacks.map((feedback) => (
             <div key={feedback.id} className="p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-start justify-between gap-4">
