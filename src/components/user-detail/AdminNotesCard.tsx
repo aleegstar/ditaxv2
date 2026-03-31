@@ -96,7 +96,7 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
       </div>
 
       {/* Notes Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+      <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 p-6 space-y-4">
         <div className="relative">
           <Textarea 
             placeholder="Notizen zum Benutzer hinzufügen..." 
