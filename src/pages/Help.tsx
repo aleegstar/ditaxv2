@@ -280,10 +280,10 @@ const DocsTableOfContents: React.FC<{ articleId: string; categoryId: string }> =
   const headings = articleId === 'introduction'
     ? [
         { level: 2, text: 'Übersicht' },
-        { level: 2, text: 'Hauptfunktionen' },
+        { level: 2, text: 'Warum Ditax?' },
         { level: 2, text: 'So funktioniert\'s' },
         { level: 2, text: 'Verfügbarkeit' },
-        { level: 2, text: 'Häufig gestellte Fragen' },
+        { level: 2, text: 'Nächste Schritte' },
       ]
     : article.content
         .split('\n')
