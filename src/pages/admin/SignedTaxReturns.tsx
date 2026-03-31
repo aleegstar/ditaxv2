@@ -304,7 +304,7 @@ const SignedTaxReturns: React.FC = () => {
         <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border/60">
+              <tr className="border-b border-white/30">
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Benutzer</th>
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Nr.</th>
                 <th className="text-left py-3 px-5 text-xs font-medium text-muted-foreground">Jahr</th>
