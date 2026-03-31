@@ -262,7 +262,7 @@ const MissingDocuments = () => {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="border border-border/60 rounded-xl p-5">
+                 <div key={i} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
                   <Skeleton className="h-4 w-32 mb-3" />
                   <Skeleton className="h-3 w-48" />
                 </div>
