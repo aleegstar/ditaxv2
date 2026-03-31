@@ -199,7 +199,7 @@ export const DocumentTemplateManager: React.FC = () => {
       </div>
 
       {/* Upload Section */}
-      <div className="border border-border/60 rounded-xl bg-background p-5 space-y-4">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5 space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="template-upload" className="text-[13px] font-medium text-foreground">
             Neue Vorlage hochladen
