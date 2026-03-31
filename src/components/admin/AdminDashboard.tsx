@@ -404,7 +404,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Recent Tax Returns Table */}
-      <div className="bg-card rounded-xl border border-border/60 p-6">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[15px] font-semibold text-foreground">Letzte Steuererklärungen</h2>
           <Link to="/admin/tax-processing" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
