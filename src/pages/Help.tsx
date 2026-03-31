@@ -257,7 +257,7 @@ const Help = () => {
         </main>
 
         {/* Right TOC (desktop only) */}
-        <aside className="hidden xl:block w-52 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-8 pr-4">
+        <aside className="hidden xl:block w-56 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto py-8 pr-4">
           <DocsTableOfContents
             articleId={selectedArticle.articleId}
             categoryId={selectedArticle.categoryId}
