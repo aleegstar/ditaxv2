@@ -250,7 +250,7 @@ const Help = () => {
               </div>
 
               <div className="mt-8 pt-6 border-t border-border/40 text-[11px] text-muted-foreground/50">
-                <span>DiTax Dokumentation</span>
+                <span>Ditax Dokumentation</span>
               </div>
             </>
           )}

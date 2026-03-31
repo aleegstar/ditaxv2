@@ -72,7 +72,7 @@ export const DocsChatBot: React.FC<DocsChatBotProps> = ({ open, onOpenChange }) 
           {messages.length === 0 && (
             <div className="text-center py-8">
               <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">Frag mich etwas zur DiTax App!</p>
+              <p className="text-sm text-muted-foreground">Frag mich etwas zur Ditax App!</p>
               <p className="text-xs text-muted-foreground/60 mt-1">z.B. &quot;Wie lade ich Dokumente hoch?&quot;</p>
             </div>
           )}
