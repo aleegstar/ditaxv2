@@ -53,7 +53,8 @@ const Help = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* ══════ Top Header Bar ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-3">
+        {/* Row 1: Logo — Search — Ask AI */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-4">
           {/* Mobile menu */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -63,57 +64,54 @@ const Help = () => {
           </button>
 
           {/* Logo */}
-          <button onClick={() => navigate('/')} className="flex items-center gap-2.5 shrink-0">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(221,100%,42%)] flex items-center justify-center">
-              <span className="text-white text-[11px] font-bold">D</span>
-            </div>
-            <span className="font-bold text-foreground text-[15px] tracking-tight">ditax</span>
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 shrink-0">
+            <img src={ditaxLogo} alt="DiTax" className="w-8 h-8" />
+            <span className="font-bold text-foreground text-[17px] tracking-tight">ditax</span>
           </button>
-
-          {/* Nav tabs */}
-          <nav className="hidden md:flex items-center gap-1 ml-6">
-            <span className="text-sm font-medium text-primary">
-              Dokumentation
-            </span>
-            <button
-              onClick={() => navigate('/chat')}
-              className="text-sm text-muted-foreground hover:text-foreground px-3 py-1.5 transition-colors"
-            >
-              Hilfe-Chat
-            </button>
-          </nav>
 
           <div className="flex-1" />
 
           {/* Search */}
-          <div className="relative w-48 sm:w-56">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/40" />
+          <div className="relative w-52 sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Suchen..."
-              className="w-full h-9 pl-9 pr-14 rounded-lg bg-muted/40 border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-muted-foreground/40"
+              placeholder="Search"
+              className="w-full h-10 pl-10 pr-16 rounded-lg border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-muted-foreground/40 bg-background"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/40 border border-border/50 rounded px-1.5 py-0.5 font-mono">
-              ⌘K
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5 font-medium">
+              Ctrl+K
             </span>
           </div>
 
           {/* Ask AI */}
           <button
             onClick={() => setChatOpen(true)}
-            className="flex items-center gap-1.5 h-9 px-3.5 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors"
+            className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">KI fragen</span>
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden sm:inline">Ask AI</span>
           </button>
+        </div>
 
-          {/* Settings icon */}
-          <button
-            onClick={() => navigate('/profile')}
-            className="p-2 rounded-lg hover:bg-muted/40 transition-colors hidden sm:flex"
-          >
-            <Settings className="w-4 h-4 text-muted-foreground" />
+        {/* Row 2: Navigation tabs */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+          <nav className="flex items-center gap-6 -mb-px">
+            <span className="text-sm font-medium text-primary border-b-2 border-primary pb-2.5 pt-1 cursor-default">
+              Documentation
+            </span>
+            <button
+              onClick={() => navigate('/chat')}
+              className="text-sm text-muted-foreground hover:text-foreground pb-2.5 pt-1 transition-colors border-b-2 border-transparent"
+            >
+              Help Center
+            </button>
+            <span className="text-sm text-muted-foreground pb-2.5 pt-1 border-b-2 border-transparent cursor-default">
+              Changelog
+            </span>
+          </nav>
+        </div>
           </button>
         </div>
       </header>
