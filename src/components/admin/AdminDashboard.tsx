@@ -334,7 +334,7 @@ export const AdminDashboard: React.FC = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Revenue Bar Chart */}
-        <div className="lg:col-span-3 bg-card rounded-xl border border-border/60 p-6">
+        <div className="lg:col-span-3 bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-[15px] font-semibold text-foreground">Umsatz</h2>
             <div className="flex items-center gap-4">
