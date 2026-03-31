@@ -313,12 +313,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         onBack={() => navigate(-1)}
       />
 
-      <main className="flex-grow pt-8 pb-16 px-2 sm:px-6">
+      <main className="flex-grow pt-4 sm:pt-8 pb-16 px-3 sm:px-6">
         <div className="max-w-[640px] mx-auto">
 
           {/* Main Card Container */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1.5 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
-            <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
+            <div className="p-4 sm:p-8 space-y-5 sm:space-y-8">
 
               {/* Express Service Toggle */}
               {!isUpgrade && (
