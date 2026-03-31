@@ -16,7 +16,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onPreview }) => {
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 flex-1 min-w-0">
-            <FileIcon className="h-8 w-8 text-black/70 flex-shrink-0" />
+            <FileIcon className="h-8 w-8 text-foreground/70 flex-shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="text-black font-medium text-sm truncate">{document.fileName}</p>
               <p className="text-black/60 text-xs">
