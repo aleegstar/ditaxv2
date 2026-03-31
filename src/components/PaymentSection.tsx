@@ -418,23 +418,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               </div>
 
               {/* Payment Methods */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Zahlungsmethoden</h4>
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-2.5 flex-wrap">
                   {/* TWINT */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <span className="font-bold text-foreground text-sm italic tracking-tighter">TWINT</span>
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentTwint} alt="TWINT" className="h-5 object-contain" loading="lazy" />
                   </div>
                   {/* VISA */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" />
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" loading="lazy" />
                   </div>
                   {/* Mastercard */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
-                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" />
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
+                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" loading="lazy" />
                   </div>
                   {/* Klarna */}
-                  <div className="h-12 px-4 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer min-w-[80px]">
+                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
                     <span className="font-bold text-[#FFB3C7] text-sm tracking-tight">Klarna.</span>
                   </div>
                 </div>
