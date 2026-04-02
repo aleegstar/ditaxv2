@@ -203,9 +203,9 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     isActive?: boolean;
   }) => {
     const IconComponent = item.icon;
-    return <button onClick={() => handleNavigation(item)} className={`w-full flex items-center gap-4 px-4 py-3 transition-colors text-left ${isActive ? 'bg-[#1D64FF]/10 text-slate-900 border-l-2 border-[#1D64FF]' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>
-        <IconComponent className={`w-5 h-5 ${isActive ? 'text-[#1D64FF]' : 'text-slate-400'}`} />
-        <span className="font-medium text-[15px]">{item.label}</span>
+    return <button onClick={() => handleNavigation(item)} className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl transition-all text-left ${isActive ? 'bg-primary/10 text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+        <IconComponent className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/70'}`} />
+        <span className="text-[15px]">{item.label}</span>
       </button>;
   };
   const SectionHeader = ({
@@ -216,66 +216,68 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
     title: string;
     isOpen: boolean;
     onToggle: () => void;
-  }) => <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-slate-400 tracking-wider uppercase">
+  }) => <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-semibold text-muted-foreground/60 tracking-[0.08em] uppercase">
       {title}
-      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
     </button>;
   return <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-white border-r border-slate-200">
+      <SheetContent side="left" className="w-[85%] max-w-[320px] p-0 flex flex-col bg-background/95 backdrop-blur-2xl border-r border-border/40">
         {/* Header with Logo */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => onOpenChange(false)} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
-              <X className="w-5 h-5 text-slate-400" />
-            </button>
-          </div>
+        <div className="flex items-center justify-between px-5 py-4">
+          <img alt="Ditax" className="h-8" src="/ditax-logo-new.svg" />
+          <button onClick={() => onOpenChange(false)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted/60 transition-colors">
+            <X className="w-[18px] h-[18px] text-muted-foreground" strokeWidth={1.5} />
+          </button>
         </div>
 
         {/* Scrollable Menu Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto px-3">
           {/* Navigation Section */}
-          <div className="pt-2">
+          <div className="pt-1">
             <SectionHeader title={t.menu.navigation} isOpen={navigationOpen} onToggle={() => setNavigationOpen(!navigationOpen)} />
-            {navigationOpen && <div className="pb-2">
+            {navigationOpen && <div className="space-y-0.5 pb-2">
                 {navigationItems.map(item => <MenuItem key={item.label} item={item} isActive={location.pathname === item.route} />)}
               </div>}
           </div>
 
+          <div className="mx-1 border-t border-border/30" />
+
           {/* Help Section */}
-          <div className="pt-2">
+          <div className="pt-1">
             <SectionHeader title={t.menu.help} isOpen={helpOpen} onToggle={() => setHelpOpen(!helpOpen)} />
-            {helpOpen && <div className="pb-2">
+            {helpOpen && <div className="space-y-0.5 pb-2">
                 {helpItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
           </div>
 
+          <div className="mx-1 border-t border-border/30" />
 
           {/* Legal Section */}
-          <div className="pt-2">
+          <div className="pt-1">
             <SectionHeader title={t.menu.legal} isOpen={legalOpen} onToggle={() => setLegalOpen(!legalOpen)} />
-            {legalOpen && <div className="pb-2">
+            {legalOpen && <div className="space-y-0.5 pb-2">
                 {legalItems.map(item => <MenuItem key={item.label} item={item} />)}
               </div>}
           </div>
 
           {/* Referral Banner */}
-          <div className="px-4 py-4">
+          <div className="py-4">
             <button
               onClick={() => {
                 navigate('/invite-friends');
                 onOpenChange(false);
               }}
-              className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1D64FF] to-[#4B8CFF] p-4 text-white shadow-md hover:shadow-lg transition-all hover:translate-y-[-1px] active:translate-y-0"
+              className="w-full relative overflow-hidden rounded-2xl p-4 text-primary-foreground shadow-md hover:shadow-lg transition-all hover:translate-y-[-1px] active:translate-y-0"
+              style={{
+                background: 'linear-gradient(135deg, hsl(222, 100%, 60%), hsl(222, 100%, 47%))'
+              }}
             >
               <div className="flex items-center gap-3">
                 <div className="flex-shrink-0 w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/20">
                   <Gift className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-[15px]">{t.menu.inviteFriends}</div>
+                  <div className="font-semibold text-[15px] text-white">{t.menu.inviteFriends}</div>
                   <div className="text-xs text-white/75 mt-0.5">CHF 20 für dich & deine Freunde</div>
                 </div>
                 <div className="flex-shrink-0 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
@@ -286,39 +288,39 @@ const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
           </div>
 
           {/* Language Selector */}
-          <div className="px-4 pb-4">
+          <div className="pb-4">
             <LanguageDropdown />
           </div>
         </div>
 
         {/* User Profile Section */}
-        <div className="border-t border-slate-200">
-          <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="w-full flex items-center gap-3 p-4 hover:bg-slate-50 transition-colors">
-            {profile?.avatar_url ? <img src={profile.avatar_url} alt={profile.first_name || 'User'} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium border border-slate-200">
+        <div className="border-t border-border/30 mx-3">
+          <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="w-full flex items-center gap-3 px-2 py-3.5 hover:bg-muted/40 rounded-xl transition-colors">
+            {profile?.avatar_url ? <img src={profile.avatar_url} alt={profile.first_name || 'User'} className="w-10 h-10 rounded-full object-cover ring-1 ring-border/30" /> : <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground font-medium ring-1 ring-border/30">
                 {profile?.first_name?.charAt(0) || 'U'}
               </div>}
             <div className="flex-1 min-w-0 text-left">
-              <div className="font-semibold text-slate-900">{profile?.first_name || 'User'}</div>
-              <div className="text-sm text-slate-500 truncate">{profile?.email}</div>
+              <div className="font-medium text-foreground text-[15px]">{profile?.first_name || 'User'}</div>
+              <div className="text-[13px] text-muted-foreground truncate">{profile?.email}</div>
             </div>
-            {userMenuOpen ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+            {userMenuOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </button>
           
-          {userMenuOpen && <div className="border-t border-slate-200">
+          {userMenuOpen && <div className="pb-2 space-y-0.5">
               <button onClick={() => {
             navigate('/profile');
             onOpenChange(false);
-          }} className="w-full flex items-center gap-4 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                <User className="w-5 h-5 text-slate-400" />
-                <span className="font-medium">{t.menu.profile}</span>
+          }} className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors">
+                <User className="w-5 h-5 text-muted-foreground/70" />
+                <span className="text-[15px]">{t.menu.profile}</span>
               </button>
               <button onClick={async () => {
             await supabase.auth.signOut();
             onOpenChange(false);
             navigate('/auth');
-          }} className="w-full flex items-center gap-4 px-4 py-3 text-red-500 hover:bg-red-50 transition-colors">
+          }} className="w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-destructive hover:bg-destructive/10 transition-colors">
                 <LogOut className="w-5 h-5" />
-                <span className="font-medium">{t.menu.logout}</span>
+                <span className="text-[15px] font-medium">{t.menu.logout}</span>
               </button>
             </div>}
         </div>
