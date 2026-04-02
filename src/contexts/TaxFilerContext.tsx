@@ -59,6 +59,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return null;
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [dataFetched, setDataFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectionConfirmed, setSelectionConfirmed] = useState(() => {
     if (typeof window !== 'undefined') {
