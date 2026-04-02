@@ -138,6 +138,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setError('Failed to load tax filers');
     } finally {
       setIsLoading(false);
+      setDataFetched(true);
     }
   }, []);
 
