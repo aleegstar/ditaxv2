@@ -31,6 +31,7 @@ interface TaxFilerContextType {
   activeTaxFilerId: string | null;
   setActiveTaxFilerId: (id: string | null) => void;
   isLoading: boolean;
+  dataFetched: boolean;
   error: string | null;
   loadTaxFilers: () => Promise<void>;
   createTaxFiler: (input: TaxFilerInput) => Promise<TaxFiler | null>;
@@ -58,6 +59,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return null;
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [dataFetched, setDataFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectionConfirmed, setSelectionConfirmed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -81,6 +83,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setTaxFilers([]);
       setActiveTaxFilerId(null);
       setSelectionConfirmed(false);
+      setDataFetched(false);
       sessionStorage.removeItem(SESSION_KEY);
       setIsLoading(false);
     }
@@ -135,6 +138,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setError('Failed to load tax filers');
     } finally {
       setIsLoading(false);
+      setDataFetched(true);
     }
   }, []);
 
@@ -327,6 +331,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     activeTaxFilerId,
     setActiveTaxFilerId,
     isLoading,
+    dataFetched,
     error,
     loadTaxFilers,
     createTaxFiler,
