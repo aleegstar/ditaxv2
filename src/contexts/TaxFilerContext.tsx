@@ -83,6 +83,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setTaxFilers([]);
       setActiveTaxFilerId(null);
       setSelectionConfirmed(false);
+      setDataFetched(false);
       sessionStorage.removeItem(SESSION_KEY);
       setIsLoading(false);
     }
