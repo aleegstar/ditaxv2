@@ -31,6 +31,7 @@ interface TaxFilerContextType {
   activeTaxFilerId: string | null;
   setActiveTaxFilerId: (id: string | null) => void;
   isLoading: boolean;
+  dataFetched: boolean;
   error: string | null;
   loadTaxFilers: () => Promise<void>;
   createTaxFiler: (input: TaxFilerInput) => Promise<TaxFiler | null>;
