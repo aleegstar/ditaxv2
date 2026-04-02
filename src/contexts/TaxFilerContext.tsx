@@ -331,6 +331,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     activeTaxFilerId,
     setActiveTaxFilerId,
     isLoading,
+    dataFetched,
     error,
     loadTaxFilers,
     createTaxFiler,

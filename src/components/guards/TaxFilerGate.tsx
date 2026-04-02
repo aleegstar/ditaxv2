@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 /**
@@ -9,13 +10,16 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
  * redirects to /select-person BEFORE any route content is rendered.
  */
 const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
-  const { isLoading, hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  const { isLoading, dataFetched, hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  const { userId } = useAuth();
   const location = useLocation();
   const [safetyTimeout, setSafetyTimeout] = useState(false);
 
-  // Safety timeout: prevent infinite loading if isLoading never resolves
+  const isWaiting = isLoading || (!!userId && !dataFetched);
+
+  // Safety timeout: prevent infinite loading if data never resolves
   useEffect(() => {
-    if (!isLoading) {
+    if (!isWaiting) {
       setSafetyTimeout(false);
       return;
     }
@@ -24,7 +28,7 @@ const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
       setSafetyTimeout(true);
     }, 8000);
     return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, [isWaiting]);
 
   // Allow /select-person, /welcome, and legal pages through without gating
   const bypassPaths = ['/select-person', '/welcome', '/privacy', '/terms', '/cookies', '/acceptable-use', '/impressum', '/privacy-settings', '/debug', '/help', '/feedback', '/payment-success'];
@@ -35,7 +39,7 @@ const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Show loading spinner while tax filer data is being fetched (with safety timeout)
-  if (isLoading && !safetyTimeout) {
+  if (isWaiting && !safetyTimeout) {
     return <LoadingSpinner fullScreen />;
   }
 
