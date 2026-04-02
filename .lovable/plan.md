@@ -1,46 +1,43 @@
 
 
-## Plan: Dokumentation verbessern -- aussagekräftiger Inhalt mit visuellen UI-Mockups
+## Plan: Race Condition beim Login mit mehreren Steuerpflichtigen beheben
 
 ### Problem
-Die aktuelle Dokumentation ist textlastig, funktionsbasiert und nicht anschaulich. Es fehlen visuelle Elemente, die dem User zeigen, wie die App aussieht und wie die Schritte ablaufen.
+Wenn sich ein User mit mehreren Tax-Filern anmeldet, gibt es einen kurzen Moment, in dem `TaxFilerGate` die Route freigibt, obwohl die Filer-Daten noch nicht geladen sind:
 
-### Ansatz
-Da zur Build-Time keine echten Screenshots erstellt werden können, baue ich **illustrative UI-Mockups als React-Komponenten** direkt in die Artikel ein. Diese zeigen stilisierte App-Screens (Dashboard, Upload, Formulare etc.) und machen die Dokumentation visuell ansprechend und verständlich.
+1. Auth resolves: `userId=null, isLoading=false` (kein Session beim Start)
+2. Reset-Effect setzt `taxFilers=[], isLoading=false`
+3. User loggt sich ein → `userId` wird gesetzt
+4. **Render passiert BEVOR der `loadTaxFilers`-Effect läuft** → Gate sieht `isLoading=false`, `hasMultipleFilers=false` (0 Filer) → lässt Dashboard durch
+5. Effect läuft → `isLoading=true` → Filer laden → Redirect zu `/select-person`
 
-### Änderungen
+In Schritt 4 wird kurz das leere Dashboard angezeigt.
 
-**1. `src/components/docs/DocsContent.ts`** -- Inhalte komplett überarbeiten
-- Texte umschreiben: weniger Aufzählungslisten, mehr erklärende Absätze mit konkreten Beispielen
-- Subtitles für alle Artikel hinzufügen (kurzer Nutzen-Satz)
-- Markdown-Inhalte mit Tipps, Hinweisen und konkreten Szenarien anreichern (z.B. "Du bist Arbeitnehmer und hast eine Säule 3a? So gehst du vor...")
-- Callout-Boxen via Markdown-Konvention (z.B. `> **Tipp:**`)
+### Lösung
 
-**2. `src/components/docs/DocsArticleContent.tsx`** -- Visuelle UI-Mockups einbauen
-- Neue interne Komponenten für illustrative App-Mockups:
-  - `DashboardMockup` -- zeigt stilisierten Dashboard-Screen mit Steuerjahr-Card, Fortschrittsanzeige
-  - `UploadMockup` -- zeigt Dokumenten-Upload-Bereich mit Drag&Drop und Status-Icons
-  - `FormMockup` -- zeigt ein Formularfeld-Beispiel (Einkommen/Abzüge)
-  - `StatusMockup` -- zeigt die Status-Timeline (Erfassung → Eingereicht → Fertig)
-  - `PaymentMockup` -- zeigt Zahlungs-Screen mit TWINT/Kreditkarte
-- Jeder Mockup ist eine leichte, stilisierte Darstellung im Ditax-Design (primary color, rounded corners, border)
-- Mockups werden per `articleId` in die passenden Artikel eingebettet
-- Rich-Layout (wie bei Introduction) für die wichtigsten Artikel: Registration, Upload, Status
+**2 Dateien anpassen:**
 
-**3. `src/components/docs/DocsArticleContent.tsx`** -- Callout/Tipp-Komponente
-- Wiederverwendbare `DocsTip` und `DocsWarning` Komponenten für Hinweisboxen
-- Werden in den Markdown-Renderer als Custom-Elemente oder direkt in die Rich-Layouts integriert
+**1. `src/contexts/TaxFilerContext.tsx`** — `dataFetched` Flag einführen
+- Neuen State `dataFetched: boolean` (startet als `false`)
+- Wird erst auf `true` gesetzt nachdem `loadTaxFilers` erfolgreich abgeschlossen hat
+- Reset auf `false` bei Logout (wenn userId null wird)
+- Diesen Wert über den Context exportieren
 
-### Betroffene Dateien
-| Datei | Aktion |
-|-------|--------|
-| `src/components/docs/DocsContent.ts` | Alle Artikel-Texte überarbeiten |
-| `src/components/docs/DocsArticleContent.tsx` | UI-Mockup-Komponenten + Rich-Layouts für mehr Artikel |
-| `src/pages/Help.tsx` | TOC-Headings ggf. anpassen |
+**2. `src/components/guards/TaxFilerGate.tsx`** — Gate wartet auf `dataFetched`
+- Zusätzlich `dataFetched` aus dem Context lesen
+- Loading-Spinner auch anzeigen wenn `!dataFetched && userId` (User ist eingeloggt, aber Daten noch nicht geladen)
+- Bestehende Safety-Timeout-Logik greift weiterhin als Fallback
 
 ### Technische Details
-- Mockups sind reine React/Tailwind-Komponenten, keine externen Bilder
-- Nutzen die bestehenden Farben (primary, border, muted) und das Ditax-Logo aus `src/assets/`
-- Kein neuer Dependency-Bedarf
-- Die Mockups sind responsive und passen sich an die Dokumentations-Breite an
+
+```text
+Vorher (Gate-Logik):
+  isLoading=false → prüfe hasMultipleFilers → false → render children ❌
+
+Nachher (Gate-Logik):
+  isLoading=false BUT dataFetched=false AND userId exists → show spinner ✅
+  dataFetched=true AND hasMultipleFilers=true → redirect /select-person ✅
+```
+
+Das `dataFetched` Flag verhindert, dass der Gate zwischen "Auth fertig" und "Filer geladen" die Route freigibt.
 
