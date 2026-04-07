@@ -114,7 +114,7 @@ export default function TaxReturnTracking() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-600 antialiased">
+    <div className="min-h-screen text-foreground antialiased">
       <SubpageHeader 
         title={`Steuererklärung ${taxReturn.tax_year}`} 
         onBack={() => navigate('/')} 
