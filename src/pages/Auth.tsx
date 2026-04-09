@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronDown, Fingerprint, ShieldCheck, Globe, Mail } from 
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { isAndroidEnvironment } from "@/utils/platform";
+import authBackground from "@/assets/auth-background.png";
 
 import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import { getAppleOAuthUrl } from "@/lib/apple-auth";
@@ -476,7 +477,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: `url(${authBackground}) center center / cover no-repeat fixed, linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))` }}>
 
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
