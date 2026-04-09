@@ -441,13 +441,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Nicht zugewiesen */}
                     {groupedDocuments.unassigned.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Upload className="h-5 w-5 text-muted-foreground" />
-                          <h3 className="text-lg font-semibold text-muted-foreground">Nicht zugewiesen</h3>
-                          <Badge variant="secondary">{groupedDocuments.unassigned.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-muted/20 flex items-center justify-center">
+                            <Upload className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-muted-foreground">Nicht zugewiesen</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.unassigned.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.unassigned.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
