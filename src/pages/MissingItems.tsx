@@ -100,7 +100,7 @@ const MissingItems: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <SubpageHeader 
         title="Fehlende Unterlagen/Angaben" 
         onBack={() => navigate('/')} 
