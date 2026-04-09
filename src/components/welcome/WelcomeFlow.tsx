@@ -410,7 +410,7 @@ export const WelcomeFlow = () => {
     return steps[currentStep].title;
   };
 
-  return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
+  return <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
       {/* Logo above card */}
       <motion.div className="mb-8 flex items-center justify-center" initial={{
       opacity: 0,
