@@ -339,7 +339,7 @@ const UserTaxReturns = () => {
       {/* Main Container */}
       <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
         {/* Header */}
-        <header className="flex pb-8 items-center justify-between">
+        <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
@@ -347,20 +347,20 @@ const UserTaxReturns = () => {
         </header>
 
         {/* Greeting Section */}
-        <section className="pb-8">
-          <div className="flex flex-col gap-1 mb-4">
-            <p className="text-lg md:text-xl text-muted-foreground font-normal">
+        <section className="pb-6">
+          <div className="flex flex-col gap-0.5 mb-3">
+            <p className="text-base text-muted-foreground font-normal">
               {getGreeting()}
             </p>
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-tight">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
               {getUserDisplayName() ?? (
-                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-10" />
+                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
               )}
             </h1>
           </div>
           
           {/* Tax Filer Selector */}
-          <TaxFilerSelector className="mt-2" />
+          <TaxFilerSelector className="mt-1.5" />
         </section>
 
         {/* Missing Items Alert */}
