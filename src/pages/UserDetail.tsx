@@ -465,25 +465,32 @@ const UserDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-gray-600">Lädt Benutzerdaten...</div>
-        </div>
+      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+        <AdminSidebar />
+        <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+          <div className="flex items-center justify-center h-full">
+            <div className="text-sm text-muted-foreground animate-pulse">Lädt Benutzerdaten...</div>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-gray-600">
-            <div>Benutzer nicht gefunden</div>
-            <div className="mt-2 text-sm text-gray-500">
-              Debug: UserId={userId}, User={user ? 'exists' : 'null'}
-            </div>
+      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+        <AdminSidebar />
+        <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+          <div className="flex flex-col items-center justify-center h-full gap-2">
+            <p className="text-sm font-medium text-foreground">Benutzer nicht gefunden</p>
+            <Link 
+              to="/admin/users" 
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Zurück zur Übersicht
+            </Link>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -570,11 +577,11 @@ const UserDetail: React.FC = () => {
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
       <AdminSidebar />
       
-      <main className="flex-1 p-4 lg:p-5">
-        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
+      <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)]">
           {/* Refined Header */}
           <div className="px-5 py-3 border-b border-white/30">
             {/* Main Header Row */}
