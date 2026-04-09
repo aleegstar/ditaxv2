@@ -645,30 +645,67 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2 pointer-events-none px-8">
-        {/* Navigation Pill */}
-        <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full px-2 py-1.5" style={{ background: 'linear-gradient(135deg, rgba(15,20,40,0.88) 0%, rgba(20,30,60,0.85) 100%)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)', backdropFilter: 'blur(24px) saturate(180%)' }}>
-          {/* Home - Active */}
-          <button className="rounded-full px-5 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center" style={{ color: '#ffffff', background: 'rgba(255,255,255,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' }}>
-            <Home className="w-[22px] h-[22px]" strokeWidth={1.8} />
-          </button>
+      <div className="fixed inset-x-0 bottom-4 z-[90] flex items-center justify-center px-5 pointer-events-none md:hidden">
+        <div className="pointer-events-auto flex items-center gap-3">
+          <nav
+            data-bottom-navbar
+            className="inline-flex items-center gap-1 rounded-full px-2 py-2"
+            style={{
+              background: 'linear-gradient(180deg, hsl(228 24% 31% / 0.96) 0%, hsl(228 24% 27% / 0.98) 100%)',
+              border: '1px solid hsl(0 0% 100% / 0.08)',
+              boxShadow: '0 14px 34px -14px hsl(225 30% 12% / 0.45), 0 6px 16px -8px hsl(225 30% 12% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.08)',
+              backdropFilter: 'blur(18px) saturate(140%)'
+            }}
+          >
+            <button
+              className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
+              style={{
+                color: 'hsl(0 0% 100%)',
+                background: 'hsl(0 0% 100% / 0.10)',
+                boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.08)'
+              }}
+              aria-label="Dashboard"
+            >
+              <Home className="w-5 h-5" strokeWidth={1.8} />
+            </button>
 
-          {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center relative hover:bg-white/[0.06]" style={{ color: 'rgba(160,175,200,0.7)' }}>
-            <Inbox className="w-[22px] h-[22px]" strokeWidth={1.8} />
-            {unreadCount > 0 && <span className="absolute top-1 right-2 w-2 h-2 bg-destructive rounded-full" style={{ boxShadow: '0 0 0 2px rgba(15,20,40,0.88)' }}></span>}
-          </button>
+            <button
+              data-tour="chat-header-icon"
+              onClick={() => navigate('/chat')}
+              className="relative flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
+              aria-label="Chat"
+            >
+              <Inbox className="w-5 h-5" strokeWidth={1.8} />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"
+                  style={{ boxShadow: '0 0 0 2px hsl(228 24% 29%)' }}
+                />
+              )}
+            </button>
 
-          {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center hover:bg-white/[0.06]" style={{ color: 'rgba(160,175,200,0.7)' }}>
-            <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} />
-          </button>
-        </nav>
+            <button
+              onClick={() => setMenuSheetOpen(true)}
+              className="flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
+              aria-label="Menü"
+            >
+              <Menu className="w-5 h-5" strokeWidth={1.8} />
+            </button>
+          </nav>
 
-        {/* Floating Action Button - Documents */}
-        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto text-white rounded-full w-[46px] h-[46px] flex items-center justify-center hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.88] transition-all duration-200" style={{ background: 'linear-gradient(180deg, hsl(222,100%,62%) 0%, hsl(222,100%,48%) 100%)', boxShadow: '0 8px 28px hsla(222,100%,50%,0.35), 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)' }}>
-          <Plus className="w-5 h-5" strokeWidth={2} />
-        </button>
+          <button
+            data-tour="floating-document-button"
+            onClick={handleDocumentsClick}
+            className="pointer-events-auto flex h-[52px] w-[52px] items-center justify-center rounded-full text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.96]"
+            style={{
+              background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
+              boxShadow: '0 12px 28px -10px hsl(222 100% 50% / 0.55), 0 6px 14px -8px hsl(222 100% 50% / 0.38), inset 0 1px 0 hsl(0 0% 100% / 0.24)'
+            }}
+            aria-label="Dokumente"
+          >
+            <Plus className="w-5 h-5" strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       {/* White Overlay for Transition */}

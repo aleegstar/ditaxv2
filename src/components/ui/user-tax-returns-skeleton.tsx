@@ -72,18 +72,21 @@ export function UserTaxReturnsSkeleton() {
       </main>
 
       {/* Bottom Navigation Skeleton */}
-      <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center items-center pointer-events-none px-6">
-        <div 
-          className="pointer-events-auto inline-flex items-center gap-1 rounded-full px-3 py-2" 
-          style={{ 
-            background: 'rgba(255,255,255,0.85)', 
-            border: '1px solid rgba(0,0,0,0.06)', 
-            boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
-          }}
-        >
-          <Skeleton className="w-10 h-10 rounded-full" />
-          <Skeleton className="w-10 h-10 rounded-full" />
-          <Skeleton className="w-10 h-10 rounded-full" />
+      <div className="fixed inset-x-0 bottom-4 z-50 flex items-center justify-center px-5 pointer-events-none md:hidden">
+        <div className="pointer-events-auto flex items-center gap-3">
+          <div
+            className="inline-flex items-center gap-1 rounded-full px-2 py-2"
+            style={{
+              background: 'linear-gradient(180deg, hsl(228 24% 31% / 0.96) 0%, hsl(228 24% 27% / 0.98) 100%)',
+              border: '1px solid hsl(0 0% 100% / 0.08)',
+              boxShadow: '0 14px 34px -14px hsl(225 30% 12% / 0.45), 0 6px 16px -8px hsl(225 30% 12% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.08)'
+            }}
+          >
+            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
+            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
+            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
+          </div>
+          <Skeleton className="h-[52px] w-[52px] rounded-full" />
         </div>
       </div>
     </div>
