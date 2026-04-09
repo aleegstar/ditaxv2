@@ -229,7 +229,7 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+    <div className="flex min-h-screen w-full" style={{ background: 'hsl(0, 0%, 100%)' }}>
       <AdminSidebar />
       
       <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
