@@ -337,30 +337,30 @@ const UserTaxReturns = () => {
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-4 px-4 md:px-8">
+      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
         {/* Header */}
-        <header className="flex pb-4 items-center justify-between">
+        <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
-            <img src={ditaxLogoFull} alt="ditax" className="h-7" />
+            <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
           <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
         </header>
 
         {/* Greeting Section */}
-        <section className="pb-5">
-          <div className="flex flex-col gap-0 mb-2">
-            <p className="text-[13px] text-muted-foreground/60 font-medium tracking-wide uppercase">
+        <section className="pb-6">
+          <div className="flex flex-col gap-0.5 mb-3">
+            <p className="text-base text-muted-foreground font-normal">
               {getGreeting()}
             </p>
-            <h1 className="text-[1.75rem] font-semibold tracking-tight text-foreground leading-tight">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
               {getUserDisplayName() ?? (
-                <span className="inline-block bg-muted rounded-md animate-pulse w-28 h-8" />
+                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
               )}
             </h1>
           </div>
           
           {/* Tax Filer Selector */}
-          <TaxFilerSelector className="mt-1" />
+          <TaxFilerSelector className="mt-1.5" />
         </section>
 
         {/* Missing Items Alert */}
@@ -424,7 +424,7 @@ const UserTaxReturns = () => {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="relative mb-18"
+              className="relative mb-20"
             >
               {/* Background next-step card (peeks out below) */}
               {nextStep && (
@@ -433,22 +433,24 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-14 left-1 right-1 z-0 rounded-[1.25rem] px-5 pt-14 pb-4 cursor-pointer transition-all duration-300 hover:-bottom-[3.75rem] active:scale-[0.99]"
+                  className="absolute -bottom-16 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-300 hover:-bottom-[4.5rem] active:scale-[0.98]"
                   style={{
-                    background: 'linear-gradient(to bottom, hsl(222, 100%, 58%), hsl(222, 100%, 45%))',
-                    boxShadow: '0 16px 32px -8px rgba(29, 100, 255, 0.3)',
+                    background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
+                    boxShadow: '0 20px 40px -8px rgba(29, 100, 255, 0.35)',
                   }}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center">
-                        <span className="text-[10px] font-bold text-white/90">{nextStepIndex + 1}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-xs font-bold text-white">{nextStepIndex + 1}</span>
                       </div>
-                      <span className="text-[12px] font-medium text-white/90">
-                        Nächster Schritt: {nextStepLabel}
-                      </span>
+                      <div>
+                        <span className="text-[13px] font-semibold text-white">
+                          Nächster Schritt: {nextStepLabel}
+                        </span>
+                      </div>
                     </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-white/50" strokeWidth={2.5} />
+                    <ChevronRight className="w-4 h-4 text-white/70" strokeWidth={2} />
                   </div>
                 </div>
               )}
@@ -456,23 +458,23 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[1.5rem] p-6 md:p-7 transition-all duration-300 cursor-pointer hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
                 style={{
-                  background: 'linear-gradient(165deg, #ffffff 0%, #f8f9ff 40%, #f4f5ff 100%)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 6px 24px -4px rgba(0,0,0,0.06)',
-                  border: '1px solid rgba(0,0,0,0.05)',
+                  background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                  border: '1px solid rgba(0,0,0,0.06)',
                 }}
               >
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-muted-foreground/50">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                     {t.userDashboard.taxReturn}
                   </span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground/40 hover:text-foreground hover:bg-foreground/[0.04] rounded-full">
-                        <MoreVertical className="h-3.5 w-3.5" />
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full">
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -488,13 +490,13 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Year - dominant */}
-                <h2 className="text-[2.5rem] font-extrabold tracking-[-0.03em] text-foreground mb-1 leading-none">
+                {/* Year - more impactful */}
+                <h2 className="text-[2.75rem] font-bold tracking-tighter text-foreground mb-2 leading-none">
                   {year}
                 </h2>
 
                 {/* Description */}
-                <p className="text-[13px] text-muted-foreground/70 mb-5 leading-relaxed">
+                <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   {completedSteps === 0 
                     ? 'Beginne damit deine Angaben zu erfassen.'
                     : `${completedSteps} von ${steps.length} Schritten erledigt.`
@@ -502,30 +504,32 @@ const UserTaxReturns = () => {
                 </p>
 
                 {/* Enhanced Progress Steps */}
-                <div className="flex gap-2 mb-6">
+                <div className="flex gap-1.5 mb-6">
                   {steps.map((step, i) => (
                     <motion.div 
                       key={i} 
                       className={cn(
-                        "flex-1 rounded-full transition-all duration-600",
+                        "flex-1 h-[5px] rounded-full transition-all duration-500",
                         i < completedSteps 
-                          ? "h-[5px] bg-primary" 
+                          ? "bg-primary shadow-[0_0_8px_hsl(222,100%,50%/0.3)]" 
                           : i === completedSteps 
-                            ? "h-[5px] bg-primary/20" 
-                            : "h-[4px] bg-foreground/[0.05]"
+                            ? "bg-primary/25" 
+                            : "bg-foreground/[0.06]"
                       )}
-                      initial={{ scaleX: 0, originX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: i * 0.06, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      initial={false}
+                      animate={{ scaleX: i < completedSteps ? 1 : 1 }}
+                      transition={{ delay: i * 0.05, duration: 0.4 }}
                     />
                   ))}
                 </div>
 
                 {/* Action */}
-                <Button className="shadow-[0_8px_24px_-6px_hsl(222,100%,50%/0.45)] px-7">
-                  {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                  <ChevronRight className="w-4 h-4 ml-0.5 opacity-70" strokeWidth={2.5} />
-                </Button>
+                <div className="flex items-center justify-between">
+                  <Button className="shadow-[0_6px_20px_-4px_hsl(222,100%,50%/0.4)]">
+                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                    <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                  </Button>
+                </div>
               </div>
             </motion.div>;
           })}
@@ -540,7 +544,7 @@ const UserTaxReturns = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-              className="group relative overflow-hidden rounded-[1.5rem] p-6 md:p-7 cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                 boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
@@ -599,7 +603,7 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[1.5rem] p-6 md:p-7 cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                 boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
@@ -659,29 +663,29 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2.5 pointer-events-none">
+      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center gap-3 pointer-events-none">
         {/* Navigation Pill */}
-        <nav className="pointer-events-auto inline-flex items-center gap-0.5 rounded-full p-1.5 backdrop-blur-2xl bg-foreground/80 border border-foreground/10 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+        <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-slate-900/90 border border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
           {/* Home - Active */}
-          <button className="text-white rounded-full px-4 py-2 transition-all duration-200 active:scale-90 flex items-center justify-center">
-            <Home className="w-[18px] h-[18px]" strokeWidth={1.8} />
+          <button className="text-white rounded-full px-5 py-2.5 transition-all active:scale-95 flex items-center justify-center">
+            <Home className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
           {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-white/40 hover:text-white/70 rounded-full px-3.5 py-2 transition-all duration-200 active:scale-90 flex items-center justify-center relative">
-            <Inbox className="w-[18px] h-[18px]" strokeWidth={1.8} />
-            {unreadCount > 0 && <span className="absolute top-1 right-2 w-1.5 h-1.5 bg-destructive rounded-full ring-[1.5px] ring-foreground/80"></span>}
+          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-full px-4 py-2.5 transition-all active:scale-95 flex items-center justify-center relative">
+            <Inbox className="w-5 h-5" strokeWidth={1.5} />
+            {unreadCount > 0 && <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-slate-900"></span>}
           </button>
 
           {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="text-white/40 hover:text-white/70 rounded-full px-3.5 py-2 transition-all duration-200 active:scale-90 flex items-center justify-center">
-            <Menu className="w-[18px] h-[18px]" strokeWidth={1.8} />
+          <button onClick={() => setMenuSheetOpen(true)} className="text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-full px-4 py-2.5 transition-all active:scale-95 flex items-center justify-center">
+            <Menu className="w-5 h-5" strokeWidth={1.5} />
           </button>
         </nav>
 
-        {/* Floating Action Button - Documents (softer, smaller) */}
-        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto bg-gradient-to-b from-primary/90 to-primary text-white rounded-full w-12 h-12 flex items-center justify-center shadow-[0_4px_16px_hsl(222,100%,50%/0.25)] hover:shadow-[0_6px_24px_hsl(222,100%,50%/0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all duration-200">
-          <Plus className="w-5 h-5" strokeWidth={2} />
+        {/* Floating Action Button - Documents */}
+        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_8px_30px_hsl(222,100%,50%/0.3)] hover:shadow-[0_12px_40px_hsl(222,100%,50%/0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all">
+          <Plus className="w-6 h-6" strokeWidth={1.5} />
         </button>
       </div>
 
