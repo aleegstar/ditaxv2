@@ -185,12 +185,12 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
     <>
       <div className="space-y-4">
         {/* Section 1: Persönliche Daten - Two Column Layout */}
-        <Card className="border-border/30 shadow-sm overflow-hidden">
-          <CardHeader className="py-2.5 px-4 bg-muted/20 border-b border-border/30">
+        <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+          <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <User className="h-3.5 w-3.5 text-primary" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Persönliche Daten</CardTitle>
               </div>
