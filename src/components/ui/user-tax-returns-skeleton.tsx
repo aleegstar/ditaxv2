@@ -74,16 +74,16 @@ export function UserTaxReturnsSkeleton() {
       {/* Bottom Navigation Skeleton */}
       <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center items-center pointer-events-none px-6">
         <div 
-          className="pointer-events-auto inline-flex items-center gap-0.5 rounded-full px-2.5 py-2" 
+          className="pointer-events-auto inline-flex items-center gap-1 rounded-full px-3 py-2" 
           style={{ 
-            background: 'linear-gradient(135deg, rgba(20,24,45,0.82) 0%, rgba(25,32,58,0.78) 100%)', 
-            border: '1px solid rgba(255,255,255,0.08)', 
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)' 
+            background: 'rgba(255,255,255,0.85)', 
+            border: '1px solid rgba(0,0,0,0.06)', 
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
           }}
         >
-          <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
-          <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
-          <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <Skeleton className="w-10 h-10 rounded-full" />
         </div>
       </div>
     </div>
