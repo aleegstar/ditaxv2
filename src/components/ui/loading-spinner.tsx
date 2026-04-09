@@ -30,7 +30,7 @@ export const LoadingSpinner = ({
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background">
+      <div className="min-h-screen w-full flex items-center justify-center bg-transparent">
         {spinner}
       </div>
     );
