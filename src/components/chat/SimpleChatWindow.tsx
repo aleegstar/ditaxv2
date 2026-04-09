@@ -483,16 +483,16 @@ const SimpleChatWindow = ({
               <div className="flex items-start gap-3 max-w-[90%]">
                 <div 
                   className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
-                  style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+                  style={{ background: 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' }}
                 >
-                  <User className="w-4 h-4 text-white" />
+                  <User className="w-4 h-4 text-primary-foreground" />
                 </div>
-                <div className="bg-white border border-slate-200 rounded-[24px] px-4 py-3.5 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="bg-background border border-border/40 rounded-[24px] px-4 py-3.5 shadow-sm">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="flex space-x-1">
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce" />
                     </div>
                   </div>
                 </div>
