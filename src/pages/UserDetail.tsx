@@ -465,7 +465,7 @@ const UserDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen w-full" style={{ background: 'hsl(0, 0%, 100%)' }}>
+      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
         <AdminSidebar />
         <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
           <div className="flex items-center justify-center h-full">
@@ -478,7 +478,7 @@ const UserDetail: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen w-full" style={{ background: 'hsl(0, 0%, 100%)' }}>
+      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
         <AdminSidebar />
         <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
           <div className="flex flex-col items-center justify-center h-full gap-2">
@@ -577,7 +577,7 @@ const UserDetail: React.FC = () => {
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: 'hsl(0, 0%, 100%)' }}>
+    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
       <AdminSidebar />
       
       <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
