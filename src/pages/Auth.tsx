@@ -476,12 +476,22 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: 'linear-gradient(160deg, hsl(225,50%,97%) 0%, hsl(235,30%,95%) 35%, hsl(250,25%,96%) 65%, hsl(220,40%,96%) 100%)' }}>
 
-      {/* Decorative orbs */}
+      {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, hsl(222,80%,60%) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, hsl(260,60%,60%) 0%, transparent 70%)' }} />
+        {/* Primary glow - behind card */}
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[700px] h-[700px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsla(222,70%,65%,0.08) 0%, hsla(250,50%,65%,0.04) 40%, transparent 70%)' }}
+          animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Secondary accent */}
+        <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full opacity-[0.04]" style={{ background: 'radial-gradient(circle, hsl(260,60%,60%) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.03]" style={{ background: 'radial-gradient(circle, hsl(200,70%,60%) 0%, transparent 70%)' }} />
+        {/* Subtle grain texture */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
       </div>
 
       {/* Main Container */}
@@ -489,53 +499,53 @@ const Auth = () => {
 
         {/* Card */}
         <motion.div 
-          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          initial={{ opacity: 0, y: 28, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden bg-transparent sm:rounded-[2.5rem]"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
           style={{
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.82) 0%, rgba(248,250,255,0.72) 100%)',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.6), 0 20px 60px -12px rgba(0,0,0,0.08), 0 4px 20px -4px rgba(0,0,0,0.04)',
+            background: 'linear-gradient(165deg, rgba(255,255,255,0.88) 0%, rgba(250,251,255,0.78) 50%, rgba(245,247,252,0.72) 100%)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 0 0 1px rgba(0,0,0,0.02), 0 25px 80px -12px rgba(0,0,0,0.1), 0 8px 24px -8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)',
           }}
         >
-          {/* Subtle inner glow */}
-          <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 40%)', borderRadius: 'inherit' }} />
+          {/* Inner top highlight */}
+          <div className="absolute inset-x-0 top-0 h-[120px] rounded-t-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)' }} />
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
               {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
 
                   {/* Logo & Title */}
-                  <div className="flex flex-col items-center text-center mb-10">
+                  <div className="flex flex-col items-center text-center mb-11">
                     <motion.img 
                       alt="Ditax" 
-                      className="w-auto h-8 object-contain mb-7" 
+                      className="w-auto h-8 object-contain mb-8" 
                       src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.15, duration: 0.4 }}
+                      transition={{ delay: 0.2, duration: 0.5 }}
                     />
-                    <h1 className="text-[28px] font-bold tracking-[-0.03em] text-foreground mb-2">
+                    <h1 className="text-[32px] font-bold tracking-[-0.035em] text-foreground mb-2.5">
                       {t.authFlow.login}
                     </h1>
-                    <p className="text-[15px] text-muted-foreground/80 font-light leading-relaxed">
+                    <p className="text-[15px] text-muted-foreground/60 font-light leading-relaxed tracking-wide">
                       Steuern einfach automatisieren.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-3 w-full mb-7">
+                  <div className="flex flex-col gap-3 w-full mb-8">
                     {/* Google */}
                     <motion.button 
                       onClick={handleGoogleAuth} 
                       disabled={isLoading} 
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ y: -1, boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06)' }}
                       whileTap={{ scale: 0.97 }}
                       className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%)',
-                        borderColor: 'rgba(0,0,0,0.06)',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(248,249,252,0.95) 100%)',
+                        borderColor: 'rgba(0,0,0,0.08)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.04)',
                       }}
                     >
                       <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
@@ -551,12 +561,12 @@ const Auth = () => {
                     <motion.button 
                       onClick={handleAppleAuth} 
                       disabled={isLoading} 
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ y: -1, boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.12)' }}
                       whileTap={{ scale: 0.97 }}
                       className="group w-full font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
                       style={{
-                        background: 'linear-gradient(145deg, #1d1d1f 0%, #000000 100%)',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08)',
+                        background: 'linear-gradient(145deg, #2d2d2f 0%, #0a0a0a 100%)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.14), 0 6px 16px rgba(0,0,0,0.1)',
                       }}
                     >
                       <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
@@ -567,10 +577,10 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="w-full flex items-center gap-4 mb-7">
-                    <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' }} />
-                    <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-[0.15em]">{t.authFlow.or}</span>
-                    <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' }} />
+                  <div className="w-full flex items-center gap-5 mb-8">
+                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%)' }} />
+                    <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.2em]">{t.authFlow.or}</span>
+                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%)' }} />
                   </div>
 
                   {/* Email Accordion */}
@@ -578,19 +588,19 @@ const Auth = () => {
                     <motion.button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ y: -1, boxShadow: '0 2px 6px rgba(0,0,0,0.05), 0 6px 18px rgba(0,0,0,0.04)' }}
                       whileTap={{ scale: 0.97 }}
-                      className="w-full text-muted-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 relative flex items-center justify-center border"
+                      className="w-full text-muted-foreground/80 font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 relative flex items-center justify-center border"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(245,247,250,0.6) 100%)',
-                        borderColor: 'rgba(0,0,0,0.06)',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(248,250,253,0.75) 100%)',
+                        borderColor: 'rgba(0,0,0,0.07)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02)',
                       }}
                     >
-                      <Mail className="w-[18px] h-[18px] mr-2.5 text-muted-foreground/60" />
+                      <Mail className="w-[16px] h-[16px] mr-2.5 text-muted-foreground/50" />
                       <span>{'Mit E-Mail anmelden'}</span>
-                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }} className="absolute right-5">
-                        <ChevronDown className="w-4 h-4 text-muted-foreground/50" />
+                      <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }} className="absolute right-5">
+                        <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
                       </motion.div>
                     </motion.button>
 
@@ -600,7 +610,7 @@ const Auth = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                           className="overflow-hidden"
                         >
                           <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
@@ -611,10 +621,11 @@ const Auth = () => {
                                 onChange={(e) => setEmail(e.target.value)} 
                                 onFocus={() => setIsInputFocused(true)} 
                                 onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} 
-                                className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all border shadow-sm focus:ring-2 focus:ring-primary/20" 
+                                className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/35 focus:outline-none transition-all border focus:ring-2 focus:ring-primary/15" 
                                 style={{
-                                  background: 'rgba(255,255,255,0.8)',
-                                  borderColor: 'rgba(0,0,0,0.06)',
+                                  background: 'rgba(255,255,255,0.85)',
+                                  borderColor: 'rgba(0,0,0,0.07)',
+                                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
                                 }}
                                 placeholder={t.authFlow.emailPlaceholder} 
                                 aria-label={t.authFlow.emailPlaceholder} 
@@ -623,19 +634,21 @@ const Auth = () => {
                               />
                             </div>
 
-                            <button
+                            <motion.button
                               type="submit"
                               disabled={isLoading}
-                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 text-white"
+                              whileHover={{ y: -1, boxShadow: '0 4px 16px hsla(222,100%,56%,0.35), inset 0 1px 0 rgba(255,255,255,0.2)' }}
+                              whileTap={{ scale: 0.97 }}
+                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white"
                               style={{
-                                background: 'linear-gradient(145deg, hsl(222,100%,60%) 0%, hsl(222,100%,50%) 100%)',
-                                boxShadow: '0 2px 8px hsla(222,100%,56%,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                background: 'linear-gradient(145deg, hsl(222,100%,62%) 0%, hsl(222,100%,50%) 100%)',
+                                boxShadow: '0 2px 10px hsla(222,100%,56%,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
                               }}
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                            </button>
+                            </motion.button>
 
-                            <p className="text-center text-[11px] text-muted-foreground/50 leading-relaxed px-4 pt-1">
+                            <p className="text-center text-[11px] text-muted-foreground/40 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
                             </p>
                           </form>
@@ -645,17 +658,19 @@ const Auth = () => {
                   </div>
 
                   {/* Trust indicator */}
-                  <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-muted-foreground/40">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Verschlüsselt & DSGVO-konform</span>
+                  <div className="mt-9 flex items-center justify-center gap-2.5">
+                    <div className="flex items-center justify-center w-4 h-4 rounded-full" style={{ background: 'linear-gradient(135deg, hsla(222,60%,60%,0.12) 0%, hsla(222,60%,60%,0.06) 100%)' }}>
+                      <ShieldCheck className="w-2.5 h-2.5 text-primary/50" />
+                    </div>
+                    <span className="text-[10px] font-medium text-muted-foreground/35 tracking-[0.04em] uppercase">Verschlüsselt & DSGVO-konform</span>
                   </div>
 
                   {/* Footer Links */}
                   <div className="mt-6 flex flex-col items-center gap-5 w-full">
-                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground/50">
-                      <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                      <span className="text-muted-foreground/20">·</span>
-                      <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
+                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground/40">
+                      <a href="/impressum" className="hover:text-foreground/70 transition-colors">Impressum</a>
+                      <span className="text-muted-foreground/15">·</span>
+                      <a href="/datenschutzrichtlinie" className="hover:text-foreground/70 transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
                   </div>
@@ -672,7 +687,7 @@ const Auth = () => {
                     <h1 className="text-[24px] font-bold tracking-[-0.03em] text-foreground">
                       {t.authFlow.enterCode}
                     </h1>
-                    <p className="text-[13px] text-muted-foreground/70 font-light max-w-[85%] mx-auto leading-relaxed">
+                    <p className="text-[13px] text-muted-foreground/60 font-light max-w-[85%] mx-auto leading-relaxed">
                       {t.authFlow.codeSentTo}{' '}
                       <span className="text-foreground font-medium">{email}</span>{' '}
                       {t.authFlow.codeSentToSuffix}
@@ -688,10 +703,11 @@ const Auth = () => {
                              <InputOTPSlot 
                                key={i} 
                                index={i} 
-                               className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground border shadow-sm" 
+                               className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground border" 
                                style={{
-                                 background: 'rgba(255,255,255,0.8)',
-                                 borderColor: 'rgba(0,0,0,0.06)',
+                                 background: 'rgba(255,255,255,0.85)',
+                                 borderColor: 'rgba(0,0,0,0.07)',
+                                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
                                }}
                              />
                            ))}
@@ -699,32 +715,34 @@ const Auth = () => {
                       </InputOTP>
                     </div>
 
-                    <button 
+                    <motion.button 
                       onClick={handleWeiterClick} 
                       disabled={isLoading || code.length !== 6} 
-                      className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 text-white"
+                      whileHover={{ y: -1, boxShadow: '0 4px 16px hsla(222,100%,56%,0.35), inset 0 1px 0 rgba(255,255,255,0.2)' }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white"
                       style={{
-                        background: 'linear-gradient(145deg, hsl(222,100%,60%) 0%, hsl(222,100%,50%) 100%)',
-                        boxShadow: '0 2px 8px hsla(222,100%,56%,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                        background: 'linear-gradient(145deg, hsl(222,100%,62%) 0%, hsl(222,100%,50%) 100%)',
+                        boxShadow: '0 2px 10px hsla(222,100%,56%,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
                       }}
                     >
                       {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
-                    </button>
+                    </motion.button>
                   </div>
 
                   {/* Footer Actions */}
                   <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                    <p className="text-[13px] text-muted-foreground/70 font-light">
+                    <p className="text-[13px] text-muted-foreground/60 font-light">
                       {t.authFlow.noCodeReceived}
                       {resendCountdown > 0 ? <>
                           <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
-                          <span className="ml-1 text-muted-foreground/50">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                          <span className="ml-1 text-muted-foreground/40">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
                         </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
                           {t.authFlow.resend}
                         </button>}
                     </p>
 
-                    <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/50 hover:text-foreground transition-colors mt-1">
+                    <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/40 hover:text-foreground transition-colors mt-1">
                       <ChevronLeft className="w-3.5 h-3.5" />
                       {t.authFlow.backToLogin}
                     </button>
