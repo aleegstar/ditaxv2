@@ -647,68 +647,71 @@ const UserTaxReturns = () => {
 
       {/* Bottom Navigation */}
       {createPortal(
-        <div className="fixed inset-x-0 bottom-5 z-[9999] flex items-center justify-center px-6 pointer-events-none md:hidden">
-          <div className="pointer-events-auto inline-flex items-center gap-2 rounded-[22px] px-1.5 py-1.5"
-            style={{
-              background: 'rgba(255, 255, 255, 0.78)',
-              border: '1px solid rgba(255, 255, 255, 0.65)',
-              boxShadow: '0 2px 20px rgba(0, 0, 0, 0.06), 0 0.5px 1px rgba(0, 0, 0, 0.04)',
-              backdropFilter: 'blur(24px) saturate(180%)',
-            }}
-          >
-            {/* Home */}
-            <button
-              className="flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200 active:scale-[0.94]"
-              style={{
-                color: 'hsl(222, 100%, 52%)',
-                background: 'hsl(222, 100%, 56%, 0.1)',
-              }}
-              aria-label="Dashboard"
-            >
-              <Home className="w-[20px] h-[20px]" strokeWidth={1.9} />
-            </button>
-
-            {/* Chat */}
-            <button
-              data-tour="chat-header-icon"
-              onClick={() => navigate('/chat')}
-              className="relative flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200 active:scale-[0.94]"
-              style={{ color: 'hsl(225, 10%, 58%)' }}
-              aria-label="Chat"
-            >
-              <Inbox className="w-[20px] h-[20px]" strokeWidth={1.9} />
-              {unreadCount > 0 && (
-                <span
-                  className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive"
-                  style={{ boxShadow: '0 0 0 2px rgba(255,255,255,0.8)' }}
-                />
-              )}
-            </button>
-
-            {/* Add / Documents */}
+        <div className="fixed inset-x-0 bottom-0 z-[9999] pointer-events-none md:hidden">
+          {/* FAB - bottom right, above navbar */}
+          <div className="pointer-events-auto absolute right-5 bottom-[calc(env(safe-area-inset-bottom,0px)+68px)] z-10">
             <button
               data-tour="floating-document-button"
               onClick={handleDocumentsClick}
-              className="flex h-11 w-11 items-center justify-center rounded-[16px] text-white transition-all duration-200 active:scale-[0.94]"
+              className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-all duration-200 active:scale-[0.93]"
               style={{
-                background: 'linear-gradient(180deg, hsl(222, 100%, 58%), hsl(222, 100%, 48%))',
-                boxShadow: '0 4px 14px -4px hsl(222, 100%, 50%, 0.4)',
+                background: 'linear-gradient(180deg, hsl(222, 100%, 58%), hsl(222, 100%, 46%))',
+                boxShadow: '0 6px 20px -4px hsl(222, 100%, 50%, 0.45), 0 2px 6px hsl(222, 100%, 50%, 0.2)',
               }}
               aria-label="Dokumente"
             >
-              <Plus className="w-[20px] h-[20px]" strokeWidth={2.2} />
-            </button>
-
-            {/* Menu */}
-            <button
-              onClick={() => setMenuSheetOpen(true)}
-              className="flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200 active:scale-[0.94]"
-              style={{ color: 'hsl(225, 10%, 58%)' }}
-              aria-label="Menü"
-            >
-              <Menu className="w-[20px] h-[20px]" strokeWidth={1.9} />
+              <Plus className="w-6 h-6" strokeWidth={2.2} />
             </button>
           </div>
+
+          {/* Navigation Bar */}
+          <nav
+            data-bottom-navbar
+            className="pointer-events-auto bg-white/95 border-t"
+            style={{
+              borderColor: 'rgba(0,0,0,0.06)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+            }}
+          >
+            <div className="flex items-center justify-around px-4 h-[56px]">
+              {/* Home */}
+              <button
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                aria-label="Dashboard"
+              >
+                <Home className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(222, 100%, 52%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: 'hsl(222, 100%, 52%)' }}>Home</span>
+              </button>
+
+              {/* Chat */}
+              <button
+                data-tour="chat-header-icon"
+                onClick={() => navigate('/chat')}
+                className="relative flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                aria-label="Chat"
+              >
+                <Inbox className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(225, 12%, 62%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: 'hsl(225, 12%, 62%)' }}>Chat</span>
+                {unreadCount > 0 && (
+                  <span
+                    className="absolute top-0.5 left-1/2 ml-2 h-2 w-2 rounded-full bg-destructive"
+                    style={{ boxShadow: '0 0 0 2px white' }}
+                  />
+                )}
+              </button>
+
+              {/* Menu */}
+              <button
+                onClick={() => setMenuSheetOpen(true)}
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                aria-label="Menü"
+              >
+                <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(225, 12%, 62%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: 'hsl(225, 12%, 62%)' }}>Menü</span>
+              </button>
+            </div>
+          </nav>
         </div>,
         document.body
       )}
