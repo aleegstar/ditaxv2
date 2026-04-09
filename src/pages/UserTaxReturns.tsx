@@ -339,7 +339,7 @@ const UserTaxReturns = () => {
       {/* Main Container */}
       <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
         {/* Header */}
-        <header className="flex pb-8 items-center justify-between">
+        <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
@@ -347,20 +347,20 @@ const UserTaxReturns = () => {
         </header>
 
         {/* Greeting Section */}
-        <section className="pb-8">
-          <div className="flex flex-col gap-1 mb-4">
-            <p className="text-lg md:text-xl text-muted-foreground font-normal">
+        <section className="pb-6">
+          <div className="flex flex-col gap-0.5 mb-3">
+            <p className="text-base text-muted-foreground font-normal">
               {getGreeting()}
             </p>
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-tight">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
               {getUserDisplayName() ?? (
-                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-10" />
+                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
               )}
             </h1>
           </div>
           
           {/* Tax Filer Selector */}
-          <TaxFilerSelector className="mt-2" />
+          <TaxFilerSelector className="mt-1.5" />
         </section>
 
         {/* Missing Items Alert */}
@@ -421,9 +421,9 @@ const UserTaxReturns = () => {
             return <motion.div
               key={year}
               data-tour="tax-year-card"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="relative mb-20"
             >
               {/* Background next-step card (peeks out below) */}
@@ -433,7 +433,7 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-16 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-[4.5rem]"
+                  className="absolute -bottom-16 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-300 hover:-bottom-[4.5rem] active:scale-[0.98]"
                   style={{
                     background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
                     boxShadow: '0 20px 40px -8px rgba(29, 100, 255, 0.35)',
@@ -441,7 +441,7 @@ const UserTaxReturns = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                         <span className="text-xs font-bold text-white">{nextStepIndex + 1}</span>
                       </div>
                       <div>
@@ -458,7 +458,7 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
                 style={{
                   background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                   boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
@@ -467,8 +467,8 @@ const UserTaxReturns = () => {
               >
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-5">
-                  <span className="text-sm font-medium text-muted-foreground">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                     {t.userDashboard.taxReturn}
                   </span>
                   <DropdownMenu>
@@ -490,33 +490,44 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Year */}
-                <h2 className="text-4xl font-semibold tracking-tight text-foreground mb-3">
+                {/* Year - more impactful */}
+                <h2 className="text-[2.75rem] font-bold tracking-tighter text-foreground mb-2 leading-none">
                   {year}
                 </h2>
 
                 {/* Description */}
-                <p className="text-[15px] text-muted-foreground mb-5 leading-relaxed">
+                <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   {completedSteps === 0 
                     ? 'Beginne damit deine Angaben zu erfassen.'
                     : `${completedSteps} von ${steps.length} Schritten erledigt.`
                   }
                 </p>
 
-                {/* Progress Steps */}
-                <div className="flex gap-1.5 mb-8">
-                  {steps.map((_, i) => (
-                    <div key={i} className={cn(
-                      "flex-1 h-1.5 rounded-full transition-all duration-500",
-                      i < completedSteps ? "bg-primary" : "bg-muted"
-                    )} />
+                {/* Enhanced Progress Steps */}
+                <div className="flex gap-1.5 mb-6">
+                  {steps.map((step, i) => (
+                    <motion.div 
+                      key={i} 
+                      className={cn(
+                        "flex-1 h-[5px] rounded-full transition-all duration-500",
+                        i < completedSteps 
+                          ? "bg-primary shadow-[0_0_8px_hsl(222,100%,50%/0.3)]" 
+                          : i === completedSteps 
+                            ? "bg-primary/25" 
+                            : "bg-foreground/[0.06]"
+                      )}
+                      initial={false}
+                      animate={{ scaleX: i < completedSteps ? 1 : 1 }}
+                      transition={{ delay: i * 0.05, duration: 0.4 }}
+                    />
                   ))}
                 </div>
 
                 {/* Action */}
                 <div className="flex items-center justify-between">
-                  <Button>
-                    {completedSteps === 0 ? 'Starten' : 'Fortsetzen'}
+                  <Button className="shadow-[0_6px_20px_-4px_hsl(222,100%,50%/0.4)]">
+                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                    <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
                   </Button>
                 </div>
               </div>
@@ -529,45 +540,49 @@ const UserTaxReturns = () => {
             const isExpress = taxReturn?.express_service;
             return <motion.article
               key={year}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-              className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 p-7 md:p-9 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 cursor-pointer transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]"
+              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              style={{
+                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
+                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(0,0,0,0.06)',
+              }}
             >
 
               <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                <div className="flex justify-between items-center mb-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                       {year}
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                      <span className="text-base text-muted-foreground font-normal">
+                    <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
+                      <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
+                      <span className="text-xs font-medium text-amber-700">
                         {t.userDashboard.processing}
                       </span>
                     </div>
-                    {isExpress && <div className="flex items-center gap-1 text-muted-foreground">
-                      <Zap className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      <span className="text-xs font-medium">{t.userDashboard.expressService}</span>
+                    {isExpress && <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
+                      <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
+                      <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
                     </div>}
                   </div>
                 </div>
 
-                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
+                <h2 className="text-xl font-semibold tracking-tight text-foreground mb-2 leading-tight">
                   {t.userDashboard.processingDescription}
                 </h2>
 
-                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                   Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-6">
-                  <Button className="px-6 py-3 text-sm w-full sm:w-auto">
-                    {t.userDashboard.tracking}
-                  </Button>
-                </div>
+                <Button className="w-full sm:w-auto">
+                  {t.userDashboard.tracking}
+                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                </Button>
               </div>
             </motion.article>;
           })}
@@ -580,44 +595,51 @@ const UserTaxReturns = () => {
             const needsSignature = completedReturn && !isSigned;
             return <motion.article
               key={year}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               onClick={() => {
                 if (completedReturn?.id) {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 p-7 md:p-9 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 cursor-pointer transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)]"
+              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              style={{
+                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
+                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                border: '1px solid rgba(0,0,0,0.06)',
+              }}
             >
 
               <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-muted text-muted-foreground text-sm font-medium px-3 py-1 rounded-full">
+                <div className="flex justify-between items-center mb-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                       {year}
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      {needsSignature ? <>
-                        <PenTool className="w-4 h-4 text-foreground/70" strokeWidth={1.5} />
-                        <span className="text-base text-foreground/70 font-normal">
+                    {needsSignature ? (
+                      <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
+                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
+                        <span className="text-xs font-medium text-amber-700">
                           {t.userDashboard.signaturePending}
                         </span>
-                      </> : <>
-                        <Check className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-                        <span className="text-base text-muted-foreground font-normal">
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full">
+                        <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={2} />
+                        <span className="text-xs font-medium text-emerald-700">
                           {t.userDashboard.finished}
                         </span>
-                      </>}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-foreground mb-4 leading-tight">
+                <h2 className="text-xl font-semibold tracking-tight text-foreground mb-2 leading-tight">
                   {needsSignature ? t.userDashboard.signatureRequired : `Steuererklärung ${year}`}
                 </h2>
 
-                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                   {needsSignature 
                     ? 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.' 
                     : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
@@ -627,11 +649,10 @@ const UserTaxReturns = () => {
                       }) : '–')}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-6">
-                  <button className={`px-8 py-3.5 rounded-full text-lg font-medium transition-all w-full sm:w-auto text-center ${needsSignature ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-primary hover:bg-primary/90 text-primary-foreground'}`}>
-                    {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
-                  </button>
-                </div>
+                <Button className="w-full sm:w-auto">
+                  {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
+                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                </Button>
               </div>
             </motion.article>;
           })}
