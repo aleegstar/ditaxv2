@@ -663,28 +663,28 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2.5 pointer-events-none">
+      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2 pointer-events-none px-8">
         {/* Navigation Pill */}
-        <nav className="pointer-events-auto inline-flex items-center gap-2 rounded-[20px] px-3 py-2.5" style={{ background: 'rgba(10,15,30,0.82)', borderTop: '1px solid rgba(255,255,255,0.14)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.04)', boxShadow: '0 -4px 20px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06)', backdropFilter: 'blur(24px) saturate(180%)' }}>
+        <nav className="pointer-events-auto inline-flex items-center gap-1 rounded-full px-2 py-1.5" style={{ background: 'linear-gradient(135deg, rgba(15,20,40,0.88) 0%, rgba(20,30,60,0.85) 100%)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)', backdropFilter: 'blur(24px) saturate(180%)' }}>
           {/* Home - Active */}
-          <button className="text-white bg-white/[0.14] shadow-[0_0_8px_rgba(255,255,255,0.06)] rounded-full px-5 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center">
-            <Home className="w-5 h-5" strokeWidth={1.5} />
+          <button className="rounded-full px-5 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center" style={{ color: '#ffffff', background: 'rgba(255,255,255,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+            <Home className="w-[22px] h-[22px]" strokeWidth={1.8} />
           </button>
 
           {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center relative">
-            <Inbox className="w-5 h-5" strokeWidth={1.5} />
-            {unreadCount > 0 && <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-[rgba(10,15,30,0.82)]"></span>}
+          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center relative hover:bg-white/[0.06]" style={{ color: 'rgba(160,175,200,0.7)' }}>
+            <Inbox className="w-[22px] h-[22px]" strokeWidth={1.8} />
+            {unreadCount > 0 && <span className="absolute top-1 right-2 w-2 h-2 bg-destructive rounded-full" style={{ boxShadow: '0 0 0 2px rgba(15,20,40,0.88)' }}></span>}
           </button>
 
           {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center">
-            <Menu className="w-5 h-5" strokeWidth={1.5} />
+          <button onClick={() => setMenuSheetOpen(true)} className="rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center hover:bg-white/[0.06]" style={{ color: 'rgba(160,175,200,0.7)' }}>
+            <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} />
           </button>
         </nav>
 
         {/* Floating Action Button - Documents */}
-        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto text-white rounded-full w-12 h-12 flex items-center justify-center hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.88] transition-all duration-200" style={{ background: 'linear-gradient(180deg, hsl(222,100%,60%) 0%, hsl(222,100%,47%) 100%)', boxShadow: '0 4px 20px hsla(222,100%,50%,0.3), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto text-white rounded-full w-[46px] h-[46px] flex items-center justify-center hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.88] transition-all duration-200" style={{ background: 'linear-gradient(180deg, hsl(222,100%,62%) 0%, hsl(222,100%,48%) 100%)', boxShadow: '0 8px 28px hsla(222,100%,50%,0.35), 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)' }}>
           <Plus className="w-5 h-5" strokeWidth={2} />
         </button>
       </div>

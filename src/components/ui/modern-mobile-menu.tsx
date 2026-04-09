@@ -511,29 +511,29 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
     }} transition={{
       duration: 0.4,
       ease: [0.22, 1, 0.36, 1]
-    }} className="fixed left-4 right-4 bottom-5 z-[9999]">
-          {/* Navbar with Fortsetzen Button Design */}
+    }} className="fixed left-8 right-8 bottom-5 z-[9999]">
+          {/* Navbar */}
           <nav role="navigation" data-bottom-navbar style={navStyle} className="relative flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-[20px] px-3 py-2.5" style={{ background: 'rgba(10,15,30,0.82)', borderTop: '1px solid rgba(255,255,255,0.14)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.04)', boxShadow: '0 -4px 20px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06)', backdropFilter: 'blur(24px) saturate(180%)' }}>
+            <div className="inline-flex items-center gap-1 rounded-full px-2 py-1.5" style={{ background: 'linear-gradient(135deg, rgba(15,20,40,0.88) 0%, rgba(20,30,60,0.85) 100%)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)', backdropFilter: 'blur(24px) saturate(180%)' }}>
               {/* Home Button */}
               <motion.button onClick={() => navigate('/')} whileTap={{
             scale: 0.88
-          }} className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/' ? 'text-white bg-white/[0.14] shadow-[0_0_8px_rgba(255,255,255,0.06)] px-5 py-2.5' : 'text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] px-4 py-2.5'}`}>
-                <CustomHomeIcon className="w-5 h-5" />
+          }} className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/' ? 'px-5 py-2.5' : 'px-4 py-2.5 hover:bg-white/[0.06]'}`} style={location.pathname === '/' ? { color: '#ffffff', background: 'rgba(255,255,255,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' } : { color: 'rgba(160,175,200,0.7)' }}>
+                <CustomHomeIcon className="w-[22px] h-[22px]" />
               </motion.button>
 
               {/* Documents Button */}
               <motion.button onClick={() => navigate('/documents')} whileTap={{
             scale: 0.88
-          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'text-white bg-white/[0.14] shadow-[0_0_8px_rgba(255,255,255,0.06)] px-5 py-2.5' : 'text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] px-4 py-2.5'}`}>
-                <CustomFolderIcon className="w-5 h-5" />
+          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5 hover:bg-white/[0.06]'}`} style={location.pathname === '/documents' ? { color: '#ffffff', background: 'rgba(255,255,255,0.12)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' } : { color: 'rgba(160,175,200,0.7)' }}>
+                <CustomFolderIcon className="w-[22px] h-[22px]" />
               </motion.button>
 
               {/* Menu Button */}
               <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{
             scale: 0.88
-          }} className="flex items-center justify-center rounded-full text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] px-4 py-2.5 transition-all duration-200">
-                <Menu className="w-5 h-5" strokeWidth={1.5} />
+          }} className="flex items-center justify-center rounded-full px-4 py-2.5 transition-all duration-200 hover:bg-white/[0.06]" style={{ color: 'rgba(160,175,200,0.7)' }}>
+                <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} />
               </motion.button>
             </div>
           </nav>
