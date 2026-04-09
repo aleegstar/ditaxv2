@@ -653,18 +653,17 @@ const UserTaxReturns = () => {
               data-bottom-navbar
               className="inline-flex items-center gap-1 rounded-full px-2 py-2"
               style={{
-                background: 'linear-gradient(180deg, hsl(228 24% 31% / 0.96) 0%, hsl(228 24% 27% / 0.98) 100%)',
-                border: '1px solid hsl(0 0% 100% / 0.08)',
-                boxShadow: '0 14px 34px -14px hsl(225 30% 12% / 0.45), 0 6px 16px -8px hsl(225 30% 12% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.08)',
-                backdropFilter: 'blur(18px) saturate(140%)'
+                background: 'rgba(255, 255, 255, 0.82)',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
+                backdropFilter: 'blur(20px) saturate(180%)'
               }}
             >
               <button
                 className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
                 style={{
-                  color: 'hsl(0 0% 100%)',
-                  background: 'hsl(0 0% 100% / 0.10)',
-                  boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.08)'
+                  color: 'hsl(222, 100%, 56%)',
+                  background: 'hsl(222, 100%, 56%, 0.1)'
                 }}
                 aria-label="Dashboard"
               >
@@ -674,21 +673,23 @@ const UserTaxReturns = () => {
               <button
                 data-tour="chat-header-icon"
                 onClick={() => navigate('/chat')}
-                className="relative flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
+                className="relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
+                style={{ color: 'rgba(100, 110, 130, 0.7)' }}
                 aria-label="Chat"
               >
                 <Inbox className="w-5 h-5" strokeWidth={1.8} />
                 {unreadCount > 0 && (
                   <span
                     className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"
-                    style={{ boxShadow: '0 0 0 2px hsl(228 24% 29%)' }}
+                    style={{ boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.85)' }}
                   />
                 )}
               </button>
 
               <button
                 onClick={() => setMenuSheetOpen(true)}
-                className="flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
+                className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
+                style={{ color: 'rgba(100, 110, 130, 0.7)' }}
                 aria-label="Menü"
               >
                 <Menu className="w-5 h-5" strokeWidth={1.8} />
