@@ -353,20 +353,20 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           {completedTaxReturns.map(taxReturn => (
             <div 
               key={taxReturn.id} 
-              className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all group"
+              className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200/50">
-                  <FileText className="h-6 w-6 text-blue-600" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900">
+                  <h4 className="font-semibold text-foreground">
                     Steuererklärung {taxReturn.tax_year}
                   </h4>
-                  <p className="text-sm text-slate-500 truncate max-w-[300px]">
+                  <p className="text-sm text-muted-foreground truncate max-w-[300px]">
                     {taxReturn.file_name}
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-muted-foreground/60 mt-0.5">
                     Hochgeladen am {new Date(taxReturn.upload_date).toLocaleDateString('de-DE')}
                   </p>
                 </div>
@@ -376,7 +376,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                   size="sm"
                   variant="ghost"
                   onClick={() => handleDownload(taxReturn)}
-                  className="h-9 w-9 p-0 rounded-lg hover:bg-blue-50 text-slate-500 hover:text-blue-600"
+                  className="h-9 w-9 p-0 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary"
                 >
                   <Download className="h-4 w-4" />
                 </Button>
@@ -385,7 +385,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-600"
+                      className="h-9 w-9 p-0 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -393,7 +393,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                   <UnifiedAlertDialogContent showCloseButton>
                     <UnifiedAlertDialogHeader>
                       <UnifiedAlertDialogIcon variant="delete">
-                        <Trash2 className="w-8 h-8 text-red-500" />
+                        <Trash2 className="w-8 h-8 text-destructive" />
                       </UnifiedAlertDialogIcon>
                       <UnifiedAlertDialogTitle>Steuererklärung löschen</UnifiedAlertDialogTitle>
                       <UnifiedAlertDialogDescription>
