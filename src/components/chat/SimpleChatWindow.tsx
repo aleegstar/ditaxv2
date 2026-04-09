@@ -422,7 +422,7 @@ const SimpleChatWindow = ({
           <div className="max-w-2xl mx-auto space-y-4">
             {/* Time Divider */}
             <div className="flex justify-center mb-4">
-              <span className="text-[10px] font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
+              <span className="text-[10px] font-medium text-muted-foreground bg-background px-3 py-1 rounded-full border border-border/40">
                 Heute
               </span>
             </div>
