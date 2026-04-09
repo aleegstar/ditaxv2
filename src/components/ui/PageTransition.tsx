@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ReactNode, cloneElement, isValidElement } from 'react';
-import { useLocation, Routes } from 'react-router-dom';
+import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -18,38 +18,30 @@ const pageVariants = {
   },
   exit: {
     opacity: 0,
-    y: -6,
   },
 };
 
 const pageTransition = {
-  duration: 0.22,
+  duration: 0.2,
   ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
 };
 
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
   const location = useLocation();
-  
-  // Use pathname + search as key so query param changes also animate
-  const locationKey = location.pathname;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
-        key={locationKey}
+        key={location.pathname}
         initial="initial"
         animate="animate"
         exit="exit"
         variants={pageVariants}
         transition={pageTransition}
         className={className}
-        style={{ willChange: 'opacity, transform', minHeight: 'inherit' }}
+        style={{ willChange: 'opacity, transform' }}
       >
-        {/* Clone Routes children with location prop so AnimatePresence works */}
-        {isValidElement(children) && children.type === Routes
-          ? cloneElement(children as React.ReactElement<any>, { location })
-          : children
-        }
+        {children}
       </motion.div>
     </AnimatePresence>
   );
