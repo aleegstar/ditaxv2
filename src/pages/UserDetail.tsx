@@ -577,11 +577,11 @@ const UserDetail: React.FC = () => {
   const isMissingDocuments = currentStatus === 'missing_documents' || currentStatus === 'missing_information';
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
       <AdminSidebar />
       
-      <main className="flex-1 p-4 lg:p-5">
-        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
+      <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)]">
           {/* Refined Header */}
           <div className="px-5 py-3 border-b border-white/30">
             {/* Main Header Row */}
