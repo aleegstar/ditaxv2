@@ -318,7 +318,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 <CardContent className="py-10">
                   <div className="text-center">
                     <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FileIcon className="h-6 w-6 text-muted-foreground/60" />
+                      <FileText className="h-6 w-6 text-muted-foreground/60" />
                     </div>
                     <p className="text-muted-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
@@ -415,7 +415,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     {groupedDocuments.general.length > 0 && (
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                          <FileIcon className="h-5 w-5 text-primary" />
+                          <FileText className="h-5 w-5 text-primary" />
                           <h3 className="text-lg font-semibold">Allgemein</h3>
                           <Badge variant="outline">{groupedDocuments.general.length}</Badge>
                         </div>
@@ -514,7 +514,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center border border-amber-200/50">
-                          <FileIcon className="h-6 w-6 text-amber-600" />
+                          <FileText className="h-6 w-6 text-amber-600" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-slate-900">Steuererklärung {taxReturn.taxYear}</h4>
@@ -568,7 +568,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
             }).length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 bg-white/30 backdrop-blur-lg rounded-2xl border border-dashed border-white/60">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <FileIcon className="h-8 w-8 text-slate-400" />
+                  <FileText className="h-8 w-8 text-slate-400" />
                 </div>
                 <p className="text-slate-500 font-medium">Keine Steuererklärung für {selectedYear}</p>
                 <p className="text-slate-400 text-sm mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
