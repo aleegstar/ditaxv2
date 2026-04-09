@@ -1,36 +1,59 @@
 
 
-## Plan: Sicherheitslücken aus Scan schliessen
+## Plan: DSGVO-konformes Newsletter/E-Mail-System im Adminbereich
 
-### Erkannte Probleme
+### Übersicht
+Ein Newsletter-Versandsystem im Adminbereich, das die bestehende `marketing_consent_at`-Spalte in `profiles` nutzt. Admins können E-Mails an alle abonnierten Benutzer senden. Benutzer können sich im `/welcome`-Flow und in den Datenschutzeinstellungen an-/abmelden. Bestehende Benutzer gelten als angemeldet.
 
-**2 aktive Findings aus dem Security-Scan:**
+### Datenbank-Änderungen
 
-1. **Audit Log Forgery (ERROR)** — Die Policy `"Service role and edge functions can insert audit logs"` auf `security_audit_logs` erlaubt jedem authentifizierten User (`authenticated` role) Log-Einträge zu schreiben. Das ermöglicht das Fälschen von Security-Logs. Eine korrekte `service_role`-only Policy existiert bereits parallel.
+1. **Neue Tabelle `newsletter_campaigns`** — Protokollierung aller versendeten Kampagnen (DSGVO-Nachweispflicht):
+   - `id`, `subject`, `html_content`, `sent_by` (admin user_id), `sent_at`, `recipient_count`, `status` (draft/sending/sent/failed)
+   - RLS: Nur Admins via `has_role()`
 
-2. **Realtime Channel Subscription (ERROR)** — Keine RLS-Policies auf `realtime.messages`. Dies ist jedoch eine **Supabase-reservierte Schema-Tabelle** (`realtime.*`), die nicht via Migrations geändert werden darf.
+2. **Neue Tabelle `newsletter_send_log`** — Pro Empfänger-Log:
+   - `id`, `campaign_id` (FK), `user_id`, `email`, `status` (sent/failed/bounced), `sent_at`, `error_message`
+   - RLS: Nur Admins via `has_role()`
 
-### Lösung
+3. **Migration für bestehende Benutzer**: `UPDATE profiles SET marketing_consent_at = NOW() WHERE marketing_consent_at IS NULL` — alle bestehenden User als Newsletter-Abonnenten markieren
 
-**Problem 1 — Fix via Migration:**
-- Die permissive Policy `"Service role and edge functions can insert audit logs"` droppen
-- Die bestehende `"Service role can insert audit logs" TO service_role WITH CHECK (true)` bleibt erhalten und ist korrekt
+### Edge Function: `send-newsletter`
 
-**Problem 2 — Markieren als nicht behebbar:**
-- `realtime.messages` gehört zum reservierten `realtime`-Schema
-- Änderungen dort können den Supabase-Service beeinträchtigen
-- Finding wird als "nicht via Migration behebbar" markiert mit erhöhter Schwierigkeit
+- Empfängt `campaign_id` vom Admin-Frontend
+- Lädt alle Profile mit `marketing_consent_at IS NOT NULL`
+- Versendet E-Mails via Resend (bereits konfiguriert mit `RESEND_API_KEY`)
+- Jede E-Mail enthält einen Abmelde-Link (`/privacy-settings`)
+- Protokolliert jeden Versand in `newsletter_send_log`
+- Nur per `service_role` / Admin aufrufbar
 
-### Dateien
+### Frontend-Änderungen
 
-| Änderung | Was |
-|---|---|
-| SQL Migration | `DROP POLICY "Service role and edge functions can insert audit logs"` |
-| Security Finding Update | `realtime_messages_no_rls` → Schwierigkeit erhöhen, Erklärung |
-| Security Finding Delete | `security_audit_logs_authenticated_insert` → nach Fix löschen |
+1. **Neue Admin-Seite `/admin/newsletter`**:
+   - E-Mail-Composer: Betreff, HTML-Inhalt (Rich-Text oder Textarea)
+   - Vorschau der Empfängeranzahl (Benutzer mit `marketing_consent_at IS NOT NULL`)
+   - Senden-Button mit Bestätigungsdialog
+   - Kampagnen-Historie mit Status und Empfängeranzahl
+   - Design: Globales Admin-Glasmorphismus-Design
+
+2. **AdminSidebar**: Neuer Eintrag "Newsletter" unter "Verwaltung" mit `Mail`-Icon
+
+3. **WelcomeFlow** (`/welcome`): Bereits vorhanden — `marketingConsent` wird als `marketing_consent_at` gespeichert. Keine Änderung nötig.
+
+4. **PrivacySettings** (`/privacy-settings`): Bereits vorhanden — Marketing-E-Mail-Toggle existiert. Keine Änderung nötig.
+
+5. **Admin.tsx**: Neue Route `/admin/newsletter` registrieren
+
+### DSGVO-Konformität
+
+- Opt-in bei Registrierung (bereits in WelcomeFlow)
+- Jederzeit abmeldbar in Datenschutzeinstellungen (bereits vorhanden)
+- Jede E-Mail enthält Abmelde-Link
+- Vollständige Protokollierung aller Kampagnen und Zustellungen
+- Bestehende User: Annahme der Zustimmung (mit Hinweis in erster E-Mail)
 
 ### Technische Details
-- Die verbleibende Policy `"Service role can insert audit logs" TO service_role WITH CHECK (true)` deckt alle legitimen Inserts ab (Edge Functions nutzen service_role)
-- `log_security_event_enhanced()` ist `SECURITY DEFINER` und läuft als Owner — kann weiterhin in `security_audit_logs` inserieren
-- Client-seitige Aufrufe von `SecurityService.logSecurityEvent()` nutzen diese Funktion via RPC
+
+- **Dateien**: ~3 neue Dateien (Admin-Komponente, Edge Function, Migration)
+- **Geänderte Dateien**: `AdminSidebar.tsx`, `Admin.tsx`
+- **Abhängigkeiten**: Resend API (bereits vorhanden), bestehende Supabase-Infrastruktur
 
