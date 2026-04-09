@@ -500,10 +500,10 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-lg font-semibold text-slate-900">In Bearbeitung</h3>
-                  <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-foreground">In Bearbeitung</h3>
+                  <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
                     {taxReturns.filter(taxReturn => {
                       const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
                       const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
@@ -511,7 +511,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     }).length}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {taxReturns.filter(taxReturn => {
                     const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
                     const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
@@ -519,21 +519,21 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
-                      className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
+                      className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center border border-amber-200/50">
-                          <FileText className="h-6 w-6 text-amber-600" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-amber-600" strokeWidth={1.8} />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-slate-900">Steuererklärung {taxReturn.taxYear}</h4>
-                          <p className="text-sm text-slate-500">Status: {taxReturn.status}</p>
+                          <h4 className="text-sm font-medium text-foreground">Steuererklärung {taxReturn.taxYear}</h4>
+                          <p className="text-xs text-muted-foreground">Status: {taxReturn.status}</p>
                         </div>
                       </div>
-                      <div className={`w-3 h-3 rounded-full ${
+                      <div className={`w-2 h-2 rounded-full ${
                         taxReturn.status === 'success' ? 'bg-emerald-500' : 
-                        taxReturn.status === 'processing' ? 'bg-amber-500' : 'bg-slate-300'
+                        taxReturn.status === 'processing' ? 'bg-amber-500' : 'bg-muted-foreground/30'
                       }`} />
                     </div>
                   ))}
