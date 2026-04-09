@@ -452,7 +452,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
               />
             </div>
             {selectedFile && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Ausgewählte Datei: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
               </div>
             )}
