@@ -440,7 +440,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="file" className="text-right text-gray-900">
+              <Label htmlFor="file" className="text-right text-foreground">
                 PDF-Datei
               </Label>
               <Input
