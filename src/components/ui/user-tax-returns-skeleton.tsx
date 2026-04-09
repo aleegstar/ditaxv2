@@ -72,20 +72,13 @@ export function UserTaxReturnsSkeleton() {
       </main>
 
       {/* Bottom Navigation Skeleton */}
-      <div className="fixed inset-x-0 bottom-5 z-50 flex items-center justify-center px-6 pointer-events-none md:hidden">
-        <div
-          className="inline-flex items-center gap-2 rounded-[22px] px-1.5 py-1.5"
-          style={{
-            background: 'rgba(255, 255, 255, 0.78)',
-            border: '1px solid rgba(255, 255, 255, 0.65)',
-            boxShadow: '0 2px 20px rgba(0,0,0,0.06), 0 0.5px 1px rgba(0,0,0,0.04)',
-            backdropFilter: 'blur(24px) saturate(180%)',
-          }}
-        >
-          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
-          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
-          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
-          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
+      <div className="fixed inset-x-0 bottom-0 z-50 pointer-events-none md:hidden">
+        <div className="bg-white/95 border-t" style={{ borderColor: 'rgba(0,0,0,0.06)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          <div className="flex items-center justify-around px-4 h-[56px]">
+            <Skeleton className="h-8 w-12 rounded-md bg-black/5" />
+            <Skeleton className="h-8 w-12 rounded-md bg-black/5" />
+            <Skeleton className="h-8 w-12 rounded-md bg-black/5" />
+          </div>
         </div>
       </div>
     </div>

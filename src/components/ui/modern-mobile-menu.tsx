@@ -500,51 +500,55 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   };
   return <AnimatePresence>
       {isInitialLoaded && shouldShow && <motion.div initial={{
-      y: 100,
+      y: 60,
       opacity: 0
     }} animate={{
       y: 0,
       opacity: 1
     }} exit={{
-      y: 100,
+      y: 60,
       opacity: 0
     }} transition={{
-      duration: 0.4,
+      duration: 0.35,
       ease: [0.22, 1, 0.36, 1]
-    }} className="fixed left-6 right-6 bottom-4 z-[9999]">
-          {/* Navbar */}
-          <nav role="navigation" data-bottom-navbar style={navStyle} className="relative flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-[22px] px-1.5 py-1.5" style={{ 
-              background: 'rgba(255,255,255,0.78)', 
-              border: '1px solid rgba(255,255,255,0.65)', 
-              boxShadow: '0 2px 20px rgba(0,0,0,0.06), 0 0.5px 1px rgba(0,0,0,0.04)', 
-              backdropFilter: 'blur(24px) saturate(180%)' 
+    }} className="fixed inset-x-0 bottom-0 z-[9999]">
+          <nav role="navigation" data-bottom-navbar style={navStyle}
+            className="bg-white/95 border-t"
+            css-style={{
+              borderColor: 'rgba(0,0,0,0.06)',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              backdropFilter: 'blur(20px) saturate(180%)',
             }}>
-              {/* Home Button */}
-              <motion.button onClick={() => navigate('/')} whileTap={{ scale: 0.94 }}
-                className="flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200"
-                style={location.pathname === '/' ? { color: 'hsl(222, 100%, 52%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'hsl(225, 10%, 58%)' }}>
-                <CustomHomeIcon className="w-[20px] h-[20px]" />
+            <div className="flex items-center justify-around px-4 h-[56px]"
+              style={{
+                borderTop: '1px solid rgba(0,0,0,0.06)',
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+              }}>
+              {/* Home */}
+              <motion.button onClick={() => navigate('/')} whileTap={{ scale: 0.95 }}
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200">
+                <CustomHomeIcon className="w-[22px] h-[22px]" style={{ color: location.pathname === '/' ? 'hsl(222, 100%, 52%)' : 'hsl(225, 12%, 62%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: location.pathname === '/' ? 'hsl(222, 100%, 52%)' : 'hsl(225, 12%, 62%)' }}>Home</span>
               </motion.button>
 
-              {/* Documents Button */}
-              <motion.button onClick={() => navigate('/documents')} whileTap={{ scale: 0.94 }}
+              {/* Documents */}
+              <motion.button onClick={() => navigate('/documents')} whileTap={{ scale: 0.95 }}
                 data-tour="documents-nav"
-                className="flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200"
-                style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 52%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'hsl(225, 10%, 58%)' }}>
-                <CustomFolderIcon className="w-[20px] h-[20px]" />
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200">
+                <CustomFolderIcon className="w-[22px] h-[22px]" style={{ color: location.pathname === '/documents' ? 'hsl(222, 100%, 52%)' : 'hsl(225, 12%, 62%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: location.pathname === '/documents' ? 'hsl(222, 100%, 52%)' : 'hsl(225, 12%, 62%)' }}>Dokumente</span>
               </motion.button>
 
-              {/* Menu Button */}
-              <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{ scale: 0.94 }}
-                className="flex h-11 w-11 items-center justify-center rounded-[16px] transition-all duration-200"
-                style={{ color: 'hsl(225, 10%, 58%)' }}>
-                <Menu className="w-[20px] h-[20px]" strokeWidth={1.9} />
+              {/* Menu */}
+              <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{ scale: 0.95 }}
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200">
+                <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(225, 12%, 62%)' }} />
+                <span className="text-[10px] font-medium" style={{ color: 'hsl(225, 12%, 62%)' }}>Menü</span>
               </motion.button>
             </div>
           </nav>
         </motion.div>}
-
     </AnimatePresence>;
 };
 export { InteractiveMenu, MobileMenuSheet };
