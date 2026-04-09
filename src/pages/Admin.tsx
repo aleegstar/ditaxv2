@@ -324,6 +324,7 @@ const Admin: React.FC = () => {
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           <Route path="ocr-config" element={<OcrDocumentConfigManager />} />
           <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
+          <Route path="newsletter" element={<Newsletter />} />
           </Routes>
           </div>
         </div>
