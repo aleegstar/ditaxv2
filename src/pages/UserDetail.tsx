@@ -186,7 +186,7 @@ const UserDetail: React.FC = () => {
       console.log('👥 Fetching tax filers for user:', userId);
       const { data: taxFilersData, error: taxFilersError } = await supabase
         .from('tax_filers')
-        .select('id, first_name, last_name, is_primary, relationship, admin_notes')
+        .select('id, first_name, last_name, is_primary, relationship')
         .eq('user_id', userId)
         .order('is_primary', { ascending: false });
 
