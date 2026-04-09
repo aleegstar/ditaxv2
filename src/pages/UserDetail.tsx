@@ -431,14 +431,28 @@ const UserDetail: React.FC = () => {
     setSelectedYear(year);
   };
 
-  // Compute admin notes based on selected tax filer
-  const currentAdminNotes = useMemo(() => {
-    if (selectedTaxFilerId) {
-      const filer = taxFilers.find(f => f.id === selectedTaxFilerId);
-      return filer?.admin_notes || '';
-    }
-    return user?.admin_notes || '';
-  }, [selectedTaxFilerId, taxFilers, user]);
+  // Fetch admin notes from secure admin_notes_internal table
+  const [currentAdminNotes, setCurrentAdminNotes] = useState('');
+  
+  useEffect(() => {
+    const fetchAdminNotes = async () => {
+      const targetTable = selectedTaxFilerId ? 'tax_filers' : 'profiles';
+      const targetId = selectedTaxFilerId || userId;
+      
+      if (!targetId) return;
+      
+      const { data } = await supabase
+        .from('admin_notes_internal')
+        .select('note')
+        .eq('target_table', targetTable)
+        .eq('target_id', targetId)
+        .maybeSingle();
+      
+      setCurrentAdminNotes(data?.note || '');
+    };
+    
+    fetchAdminNotes();
+  }, [selectedTaxFilerId, userId]);
 
   // DEBUG RENDER STATE
   console.log('🎨 UserDetail render state:', {
