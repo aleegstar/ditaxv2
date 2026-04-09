@@ -331,14 +331,14 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-            <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
-                <CardDescription className="text-xs">
+            <Card className="border-white/40 shadow-none bg-transparent">
+              <CardHeader className="pb-3 px-0 pt-0">
+                <CardTitle className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
                   Vom Mandanten eingereichte Unterlagen für {selectedYear}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0 pb-0">
                 {documentsForSelectedYear.length === 0 ? (
                   <div className="text-center py-10">
                     <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
