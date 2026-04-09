@@ -229,29 +229,29 @@ export const WelcomeFlow = () => {
     switch (currentStep) {
       case 0:
         return <div className="w-full space-y-5">
-            <div className="bg-white rounded-2xl p-6 w-full space-y-5 border border-slate-200 shadow-sm">
+            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 w-full space-y-5 border border-white/60">
               <label className="flex items-start gap-4 cursor-pointer group">
-                <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
-                <div className="flex-1 text-slate-700 text-sm leading-relaxed text-left">
+                <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                <div className="flex-1 text-muted-foreground text-sm leading-relaxed text-left">
                   {t.onboarding.termsAccept}{' '}
-                  <Link to="/privacy" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
+                  <Link to="/privacy" target="_blank" className="underline hover:text-primary transition-colors font-medium text-primary">
                     {t.onboarding.privacyPolicy}
                   </Link>
                   {' '}{t.auth.termsText.includes('und') ? 'und' : 'and'}{' '}
-                  <Link to="/terms" target="_blank" className="underline hover:text-[#1D64FF] transition-colors font-medium text-[#1D64FF]">
+                  <Link to="/terms" target="_blank" className="underline hover:text-primary transition-colors font-medium text-primary">
                     {t.onboarding.termsOfService}
                   </Link>
                 </div>
               </label>
 
-              <div className="pt-4 border-t border-slate-200">
+              <div className="pt-4 border-t border-border/40">
                 <label className="flex items-start gap-4 cursor-pointer group">
-                  <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-[#1D64FF] data-[state=checked]:border-[#1D64FF]" />
-                  <div className="flex-1 text-slate-700 leading-relaxed text-left">
-                    <div className="font-medium mb-1 text-sm text-slate-800">
+                  <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                  <div className="flex-1 text-muted-foreground leading-relaxed text-left">
+                    <div className="font-medium mb-1 text-sm text-foreground">
                       {t.onboarding.newsletterTitle}
                     </div>
-                    <div className="text-slate-500 text-xs leading-relaxed">
+                    <div className="text-muted-foreground text-xs leading-relaxed">
                       {t.onboarding.newsletterDescription}
                     </div>
                   </div>
@@ -276,7 +276,7 @@ export const WelcomeFlow = () => {
                placeholder={t.onboarding.firstName} 
                value={firstName} 
                onChange={e => setFirstName(e.target.value)} 
-               className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-2xl px-5 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
+               className="text-lg h-auto py-5 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-2xl px-5 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
                onKeyDown={e => e.key === 'Enter' && handleNext()} 
                autoFocus 
              />
@@ -294,12 +294,12 @@ export const WelcomeFlow = () => {
          return (
            <div className="w-full space-y-5">
             <Select value={taxYear} onValueChange={setTaxYear}>
-               <SelectTrigger className="text-lg h-auto py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-slate-300 transition-all">
+               <SelectTrigger className="text-lg h-auto py-5 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-border transition-all">
                 <SelectValue />
               </SelectTrigger>
-               <SelectContent className="bg-white border border-slate-200 rounded-2xl">
+               <SelectContent className="bg-white/50 backdrop-blur-sm border border-border/40 rounded-2xl">
                  {TAX_YEARS.map(year => (
-                   <SelectItem key={year} value={year} className="text-slate-900 text-lg hover:bg-slate-50 focus:bg-slate-50 py-3">
+                   <SelectItem key={year} value={year} className="text-foreground text-lg hover:bg-muted/30 focus:bg-muted/30 py-3">
                     {year}
                    </SelectItem>
                  ))}
@@ -319,14 +319,14 @@ export const WelcomeFlow = () => {
         // Family hint + referral code step
          return (
            <div className="w-full space-y-5">
-             <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
+             <div className="bg-muted/30 rounded-2xl p-6 w-full border border-white/60">
               {/* Icon & Description */}
               <div className="flex items-start gap-4">
                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                    <Users className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-slate-500 text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     {t.onboarding.familyHintDescription}
                   </p>
                 </div>
@@ -334,18 +334,18 @@ export const WelcomeFlow = () => {
             </div>
 
             {/* Referral Code Input */}
-            <div className="bg-slate-50 rounded-2xl p-6 w-full border border-slate-100">
+            <div className="bg-muted/30 rounded-2xl p-6 w-full border border-white/60">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   {referralApplied ? (
-                    <CheckCircle className="w-6 h-6 text-emerald-600" />
+                    <CheckCircle className="w-6 h-6 text-primary" />
                   ) : (
-                    <Ticket className="w-6 h-6 text-emerald-600" />
+                    <Ticket className="w-6 h-6 text-primary" />
                   )}
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-medium text-slate-800 text-sm mb-1">Einladungscode</p>
-                  <p className="text-slate-500 text-xs leading-relaxed">
+                  <p className="font-medium text-foreground text-sm mb-1">Einladungscode</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
                     Hast du einen Einladungscode? Erhalte CHF 20 Rabatt.
                   </p>
                 </div>
@@ -358,7 +358,7 @@ export const WelcomeFlow = () => {
                     value={referralCode}
                     onChange={e => setReferralCode(e.target.value.toUpperCase())}
                     onKeyDown={e => e.key === 'Enter' && handleApplyReferral()}
-                    className="flex-1 h-11 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl px-4 text-sm focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 uppercase tracking-wider font-medium"
+                    className="flex-1 h-11 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-xl px-4 text-sm focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 uppercase tracking-wider font-medium"
                     disabled={referralLoading}
                   />
                   <Button
@@ -370,7 +370,7 @@ export const WelcomeFlow = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="mt-3 flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                <div className="mt-3 flex items-center gap-2 text-primary text-sm font-medium">
                   <CheckCircle className="w-4 h-4" />
                   <span>CHF 20 Rabatt aktiviert!</span>
                 </div>
@@ -391,7 +391,7 @@ export const WelcomeFlow = () => {
                 onClick={handleFamilyNow}
                 disabled={isLoading}
                 variant="ghost"
-                 className="w-full rounded-2xl py-4 h-auto text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                 className="w-full rounded-2xl py-4 h-auto text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
               >
                 {t.onboarding.familyHintNow}
               </Button>
@@ -410,7 +410,7 @@ export const WelcomeFlow = () => {
     return steps[currentStep].title;
   };
 
-  return <div className="min-h-screen w-full bg-white flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
+  return <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
       {/* Logo above card */}
       <motion.div className="mb-8 flex items-center justify-center" initial={{
       opacity: 0,
@@ -425,7 +425,7 @@ export const WelcomeFlow = () => {
       </motion.div>
 
       {/* Main Card Container */}
-      <motion.main className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5" initial={{
+      <motion.main className="w-full max-w-lg bg-white/70 backdrop-blur-2xl rounded-3xl shadow-xl shadow-black/5 overflow-hidden border border-white/60" initial={{
       opacity: 0,
       y: 20
     }} animate={{
@@ -436,7 +436,7 @@ export const WelcomeFlow = () => {
     }}>
         {/* Progress Bar */}
         <div className="flex gap-2 px-6 pt-6 sm:px-10 sm:pt-10">
-          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 bg-[#1D64FF] rounded-full transition-opacity duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-30'}`} />)}
+          {steps.map((_, index) => <div key={index} className={`h-1.5 flex-1 bg-primary rounded-full transition-opacity duration-300 ${index <= currentStep ? 'opacity-100' : 'opacity-30'}`} />)}
         </div>
 
         {/* Content */}
@@ -455,7 +455,7 @@ export const WelcomeFlow = () => {
             y: -10
           }} transition={{
             duration: 0.3
-          }} className="font-semibold tracking-tight text-slate-900 mb-10 leading-tight sm:text-2xl text-xl">
+          }} className="font-semibold tracking-tight text-foreground mb-10 leading-tight sm:text-2xl text-xl">
               {getStepTitle()}
             </motion.h1>
           </AnimatePresence>
@@ -484,7 +484,7 @@ export const WelcomeFlow = () => {
       <AnimatePresence>
         {showTransition && (
           <motion.div 
-            className="fixed inset-0 z-[51] bg-white flex items-center justify-center"
+            className="fixed inset-0 z-[51] bg-background flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
