@@ -443,34 +443,35 @@ const SimpleChatWindow = ({
                       className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
                       style={{ 
                         background: isBot 
-                          ? 'linear-gradient(to bottom right, #1D64FF, #0B2566)' 
-                          : 'linear-gradient(to bottom right, #059669, #047857)' 
+                          ? 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' 
+                          : 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' 
                       }}
                     >
                       {isBot ? (
                         <img src="/bot-avatar.png" alt="Bot" className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-4 h-4 text-white" />
+                        <User className="w-4 h-4 text-primary-foreground" />
                       )}
                     </div>
                   )}
 
                   <div className="flex flex-col gap-1">
                     {senderName && (
-                      <p className="text-xs font-medium text-slate-500 ml-1">{senderName}</p>
+                      <p className="text-xs font-medium text-muted-foreground ml-1">{senderName}</p>
                     )}
                     <div 
                       className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
                         !isOwnMessage 
-                          ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' 
-                          : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'
+                          ? 'bg-background border border-border/40 text-foreground shadow-sm' 
+                          : 'border border-white/10 text-primary-foreground shadow-md'
                       }`}
+                      style={isOwnMessage ? { background: 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' } : undefined}
                     >
-                      <p className={`whitespace-pre-wrap ${!isOwnMessage ? 'text-[#1d283a]' : 'text-white'}`}>
+                      <p className={`whitespace-pre-wrap ${!isOwnMessage ? 'text-foreground' : 'text-primary-foreground'}`}>
                         {message.content}
                       </p>
                     </div>
-                    <span className={`text-[10px] text-slate-400 font-medium ${!isOwnMessage ? 'ml-1' : 'mr-1'}`}>
+                    <span className={`text-[10px] text-muted-foreground font-medium ${!isOwnMessage ? 'ml-1' : 'mr-1'}`}>
                       {formatTime(message.created_at)}
                     </span>
                   </div>
