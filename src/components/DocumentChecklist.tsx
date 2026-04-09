@@ -650,7 +650,7 @@ return <div className="min-h-screen">
             onClick={() => setShowCompletionDialog(false)}
           />
           {/* Sheet */}
-          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 p-8 pb-10 max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
+          <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[2rem] shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom duration-400 p-6 sm:p-8 pb-10 mx-auto">
             {/* Handle */}
             <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-6" />
 
