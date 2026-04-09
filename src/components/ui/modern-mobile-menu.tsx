@@ -514,25 +514,25 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
     }} className="fixed left-4 right-4 bottom-4 z-[9999]">
           {/* Navbar with Fortsetzen Button Design */}
           <nav role="navigation" data-bottom-navbar style={navStyle} className="relative flex justify-center">
-            <div className="inline-flex items-center gap-1 rounded-full p-2 backdrop-blur-xl bg-slate-900/90 border border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+            <div className="inline-flex items-center gap-1.5 rounded-[22px] px-2.5 py-2 backdrop-blur-2xl border shadow-[0_-8px_30px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.25)]" style={{ background: 'rgba(15,23,42,0.78)', borderColor: 'rgba(255,255,255,0.1)' }}>
               {/* Home Button */}
               <motion.button onClick={() => navigate('/')} whileTap={{
-            scale: 0.95
-          }} className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/' ? 'text-white px-5 py-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 px-4 py-2.5'}`}>
+            scale: 0.9
+          }} className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/' ? 'text-white bg-white/[0.12] px-5 py-2.5' : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] px-4 py-2.5'}`}>
                 <CustomHomeIcon className="w-5 h-5" />
               </motion.button>
 
               {/* Documents Button */}
               <motion.button onClick={() => navigate('/documents')} whileTap={{
-            scale: 0.95
-          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all ${location.pathname === '/documents' ? 'text-white px-5 py-2.5' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 px-4 py-2.5'}`}>
+            scale: 0.9
+          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'text-white bg-white/[0.12] px-5 py-2.5' : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] px-4 py-2.5'}`}>
                 <CustomFolderIcon className="w-5 h-5" />
               </motion.button>
 
               {/* Menu Button */}
               <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{
-            scale: 0.95
-          }} className="flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-800/80 px-4 py-2.5 transition-all">
+            scale: 0.9
+          }} className="flex items-center justify-center rounded-full text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] px-4 py-2.5 transition-all duration-200">
                 <Menu className="w-5 h-5" strokeWidth={1.5} />
               </motion.button>
             </div>
