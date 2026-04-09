@@ -647,71 +647,67 @@ const UserTaxReturns = () => {
 
       {/* Bottom Navigation */}
       {createPortal(
-        <div className="fixed inset-x-0 bottom-0 z-[9999] pointer-events-none md:hidden">
-          {/* FAB - bottom right, above navbar */}
-          <div className="pointer-events-auto absolute right-5 bottom-[calc(env(safe-area-inset-bottom,0px)+68px)] z-10">
-            <button
-              data-tour="floating-document-button"
-              onClick={handleDocumentsClick}
-              className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-all duration-200 active:scale-[0.93]"
+        <div className="fixed inset-x-0 bottom-4 z-[9999] flex items-center justify-center px-5 pointer-events-none md:hidden">
+          <div className="pointer-events-auto flex items-center gap-3">
+            <nav
+              data-bottom-navbar
+              className="inline-flex items-center gap-1 rounded-full px-2 py-2"
               style={{
-                background: 'linear-gradient(180deg, hsl(222, 100%, 58%), hsl(222, 100%, 46%))',
-                boxShadow: '0 6px 20px -4px hsl(222, 100%, 50%, 0.45), 0 2px 6px hsl(222, 100%, 50%, 0.2)',
+                background: 'linear-gradient(180deg, hsl(228 24% 31% / 0.96) 0%, hsl(228 24% 27% / 0.98) 100%)',
+                border: '1px solid hsl(0 0% 100% / 0.08)',
+                boxShadow: '0 14px 34px -14px hsl(225 30% 12% / 0.45), 0 6px 16px -8px hsl(225 30% 12% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.08)',
+                backdropFilter: 'blur(18px) saturate(140%)'
               }}
-              aria-label="Dokumente"
             >
-              <Plus className="w-6 h-6" strokeWidth={2.2} />
-            </button>
-          </div>
-
-          {/* Navigation Bar */}
-          <nav
-            data-bottom-navbar
-            className="pointer-events-auto bg-white/95 border-t"
-            style={{
-              borderColor: 'rgba(0,0,0,0.06)',
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-            }}
-          >
-            <div className="flex items-center justify-around px-4 h-[56px]">
-              {/* Home */}
               <button
-                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
+                style={{
+                  color: 'hsl(0 0% 100%)',
+                  background: 'hsl(0 0% 100% / 0.10)',
+                  boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.08)'
+                }}
                 aria-label="Dashboard"
               >
-                <Home className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(222, 100%, 52%)' }} />
-                <span className="text-[10px] font-medium" style={{ color: 'hsl(222, 100%, 52%)' }}>Home</span>
+                <Home className="w-5 h-5" strokeWidth={1.8} />
               </button>
 
-              {/* Chat */}
               <button
                 data-tour="chat-header-icon"
                 onClick={() => navigate('/chat')}
-                className="relative flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                className="relative flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
                 aria-label="Chat"
               >
-                <Inbox className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(225, 12%, 62%)' }} />
-                <span className="text-[10px] font-medium" style={{ color: 'hsl(225, 12%, 62%)' }}>Chat</span>
+                <Inbox className="w-5 h-5" strokeWidth={1.8} />
                 {unreadCount > 0 && (
                   <span
-                    className="absolute top-0.5 left-1/2 ml-2 h-2 w-2 rounded-full bg-destructive"
-                    style={{ boxShadow: '0 0 0 2px white' }}
+                    className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"
+                    style={{ boxShadow: '0 0 0 2px hsl(228 24% 29%)' }}
                   />
                 )}
               </button>
 
-              {/* Menu */}
               <button
                 onClick={() => setMenuSheetOpen(true)}
-                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-1 transition-colors duration-200 active:scale-[0.95]"
+                className="flex h-12 w-12 items-center justify-center rounded-full text-white/60 transition-all duration-200 hover:text-white/80 active:scale-[0.96]"
                 aria-label="Menü"
               >
-                <Menu className="w-[22px] h-[22px]" strokeWidth={1.8} style={{ color: 'hsl(225, 12%, 62%)' }} />
-                <span className="text-[10px] font-medium" style={{ color: 'hsl(225, 12%, 62%)' }}>Menü</span>
+                <Menu className="w-5 h-5" strokeWidth={1.8} />
               </button>
-            </div>
-          </nav>
+            </nav>
+
+            <button
+              data-tour="floating-document-button"
+              onClick={handleDocumentsClick}
+              className="pointer-events-auto flex h-[52px] w-[52px] items-center justify-center rounded-full text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.96]"
+              style={{
+                background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
+                boxShadow: '0 12px 28px -10px hsl(222 100% 50% / 0.55), 0 6px 14px -8px hsl(222 100% 50% / 0.38), inset 0 1px 0 hsl(0 0% 100% / 0.24)'
+              }}
+              aria-label="Dokumente"
+            >
+              <Plus className="w-5 h-5" strokeWidth={2} />
+            </button>
+          </div>
         </div>,
         document.body
       )}
