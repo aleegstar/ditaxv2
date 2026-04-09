@@ -472,6 +472,7 @@ const AppRoutes = () => {
     <ErrorBoundary onError={handleAppError}>
       <SpaRedirector />
       <Suspense fallback={<LoadingSpinner fullScreen />}>
+        <PageTransition>
         <Routes>
           <Route path="/preisrechner" element={<PriceCalculator />} />
           <Route path="/auth" element={<Auth />} />
@@ -508,6 +509,7 @@ const AppRoutes = () => {
             }
           />
         </Routes>
+        </PageTransition>
       </Suspense>
     </ErrorBoundary>
   );
