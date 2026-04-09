@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, FileText, MessageSquare, ArrowRight } from 'lucide-react';
+import { AlertCircle, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 
 interface MissingItemsAlertProps {
