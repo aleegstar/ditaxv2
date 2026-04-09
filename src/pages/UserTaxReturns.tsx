@@ -540,7 +540,7 @@ const UserTaxReturns = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[1.5rem] p-6 md:p-7 cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.1)] active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                 boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
@@ -599,7 +599,7 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[1.5rem] p-6 md:p-7 cursor-pointer transition-all duration-300 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.1)] active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                 boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
