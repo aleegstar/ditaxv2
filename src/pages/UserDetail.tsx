@@ -53,7 +53,6 @@ interface TaxFiler {
   last_name: string;
   is_primary: boolean;
   relationship: string | null;
-  admin_notes: string | null;
 }
 
 interface CompletedTaxReturn {
