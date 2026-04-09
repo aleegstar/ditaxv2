@@ -523,8 +523,8 @@ const UserTabs: React.FC<UserTabsProps> = ({
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
-                          <FileText className="h-4 w-4 text-amber-600" strokeWidth={1.8} />
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-foreground">Steuererklärung {taxReturn.taxYear}</h4>

@@ -290,8 +290,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                 {/* Spouse - Full Width with Clear Separation */}
                 {contactInfo.maritalStatus === 'verheiratet' && (contactInfo.spouseFirstName || contactInfo.spouseLastName) && (
                   <div className="lg:col-span-2 mt-2">
-                    <div className="bg-rose-50/50 rounded-lg border border-rose-100/80 p-4">
-                      <h4 className="text-[11px] font-medium text-rose-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                    <div className="bg-primary/5 rounded-lg border border-primary/10 p-4">
+                      <h4 className="text-[11px] font-medium text-primary uppercase tracking-widest flex items-center gap-1.5 mb-3">
                         <Heart className="h-3 w-3" />
                         Ehepartner/in
                       </h4>
@@ -312,14 +312,14 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                 {/* Children - Full Width with Clear Separation */}
                 {contactInfo.hasChildren && contactInfo.children && contactInfo.children.length > 0 && (
                   <div className="lg:col-span-2 mt-2">
-                    <div className="bg-sky-50/50 rounded-lg border border-sky-100/80 p-4">
-                      <h4 className="text-[11px] font-medium text-sky-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                    <div className="bg-primary/5 rounded-lg border border-primary/10 p-4">
+                      <h4 className="text-[11px] font-medium text-primary uppercase tracking-widest flex items-center gap-1.5 mb-3">
                         <Baby className="h-3 w-3" />
                         Kinder ({contactInfo.children.length})
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {contactInfo.children.map((child, index) => (
-                          <div key={index} className="bg-white/60 rounded-md p-3 border border-sky-100/50">
+                          <div key={index} className="bg-white/60 rounded-md p-3 border border-primary/10">
                             <p className="text-sm font-medium">{child.firstName} {child.lastName}</p>
                             <div className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
                               <div className="flex justify-between">
@@ -392,7 +392,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
@@ -475,7 +475,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={bankStatementDocs.length > 0 ? 'default' : 'secondary'} className={bankStatementDocs.length > 0 ? 'bg-green-500/20 text-green-700' : ''}>
+                      <Badge variant={bankStatementDocs.length > 0 ? 'default' : 'secondary'} className={bankStatementDocs.length > 0 ? 'bg-primary/15 text-primary' : ''}>
                         {bankStatementDocs.length > 0 ? 'Ja' : 'Ausstehend'}
                       </Badge>
                     </TableCell>
@@ -521,7 +521,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
@@ -635,7 +635,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
