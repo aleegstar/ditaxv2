@@ -430,88 +430,88 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] p-7 md:p-8 overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
                 style={{
                   background: '#ffffff',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
                   border: '1px solid rgba(0,0,0,0.05)',
                 }}
               >
-
-                {/* Header */}
-                <div className="relative flex justify-between items-center mb-6">
-                  <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-muted-foreground/50">
-                    {t.userDashboard.taxReturn}
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground/40 hover:text-foreground hover:bg-muted/50 rounded-full">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={e => {
-                        e.stopPropagation();
-                        setYearToDelete(year);
-                        setDeleteDialogOpen(true);
-                      }} className="text-red-600 hover:text-red-700">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t.common.delete}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Year Title */}
-                <h2 className="relative text-[2rem] font-semibold tracking-tight text-foreground mb-1.5 leading-none">
-                  {year}
-                </h2>
-
-                {/* Progress text */}
-                <p className="relative text-sm text-muted-foreground/70 mb-6">
-                  {completedSteps === 0 
-                    ? 'Beginne damit deine Angaben zu erfassen.'
-                    : `${completedSteps} von ${steps.length} Schritten erledigt`
-                  }
-                </p>
-
-                {/* Minimal Progress Bar */}
-                <div className="relative flex gap-1.5 mb-7">
-                  {steps.map((step, i) => (
-                    <div 
-                      key={i} 
-                      className={cn(
-                        "flex-1 h-[3px] rounded-full transition-all duration-500",
-                        i < completedSteps 
-                          ? "bg-primary" 
-                          : "bg-foreground/[0.06]"
-                      )}
-                    />
-                  ))}
-                </div>
-
-                {/* Action Row */}
-                <div className="relative flex items-center justify-between">
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (nextStep) {
-                        navigate(getStepRoute(nextStepLabel));
-                      } else {
-                        navigate(`/form?year=${year}`);
-                      }
-                    }}
-                    className="flex items-center gap-2 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] hover:brightness-[1.04] active:scale-[0.98]"
-                  >
-                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                    <ChevronRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  </button>
-                  
-                  {nextStep && (
-                    <span className="text-xs text-muted-foreground/50 font-medium">
-                      Nächstes: {nextStepLabel}
+                {/* Content container with consistent 24px padding */}
+                <div className="p-6">
+                  {/* Group 1: Label + Menu */}
+                  <div className="relative flex justify-between items-center mb-4">
+                    <span className="text-xs font-medium text-muted-foreground/50">
+                      Steuererklärung
                     </span>
-                  )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground/30 hover:text-foreground hover:bg-muted/50 rounded-full -mr-1">
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={e => {
+                          e.stopPropagation();
+                          setYearToDelete(year);
+                          setDeleteDialogOpen(true);
+                        }} className="text-red-600 hover:text-red-700">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t.common.delete}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Group 2: Year (primary focus) + Description */}
+                  <h2 className="relative text-[2.5rem] font-bold tracking-tight text-foreground leading-none mb-2">
+                    {year}
+                  </h2>
+                  <p className="relative text-[0.8rem] text-muted-foreground/60 leading-relaxed mb-5">
+                    {completedSteps === 0 
+                      ? 'Beginne damit deine Angaben zu erfassen.'
+                      : `${completedSteps} von ${steps.length} Schritten erledigt`
+                    }
+                  </p>
+
+                  {/* Group 3: Progress Bar */}
+                  <div className="relative flex gap-1 mb-6">
+                    {steps.map((step, i) => (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "flex-1 h-[3px] rounded-full transition-all duration-500",
+                          i < completedSteps 
+                            ? "bg-primary" 
+                            : "bg-foreground/[0.06]"
+                        )}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Group 4: Actions — aligned baseline */}
+                  <div className="relative flex items-center justify-between">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (nextStep) {
+                          navigate(getStepRoute(nextStepLabel));
+                        } else {
+                          navigate(`/form?year=${year}`);
+                        }
+                      }}
+                      className="flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-[0.8rem] font-semibold transition-all duration-200 hover:scale-[1.02] hover:brightness-105 active:scale-[0.98] shadow-sm"
+                    >
+                      {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                      <ChevronRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                    </button>
+                    
+                    {nextStep && (
+                      <span className="text-[0.75rem] text-muted-foreground/40 font-medium">
+                        Nächstes: {nextStepLabel}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </motion.div>;
