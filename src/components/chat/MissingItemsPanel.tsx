@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  FileQuestion, 
   Send, 
   Loader2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  MessageSquare
 } from 'lucide-react';
 import { MissingItemCard } from './MissingItemCard';
 import { usePendingMissingItems, useMissingItemRequests, type MissingItemResponse } from '@/hooks/useMissingItemRequests';
@@ -28,22 +29,16 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
   const [localResponses, setLocalResponses] = useState<Record<string, Partial<MissingItemResponse>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset local responses when requests change
   useEffect(() => {
     setLocalResponses({});
   }, [pendingRequests]);
 
-  if (loading) {
-    return null;
-  }
-
-  if (pendingRequests.length === 0) {
+  if (loading || pendingRequests.length === 0) {
     return null;
   }
 
   const handleResponseAdded = (requestId: string, response: Partial<MissingItemResponse>) => {
     if (Object.keys(response).length === 0) {
-      // Remove response
       const newResponses = { ...localResponses };
       delete newResponses[requestId];
       setLocalResponses(newResponses);
@@ -68,7 +63,6 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
 
     setIsSubmitting(true);
     try {
-      // Save all responses to database
       for (const [requestId, response] of Object.entries(localResponses)) {
         if (response.response_type === 'text' && response.text_content) {
           await submitResponse(requestId, 'text', response.text_content);
@@ -81,12 +75,10 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
         }
       }
 
-      // Mark all requests as submitted
       const requestIds = pendingRequests.map(r => r.id);
       const success = await submitAllResponses(requestIds);
 
       if (success) {
-        // Send a chat message confirming submission
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from('chat_messages').insert({
@@ -113,45 +105,39 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
   const openCount = pendingRequests.length - answeredCount;
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-lg shadow-slate-200/50 ring-1 ring-slate-200 overflow-hidden">
-      {/* Header Section */}
-      <div className="p-6 pb-5 border-b border-slate-50 bg-white/50">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="flex gap-4">
-            {/* Icon Container */}
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100/50 flex items-center justify-center shadow-sm">
-                <FileQuestion className="w-6 h-6 text-amber-600 stroke-[1.5]" />
-              </div>
+    <div className="w-full rounded-[2rem] bg-card/70 backdrop-blur-2xl border border-border/40 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="p-5 pb-4 border-b border-border/30">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex gap-3.5 items-start">
+            <div className="flex-shrink-0 w-11 h-11 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] flex items-center justify-center shadow-md shadow-primary/20">
+              <AlertCircle className="w-5 h-5 text-primary-foreground stroke-[1.8]" />
             </div>
-            {/* Titles */}
-            <div className="space-y-0.5">
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">
-                Fehlende Unterlagen/Angaben
+            <div className="space-y-0.5 pt-0.5">
+              <h3 className="text-base font-semibold text-foreground tracking-tight">
+                Offene Anfragen
               </h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
+              <p className="text-sm text-muted-foreground">
                 Bitte beantworten Sie alle {pendingRequests.length} Anfrage(n)
               </p>
             </div>
           </div>
-
-          {/* Status Badge */}
-          <div className="flex-shrink-0">
-            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-white border border-amber-200 text-amber-700 shadow-sm">
-              {answeredCount}/{pendingRequests.length} beantwortet
-            </span>
-          </div>
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border/50">
+            {answeredCount}/{pendingRequests.length} beantwortet
+          </span>
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="p-6 pt-5 space-y-5">
+      {/* Content */}
+      <div className="p-5 space-y-5">
         {/* Document Requests */}
         {documentRequests.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5 text-slate-900">
-              <AlertCircle className="w-5 h-5 text-orange-500 stroke-[1.5]" />
-              <span className="text-base font-medium">Fehlende Unterlagen ({documentRequests.length})</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <FileText className="w-4.5 h-4.5 text-muted-foreground stroke-[1.8]" />
+              <span className="text-sm font-medium text-foreground">
+                Fehlende Unterlagen ({documentRequests.length})
+              </span>
             </div>
             {documentRequests.map(request => (
               <MissingItemCard
@@ -166,10 +152,12 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
 
         {/* Information Requests */}
         {informationRequests.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5 text-slate-900">
-              <AlertCircle className="w-5 h-5 text-blue-600 stroke-[1.5]" />
-              <span className="text-base font-medium">Fehlende Angaben ({informationRequests.length})</span>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <MessageSquare className="w-4.5 h-4.5 text-muted-foreground stroke-[1.8]" />
+              <span className="text-sm font-medium text-foreground">
+                Fehlende Angaben ({informationRequests.length})
+              </span>
             </div>
             {informationRequests.map(request => (
               <MissingItemCard
@@ -182,30 +170,27 @@ export const MissingItemsPanel: React.FC<MissingItemsPanelProps> = ({
           </div>
         )}
 
-        {/* Footer Status Bar */}
-        <div className="mt-6">
+        {/* Footer Action */}
+        <div className="pt-1">
           {allRequestsAnswered ? (
             <Button
               onClick={handleSubmitAll}
               disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 text-base font-medium shadow-lg shadow-blue-600/20 transition-all active:scale-[0.99]"
+              className="w-full rounded-full py-6 text-sm font-semibold bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-primary-foreground shadow-md shadow-primary/20 hover:scale-[1.01] hover:brightness-[1.04] transition-all"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Wird eingereicht...
                 </>
               ) : (
-                <>
-                  <Send className="h-5 w-5 mr-2" />
-                  Alle {pendingRequests.length} Angaben einreichen
-                </>
+                <>Alle {pendingRequests.length} Angaben einreichen</>
               )}
             </Button>
           ) : (
-            <div className="w-full bg-orange-400 rounded-xl py-4 px-6 flex items-center justify-center gap-3 text-white shadow-lg shadow-orange-500/20 border border-orange-300">
-              <Clock className="w-5 h-5 stroke-[1.5]" />
-              <span className="text-base font-medium tracking-wide">
+            <div className="w-full rounded-full py-4 px-6 flex items-center justify-center gap-2.5 bg-muted text-muted-foreground border border-border/50">
+              <Clock className="w-4 h-4 stroke-[1.8]" />
+              <span className="text-sm font-medium">
                 {openCount} Anfrage(n) noch offen
               </span>
             </div>
