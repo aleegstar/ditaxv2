@@ -328,8 +328,11 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
         <Button 
           onClick={() => setUploadDialogOpen(true)}
           size="sm"
-          className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 py-2 font-medium border-0 transition-colors duration-200 gap-2"
-          style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+          className="text-primary-foreground rounded-full px-5 py-2 font-medium border-0 transition-all duration-200 gap-2 hover:scale-[1.02] hover:brightness-[1.04]"
+          style={{ 
+            background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
+            boxShadow: 'none'
+          }}
         >
           <Upload className="h-4 w-4" />
           Hochladen
