@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { FormProvider, useFormContext } from '../contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
@@ -149,7 +150,17 @@ const IndexContent = () => {
 
   return (
     <AnimatedPageContainer className="min-h-screen">
-      {renderContent()}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={section || 'dashboard'}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          {renderContent()}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Import wizard overlay - renders as bottom sheet over the form */}
       {showImportWizard && section && sectionKeyMap[section] && (
