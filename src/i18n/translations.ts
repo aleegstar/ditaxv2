@@ -2599,8 +2599,8 @@ export const translations: Record<'de' | 'en', Translation> = {
 
     // Auth
     authFlow: {
-      login: 'Weiter zu Ditax',
-      loginSubtitle: 'Melde dich an oder erstelle automatisch ein Konto.',
+      login: 'Anmelden',
+      loginSubtitle: 'Kein Konto? Wir erstellen automatisch eins für dich.',
       emailLabel: 'Email:',
       emailPlaceholder: 'E-Mail-Adresse',
       sendCode: 'Login-Code senden',
@@ -2627,13 +2627,13 @@ export const translations: Record<'de' | 'en', Translation> = {
       sendError: 'Fehler beim Senden',
       invalidCode: 'Ungültiger Code',
       passkeyError: 'Fehler bei Fingerprint-Anmeldung',
-      microcopy: 'Kein Konto erforderlich – wird automatisch erstellt.',
+      microcopy: 'Wir senden dir einen einmaligen Code per E-Mail. Kein Passwort. Kein Spam.',
       or: 'Oder',
-      continueWithGoogle: 'Fortfahren mit Google',
-      continueWithApple: 'Fortfahren mit Apple',
+      continueWithGoogle: 'Weiter mit Google',
+      continueWithApple: 'Weiter mit Apple',
       noCodeReceived: 'Keinen Code erhalten?',
       resend: 'Erneut senden',
-      backToLogin: 'Zurück',
+      backToLogin: 'Zurück zum Login',
       codeVerificationError: 'Fehler bei der Code-Verifikation',
     },
 
@@ -4035,8 +4035,8 @@ export const translations: Record<'de' | 'en', Translation> = {
 
     // Auth
     authFlow: {
-      login: 'Continue to Ditax',
-      loginSubtitle: 'Sign in or create an account automatically.',
+      login: 'Sign In',
+      loginSubtitle: "No account? We'll create one automatically for you.",
       emailLabel: 'Email:',
       emailPlaceholder: 'Email address',
       sendCode: 'Send Login Code',
@@ -4063,13 +4063,13 @@ export const translations: Record<'de' | 'en', Translation> = {
       sendError: 'Error sending code',
       invalidCode: 'Invalid code',
       passkeyError: 'Fingerprint login error',
-      microcopy: "No account needed — one will be created automatically.",
+      microcopy: "We'll send you a one-time code via email. No password. No spam.",
       or: 'Or',
       continueWithGoogle: 'Continue with Google',
       continueWithApple: 'Continue with Apple',
       noCodeReceived: "Didn't receive a code?",
       resend: 'Resend',
-      backToLogin: 'Back',
+      backToLogin: 'Back to login',
       codeVerificationError: 'Code verification error',
     },
 

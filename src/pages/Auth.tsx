@@ -540,7 +540,7 @@ const Auth = () => {
                       {t.authFlow.login}
                     </h1>
                     <p className="text-[15px] text-muted-foreground/60 font-light leading-relaxed tracking-wide">
-                      {t.authFlow.loginSubtitle}
+                      Steuern einfach automatisieren.
                     </p>
                   </div>
 
