@@ -647,13 +647,9 @@ const Auth = () => {
                             <motion.button
                               type="submit"
                               disabled={isLoading}
-                              whileHover={{ y: -1, boxShadow: '0 4px 16px hsla(222,100%,56%,0.35), inset 0 1px 0 rgba(255,255,255,0.2)' }}
-                              whileTap={{ scale: 0.97 }}
-                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white"
-                              style={{
-                                background: 'linear-gradient(145deg, hsl(222,100%,62%) 0%, hsl(222,100%,50%) 100%)',
-                                boxShadow: '0 2px 10px hsla(222,100%,56%,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
-                              }}
+                              whileHover={{ scale: 1.02, filter: 'brightness(1.04)' }}
+                              whileTap={{ scale: 0.98 }}
+                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-full text-sm font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)]"
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </motion.button>
