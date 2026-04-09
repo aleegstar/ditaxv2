@@ -251,7 +251,7 @@ export const EnhancedLoginFlow: React.FC = () => {
 
   if (step === 'consent') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <ConsentStep 
           onConsentComplete={handleConsentComplete}
           userEmail={email}
