@@ -187,6 +187,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "asset_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       chat_attachments: {
@@ -256,6 +263,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "chat_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       chat_messages: {
@@ -310,10 +324,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chat_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chat_messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -355,6 +383,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_quick_replies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -420,10 +455,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "completed_tax_returns_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "completed_tax_returns_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completed_tax_returns_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -456,6 +505,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deduction_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -521,6 +577,13 @@ export type Database = {
             columns: ["tax_filer_id"]
             isOneToOne: false
             referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "definitive_tax_bills_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -678,10 +741,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "form_chat_history_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "form_chat_history_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_chat_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -741,10 +818,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "form_data_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "form_data_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -789,10 +880,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "form_progress_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "form_progress_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -825,6 +930,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "income_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -884,10 +996,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "missing_item_requests_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "missing_item_requests_tax_filer_id_fkey"
             columns: ["tax_filer_id"]
             isOneToOne: false
             referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_requests_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
             referencedColumns: ["id"]
           },
           {
@@ -902,6 +1028,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -953,6 +1086,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missing_item_responses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1123,6 +1263,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1472,6 +1619,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tax_filers: {
@@ -1523,6 +1677,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1600,6 +1761,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tax_return_signatures_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tax_returns: {
@@ -1666,10 +1834,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "tax_returns_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tax_returns_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_returns_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1730,6 +1912,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ticket_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ticket_messages: {
@@ -1766,6 +1955,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
           {
@@ -1835,10 +2031,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "uploaded_documents_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "uploaded_documents_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "uploaded_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1885,6 +2095,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_consents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_encryption_keys: {
@@ -1921,6 +2138,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_encryption_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2033,6 +2257,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_passkeys: {
@@ -2077,6 +2308,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_passkeys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -2104,6 +2342,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
             referencedColumns: ["id"]
           },
         ]
@@ -2144,11 +2389,218 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      definitive_tax_bills_user_view: {
+        Row: {
+          admin_review_date: string | null
+          admin_reviewed_by: string | null
+          created_at: string | null
+          file_name: string | null
+          file_path: string | null
+          file_type: string | null
+          id: string | null
+          status: string | null
+          tax_filer_id: string | null
+          tax_year: string | null
+          updated_at: string | null
+          upload_date: string | null
+          uploaded_by_admin_id: string | null
+          uploaded_by_user_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_review_date?: string | null
+          admin_reviewed_by?: string | null
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_type?: string | null
+          id?: string | null
+          status?: string | null
+          tax_filer_id?: string | null
+          tax_year?: string | null
+          updated_at?: string | null
+          upload_date?: string | null
+          uploaded_by_admin_id?: string | null
+          uploaded_by_user_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_review_date?: string | null
+          admin_reviewed_by?: string | null
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_type?: string | null
+          id?: string | null
+          status?: string | null
+          tax_filer_id?: string | null
+          tax_year?: string | null
+          updated_at?: string | null
+          upload_date?: string | null
+          uploaded_by_admin_id?: string | null
+          uploaded_by_user_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "definitive_tax_bills_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "definitive_tax_bills_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_user_view: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          date_of_birth: string | null
+          disable_otp_fallback: boolean | null
+          documents_tour_completed: boolean | null
+          email: string | null
+          feedback_prompt_shown_at: string | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+          marketing_consent_at: string | null
+          mfa_enabled: boolean | null
+          mfa_setup_dismissed_at: string | null
+          mfa_setup_offered_at: string | null
+          mfa_setup_reminder_count: number | null
+          onboarding_tour_completed: boolean | null
+          onboarding_tour_completed_at: string | null
+          phone: string | null
+          privacy_preferences: Json | null
+          terms_accepted_at: string | null
+          terms_version: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          date_of_birth?: string | null
+          disable_otp_fallback?: boolean | null
+          documents_tour_completed?: boolean | null
+          email?: string | null
+          feedback_prompt_shown_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          marketing_consent_at?: string | null
+          mfa_enabled?: boolean | null
+          mfa_setup_dismissed_at?: string | null
+          mfa_setup_offered_at?: string | null
+          mfa_setup_reminder_count?: number | null
+          onboarding_tour_completed?: boolean | null
+          onboarding_tour_completed_at?: string | null
+          phone?: string | null
+          privacy_preferences?: Json | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          date_of_birth?: string | null
+          disable_otp_fallback?: boolean | null
+          documents_tour_completed?: boolean | null
+          email?: string | null
+          feedback_prompt_shown_at?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          marketing_consent_at?: string | null
+          mfa_enabled?: boolean | null
+          mfa_setup_dismissed_at?: string | null
+          mfa_setup_offered_at?: string | null
+          mfa_setup_reminder_count?: number | null
+          onboarding_tour_completed?: boolean | null
+          onboarding_tour_completed_at?: string | null
+          phone?: string | null
+          privacy_preferences?: Json | null
+          terms_accepted_at?: string | null
+          terms_version?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      tax_filers_user_view: {
+        Row: {
+          ahv_number: string | null
+          avatar_url: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          first_name: string | null
+          id: string | null
+          is_primary: boolean | null
+          last_name: string | null
+          relationship: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ahv_number?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_primary?: boolean | null
+          last_name?: string | null
+          relationship?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ahv_number?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name?: string | null
+          id?: string | null
+          is_primary?: boolean | null
+          last_name?: string | null
+          relationship?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_filers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_filers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_user_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       apply_data_retention_policies: { Args: never; Returns: string }
@@ -2295,6 +2747,14 @@ export type Database = {
           p_resource?: string
           p_success?: boolean
           p_user_agent?: string
+        }
+        Returns: string
+      }
+      mask_admin_notes: {
+        Args: {
+          p_admin_notes: string
+          p_record_owner_id: string
+          p_table_name: string
         }
         Returns: string
       }
