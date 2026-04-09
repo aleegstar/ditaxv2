@@ -1097,6 +1097,83 @@ export type Database = {
           },
         ]
       }
+      newsletter_campaigns: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          recipient_count: number | null
+          sent_at: string | null
+          sent_by: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          sent_by: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          sent_by?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_send_log: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          email: string
+          error_message: string | null
+          id: string
+          sent_at: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          email: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          email?: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_send_log_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "newsletter_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ocr_document_configs: {
         Row: {
           confidence: string
