@@ -480,18 +480,24 @@ const Auth = () => {
 
       {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary glow - behind card */}
+        {/* Primary glow - behind card, larger and warmer */}
         <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[700px] h-[700px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsla(222,70%,65%,0.08) 0%, hsla(250,50%,65%,0.04) 40%, transparent 70%)' }}
-          animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] w-[800px] h-[800px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsla(222,65%,68%,0.1) 0%, hsla(245,45%,65%,0.05) 35%, transparent 65%)' }}
+          animate={{ scale: [1, 1.04, 1], opacity: [0.85, 1, 0.85] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
-        {/* Secondary accent */}
-        <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full opacity-[0.04]" style={{ background: 'radial-gradient(circle, hsl(260,60%,60%) 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.03]" style={{ background: 'radial-gradient(circle, hsl(200,70%,60%) 0%, transparent 70%)' }} />
-        {/* Subtle grain texture */}
-        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
+        {/* Branded accent orb - top right */}
+        <motion.div 
+          className="absolute -top-16 -right-16 w-[350px] h-[350px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsla(250,55%,62%,0.06) 0%, transparent 65%)' }}
+          animate={{ x: [0, 8, 0], y: [0, -6, 0] }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Bottom left accent */}
+        <div className="absolute -bottom-28 -left-28 w-[450px] h-[450px] rounded-full" style={{ background: 'radial-gradient(circle, hsla(200,60%,62%,0.04) 0%, transparent 65%)' }} />
+        {/* Grain texture */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
       </div>
 
       {/* Main Container */}
@@ -502,15 +508,19 @@ const Auth = () => {
           initial={{ opacity: 0, y: 28, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          whileHover={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 30px 90px -12px rgba(0,0,0,0.12), 0 10px 30px -8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6)' }}
           className="w-full sm:max-w-[440px] min-h-screen sm:min-h-0 px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
           style={{
-            background: 'linear-gradient(165deg, rgba(255,255,255,0.88) 0%, rgba(250,251,255,0.78) 50%, rgba(245,247,252,0.72) 100%)',
+            background: 'linear-gradient(165deg, rgba(255,255,255,0.9) 0%, rgba(250,251,255,0.8) 50%, rgba(246,248,253,0.74) 100%)',
             backdropFilter: 'blur(40px) saturate(200%)',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 0 0 1px rgba(0,0,0,0.02), 0 25px 80px -12px rgba(0,0,0,0.1), 0 8px 24px -8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 25px 80px -12px rgba(0,0,0,0.1), 0 8px 24px -8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)',
+            transition: 'box-shadow 0.4s ease',
           }}
         >
-          {/* Inner top highlight */}
-          <div className="absolute inset-x-0 top-0 h-[120px] rounded-t-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)' }} />
+          {/* Inner top highlight - more refined */}
+          <div className="absolute inset-x-0 top-0 h-[100px] rounded-t-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 60%, transparent 100%)' }} />
+          {/* Side edge highlights */}
+          <div className="absolute inset-y-0 left-0 w-px pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)' }} />
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
