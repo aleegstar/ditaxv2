@@ -341,11 +341,11 @@ const UserTabs: React.FC<UserTabsProps> = ({
               <CardContent className="px-0 pb-0">
                 {documentsForSelectedYear.length === 0 ? (
                   <div className="text-center py-10">
-                    <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FolderOpen className="h-7 w-7 text-muted-foreground/60" />
+                    <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                      <FolderOpen className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
                     </div>
-                    <p className="text-muted-foreground font-medium">Keine Dokumente hochgeladen</p>
-                    <p className="text-sm text-muted-foreground/70 mt-1">
+                    <p className="text-sm font-medium text-muted-foreground">Keine Dokumente hochgeladen</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
                       Für das Steuerjahr {selectedYear} wurden noch keine Unterlagen eingereicht
                     </p>
                   </div>
