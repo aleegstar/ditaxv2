@@ -542,10 +542,10 @@ const UserTabs: React.FC<UserTabsProps> = ({
             )}
 
             {/* Completed Returns Section - filtered by year AND tax_filer_id */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-slate-900">Fertige Steuererklärungen</h3>
-                <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-foreground">Fertige Steuererklärungen</h3>
+                <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
                   {completedTaxReturns.filter(ctr => {
                     const yearMatch = String(ctr.tax_year) === String(selectedYear);
                     const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
