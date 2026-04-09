@@ -65,7 +65,7 @@ const Tickets = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-transparent">
         <SubpageHeader 
           title="Meine Support-Tickets"
           onBack={() => navigate(-1)}
@@ -78,7 +78,7 @@ const Tickets = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-transparent">
       <SubpageHeader 
         title="Meine Support-Tickets"
         onBack={() => navigate(-1)}
@@ -97,7 +97,7 @@ const Tickets = () => {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-800">Deine Tickets</h2>
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="bg-white border border-slate-200 hover:border-slate-300 transition-colors">
+              <Card key={ticket.id} className="bg-transparent border border-slate-200 hover:border-slate-300 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-medium text-slate-800 truncate">{ticket.title}</h3>

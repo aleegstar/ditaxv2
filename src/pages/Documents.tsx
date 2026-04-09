@@ -441,7 +441,7 @@ const DocumentsContent: React.FC<{
 
   // Show uploader view (light theme)
   if (showUploader || hasFilesInUploader) {
-    return <div className="min-h-screen bg-white text-slate-800 antialiased overflow-x-hidden">
+    return <div className="min-h-screen bg-transparent text-slate-800 antialiased overflow-x-hidden">
         <div className="min-h-screen flex flex-col w-full relative">
           
           {/* Header */}
@@ -451,7 +451,7 @@ const DocumentsContent: React.FC<{
               setShowUploader(false);
               setHasFilesInUploader(false);
               setSelectedFiles([]);
-            }} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors active:scale-95">
+            }} className="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 bg-transparent hover:bg-slate-50 transition-colors active:scale-95">
                 <ArrowLeft className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
               </button>
 
@@ -493,7 +493,7 @@ const DocumentsContent: React.FC<{
 
                 {isYearDropdownOpen && <>
                   <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[200] bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[200] bg-transparent rounded-xl shadow-lg border border-zinc-200 overflow-hidden min-w-[140px]">
                     <div className="max-h-64 overflow-y-auto py-1">
                       {availableYears.map(year => (
                         <button 
@@ -534,7 +534,7 @@ const DocumentsContent: React.FC<{
               <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-zinc-400 group-focus-within:text-blue-500 transition-colors" strokeWidth={1.5} />
               </div>
-              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-14 py-5 bg-white hover:bg-white border border-zinc-200 rounded-3xl text-lg font-normal text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-300 shadow-sm" />
+              <input type="text" placeholder={t.documentsPage.search} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-14 py-5 bg-transparent hover:bg-transparent border border-zinc-200 rounded-3xl text-lg font-normal text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all duration-300 shadow-sm" />
               <div className="absolute inset-y-0 right-0 pr-5 flex items-center gap-1">
                 {searchQuery && <button onClick={() => setSearchQuery('')} className="p-2 rounded-xl hover:bg-zinc-200/50 transition-colors">
                     <X className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
@@ -548,7 +548,7 @@ const DocumentsContent: React.FC<{
             {/* Sort Dropdown */}
             {showSortDropdown && <>
               <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-              <div className="absolute top-full right-0 mt-2 z-[60] bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
+              <div className="absolute top-full right-0 mt-2 z-[60] bg-transparent rounded-xl shadow-xl border border-zinc-200 overflow-hidden min-w-[200px]">
                 <div className="py-1">
                   {sortOptions.map(option => <button key={option.value} onClick={() => {
                   setSortBy(option.value);
@@ -576,7 +576,7 @@ const DocumentsContent: React.FC<{
               return <button key={doc.id} onClick={() => {
                 setSelectedDocument(doc);
                 setShowActionSheet(true);
-              }} className="group relative flex flex-col bg-white p-4 rounded-[2rem] text-left transition-all duration-500 cursor-pointer border border-white hover:border-blue-100 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
+              }} className="group relative flex flex-col bg-transparent p-4 rounded-[2rem] text-left transition-all duration-500 cursor-pointer border border-white hover:border-blue-100 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
                       {/* Thumbnail Area */}
                       <div className="aspect-square w-full rounded-[1.5rem] overflow-hidden bg-zinc-100 mb-5 shadow-inner">
                         {isImage ? <DocumentThumbnail doc={doc} /> : <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-200 relative overflow-hidden">

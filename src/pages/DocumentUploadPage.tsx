@@ -234,7 +234,7 @@ const DocumentUploadPageContent: React.FC = () => {
   };
   // Show loading state while waiting for form data or processing
   if (isLoading || isDataLoading || !formDataLoaded) {
-    return <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
+    return <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-6">
           <Sphere size="medium" />
         </div>
@@ -249,7 +249,7 @@ const DocumentUploadPageContent: React.FC = () => {
 
   // Show error state only if item really not found after loading is complete
   if (!selectedItem) {
-    return <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
+    return <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
         <div className="mb-6">
           <Sphere size="medium" />
         </div>
@@ -264,7 +264,7 @@ const DocumentUploadPageContent: React.FC = () => {
         </Button>
       </div>;
   }
-  return <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-transparent">
       <SubpageHeader title={selectedItem.title} onBack={handleBack} />
       
       <div className="flex flex-col items-center p-4 pb-24 md:pb-6">
@@ -277,7 +277,7 @@ const DocumentUploadPageContent: React.FC = () => {
         </div>
 
         {/* Upload card */}
-        <div className="w-full max-w-3xl rounded-[24px] overflow-hidden bg-white border-slate-200 p-0 border-0">
+        <div className="w-full max-w-3xl rounded-[24px] overflow-hidden bg-transparent border-slate-200 p-0 border-0">
           <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>

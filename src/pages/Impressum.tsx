@@ -39,7 +39,7 @@ Schweiz</p>
 <p><em>Stand: Januar 2025</em></p>`;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-transparent">
       <SubpageHeader 
         title="Impressum" 
         onBack={() => navigate(-1)} 

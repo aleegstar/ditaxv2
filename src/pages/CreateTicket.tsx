@@ -173,14 +173,14 @@ const CreateTicket = () => {
 
   if (isCheckingSignature) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-transparent">
         <Loader2 className="h-8 w-8 animate-spin text-[#1D64FF]" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white text-slate-700 min-h-screen relative overflow-x-hidden">
+    <div className="bg-transparent text-slate-700 min-h-screen relative overflow-x-hidden">
       <SubpageHeader 
         title="Neues Ticket erstellen" 
         onBack={() => navigate(-1)} 
@@ -245,7 +245,7 @@ const CreateTicket = () => {
               className="flex items-center justify-between w-full px-4 py-4 border border-dashed border-slate-300 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 hover:border-slate-400 transition-all group"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2.5 bg-white rounded-md group-hover:bg-slate-50 transition-colors border border-slate-200">
+                <div className="p-2.5 bg-transparent rounded-md group-hover:bg-slate-50 transition-colors border border-slate-200">
                   <Paperclip className="w-5 h-5 text-slate-500 stroke-[1.5]" />
                 </div>
                 <div className="flex flex-col">

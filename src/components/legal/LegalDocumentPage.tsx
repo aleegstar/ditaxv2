@@ -86,7 +86,7 @@ const LegalDocumentPage: React.FC<LegalDocumentPageProps> = ({
   // White background mode (legacy)
   if (useWhiteBackground) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-transparent">
         <div className="container mx-auto px-4 py-8">
           {title && (
             <div className="flex flex-col space-y-4 mb-6">
@@ -94,8 +94,8 @@ const LegalDocumentPage: React.FC<LegalDocumentPageProps> = ({
             </div>
           )}
 
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-8 bg-white">
+          <Card className="bg-transparent border border-gray-200">
+            <CardContent className="p-8 bg-transparent">
               {staticContent ? (
                 <div className="prose prose-gray max-w-none">
                   <div 

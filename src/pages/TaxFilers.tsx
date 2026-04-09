@@ -119,7 +119,7 @@ const TaxFilers: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-transparent pb-20">
       <SubpageHeader 
         title={t.taxFilers?.pageTitle || 'Personen verwalten'} 
         onBack={() => navigate(-1)}
@@ -226,7 +226,7 @@ const TaxFilers: React.FC = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden bg-white">
+        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden bg-transparent">
           {/* Custom Close Button */}
           <DialogClose className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10">
             <X className="h-4 w-4 text-slate-500" />
@@ -340,7 +340,7 @@ const TaxFilers: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmFiler} onOpenChange={() => setDeleteConfirmFiler(null)}>
-        <AlertDialogContent className="border-0 shadow-xl rounded-2xl bg-white">
+        <AlertDialogContent className="border-0 shadow-xl rounded-2xl bg-transparent">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-semibold text-foreground">
               {t.taxFilers?.deleteTitle || 'Person löschen?'}
