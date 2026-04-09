@@ -406,14 +406,14 @@ const SimpleChatWindow = ({
       </div>
 
       {/* Messages Area */}
-      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
+      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-slate-500">
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
             <div className="text-center">
-              <p className="text-slate-500 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Noch keine Nachrichten
               </p>
-              <p className="text-slate-400 text-sm mt-1">
+              <p className="text-muted-foreground/60 text-sm mt-1">
                 Schreiben Sie die erste Nachricht!
               </p>
             </div>
