@@ -347,26 +347,26 @@ const SimpleChatWindow = ({
 
   if (!isValid) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
-        <p className="text-slate-500">Bitte melden Sie sich an, um den Chat zu nutzen</p>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Bitte melden Sie sich an, um den Chat zu nutzen</p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
-        <p className="text-slate-500">Nachrichten werden geladen...</p>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Nachrichten werden geladen...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-red-500 mb-2">Fehler beim Laden des Chats</p>
-          <p className="text-slate-400 text-sm">{error}</p>
+          <p className="text-destructive mb-2">Fehler beim Laden des Chats</p>
+          <p className="text-muted-foreground text-sm">{error}</p>
         </div>
       </div>
     );
