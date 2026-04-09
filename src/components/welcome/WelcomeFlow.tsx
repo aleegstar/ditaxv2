@@ -231,7 +231,7 @@ export const WelcomeFlow = () => {
         return <div className="w-full space-y-5">
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 w-full space-y-5 border border-white/60">
               <label className="flex items-start gap-4 cursor-pointer group">
-                <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-[#1D64FF]" />
+                <Checkbox checked={termsAccepted} onCheckedChange={checked => setTermsAccepted(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
                 <div className="flex-1 text-muted-foreground text-sm leading-relaxed text-left">
                   {t.onboarding.termsAccept}{' '}
                   <Link to="/privacy" target="_blank" className="underline hover:text-primary transition-colors font-medium text-primary">
@@ -246,7 +246,7 @@ export const WelcomeFlow = () => {
 
               <div className="pt-4 border-t border-border/40">
                 <label className="flex items-start gap-4 cursor-pointer group">
-                  <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-[#1D64FF]" />
+                  <Checkbox checked={marketingConsent} onCheckedChange={checked => setMarketingConsent(checked as boolean)} className="mt-1 h-6 w-6 flex-shrink-0 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
                   <div className="flex-1 text-muted-foreground leading-relaxed text-left">
                     <div className="font-medium mb-1 text-sm text-foreground">
                       {t.onboarding.newsletterTitle}
