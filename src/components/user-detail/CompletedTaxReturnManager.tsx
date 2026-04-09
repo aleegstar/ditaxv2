@@ -328,8 +328,11 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
         <Button 
           onClick={() => setUploadDialogOpen(true)}
           size="sm"
-          className="bg-[#1d64ff] hover:bg-[#1d64ff]/90 text-white rounded-full px-5 py-2 font-medium border-0 transition-colors duration-200 gap-2"
-          style={{ boxShadow: 'rgba(29, 100, 255, 0.2) 0px 3px 10px 0px' }}
+          className="text-primary-foreground rounded-full px-5 py-2 font-medium border-0 transition-all duration-200 gap-2 hover:scale-[1.02] hover:brightness-[1.04]"
+          style={{ 
+            background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
+            boxShadow: 'none'
+          }}
         >
           <Upload className="h-4 w-4" />
           Hochladen
@@ -338,32 +341,32 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
       
       {/* Documents list */}
       {completedTaxReturns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <FileText className="h-8 w-8 text-slate-400" />
+        <div className="flex flex-col items-center justify-center py-12 bg-muted/20 rounded-[2rem] border border-dashed border-border/40">
+          <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+            <FileText className="h-8 w-8 text-muted-foreground/50" />
           </div>
-          <p className="text-slate-500 font-medium">Keine fertigen Steuererklärungen</p>
-          <p className="text-slate-400 text-sm mt-1">Laden Sie eine Steuererklärung hoch</p>
+          <p className="text-muted-foreground font-medium">Keine fertigen Steuererklärungen</p>
+          <p className="text-muted-foreground/60 text-sm mt-1">Laden Sie eine Steuererklärung hoch</p>
         </div>
       ) : (
         <div className="space-y-3">
           {completedTaxReturns.map(taxReturn => (
             <div 
               key={taxReturn.id} 
-              className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all group"
+              className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200/50">
-                  <FileText className="h-6 w-6 text-blue-600" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900">
+                  <h4 className="font-semibold text-foreground">
                     Steuererklärung {taxReturn.tax_year}
                   </h4>
-                  <p className="text-sm text-slate-500 truncate max-w-[300px]">
+                  <p className="text-sm text-muted-foreground truncate max-w-[300px]">
                     {taxReturn.file_name}
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-muted-foreground/60 mt-0.5">
                     Hochgeladen am {new Date(taxReturn.upload_date).toLocaleDateString('de-DE')}
                   </p>
                 </div>
@@ -373,7 +376,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                   size="sm"
                   variant="ghost"
                   onClick={() => handleDownload(taxReturn)}
-                  className="h-9 w-9 p-0 rounded-lg hover:bg-blue-50 text-slate-500 hover:text-blue-600"
+                  className="h-9 w-9 p-0 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary"
                 >
                   <Download className="h-4 w-4" />
                 </Button>
@@ -382,7 +385,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-9 w-9 p-0 rounded-lg hover:bg-red-50 text-slate-500 hover:text-red-600"
+                      className="h-9 w-9 p-0 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -390,7 +393,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
                   <UnifiedAlertDialogContent showCloseButton>
                     <UnifiedAlertDialogHeader>
                       <UnifiedAlertDialogIcon variant="delete">
-                        <Trash2 className="w-8 h-8 text-red-500" />
+                        <Trash2 className="w-8 h-8 text-destructive" />
                       </UnifiedAlertDialogIcon>
                       <UnifiedAlertDialogTitle>Steuererklärung löschen</UnifiedAlertDialogTitle>
                       <UnifiedAlertDialogDescription>
@@ -423,7 +426,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="tax-year" className="text-right text-gray-900">
+              <Label htmlFor="tax-year" className="text-right text-foreground">
                 Steuerjahr
               </Label>
               <Input
@@ -437,7 +440,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="file" className="text-right text-gray-900">
+              <Label htmlFor="file" className="text-right text-foreground">
                 PDF-Datei
               </Label>
               <Input
@@ -449,7 +452,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
               />
             </div>
             {selectedFile && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Ausgewählte Datei: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
               </div>
             )}

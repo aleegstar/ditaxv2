@@ -347,26 +347,26 @@ const SimpleChatWindow = ({
 
   if (!isValid) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
-        <p className="text-slate-500">Bitte melden Sie sich an, um den Chat zu nutzen</p>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Bitte melden Sie sich an, um den Chat zu nutzen</p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
-        <p className="text-slate-500">Nachrichten werden geladen...</p>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Nachrichten werden geladen...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full bg-white">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-red-500 mb-2">Fehler beim Laden des Chats</p>
-          <p className="text-slate-400 text-sm">{error}</p>
+          <p className="text-destructive mb-2">Fehler beim Laden des Chats</p>
+          <p className="text-muted-foreground text-sm">{error}</p>
         </div>
       </div>
     );
@@ -379,20 +379,20 @@ const SimpleChatWindow = ({
     : 'Benutzer';
 
   return (
-    <div className="flex flex-col h-full bg-white relative overflow-hidden">
+    <div className="flex flex-col h-full relative overflow-hidden">
       {/* Header */}
-      <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b border-slate-100 bg-white shrink-0">
+      <div className="z-20 w-full px-4 sm:px-6 pt-4 sm:pt-6 pb-4 flex items-center gap-3 sm:gap-4 border-b border-border/40 shrink-0">
         <div className="flex items-center gap-3">
           {/* User Avatar */}
           <div 
             className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden"
-            style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+            style={{ background: 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' }}
           >
-            <User className="w-5 h-5 text-white" />
+            <User className="w-5 h-5 text-primary-foreground" />
           </div>
 
           <div className="flex flex-col">
-            <h1 className="font-semibold text-base tracking-tight text-slate-800 leading-tight">
+            <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight">
               {selectedUserName}
             </h1>
             <div className="flex items-center gap-1.5">
@@ -406,14 +406,14 @@ const SimpleChatWindow = ({
       </div>
 
       {/* Messages Area */}
-      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth bg-white">
+      <div className="z-10 flex-1 overflow-y-auto px-4 py-6 space-y-4 scroll-smooth">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-slate-500">
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
             <div className="text-center">
-              <p className="text-slate-500 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Noch keine Nachrichten
               </p>
-              <p className="text-slate-400 text-sm mt-1">
+              <p className="text-muted-foreground/60 text-sm mt-1">
                 Schreiben Sie die erste Nachricht!
               </p>
             </div>
@@ -422,7 +422,7 @@ const SimpleChatWindow = ({
           <div className="max-w-2xl mx-auto space-y-4">
             {/* Time Divider */}
             <div className="flex justify-center mb-4">
-              <span className="text-[10px] font-medium text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
+              <span className="text-[10px] font-medium text-muted-foreground bg-background px-3 py-1 rounded-full border border-border/40">
                 Heute
               </span>
             </div>
@@ -443,34 +443,35 @@ const SimpleChatWindow = ({
                       className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
                       style={{ 
                         background: isBot 
-                          ? 'linear-gradient(to bottom right, #1D64FF, #0B2566)' 
-                          : 'linear-gradient(to bottom right, #059669, #047857)' 
+                          ? 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' 
+                          : 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' 
                       }}
                     >
                       {isBot ? (
                         <img src="/bot-avatar.png" alt="Bot" className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-4 h-4 text-white" />
+                        <User className="w-4 h-4 text-primary-foreground" />
                       )}
                     </div>
                   )}
 
                   <div className="flex flex-col gap-1">
                     {senderName && (
-                      <p className="text-xs font-medium text-slate-500 ml-1">{senderName}</p>
+                      <p className="text-xs font-medium text-muted-foreground ml-1">{senderName}</p>
                     )}
                     <div 
                       className={`px-4 py-3.5 rounded-[24px] text-sm leading-relaxed ${
                         !isOwnMessage 
-                          ? 'bg-white border border-slate-200 text-slate-700 shadow-sm' 
-                          : 'bg-gradient-to-br from-[#2F75FF] to-[#0055FF] border border-white/10 text-white shadow-md'
+                          ? 'bg-background border border-border/40 text-foreground shadow-sm' 
+                          : 'border border-white/10 text-primary-foreground shadow-md'
                       }`}
+                      style={isOwnMessage ? { background: 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' } : undefined}
                     >
-                      <p className={`whitespace-pre-wrap ${!isOwnMessage ? 'text-[#1d283a]' : 'text-white'}`}>
+                      <p className={`whitespace-pre-wrap ${!isOwnMessage ? 'text-foreground' : 'text-primary-foreground'}`}>
                         {message.content}
                       </p>
                     </div>
-                    <span className={`text-[10px] text-slate-400 font-medium ${!isOwnMessage ? 'ml-1' : 'mr-1'}`}>
+                    <span className={`text-[10px] text-muted-foreground font-medium ${!isOwnMessage ? 'ml-1' : 'mr-1'}`}>
                       {formatTime(message.created_at)}
                     </span>
                   </div>
@@ -482,16 +483,16 @@ const SimpleChatWindow = ({
               <div className="flex items-start gap-3 max-w-[90%]">
                 <div 
                   className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden"
-                  style={{ background: 'linear-gradient(to bottom right, #059669, #047857)' }}
+                  style={{ background: 'linear-gradient(to bottom right, hsl(222, 100%, 60%), hsl(222, 100%, 47%))' }}
                 >
-                  <User className="w-4 h-4 text-white" />
+                  <User className="w-4 h-4 text-primary-foreground" />
                 </div>
-                <div className="bg-white border border-slate-200 rounded-[24px] px-4 py-3.5 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="bg-background border border-border/40 rounded-[24px] px-4 py-3.5 shadow-sm">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="flex space-x-1">
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce" />
                     </div>
                   </div>
                 </div>
@@ -505,7 +506,7 @@ const SimpleChatWindow = ({
 
       {/* Chat Input */}
       {!hideInput && (
-        <div className="border-t border-slate-100 bg-white p-4">
+        <div className="border-t border-border/40 p-4">
           <div className="max-w-2xl mx-auto">
             <PromptInputBox 
               onSend={handleSendMessage}

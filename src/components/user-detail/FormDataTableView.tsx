@@ -185,12 +185,12 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
     <>
       <div className="space-y-4">
         {/* Section 1: Persönliche Daten - Two Column Layout */}
-        <Card className="border-border/30 shadow-sm overflow-hidden">
-          <CardHeader className="py-2.5 px-4 bg-muted/20 border-b border-border/30">
+        <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+          <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <User className="h-3.5 w-3.5 text-primary" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Persönliche Daten</CardTitle>
               </div>
@@ -290,8 +290,8 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                 {/* Spouse - Full Width with Clear Separation */}
                 {contactInfo.maritalStatus === 'verheiratet' && (contactInfo.spouseFirstName || contactInfo.spouseLastName) && (
                   <div className="lg:col-span-2 mt-2">
-                    <div className="bg-rose-50/50 rounded-lg border border-rose-100/80 p-4">
-                      <h4 className="text-[11px] font-medium text-rose-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                    <div className="bg-primary/5 rounded-lg border border-primary/10 p-4">
+                      <h4 className="text-[11px] font-medium text-primary uppercase tracking-widest flex items-center gap-1.5 mb-3">
                         <Heart className="h-3 w-3" />
                         Ehepartner/in
                       </h4>
@@ -312,14 +312,14 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                 {/* Children - Full Width with Clear Separation */}
                 {contactInfo.hasChildren && contactInfo.children && contactInfo.children.length > 0 && (
                   <div className="lg:col-span-2 mt-2">
-                    <div className="bg-sky-50/50 rounded-lg border border-sky-100/80 p-4">
-                      <h4 className="text-[11px] font-medium text-sky-700/80 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                    <div className="bg-primary/5 rounded-lg border border-primary/10 p-4">
+                      <h4 className="text-[11px] font-medium text-primary uppercase tracking-widest flex items-center gap-1.5 mb-3">
                         <Baby className="h-3 w-3" />
                         Kinder ({contactInfo.children.length})
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {contactInfo.children.map((child, index) => (
-                          <div key={index} className="bg-white/60 rounded-md p-3 border border-sky-100/50">
+                          <div key={index} className="bg-white/60 rounded-md p-3 border border-primary/10">
                             <p className="text-sm font-medium">{child.firstName} {child.lastName}</p>
                             <div className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
                               <div className="flex justify-between">
@@ -352,11 +352,11 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 2: Einkommen */}
         {income && Object.keys(income).some(k => income[k as keyof typeof income]) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden">
-            <CardHeader className="py-2.5 px-4 bg-emerald-50/30 border-b border-border/30">
+          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <Briefcase className="h-3.5 w-3.5 text-emerald-600" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Briefcase className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Einkommen</CardTitle>
               </div>
@@ -392,7 +392,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
@@ -447,11 +447,11 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 3: Vermögen */}
         {(assets || bankStatementDocs.length > 0) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden">
-            <CardHeader className="py-2.5 px-4 bg-blue-50/30 border-b border-border/30">
+          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Wallet className="h-3.5 w-3.5 text-blue-600" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Wallet className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Vermögen</CardTitle>
               </div>
@@ -475,7 +475,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={bankStatementDocs.length > 0 ? 'default' : 'secondary'} className={bankStatementDocs.length > 0 ? 'bg-green-500/20 text-green-700' : ''}>
+                      <Badge variant={bankStatementDocs.length > 0 ? 'default' : 'secondary'} className={bankStatementDocs.length > 0 ? 'bg-primary/15 text-primary' : ''}>
                         {bankStatementDocs.length > 0 ? 'Ja' : 'Ausstehend'}
                       </Badge>
                     </TableCell>
@@ -521,7 +521,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
@@ -593,11 +593,11 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 4: Abzüge */}
         {deductions && Object.keys(deductions).some(k => deductions[k as keyof typeof deductions]) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden">
-            <CardHeader className="py-2.5 px-4 bg-purple-50/30 border-b border-border/30">
+          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Receipt className="h-3.5 w-3.5 text-purple-600" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Receipt className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Abzüge</CardTitle>
               </div>
@@ -635,7 +635,7 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="default" className="bg-green-500/20 text-green-700 hover:bg-green-500/30">
+                          <Badge variant="default" className="bg-primary/15 text-primary hover:bg-primary/20">
                             Ja
                           </Badge>
                         </TableCell>
