@@ -352,11 +352,11 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 2: Einkommen */}
         {income && Object.keys(income).some(k => income[k as keyof typeof income]) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden">
-            <CardHeader className="py-2.5 px-4 bg-emerald-50/30 border-b border-border/30">
+          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <Briefcase className="h-3.5 w-3.5 text-emerald-600" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Briefcase className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Einkommen</CardTitle>
               </div>
