@@ -27,6 +27,7 @@ import { UserCard } from '@/components/ui/user-card';
 import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
 import { OcrDocumentConfigManager } from '@/components/admin/OcrDocumentConfigManager';
 import { OcrUnrecognizedUploads } from '@/components/admin/OcrUnrecognizedUploads';
+import Newsletter from './admin/Newsletter';
 
 interface AdminUser {
   id: string;
