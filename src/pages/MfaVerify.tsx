@@ -99,7 +99,7 @@ const MfaVerify = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
       <Card className="w-full max-w-md mx-auto bg-background border-border">
         <CardHeader className="text-center space-y-4">
           <Button

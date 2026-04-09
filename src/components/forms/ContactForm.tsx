@@ -193,7 +193,7 @@ const ContactForm = ({
   };
 
   const renderContactForm = () => (
-    <div className="min-h-screen bg-white text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
+    <div className="min-h-screen bg-transparent text-slate-800 antialiased flex justify-center selection:bg-[#1D64FF]/30">
       {/* Mobile Container */}
       <div className="min-h-screen md:max-w-2xl w-full max-w-[500px] mr-auto ml-auto relative flex flex-col px-6 md:px-8 py-8 md:py-12">
         {/* Main Content */}
@@ -264,12 +264,12 @@ const ContactForm = ({
                   onChange={(e) => setReligion(e.target.value)}
                   className={cn(lightSelectClass, !religion && "text-slate-400")}
                 >
-                  <option value="" className="bg-white">Religion auswählen</option>
-                  <option value="catholic" className="bg-white">Katholisch</option>
-                  <option value="reformed" className="bg-white">Reformiert</option>
-                  <option value="christCatholic" className="bg-white">Christkatholisch</option>
-                  <option value="other" className="bg-white">Andere</option>
-                  <option value="none" className="bg-white">Keine</option>
+                  <option value="" className="bg-transparent">Religion auswählen</option>
+                  <option value="catholic" className="bg-transparent">Katholisch</option>
+                  <option value="reformed" className="bg-transparent">Reformiert</option>
+                  <option value="christCatholic" className="bg-transparent">Christkatholisch</option>
+                  <option value="other" className="bg-transparent">Andere</option>
+                  <option value="none" className="bg-transparent">Keine</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                   <ChevronDown className="w-4 h-4" />
@@ -286,11 +286,11 @@ const ContactForm = ({
                   onChange={(e) => setMaritalStatus(e.target.value)}
                   className={cn(lightSelectClass, !maritalStatus && "text-slate-400")}
                 >
-                  <option value="" className="bg-white">Zivilstand</option>
-                  <option value="single" className="bg-white">Ledig</option>
-                  <option value="married" className="bg-white">Verheiratet</option>
-                  <option value="divorced" className="bg-white">Geschieden</option>
-                  <option value="widowed" className="bg-white">Verwitwet</option>
+                  <option value="" className="bg-transparent">Zivilstand</option>
+                  <option value="single" className="bg-transparent">Ledig</option>
+                  <option value="married" className="bg-transparent">Verheiratet</option>
+                  <option value="divorced" className="bg-transparent">Geschieden</option>
+                  <option value="widowed" className="bg-transparent">Verwitwet</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                   <ChevronDown className="w-4 h-4" />
@@ -334,12 +334,12 @@ const ContactForm = ({
                       onChange={(e) => setSpouseReligion(e.target.value)}
                       className={cn(lightSelectClass, !spouseReligion && "text-slate-400")}
                     >
-                      <option value="" className="bg-white">Religion auswählen</option>
-                      <option value="catholic" className="bg-white">Katholisch</option>
-                      <option value="reformed" className="bg-white">Reformiert</option>
-                      <option value="christCatholic" className="bg-white">Christkatholisch</option>
-                      <option value="other" className="bg-white">Andere</option>
-                      <option value="none" className="bg-white">Keine</option>
+                      <option value="" className="bg-transparent">Religion auswählen</option>
+                      <option value="catholic" className="bg-transparent">Katholisch</option>
+                      <option value="reformed" className="bg-transparent">Reformiert</option>
+                      <option value="christCatholic" className="bg-transparent">Christkatholisch</option>
+                      <option value="other" className="bg-transparent">Andere</option>
+                      <option value="none" className="bg-transparent">Keine</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                       <ChevronDown className="w-4 h-4" />
@@ -415,33 +415,33 @@ const ContactForm = ({
                     onChange={(e) => setKanton(e.target.value)}
                     className={cn(lightSelectClass, !kanton && "text-slate-400")}
                   >
-                    <option value="" className="bg-white">Kanton auswählen</option>
-                    <option value="ag" className="bg-white">Aargau</option>
-                    <option value="zh" className="bg-white">Zürich</option>
-                    <option value="be" disabled className="bg-white text-slate-400">Bern - noch nicht verfügbar</option>
-                    <option value="lu" disabled className="bg-white text-slate-400">Luzern - noch nicht verfügbar</option>
-                    <option value="ur" disabled className="bg-white text-slate-400">Uri - noch nicht verfügbar</option>
-                    <option value="sz" disabled className="bg-white text-slate-400">Schwyz - noch nicht verfügbar</option>
-                    <option value="ow" disabled className="bg-white text-slate-400">Obwalden - noch nicht verfügbar</option>
-                    <option value="nw" disabled className="bg-white text-slate-400">Nidwalden - noch nicht verfügbar</option>
-                    <option value="gl" disabled className="bg-white text-slate-400">Glarus - noch nicht verfügbar</option>
-                    <option value="zg" disabled className="bg-white text-slate-400">Zug - noch nicht verfügbar</option>
-                    <option value="fr" disabled className="bg-white text-slate-400">Freiburg - noch nicht verfügbar</option>
-                    <option value="so" disabled className="bg-white text-slate-400">Solothurn - noch nicht verfügbar</option>
-                    <option value="bs" disabled className="bg-white text-slate-400">Basel-Stadt - noch nicht verfügbar</option>
-                    <option value="bl" disabled className="bg-white text-slate-400">Basel-Landschaft - noch nicht verfügbar</option>
-                    <option value="sh" disabled className="bg-white text-slate-400">Schaffhausen - noch nicht verfügbar</option>
-                    <option value="ar" disabled className="bg-white text-slate-400">Appenzell Ausserrhoden - noch nicht verfügbar</option>
-                    <option value="ai" disabled className="bg-white text-slate-400">Appenzell Innerrhoden - noch nicht verfügbar</option>
-                    <option value="sg" disabled className="bg-white text-slate-400">St. Gallen - noch nicht verfügbar</option>
-                    <option value="gr" disabled className="bg-white text-slate-400">Graubünden - noch nicht verfügbar</option>
-                    <option value="tg" disabled className="bg-white text-slate-400">Thurgau - noch nicht verfügbar</option>
-                    <option value="ti" disabled className="bg-white text-slate-400">Tessin - noch nicht verfügbar</option>
-                    <option value="vd" disabled className="bg-white text-slate-400">Waadt - noch nicht verfügbar</option>
-                    <option value="vs" disabled className="bg-white text-slate-400">Wallis - noch nicht verfügbar</option>
-                    <option value="ne" disabled className="bg-white text-slate-400">Neuenburg - noch nicht verfügbar</option>
-                    <option value="ge" disabled className="bg-white text-slate-400">Genf - noch nicht verfügbar</option>
-                    <option value="ju" disabled className="bg-white text-slate-400">Jura - noch nicht verfügbar</option>
+                    <option value="" className="bg-transparent">Kanton auswählen</option>
+                    <option value="ag" className="bg-transparent">Aargau</option>
+                    <option value="zh" className="bg-transparent">Zürich</option>
+                    <option value="be" disabled className="bg-transparent text-slate-400">Bern - noch nicht verfügbar</option>
+                    <option value="lu" disabled className="bg-transparent text-slate-400">Luzern - noch nicht verfügbar</option>
+                    <option value="ur" disabled className="bg-transparent text-slate-400">Uri - noch nicht verfügbar</option>
+                    <option value="sz" disabled className="bg-transparent text-slate-400">Schwyz - noch nicht verfügbar</option>
+                    <option value="ow" disabled className="bg-transparent text-slate-400">Obwalden - noch nicht verfügbar</option>
+                    <option value="nw" disabled className="bg-transparent text-slate-400">Nidwalden - noch nicht verfügbar</option>
+                    <option value="gl" disabled className="bg-transparent text-slate-400">Glarus - noch nicht verfügbar</option>
+                    <option value="zg" disabled className="bg-transparent text-slate-400">Zug - noch nicht verfügbar</option>
+                    <option value="fr" disabled className="bg-transparent text-slate-400">Freiburg - noch nicht verfügbar</option>
+                    <option value="so" disabled className="bg-transparent text-slate-400">Solothurn - noch nicht verfügbar</option>
+                    <option value="bs" disabled className="bg-transparent text-slate-400">Basel-Stadt - noch nicht verfügbar</option>
+                    <option value="bl" disabled className="bg-transparent text-slate-400">Basel-Landschaft - noch nicht verfügbar</option>
+                    <option value="sh" disabled className="bg-transparent text-slate-400">Schaffhausen - noch nicht verfügbar</option>
+                    <option value="ar" disabled className="bg-transparent text-slate-400">Appenzell Ausserrhoden - noch nicht verfügbar</option>
+                    <option value="ai" disabled className="bg-transparent text-slate-400">Appenzell Innerrhoden - noch nicht verfügbar</option>
+                    <option value="sg" disabled className="bg-transparent text-slate-400">St. Gallen - noch nicht verfügbar</option>
+                    <option value="gr" disabled className="bg-transparent text-slate-400">Graubünden - noch nicht verfügbar</option>
+                    <option value="tg" disabled className="bg-transparent text-slate-400">Thurgau - noch nicht verfügbar</option>
+                    <option value="ti" disabled className="bg-transparent text-slate-400">Tessin - noch nicht verfügbar</option>
+                    <option value="vd" disabled className="bg-transparent text-slate-400">Waadt - noch nicht verfügbar</option>
+                    <option value="vs" disabled className="bg-transparent text-slate-400">Wallis - noch nicht verfügbar</option>
+                    <option value="ne" disabled className="bg-transparent text-slate-400">Neuenburg - noch nicht verfügbar</option>
+                    <option value="ge" disabled className="bg-transparent text-slate-400">Genf - noch nicht verfügbar</option>
+                    <option value="ju" disabled className="bg-transparent text-slate-400">Jura - noch nicht verfügbar</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                     <ChevronDown className="w-4 h-4" />
@@ -460,7 +460,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   hadDifferentAddressEnd 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-slate-300 bg-white group-hover:border-slate-400"
+                    : "border-slate-300 bg-transparent group-hover:border-slate-400"
                 )}>
                   {hadDifferentAddressEnd && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -529,33 +529,33 @@ const ContactForm = ({
                         onChange={(e) => setEndYearKanton(e.target.value)}
                         className={cn(lightSelectClass, !endYearKanton && "text-slate-400")}
                       >
-                        <option value="" className="bg-white">Kanton auswählen</option>
-                        <option value="zh" className="bg-white">Zürich</option>
-                        <option value="ag" className="bg-white">Aargau</option>
-                        <option value="zg" className="bg-white">Zug</option>
-                        <option value="sz" className="bg-white">Schwyz</option>
-                        <option value="be" className="bg-white">Bern</option>
-                        <option value="lu" className="bg-white">Luzern</option>
-                        <option value="ur" className="bg-white">Uri</option>
-                        <option value="ow" className="bg-white">Obwalden</option>
-                        <option value="nw" className="bg-white">Nidwalden</option>
-                        <option value="gl" className="bg-white">Glarus</option>
-                        <option value="fr" className="bg-white">Freiburg</option>
-                        <option value="so" className="bg-white">Solothurn</option>
-                        <option value="bs" className="bg-white">Basel-Stadt</option>
-                        <option value="bl" className="bg-white">Basel-Landschaft</option>
-                        <option value="sh" className="bg-white">Schaffhausen</option>
-                        <option value="ar" className="bg-white">Appenzell Ausserrhoden</option>
-                        <option value="ai" className="bg-white">Appenzell Innerrhoden</option>
-                        <option value="sg" className="bg-white">St. Gallen</option>
-                        <option value="gr" className="bg-white">Graubünden</option>
-                        <option value="tg" className="bg-white">Thurgau</option>
-                        <option value="ti" className="bg-white">Tessin</option>
-                        <option value="vd" className="bg-white">Waadt</option>
-                        <option value="vs" className="bg-white">Wallis</option>
-                        <option value="ne" className="bg-white">Neuenburg</option>
-                        <option value="ge" className="bg-white">Genf</option>
-                        <option value="ju" className="bg-white">Jura</option>
+                        <option value="" className="bg-transparent">Kanton auswählen</option>
+                        <option value="zh" className="bg-transparent">Zürich</option>
+                        <option value="ag" className="bg-transparent">Aargau</option>
+                        <option value="zg" className="bg-transparent">Zug</option>
+                        <option value="sz" className="bg-transparent">Schwyz</option>
+                        <option value="be" className="bg-transparent">Bern</option>
+                        <option value="lu" className="bg-transparent">Luzern</option>
+                        <option value="ur" className="bg-transparent">Uri</option>
+                        <option value="ow" className="bg-transparent">Obwalden</option>
+                        <option value="nw" className="bg-transparent">Nidwalden</option>
+                        <option value="gl" className="bg-transparent">Glarus</option>
+                        <option value="fr" className="bg-transparent">Freiburg</option>
+                        <option value="so" className="bg-transparent">Solothurn</option>
+                        <option value="bs" className="bg-transparent">Basel-Stadt</option>
+                        <option value="bl" className="bg-transparent">Basel-Landschaft</option>
+                        <option value="sh" className="bg-transparent">Schaffhausen</option>
+                        <option value="ar" className="bg-transparent">Appenzell Ausserrhoden</option>
+                        <option value="ai" className="bg-transparent">Appenzell Innerrhoden</option>
+                        <option value="sg" className="bg-transparent">St. Gallen</option>
+                        <option value="gr" className="bg-transparent">Graubünden</option>
+                        <option value="tg" className="bg-transparent">Thurgau</option>
+                        <option value="ti" className="bg-transparent">Tessin</option>
+                        <option value="vd" className="bg-transparent">Waadt</option>
+                        <option value="vs" className="bg-transparent">Wallis</option>
+                        <option value="ne" className="bg-transparent">Neuenburg</option>
+                        <option value="ge" className="bg-transparent">Genf</option>
+                        <option value="ju" className="bg-transparent">Jura</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <ChevronDown className="w-4 h-4" />
@@ -578,7 +578,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   firefighterService 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-slate-300 bg-white group-hover:border-slate-400"
+                    : "border-slate-300 bg-transparent group-hover:border-slate-400"
                 )}>
                   {firefighterService && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -602,7 +602,7 @@ const ContactForm = ({
                   "w-5 h-5 rounded border transition-all flex items-center justify-center",
                   hasChildren 
                     ? "bg-[#1D64FF] border-[#1D64FF]" 
-                    : "border-slate-300 bg-white group-hover:border-slate-400"
+                    : "border-slate-300 bg-transparent group-hover:border-slate-400"
                 )}>
                   {hasChildren && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

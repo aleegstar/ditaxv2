@@ -244,14 +244,14 @@ const PrivacySettings = () => {
 
   if (!isValid) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <p className="text-muted-foreground">{t.privacySettingsPage.pleaseLogin}</p>
       </div>
     );
   }
 
   return (
-    <div className="antialiased min-h-screen flex flex-col text-foreground bg-white">
+    <div className="antialiased min-h-screen flex flex-col text-foreground bg-transparent">
       {/* Header / Navigation */}
       <SubpageHeader
         title={t.privacySettingsPage.title}
@@ -261,7 +261,7 @@ const PrivacySettings = () => {
       {/* Main Content */}
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-8">
         {/* Card 1: Privacy Preferences */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+        <section className="bg-transparent rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
           <div className="p-8 pb-6">
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-blue-100/50 shadow-sm">
@@ -306,7 +306,7 @@ const PrivacySettings = () => {
         </section>
 
         {/* Card 2: Data Portability */}
-        <section className="bg-white rounded-2xl border border-border shadow-xl shadow-muted/40 overflow-hidden">
+        <section className="bg-transparent rounded-2xl border border-border shadow-xl shadow-muted/40 overflow-hidden">
           <div className="p-8">
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-violet-100/50 shadow-sm">
@@ -323,7 +323,7 @@ const PrivacySettings = () => {
 
             <button 
               onClick={downloadUserData}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-white border border-border rounded-xl shadow-sm text-base font-medium text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-muted transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-transparent border border-border rounded-xl shadow-sm text-base font-medium text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-muted transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
             >
               <Download className="w-4 h-4" strokeWidth={1.5} />
               {t.privacySettingsPage.downloadMyData}
@@ -332,7 +332,7 @@ const PrivacySettings = () => {
         </section>
 
         {/* Card 3: Delete Account (Danger Zone) */}
-        <section className="bg-white rounded-2xl border border-red-100 shadow-xl shadow-red-100/40 overflow-hidden relative">
+        <section className="bg-transparent rounded-2xl border border-red-100 shadow-xl shadow-red-100/40 overflow-hidden relative">
           {/* Subtle red accent background */}
           <div className="absolute inset-0 bg-red-50/30 pointer-events-none" />
 
