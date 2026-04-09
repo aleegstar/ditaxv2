@@ -27,23 +27,20 @@ const AdminNotesCard: React.FC<AdminNotesCardProps> = ({ userId, initialNotes, t
   const saveAdminNotes = async () => {
     setSavingNotes(true);
     try {
-      let error;
-      
-      if (taxFilerId) {
-        // Save to tax_filers for specific tax filer
-        const result = await supabase
-          .from('tax_filers')
-          .update({ admin_notes: adminNotes })
-          .eq('id', taxFilerId);
-        error = result.error;
-      } else {
-        // Fallback: Save to profiles (legacy behavior)
-        const result = await supabase
-          .from('profiles')
-          .update({ admin_notes: adminNotes })
-          .eq('id', userId);
-        error = result.error;
-      }
+      const targetTable = taxFilerId ? 'tax_filers' : 'profiles';
+      const targetId = taxFilerId || userId;
+
+      // Upsert into secure admin_notes_internal table
+      const { error } = await supabase
+        .from('admin_notes_internal')
+        .upsert(
+          {
+            target_table: targetTable,
+            target_id: targetId,
+            note: adminNotes,
+          },
+          { onConflict: 'target_table,target_id' }
+        );
 
       if (error) {
         console.error('Error saving admin notes:', error);
