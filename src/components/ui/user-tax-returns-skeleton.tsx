@@ -5,8 +5,7 @@ import ditaxLogoFull from "@/assets/ditax-logo.svg";
 export function UserTaxReturnsSkeleton() {
   return (
     <div className="antialiased min-h-screen pb-28 text-foreground relative overflow-hidden">
-      {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
+      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-6 md:px-8">
         {/* Header */}
         <header className="flex pb-8 items-center justify-between">
           <div className="flex items-center">
@@ -27,10 +26,17 @@ export function UserTaxReturnsSkeleton() {
         {/* Cards */}
         <div className="flex flex-col gap-5">
           {/* Active Tax Year Card Skeleton */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60">
+          <div 
+            className="rounded-[2rem] p-7 md:p-8 overflow-hidden relative"
+            style={{
+              background: '#ffffff',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.05)',
+            }}
+          >
             {/* Header */}
             <div className="flex justify-between items-center mb-5">
-              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-3 w-28" />
               <Skeleton className="h-8 w-8 rounded-full" />
             </div>
 
@@ -43,7 +49,7 @@ export function UserTaxReturnsSkeleton() {
             {/* Progress Steps */}
             <div className="flex gap-1.5 mb-8">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="flex-1 h-1.5 rounded-full" />
+                <Skeleton key={i} className="flex-1 h-[3px] rounded-full" />
               ))}
             </div>
 
@@ -52,20 +58,33 @@ export function UserTaxReturnsSkeleton() {
           </div>
 
           {/* Add Year Card Skeleton */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 flex items-center justify-center h-32">
+          <div 
+            className="rounded-[2rem] p-7 md:p-8 flex items-center justify-center h-32"
+            style={{
+              background: '#ffffff',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.05)',
+            }}
+          >
             <Skeleton className="h-12 w-12 rounded-full" />
           </div>
         </div>
       </main>
 
       {/* Bottom Navigation Skeleton */}
-      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2 pointer-events-none px-8">
-        <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full px-2 py-1.5" style={{ background: 'linear-gradient(135deg, rgba(15,20,40,0.88) 0%, rgba(20,30,60,0.85) 100%)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
+      <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center items-center pointer-events-none px-6">
+        <div 
+          className="pointer-events-auto inline-flex items-center gap-0.5 rounded-full px-2.5 py-2" 
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(20,24,45,0.82) 0%, rgba(25,32,58,0.78) 100%)', 
+            border: '1px solid rgba(255,255,255,0.08)', 
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)' 
+          }}
+        >
           <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
           <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
           <Skeleton className="w-10 h-10 rounded-full bg-white/[0.08]" />
         </div>
-        <Skeleton className="w-[46px] h-[46px] rounded-full bg-primary/30" />
       </div>
     </div>
   );
