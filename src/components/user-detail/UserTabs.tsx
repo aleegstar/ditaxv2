@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, FileIcon, Briefcase, Wallet, Receipt, Upload, FolderOpen } from 'lucide-react';
+import { Calendar, FileText, Briefcase, Wallet, Receipt, Upload, FolderOpen, Files, FileCheck, MessageCircle, StickyNote, ClipboardList } from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
 import FormDataTableView from './FormDataTableView';
