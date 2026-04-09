@@ -37,45 +37,30 @@ export const MissingItemsAlert: React.FC<MissingItemsAlertProps> = ({
   return (
     <button
       onClick={() => navigate('/missing-items')}
-      className="w-full mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl flex items-center gap-4 hover:from-amber-100 hover:to-orange-100 transition-all duration-200 group"
+      className="w-full mb-5 p-4 rounded-2xl flex items-center gap-3.5 transition-all duration-200 active:scale-[0.98] group"
+      style={{
+        background: 'linear-gradient(160deg, #fffbf5 0%, #fff7ed 100%)',
+        boxShadow: '0 2px 12px -2px rgba(245, 158, 11, 0.12)',
+        border: '1px solid rgba(245, 158, 11, 0.15)',
+      }}
     >
       {/* Icon */}
-      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-        <AlertCircle className="w-6 h-6 text-white" strokeWidth={2} />
+      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+        <AlertCircle className="w-5 h-5 text-white" strokeWidth={2} />
       </div>
 
       {/* Content */}
-      <div className="flex-1 text-left">
-        <h3 className="font-semibold text-amber-900 font-jakarta text-sm">
+      <div className="flex-1 text-left min-w-0">
+        <h3 className="font-semibold text-amber-900 text-sm leading-tight">
           {t.missingItems.actionRequired}
         </h3>
-        <p className="text-amber-700 text-sm font-jakarta mt-0.5">
+        <p className="text-amber-700/80 text-xs mt-0.5 truncate">
           {getMessage()}
         </p>
       </div>
 
-      {/* Icons for types */}
-      <div className="flex items-center gap-2">
-        {pendingDocuments > 0 && (
-          <div className="flex items-center gap-1 bg-amber-100 px-2 py-1 rounded-full">
-            <FileText className="w-3.5 h-3.5 text-amber-600" strokeWidth={2} />
-            <span className="text-xs font-semibold text-amber-700 font-jakarta">
-              {pendingDocuments}
-            </span>
-          </div>
-        )}
-        {pendingInformation > 0 && (
-          <div className="flex items-center gap-1 bg-orange-100 px-2 py-1 rounded-full">
-            <MessageSquare className="w-3.5 h-3.5 text-orange-600" strokeWidth={2} />
-            <span className="text-xs font-semibold text-orange-700 font-jakarta">
-              {pendingInformation}
-            </span>
-          </div>
-        )}
-      </div>
-
       {/* Arrow */}
-      <ArrowRight className="w-5 h-5 text-amber-500 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+      <ChevronRight className="w-4 h-4 text-amber-400 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
     </button>
   );
 };
