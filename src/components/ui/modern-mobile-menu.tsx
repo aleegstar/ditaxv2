@@ -393,7 +393,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoaded(true);
-    }, 500); // 500ms delay before navbar appears
+    }, 150); // Quick initial appearance
     return () => clearTimeout(timer);
   }, []);
 
@@ -514,25 +514,30 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
     }} className="fixed left-6 right-6 bottom-4 z-[9999]">
           {/* Navbar */}
           <nav role="navigation" data-bottom-navbar style={navStyle} className="relative flex justify-center">
-            <div className="inline-flex items-center gap-0.5 rounded-full px-2.5 py-2" style={{ background: 'linear-gradient(135deg, rgba(20,24,45,0.82) 0%, rgba(25,32,58,0.78) 100%)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)', backdropFilter: 'blur(20px) saturate(160%)' }}>
+            <div className="inline-flex items-center gap-1 rounded-full px-3 py-2" style={{ 
+              background: 'rgba(255,255,255,0.85)', 
+              border: '1px solid rgba(0,0,0,0.06)', 
+              boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)', 
+              backdropFilter: 'blur(20px) saturate(180%)' 
+            }}>
               {/* Home Button */}
               <motion.button onClick={() => navigate('/')} whileTap={{
             scale: 0.9
-          }} className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/' ? { color: '#ffffff', background: 'rgba(255,255,255,0.14)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' } : { color: 'rgba(180,190,210,0.6)' }}>
+          }} className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
                 <CustomHomeIcon className="w-[21px] h-[21px]" />
               </motion.button>
 
               {/* Documents Button */}
               <motion.button onClick={() => navigate('/documents')} whileTap={{
             scale: 0.9
-          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: '#ffffff', background: 'rgba(255,255,255,0.14)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' } : { color: 'rgba(180,190,210,0.6)' }}>
+          }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
                 <CustomFolderIcon className="w-[21px] h-[21px]" />
               </motion.button>
 
               {/* Menu Button */}
               <motion.button onClick={() => setMenuSheetOpen(true)} data-tour="mobile-menu-button" whileTap={{
             scale: 0.9
-          }} className="flex items-center justify-center rounded-full px-4 py-2.5 transition-all duration-200" style={{ color: 'rgba(180,190,210,0.6)' }}>
+          }} className="flex items-center justify-center rounded-full px-4 py-2.5 transition-all duration-200" style={{ color: 'rgba(100,110,130,0.7)' }}>
                 <Menu className="w-[21px] h-[21px]" strokeWidth={1.8} />
               </motion.button>
             </div>
