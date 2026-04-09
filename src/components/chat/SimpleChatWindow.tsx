@@ -506,7 +506,7 @@ const SimpleChatWindow = ({
 
       {/* Chat Input */}
       {!hideInput && (
-        <div className="border-t border-slate-100 bg-white p-4">
+        <div className="border-t border-border/40 p-4">
           <div className="max-w-2xl mx-auto">
             <PromptInputBox 
               onSend={handleSendMessage}
