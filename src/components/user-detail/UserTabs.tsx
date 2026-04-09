@@ -397,13 +397,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Abzüge */}
                     {groupedDocuments.deductions.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Receipt className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Abzüge</h3>
-                          <Badge variant="outline">{groupedDocuments.deductions.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Receipt className="h-3.5 w-3.5 text-primary" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground">Abzüge</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.deductions.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.deductions.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
