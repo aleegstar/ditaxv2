@@ -341,12 +341,12 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
       
       {/* Documents list */}
       {completedTaxReturns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <FileText className="h-8 w-8 text-slate-400" />
+        <div className="flex flex-col items-center justify-center py-12 bg-muted/20 rounded-[2rem] border border-dashed border-border/40">
+          <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+            <FileText className="h-8 w-8 text-muted-foreground/50" />
           </div>
-          <p className="text-slate-500 font-medium">Keine fertigen Steuererklärungen</p>
-          <p className="text-slate-400 text-sm mt-1">Laden Sie eine Steuererklärung hoch</p>
+          <p className="text-muted-foreground font-medium">Keine fertigen Steuererklärungen</p>
+          <p className="text-muted-foreground/60 text-sm mt-1">Laden Sie eine Steuererklärung hoch</p>
         </div>
       ) : (
         <div className="space-y-3">
