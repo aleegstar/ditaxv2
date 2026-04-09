@@ -438,8 +438,8 @@ const UserTaxReturns = () => {
               >
                 {/* Watermark Year */}
                 <span 
-                  className="absolute top-3 right-4 text-[7rem] font-black tracking-tighter leading-none pointer-events-none select-none"
-                  style={{ color: 'rgba(0,0,0,0.03)' }}
+                  className="absolute -top-1 right-3 text-[5rem] md:text-[7rem] font-black tracking-tighter leading-none pointer-events-none select-none"
+                  style={{ color: 'rgba(0,0,0,0.02)' }}
                 >
                   {year}
                 </span>
