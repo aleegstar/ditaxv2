@@ -663,29 +663,29 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center gap-3 pointer-events-none">
+      <div className="fixed bottom-5 left-0 right-0 z-50 flex justify-center items-center gap-2.5 pointer-events-none">
         {/* Navigation Pill */}
-        <nav className="pointer-events-auto inline-flex items-center gap-1.5 rounded-[22px] px-2.5 py-2 backdrop-blur-2xl border shadow-[0_-8px_30px_rgba(0,0,0,0.15),0_8px_30px_rgba(0,0,0,0.25)]" style={{ background: 'rgba(15,23,42,0.78)', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <nav className="pointer-events-auto inline-flex items-center gap-2 rounded-[20px] px-3 py-2.5" style={{ background: 'rgba(10,15,30,0.82)', borderTop: '1px solid rgba(255,255,255,0.14)', borderLeft: '1px solid rgba(255,255,255,0.08)', borderRight: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.04)', boxShadow: '0 -4px 20px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06)', backdropFilter: 'blur(24px) saturate(180%)' }}>
           {/* Home - Active */}
-          <button className="text-white bg-white/[0.12] rounded-full px-5 py-2.5 transition-all duration-200 active:scale-90 flex items-center justify-center">
+          <button className="text-white bg-white/[0.14] shadow-[0_0_8px_rgba(255,255,255,0.06)] rounded-full px-5 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center">
             <Home className="w-5 h-5" strokeWidth={1.5} />
           </button>
 
           {/* Inbox */}
-          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-90 flex items-center justify-center relative">
+          <button data-tour="chat-header-icon" onClick={() => navigate('/chat')} className="text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center relative">
             <Inbox className="w-5 h-5" strokeWidth={1.5} />
-            {unreadCount > 0 && <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-slate-900"></span>}
+            {unreadCount > 0 && <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-destructive rounded-full ring-2 ring-[rgba(10,15,30,0.82)]"></span>}
           </button>
 
           {/* Menu */}
-          <button onClick={() => setMenuSheetOpen(true)} className="text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-90 flex items-center justify-center">
+          <button onClick={() => setMenuSheetOpen(true)} className="text-[rgba(148,163,184,0.85)] hover:text-white/80 hover:bg-white/[0.06] rounded-full px-4 py-2.5 transition-all duration-200 active:scale-[0.88] flex items-center justify-center">
             <Menu className="w-5 h-5" strokeWidth={1.5} />
           </button>
         </nav>
 
         {/* Floating Action Button - Documents */}
-        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white rounded-full w-12 h-12 flex items-center justify-center shadow-[0_6px_24px_hsl(222,100%,50%/0.25)] hover:shadow-[0_8px_32px_hsl(222,100%,50%/0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-90 transition-all duration-200">
-          <Plus className="w-5.5 h-5.5" strokeWidth={1.5} />
+        <button data-tour="floating-document-button" onClick={handleDocumentsClick} className="pointer-events-auto text-white rounded-full w-12 h-12 flex items-center justify-center hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.88] transition-all duration-200" style={{ background: 'linear-gradient(180deg, hsl(222,100%,60%) 0%, hsl(222,100%,47%) 100%)', boxShadow: '0 4px 20px hsla(222,100%,50%,0.3), 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+          <Plus className="w-5 h-5" strokeWidth={2} />
         </button>
       </div>
 
