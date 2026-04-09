@@ -227,6 +227,7 @@ const AuthenticatedApp = () => {
             <SidebarProvider>
             <div className="min-h-screen w-full flex flex-col">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
+              <PageTransition>
               <TaxFilerGate>
               <Routes>
                 <Route path="/" element={<ProtectedRoute><UserTaxReturns /></ProtectedRoute>} />
@@ -305,6 +306,7 @@ const AuthenticatedApp = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </TaxFilerGate>
+              </PageTransition>
             </Suspense>
               
               {/* Floating Debug Button for Android */}
