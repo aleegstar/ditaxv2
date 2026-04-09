@@ -495,14 +495,14 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
         {/* Card */}
         <motion.div 
           initial={{ opacity: 0, y: 28, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
+          className="w-full sm:max-w-[440px] min-h-screen sm:min-h-0 px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
           style={{
             background: 'linear-gradient(165deg, rgba(255,255,255,0.88) 0%, rgba(250,251,255,0.78) 50%, rgba(245,247,252,0.72) 100%)',
             backdropFilter: 'blur(40px) saturate(200%)',
