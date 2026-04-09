@@ -478,16 +478,29 @@ const Auth = () => {
   };
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
 
+      {/* Decorative orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, hsl(222,80%,60%) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, hsl(260,60%,60%) 0%, transparent 70%)' }} />
+      </div>
+
       {/* Main Container */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
-        {/* Liquid Glass Card */}
+        {/* Card */}
         <motion.div 
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden bg-transparent sm:bg-white/70 sm:backdrop-blur-2xl sm:border sm:border-white sm:shadow-[0_8px_32px_rgba(0,0,0,0.04)] sm:rounded-[3rem]"
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-[440px] px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden bg-transparent sm:rounded-[2.5rem]"
+          style={{
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.82) 0%, rgba(248,250,255,0.72) 100%)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.6), 0 20px 60px -12px rgba(0,0,0,0.08), 0 4px 20px -4px rgba(0,0,0,0.04)',
+          }}
         >
+          {/* Subtle inner glow */}
+          <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 40%)', borderRadius: 'inherit' }} />
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
@@ -495,56 +508,91 @@ const Auth = () => {
 
                   {/* Logo & Title */}
                   <div className="flex flex-col items-center text-center mb-10">
-                    <img alt="Ditax" className="w-auto h-7 object-contain mb-8" src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" />
-                    <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-3">
+                    <motion.img 
+                      alt="Ditax" 
+                      className="w-auto h-8 object-contain mb-7" 
+                      src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.15, duration: 0.4 }}
+                    />
+                    <h1 className="text-[28px] font-bold tracking-[-0.03em] text-foreground mb-2">
                       {t.authFlow.login}
                     </h1>
-                    <p className="text-base text-muted-foreground">
-                      {t.authFlow.loginSubtitle}
+                    <p className="text-[15px] text-muted-foreground/80 font-light leading-relaxed">
+                      Steuern einfach automatisieren.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-3.5 w-full mb-8">
+                  <div className="flex flex-col gap-3 w-full mb-7">
                     {/* Google */}
-                    <button onClick={handleGoogleAuth} disabled={isLoading} className="w-full bg-white hover:bg-gray-50 text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-border transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none">
-                      <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                    <motion.button 
+                      onClick={handleGoogleAuth} 
+                      disabled={isLoading} 
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
+                      style={{
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%)',
+                        borderColor: 'rgba(0,0,0,0.06)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
+                      }}
+                    >
+                      <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                       </svg>
                       <span>{t.authFlow.continueWithGoogle}</span>
-                    </button>
+                    </motion.button>
 
                     {/* Apple */}
-                    <button onClick={handleAppleAuth} disabled={isLoading} className="w-full bg-white hover:bg-gray-50 text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-border transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none">
-                      <svg className="w-5 h-5 shrink-0 fill-current" viewBox="0 0 24 24">
+                    <motion.button 
+                      onClick={handleAppleAuth} 
+                      disabled={isLoading} 
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="group w-full font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
+                      style={{
+                        background: 'linear-gradient(145deg, #1d1d1f 0%, #000000 100%)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08)',
+                      }}
+                    >
+                      <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
                         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.48-.93 3.57-.84 1.5.12 2.65.72 3.4 1.8-.12.07-.12.09-.09.12-2.35 1.52-1.92 5.06.62 6.13-.53 1.55-1.32 3.11-2.58 4.93zM14.9 3.65c.66-1.12 1.12-2.31.95-3.65-1.32.12-2.65.81-3.32 1.95-.53.95-.98 2.2-.84 3.48 1.41.22 2.62-.6 3.21-1.78z" />
                       </svg>
                       <span>{t.authFlow.continueWithApple}</span>
-                    </button>
+                    </motion.button>
                   </div>
 
                   {/* Divider */}
-                  <div className="w-full flex items-center gap-4 mb-8">
-                    <div className="h-px bg-gray-200/80 flex-1" />
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{t.authFlow.or}</span>
-                    <div className="h-px bg-gray-200/80 flex-1" />
+                  <div className="w-full flex items-center gap-4 mb-7">
+                    <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' }} />
+                    <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-[0.15em]">{t.authFlow.or}</span>
+                    <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.08) 50%, transparent 100%)' }} />
                   </div>
 
                   {/* Email Accordion */}
                   <div className="w-full">
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      className="w-full bg-white hover:bg-gray-50 text-muted-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-border transition-all duration-200 active:scale-[0.97] relative flex items-center justify-center"
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="w-full text-muted-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 relative flex items-center justify-center border"
+                      style={{
+                        background: 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(245,247,250,0.6) 100%)',
+                        borderColor: 'rgba(0,0,0,0.06)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                      }}
                     >
-                      
+                      <Mail className="w-[18px] h-[18px] mr-2.5 text-muted-foreground/60" />
                       <span>{'Mit E-Mail anmelden'}</span>
                       <motion.div animate={{ rotate: showEmailForm ? 180 : 0 }} transition={{ duration: 0.2 }} className="absolute right-5">
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        <ChevronDown className="w-4 h-4 text-muted-foreground/50" />
                       </motion.div>
-                    </button>
+                    </motion.button>
 
                     <AnimatePresence>
                       {showEmailForm && (
@@ -552,20 +600,42 @@ const Auth = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                           className="overflow-hidden"
                         >
                           <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
                             <div>
                               <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                              <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} onFocus={() => setIsInputFocused(true)} onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none transition-all bg-background border border-border shadow-sm focus:ring-2 focus:ring-primary/20" placeholder={t.authFlow.emailPlaceholder} aria-label={t.authFlow.emailPlaceholder} required disabled={isLoading} />
+                              <input 
+                                type="email" name="email" id="email" value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                onFocus={() => setIsInputFocused(true)} 
+                                onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} 
+                                className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all border shadow-sm focus:ring-2 focus:ring-primary/20" 
+                                style={{
+                                  background: 'rgba(255,255,255,0.8)',
+                                  borderColor: 'rgba(0,0,0,0.06)',
+                                }}
+                                placeholder={t.authFlow.emailPlaceholder} 
+                                aria-label={t.authFlow.emailPlaceholder} 
+                                required 
+                                disabled={isLoading} 
+                              />
                             </div>
 
-                            <Button type="submit" disabled={isLoading} className="w-full shadow-none hover:shadow-none">
+                            <button
+                              type="submit"
+                              disabled={isLoading}
+                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 text-white"
+                              style={{
+                                background: 'linear-gradient(145deg, hsl(222,100%,60%) 0%, hsl(222,100%,50%) 100%)',
+                                boxShadow: '0 2px 8px hsla(222,100%,56%,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                              }}
+                            >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                            </Button>
+                            </button>
 
-                            <p className="text-center text-[11px] text-muted-foreground/60 leading-relaxed px-4 pt-1">
+                            <p className="text-center text-[11px] text-muted-foreground/50 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
                             </p>
                           </form>
@@ -574,11 +644,17 @@ const Auth = () => {
                     </AnimatePresence>
                   </div>
 
+                  {/* Trust indicator */}
+                  <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-muted-foreground/40">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Verschlüsselt & DSGVO-konform</span>
+                  </div>
+
                   {/* Footer Links */}
-                  <div className="mt-10 flex flex-col items-center gap-6 w-full">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="mt-6 flex flex-col items-center gap-5 w-full">
+                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground/50">
                       <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
-                      <span className="text-muted-foreground/40">·</span>
+                      <span className="text-muted-foreground/20">·</span>
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
@@ -588,15 +664,15 @@ const Auth = () => {
 
                   {/* Logo */}
                   <div className="flex items-center justify-center gap-3 mb-10">
-                    <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-7 object-contain" />
+                    <img src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png" alt="Ditax" className="w-auto h-8 object-contain" />
                   </div>
 
                   {/* Header */}
-                  <div className="text-center mb-8 space-y-1.5">
-                    <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-foreground">
+                  <div className="text-center mb-8 space-y-2">
+                    <h1 className="text-[24px] font-bold tracking-[-0.03em] text-foreground">
                       {t.authFlow.enterCode}
                     </h1>
-                    <p className="text-[13px] text-muted-foreground font-light max-w-[85%] mx-auto leading-relaxed">
+                    <p className="text-[13px] text-muted-foreground/70 font-light max-w-[85%] mx-auto leading-relaxed">
                       {t.authFlow.codeSentTo}{' '}
                       <span className="text-foreground font-medium">{email}</span>{' '}
                       {t.authFlow.codeSentToSuffix}
@@ -609,30 +685,46 @@ const Auth = () => {
                       <InputOTP value={code} onChange={handleCodeChange} maxLength={6}>
                         <InputOTPGroup className="flex justify-between gap-2 w-full">
                            {[0,1,2,3,4,5].map(i => (
-                             <InputOTPSlot key={i} index={i} className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground bg-background border border-border shadow-sm" />
+                             <InputOTPSlot 
+                               key={i} 
+                               index={i} 
+                               className="w-full h-[52px] text-center text-lg font-semibold rounded-2xl transition-all text-foreground border shadow-sm" 
+                               style={{
+                                 background: 'rgba(255,255,255,0.8)',
+                                 borderColor: 'rgba(0,0,0,0.06)',
+                               }}
+                             />
                            ))}
                         </InputOTPGroup>
                       </InputOTP>
                     </div>
 
-                    <button onClick={handleWeiterClick} disabled={isLoading || code.length !== 6} className="flex w-full items-center justify-center h-[52px] px-6 rounded-full text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:brightness-110">
+                    <button 
+                      onClick={handleWeiterClick} 
+                      disabled={isLoading || code.length !== 6} 
+                      className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 text-white"
+                      style={{
+                        background: 'linear-gradient(145deg, hsl(222,100%,60%) 0%, hsl(222,100%,50%) 100%)',
+                        boxShadow: '0 2px 8px hsla(222,100%,56%,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                      }}
+                    >
                       {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
                     </button>
                   </div>
 
                   {/* Footer Actions */}
                   <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                    <p className="text-[13px] text-muted-foreground font-light">
+                    <p className="text-[13px] text-muted-foreground/70 font-light">
                       {t.authFlow.noCodeReceived}
                       {resendCountdown > 0 ? <>
                           <span className="text-foreground font-medium ml-1">{t.authFlow.resend}</span>
-                          <span className="ml-1 text-muted-foreground/60">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
+                          <span className="ml-1 text-muted-foreground/50">({String(Math.floor(resendCountdown / 60)).padStart(2, '0')}:{String(resendCountdown % 60).padStart(2, '0')})</span>
                         </> : <button onClick={handleResendCode} disabled={isLoading} className="text-foreground hover:text-foreground/80 font-medium transition-colors ml-1">
                           {t.authFlow.resend}
                         </button>}
                     </p>
 
-                    <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/60 hover:text-foreground transition-colors mt-1">
+                    <button onClick={handleBackClick} className="flex items-center gap-1.5 text-[13px] text-muted-foreground/50 hover:text-foreground transition-colors mt-1">
                       <ChevronLeft className="w-3.5 h-3.5" />
                       {t.authFlow.backToLogin}
                     </button>
