@@ -421,9 +421,9 @@ const UserTaxReturns = () => {
             return <motion.div
               key={year}
               data-tour="tax-year-card"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="relative mb-20"
             >
               {/* Background next-step card (peeks out below) */}
@@ -433,7 +433,7 @@ const UserTaxReturns = () => {
                     e.stopPropagation();
                     navigate(getStepRoute(nextStepLabel));
                   }}
-                  className="absolute -bottom-16 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-200 hover:-bottom-[4.5rem]"
+                  className="absolute -bottom-16 left-0 right-0 z-0 rounded-[2rem] px-6 pt-16 pb-5 cursor-pointer transition-all duration-300 hover:-bottom-[4.5rem] active:scale-[0.98]"
                   style={{
                     background: 'linear-gradient(to bottom, hsl(222, 100%, 60%), hsl(222, 100%, 47%))',
                     boxShadow: '0 20px 40px -8px rgba(29, 100, 255, 0.35)',
@@ -441,7 +441,7 @@ const UserTaxReturns = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
                         <span className="text-xs font-bold text-white">{nextStepIndex + 1}</span>
                       </div>
                       <div>
@@ -458,7 +458,7 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer"
+                className="relative z-10 rounded-[2rem] p-7 md:p-8 transition-all duration-300 cursor-pointer hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
                 style={{
                   background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
                   boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
@@ -467,8 +467,8 @@ const UserTaxReturns = () => {
               >
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-5">
-                  <span className="text-sm font-medium text-muted-foreground">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                     {t.userDashboard.taxReturn}
                   </span>
                   <DropdownMenu>
@@ -490,33 +490,44 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Year */}
-                <h2 className="text-4xl font-semibold tracking-tight text-foreground mb-3">
+                {/* Year - more impactful */}
+                <h2 className="text-[2.75rem] font-bold tracking-tighter text-foreground mb-2 leading-none">
                   {year}
                 </h2>
 
                 {/* Description */}
-                <p className="text-[15px] text-muted-foreground mb-5 leading-relaxed">
+                <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   {completedSteps === 0 
                     ? 'Beginne damit deine Angaben zu erfassen.'
                     : `${completedSteps} von ${steps.length} Schritten erledigt.`
                   }
                 </p>
 
-                {/* Progress Steps */}
-                <div className="flex gap-1.5 mb-8">
-                  {steps.map((_, i) => (
-                    <div key={i} className={cn(
-                      "flex-1 h-1.5 rounded-full transition-all duration-500",
-                      i < completedSteps ? "bg-primary" : "bg-muted"
-                    )} />
+                {/* Enhanced Progress Steps */}
+                <div className="flex gap-1.5 mb-6">
+                  {steps.map((step, i) => (
+                    <motion.div 
+                      key={i} 
+                      className={cn(
+                        "flex-1 h-[5px] rounded-full transition-all duration-500",
+                        i < completedSteps 
+                          ? "bg-primary shadow-[0_0_8px_hsl(222,100%,50%/0.3)]" 
+                          : i === completedSteps 
+                            ? "bg-primary/25" 
+                            : "bg-foreground/[0.06]"
+                      )}
+                      initial={false}
+                      animate={{ scaleX: i < completedSteps ? 1 : 1 }}
+                      transition={{ delay: i * 0.05, duration: 0.4 }}
+                    />
                   ))}
                 </div>
 
                 {/* Action */}
                 <div className="flex items-center justify-between">
-                  <Button>
-                    {completedSteps === 0 ? 'Starten' : 'Fortsetzen'}
+                  <Button className="shadow-[0_6px_20px_-4px_hsl(222,100%,50%/0.4)]">
+                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                    <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
                   </Button>
                 </div>
               </div>
