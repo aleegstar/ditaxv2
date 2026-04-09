@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, FileIcon, Briefcase, Wallet, Receipt, Upload, FolderOpen } from 'lucide-react';
+import { Calendar, FileText, Briefcase, Wallet, Receipt, Upload, FolderOpen, Files, FileCheck, MessageCircle, StickyNote, ClipboardList } from 'lucide-react';
 import { User, TaxReturn } from '@/types';
 import { defaultFormData } from '@/contexts/form/defaults';
 import FormDataTableView from './FormDataTableView';
@@ -253,50 +253,56 @@ const UserTabs: React.FC<UserTabsProps> = ({
     return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        {/* Tab Navigation - Original Pill Style */}
+        {/* Tab Navigation - Glassmorphic Segmented Control */}
         <div className="relative">
-          <TabsList className="relative z-10 h-12 w-auto p-1 bg-muted/50 rounded-full mb-0">
-          <TabsTrigger 
+          <TabsList className="relative z-10 h-11 w-auto p-1 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl mb-0 gap-0.5">
+            <TabsTrigger 
               value="info" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <ClipboardList className="h-3.5 w-3.5" strokeWidth={1.8} />
               Formularangaben
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <Files className="h-3.5 w-3.5" strokeWidth={1.8} />
               Dokumente
             </TabsTrigger>
             <TabsTrigger 
               value="tax-returns" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <FileCheck className="h-3.5 w-3.5" strokeWidth={1.8} />
               Steuererklärung
             </TabsTrigger>
             <TabsTrigger 
               value="definitive-bills" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <Receipt className="h-3.5 w-3.5" strokeWidth={1.8} />
               Definitive Rechnungen
             </TabsTrigger>
             <TabsTrigger 
               value="messages" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.8} />
               Nachrichten
             </TabsTrigger>
             <TabsTrigger 
               value="admin-notes" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <StickyNote className="h-3.5 w-3.5" strokeWidth={1.8} />
               Admin-Notizen
             </TabsTrigger>
           </TabsList>
           
-          {/* Content Container - Connected to Tabs */}
-          <div className="relative mt-4 bg-white/60 backdrop-blur-xl border border-white/40 rounded-xl shadow-sm">
-            <div className="p-5">
+          {/* Content Container */}
+          <div className="relative mt-4">
+            <div>
               <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
               <FormDataTableView 
@@ -312,7 +318,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 <CardContent className="py-10">
                   <div className="text-center">
                     <div className="w-12 h-12 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FileIcon className="h-6 w-6 text-muted-foreground/60" />
+                      <FileText className="h-6 w-6 text-muted-foreground/60" />
                     </div>
                     <p className="text-muted-foreground font-medium text-sm">Keine Formulardaten für {selectedYear}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
@@ -325,21 +331,21 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-            <Card className="border-white/40 shadow-sm bg-white/40 backdrop-blur-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium">Hochgeladene Dokumente</CardTitle>
-                <CardDescription className="text-xs">
+            <Card className="border-white/40 shadow-none bg-transparent">
+              <CardHeader className="pb-3 px-0 pt-0">
+                <CardTitle className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
                   Vom Mandanten eingereichte Unterlagen für {selectedYear}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0 pb-0">
                 {documentsForSelectedYear.length === 0 ? (
                   <div className="text-center py-10">
-                    <div className="w-14 h-14 rounded-xl bg-muted/30 flex items-center justify-center mx-auto mb-3">
-                      <FolderOpen className="h-7 w-7 text-muted-foreground/60" />
+                    <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                      <FolderOpen className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
                     </div>
-                    <p className="text-muted-foreground font-medium">Keine Dokumente hochgeladen</p>
-                    <p className="text-sm text-muted-foreground/70 mt-1">
+                    <p className="text-sm font-medium text-muted-foreground">Keine Dokumente hochgeladen</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
                       Für das Steuerjahr {selectedYear} wurden noch keine Unterlagen eingereicht
                     </p>
                   </div>
@@ -347,13 +353,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   <div className="space-y-8">
                     {/* Einkommen */}
                     {groupedDocuments.income.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Briefcase className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Einkommen</h3>
-                          <Badge variant="outline">{groupedDocuments.income.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Briefcase className="h-3.5 w-3.5 text-primary" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground">Einkommen</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.income.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.income.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
@@ -367,13 +375,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Vermögen */}
                     {groupedDocuments.assets.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Wallet className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Vermögen</h3>
-                          <Badge variant="outline">{groupedDocuments.assets.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Wallet className="h-3.5 w-3.5 text-primary" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground">Vermögen</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.assets.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.assets.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
@@ -387,13 +397,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Abzüge */}
                     {groupedDocuments.deductions.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Receipt className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Abzüge</h3>
-                          <Badge variant="outline">{groupedDocuments.deductions.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Receipt className="h-3.5 w-3.5 text-primary" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground">Abzüge</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.deductions.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.deductions.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
@@ -407,13 +419,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Allgemein */}
                     {groupedDocuments.general.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <FileIcon className="h-5 w-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Allgemein</h3>
-                          <Badge variant="outline">{groupedDocuments.general.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-muted/30 flex items-center justify-center">
+                            <FileText className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground">Allgemein</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.general.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.general.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
@@ -427,13 +441,15 @@ const UserTabs: React.FC<UserTabsProps> = ({
 
                     {/* Nicht zugewiesen */}
                     {groupedDocuments.unassigned.length > 0 && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Upload className="h-5 w-5 text-muted-foreground" />
-                          <h3 className="text-lg font-semibold text-muted-foreground">Nicht zugewiesen</h3>
-                          <Badge variant="secondary">{groupedDocuments.unassigned.length}</Badge>
+                          <div className="w-6 h-6 rounded-full bg-muted/20 flex items-center justify-center">
+                            <Upload className="h-3.5 w-3.5 text-muted-foreground/60" strokeWidth={1.8} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-muted-foreground">Nicht zugewiesen</h3>
+                          <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">{groupedDocuments.unassigned.length}</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {groupedDocuments.unassigned.map(doc => (
                             <DocumentCard 
                               key={doc.id} 
@@ -455,7 +471,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-white/50 rounded-full px-4 py-2 border border-white/60">
-                  <Calendar className="h-4 w-4 text-slate-500" />
+                  <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
                   <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
                       <SelectValue placeholder="Jahr" />
@@ -484,10 +500,10 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-lg font-semibold text-slate-900">In Bearbeitung</h3>
-                  <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-foreground">In Bearbeitung</h3>
+                  <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
                     {taxReturns.filter(taxReturn => {
                       const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
                       const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
@@ -495,7 +511,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
                     }).length}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {taxReturns.filter(taxReturn => {
                     const yearMatch = String(taxReturn.taxYear) === String(selectedYear);
                     const filerMatch = !selectedTaxFilerId || (taxReturn as any).tax_filer_id === selectedTaxFilerId;
@@ -503,21 +519,21 @@ const UserTabs: React.FC<UserTabsProps> = ({
                   }).map(taxReturn => (
                     <div 
                       key={taxReturn.id} 
-                      className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
+                      className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-lg rounded-xl border border-white/60 hover:bg-white/70 hover:shadow-sm transition-all cursor-pointer" 
                       onClick={() => onTaxReturnClick(taxReturn)}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center border border-amber-200/50">
-                          <FileIcon className="h-6 w-6 text-amber-600" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-amber-600" strokeWidth={1.8} />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-slate-900">Steuererklärung {taxReturn.taxYear}</h4>
-                          <p className="text-sm text-slate-500">Status: {taxReturn.status}</p>
+                          <h4 className="text-sm font-medium text-foreground">Steuererklärung {taxReturn.taxYear}</h4>
+                          <p className="text-xs text-muted-foreground">Status: {taxReturn.status}</p>
                         </div>
                       </div>
-                      <div className={`w-3 h-3 rounded-full ${
+                      <div className={`w-2 h-2 rounded-full ${
                         taxReturn.status === 'success' ? 'bg-emerald-500' : 
-                        taxReturn.status === 'processing' ? 'bg-amber-500' : 'bg-slate-300'
+                        taxReturn.status === 'processing' ? 'bg-amber-500' : 'bg-muted-foreground/30'
                       }`} />
                     </div>
                   ))}
@@ -526,10 +542,10 @@ const UserTabs: React.FC<UserTabsProps> = ({
             )}
 
             {/* Completed Returns Section - filtered by year AND tax_filer_id */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-slate-900">Fertige Steuererklärungen</h3>
-                <span className="flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-foreground">Fertige Steuererklärungen</h3>
+                <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
                   {completedTaxReturns.filter(ctr => {
                     const yearMatch = String(ctr.tax_year) === String(selectedYear);
                     const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
@@ -560,12 +576,12 @@ const UserTabs: React.FC<UserTabsProps> = ({
               const filerMatch = !selectedTaxFilerId || ctr.tax_filer_id === selectedTaxFilerId;
               return yearMatch && filerMatch;
             }).length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 bg-white/30 backdrop-blur-lg rounded-2xl border border-dashed border-white/60">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                  <FileIcon className="h-8 w-8 text-slate-400" />
+              <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-dashed border-white/60">
+                <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-3">
+                  <FileText className="h-5 w-5 text-muted-foreground/50" strokeWidth={1.5} />
                 </div>
-                <p className="text-slate-500 font-medium">Keine Steuererklärung für {selectedYear}</p>
-                <p className="text-slate-400 text-sm mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
+                <p className="text-sm font-medium text-muted-foreground">Keine Steuererklärung für {selectedYear}</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">Laden Sie eine fertige Steuererklärung hoch</p>
               </div>
             )}
               </TabsContent>
@@ -579,22 +595,20 @@ const UserTabs: React.FC<UserTabsProps> = ({
                 />
               </TabsContent>
           
-              <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
-                <Card className="border-white/40 bg-white/40 backdrop-blur-lg">
-                  <CardHeader>
-                    <CardTitle className="text-xl">
+              <TabsContent value="messages" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                <div>
+                  <div className="mb-3">
+                    <h3 className="text-sm font-semibold text-foreground">
                       Nachrichten mit {user.firstName} {user.lastName}
-                    </CardTitle>
-                    <CardDescription>
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Direkter Chat mit dem Benutzer
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="h-[600px] rounded-lg overflow-hidden">
-                      <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </p>
+                  </div>
+                  <div className="h-[600px] rounded-xl overflow-hidden border border-white/40">
+                    <SimpleChatWindow selectedUserId={userId} isAdmin={true} fullWidth={true} />
+                  </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="admin-notes" className="mt-0 focus-visible:outline-none focus-visible:ring-0 space-y-6">
