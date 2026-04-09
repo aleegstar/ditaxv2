@@ -425,7 +425,7 @@ export const WelcomeFlow = () => {
       </motion.div>
 
       {/* Main Card Container */}
-      <motion.main className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden ring-1 ring-slate-900/5" initial={{
+      <motion.main className="w-full max-w-lg bg-white/70 backdrop-blur-2xl rounded-3xl shadow-xl shadow-black/5 overflow-hidden border border-white/60" initial={{
       opacity: 0,
       y: 20
     }} animate={{
