@@ -16,6 +16,7 @@ import {
   FileWarning,
   Star,
   MessageSquareDashed,
+  Mail,
   LogOut, 
   Settings, 
   User as UserIcon, 
