@@ -426,7 +426,7 @@ const CompletedTaxReturnManager: React.FC<CompletedTaxReturnManagerProps> = ({
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="tax-year" className="text-right text-gray-900">
+              <Label htmlFor="tax-year" className="text-right text-foreground">
                 Steuerjahr
               </Label>
               <Input
