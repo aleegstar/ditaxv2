@@ -72,21 +72,20 @@ export function UserTaxReturnsSkeleton() {
       </main>
 
       {/* Bottom Navigation Skeleton */}
-      <div className="fixed inset-x-0 bottom-4 z-50 flex items-center justify-center px-5 pointer-events-none md:hidden">
-        <div className="pointer-events-auto flex items-center gap-3">
-          <div
-            className="inline-flex items-center gap-1 rounded-full px-2 py-2"
-            style={{
-              background: 'linear-gradient(180deg, hsl(228 24% 31% / 0.96) 0%, hsl(228 24% 27% / 0.98) 100%)',
-              border: '1px solid hsl(0 0% 100% / 0.08)',
-              boxShadow: '0 14px 34px -14px hsl(225 30% 12% / 0.45), 0 6px 16px -8px hsl(225 30% 12% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.08)'
-            }}
-          >
-            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
-            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
-            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
-          </div>
-          <Skeleton className="h-[52px] w-[52px] rounded-full" />
+      <div className="fixed inset-x-0 bottom-5 z-50 flex items-center justify-center px-6 pointer-events-none md:hidden">
+        <div
+          className="inline-flex items-center gap-2 rounded-[22px] px-1.5 py-1.5"
+          style={{
+            background: 'rgba(255, 255, 255, 0.78)',
+            border: '1px solid rgba(255, 255, 255, 0.65)',
+            boxShadow: '0 2px 20px rgba(0,0,0,0.06), 0 0.5px 1px rgba(0,0,0,0.04)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+          }}
+        >
+          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
+          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
+          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
+          <Skeleton className="h-11 w-11 rounded-[16px] bg-black/5" />
         </div>
       </div>
     </div>
