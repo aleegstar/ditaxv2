@@ -16,6 +16,7 @@ import {
   FileWarning,
   Star,
   MessageSquareDashed,
+  Mail,
   LogOut, 
   Settings, 
   User as UserIcon, 
@@ -149,6 +150,7 @@ export function AdminSidebar() {
     { title: "Nicht erkannte Uploads", url: "/admin/ocr-unrecognized", icon: FileWarning },
     { title: "User-Feedback", url: "/admin/user-feedback", icon: Star },
     { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: MessageSquareDashed },
+    { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
   ];
 
   return (

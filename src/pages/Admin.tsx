@@ -27,6 +27,7 @@ import { UserCard } from '@/components/ui/user-card';
 import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesManager';
 import { OcrDocumentConfigManager } from '@/components/admin/OcrDocumentConfigManager';
 import { OcrUnrecognizedUploads } from '@/components/admin/OcrUnrecognizedUploads';
+import Newsletter from './admin/Newsletter';
 
 interface AdminUser {
   id: string;
@@ -323,6 +324,7 @@ const Admin: React.FC = () => {
           <Route path="quick-replies" element={<ChatQuickRepliesManager />} />
           <Route path="ocr-config" element={<OcrDocumentConfigManager />} />
           <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
+          <Route path="newsletter" element={<Newsletter />} />
           </Routes>
           </div>
         </div>
