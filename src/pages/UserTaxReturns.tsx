@@ -337,27 +337,22 @@ const UserTaxReturns = () => {
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl mx-auto">
-        {/* Header + Greeting — unified section with subtle background */}
-        <div 
-          className="px-4 md:px-8 pt-6 pb-5 mb-2"
-          style={{
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.015) 0%, transparent 100%)',
-          }}
-        >
-          <header className="flex pb-5 items-center justify-between">
-            <div className="flex items-center">
-              <img src={ditaxLogoFull} alt="ditax" className="h-8" />
-            </div>
-            <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
-          </header>
+      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
+        {/* Header */}
+        <header className="flex pb-6 items-center justify-between">
+          <div className="flex items-center">
+            <img src={ditaxLogoFull} alt="ditax" className="h-8" />
+          </div>
+          <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
+        </header>
 
-          {/* Greeting Section */}
-          <div className="flex flex-col gap-0">
-            <p className="text-[13px] text-muted-foreground/60 font-medium tracking-wide">
+        {/* Greeting Section */}
+        <section className="pb-6">
+          <div className="flex flex-col gap-0.5 mb-3">
+            <p className="text-base text-muted-foreground font-normal">
               {getGreeting()}
             </p>
-            <h1 className="text-[2rem] md:text-[2.5rem] font-semibold tracking-tight text-foreground leading-none mt-0.5">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
               {getUserDisplayName() ?? (
                 <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
               )}
@@ -365,10 +360,8 @@ const UserTaxReturns = () => {
           </div>
           
           {/* Tax Filer Selector */}
-          <TaxFilerSelector className="mt-3" />
-        </div>
-
-        <div className="px-4 md:px-8">
+          <TaxFilerSelector className="mt-1.5" />
+        </section>
 
         {/* Missing Items Alert */}
         <MissingItemsAlert
@@ -655,7 +648,6 @@ const UserTaxReturns = () => {
 
           {/* New Year Action Card */}
           {availableYears.length < 7 && <AddTaxYearDropdown onYearSelect={createNewTaxReturn} existingYears={existingYears} isCreating={isCreatingTaxReturn} variant="card" />}
-        </div>
         </div>
       </main>
 
