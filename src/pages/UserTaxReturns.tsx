@@ -436,13 +436,6 @@ const UserTaxReturns = () => {
                   border: '1px solid rgba(0,0,0,0.05)',
                 }}
               >
-                {/* Watermark Year */}
-                <span 
-                  className="absolute -top-1 right-3 text-[5rem] md:text-[7rem] font-black tracking-tighter leading-none pointer-events-none select-none"
-                  style={{ color: 'rgba(0,0,0,0.02)' }}
-                >
-                  {year}
-                </span>
 
                 {/* Header */}
                 <div className="relative flex justify-between items-center mb-6">
