@@ -549,13 +549,13 @@ const Auth = () => {
                     <motion.button 
                       onClick={handleGoogleAuth} 
                       disabled={isLoading} 
-                      whileHover={{ y: -1, boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06)' }}
+                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
                       whileTap={{ scale: 0.97 }}
                       className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(248,249,252,0.95) 100%)',
-                        borderColor: 'rgba(0,0,0,0.08)',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.04)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
+                        borderColor: 'rgba(0,0,0,0.1)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
                       }}
                     >
                       <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
@@ -571,7 +571,7 @@ const Auth = () => {
                     <motion.button 
                       onClick={handleAppleAuth} 
                       disabled={isLoading} 
-                      whileHover={{ y: -1, boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.12)' }}
+                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.18), 0 10px 28px rgba(0,0,0,0.14)' }}
                       whileTap={{ scale: 0.97 }}
                       className="group w-full font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
                       style={{
@@ -587,10 +587,10 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="w-full flex items-center gap-5 mb-8">
-                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%)' }} />
-                    <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.2em]">{t.authFlow.or}</span>
-                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%)' }} />
+                  <div className="w-full flex items-center gap-6 mb-8 px-2">
+                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.07) 40%, rgba(0,0,0,0.07) 60%, transparent 100%)' }} />
+                    <span className="text-[9px] font-semibold text-muted-foreground/35 uppercase tracking-[0.25em]">{t.authFlow.or}</span>
+                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.07) 40%, rgba(0,0,0,0.07) 60%, transparent 100%)' }} />
                   </div>
 
                   {/* Email Accordion */}
@@ -598,7 +598,7 @@ const Auth = () => {
                     <motion.button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      whileHover={{ y: -1, boxShadow: '0 2px 6px rgba(0,0,0,0.05), 0 6px 18px rgba(0,0,0,0.04)' }}
+                      whileHover={{ y: -2, boxShadow: '0 3px 10px rgba(0,0,0,0.06), 0 8px 22px rgba(0,0,0,0.04)' }}
                       whileTap={{ scale: 0.97 }}
                       className="w-full text-muted-foreground/80 font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 relative flex items-center justify-center border"
                       style={{
