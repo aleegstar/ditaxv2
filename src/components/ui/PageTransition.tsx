@@ -10,7 +10,7 @@ interface PageTransitionProps {
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 6,
+    y: 8,
   },
   animate: {
     opacity: 1,
@@ -18,20 +18,19 @@ const pageVariants = {
   },
   exit: {
     opacity: 0,
-    y: -4,
   },
 };
 
 const pageTransition = {
-  duration: 0.18,
+  duration: 0.2,
   ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
 };
 
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
   const location = useLocation();
-  
+
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
         key={location.pathname}
         initial="initial"
@@ -40,7 +39,7 @@ export const PageTransition = ({ children, className }: PageTransitionProps) => 
         variants={pageVariants}
         transition={pageTransition}
         className={className}
-        style={{ willChange: 'opacity', minHeight: 'inherit' }}
+        style={{ willChange: 'opacity, transform' }}
       >
         {children}
       </motion.div>
