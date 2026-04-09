@@ -447,11 +447,11 @@ const FormDataTableView: React.FC<FormDataTableViewProps> = ({
 
         {/* Section 3: Vermögen */}
         {(assets || bankStatementDocs.length > 0) && (
-          <Card className="border-border/30 shadow-sm overflow-hidden">
-            <CardHeader className="py-2.5 px-4 bg-blue-50/30 border-b border-border/30">
+          <Card className="border-border/30 shadow-sm overflow-hidden bg-white/50 backdrop-blur-lg">
+            <CardHeader className="py-2.5 px-4 bg-muted/10 border-b border-border/30">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Wallet className="h-3.5 w-3.5 text-blue-600" />
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Wallet className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-sm font-medium">Vermögen</CardTitle>
               </div>
