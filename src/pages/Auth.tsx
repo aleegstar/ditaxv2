@@ -495,7 +495,7 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
 
         {/* Card */}
         <motion.div 
