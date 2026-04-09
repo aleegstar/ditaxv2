@@ -471,7 +471,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-white/50 rounded-full px-4 py-2 border border-white/60">
-                  <Calendar className="h-4 w-4 text-slate-500" />
+                  <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
                   <Select value={selectedYear} onValueChange={handleYearChange}>
                     <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-auto min-w-[60px] focus:ring-0 shadow-none">
                       <SelectValue placeholder="Jahr" />
