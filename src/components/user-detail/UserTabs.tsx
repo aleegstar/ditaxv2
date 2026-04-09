@@ -253,50 +253,56 @@ const UserTabs: React.FC<UserTabsProps> = ({
     return (
     <div className="w-full">
       <Tabs defaultValue="info" className="w-full">
-        {/* Tab Navigation - Original Pill Style */}
+        {/* Tab Navigation - Glassmorphic Segmented Control */}
         <div className="relative">
-          <TabsList className="relative z-10 h-12 w-auto p-1 bg-muted/50 rounded-full mb-0">
-          <TabsTrigger 
+          <TabsList className="relative z-10 h-11 w-auto p-1 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl mb-0 gap-0.5">
+            <TabsTrigger 
               value="info" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <ClipboardList className="h-3.5 w-3.5" strokeWidth={1.8} />
               Formularangaben
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <Files className="h-3.5 w-3.5" strokeWidth={1.8} />
               Dokumente
             </TabsTrigger>
             <TabsTrigger 
               value="tax-returns" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <FileCheck className="h-3.5 w-3.5" strokeWidth={1.8} />
               Steuererklärung
             </TabsTrigger>
             <TabsTrigger 
               value="definitive-bills" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <Receipt className="h-3.5 w-3.5" strokeWidth={1.8} />
               Definitive Rechnungen
             </TabsTrigger>
             <TabsTrigger 
               value="messages" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.8} />
               Nachrichten
             </TabsTrigger>
             <TabsTrigger 
               value="admin-notes" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-blue-500 data-[state=active]:text-white px-6 py-2 rounded-full"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground/70 px-4 py-2 rounded-lg text-xs font-medium transition-all gap-1.5"
             >
+              <StickyNote className="h-3.5 w-3.5" strokeWidth={1.8} />
               Admin-Notizen
             </TabsTrigger>
           </TabsList>
           
-          {/* Content Container - Connected to Tabs */}
-          <div className="relative mt-4 bg-white/60 backdrop-blur-xl border border-white/40 rounded-xl shadow-sm">
-            <div className="p-5">
+          {/* Content Container */}
+          <div className="relative mt-4">
+            <div>
               <TabsContent value="info" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             {getYearDataStatus.hasFormData ? (
               <FormDataTableView 
