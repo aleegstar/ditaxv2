@@ -127,6 +127,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notes_internal: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          target_id: string
+          target_table: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          target_id: string
+          target_table: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          target_id?: string
+          target_table?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       asset_data: {
         Row: {
           created_at: string

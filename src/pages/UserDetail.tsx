@@ -53,7 +53,6 @@ interface TaxFiler {
   last_name: string;
   is_primary: boolean;
   relationship: string | null;
-  admin_notes: string | null;
 }
 
 interface CompletedTaxReturn {
@@ -186,7 +185,7 @@ const UserDetail: React.FC = () => {
       console.log('👥 Fetching tax filers for user:', userId);
       const { data: taxFilersData, error: taxFilersError } = await supabase
         .from('tax_filers')
-        .select('id, first_name, last_name, is_primary, relationship, admin_notes')
+        .select('id, first_name, last_name, is_primary, relationship')
         .eq('user_id', userId)
         .order('is_primary', { ascending: false });
 
@@ -431,14 +430,28 @@ const UserDetail: React.FC = () => {
     setSelectedYear(year);
   };
 
-  // Compute admin notes based on selected tax filer
-  const currentAdminNotes = useMemo(() => {
-    if (selectedTaxFilerId) {
-      const filer = taxFilers.find(f => f.id === selectedTaxFilerId);
-      return filer?.admin_notes || '';
-    }
-    return user?.admin_notes || '';
-  }, [selectedTaxFilerId, taxFilers, user]);
+  // Fetch admin notes from secure admin_notes_internal table
+  const [currentAdminNotes, setCurrentAdminNotes] = useState('');
+  
+  useEffect(() => {
+    const fetchAdminNotes = async () => {
+      const targetTable = selectedTaxFilerId ? 'tax_filers' : 'profiles';
+      const targetId = selectedTaxFilerId || userId;
+      
+      if (!targetId) return;
+      
+      const { data } = await supabase
+        .from('admin_notes_internal')
+        .select('note')
+        .eq('target_table', targetTable)
+        .eq('target_id', targetId)
+        .maybeSingle();
+      
+      setCurrentAdminNotes(data?.note || '');
+    };
+    
+    fetchAdminNotes();
+  }, [selectedTaxFilerId, userId]);
 
   // DEBUG RENDER STATE
   console.log('🎨 UserDetail render state:', {
