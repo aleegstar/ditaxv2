@@ -445,7 +445,7 @@ const UserTaxReturns = () => {
                     <span className="text-[16px] font-semibold text-foreground tracking-tight">{year}</span>
                     <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
                       <span className="text-xs font-medium text-primary">
-                        {Math.round((completedSteps / steps.length) * 100)}%
+                        In Erfassung
                       </span>
                     </div>
                   </div>
