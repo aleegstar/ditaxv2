@@ -94,8 +94,23 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       debug.log('🎯 Documents Tour: User authenticated, checking tour status...');
+
+      if (isManualStartRef.current) {
+        debug.log('🔄 Documents Tour: Manual start active, showing tour');
+        setShowTour(true);
+        setIsReady(true);
+        return;
+      }
       
       const { documents: documentsCompleted, onboarding: onboardingCompleted } = await checkTourCompletionStatus();
+
+      if (isManualStartRef.current) {
+        debug.log('🔄 Documents Tour: Manual start became active during init, showing tour');
+        setShowTour(true);
+        setIsReady(true);
+        return;
+      }
+
       setTourCompleted(documentsCompleted);
       
       // CRITICAL: Only show documents tour if onboarding tour is already completed
