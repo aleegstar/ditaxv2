@@ -25,6 +25,7 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
   // Track if user has navigated - prevents tour from starting after navigation
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
+  const isManualStartRef = useRef(false);
 
   // Check tour completion status in user metadata
   const checkTourCompletionStatus = async (): Promise<{ documents: boolean; onboarding: boolean }> => {
@@ -83,9 +84,9 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
       
-      // Don't show tour if user navigated here from another page
+      // Don't show tour if user navigated here from another page (unless manually started)
       // Exception: /auth and /welcome are allowed (user just completed registration)
-      if (hasNavigatedRef.current && initialRouteRef.current !== '/documents' && initialRouteRef.current !== '/auth' && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/') {
+      if (!isManualStartRef.current && hasNavigatedRef.current && initialRouteRef.current !== '/documents' && initialRouteRef.current !== '/auth' && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/') {
         debug.log('❌ Documents Tour: User navigated here, skipping tour');
         setShowTour(false);
         setIsReady(true);
@@ -122,6 +123,7 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const completeTour = async () => {
     debug.log('✅ Documents Tour: Completing tour...');
+    isManualStartRef.current = false;
     
     try {
       const { error } = await supabase.auth.updateUser({
@@ -153,6 +155,8 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const forceTour = async () => {
     debug.log('🔄 Documents Tour: Forcing tour to show...');
+    isManualStartRef.current = true;
+    hasNavigatedRef.current = false;
     setShowTour(true);
     setIsReady(true);
   };
