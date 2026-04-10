@@ -556,7 +556,7 @@ const UserTaxReturns = () => {
 
                 {/* Title & Description */}
                 <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight mb-2">
-                  Deine Steuererklärung wird aktuell erstellt.
+                  {year}
                 </h2>
                 <p className="text-[15px] text-muted-foreground leading-relaxed mb-8">
                   Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
