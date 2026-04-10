@@ -333,18 +333,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${
-                        expressService
-                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                          : 'bg-slate-100 text-slate-400'
-                      }`}>
-                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-                      </div>
                       <div className="flex flex-col items-start text-left min-w-0">
+                        <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] sm:text-[10px] font-bold tracking-wide uppercase mb-1">Empfohlen</span>
                         <h3 className="text-sm sm:text-base font-semibold text-slate-900 tracking-tight">Express-Service</h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] sm:text-[10px] font-bold tracking-wide uppercase">Empfohlen</span>
-                        </div>
                         <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">Bearbeitung in 10 Arbeitstagen</p>
                       </div>
                     </div>
