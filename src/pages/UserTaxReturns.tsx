@@ -574,24 +574,28 @@ const UserTaxReturns = () => {
           {paidInProgressYears.map(year => {
             const taxReturn = getExistingReturn(year);
             const isExpress = taxReturn?.express_service;
-            return <motion.article
+            return <motion.div
               key={year}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
-              style={{
-                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
-                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-                border: '1px solid rgba(0,0,0,0.06)',
-              }}
+              className="relative"
             >
-
-              <div className="relative z-10">
-                <div className="flex justify-between items-center mb-5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
+              <div 
+                onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
+                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.40)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                }}
+              >
+                <div className="p-8 sm:p-10">
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-8">
+                    <span className="text-[16px] font-semibold text-foreground tracking-tight">
                       {year}
                     </span>
                     <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
@@ -600,27 +604,32 @@ const UserTaxReturns = () => {
                         {t.userDashboard.processing}
                       </span>
                     </div>
-                    {isExpress && <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
-                      <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
-                      <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
-                    </div>}
+                    {isExpress && (
+                      <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
+                        <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
+                        <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Title & Description */}
+                  <div className="mb-8">
+                    <h2 className="text-xl font-semibold tracking-tight text-foreground mb-2 leading-tight">
+                      {t.userDashboard.processingDescription}
+                    </h2>
+                    <p className="text-[15px] text-muted-foreground leading-relaxed">
+                      Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
+                    </p>
+                  </div>
+
+                  {/* Button */}
+                  <Button className="w-full sm:w-auto">
+                    {t.userDashboard.tracking}
+                    <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                  </Button>
                 </div>
-
-                <h2 className="text-xl font-semibold tracking-tight text-foreground mb-2 leading-tight">
-                  {t.userDashboard.processingDescription}
-                </h2>
-
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                  Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
-                </p>
-
-                <Button className="w-full sm:w-auto">
-                  {t.userDashboard.tracking}
-                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                </Button>
               </div>
-            </motion.article>;
+            </motion.div>;
           })}
 
           {/* Completed Tax Returns */}
