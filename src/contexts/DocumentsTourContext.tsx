@@ -84,9 +84,9 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
       
-      // Don't show tour if user navigated here from another page
+      // Don't show tour if user navigated here from another page (unless manually started)
       // Exception: /auth and /welcome are allowed (user just completed registration)
-      if (hasNavigatedRef.current && initialRouteRef.current !== '/documents' && initialRouteRef.current !== '/auth' && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/') {
+      if (!isManualStartRef.current && hasNavigatedRef.current && initialRouteRef.current !== '/documents' && initialRouteRef.current !== '/auth' && initialRouteRef.current !== '/welcome' && initialRouteRef.current !== '/') {
         debug.log('❌ Documents Tour: User navigated here, skipping tour');
         setShowTour(false);
         setIsReady(true);
