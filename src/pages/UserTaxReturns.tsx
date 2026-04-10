@@ -71,7 +71,8 @@ const UserTaxReturns = () => {
     refetch
   } = useTaxYearData(userId, activeTaxFilerId);
   const {
-    forceTour
+    forceTour,
+    showTour
   } = useOnboardingTour();
   const {
     unreadCount
@@ -648,7 +649,7 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navigation */}
-      {createPortal(
+      {!showTour && createPortal(
         <div className="fixed inset-x-0 bottom-4 z-[9999] flex items-center justify-center px-5 pointer-events-none md:hidden">
           <div className="pointer-events-auto flex items-center gap-3">
             <nav
