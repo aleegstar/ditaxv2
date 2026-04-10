@@ -649,7 +649,7 @@ const Auth = () => {
                               disabled={isLoading}
                               whileHover={{ scale: 1.02, filter: 'brightness(1.04)' }}
                               whileTap={{ scale: 0.98 }}
-                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-full text-sm font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)]"
+                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-sm font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)]"
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </motion.button>
