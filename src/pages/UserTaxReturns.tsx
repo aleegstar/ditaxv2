@@ -556,7 +556,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 {/* Title & Description */}
-                <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight mb-2">
+                <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
                   {taxReturn.tax_year}
                 </h2>
                 <p className="text-[15px] text-muted-foreground leading-relaxed mb-8">
