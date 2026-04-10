@@ -510,7 +510,7 @@ const UserTaxReturns = () => {
                   }}
                 >
                   {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                  <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
                 </Button>
               </div>
             </motion.div>;
