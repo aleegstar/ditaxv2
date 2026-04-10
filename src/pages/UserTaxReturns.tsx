@@ -442,6 +442,7 @@ const UserTaxReturns = () => {
                 {/* Year + Menu */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
+                    <span className="text-[16px] font-semibold text-foreground tracking-tight">{year}</span>
                     <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
                       <span className="text-xs font-medium text-primary">
                         In Erfassung
@@ -539,7 +540,7 @@ const UserTaxReturns = () => {
               >
                 {/* Year + Status Badges */}
                 <div className="flex items-center gap-3 mb-6">
-                  
+                  <span className="text-[16px] font-semibold text-foreground tracking-tight">{year}</span>
                   <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
                     <span className="text-xs font-medium text-amber-700">
@@ -556,7 +557,7 @@ const UserTaxReturns = () => {
 
                 {/* Title & Description */}
                 <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight mb-2">
-                  {year}
+                  Deine Steuererklärung wird aktuell erstellt.
                 </h2>
                 <p className="text-[15px] text-muted-foreground leading-relaxed mb-8">
                   Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
@@ -654,9 +655,10 @@ const UserTaxReturns = () => {
               data-bottom-navbar
               className="inline-flex items-center gap-1 rounded-full px-2 py-2"
               style={{
-                background: '#FFFFFF',
+                background: 'rgba(255, 255, 255, 0.82)',
                 border: '1px solid rgba(0, 0, 0, 0.06)',
                 boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
+                backdropFilter: 'blur(20px) saturate(180%)'
               }}
             >
               <button
