@@ -154,6 +154,8 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const forceTour = async () => {
     debug.log('🔄 Documents Tour: Forcing tour to show...');
+    isManualStartRef.current = true;
+    hasNavigatedRef.current = false;
     setShowTour(true);
     setIsReady(true);
   };
