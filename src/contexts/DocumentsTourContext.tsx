@@ -25,6 +25,7 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
   // Track if user has navigated - prevents tour from starting after navigation
   const initialRouteRef = useRef<string | null>(null);
   const hasNavigatedRef = useRef(false);
+  const isManualStartRef = useRef(false);
 
   // Check tour completion status in user metadata
   const checkTourCompletionStatus = async (): Promise<{ documents: boolean; onboarding: boolean }> => {
