@@ -71,7 +71,8 @@ const UserTaxReturns = () => {
     refetch
   } = useTaxYearData(userId, activeTaxFilerId);
   const {
-    forceTour
+    forceTour,
+    showTour
   } = useOnboardingTour();
   const {
     unreadCount
