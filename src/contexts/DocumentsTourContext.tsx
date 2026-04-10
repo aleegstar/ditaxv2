@@ -123,6 +123,7 @@ export const DocumentsTourProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const completeTour = async () => {
     debug.log('✅ Documents Tour: Completing tour...');
+    isManualStartRef.current = false;
     
     try {
       const { error } = await supabase.auth.updateUser({
