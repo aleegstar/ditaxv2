@@ -68,13 +68,7 @@ const Help = () => {
             <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </button>
 
-          {/* Mobile: hamburger */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* spacer removed - hamburger moved to right */}
 
           {/* Logo */}
           <button onClick={() => navigate('/')} className="shrink-0">
@@ -123,7 +117,15 @@ const Help = () => {
           </div>
 
           <div className="hidden sm:block flex-1" />
-        </div>
+          </div>
+
+          {/* Mobile: hamburger (right side) */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
+          >
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
 
         {/* Row 2: Nav tabs (hidden on very small screens to save space) */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 hidden sm:block">
