@@ -445,7 +445,7 @@ const UserTaxReturns = () => {
                     <span className="text-[16px] font-semibold text-foreground tracking-tight">{year}</span>
                     <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
                       <span className="text-xs font-medium text-primary">
-                        {Math.round((completedSteps / steps.length) * 100)}%
+                        In Erfassung
                       </span>
                     </div>
                   </div>
@@ -470,12 +470,7 @@ const UserTaxReturns = () => {
 
                 {/* Title & Description */}
                 <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight mb-2">
-                  {completedSteps === 0 
-                    ? 'Steuererklärung starten'
-                    : completedSteps === steps.length 
-                      ? 'Alle Schritte erledigt!'
-                      : 'Fast geschafft!'
-                  }
+                  {year}
                 </h2>
                 <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
                   {completedSteps === 0 
@@ -492,7 +487,6 @@ const UserTaxReturns = () => {
                       className="flex-1 h-2.5 rounded-full transition-all duration-500"
                       style={i < completedSteps ? {
                         background: 'hsl(var(--primary))',
-                        boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.4), 0 0 6px hsl(var(--primary) / 0.4)',
                       } : {
                         background: 'rgba(255, 255, 255, 0.30)',
                         backdropFilter: 'blur(12px)',
