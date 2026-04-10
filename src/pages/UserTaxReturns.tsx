@@ -430,7 +430,7 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
                 style={{
                   background: 'rgba(255, 255, 255, 0.40)',
                   backdropFilter: 'blur(40px) saturate(180%)',
@@ -439,133 +439,85 @@ const UserTaxReturns = () => {
                   border: '1px solid rgba(255, 255, 255, 0.60)',
                 }}
               >
-                {/* Content container */}
-                <div className="p-8 sm:p-10">
-                  {/* Header: Icon + Title + Menu */}
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                      <div 
-                        className="w-12 h-12 rounded-[18px] flex items-center justify-center text-primary"
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.50)',
-                          border: '1px solid rgba(255, 255, 255, 0.60)',
-                          backdropFilter: 'blur(12px)',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                        }}
-                      >
-                        <FileCheck2 className="w-6 h-6" strokeWidth={2} />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[16px] font-semibold text-foreground tracking-tight">
-                          Steuererklärung
-                        </span>
-                        <span className="text-[14px] font-medium text-muted-foreground">
-                          Jahr {year}
-                        </span>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
-                          <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={e => {
-                          e.stopPropagation();
-                          setYearToDelete(year);
-                          setDeleteDialogOpen(true);
-                        }} className="text-red-600 hover:text-red-700">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t.common.delete}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  {/* Title & Status */}
-                  <div className="mb-10 flex flex-col gap-2">
-                    <div className="flex items-end justify-between">
-                      <h2 className="text-3xl sm:text-4xl tracking-tight text-foreground font-medium leading-none">
-                        {completedSteps === 0 
-                          ? 'Loslegen!'
-                          : completedSteps === steps.length 
-                            ? 'Fertig!'
-                            : 'Fast geschafft!'
-                        }
-                      </h2>
-                      <span className="text-2xl text-primary tracking-tight font-medium">
+                {/* Year + Menu */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[16px] font-semibold text-foreground tracking-tight">{year}</span>
+                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
+                      <span className="text-xs font-medium text-primary">
                         {Math.round((completedSteps / steps.length) * 100)}%
                       </span>
                     </div>
-                    <p className="text-[16px] font-medium text-muted-foreground">
-                      {completedSteps === 0 
-                        ? 'Beginne damit deine Angaben zu erfassen.'
-                        : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`
-                      }
-                    </p>
                   </div>
-
-                  {/* Progress Bar */}
-                  <div className="flex gap-1.5 mb-10">
-                    {steps.map((step, i) => (
-                      <div 
-                        key={i} 
-                        className="flex-1 h-2.5 rounded-full transition-all duration-500"
-                        style={i < completedSteps ? {
-                          background: 'hsl(var(--primary))',
-                          boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.4), 0 0 6px hsl(var(--primary) / 0.4)',
-                        } : {
-                          background: 'rgba(255, 255, 255, 0.30)',
-                          backdropFilter: 'blur(12px)',
-                          border: '1px solid rgba(255, 255, 255, 0.60)',
-                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
+                        <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={e => {
+                        e.stopPropagation();
+                        setYearToDelete(year);
+                        setDeleteDialogOpen(true);
+                      }} className="text-red-600 hover:text-red-700">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t.common.delete}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
-                {/* Footer Actions */}
-                <div 
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-8 sm:p-10 rounded-b-[2rem]"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.20)',
-                    backdropFilter: 'blur(12px)',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.40)',
+                {/* Title & Description */}
+                <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight mb-2">
+                  {completedSteps === 0 
+                    ? 'Steuererklärung starten'
+                    : completedSteps === steps.length 
+                      ? 'Alle Schritte erledigt!'
+                      : 'Fast geschafft!'
+                  }
+                </h2>
+                <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
+                  {completedSteps === 0 
+                    ? 'Beginne damit deine Angaben zu erfassen.'
+                    : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`
+                  }
+                </p>
+
+                {/* Progress Bar */}
+                <div className="flex gap-1.5 mb-8">
+                  {steps.map((step, i) => (
+                    <div 
+                      key={i} 
+                      className="flex-1 h-2.5 rounded-full transition-all duration-500"
+                      style={i < completedSteps ? {
+                        background: 'hsl(var(--primary))',
+                        boxShadow: 'inset 0 1.5px 2px rgba(255,255,255,0.4), 0 0 6px hsl(var(--primary) / 0.4)',
+                      } : {
+                        background: 'rgba(255, 255, 255, 0.30)',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(255, 255, 255, 0.60)',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Action Button */}
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (nextStep) {
+                      navigate(getStepRoute(nextStepLabel));
+                    } else {
+                      navigate(`/form?year=${year}`);
+                    }
                   }}
                 >
-                  <div className="flex items-center gap-3 order-2 sm:order-1 justify-center sm:justify-start">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.50)',
-                        border: '1px solid rgba(255, 255, 255, 0.60)',
-                        backdropFilter: 'blur(12px)',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-                      }}
-                    >
-                      <CreditCard className="w-4 h-4" strokeWidth={2} />
-                    </div>
-                    <span className="text-[15px] font-medium text-muted-foreground">
-                      {nextStep ? `Nächstes: ${nextStepLabel}` : 'Alle Schritte erledigt'}
-                    </span>
-                  </div>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (nextStep) {
-                        navigate(getStepRoute(nextStepLabel));
-                      } else {
-                        navigate(`/form?year=${year}`);
-                      }
-                    }}
-                    className="group inline-flex order-1 sm:order-2 items-center justify-center gap-2 bg-foreground hover:bg-foreground/90 text-background px-7 py-3.5 rounded-2xl text-[16px] font-semibold transition-all active:scale-[0.96] w-full sm:w-auto shadow-md shadow-black/5"
-                  >
-                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
-                  </button>
-                </div>
+                  {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                  <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                </Button>
               </div>
             </motion.div>;
           })}
