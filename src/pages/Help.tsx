@@ -100,7 +100,7 @@ const Help = () => {
             </button>
           </div>
 
-          {/* Mobile: search icon + AI icon */}
+          {/* Mobile: search icon + AI icon + menu */}
           <div className="flex sm:hidden items-center gap-1">
             <button
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
@@ -114,18 +114,16 @@ const Help = () => {
             >
               <Sparkles className="w-5 h-5 text-muted-foreground" />
             </button>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
+            >
+              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
 
           <div className="hidden sm:block flex-1" />
-          </div>
-
-          {/* Mobile: hamburger (right side) */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+        </div>
 
         {/* Row 2: Nav tabs (hidden on very small screens to save space) */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 hidden sm:block">
