@@ -592,37 +592,67 @@ const UserTaxReturns = () => {
                   border: '1px solid rgba(255, 255, 255, 0.60)',
                 }}
               >
+                {/* Content container */}
                 <div className="p-8 sm:p-10">
-                  {/* Header */}
-                  <div className="flex items-center gap-4 mb-8">
-                    <span className="text-[16px] font-semibold text-foreground tracking-tight">
-                      {year}
-                    </span>
-                    <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
-                      <span className="text-xs font-medium text-amber-700">
-                        {t.userDashboard.processing}
-                      </span>
-                    </div>
-                    {isExpress && (
-                      <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
-                        <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
-                        <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
+                  {/* Header: Icon + Title */}
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-12 h-12 rounded-[18px] flex items-center justify-center text-primary"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.50)',
+                          border: '1px solid rgba(255, 255, 255, 0.60)',
+                          backdropFilter: 'blur(12px)',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <FileCheck2 className="w-6 h-6" strokeWidth={2} />
                       </div>
-                    )}
+                      <div className="flex flex-col">
+                        <span className="text-[16px] font-semibold text-foreground tracking-tight">
+                          Steuererklärung
+                        </span>
+                        <span className="text-[14px] font-medium text-muted-foreground">
+                          Jahr {year}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Title & Description */}
-                  <div className="mb-8">
-                    <h2 className="text-xl font-semibold tracking-tight text-foreground mb-2 leading-tight">
-                      {t.userDashboard.processingDescription}
+                  {/* Title & Status */}
+                  <div className="mb-10 flex flex-col gap-2">
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
+                        <span className="text-xs font-medium text-amber-700">
+                          {t.userDashboard.processing}
+                        </span>
+                      </div>
+                      {isExpress && (
+                        <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
+                          <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
+                          <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
+                        </div>
+                      )}
+                    </div>
+                    <h2 className="text-xl font-semibold tracking-tight text-foreground leading-tight">
+                      Deine Steuererklärung wird aktuell erstellt.
                     </h2>
                     <p className="text-[15px] text-muted-foreground leading-relaxed">
                       Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
                     </p>
                   </div>
+                </div>
 
-                  {/* Button */}
+                {/* Footer */}
+                <div 
+                  className="flex items-center justify-center p-8 sm:p-10 rounded-b-[2rem]"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.20)',
+                    backdropFilter: 'blur(12px)',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.40)',
+                  }}
+                >
                   <Button className="w-full sm:w-auto">
                     {t.userDashboard.tracking}
                     <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
