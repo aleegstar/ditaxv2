@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
@@ -620,14 +621,15 @@ const DocumentsContent: React.FC<{
         {/* Dateien (PDF, Docs, Bilder) - ohne capture, alle unterstützten Dateitypen */}
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
-        {/* Floating Upload Button - only show if not locked */}
-        {!isLocked && (
-          <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2">
-            <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg gap-2">
+        {/* Floating Upload Button - rendered via portal to ensure visibility */}
+        {!isLocked && createPortal(
+          <div className="fixed bottom-24 left-1/2 z-[90] -translate-x-1/2">
+            <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg gap-2 shadow-lg shadow-primary/20">
               <Plus className="w-5 h-5" strokeWidth={2.5} />
               {t.documentsPage.upload}
             </Button>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Upload Action Sheet */}
