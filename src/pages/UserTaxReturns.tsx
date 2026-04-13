@@ -339,7 +339,7 @@ const UserTaxReturns = () => {
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-6 px-4 md:px-8">
+      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
