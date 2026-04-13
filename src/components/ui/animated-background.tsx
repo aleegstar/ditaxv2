@@ -21,11 +21,27 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     <div className={`relative min-h-screen ${className}`}>
       <GooeyFilter />
       
-      {/* Top glow overlay effect */}
+      {/* iOS-style layered background */}
       <div 
-        className="fixed top-0 left-0 right-0 h-full z-0 pointer-events-none"
+        className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(125% 125% at 50% 10%, hsl(var(--background)) 60%, hsl(var(--muted)) 100%)'
+          background: 'linear-gradient(180deg, #F8F6F3 0%, #F5F4F2 30%, #F2F2F4 70%, #EDEDF0 100%)'
+        }}
+      />
+      
+      {/* Soft ambient radial light near top */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 80% 50% at 50% 5%, rgba(255,253,250,0.7) 0%, transparent 60%)'
+        }}
+      />
+      
+      {/* Subtle depth shadow at bottom */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, transparent 75%, rgba(0,0,0,0.02) 100%)'
         }}
       />
       
