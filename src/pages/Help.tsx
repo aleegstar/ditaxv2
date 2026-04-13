@@ -58,7 +58,7 @@ const Help = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* ══════ Header ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 gap-3">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 mt-[max(0rem,env(safe-area-inset-top))] gap-3">
           {/* Back button */}
           <button
             onClick={() => navigate('/')}
