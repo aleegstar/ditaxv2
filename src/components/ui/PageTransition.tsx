@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ReactNode } from 'react';
-import { useLocation, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -10,21 +10,18 @@ interface PageTransitionProps {
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 10,
   },
   animate: {
     opacity: 1,
-    y: 0,
   },
   exit: {
     opacity: 0,
-    y: -6,
   },
 };
 
 const pageTransition = {
-  duration: 0.25,
-  ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
+  duration: 0.15,
+  ease: 'easeOut' as const,
 };
 
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
@@ -40,7 +37,6 @@ export const PageTransition = ({ children, className }: PageTransitionProps) => 
         variants={pageVariants}
         transition={pageTransition}
         className={className}
-        style={{ willChange: 'opacity, transform' }}
       >
         {children}
       </motion.div>
