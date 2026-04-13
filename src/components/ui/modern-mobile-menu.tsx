@@ -500,16 +500,16 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   };
   return <AnimatePresence>
       {isInitialLoaded && shouldShow && <motion.div initial={{
-      y: 100,
+      y: 40,
       opacity: 0
     }} animate={{
       y: 0,
       opacity: 1
     }} exit={{
-      y: 100,
+      y: 40,
       opacity: 0
     }} transition={{
-      duration: 0.4,
+      duration: 0.25,
       ease: [0.22, 1, 0.36, 1]
     }} className="fixed left-6 right-6 bottom-4 z-[9999]">
           {/* Navbar */}
