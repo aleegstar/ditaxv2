@@ -433,19 +433,19 @@ const UserTaxReturns = () => {
                 onClick={() => navigate(`/form?year=${year}`)}
                 className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.40)',
+                  background: 'rgba(255, 255, 255, 0.55)',
                   backdropFilter: 'blur(40px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.65)',
                 }}
               >
                 {/* Year + Menu */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium text-muted-foreground">Status</span>
-                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
-                      <span className="text-xs font-medium text-primary">
+                    <div className="flex items-center gap-1.5 bg-foreground/10 px-2.5 py-1 rounded-full">
+                      <span className="text-xs font-medium text-foreground">
                         In Erfassung
                       </span>
                     </div>
@@ -487,12 +487,9 @@ const UserTaxReturns = () => {
                       key={i} 
                       className="flex-1 h-2.5 rounded-full transition-all duration-500"
                       style={i < completedSteps ? {
-                        background: 'hsl(var(--primary))',
+                        background: 'hsl(var(--foreground))',
                       } : {
-                        background: 'rgba(255, 255, 255, 0.30)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(255, 255, 255, 0.60)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                        background: 'rgba(0, 0, 0, 0.06)',
                       }}
                     />
                   ))}
@@ -500,7 +497,7 @@ const UserTaxReturns = () => {
 
                 {/* Action Button */}
                 <Button 
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90 rounded-full px-6"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (nextStep) {
@@ -532,11 +529,11 @@ const UserTaxReturns = () => {
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
                 className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.40)',
+                  background: 'rgba(255, 255, 255, 0.55)',
                   backdropFilter: 'blur(40px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.65)',
                 }}
               >
                 {/* Year + Status Badges */}
