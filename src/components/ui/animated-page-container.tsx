@@ -14,19 +14,19 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.04,
+      staggerChildren: 0.04,
+      delayChildren: 0.02,
     },
   },
 };
 
 export const staggerItem = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 8 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.3,
+      duration: 0.2,
       ease: [0.25, 0.1, 0.25, 1],
     },
   },

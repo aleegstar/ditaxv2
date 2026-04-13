@@ -423,9 +423,9 @@ const UserTaxReturns = () => {
             return <motion.div
               key={year}
               data-tour="tax-year-card"
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               className="relative"
             >
               {/* Main Card */}
@@ -523,9 +523,9 @@ const UserTaxReturns = () => {
             const isExpress = taxReturn?.express_service;
             return <motion.div
               key={year}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               className="relative"
             >
               <div 
@@ -581,9 +581,9 @@ const UserTaxReturns = () => {
             const needsSignature = completedReturn && !isSigned;
             return <motion.article
               key={year}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               onClick={() => {
                 if (completedReturn?.id) {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
