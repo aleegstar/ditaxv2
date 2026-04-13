@@ -656,10 +656,9 @@ const UserTaxReturns = () => {
               data-bottom-navbar
               className="inline-flex items-center gap-1 rounded-full px-2 py-2"
               style={{
-                background: 'rgba(255, 255, 255, 0.82)',
+                background: 'rgb(255, 255, 255)',
                 border: '1px solid rgba(0, 0, 0, 0.06)',
                 boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
-                backdropFilter: 'blur(20px) saturate(180%)'
               }}
             >
               <button
