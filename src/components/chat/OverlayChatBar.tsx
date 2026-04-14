@@ -267,7 +267,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                               animate={{ width: 'auto', opacity: 1 }}
                               exit={{ width: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="text-xs overflow-hidden whitespace-nowrap text-blue-600 flex-shrink-0"
+                              className="text-xs overflow-hidden whitespace-nowrap text-blue-400 flex-shrink-0"
                             >
                               Mit Mitarbeitern sprechen
                             </motion.span>
