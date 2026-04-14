@@ -203,37 +203,49 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
             {/* Input bar (always visible at bottom when open) */}
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-              <div
-                className="max-w-2xl mx-auto flex items-end gap-2 rounded-[28px] px-3 py-2"
-                style={{
-                  background: 'rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(24px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                }}
-              >
-                <textarea
-                  ref={textareaRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={escalatedMode ? "Nachricht an Support..." : "Nachricht schreiben..."}
-                  rows={1}
-                  className="flex-1 bg-transparent text-white placeholder:text-white/40 text-sm resize-none outline-none py-2 px-1 max-h-24"
-                  style={{ lineHeight: '1.5' }}
-                />
+              <div className="max-w-2xl mx-auto flex items-center gap-3">
+                {/* Input pill matching resting state */}
+                <div
+                  className="flex-1 flex items-center gap-4 rounded-full px-[18px] h-[60px]"
+                  style={{
+                    background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
+                    border: '1px solid #FFFFFF',
+                    boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
+                  }}
+                >
+                  {/* Icons */}
+                  <div className="flex items-center gap-3">
+                    <button className="flex-shrink-0 focus:outline-none transition-colors">
+                      <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                    </button>
+                    <button className="flex-shrink-0 focus:outline-none transition-colors">
+                      <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                    </button>
+                  </div>
+
+                  <input
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={escalatedMode ? "Nachricht an Support..." : "Nachricht schreiben..."}
+                    className="flex-1 bg-transparent text-base font-medium tracking-tight outline-none placeholder:text-[#707070]"
+                    style={{ color: 'hsl(0 0% 20%)' }}
+                  />
+                </div>
+
+                {/* Dark circular send button */}
                 <button
                   onClick={handleSend}
                   disabled={!inputValue.trim() || isLoading}
-                  className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+                  className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-40"
                   style={{
-                    background: inputValue.trim()
-                      ? 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)'
-                      : 'rgba(255,255,255,0.1)',
+                    background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
+                    boxShadow: '0 12px 30px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
-                  <Send className="w-4 h-4 text-white" strokeWidth={2} />
+                  <ChevronRight className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </button>
               </div>
             </div>
