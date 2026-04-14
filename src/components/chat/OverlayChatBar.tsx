@@ -365,8 +365,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26))',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  backgroundImage: 'linear-gradient(180deg, #F4F6F8 0%, #EDEFF2 100%)',
+                  border: '1px solid #E2E6EA',
                 }}
               >
                 {/* Rainbow glow */}
@@ -379,7 +379,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
 
 
-                <span className="text-base flex-1 select-none font-medium tracking-tight animate-shimmer" style={{ background: 'linear-gradient(90deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 100%) 50%, hsl(0, 0%, 84.7%) 100%)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+                <span className="text-base flex-1 select-none font-medium tracking-tight animate-shimmer" style={{ background: 'linear-gradient(90deg, hsl(0, 0%, 25%) 0%, hsl(0, 0%, 25%) 50%, hsl(0, 0%, 55%) 100%)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
                   Wie kann ich dir helfen?
                 </span>
               </div>
