@@ -104,6 +104,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
+            style={{
+              background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))',
+            }}
           >
             {/* Top bar with menu + close */}
             <div className="pointer-events-auto flex justify-end items-center gap-2 px-4 pb-1" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
