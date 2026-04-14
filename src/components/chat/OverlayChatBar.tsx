@@ -280,17 +280,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
                 }}
               >
-                <span className="text-sm text-muted-foreground/60 flex-1 select-none">
-                  Nachricht schreiben...
+              <span className="text-sm text-muted-foreground/50 flex-1 select-none">
+                  Frage mich...
                 </span>
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
-                    boxShadow: '0 4px 12px hsl(222 100% 50% / 0.3)',
-                  }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/85"
                 >
-                  <Send className="w-3.5 h-3.5 text-white" strokeWidth={2} />
+                  <Send className="w-4 h-4 text-background" strokeWidth={1.8} />
                 </div>
               </div>
             </div>
