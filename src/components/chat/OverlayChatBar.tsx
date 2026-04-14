@@ -357,7 +357,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none md:hidden"
+            className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none"
           >
             <div className="max-w-2xl mx-auto flex items-center gap-3 pointer-events-auto">
               {/* Glass input pill */}
