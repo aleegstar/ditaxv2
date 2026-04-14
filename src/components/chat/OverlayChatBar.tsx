@@ -224,7 +224,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                                     border: '1px solid rgba(255,255,255,0.2)',
                                   }
                                 : {
-                                    background: 'linear-gradient(160deg, rgb(0, 46, 153) 0%, rgb(0, 34, 112) 100%)',
+                                    background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 100%)',
                                     border: '1px solid hsl(222 100% 65% / 0.4)',
                                   }
                             }
