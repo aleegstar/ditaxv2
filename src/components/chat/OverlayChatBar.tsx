@@ -245,12 +245,28 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                       </button>
                       <button
-                        onClick={requestEscalation}
-                        disabled={escalatedMode}
-                        className="flex-shrink-0 focus:outline-none transition-colors disabled:opacity-40"
-                        title={escalatedMode ? "Bereits mit Mitarbeiter verbunden" : "Mit Mitarbeiter verbinden"}
+                        type="button"
+                        onClick={() => setShowEscalation(!showEscalation)}
+                        className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
+                          showEscalation
+                            ? 'bg-blue-50 border-blue-300 text-blue-600'
+                            : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                        }`}
                       >
-                        <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-600' : ''}`} strokeWidth={1.5} />
+                        <AnimatePresence>
+                          {showEscalation && (
+                            <motion.span
+                              initial={{ width: 0, opacity: 0 }}
+                              animate={{ width: 'auto', opacity: 1 }}
+                              exit={{ width: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="text-xs overflow-hidden whitespace-nowrap text-blue-600 flex-shrink-0"
+                            >
+                              Mit Mitarbeitern sprechen
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                       </button>
                     </div>
 
