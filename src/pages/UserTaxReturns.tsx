@@ -798,7 +798,48 @@ const UserTaxReturns = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Signature Dialog - auto-opens when signature is pending */}
+      {/* Add Tax Year Bottom Sheet (from quick action card) */}
+      <Drawer open={showAddYearSheet} onOpenChange={setShowAddYearSheet}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-lg px-6 pb-8">
+            <DrawerHeader className="text-left pt-6 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-[18px] bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <DrawerTitle className="text-xl font-semibold">{t.addTaxYear.addTaxYear}</DrawerTitle>
+                  <DrawerDescription className="text-muted-foreground mt-1">{t.addTaxYear.chooseYear}</DrawerDescription>
+                </div>
+              </div>
+            </DrawerHeader>
+            <div className="space-y-2 pt-2">
+              {['2030','2029','2028','2027','2026','2025','2024']
+                .filter(y => !existingYears.includes(y))
+                .map(year => (
+                  <button
+                    key={year}
+                    onClick={() => {
+                      setShowAddYearSheet(false);
+                      createNewTaxReturn(year);
+                    }}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-background hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 text-left"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <Plus className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-medium text-foreground">{t.addTaxYear.taxYear} {year}</p>
+                      <p className="text-sm text-muted-foreground">{t.addTaxYear.createTaxReturn}</p>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+
       {userProfile && unsignedTaxReturn && <SignatureDialog open={signatureDialogOpen} onOpenChange={setSignatureDialogOpen} completedTaxReturn={{
       id: unsignedTaxReturn.id,
       tax_year: unsignedTaxReturn.tax_year,
