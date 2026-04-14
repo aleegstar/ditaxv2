@@ -247,7 +247,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   {/* Bottom row: icons left, send right */}
                   <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
                     <div className="flex items-center gap-3">
-                      <Paperclip className="w-5 h-5 text-white/50" strokeWidth={1.5} />
+                      <button className="flex-shrink-0 focus:outline-none transition-colors">
+                        <Paperclip className="w-5 h-5 text-white/50" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
