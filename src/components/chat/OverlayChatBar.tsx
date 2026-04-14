@@ -29,7 +29,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage } = useChatMessages(userId);
+  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, requestEscalation } = useChatMessages(userId);
 
   // Auto-scroll when messages change
   useEffect(() => {
