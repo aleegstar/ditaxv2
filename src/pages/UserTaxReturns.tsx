@@ -729,16 +729,15 @@ const UserTaxReturns = () => {
             </nav>
 
             <button
-              data-tour="floating-document-button"
-              onClick={handleDocumentsClick}
+              onClick={() => setMenuSheetOpen(true)}
               className="pointer-events-auto flex h-[52px] w-[52px] items-center justify-center rounded-full text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.96]"
               style={{
                 background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
                 boxShadow: '0 12px 28px -10px hsl(222 100% 50% / 0.55), 0 6px 14px -8px hsl(222 100% 50% / 0.38), inset 0 1px 0 hsl(0 0% 100% / 0.24)'
               }}
-              aria-label="Dokumente"
+              aria-label="Menü"
             >
-              <Plus className="w-5 h-5" strokeWidth={2} />
+              <Menu className="w-5 h-5" strokeWidth={2} />
             </button>
           </div>
         </div>,
