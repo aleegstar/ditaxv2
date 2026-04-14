@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X, ChevronRight, Plus } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
@@ -264,12 +264,20 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 }}
               >
                 {/* Menu button inside pill */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); onMenuOpen(); }}
-                  className="flex-shrink-0 focus:outline-none transition-colors"
-                >
-                  <Plus className="w-5 h-5 text-foreground" strokeWidth={1.8} />
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onMenuOpen(); }}
+                    className="flex-shrink-0 focus:outline-none transition-colors"
+                  >
+                    <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); }}
+                    className="flex-shrink-0 focus:outline-none transition-colors"
+                  >
+                    <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                  </button>
+                </div>
 
                 <span className="text-base flex-1 select-none font-medium tracking-tight text-[#707070]">
                   Frage mich...
