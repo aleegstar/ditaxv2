@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
+import sendButtonBg from '@/assets/send-button-bg.png';
 
 interface OverlayChatBarProps {
   userId: string;
@@ -328,14 +329,16 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Dark circular send button */}
               <button
                 onClick={handleOpen}
-                className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none"
+                className="flex-shrink-0 w-14 h-14 rounded-[18px] flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none overflow-hidden"
                 style={{
-                  background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
-                  boxShadow: '0 12px 30px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  backgroundImage: `url(${sendButtonBg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  boxShadow: '0 8px 24px -6px rgba(120,130,200,0.25), 0 2px 8px rgba(0,0,0,0.06)',
+                  border: '1px solid rgba(255,255,255,0.5)',
                 }}
               >
-                <ChevronRight className="w-5 h-5 text-white" strokeWidth={1.5} />
+                <ChevronRight className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
               </button>
             </div>
           </motion.div>
