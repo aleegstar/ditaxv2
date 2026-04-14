@@ -26,6 +26,7 @@ const containerVariants = {
 export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [showEscalation, setShowEscalation] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
