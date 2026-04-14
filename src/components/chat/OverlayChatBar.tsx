@@ -365,8 +365,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26))',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  backgroundImage: 'linear-gradient(180deg, #F4F6F8 0%, #EDEFF2 100%)',
+                  border: '1px solid #E2E6EA',
                 }}
               >
                 {/* Rainbow glow */}
