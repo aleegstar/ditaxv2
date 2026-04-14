@@ -305,11 +305,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
-                className="flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                className="relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.12*1rem)_solid_transparent]"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(200,210,255,0.5) 30%, rgba(140,180,255,0.45) 50%, rgba(200,180,240,0.4) 70%, rgba(255,220,200,0.35) 90%, rgba(255,255,255,0.9) 100%), #FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.8)',
-                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+                  backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(#fff 50%, rgba(255,255,255,0.6) 80%, transparent), linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03)',
                 }}
               >
 
