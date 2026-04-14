@@ -644,18 +644,20 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[1.75rem] cursor-pointer transition-all duration-300 active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
-                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                background: '#ffffff',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
                 border: '1px solid rgba(0,0,0,0.06)',
               }}
             >
+              {/* Green/amber accent strip */}
+              <div className={`h-1 w-full ${needsSignature ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-emerald-400 to-emerald-500'}`} />
 
-              <div className="relative z-10">
+              <div className="relative z-10 p-7 md:p-8">
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/60">
                       {year}
                     </span>
                     {needsSignature ? (
@@ -676,11 +678,11 @@ const UserTaxReturns = () => {
                   </div>
                 </div>
 
-                <h2 className="font-semibold tracking-tight text-foreground mb-2 leading-tight text-3xl">
+                <h2 className="font-semibold tracking-tight text-foreground mb-1.5 leading-tight text-3xl">
                   {needsSignature ? t.userDashboard.signatureRequired : `Steuererklärung ${year}`}
                 </h2>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                <p className="text-[14px] text-muted-foreground leading-relaxed mb-6">
                   {needsSignature 
                     ? 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.' 
                     : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
