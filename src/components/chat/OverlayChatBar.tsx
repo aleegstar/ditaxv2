@@ -88,7 +88,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-0 z-[9998] bg-black/60"
+            className="fixed inset-0 z-[9998]"
             onClick={handleClose}
           />
         )}
