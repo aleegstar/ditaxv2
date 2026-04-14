@@ -330,6 +330,9 @@ const UserTaxReturns = () => {
   };
   return <div 
     className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
+    style={{
+      background: 'linear-gradient(180deg, #F2E4E4 0%, #F5EAEB 10%, #F8F0F1 20%, #FAFAFA 40%, #F8F8FA 55%, #F0F1F6 75%, #E8EAF2 90%, #E4E7F0 100%)'
+    }}
     onTouchStart={pullHandlers.onTouchStart}
     onTouchMove={pullHandlers.onTouchMove}
     onTouchEnd={pullHandlers.onTouchEnd}
