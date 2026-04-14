@@ -26,6 +26,7 @@ const containerVariants = {
 export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [showEscalation, setShowEscalation] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -60,7 +61,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     const msg = inputValue.trim();
     if (!msg || isLoading) return;
     setInputValue('');
-    await sendMessage(msg);
+    const formattedMsg = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
+    if (showEscalation) setShowEscalation(false);
+    await sendMessage(formattedMsg);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -223,7 +226,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder={escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
+                      placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
                       className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-[#707070] min-h-[24px] max-h-24"
                       style={{ color: 'hsl(0 0% 20%)', lineHeight: '1.5' }}
@@ -242,12 +245,28 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                       </button>
                       <button
-                        onClick={requestEscalation}
-                        disabled={escalatedMode}
-                        className="flex-shrink-0 focus:outline-none transition-colors disabled:opacity-40"
-                        title={escalatedMode ? "Bereits mit Mitarbeiter verbunden" : "Mit Mitarbeiter verbinden"}
+                        type="button"
+                        onClick={() => setShowEscalation(!showEscalation)}
+                        className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
+                          showEscalation
+                            ? 'bg-blue-50 border-blue-300 text-blue-600'
+                            : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                        }`}
                       >
-                        <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-600' : ''}`} strokeWidth={1.5} />
+                        <AnimatePresence>
+                          {showEscalation && (
+                            <motion.span
+                              initial={{ width: 0, opacity: 0 }}
+                              animate={{ width: 'auto', opacity: 1 }}
+                              exit={{ width: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="text-xs overflow-hidden whitespace-nowrap text-blue-600 flex-shrink-0"
+                            >
+                              Mit Mitarbeitern sprechen
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                       </button>
                     </div>
 
