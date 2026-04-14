@@ -583,15 +583,16 @@ const UserTaxReturns = () => {
             >
               <div 
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
+                className="relative z-10 rounded-[1.75rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.40)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                  background: '#ffffff',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+                  border: '1px solid rgba(0,0,0,0.06)',
                 }}
               >
+                {/* Amber accent strip */}
+                <div className="h-1 w-full bg-gradient-to-r from-amber-400 to-amber-500" />
+                <div className="p-7 sm:p-8">
                 {/* Year + Status Badges */}
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-sm font-medium text-muted-foreground">Status</span>
