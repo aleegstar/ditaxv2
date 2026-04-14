@@ -594,11 +594,6 @@ const UserTaxReturns = () => {
                   Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
                 </p>
 
-                {/* Tracking Button */}
-                <Button className="w-full sm:w-auto">
-                  {t.userDashboard.tracking}
-                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                </Button>
               </div>
             </motion.div>;
           })}
