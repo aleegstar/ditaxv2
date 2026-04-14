@@ -212,13 +212,19 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="rounded-2xl"
+                  className="relative rounded-2xl animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.15*1rem)_solid_transparent]"
                   style={{
-                    background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
-                    border: '1px solid #FFFFFF',
+                    backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26)), linear-gradient(rgb(77, 77, 77) 50%, rgba(26,26,26,0.6) 80%, transparent), linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
                     boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
+                  {/* Rainbow glow */}
+                  <span
+                    className="absolute inset-0 rounded-2xl animate-rainbow bg-[length:200%] opacity-40 blur-lg pointer-events-none -z-10"
+                    style={{
+                      backgroundImage: 'linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
+                    }}
+                  />
                   {/* Top row: textarea */}
                   <div className="px-4 pt-3 pb-1">
                     <textarea
