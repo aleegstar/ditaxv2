@@ -21,11 +21,27 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     <div className={`relative min-h-screen ${className}`}>
       <GooeyFilter />
       
-      {/* Soft pink-to-blue gradient matching reference */}
+      {/* Warm rose-tinted base gradient inspired by iOS onboarding */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, #F2E4E4 0%, #F5EAEB 10%, #F8F0F1 20%, #FAFAFA 40%, #F8F8FA 55%, #F0F1F6 75%, #E8EAF2 90%, #E4E7F0 100%)'
+          background: 'linear-gradient(180deg, #F5EFED 0%, #F3F0EE 25%, #F1F0F0 50%, #EEEDF0 75%, #EBEBEE 100%)'
+        }}
+      />
+      
+      {/* Soft warm radial glow at top – simulates ambient rose light */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 90% 45% at 50% 0%, rgba(235,210,205,0.35) 0%, transparent 55%)'
+        }}
+      />
+      
+      {/* Very subtle depth at bottom */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, transparent 80%, rgba(0,0,0,0.015) 100%)'
         }}
       />
       
