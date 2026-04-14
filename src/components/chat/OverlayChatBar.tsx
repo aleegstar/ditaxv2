@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
@@ -30,7 +30,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, requestEscalation } = useChatMessages(userId);
+  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, requestEscalation, clearMessages } = useChatMessages(userId);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Auto-scroll when messages change
   useEffect(() => {
@@ -55,6 +56,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const handleClose = () => {
     setIsOpen(false);
     setInputValue('');
+    setShowMenu(false);
   };
 
   const handleSend = async () => {
@@ -101,11 +103,47 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
-            style={{ maxHeight: '85vh' }}
+            className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
           >
-            {/* Close button top right */}
-            <div className="pointer-events-auto flex justify-end px-4 pt-3 pb-1">
+            {/* Top bar with menu + close */}
+            <div className="pointer-events-auto flex justify-end items-center gap-2 px-4 pb-1" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.85)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: '0 4px 16px -2px rgba(0,0,0,0.12)',
+                  }}
+                >
+                  <MoreHorizontal className="w-4 h-4 text-foreground" strokeWidth={2} />
+                </button>
+                <AnimatePresence>
+                  {showMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-12 rounded-xl overflow-hidden pointer-events-auto"
+                      style={{
+                        background: 'rgba(255,255,255,0.92)',
+                        backdropFilter: 'blur(16px)',
+                        boxShadow: '0 8px 32px -4px rgba(0,0,0,0.18)',
+                        border: '1px solid rgba(0,0,0,0.06)',
+                      }}
+                    >
+                      <button
+                        onClick={() => { clearMessages(); setShowMenu(false); }}
+                        className="px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 w-full text-left whitespace-nowrap transition-colors"
+                      >
+                        Chat löschen
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <button
                 onClick={handleClose}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
@@ -123,7 +161,6 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div
               ref={scrollRef}
               className="flex-1 overflow-y-auto px-4 pb-2 pointer-events-auto"
-              style={{ maxHeight: 'calc(85vh - 80px)' }}
             >
               <motion.div
                 variants={containerVariants}
