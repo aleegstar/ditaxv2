@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, Plus, ArrowUp } from 'lucide-react';
-import { useChatMessages } from '@/hooks/useChatMessages';
+import { Send, Menu, User, X } from 'lucide-react';
+import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
   userId: string;
@@ -26,11 +26,12 @@ const containerVariants = {
 export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [showEscalation, setShowEscalation] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage } = useChatMessages(userId);
 
+  // Auto-scroll when messages change
   useEffect(() => {
     if (isOpen && scrollRef.current) {
       requestAnimationFrame(() => {
@@ -39,27 +40,27 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     }
   }, [messages, isOpen]);
 
+  // Focus textarea when opened
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
-  const handleOpen = () => setIsOpen(true);
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+
   const handleClose = () => {
     setIsOpen(false);
     setInputValue('');
-    setShowEscalation(false);
   };
 
   const handleSend = async () => {
     const msg = inputValue.trim();
     if (!msg || isLoading) return;
-    
-    // Add escalation prefix if toggled
-    const formattedMsg = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
     setInputValue('');
-    await sendMessage(formattedMsg);
+    await sendMessage(msg);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -70,7 +71,6 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   };
 
   const lastMessages = messages.slice(-15);
-  const hasContent = inputValue.trim() !== '';
 
   return (
     <>
@@ -89,7 +89,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
         )}
       </AnimatePresence>
 
-      {/* Chat Bubbles + Open Input */}
+      {/* Chat Bubbles */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -105,7 +105,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div
               ref={scrollRef}
               className="flex-1 overflow-y-auto px-4 pb-2 pointer-events-auto"
-              style={{ maxHeight: 'calc(85vh - 120px)' }}
+              style={{ maxHeight: 'calc(85vh - 80px)' }}
             >
               <motion.div
                 variants={containerVariants}
@@ -133,6 +133,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       className={`flex ${message.isBot || message.isAdmin ? 'justify-start' : 'justify-end'}`}
                     >
                       <div className={`flex items-end gap-2 ${message.isBot || message.isAdmin ? 'max-w-[85%]' : 'max-w-[80%] flex-row-reverse'}`}>
+                        {/* Avatar for bot/admin */}
                         {(message.isBot || message.isAdmin) && (
                           <div
                             className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden mb-1"
@@ -149,6 +150,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                             )}
                           </div>
                         )}
+
                         <div className="flex flex-col gap-0.5">
                           {message.isAdmin && message.senderName && (
                             <span className="text-[10px] text-white/50 ml-1">{message.senderName}</span>
@@ -176,6 +178,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   ))
                 )}
 
+                {/* Typing indicator */}
                 {isLoading && (
                   <motion.div variants={bubbleVariants} className="flex justify-start">
                     <div className="flex items-end gap-2">
@@ -198,10 +201,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               </motion.div>
             </div>
 
-            {/* Open state input bar */}
+            {/* Input bar (always visible at bottom when open) */}
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div
-                className="max-w-2xl mx-auto rounded-[22px] overflow-hidden"
+                className="max-w-2xl mx-auto flex items-end gap-2 rounded-[28px] px-3 py-2"
                 style={{
                   background: 'rgba(255,255,255,0.12)',
                   backdropFilter: 'blur(24px) saturate(180%)',
@@ -210,82 +213,35 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                 }}
               >
-                {/* Textarea */}
-                <div className="px-4 pt-3 pb-1">
-                  <textarea
-                    ref={textareaRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={
-                      showEscalation
-                        ? "Mit Mitarbeitern sprechen..."
-                        : escalatedMode
-                        ? "Nachricht an Support..."
-                        : "Frage mich..."
-                    }
-                    rows={1}
-                    className="w-full bg-transparent text-white placeholder:text-white/40 text-sm resize-none outline-none max-h-24"
-                    style={{ lineHeight: '1.5' }}
-                  />
-                </div>
-
-                {/* Actions row */}
-                <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-                  <div className="flex items-center gap-1">
-                    {/* Escalation toggle */}
-                    <button
-                      type="button"
-                      onClick={() => setShowEscalation(prev => !prev)}
-                      className={`rounded-full transition-all flex items-center gap-1 px-2.5 py-1.5 border text-xs ${
-                        showEscalation
-                          ? 'bg-blue-500/20 border-blue-400/40 text-blue-300'
-                          : 'bg-transparent border-white/10 text-white/50 hover:text-white/70 hover:border-white/20'
-                      }`}
-                    >
-                      <motion.div
-                        animate={{ rotate: showEscalation ? 360 : 0, scale: showEscalation ? 1.1 : 1 }}
-                        transition={{ type: 'spring' as const, stiffness: 260, damping: 25 }}
-                      >
-                        <User className="w-3.5 h-3.5" />
-                      </motion.div>
-                      <AnimatePresence>
-                        {showEscalation && (
-                          <motion.span
-                            initial={{ width: 0, opacity: 0 }}
-                            animate={{ width: 'auto', opacity: 1 }}
-                            exit={{ width: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="overflow-hidden whitespace-nowrap"
-                          >
-                            Mitarbeiter
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </button>
-                  </div>
-
-                  {/* Send button */}
-                  <button
-                    onClick={handleSend}
-                    disabled={!hasContent || isLoading}
-                    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
-                    style={{
-                      background: hasContent
-                        ? 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)'
-                        : 'rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    <ArrowUp className="w-4 h-4 text-white" strokeWidth={2} />
-                  </button>
-                </div>
+                <textarea
+                  ref={textareaRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={escalatedMode ? "Nachricht an Support..." : "Nachricht schreiben..."}
+                  rows={1}
+                  className="flex-1 bg-transparent text-white placeholder:text-white/40 text-sm resize-none outline-none py-2 px-1 max-h-24"
+                  style={{ lineHeight: '1.5' }}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+                  style={{
+                    background: inputValue.trim()
+                      ? 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)'
+                      : 'rgba(255,255,255,0.1)',
+                  }}
+                >
+                  <Send className="w-4 h-4 text-white" strokeWidth={2} />
+                </button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Collapsed / Resting Input Bar — matches screenshot style */}
+      {/* Collapsed / Resting Input Bar */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -296,36 +252,46 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none md:hidden"
           >
-            <div className="max-w-2xl mx-auto pointer-events-auto">
-              <div
-                onClick={handleOpen}
-                className="flex items-center gap-3 rounded-full h-[52px] px-1.5 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+            <div className="max-w-2xl mx-auto flex items-center gap-2 pointer-events-auto">
+              {/* Menu button */}
+              <button
+                onClick={onMenuOpen}
+                className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
                 style={{
-                  background: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(0,0,0,0.06)',
                   boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
                 }}
               >
-                {/* Plus icon */}
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-                  <Plus className="w-4.5 h-4.5 text-muted-foreground" strokeWidth={1.8} />
-                </div>
+                <Menu className="w-5 h-5 text-muted-foreground" strokeWidth={1.8} />
+              </button>
 
-                {/* Placeholder text */}
-                <span className="text-sm text-muted-foreground/50 flex-1 select-none">
-                  Frage mich...
+              {/* Glass input pill */}
+              <div
+                onClick={handleOpen}
+                className="flex-1 flex items-center gap-3 rounded-full px-5 h-12 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                style={{
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                <span className="text-sm text-muted-foreground/60 flex-1 select-none">
+                  Nachricht schreiben...
                 </span>
-
-                {/* Menu button (right side) */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMenuOpen();
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
+                    boxShadow: '0 4px 12px hsl(222 100% 50% / 0.3)',
                   }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors active:scale-95 hover:bg-muted"
                 >
-                  <Menu className="w-5 h-5 text-muted-foreground" strokeWidth={1.8} />
-                </button>
+                  <Send className="w-3.5 h-3.5 text-white" strokeWidth={2} />
+                </div>
               </div>
             </div>
           </motion.div>
