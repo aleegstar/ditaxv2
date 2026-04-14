@@ -56,6 +56,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const handleClose = () => {
     setIsOpen(false);
     setInputValue('');
+    setShowMenu(false);
   };
 
   const handleSend = async () => {
