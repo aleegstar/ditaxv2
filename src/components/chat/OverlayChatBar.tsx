@@ -1,7 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
+
+const ROTATING_PHRASES = [
+  'mit einem Mitarbeiter verbinden',
+  'Fragen beantworten',
+  'sagen was noch fehlt',
+  'allgemeine Fragen beantworten',
+];
 
 interface OverlayChatBarProps {
   userId: string;
@@ -27,6 +34,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -41,7 +50,16 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     }
   }, [messages, isOpen]);
 
-  // Focus textarea when opened
+  // Rotate phrases
+  useEffect(() => {
+    if (isOpen) return;
+    const interval = setInterval(() => {
+      setCurrentPhraseIndex((prev) => (prev + 1) % ROTATING_PHRASES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => textareaRef.current?.focus(), 100);
@@ -315,8 +333,25 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
 
 
-                <span className="text-base flex-1 select-none font-medium tracking-tight text-[#4d4d4d]">
-                  ​
+                <span className="text-base flex-1 select-none font-medium tracking-tight text-[#4d4d4d] overflow-hidden whitespace-nowrap">
+                  Ich kann{' '}
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentPhraseIndex}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      className="inline-block bg-clip-text text-transparent"
+                      style={{
+                        backgroundImage: 'linear-gradient(90deg, #4d4d4d 0%, #8b8b8b 40%, #4d4d4d 60%, #4d4d4d 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 2.5s ease-in-out infinite',
+                      }}
+                    >
+                      {ROTATING_PHRASES[currentPhraseIndex]}
+                    </motion.span>
+                  </AnimatePresence>
                 </span>
               </div>
 
