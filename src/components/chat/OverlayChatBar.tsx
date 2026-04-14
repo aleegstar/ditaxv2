@@ -320,12 +320,6 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   >
                     <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); }}
-                    className="flex-shrink-0 focus:outline-none transition-colors"
-                  >
-                    <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                  </button>
                 </div>
 
                 <span className="text-base flex-1 select-none font-medium tracking-tight text-[#707070]">
