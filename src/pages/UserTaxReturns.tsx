@@ -660,10 +660,6 @@ const UserTaxReturns = () => {
                       }) : '–')}
                 </p>
 
-                <Button className="w-full sm:w-auto">
-                  {needsSignature ? t.userDashboard.sign : t.userDashboard.details}
-                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                </Button>
               </div>
             </motion.article>;
           })}
