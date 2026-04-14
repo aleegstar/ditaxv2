@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X, ChevronRight } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight, Plus } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
@@ -268,7 +268,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   onClick={(e) => { e.stopPropagation(); onMenuOpen(); }}
                   className="flex-shrink-0 focus:outline-none transition-colors"
                 >
-                  <Menu className="w-5 h-5 text-muted-foreground/50 hover:text-muted-foreground/80" strokeWidth={1.8} />
+                  <Plus className="w-5 h-5 text-foreground" strokeWidth={1.8} />
                 </button>
 
                 <span className="text-base flex-1 select-none font-medium tracking-tight text-[#707070]">
