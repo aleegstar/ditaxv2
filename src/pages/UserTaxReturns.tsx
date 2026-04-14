@@ -115,6 +115,7 @@ const UserTaxReturns = () => {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [refetch]);
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
+  const [showAddYearSheet, setShowAddYearSheet] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
