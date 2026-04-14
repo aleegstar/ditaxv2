@@ -260,7 +260,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 style={{
                   background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
                   border: '1px solid #FFFFFF',
-                  boxShadow: '0 12px 40px -8px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.06)',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
                 }}
               >
                 {/* Menu button inside pill */}
