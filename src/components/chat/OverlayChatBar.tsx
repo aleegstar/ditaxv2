@@ -61,7 +61,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     const msg = inputValue.trim();
     if (!msg || isLoading) return;
     setInputValue('');
-    await sendMessage(msg);
+    const formattedMsg = showEscalation ? `[Mit Mitarbeitern sprechen: ${msg}]` : msg;
+    if (showEscalation) setShowEscalation(false);
+    await sendMessage(formattedMsg);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
