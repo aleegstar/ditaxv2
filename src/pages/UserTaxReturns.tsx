@@ -477,95 +477,88 @@ const UserTaxReturns = () => {
               {/* Main Card */}
               <div 
                 onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[1.75rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
                 style={{
-                  background: '#ffffff',
-                  boxShadow: '0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
-                  border: '1px solid rgba(0,0,0,0.06)',
+                  background: 'rgba(255, 255, 255, 0.40)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.60)',
                 }}
               >
-                {/* Subtle gradient accent strip at top */}
-                <div 
-                  className="h-1 w-full"
-                  style={{
-                    background: 'linear-gradient(90deg, hsl(222 100% 56%), hsl(222 100% 44%))',
-                  }}
-                />
-
-                <div className="p-7 sm:p-8">
-                  {/* Year + Status + Menu */}
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/60">
-                        {t.userDashboard.taxReturn || 'Steuererklärung'}
+                {/* Year + Menu */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-muted-foreground">Status</span>
+                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
+                      <span className="text-xs font-medium text-primary">
+                        In Erfassung
                       </span>
-                      <div className="flex items-center gap-1.5 bg-primary/8 px-2.5 py-1 rounded-full">
-                        <span className="text-[11px] font-medium text-primary">
-                          In Erfassung
-                        </span>
-                      </div>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-full -mr-1">
-                          <MoreVertical className="h-4.5 w-4.5" strokeWidth={1.5} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={e => {
-                          e.stopPropagation();
-                          setYearToDelete(year);
-                          setDeleteDialogOpen(true);
-                        }} className="text-red-600 hover:text-red-700">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t.common.delete}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </div>
-
-                  {/* Title & Description */}
-                  <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-1.5 text-3xl">
-                    {year}
-                  </h2>
-                  <p className="text-[14px] text-muted-foreground leading-relaxed mb-6">
-                    {completedSteps === 0 
-                      ? 'Beginne damit deine Angaben zu erfassen.'
-                      : `${completedSteps} von ${steps.length} Schritten abgeschlossen.`
-                    }
-                  </p>
-
-                  {/* Progress Bar */}
-                  <div className="flex gap-1.5 mb-7">
-                    {steps.map((step, i) => (
-                      <div 
-                        key={i} 
-                        className="flex-1 h-[3px] rounded-full transition-all duration-500"
-                        style={{
-                          background: i < completedSteps 
-                            ? 'hsl(222 100% 50%)' 
-                            : 'hsl(var(--muted))',
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Action Button */}
-                  <Button 
-                    className="w-full sm:w-auto"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (nextStep) {
-                        navigate(getStepRoute(nextStepLabel));
-                      } else {
-                        navigate(`/form?year=${year}`);
-                      }
-                    }}
-                  >
-                    {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                    <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
+                        <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={e => {
+                        e.stopPropagation();
+                        setYearToDelete(year);
+                        setDeleteDialogOpen(true);
+                      }} className="text-red-600 hover:text-red-700">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t.common.delete}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
+
+                {/* Title & Description */}
+                <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
+                  {year}
+                </h2>
+                <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
+                  {completedSteps === 0 
+                    ? 'Beginne damit deine Angaben zu erfassen.'
+                    : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`
+                  }
+                </p>
+
+                {/* Progress Bar */}
+                <div className="flex gap-1.5 mb-8">
+                  {steps.map((step, i) => (
+                    <div 
+                      key={i} 
+                      className="flex-1 h-2.5 rounded-full transition-all duration-500"
+                      style={i < completedSteps ? {
+                        background: 'hsl(var(--primary))',
+                      } : {
+                        background: 'rgba(255, 255, 255, 0.30)',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(255, 255, 255, 0.60)',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Action Button */}
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (nextStep) {
+                      navigate(getStepRoute(nextStepLabel));
+                    } else {
+                      navigate(`/form?year=${year}`);
+                    }
+                  }}
+                >
+                  {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
+                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
+                </Button>
               </div>
             </motion.div>;
           })}
@@ -583,16 +576,15 @@ const UserTaxReturns = () => {
             >
               <div 
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="relative z-10 rounded-[1.75rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98]"
+                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
                 style={{
-                  background: '#ffffff',
-                  boxShadow: '0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
-                  border: '1px solid rgba(0,0,0,0.06)',
+                  background: 'rgba(255, 255, 255, 0.40)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.60)',
                 }}
               >
-                {/* Amber accent strip */}
-                <div className="h-1 w-full bg-gradient-to-r from-amber-400 to-amber-500" />
-                <div className="p-7 sm:p-8">
                 {/* Year + Status Badges */}
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-sm font-medium text-muted-foreground">Status</span>
@@ -623,7 +615,6 @@ const UserTaxReturns = () => {
                   {t.userDashboard.tracking}
                   <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
                 </Button>
-                </div>
               </div>
             </motion.div>;
           })}
@@ -644,20 +635,18 @@ const UserTaxReturns = () => {
                   navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
                 }
               }}
-              className="group relative overflow-hidden rounded-[1.75rem] cursor-pointer transition-all duration-300 active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98]"
               style={{
-                background: '#ffffff',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
+                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
                 border: '1px solid rgba(0,0,0,0.06)',
               }}
             >
-              {/* Green/amber accent strip */}
-              <div className={`h-1 w-full ${needsSignature ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-emerald-400 to-emerald-500'}`} />
 
-              <div className="relative z-10 p-7 md:p-8">
+              <div className="relative z-10">
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/60">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
                       {year}
                     </span>
                     {needsSignature ? (
@@ -678,11 +667,11 @@ const UserTaxReturns = () => {
                   </div>
                 </div>
 
-                <h2 className="font-semibold tracking-tight text-foreground mb-1.5 leading-tight text-3xl">
+                <h2 className="font-semibold tracking-tight text-foreground mb-2 leading-tight text-3xl">
                   {needsSignature ? t.userDashboard.signatureRequired : `Steuererklärung ${year}`}
                 </h2>
 
-                <p className="text-[14px] text-muted-foreground leading-relaxed mb-6">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                   {needsSignature 
                     ? 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.' 
                     : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
