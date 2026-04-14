@@ -245,14 +245,14 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                     <button
                       onClick={handleSend}
                       disabled={!inputValue.trim() || isLoading}
-                      className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-30"
+                      className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-40"
                       style={{
-                        background: inputValue.trim() && !isLoading
-                          ? 'hsl(222 100% 55%)'
-                          : 'hsl(0 0% 82%)',
+                        background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
+                        boxShadow: '0 8px 20px -4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.15)',
+                        border: '1px solid rgba(255,255,255,0.08)',
                       }}
                     >
-                      <Send className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                      <ChevronRight className="w-4 h-4 text-white" strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
