@@ -389,18 +389,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 </span>
               </div>
 
-              {/* Dark circular send button */}
-              <button
-                onClick={handleOpen}
-                className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none"
-                style={{
-                  background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
-                  boxShadow: '0 12px 30px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                }}
-              >
-                <ChevronRight className="w-5 h-5 text-white" strokeWidth={1.5} />
-              </button>
+
             </div>
           </motion.div>
         )}
