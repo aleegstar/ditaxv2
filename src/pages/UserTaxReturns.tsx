@@ -115,6 +115,7 @@ const UserTaxReturns = () => {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [refetch]);
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
+  const [showAddYearSheet, setShowAddYearSheet] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -370,6 +371,51 @@ const UserTaxReturns = () => {
           pendingDocuments={pendingDocuments} 
           pendingInformation={pendingInformation} 
         />
+
+        {/* Quick Action Cards */}
+        <section className="grid grid-cols-2 gap-3 mb-8">
+          {/* Upload Documents Card */}
+          <button
+            onClick={handleDocumentsClick}
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <FileCheck2 className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Unterlagen<br/>hochladen
+            </span>
+          </button>
+
+          {/* Add Tax Year Card */}
+          <button
+            onClick={() => setShowAddYearSheet(true)}
+            data-tour="quick-add-year"
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
+              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Steuerjahr<br/>hinzufügen
+            </span>
+          </button>
+        </section>
+
+        {/* Tax Returns Section Title */}
+        {availableYears.length > 0 && (
+          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+            Steuererklärungen
+          </h2>
+        )}
 
         {/* Cards - Timeline Layout */}
         <div className="flex flex-col gap-5">
@@ -752,7 +798,48 @@ const UserTaxReturns = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Signature Dialog - auto-opens when signature is pending */}
+      {/* Add Tax Year Bottom Sheet (from quick action card) */}
+      <Drawer open={showAddYearSheet} onOpenChange={setShowAddYearSheet}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-lg px-6 pb-8">
+            <DrawerHeader className="text-left pt-6 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-[18px] bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-6 h-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <DrawerTitle className="text-xl font-semibold">{t.addTaxYear.addTaxYear}</DrawerTitle>
+                  <DrawerDescription className="text-muted-foreground mt-1">{t.addTaxYear.chooseYear}</DrawerDescription>
+                </div>
+              </div>
+            </DrawerHeader>
+            <div className="space-y-2 pt-2">
+              {['2030','2029','2028','2027','2026','2025','2024']
+                .filter(y => !existingYears.includes(y))
+                .map(year => (
+                  <button
+                    key={year}
+                    onClick={() => {
+                      setShowAddYearSheet(false);
+                      createNewTaxReturn(year);
+                    }}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-background hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 text-left"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <Plus className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-medium text-foreground">{t.addTaxYear.taxYear} {year}</p>
+                      <p className="text-sm text-muted-foreground">{t.addTaxYear.createTaxReturn}</p>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+
       {userProfile && unsignedTaxReturn && <SignatureDialog open={signatureDialogOpen} onOpenChange={setSignatureDialogOpen} completedTaxReturn={{
       id: unsignedTaxReturn.id,
       tax_year: unsignedTaxReturn.tax_year,
