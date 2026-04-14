@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, ChevronRight } from "lucide-react";
+import { MoreVertical, Trash2, Play, Clock } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
   UnifiedAlertDialog,
@@ -14,7 +14,7 @@ import {
   UnifiedAlertDialogIcon,
   UnifiedAlertDialogTitle,
 } from "@/components/ui/unified-alert-dialog";
-
+import ditaxLogoIcon from "@/assets/ditax-logo.svg";
 interface BlueTaxYearCardProps {
   id: string;
   taxYear: string;
@@ -30,7 +30,6 @@ interface BlueTaxYearCardProps {
   onDelete?: (id: string) => void;
   isLoading?: boolean;
 }
-
 export function BlueTaxYearCard({
   id,
   taxYear,
@@ -49,15 +48,13 @@ export function BlueTaxYearCard({
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const totalSteps = 6;
-  const completedSteps = Math.round((progress / 100) * totalSteps);
-
-  const getStatusLabel = () => {
-    if (isCompleted || status === 'completed' || status === 'success') return "Abgeschlossen";
-    if (paymentStatus === 'paid') return "In Bearbeitung";
-    return "In Erfassung";
+  // Get description based on progress
+  const getDescription = () => {
+    if (progress >= 100) return "Deine Steuererklärung ist vollständig ausgefüllt.";
+    if (progress >= 75) return "Fast geschafft. Überprüfe die letzten Details.";
+    if (progress >= 50) return "Du bist auf einem guten Weg.";
+    return "Beginne damit deine Angaben zu erfassen.";
   };
-
   const handleContinue = () => {
     if ((status === 'success' || status === 'completed') && completedTaxReturn) {
       navigate(`/tax-return-actions/${id}?year=${taxYear}`);
@@ -73,27 +70,36 @@ export function BlueTaxYearCard({
       navigate(`/form?year=${taxYear}`);
     }
   };
-
   return <>
-      <div
-        className="mb-4 relative blue-tax-year-card cursor-pointer group"
-        data-tour="tax-year-card"
-        onClick={handleContinue}
-      >
-        <div className="bg-white rounded-2xl p-6 pr-5 border border-border/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] active:scale-[0.98] relative">
+      <div className="mb-8 relative blue-tax-year-card" data-tour="tax-year-card">
+        {/* Background Transparent Card (Overall Progress) */}
+        <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
+          <div className="flex items-center justify-between text-slate-600">
+            <div className="flex items-center space-x-3">
+              <div className="w-4 h-4 rounded-full border-2 border-slate-600/20 border-t-slate-600 animate-spin-slow" />
+              <span className="text-sm font-normal">Fortschritt</span>
+            </div>
+            <span className="text-sm font-normal">{progress}%</span>
+          </div>
+        </div>
+
+        {/* Main Card Wrapper for Border Effect */}
+        <div className="z-10 -mt-14 relative rounded-[2rem]">
+          {/* Main Card */}
+          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 relative">
           {/* Three Dots Menu - Top Right */}
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-5 right-5 z-20">
             <DropdownMenu>
               <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted rounded-full">
-                  <MoreVertical className="h-3.5 w-3.5" />
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={e => {
-                  e.stopPropagation();
-                  setShowDeleteDialog(true);
-                }} className="text-red-600 hover:text-red-700">
+                e.stopPropagation();
+                setShowDeleteDialog(true);
+              }} className="text-red-600 hover:text-red-700">
                   <Trash2 className="mr-2 h-4 w-4" />
                   Löschen
                 </DropdownMenuItem>
@@ -101,38 +107,40 @@ export function BlueTaxYearCard({
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              {/* Status label */}
-              <span className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wide">
-                {getStatusLabel()}
-              </span>
+          {/* Header of Card */}
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-sm font-medium text-slate-400">
+              Steuererklärung
+            </span>
+            <img 
+              src={ditaxLogoIcon} 
+              alt="Ditax" 
+              className="w-8 h-8 object-contain" 
+            />
+          </div>
 
-              {/* Year */}
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground mt-1 mb-3">
-                {taxYear}
-              </h2>
+          {/* Title & Desc */}
+          <h2 className="text-4xl font-normal tracking-tight text-slate-900 mb-3">
+            {taxYear}
+          </h2>
+          <p className="text-[1.1rem] leading-relaxed text-slate-500 mb-8">
+            {getDescription()}
+          </p>
 
-              {/* Progress text */}
-              <p className="text-sm text-muted-foreground mb-2.5">
-                {completedSteps} von {totalSteps} Schritten abgeschlossen
-              </p>
-
-              {/* Progress bar */}
-              <div className="h-[3px] w-full bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
+          {/* Actions */}
+          <div className="flex items-center justify-between">
+            <button onClick={handleContinue} className="flex items-center space-x-3 bg-primary text-white rounded-full px-5 py-3 shadow-lg shadow-primary/25 hover:scale-[1.02] transition-transform active:scale-95">
+              <div className="bg-white/20 rounded-full w-7 h-7 flex items-center justify-center">
+                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" strokeWidth={1.5} />
               </div>
-            </div>
-
-            {/* Chevron */}
-            <div className="flex-shrink-0 pl-2">
-              <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors" strokeWidth={1.5} />
+              <span className="text-sm font-medium pr-1">Fortsetzen</span>
+            </button>
+            <div className="flex items-center text-slate-400 space-x-2 mr-1">
+              <Clock className="w-5 h-5" strokeWidth={1.5} />
+              <span className="text-[0.95rem] font-medium">2h</span>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
