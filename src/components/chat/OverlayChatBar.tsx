@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
@@ -286,7 +286,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
-                <Send className="w-5 h-5 text-white" strokeWidth={1.5} />
+                <ChevronRight className="w-5 h-5 text-white" strokeWidth={1.5} />
               </button>
             </div>
           </motion.div>
