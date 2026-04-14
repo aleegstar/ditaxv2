@@ -365,24 +365,31 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
-                className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
                 style={{
-                  backgroundImage: 'linear-gradient(120deg, #ffffff 0%, #dddddd 100%)',
-                  border: '1px solid #FFFFFF',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.45) 50%, rgba(240,240,245,0.55) 100%)',
+                  backdropFilter: 'blur(40px) saturate(1.8)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
+                  border: '1px solid rgba(255,255,255,0.7)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(255,255,255,0.3)',
                 }}
               >
+                {/* Specular highlight */}
+                <span
+                  className="absolute inset-x-0 top-0 h-[50%] rounded-full pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%)',
+                  }}
+                />
                 {/* Rainbow glow */}
                 <span
-                  className="absolute inset-0 rounded-full animate-rainbow bg-[length:200%] opacity-40 blur-lg pointer-events-none -z-10"
+                  className="absolute inset-0 rounded-full animate-rainbow bg-[length:200%] opacity-30 blur-xl pointer-events-none -z-10"
                   style={{
                     backgroundImage: 'linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
                   }}
                 />
 
-
-
-                <span className="text-base flex-1 select-none font-medium tracking-tight text-muted-foreground">
+                <span className="text-base flex-1 select-none font-medium tracking-tight text-muted-foreground relative">
                   Wie kann ich dir helfen?
                 </span>
               </div>
