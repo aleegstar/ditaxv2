@@ -367,15 +367,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(100, 160, 255, 0.18) 0%, rgba(80, 145, 255, 0.32) 100%)',
-                  border: '1px solid rgba(255,255,255,0.35)',
-                  backdropFilter: 'blur(40px)',
-                  WebkitBackdropFilter: 'blur(40px)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(255,255,255,0.08)',
+                  background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
                 }}
               >
 
-                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/45">
+                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50">
                   Wie kann ich dir helfen?
                 </span>
 
@@ -384,7 +382,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   {[14, 20, 10, 22, 12].map((h, i) => (
                     <div
                       key={i}
-                      className="w-[3px] rounded-full bg-white/60"
+                      className="w-[3px] rounded-full bg-white/40"
                       style={{ height: `${h}px` }}
                     />
                   ))}
