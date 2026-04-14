@@ -220,5 +220,32 @@ export function useChatMessages(userId: string | null) {
     }
   }, [userId, isLoading, escalatedMode, sessionId, toast]);
 
-  return { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, loadChatHistory };
+  const requestEscalation = useCallback(async () => {
+    if (!userId || escalatedMode) return;
+    try {
+      const { error } = await supabase.from('chat_messages').insert({
+        sender_id: userId,
+        recipient_id: null,
+        content: 'Ich möchte mit einem Mitarbeiter verbunden werden.',
+        chat_type: 'human',
+        escalation_requested: true,
+      });
+      if (error) throw error;
+      setEscalatedMode(true);
+      const escalationMsg: ChatMessage = {
+        id: uuidv4(),
+        content: 'Ich möchte mit einem Mitarbeiter verbunden werden.',
+        isBot: false,
+        timestamp: new Date(),
+        chat_type: 'human',
+      };
+      setMessages(prev => [...prev, escalationMsg]);
+      toast({ title: "An Mitarbeiter weitergeleitet", description: "Ein Mitarbeiter wird sich in Kürze bei Ihnen melden." });
+    } catch (error) {
+      console.error('Error requesting escalation:', error);
+      toast({ title: "Fehler", description: "Weiterleitung fehlgeschlagen. Bitte versuche es erneut.", variant: "destructive" });
+    }
+  }, [userId, escalatedMode, toast]);
+
+  return { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, loadChatHistory, requestEscalation };
 }

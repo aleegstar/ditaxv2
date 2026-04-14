@@ -29,7 +29,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage } = useChatMessages(userId);
+  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, requestEscalation } = useChatMessages(userId);
 
   // Auto-scroll when messages change
   useEffect(() => {
@@ -237,7 +237,12 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       <button className="flex-shrink-0 focus:outline-none transition-colors">
                         <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                       </button>
-                      <button className="flex-shrink-0 focus:outline-none transition-colors">
+                      <button
+                        onClick={requestEscalation}
+                        disabled={escalatedMode}
+                        className="flex-shrink-0 focus:outline-none transition-colors disabled:opacity-40"
+                        title={escalatedMode ? "Bereits mit Mitarbeiter verbunden" : "Mit Mitarbeiter verbinden"}
+                      >
                         <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                       </button>
                     </div>
