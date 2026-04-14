@@ -320,8 +320,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
 
 
-                <span className="text-base flex-1 select-none font-medium tracking-tight text-[#4d4d4d]">
-                  ​
+                <span className="text-base flex-1 select-none font-medium tracking-tight text-primary-foreground">
+                  Frage mich...
                 </span>
               </div>
 
