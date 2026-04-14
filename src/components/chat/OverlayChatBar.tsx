@@ -265,22 +265,15 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="relative rounded-2xl"
+                  className="relative rounded-full"
                   style={{
-                    backgroundImage: 'linear-gradient(180deg, #F4F6F8 0%, #EDEFF2 100%)',
-                    border: '1px solid #FFFFFF',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
+                    background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
                   }}
                 >
-                  {/* Rainbow glow */}
-                  <span
-                    className="absolute inset-0 rounded-2xl animate-rainbow bg-[length:200%] opacity-40 blur-lg pointer-events-none -z-10"
-                    style={{
-                      backgroundImage: 'linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
-                    }}
-                  />
-                  {/* Top row: textarea */}
-                  <div className="px-4 pt-3 pb-1">
+                  {/* Single row: textarea + icons + send */}
+                  <div className="flex items-center gap-3 px-[18px] py-[14px]">
                     <textarea
                       ref={textareaRef}
                       value={inputValue}
@@ -288,7 +281,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-gray-400 text-foreground min-h-[24px] max-h-24"
+                      className="flex-1 bg-transparent text-[15px] font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-white min-h-[24px] max-h-24"
                       style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
@@ -296,13 +289,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         textarea.style.height = Math.min(textarea.scrollHeight, 96) + 'px';
                       }}
                     />
-                  </div>
 
-                  {/* Bottom row: icons left, send right */}
-                  <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
-                    <div className="flex items-center gap-3">
-                      <button className="flex-shrink-0 focus:outline-none transition-colors">
-                        <Paperclip className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button className="focus:outline-none transition-colors">
+                        <Paperclip className="w-5 h-5 text-white/30" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
@@ -310,7 +300,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
                           showEscalation
                             ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
-                            : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                            : 'bg-transparent border-transparent text-white/30 hover:text-white/50'
                         }`}
                       >
                         <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
@@ -328,20 +318,19 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                           )}
                         </AnimatePresence>
                       </button>
-                    </div>
 
-                    <button
-                      onClick={handleSend}
-                      disabled={!inputValue.trim() || isLoading}
-                      className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-40"
-                      style={{
-                        background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
-                        boxShadow: '0 8px 20px -4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.15)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                      }}
-                    >
-                      <ChevronRight className="w-4 h-4 text-white" strokeWidth={1.5} />
-                    </button>
+                      <button
+                        onClick={handleSend}
+                        disabled={!inputValue.trim() || isLoading}
+                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-30"
+                        style={{
+                          background: 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        <ChevronRight className="w-4 h-4 text-white/50" strokeWidth={1.5} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
