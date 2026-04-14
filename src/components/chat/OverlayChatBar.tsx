@@ -252,43 +252,42 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none md:hidden"
           >
-            <div className="max-w-2xl mx-auto flex items-center gap-2 pointer-events-auto">
-              {/* Menu button */}
-              <button
-                onClick={onMenuOpen}
-                className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
-                style={{
-                  background: 'rgba(255,255,255,0.85)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
-                }}
-              >
-                <Menu className="w-5 h-5 text-muted-foreground" strokeWidth={1.8} />
-              </button>
-
+            <div className="max-w-2xl mx-auto flex items-center gap-3 pointer-events-auto">
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
-                className="flex-1 flex items-center gap-3 rounded-full px-5 h-12 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                className="flex-1 flex items-center gap-4 rounded-full px-6 h-14 cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  background: 'rgba(255,255,255,0.85)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                  background: 'linear-gradient(to right, rgba(255,255,255,0.95), rgba(230,230,230,0.85))',
+                  border: '4px solid rgba(255,255,255,1)',
+                  boxShadow: '0 12px 40px -8px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.06)',
                 }}
               >
-              <span className="text-sm text-muted-foreground/50 flex-1 select-none">
+                {/* Menu button inside pill */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onMenuOpen(); }}
+                  className="flex-shrink-0 focus:outline-none transition-colors"
+                >
+                  <Menu className="w-5 h-5 text-muted-foreground/50 hover:text-muted-foreground/80" strokeWidth={1.8} />
+                </button>
+
+                <span className="text-base text-muted-foreground/40 flex-1 select-none font-medium tracking-tight">
                   Frage mich...
                 </span>
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/85"
-                >
-                  <Send className="w-4 h-4 text-background" strokeWidth={1.8} />
-                </div>
               </div>
+
+              {/* Dark circular send button */}
+              <button
+                onClick={handleOpen}
+                className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none"
+                style={{
+                  background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
+                  boxShadow: '0 12px 30px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                <Send className="w-5 h-5 text-white" strokeWidth={1.5} />
+              </button>
             </div>
           </motion.div>
         )}
