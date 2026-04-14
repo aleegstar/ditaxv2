@@ -226,7 +226,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder={escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
+                      placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
                       className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-[#707070] min-h-[24px] max-h-24"
                       style={{ color: 'hsl(0 0% 20%)', lineHeight: '1.5' }}
