@@ -104,6 +104,21 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
             style={{ maxHeight: '85vh' }}
           >
+            {/* Close button top right */}
+            <div className="pointer-events-auto flex justify-end px-4 pt-3 pb-1">
+              <button
+                onClick={handleClose}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
+                style={{
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: '0 4px 16px -2px rgba(0,0,0,0.12)',
+                }}
+              >
+                <X className="w-4 h-4 text-foreground" strokeWidth={2} />
+              </button>
+            </div>
+
             {/* Messages scroll area */}
             <div
               ref={scrollRef}
