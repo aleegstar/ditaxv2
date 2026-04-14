@@ -156,15 +156,19 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                             <span className="text-[10px] text-white/50 ml-1">{message.senderName}</span>
                           )}
                           <div
-                            className={`px-3.5 py-2.5 rounded-[20px] text-[13px] leading-relaxed ${
-                              message.isBot || message.isAdmin
-                                ? 'bg-white/15 text-white/90'
-                                : 'text-white'
-                            }`}
+                            className={`px-3.5 py-2.5 rounded-[20px] text-[13px] leading-relaxed text-white`}
                             style={
                               message.isBot || message.isAdmin
-                                ? { backdropFilter: 'blur(12px)' }
-                                : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))' }
+                                ? {
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08))',
+                                    backdropFilter: 'blur(16px)',
+                                    WebkitBackdropFilter: 'blur(16px)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                  }
+                                : {
+                                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(222 100% 50%))',
+                                    border: '1px solid hsl(222 100% 65% / 0.4)',
+                                  }
                             }
                           >
                             <p className="whitespace-pre-wrap">{message.content}</p>
