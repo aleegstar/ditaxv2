@@ -476,30 +476,21 @@ const UserTaxReturns = () => {
             >
               {/* Main Card */}
               <div 
-                onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.40)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                onClick={() => {
+                  if (nextStep) {
+                    navigate(getStepRoute(nextStepLabel));
+                  } else {
+                    navigate(`/form?year=${year}`);
+                  }
                 }}
+                className="group relative z-10 bg-white rounded-2xl p-6 pr-5 border border-border/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] cursor-pointer active:scale-[0.98]"
               >
-                {/* Year + Menu */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-muted-foreground">Status</span>
-                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
-                      <span className="text-xs font-medium text-primary">
-                        In Erfassung
-                      </span>
-                    </div>
-                  </div>
+                {/* Menu */}
+                <div className="absolute top-4 right-4 z-20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
-                        <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted rounded-full">
+                        <MoreVertical className="h-3.5 w-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -515,50 +506,40 @@ const UserTaxReturns = () => {
                   </DropdownMenu>
                 </div>
 
-                {/* Title & Description */}
-                <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
-                  {year}
-                </h2>
-                <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
-                  {completedSteps === 0 
-                    ? 'Beginne damit deine Angaben zu erfassen.'
-                    : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`
-                  }
-                </p>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    {/* Status */}
+                    <span className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wide">
+                      In Erfassung
+                    </span>
 
-                {/* Progress Bar */}
-                <div className="flex gap-1.5 mb-8">
-                  {steps.map((step, i) => (
-                    <div 
-                      key={i} 
-                      className="flex-1 h-2.5 rounded-full transition-all duration-500"
-                      style={i < completedSteps ? {
-                        background: 'hsl(var(--primary))',
-                      } : {
-                        background: 'rgba(255, 255, 255, 0.30)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(255, 255, 255, 0.60)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
-                      }}
-                    />
-                  ))}
+                    {/* Year */}
+                    <h2 className="text-3xl font-semibold tracking-tight text-foreground mt-1 mb-3">
+                      {year}
+                    </h2>
+
+                    {/* Progress text */}
+                    <p className="text-sm text-muted-foreground mb-2.5">
+                      {completedSteps === 0 
+                        ? 'Beginne damit deine Angaben zu erfassen.'
+                        : `${completedSteps} von ${steps.length} Schritten abgeschlossen`
+                      }
+                    </p>
+
+                    {/* Progress bar */}
+                    <div className="h-[3px] w-full bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all duration-500"
+                        style={{ width: `${Math.round((completedSteps / steps.length) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Chevron */}
+                  <div className="flex-shrink-0 pl-2">
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors" strokeWidth={1.5} />
+                  </div>
                 </div>
-
-                {/* Action Button */}
-                <Button 
-                  className="w-full sm:w-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (nextStep) {
-                      navigate(getStepRoute(nextStepLabel));
-                    } else {
-                      navigate(`/form?year=${year}`);
-                    }
-                  }}
-                >
-                  {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                </Button>
               </div>
             </motion.div>;
           })}
