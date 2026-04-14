@@ -307,9 +307,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
-                  border: '1px solid #FFFFFF',
-                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
+                  background: 'linear-gradient(135deg, rgba(255,210,160,0.45) 0%, rgba(245,200,210,0.4) 25%, rgba(220,190,240,0.35) 50%, rgba(180,200,255,0.3) 75%, rgba(255,255,255,0.9) 100%), #FFFFFF',
+                  border: '1px solid rgba(255,255,255,0.8)',
+                  boxShadow: '0 4px 24px -4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
                 {/* Menu button inside pill */}
