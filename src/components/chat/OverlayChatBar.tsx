@@ -256,7 +256,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
-                className="flex-1 flex items-center gap-4 rounded-full px-6 h-14 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                className="flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
                   background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
                   border: '1px solid #FFFFFF',
