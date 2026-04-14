@@ -307,9 +307,17 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.15*1rem)_solid_transparent]"
                 style={{
-                  backgroundImage: 'linear-gradient(rgba(255,255,255,1), rgba(255,255,255,0.5)), linear-gradient(rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3) 80%, rgba(255,255,255,0.15)), linear-gradient(90deg, hsl(0 100% 80%), hsl(30 100% 78%), hsl(50 100% 75%), hsl(180 100% 65%), hsl(220 100% 72%), hsl(280 80% 75%), hsl(330 90% 78%))',
+                  backgroundImage: 'linear-gradient(transparent, transparent), linear-gradient(transparent 50%, transparent 80%, transparent), linear-gradient(90deg, hsl(0 100% 80%), hsl(30 100% 78%), hsl(50 100% 75%), hsl(180 100% 65%), hsl(220 100% 72%), hsl(280 80% 75%), hsl(330 90% 78%))',
                 }}
               >
+                {/* White overlay with fade to transparent + white border */}
+                <span
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0.5))',
+                    border: '1px solid rgba(255,255,255,1)',
+                  }}
+                />
                 {/* Rainbow glow */}
                 <span
                   className="absolute inset-0 rounded-full animate-rainbow bg-[length:200%] opacity-25 blur-lg pointer-events-none -z-10"
@@ -318,9 +326,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   }}
                 />
 
-
-
-                <span className="text-base flex-1 select-none font-medium tracking-tight text-[#4d4d4d]">
+                <span className="relative text-base flex-1 select-none font-medium tracking-tight text-[#4d4d4d]">
                   Frage mich...
                 </span>
               </div>
