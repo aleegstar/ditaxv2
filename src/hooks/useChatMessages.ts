@@ -247,5 +247,9 @@ export function useChatMessages(userId: string | null) {
     }
   }, [userId, escalatedMode, toast]);
 
-  return { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, loadChatHistory, requestEscalation };
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+  }, []);
+
+  return { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage, loadChatHistory, requestEscalation, clearMessages };
 }
