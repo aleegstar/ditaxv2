@@ -264,10 +264,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="relative rounded-2xl animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.15*1rem)_solid_transparent]"
+                  className="relative rounded-2xl"
                   style={{
-                    backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26))',
-                    boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
+                    backgroundImage: 'linear-gradient(180deg, #F4F6F8 0%, #EDEFF2 100%)',
+                    border: '1px solid #FFFFFF',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
                   }}
                 >
                   {/* Rainbow glow */}
@@ -286,7 +287,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-primary-foreground min-h-[24px] max-h-24"
+                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-gray-400 text-foreground min-h-[24px] max-h-24"
                       style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
@@ -300,7 +301,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
                     <div className="flex items-center gap-3">
                       <button className="flex-shrink-0 focus:outline-none transition-colors">
-                        <Paperclip className="w-5 h-5 text-white/50" strokeWidth={1.5} />
+                        <Paperclip className="w-5 h-5 text-gray-400" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
@@ -308,7 +309,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
                           showEscalation
                             ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
-                            : 'bg-transparent border-transparent text-white/50 hover:text-white/70 hover:bg-white/10'
+                            : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                         }`}
                       >
                         <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
