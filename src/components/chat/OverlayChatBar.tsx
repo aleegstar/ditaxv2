@@ -264,10 +264,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="relative rounded-2xl animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.15*1rem)_solid_transparent]"
+                  className="relative rounded-2xl"
                   style={{
-                    backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26))',
-                    boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
+                    backgroundImage: 'linear-gradient(180deg, #F4F6F8 0%, #EDEFF2 100%)',
+                    border: '1px solid #FFFFFF',
+                    boxShadow: '0 6px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
                   }}
                 >
                   {/* Rainbow glow */}
