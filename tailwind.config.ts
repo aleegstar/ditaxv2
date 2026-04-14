@@ -302,7 +302,7 @@ export default {
     			'gentle-pulse': 'gentle-pulse 2s ease-in-out infinite',
 			'scroll-left': 'scroll-left 15s linear infinite',
 			'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-			'shimmer': 'shimmer 3s ease-in-out infinite'
+			'shimmer': 'shimmer 4s infinite linear'
     		},
     		backgroundSize: {
     			'shine-size': '200% 200%'
