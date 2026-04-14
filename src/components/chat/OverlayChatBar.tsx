@@ -50,7 +50,16 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     }
   }, [messages, isOpen]);
 
-  // Focus textarea when opened
+  // Rotate phrases
+  useEffect(() => {
+    if (isOpen) return;
+    const interval = setInterval(() => {
+      setCurrentPhraseIndex((prev) => (prev + 1) % ROTATING_PHRASES.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => textareaRef.current?.focus(), 100);
