@@ -234,8 +234,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-[#707070] min-h-[24px] max-h-24"
-                      style={{ color: 'hsl(0 0% 20%)', lineHeight: '1.5' }}
+                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-primary-foreground min-h-[24px] max-h-24"
+                      style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
                         textarea.style.height = 'auto';
@@ -247,8 +247,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   {/* Bottom row: icons left, send right */}
                   <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
                     <div className="flex items-center gap-3">
-                      <button className="flex-shrink-0 focus:outline-none transition-colors">
-                        <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                      <Paperclip className="w-5 h-5 text-white/50" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
