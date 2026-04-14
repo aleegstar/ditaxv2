@@ -379,7 +379,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
 
 
-                <span className="text-base flex-1 select-none font-medium tracking-tight animate-shimmer" style={{ background: 'linear-gradient(90deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 100%) 50%, hsl(0, 0%, 84.7%) 100%)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+                <span className="text-base flex-1 select-none font-medium tracking-tight animate-shimmer" style={{ background: 'linear-gradient(90deg, hsl(0, 0%, 25%) 0%, hsl(0, 0%, 25%) 50%, hsl(0, 0%, 55%) 100%)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
                   Wie kann ich dir helfen?
                 </span>
               </div>
