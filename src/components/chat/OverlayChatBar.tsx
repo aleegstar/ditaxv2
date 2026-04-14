@@ -312,15 +312,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   boxShadow: '0 4px 24px -4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                {/* Menu button inside pill */}
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onMenuOpen(); }}
-                    className="flex-shrink-0 focus:outline-none transition-colors"
-                  >
-                    <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                  </button>
-                </div>
+
+
 
                 <span className="text-base flex-1 select-none font-medium tracking-tight text-[#707070]">
                   Frage mich...
