@@ -309,7 +309,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
                           showEscalation
                             ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
-                            : 'bg-transparent border-transparent text-white/50 hover:text-white/70 hover:bg-white/10'
+                            : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                         }`}
                       >
                         <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
