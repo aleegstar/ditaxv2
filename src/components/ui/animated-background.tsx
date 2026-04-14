@@ -25,7 +25,7 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, hsl(350, 60%, 94%) 0%, hsl(340, 40%, 96%) 15%, hsl(300, 20%, 97%) 35%, hsl(0, 0%, 98%) 50%, hsl(220, 30%, 96%) 70%, hsl(220, 40%, 94%) 100%)'
+          background: 'linear-gradient(180deg, #F2E4E4 0%, #F5EAEB 10%, #F8F0F1 20%, #FAFAFA 40%, #F8F8FA 55%, #F0F1F6 75%, #E8EAF2 90%, #E4E7F0 100%)'
         }}
       />
       
