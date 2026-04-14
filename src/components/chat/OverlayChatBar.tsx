@@ -255,11 +255,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                         onClick={() => setShowEscalation(!showEscalation)}
                         className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
                           showEscalation
-                            ? 'bg-blue-50 border-blue-300 text-blue-600'
-                            : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                            ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
+                            : 'bg-transparent border-transparent text-white/50 hover:text-white/70 hover:bg-white/10'
                         }`}
                       >
-                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-600' : ''}`} strokeWidth={1.5} />
+                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
                         <AnimatePresence>
                           {showEscalation && (
                             <motion.span
