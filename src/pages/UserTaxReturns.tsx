@@ -393,11 +393,7 @@ const UserTaxReturns = () => {
 
           {/* Add Tax Year Card */}
           <button
-            onClick={() => {
-              // Trigger the AddTaxYearDropdown programmatically
-              const addYearEl = document.querySelector('[data-tour="add-year-card"]') as HTMLElement;
-              if (addYearEl) addYearEl.click();
-            }}
+            onClick={() => setShowAddYearSheet(true)}
             data-tour="quick-add-year"
             className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
             style={{
