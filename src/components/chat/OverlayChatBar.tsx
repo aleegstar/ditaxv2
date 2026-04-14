@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X, ChevronRight, Plus } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
