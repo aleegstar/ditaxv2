@@ -203,50 +203,59 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
             {/* Input bar (always visible at bottom when open) */}
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-              <div className="max-w-2xl mx-auto flex items-center gap-3">
-                {/* Input pill matching resting state */}
+              <div className="max-w-2xl mx-auto">
                 <div
-                  className="flex-1 flex items-center gap-4 rounded-full px-[18px] h-[60px]"
+                  className="rounded-2xl"
                   style={{
                     background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
                     border: '1px solid #FFFFFF',
                     boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
-                  {/* Icons */}
-                  <div className="flex items-center gap-3">
-                    <button className="flex-shrink-0 focus:outline-none transition-colors">
-                      <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                    </button>
-                    <button className="flex-shrink-0 focus:outline-none transition-colors">
-                      <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                    </button>
+                  {/* Top row: textarea */}
+                  <div className="px-4 pt-3 pb-1">
+                    <textarea
+                      ref={textareaRef}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
+                      rows={1}
+                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-[#707070] min-h-[24px] max-h-24"
+                      style={{ color: 'hsl(0 0% 20%)', lineHeight: '1.5' }}
+                      onInput={(e) => {
+                        const textarea = e.target as HTMLTextAreaElement;
+                        textarea.style.height = 'auto';
+                        textarea.style.height = Math.min(textarea.scrollHeight, 96) + 'px';
+                      }}
+                    />
                   </div>
 
-                  <input
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={escalatedMode ? "Nachricht an Support..." : "Nachricht schreiben..."}
-                    className="flex-1 bg-transparent text-base font-medium tracking-tight outline-none placeholder:text-[#707070]"
-                    style={{ color: 'hsl(0 0% 20%)' }}
-                  />
-                </div>
+                  {/* Bottom row: icons left, send right */}
+                  <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
+                    <div className="flex items-center gap-3">
+                      <button className="flex-shrink-0 focus:outline-none transition-colors">
+                        <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                      <button className="flex-shrink-0 focus:outline-none transition-colors">
+                        <UserRound className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                      </button>
+                    </div>
 
-                {/* Dark circular send button */}
-                <button
-                  onClick={handleSend}
-                  disabled={!inputValue.trim() || isLoading}
-                  className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-40"
-                  style={{
-                    background: 'linear-gradient(to bottom, hsl(0 0% 30%), hsl(0 0% 10%))',
-                    boxShadow: '0 12px 30px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                  }}
-                >
-                  <ChevronRight className="w-5 h-5 text-white" strokeWidth={1.5} />
-                </button>
+                    <button
+                      onClick={handleSend}
+                      disabled={!inputValue.trim() || isLoading}
+                      className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-30"
+                      style={{
+                        background: inputValue.trim() && !isLoading
+                          ? 'hsl(222 100% 55%)'
+                          : 'hsl(0 0% 82%)',
+                      }}
+                    >
+                      <Send className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
