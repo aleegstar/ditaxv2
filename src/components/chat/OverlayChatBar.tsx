@@ -367,27 +367,36 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleOpen}
                 className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  backgroundImage: 'linear-gradient(120deg, #ffffff 0%, #dddddd 100%)',
-                  border: '1px solid #FFFFFF',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
+                  background: 'linear-gradient(160deg, rgba(80, 140, 255, 0.35) 0%, rgba(40, 100, 220, 0.25) 100%)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  backdropFilter: 'blur(40px)',
+                  WebkitBackdropFilter: 'blur(40px)',
+                  boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(0,0,0,0.1), 0 0 30px rgba(50, 120, 255, 0.25), 0 0 60px rgba(50, 120, 255, 0.1)',
                 }}
               >
-                {/* Rainbow glow */}
+                {/* Blue glow behind */}
                 <span
-                  className="absolute inset-0 rounded-full animate-rainbow bg-[length:200%] opacity-40 blur-lg pointer-events-none -z-10"
+                  className="absolute inset-0 rounded-full opacity-50 blur-xl pointer-events-none -z-10"
                   style={{
-                    backgroundImage: 'linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
+                    background: 'radial-gradient(ellipse at center, rgba(60, 130, 255, 0.4) 0%, rgba(30, 80, 200, 0.15) 60%, transparent 100%)',
                   }}
                 />
 
-
-
-                <span className="text-base flex-1 select-none font-medium tracking-tight text-muted-foreground">
+                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50">
                   Wie kann ich dir helfen?
                 </span>
+
+                {/* Sound wave icon */}
+                <div className="flex-shrink-0 flex items-center gap-[3px] h-6">
+                  {[14, 20, 10, 22, 12].map((h, i) => (
+                    <div
+                      key={i}
+                      className="w-[3px] rounded-full bg-white/70"
+                      style={{ height: `${h}px` }}
+                    />
+                  ))}
+                </div>
               </div>
-
-
             </div>
           </motion.div>
         )}
