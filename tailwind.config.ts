@@ -279,6 +279,10 @@ export default {
 					boxShadow: '0 0 45px -5px rgba(29, 100, 255, 0.65)',
 					transform: 'scale(1.03)'
 				}
+			},
+			'shimmer': {
+				'0%': { backgroundPosition: '200% 0' },
+				'100%': { backgroundPosition: '-200% 0' }
 			}
     		},
     		animation: {
@@ -297,7 +301,8 @@ export default {
     			'spin-circle': 'spin-circle 3s infinite linear',
     			'gentle-pulse': 'gentle-pulse 2s ease-in-out infinite',
 			'scroll-left': 'scroll-left 15s linear infinite',
-			'pulse-glow': 'pulse-glow 3s ease-in-out infinite'
+			'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+			'shimmer': 'shimmer 3s ease-in-out infinite'
     		},
     		backgroundSize: {
     			'shine-size': '200% 200%'
