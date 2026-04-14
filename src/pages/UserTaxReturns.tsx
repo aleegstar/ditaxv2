@@ -544,21 +544,6 @@ const UserTaxReturns = () => {
                   ))}
                 </div>
 
-                {/* Action Button */}
-                <Button 
-                  className="w-full sm:w-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (nextStep) {
-                      navigate(getStepRoute(nextStepLabel));
-                    } else {
-                      navigate(`/form?year=${year}`);
-                    }
-                  }}
-                >
-                  {completedSteps === 0 ? 'Jetzt starten' : 'Weiter ausfüllen'}
-                  <ChevronRight className="w-4 h-4 ml-1" strokeWidth={2} />
-                </Button>
               </div>
             </motion.div>;
           })}
