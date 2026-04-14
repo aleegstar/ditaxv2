@@ -212,13 +212,19 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="rounded-2xl"
+                  className="relative rounded-2xl animate-rainbow bg-[length:200%] [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.15*1rem)_solid_transparent]"
                   style={{
-                    background: 'linear-gradient(to right, #FFFFFF, #E8E8E8)',
-                    border: '1px solid #FFFFFF',
+                    backgroundImage: 'linear-gradient(rgb(77, 77, 77), rgb(26, 26, 26)), linear-gradient(rgb(77, 77, 77) 50%, rgba(26,26,26,0.6) 80%, transparent), linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
                     boxShadow: '0 4px 24px -4px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
+                  {/* Rainbow glow */}
+                  <span
+                    className="absolute inset-0 rounded-2xl animate-rainbow bg-[length:200%] opacity-40 blur-lg pointer-events-none -z-10"
+                    style={{
+                      backgroundImage: 'linear-gradient(90deg, hsl(0 100% 70%), hsl(30 100% 65%), hsl(50 100% 60%), hsl(180 100% 45%), hsl(220 100% 60%), hsl(280 80% 60%), hsl(330 90% 65%))',
+                    }}
+                  />
                   {/* Top row: textarea */}
                   <div className="px-4 pt-3 pb-1">
                     <textarea
@@ -228,8 +234,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-[#707070] min-h-[24px] max-h-24"
-                      style={{ color: 'hsl(0 0% 20%)', lineHeight: '1.5' }}
+                      className="w-full bg-transparent text-base font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-primary-foreground min-h-[24px] max-h-24"
+                      style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
                         textarea.style.height = 'auto';
@@ -242,18 +248,18 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
                     <div className="flex items-center gap-3">
                       <button className="flex-shrink-0 focus:outline-none transition-colors">
-                        <Paperclip className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                        <Paperclip className="w-5 h-5 text-white/50" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowEscalation(!showEscalation)}
                         className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
                           showEscalation
-                            ? 'bg-blue-50 border-blue-300 text-blue-600'
-                            : 'bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                            ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
+                            : 'bg-transparent border-transparent text-white/50 hover:text-white/70 hover:bg-white/10'
                         }`}
                       >
-                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-600' : ''}`} strokeWidth={1.5} />
+                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
                         <AnimatePresence>
                           {showEscalation && (
                             <motion.span
@@ -261,7 +267,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                               animate={{ width: 'auto', opacity: 1 }}
                               exit={{ width: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="text-xs overflow-hidden whitespace-nowrap text-blue-600 flex-shrink-0"
+                              className="text-xs overflow-hidden whitespace-nowrap text-blue-400 flex-shrink-0"
                             >
                               Mit Mitarbeitern sprechen
                             </motion.span>
