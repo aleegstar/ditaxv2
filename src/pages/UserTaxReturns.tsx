@@ -678,70 +678,9 @@ const UserTaxReturns = () => {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      {!showTour && createPortal(
-        <div className="fixed inset-x-0 bottom-4 z-[9999] flex items-center justify-center px-5 pointer-events-none md:hidden">
-          <div className="pointer-events-auto flex items-center gap-3">
-            <nav
-              data-bottom-navbar
-              className="inline-flex items-center gap-1 rounded-full px-2 py-2"
-              style={{
-                background: 'rgb(255, 255, 255)',
-                border: '1px solid rgba(0, 0, 0, 0.06)',
-                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <button
-                className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
-                style={{
-                  color: 'hsl(222, 100%, 56%)',
-                  background: 'hsl(222, 100%, 56%, 0.1)'
-                }}
-                aria-label="Dashboard"
-              >
-                <Home className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-
-              <button
-                data-tour="chat-header-icon"
-                onClick={() => navigate('/chat')}
-                className="relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
-                style={{ color: 'rgba(100, 110, 130, 0.7)' }}
-                aria-label="Chat"
-              >
-                <Inbox className="w-5 h-5" strokeWidth={1.8} />
-                {unreadCount > 0 && (
-                  <span
-                    className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive"
-                    style={{ boxShadow: '0 0 0 2px rgba(255, 255, 255, 0.85)' }}
-                  />
-                )}
-              </button>
-
-              <button
-                onClick={() => setMenuSheetOpen(true)}
-                className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.96]"
-                style={{ color: 'rgba(100, 110, 130, 0.7)' }}
-                aria-label="Menü"
-              >
-                <Menu className="w-5 h-5" strokeWidth={1.8} />
-              </button>
-            </nav>
-
-            <button
-              onClick={() => setMenuSheetOpen(true)}
-              className="pointer-events-auto flex h-[52px] w-[52px] items-center justify-center rounded-full text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.96]"
-              style={{
-                background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
-                boxShadow: '0 12px 28px -10px hsl(222 100% 50% / 0.55), 0 6px 14px -8px hsl(222 100% 50% / 0.38), inset 0 1px 0 hsl(0 0% 100% / 0.24)'
-              }}
-              aria-label="Menü"
-            >
-              <Menu className="w-5 h-5" strokeWidth={2} />
-            </button>
-          </div>
-        </div>,
-        document.body
+      {/* Overlay Chat Bar */}
+      {!showTour && userId && (
+        <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
       )}
 
       {/* White Overlay for Transition */}
