@@ -1,0 +1,302 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Menu, User, X } from 'lucide-react';
+import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
+
+interface OverlayChatBarProps {
+  userId: string;
+  onMenuOpen: () => void;
+}
+
+const formatTime = (date: Date) =>
+  date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+const bubbleVariants = {
+  hidden: { opacity: 0, y: 24, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', damping: 25, stiffness: 350 } },
+  exit: { opacity: 0, y: 10, scale: 0.97, transition: { duration: 0.15 } },
+};
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.04 } },
+  exit: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
+};
+
+export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { messages, isLoading, isLoadingHistory, escalatedMode, sendMessage } = useChatMessages(userId);
+
+  // Auto-scroll when messages change
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  }, [messages, isOpen]);
+
+  // Focus textarea when opened
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
+
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setInputValue('');
+  };
+
+  const handleSend = async () => {
+    const msg = inputValue.trim();
+    if (!msg || isLoading) return;
+    setInputValue('');
+    await sendMessage(msg);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const lastMessages = messages.slice(-15);
+
+  return (
+    <>
+      {/* Dark Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="overlay-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="fixed inset-0 z-[9998] bg-black/60"
+            onClick={handleClose}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Chat Bubbles */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="chat-bubbles"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-x-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
+            style={{ maxHeight: '85vh' }}
+          >
+            {/* Messages scroll area */}
+            <div
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto px-4 pb-2 pointer-events-auto"
+              style={{ maxHeight: 'calc(85vh - 80px)' }}
+            >
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="max-w-2xl mx-auto space-y-3 pt-6"
+              >
+                {isLoadingHistory ? (
+                  <motion.div variants={bubbleVariants} className="flex justify-center py-8">
+                    <span className="text-sm text-white/60">Nachrichten werden geladen...</span>
+                  </motion.div>
+                ) : lastMessages.length === 0 ? (
+                  <motion.div variants={bubbleVariants} className="flex justify-center py-8">
+                    <div className="text-center">
+                      <p className="text-white/80 text-sm font-medium">Wie kann ich dir helfen?</p>
+                      <p className="text-white/50 text-xs mt-1">Stelle mir eine Frage zu deiner Steuererklärung</p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  lastMessages.map((message) => (
+                    <motion.div
+                      key={message.id}
+                      variants={bubbleVariants}
+                      className={`flex ${message.isBot || message.isAdmin ? 'justify-start' : 'justify-end'}`}
+                    >
+                      <div className={`flex items-end gap-2 ${message.isBot || message.isAdmin ? 'max-w-[85%]' : 'max-w-[80%] flex-row-reverse'}`}>
+                        {/* Avatar for bot/admin */}
+                        {(message.isBot || message.isAdmin) && (
+                          <div
+                            className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden mb-1"
+                            style={{
+                              background: message.isAdmin
+                                ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))'
+                                : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))',
+                            }}
+                          >
+                            {message.isAdmin ? (
+                              <User className="w-3.5 h-3.5 text-white" />
+                            ) : (
+                              <img src="/bot-avatar.png" alt="AI" className="w-full h-full object-cover" />
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex flex-col gap-0.5">
+                          {message.isAdmin && message.senderName && (
+                            <span className="text-[10px] text-white/50 ml-1">{message.senderName}</span>
+                          )}
+                          <div
+                            className={`px-3.5 py-2.5 rounded-[20px] text-[13px] leading-relaxed ${
+                              message.isBot || message.isAdmin
+                                ? 'bg-white/15 text-white/90'
+                                : 'text-white'
+                            }`}
+                            style={
+                              message.isBot || message.isAdmin
+                                ? { backdropFilter: 'blur(12px)' }
+                                : { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))' }
+                            }
+                          >
+                            <p className="whitespace-pre-wrap">{message.content}</p>
+                          </div>
+                          <span className={`text-[9px] text-white/35 ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
+                            {formatTime(message.timestamp)}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+
+                {/* Typing indicator */}
+                {isLoading && (
+                  <motion.div variants={bubbleVariants} className="flex justify-start">
+                    <div className="flex items-end gap-2">
+                      <div
+                        className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                        style={{ background: 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))' }}
+                      >
+                        <img src="/bot-avatar.png" alt="AI" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="px-4 py-3 rounded-[20px] bg-white/15" style={{ backdropFilter: 'blur(12px)' }}>
+                        <div className="flex gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0.1s' }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Input bar (always visible at bottom when open) */}
+            <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+              <div
+                className="max-w-2xl mx-auto flex items-end gap-2 rounded-[28px] px-3 py-2"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  backdropFilter: 'blur(24px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                }}
+              >
+                <textarea
+                  ref={textareaRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={escalatedMode ? "Nachricht an Support..." : "Nachricht schreiben..."}
+                  rows={1}
+                  className="flex-1 bg-transparent text-white placeholder:text-white/40 text-sm resize-none outline-none py-2 px-1 max-h-24"
+                  style={{ lineHeight: '1.5' }}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+                  style={{
+                    background: inputValue.trim()
+                      ? 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)'
+                      : 'rgba(255,255,255,0.1)',
+                  }}
+                >
+                  <Send className="w-4 h-4 text-white" strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Collapsed / Resting Input Bar */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.div
+            key="resting-bar"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none md:hidden"
+          >
+            <div className="max-w-2xl mx-auto flex items-center gap-2 pointer-events-auto">
+              {/* Menu button */}
+              <button
+                onClick={onMenuOpen}
+                className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+                style={{
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                <Menu className="w-5 h-5 text-muted-foreground" strokeWidth={1.8} />
+              </button>
+
+              {/* Glass input pill */}
+              <div
+                onClick={handleOpen}
+                className="flex-1 flex items-center gap-3 rounded-full px-5 h-12 cursor-pointer transition-all duration-200 active:scale-[0.98]"
+                style={{
+                  background: 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                <span className="text-sm text-muted-foreground/60 flex-1 select-none">
+                  Nachricht schreiben...
+                </span>
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: 'linear-gradient(180deg, hsl(222 100% 60%) 0%, hsl(222 100% 47%) 100%)',
+                    boxShadow: '0 4px 12px hsl(222 100% 50% / 0.3)',
+                  }}
+                >
+                  <Send className="w-3.5 h-3.5 text-white" strokeWidth={2} />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
