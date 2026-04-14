@@ -271,7 +271,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   <Menu className="w-5 h-5 text-muted-foreground/50 hover:text-muted-foreground/80" strokeWidth={1.8} />
                 </button>
 
-                <span className="text-base text-muted-foreground/40 flex-1 select-none font-medium tracking-tight">
+                <span className="text-base flex-1 select-none font-medium tracking-tight text-[#707070]">
                   Frage mich...
                 </span>
               </div>
