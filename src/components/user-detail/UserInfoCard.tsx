@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from '@/types';
 
@@ -10,53 +9,56 @@ interface UserInfoCardProps {
 
 const UserInfoCard: React.FC<UserInfoCardProps> = ({ user }) => {
   return (
-    <Card className="shadow-sm border-white/40 bg-white/60 backdrop-blur-xl rounded-2xl">
-      <CardHeader className="pb-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center border border-primary/20">
-            <span className="text-primary text-xl font-bold">
+    <div 
+      className="rounded-[20px] p-6 relative overflow-hidden shadow-lg"
+      style={{
+        background: 'linear-gradient(135deg, hsla(280, 60%, 85%, 1) 0%, hsla(20, 70%, 88%, 1) 15%, hsla(0, 0%, 97%, 1) 30%, hsla(190, 70%, 85%, 1) 50%, hsla(185, 60%, 82%, 1) 70%, hsla(280, 50%, 87%, 1) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.8)',
+      }}
+    >
+      <div className="relative z-10">
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-14 h-14 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/60 flex items-center justify-center">
+            <span className="text-lg font-bold text-slate-700">
               {user.firstName?.charAt(0)?.toUpperCase() || 'U'}
             </span>
           </div>
           <div className="flex-1">
-            <CardTitle className="text-xl font-semibold">
+            <h3 className="text-xl font-bold text-black tracking-tight">
               {user.firstName} {user.lastName}
-            </CardTitle>
-            <p className="text-muted-foreground">
+            </h3>
+            <p className="text-sm text-gray-500">
               {user.email || 'Keine E-Mail verfügbar'}
             </p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <Badge variant="secondary">
-                {user.status}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Rolle:</span>
-              <Badge variant="outline">
-                {user.role}
-              </Badge>
-            </div>
+
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between gap-8">
+            <span className="text-gray-500">Status</span>
+            <Badge 
+              variant="secondary" 
+              className="border border-white/20 backdrop-blur-sm"
+              style={{ background: 'rgba(82, 152, 228, 0.28)', borderRadius: '12px', color: '#000' }}
+            >
+              {user.status}
+            </Badge>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Dokumente:</span>
-              <span className="font-semibold">{user.documents.length}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Steuererklärungen:</span>
-              <span className="font-semibold">{user.taxReturns.length}</span>
-            </div>
+          <div className="flex justify-between gap-8">
+            <span className="text-gray-500">Rolle</span>
+            <span className="text-black font-medium">{user.role}</span>
+          </div>
+          <div className="flex justify-between gap-8">
+            <span className="text-gray-500">Dokumente</span>
+            <span className="text-[hsl(222,100%,50%)] font-medium">{user.documents.length}</span>
+          </div>
+          <div className="flex justify-between gap-8">
+            <span className="text-gray-500">Steuererklärungen</span>
+            <span className="text-[hsl(222,100%,50%)] font-medium">{user.taxReturns.length}</span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
