@@ -11,18 +11,21 @@ interface DocumentsOverlayProps {
 const LazyDocuments = React.lazy(() => import('@/pages/Documents'));
 
 export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onClose }) => {
-  // Lock body scroll when open
+  // Lock body scroll and set overlay mode when open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('hide-bottom-navbar');
+      document.body.setAttribute('data-documents-overlay', 'true');
     } else {
       document.body.style.overflow = '';
       document.body.classList.remove('hide-bottom-navbar');
+      document.body.removeAttribute('data-documents-overlay');
     }
     return () => {
       document.body.style.overflow = '';
       document.body.classList.remove('hide-bottom-navbar');
+      document.body.removeAttribute('data-documents-overlay');
     };
   }, [isOpen]);
 
