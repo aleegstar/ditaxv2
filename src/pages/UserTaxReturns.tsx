@@ -346,7 +346,15 @@ const UserTaxReturns = () => {
           <div className="flex items-center">
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
-          <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
+          <div className="flex items-center gap-2">
+            <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
+            <button
+              onClick={() => setMenuSheetOpen(true)}
+              className="w-10 h-10 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center transition-colors"
+            >
+              <Menu className="w-[18px] h-[18px] text-foreground/70" strokeWidth={1.75} />
+            </button>
+          </div>
         </header>
 
         {/* Greeting Section */}
