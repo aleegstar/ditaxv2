@@ -158,6 +158,8 @@ const DocumentsContent: React.FC<{
     toast
   } = useToast();
   const navigate = useNavigate();
+  const { documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
+  const isInOverlay = documentsOverlayOpen;
   const {
     checklistItems,
     generateChecklist,
