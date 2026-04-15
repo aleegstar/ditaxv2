@@ -582,7 +582,7 @@ const UserTaxReturns = () => {
               >
                 {/* Year + Status Badges */}
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-sm font-medium text-muted-foreground">Status</span>
+                  
                   <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
                     <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
                     <span className="text-xs font-medium text-amber-700">
