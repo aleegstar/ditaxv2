@@ -273,7 +273,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   }}
                 >
                   {/* Single row: textarea + icons + send */}
-                  <div className="flex items-center gap-3 px-[18px] py-[14px]">
+                  <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-[14px]">
                     <textarea
                       ref={textareaRef}
                       value={inputValue}
@@ -281,7 +281,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="flex-1 bg-transparent text-[15px] font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-white min-h-[24px] max-h-24"
+                      className="flex-1 min-w-0 bg-transparent text-[15px] font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-white min-h-[24px] max-h-24"
                       style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
@@ -290,14 +290,14 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       }}
                     />
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       <button className="focus:outline-none transition-colors">
                         <Paperclip className="w-5 h-5 text-white/30" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowEscalation(!showEscalation)}
-                        className={`rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8 ${
+                        className={`rounded-full transition-all flex items-center gap-1 px-1.5 sm:px-2 py-1 border h-8 ${
                           showEscalation
                             ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
                             : 'bg-transparent border-transparent text-white/30 hover:text-white/50'
@@ -311,7 +311,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                               animate={{ width: 'auto', opacity: 1 }}
                               exit={{ width: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="text-xs overflow-hidden whitespace-nowrap text-blue-400 flex-shrink-0"
+                              className="text-xs overflow-hidden whitespace-nowrap text-blue-400 flex-shrink-0 hidden sm:inline"
                             >
                               Mit Mitarbeitern sprechen
                             </motion.span>
@@ -322,7 +322,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       <button
                         onClick={handleSend}
                         disabled={!inputValue.trim() || isLoading}
-                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-30"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-30"
                         style={{
                           background: 'rgba(255,255,255,0.1)',
                           border: '1px solid rgba(255,255,255,0.1)',
