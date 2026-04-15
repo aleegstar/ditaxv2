@@ -658,7 +658,7 @@ const UserTaxReturns = () => {
                 </div>
 
                 <h2 className="font-semibold tracking-tight text-foreground mb-2 leading-tight text-3xl">
-                  {needsSignature ? t.userDashboard.signatureRequired : `Steuererklärung ${year}`}
+                  {needsSignature ? t.userDashboard.signatureRequired : year}
                 </h2>
 
                 <p className="text-sm text-muted-foreground leading-relaxed mb-6">
