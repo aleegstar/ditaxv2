@@ -528,7 +528,17 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
               </motion.button>
 
               {/* Documents Button */}
-              <motion.button onClick={() => navigate('/documents')} whileTap={{
+              <motion.button onClick={() => {
+                const { setDocumentsOverlayOpen } = require('@/contexts/SidebarContext');
+                // Use the context from the component tree
+                if (location.pathname === '/') {
+                  // On home page, open overlay
+                  const event = new CustomEvent('open-documents-overlay');
+                  window.dispatchEvent(event);
+                } else {
+                  navigate('/documents');
+                }
+              }} whileTap={{
             scale: 0.9
           }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
                 <CustomFolderIcon className="w-[21px] h-[21px]" />

@@ -7,10 +7,12 @@ interface SidebarContextType {
   mobileOpen: boolean;
   desktopOpen: boolean;
   menuSheetOpen: boolean;
+  documentsOverlayOpen: boolean;
   toggleSidebar: () => void;
   setMobileOpen: (open: boolean) => void;
   setDesktopOpen: (open: boolean) => void;
   setMenuSheetOpen: (open: boolean) => void;
+  setDocumentsOverlayOpen: (open: boolean) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -20,13 +22,13 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [menuSheetOpen, setMenuSheetOpen] = useState(false);
+  const [documentsOverlayOpen, setDocumentsOverlayOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const toggleSidebar = () => {
     if (isMobile) {
       setMobileOpen(!mobileOpen);
     } else {
-      // On desktop, open the menu sheet
       setMenuSheetOpen(!menuSheetOpen);
     }
   };
@@ -37,10 +39,12 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       mobileOpen, 
       desktopOpen,
       menuSheetOpen,
+      documentsOverlayOpen,
       toggleSidebar, 
       setMobileOpen,
       setDesktopOpen,
-      setMenuSheetOpen
+      setMenuSheetOpen,
+      setDocumentsOverlayOpen
     }}>
       {children}
     </SidebarContext.Provider>
