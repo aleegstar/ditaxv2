@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock } from 'lucide-react';
@@ -19,12 +19,12 @@ import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { de, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
-import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
+import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 
 // Global image cache to prevent re-fetching
 const imageCache = new Map<string, string>();
