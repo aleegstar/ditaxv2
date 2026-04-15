@@ -9,7 +9,6 @@ import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
