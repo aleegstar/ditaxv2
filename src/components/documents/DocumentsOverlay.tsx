@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
-import { FormProvider } from '@/contexts';
-import { useTaxFiler } from '@/contexts/TaxFilerContext';
-
-// Lazy import the documents page content to avoid circular deps
-const LazyDocuments = React.lazy(() => import('@/pages/Documents'));
 
 interface DocumentsOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+// Lazy import the full Documents page
+const LazyDocuments = React.lazy(() => import('@/pages/Documents'));
 
 export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onClose }) => {
   // Lock body scroll when open
@@ -62,13 +59,13 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
           </div>
 
           {/* Documents content area */}
-          <div className="flex-1 overflow-y-auto rounded-t-[28px] bg-background" style={{ marginTop: '4px' }}>
+          <div className="flex-1 overflow-y-auto rounded-t-[28px] bg-background mt-1">
             <React.Suspense fallback={
               <div className="flex items-center justify-center py-20">
                 <div className="w-8 h-8 border-2 border-border border-t-foreground/40 rounded-full animate-spin" />
               </div>
             }>
-              <DocumentsOverlayContent onClose={onClose} />
+              <LazyDocuments />
             </React.Suspense>
           </div>
         </motion.div>
@@ -76,27 +73,3 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
     </AnimatePresence>
   );
 };
-
-// Inner content component that renders the documents page inline
-const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<string>(currentYear.toString());
-
-  return (
-    <FormProvider taxYear={selectedYear}>
-      <DocumentsInlineContent 
-        selectedYear={selectedYear} 
-        onYearChange={setSelectedYear}
-        onClose={onClose}
-      />
-    </FormProvider>
-  );
-};
-
-// We need to import DocumentsContent directly
-// Since it's not exported separately, we'll import the page and adapt
-const DocumentsInlineContent = React.lazy(() => 
-  import('@/pages/Documents').then(module => ({
-    default: module.default
-  }))
-);
