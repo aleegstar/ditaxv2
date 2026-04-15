@@ -362,19 +362,21 @@ const UserTaxReturns = () => {
 
         {/* Greeting Section */}
         <section className="pb-6">
-          <div className="flex flex-col gap-0.5 mb-3">
-            <p className="text-base text-muted-foreground font-normal">
-              {getGreeting()}
-            </p>
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
-              {getUserDisplayName() ?? (
-                <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
-              )}
-            </h1>
+          <div className="flex items-end justify-between gap-4 mb-0">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <p className="text-base text-muted-foreground font-normal">
+                {getGreeting()}
+              </p>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
+                {getUserDisplayName() ?? (
+                  <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
+                )}
+              </h1>
+            </div>
+            
+            {/* Tax Filer Selector */}
+            <TaxFilerSelector className="flex-shrink-0" />
           </div>
-          
-          {/* Tax Filer Selector */}
-          <TaxFilerSelector className="mt-1.5" />
         </section>
 
         {/* Missing Items Alert */}
