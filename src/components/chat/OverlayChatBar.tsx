@@ -354,7 +354,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
-                className="group relative flex-1 flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
+                className="group relative flex-1 flex items-center gap-3 sm:gap-4 rounded-full px-4 sm:px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
                 style={{
                   background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
                   border: '1px solid rgba(255,255,255,0.12)',
@@ -362,7 +362,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 }}
               >
 
-                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50">
+                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50 truncate">
                   Wie kann ich dir helfen?
                 </span>
 
