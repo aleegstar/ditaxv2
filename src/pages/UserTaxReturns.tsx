@@ -10,6 +10,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
+import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import uploadIcon from '@/assets/upload-icon.svg';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
