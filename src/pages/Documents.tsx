@@ -482,7 +482,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen text-zinc-900 antialiased")}>
         {/* Top Navigation */}
         <SubpageHeader 
-          onBack={() => navigate(-1)}
+          onBack={() => isInOverlay ? setDocumentsOverlayOpen(false) : navigate(-1)}
           titleElement={
             <div className="flex items-center gap-2" data-tour="documents-year-selector">
               <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
