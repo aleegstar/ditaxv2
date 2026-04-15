@@ -190,7 +190,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       variants={bubbleVariants}
                       className={`flex ${message.isBot || message.isAdmin ? 'justify-start' : 'justify-end'}`}
                     >
-                      <div className={`flex items-end gap-2 ${message.isBot || message.isAdmin ? 'max-w-[85%]' : 'max-w-[80%] flex-row-reverse'}`}>
+                      <div className={`flex items-end gap-1.5 sm:gap-2 ${message.isBot || message.isAdmin ? 'max-w-[90%] sm:max-w-[85%]' : 'max-w-[85%] sm:max-w-[80%] flex-row-reverse'}`}>
                         {/* Avatar for bot/admin */}
                         {(message.isBot || message.isAdmin) && (
                           <div
