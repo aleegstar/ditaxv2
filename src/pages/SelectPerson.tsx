@@ -107,7 +107,7 @@ const SelectPerson: React.FC = () => {
                       {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
                     </span>
                   </div>
-                  <h3 className="text-3xl font-semibold tracking-tight text-foreground leading-tight">
+                  <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
                     {filer.first_name} {filer.last_name}
                   </h3>
                 </div>
