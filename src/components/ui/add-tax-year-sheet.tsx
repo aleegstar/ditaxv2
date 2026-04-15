@@ -32,7 +32,7 @@ export function AddTaxYearSheet({ open, onOpenChange, existingYears, onYearSelec
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="focus:outline-none">
+      <DrawerContent variant="bottom-sheet" className="focus:outline-none">
         <div className="mx-auto w-full max-w-md flex flex-col max-h-[85vh]">
           {/* Header */}
           <div className="text-center pt-1 px-6 pb-5">
