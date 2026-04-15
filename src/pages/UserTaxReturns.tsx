@@ -204,8 +204,8 @@ const UserTaxReturns = () => {
     }
   };
   const handleDocumentsClick = useCallback(() => {
-    navigate('/documents');
-  }, [navigate]);
+    setDocumentsOverlayOpen(true);
+  }, [setDocumentsOverlayOpen]);
   useEffect(() => {
     if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {
       setIsReady(true);
