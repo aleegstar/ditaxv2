@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home, FileCheck2, CreditCard, ArrowRight } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
+import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
@@ -46,7 +47,9 @@ const UserTaxReturns = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const {
-    setMenuSheetOpen
+    setMenuSheetOpen,
+    documentsOverlayOpen,
+    setDocumentsOverlayOpen
   } = useSidebar();
   const {
     profile: userProfile,
@@ -680,6 +683,12 @@ const UserTaxReturns = () => {
       {!showTour && userId && (
         <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
       )}
+
+      {/* Documents Overlay */}
+      <DocumentsOverlay 
+        isOpen={documentsOverlayOpen} 
+        onClose={() => setDocumentsOverlayOpen(false)} 
+      />
 
       {/* White Overlay for Transition */}
       <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{

@@ -19,6 +19,7 @@ import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { de, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
@@ -157,6 +158,8 @@ const DocumentsContent: React.FC<{
     toast
   } = useToast();
   const navigate = useNavigate();
+  const { documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
+  const isInOverlay = documentsOverlayOpen;
   const {
     checklistItems,
     generateChecklist,
@@ -479,7 +482,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen text-zinc-900 antialiased")}>
         {/* Top Navigation */}
         <SubpageHeader 
-          onBack={() => navigate(-1)}
+          onBack={() => isInOverlay ? setDocumentsOverlayOpen(false) : navigate(-1)}
           titleElement={
             <div className="flex items-center gap-2" data-tour="documents-year-selector">
               <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
@@ -623,7 +626,7 @@ const DocumentsContent: React.FC<{
 
         {/* Floating Upload Button - rendered via portal to ensure visibility */}
         {!isLocked && createPortal(
-          <div className="fixed bottom-24 left-1/2 z-[90] -translate-x-1/2">
+          <div className={cn("fixed bottom-24 left-1/2 -translate-x-1/2", isInOverlay ? "z-[9999]" : "z-[90]")}>
             <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg gap-2 shadow-lg shadow-primary/20">
               <Plus className="w-5 h-5" strokeWidth={2.5} />
               {t.documentsPage.upload}

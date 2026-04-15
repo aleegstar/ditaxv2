@@ -347,7 +347,8 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   const isMobile = useIsMobile();
   const {
     menuSheetOpen,
-    setMenuSheetOpen
+    setMenuSheetOpen,
+    setDocumentsOverlayOpen
   } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -528,7 +529,13 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
               </motion.button>
 
               {/* Documents Button */}
-              <motion.button onClick={() => navigate('/documents')} whileTap={{
+              <motion.button onClick={() => {
+                if (location.pathname === '/') {
+                  setDocumentsOverlayOpen(true);
+                } else {
+                  navigate('/documents');
+                }
+              }} whileTap={{
             scale: 0.9
           }} data-tour="documents-nav" className={`flex items-center justify-center rounded-full transition-all duration-200 ${location.pathname === '/documents' ? 'px-5 py-2.5' : 'px-4 py-2.5'}`} style={location.pathname === '/documents' ? { color: 'hsl(222, 100%, 56%)', background: 'hsl(222, 100%, 56%, 0.1)' } : { color: 'rgba(100,110,130,0.7)' }}>
                 <CustomFolderIcon className="w-[21px] h-[21px]" />
