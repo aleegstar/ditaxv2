@@ -1,77 +1,51 @@
 
 
-## Plan: Bottom Navbar → Inline Overlay Chat mit Liquid Glass Design
+## Problem
 
-### Konzept
+Das DocumentsOverlay lädt aktuell die komplette `/documents`-Seite via `React.lazy()`. Das fühlt sich an wie eine eingebettete View (mit eigenem Header, Navigation, Routing-Abhängigkeiten), nicht wie ein natives Overlay-Element wie der Chat.
 
-Die bestehende Bottom-Navigation (3 Buttons + FAB) wird ersetzt durch ein **Chat-Eingabefeld im "Liquid Glass"-Stil**, das am unteren Bildschirmrand schwebt. Beim Antippen des Eingabefelds:
+## Lösung
 
-1. Ein **dunkler Overlay** (backdrop) faded sanft ein
-2. Das Eingabefeld **gleitet leicht nach oben** und wird aktiv
-3. **Chat-Bubbles** erscheinen darüber mit gestaffelter Animation (stagger)
-4. Das Ganze wirkt wie ein moderner In-Place-Chat, ohne Seitenwechsel
+Das DocumentsOverlay wird zu einem eigenständigen Element umgebaut – genau wie `OverlayChatBar`. Statt `LazyDocuments` zu laden, wird die Dokumenten-Logik (`DocumentsContent`) direkt im Overlay gerendert, ohne `SubpageHeader`, ohne Routing, ohne `useNavigate`.
 
-Beim Schliessen (Tap auf Overlay oder Senden) faded alles wieder smooth zurück.
+## Technischer Plan
 
-```text
-┌─────────────────────┐
-│                     │
-│   Dashboard Content │
-│                     │
-│                     │
-│ ┌─ dark overlay ──┐ │
-│ │                 │ │
-│ │  Chat Bubbles   │ │
-│ │  (staggered in) │ │
-│ │                 │ │
-│ └─────────────────┘ │
-│ ╔═══════════════════╗│
-│ ║ 💬 Nachricht...  ▶║│  ← Liquid Glass Input
-│ ╚═══════════════════╝│
-└─────────────────────┘
-```
+### 1. DocumentsOverlay komplett neu aufbauen (eigenständig)
 
-### Technische Umsetzung
+**`src/components/documents/DocumentsOverlay.tsx`** wird umgeschrieben:
 
-#### 1. Neue Komponente: `OverlayChatBar`
-- Erstelle `src/components/chat/OverlayChatBar.tsx`
-- Enthält:
-  - **Ruhezustand**: Glasmorphes Eingabefeld mit Placeholder "Nachricht schreiben..." + Send-Button, floating am unteren Rand
-  - **Aktiver Zustand**: `isChatOpen` State → Overlay + Chat-Bubbles
-- Liquid Glass Styling: `backdrop-filter: blur(20px) saturate(180%)`, halbtransparenter weisser Hintergrund, subtiler Border + Shadow
-- Send-Button: Runder Button im gleichen Stil wie der aktuelle FAB (blauer Gradient)
+- Entfernt den `React.lazy(() => import('@/pages/Documents'))` Import
+- Importiert stattdessen direkt die relevanten Hooks und Komponenten:
+  - `useFormContext`, `FormProvider`, `useTaxFiler`, `useSidebar`
+  - `supabase` für Dokumenten-Abfrage
+  - `EncryptedDocumentService` für verschlüsselte Thumbnails
+  - `DocumentActionSheet`, `UploadActionSheet`
+  - `DocumentThumbnail` (wird aus Documents.tsx exportiert)
+- Baut ein eigenes Top-Bar mit Close-Button (wie beim Chat: weißer runder Button)
+- Enthält eigene Dokument-Lade-Logik, Such-/Sortier-Funktionen und Upload-Buttons
+- Kein `SubpageHeader`, kein `useNavigate`, kein `useSearchParams`
+- Gleicher dunkler Gradient-Hintergrund wie der Chat-Overlay
+- Scroll-Area für Dokumente direkt im Overlay (kein `bg-background` Container)
 
-#### 2. Dark Overlay & Chat-Bubbles
-- Overlay: `fixed inset-0`, `bg-black/50`, fade-in via framer-motion (`opacity 0→1`, 200ms)
-- Chat-Nachrichten: Lade die letzten ~10 Nachrichten aus der bestehenden Chat-Logik (Supabase `chat_messages`)
-- Bubbles erscheinen mit `staggerChildren: 0.05` von unten nach oben
-- Scroll-Container direkt über dem Eingabefeld, `max-h-[60vh]`, auto-scroll nach unten
+### 2. DocumentThumbnail exportieren
 
-#### 3. Integration der Chat-Logik
-- Wiederverwendung der bestehenden Chat-Nachrichtenlade- und Sendelogik aus `ChatBotInterface.tsx`
-- Extrahiere die Kernlogik (Nachrichten laden, senden, Echtzeit-Subscription) in einen Custom Hook `useChatMessages(userId)`
-- Senden einer Nachricht direkt aus dem Overlay heraus
+**`src/pages/Documents.tsx`**:
+- `DocumentThumbnail` als named export verfügbar machen, damit das Overlay es wiederverwenden kann
+- Alternativ in eigene Datei `src/components/documents/DocumentThumbnail.tsx` extrahieren
 
-#### 4. Anpassung `UserTaxReturns.tsx`
-- Entferne die gesamte bestehende Bottom-Navigation (`<nav data-bottom-navbar>` + FAB-Button)
-- Ersetze durch `<OverlayChatBar userId={userId} />`
-- Der Menü-Button wird ins Welcome-Header oder in die Action-Cards verschoben (oder über ein Icon im Chat-Input zugänglich gemacht)
+### 3. Dokument-Darstellung im Overlay anpassen
 
-#### 5. Animationen (framer-motion)
-- **Input-Bar**: `layoutId` für smooth morphing, leichte Y-Translation beim Öffnen
-- **Overlay**: `AnimatePresence` + `motion.div` mit `opacity` transition (300ms ease-out)
-- **Bubbles**: `variants` mit `staggerChildren: 0.04`, jede Bubble `opacity: 0, y: 20 → opacity: 1, y: 0` (200ms)
-- **Schliessen**: Reverse-Animation, Bubbles fade out, Overlay fades, Input gleitet zurück
+- Dokumente werden in einem dunklen Theme dargestellt (passend zum Gradient-Hintergrund)
+- Karten bekommen `bg-white/10` statt `bg-transparent` mit weißem Border
+- Text in `text-white` statt `text-zinc-900`
+- Such-Input im dunklen Stil (wie Chat-Input)
+- Upload-Button unten als schwebender Button im Overlay
 
-#### 6. Menü-Zugang
-- Füge ein kleines Burger/Menu-Icon links im Chat-Input hinzu (im Ruhezustand), das weiterhin `setMenuSheetOpen(true)` auslöst
-- Alternativ: Home-Icon + Menu-Icon als kleine Icons links im Eingabefeld
+### 4. Documents.tsx aufräumen
 
-### Dateien
+- Die `isInOverlay`-Checks und `documentsOverlayOpen`-Abhängigkeiten aus `Documents.tsx` entfernen, da die Seite nicht mehr im Overlay geladen wird
 
-| Datei | Aktion |
-|---|---|
-| `src/hooks/useChatMessages.ts` | Neu – Chat-Logik extrahiert |
-| `src/components/chat/OverlayChatBar.tsx` | Neu – Overlay-Chat-Komponente |
-| `src/pages/UserTaxReturns.tsx` | Bearbeiten – Navbar ersetzen durch OverlayChatBar |
+## Ergebnis
+
+Das DocumentsOverlay wird ein komplett eigenständiges UI-Element – wie der Chat – das sich flüssig öffnet, eigene Daten lädt und keine Seiten-Navigation auslöst.
 
