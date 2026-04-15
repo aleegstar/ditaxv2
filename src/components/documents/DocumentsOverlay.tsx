@@ -182,7 +182,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       <div className="px-5 mb-4">
         <div className="relative flex items-center">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-white/40" strokeWidth={1.5} />
+            <Search className="h-4 w-4 text-white/70" strokeWidth={1.5} />
           </div>
           <input
             type="text"
