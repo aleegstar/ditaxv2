@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home, FileCheck2, CreditCard, ArrowRight } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
+import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
