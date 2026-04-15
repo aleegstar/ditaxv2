@@ -1,51 +1,33 @@
 
 
+# Fix: Chatbot reports incorrect completion status for finished tax returns
+
 ## Problem
+The chatbot's `loadUserStatusContext` function checks `form_data.data._completed === true` to determine if sections are completed. For some users, the form data exists (with actual content) but the `_completed` flag was never set (likely from older imports or data migrations). Meanwhile, the `tax_returns` table correctly shows `status: success` and `workflow_step: completed`.
 
-Das DocumentsOverlay lädt aktuell die komplette `/documents`-Seite via `React.lazy()`. Das fühlt sich an wie eine eingebettete View (mit eigenem Header, Navigation, Routing-Abhängigkeiten), nicht wie ein natives Overlay-Element wie der Chat.
+The chatbot context sent to the AI shows conflicting info: "Workflow-Schritt: Abgeschlossen" but "Persönliche Angaben: ✗ Noch nicht ausgefüllt" — the AI prioritizes the negative flags and gives wrong guidance.
 
-## Lösung
+**Verified via DB**: User `604af39e...`, Sandro's 2025 tax return is `status: success, workflow_step: completed`, but all 4 form_data records have `_completed: null`.
 
-Das DocumentsOverlay wird zu einem eigenständigen Element umgebaut – genau wie `OverlayChatBar`. Statt `LazyDocuments` zu laden, wird die Dokumenten-Logik (`DocumentsContent`) direkt im Overlay gerendert, ohne `SubpageHeader`, ohne Routing, ohne `useNavigate`.
+## Fix (1 file)
 
-## Technischer Plan
+### `supabase/functions/chatbot-response/index.ts`
 
-### 1. DocumentsOverlay komplett neu aufbauen (eigenständig)
+In the `loadUserStatusContext` function, add an override: when a tax return's `status` is `success` or `completed`, or `workflow_step` is `completed`, force all form sections to show as completed regardless of the `_completed` flag.
 
-**`src/components/documents/DocumentsOverlay.tsx`** wird umgeschrieben:
+```
+// Inside the for (const tr of filerReturns) loop, after line 95:
+const year = tr.tax_year
 
-- Entfernt den `React.lazy(() => import('@/pages/Documents'))` Import
-- Importiert stattdessen direkt die relevanten Hooks und Komponenten:
-  - `useFormContext`, `FormProvider`, `useTaxFiler`, `useSidebar`
-  - `supabase` für Dokumenten-Abfrage
-  - `EncryptedDocumentService` für verschlüsselte Thumbnails
-  - `DocumentActionSheet`, `UploadActionSheet`
-  - `DocumentThumbnail` (wird aus Documents.tsx exportiert)
-- Baut ein eigenes Top-Bar mit Close-Button (wie beim Chat: weißer runder Button)
-- Enthält eigene Dokument-Lade-Logik, Such-/Sortier-Funktionen und Upload-Buttons
-- Kein `SubpageHeader`, kein `useNavigate`, kein `useSearchParams`
-- Gleicher dunkler Gradient-Hintergrund wie der Chat-Overlay
-- Scroll-Area für Dokumente direkt im Overlay (kein `bg-background` Container)
+// NEW: If the tax return is already completed/successful, all forms are done by definition
+const taxReturnCompleted = tr.status === 'success' || tr.status === 'completed' || tr.workflow_step === 'completed'
 
-### 2. DocumentThumbnail exportieren
+// Modify lines 107-110:
+const contactDone = taxReturnCompleted || isFormCompleted('contactInfo')
+const incomeDone = taxReturnCompleted || isFormCompleted('income')
+const assetsDone = taxReturnCompleted || isFormCompleted('assets')
+const deductionsDone = taxReturnCompleted || isFormCompleted('deductions')
+```
 
-**`src/pages/Documents.tsx`**:
-- `DocumentThumbnail` als named export verfügbar machen, damit das Overlay es wiederverwenden kann
-- Alternativ in eigene Datei `src/components/documents/DocumentThumbnail.tsx` extrahieren
-
-### 3. Dokument-Darstellung im Overlay anpassen
-
-- Dokumente werden in einem dunklen Theme dargestellt (passend zum Gradient-Hintergrund)
-- Karten bekommen `bg-white/10` statt `bg-transparent` mit weißem Border
-- Text in `text-white` statt `text-zinc-900`
-- Such-Input im dunklen Stil (wie Chat-Input)
-- Upload-Button unten als schwebender Button im Overlay
-
-### 4. Documents.tsx aufräumen
-
-- Die `isInOverlay`-Checks und `documentsOverlayOpen`-Abhängigkeiten aus `Documents.tsx` entfernen, da die Seite nicht mehr im Overlay geladen wird
-
-## Ergebnis
-
-Das DocumentsOverlay wird ein komplett eigenständiges UI-Element – wie der Chat – das sich flüssig öffnet, eigene Daten lädt und keine Seiten-Navigation auslöst.
+After editing, deploy the `chatbot-response` edge function to apply the fix immediately.
 
