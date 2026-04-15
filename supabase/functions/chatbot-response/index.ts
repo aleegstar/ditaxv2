@@ -94,6 +94,9 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
       for (const tr of filerReturns) {
         const year = tr.tax_year
 
+        // If the tax return is already completed/successful, all forms are done by definition
+        const taxReturnCompleted = tr.status === 'success' || tr.status === 'completed' || tr.workflow_step === 'completed'
+
         // Check form_data completion (real source of truth)
         const isFormCompleted = (formType: string): boolean => {
           const record = formDataRecords?.find((fd: any) =>
@@ -104,10 +107,10 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
           return record?.data?._completed === true
         }
 
-        const contactDone = isFormCompleted('contactInfo')
-        const incomeDone = isFormCompleted('income')
-        const assetsDone = isFormCompleted('assets')
-        const deductionsDone = isFormCompleted('deductions')
+        const contactDone = taxReturnCompleted || isFormCompleted('contactInfo')
+        const incomeDone = taxReturnCompleted || isFormCompleted('income')
+        const assetsDone = taxReturnCompleted || isFormCompleted('assets')
+        const deductionsDone = taxReturnCompleted || isFormCompleted('deductions')
 
         // Count documents for this filer + year
         const docCount = documents?.filter((d: any) =>
