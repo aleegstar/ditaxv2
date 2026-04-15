@@ -47,7 +47,9 @@ const UserTaxReturns = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const {
-    setMenuSheetOpen
+    setMenuSheetOpen,
+    documentsOverlayOpen,
+    setDocumentsOverlayOpen
   } = useSidebar();
   const {
     profile: userProfile,
