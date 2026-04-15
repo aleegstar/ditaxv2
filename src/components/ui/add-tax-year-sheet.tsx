@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FolderOpen } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useI18n } from "@/contexts/I18nContext";
 
@@ -19,9 +19,11 @@ export function AddTaxYearSheet({ open, onOpenChange, existingYears, onYearSelec
   const [selectedYear, setSelectedYear] = useState<string>(availableYears[0] || '');
 
   const getSubtitle = (year: string) => {
-    if (year === currentYear) return undefined;
-    const deadlineYear = parseInt(year) + 1;
-    return language === 'de' ? `Frist endet am 31.07.${deadlineYear}` : `Deadline: 31.07.${deadlineYear}`;
+    const completedSteps = year === currentYear ? 0 : 0;
+    const totalSteps = 6;
+    return language === 'de'
+      ? `${completedSteps} von ${totalSteps} Schritten erfolgreich abgeschlossen.`
+      : `${completedSteps} of ${totalSteps} steps completed.`;
   };
 
   const handleConfirm = () => {
@@ -44,52 +46,66 @@ export function AddTaxYearSheet({ open, onOpenChange, existingYears, onYearSelec
             </p>
           </div>
 
-          {/* Year List */}
-          <div className="px-6 overflow-y-auto pb-6 flex-1 space-y-2.5">
+          {/* Year List - card style matching TaxYearCard */}
+          <div className="px-5 overflow-y-auto pb-6 flex-1 space-y-3">
             {availableYears.map((year) => {
               const isSelected = selectedYear === year;
               const isCurrent = year === currentYear;
-              const subtitle = getSubtitle(year);
 
               return (
-                <label
+                <button
                   key={year}
                   onClick={() => setSelectedYear(year)}
-                  className={`group relative flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${
+                  className={`w-full text-left relative overflow-hidden rounded-[20px] p-6 transition-all duration-200 ${
                     isSelected
-                      ? 'border-foreground bg-background shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)]'
-                      : 'border-border hover:border-foreground/20 hover:bg-muted/50'
+                      ? 'ring-2 ring-primary shadow-xl'
+                      : 'shadow-lg hover:shadow-xl'
                   }`}
+                  style={{
+                    background: 'linear-gradient(135deg, hsla(280, 60%, 85%, 1) 0%, hsla(20, 70%, 88%, 1) 15%, hsla(0, 0%, 97%, 1) 30%, hsla(190, 70%, 85%, 1) 50%, hsla(185, 60%, 82%, 1) 70%, hsla(280, 50%, 87%, 1) 100%)',
+                    border: '1px solid rgba(255, 255, 255, 0.8)',
+                  }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-base font-medium text-foreground">{year}</span>
-                        {isCurrent && (
-                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                            {language === 'de' ? 'Aktuell' : 'Current'}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground mt-0.5">
-                        {subtitle || (language === 'de' ? 'Neu anlegen' : 'Create new')}
-                      </span>
-                    </div>
+                  {/* Three dots icon top-right */}
+                  <div className="absolute top-4 right-4">
+                    <MoreVertical className="h-4 w-4 text-muted-foreground/50" />
                   </div>
 
-                  {/* Radio indicator */}
-                  <div className="pl-4">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      isSelected
-                        ? 'border-foreground bg-foreground'
-                        : 'border-muted-foreground/30'
-                    }`}>
-                      {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-background" />
-                      )}
-                    </div>
+                  {/* Badge */}
+                  <div className="mb-3">
+                    <span
+                      className="inline-flex items-center rounded-xl px-2.5 py-0.5 text-xs font-medium backdrop-blur-sm border"
+                      style={{
+                        background: 'rgba(82, 152, 228, 0.28)',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        color: '#000000',
+                      }}
+                    >
+                      {language === 'de' ? 'In Erfassung' : 'Draft'}
+                    </span>
                   </div>
-                </label>
+
+                  {/* Year */}
+                  <h3 className="text-3xl font-bold text-black mb-1">{year}</h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    {getSubtitle(year)}
+                  </p>
+
+                  {/* Progress bars placeholder */}
+                  <div className="flex items-center gap-1.5">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-[5px] flex-1 rounded-full"
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.08)',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </button>
               );
             })}
           </div>
