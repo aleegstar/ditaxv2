@@ -368,9 +368,7 @@ const UserTaxReturns = () => {
                 {getGreeting()}
               </p>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
-                {getUserDisplayName() ?? (
-                  <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
-                )}
+              {getUserDisplayName()}
               </h1>
             </div>
             
