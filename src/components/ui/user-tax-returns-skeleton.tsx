@@ -11,7 +11,10 @@ export function UserTaxReturnsSkeleton() {
           <div className="flex items-center">
             <img src={ditaxLogoFull} alt="ditax" className="h-8" />
           </div>
-          <Skeleton className="w-10 h-10 rounded-full" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <Skeleton className="w-10 h-10 rounded-full" />
+          </div>
         </header>
 
         {/* Greeting Section */}
