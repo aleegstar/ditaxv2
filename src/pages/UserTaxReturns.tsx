@@ -636,9 +636,6 @@ const UserTaxReturns = () => {
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-5">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold tracking-wider uppercase text-muted-foreground/70">
-                      {year}
-                    </span>
                     {needsSignature ? (
                       <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
                         <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
