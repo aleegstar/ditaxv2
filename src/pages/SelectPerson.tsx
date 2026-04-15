@@ -85,13 +85,33 @@ const SelectPerson: React.FC = () => {
             <motion.button
               key={filer.id}
               onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card border border-border shadow-sm"
+              className="w-full group relative overflow-hidden text-left transition-all duration-300 cursor-pointer active:scale-[0.98]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.40)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.60)',
+                borderRadius: '2rem',
+                padding: '2rem 2.5rem',
+              }}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
             >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
+                    <span className="text-xs font-medium text-primary">
+                      {getRelationshipLabel(filer.relationship, t)}
+                      {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
+                    </span>
+                  </div>
+                  <h3 className="text-3xl font-semibold tracking-tight text-foreground leading-tight">
+                    {filer.first_name} {filer.last_name}
+                  </h3>
+                </div>
 
-              <div className="relative flex items-center gap-5">
                 <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
                   <AvatarImage
                     src={getAvatarUrl(filer)}
@@ -108,32 +128,6 @@ const SelectPerson: React.FC = () => {
                     {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-[1.15rem] font-medium text-foreground tracking-[-0.01em] mb-0.5">
-                    {filer.first_name} {filer.last_name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {getRelationshipLabel(filer.relationship, t)}
-                    {filer.is_primary && (
-                      <span className="ml-1.5 text-primary/70">
-                        · {t.taxFilers?.primary || 'Primär'}
-                      </span>
-                    )}
-                  </p>
-                </div>
-
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
-                  style={{
-                    background: 'hsla(var(--foreground) / 0.04)',
-                  }}
-                >
-                  <ChevronRight
-                    className="w-4.5 h-4.5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all"
-                    strokeWidth={2}
-                  />
-                </div>
               </div>
             </motion.button>
           ))}
@@ -141,7 +135,16 @@ const SelectPerson: React.FC = () => {
           {/* Add Person Button */}
           <motion.button
             onClick={handleAddPerson}
-            className="w-full overflow-hidden rounded-2xl p-6 transition-all duration-200 hover:shadow-md active:scale-[0.98] bg-card/50 border border-dashed border-border"
+            className="w-full overflow-hidden transition-all duration-300 active:scale-[0.98]"
+            style={{
+              background: 'rgba(255, 255, 255, 0.20)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+              border: '1px dashed rgba(255, 255, 255, 0.60)',
+              borderRadius: '2rem',
+              padding: '2rem 2.5rem',
+            }}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 + taxFilers.length * 0.08 }}
@@ -149,7 +152,7 @@ const SelectPerson: React.FC = () => {
             <div className="flex items-center gap-5">
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'hsla(var(--foreground) / 0.04)' }}
+                style={{ background: 'rgba(255, 255, 255, 0.30)' }}
               >
                 <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
               </div>
