@@ -62,13 +62,6 @@ export function AddTaxYearSheet({ open, onOpenChange, existingYears, onYearSelec
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
-                      isSelected
-                        ? 'border-border/60 bg-muted text-foreground'
-                        : 'border-border/40 bg-muted/50 text-muted-foreground'
-                    }`}>
-                      <FolderOpen className="w-[22px] h-[22px]" strokeWidth={1.5} />
-                    </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2.5">
                         <span className="text-base font-medium text-foreground">{year}</span>
