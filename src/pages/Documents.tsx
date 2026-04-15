@@ -659,6 +659,8 @@ const Documents: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  const { documentsOverlayOpen } = useSidebar();
+  const isInOverlay = documentsOverlayOpen;
   
   // URL-Parameter hat Priorität für das Steuerjahr
   const yearFromUrl = searchParams.get('year');
@@ -670,18 +672,21 @@ const Documents: React.FC = () => {
   // Handler für Jahreswechsel - aktualisiert auch die URL
   const handleYearChange = (newYear: string) => {
     setSelectedYear(newYear);
-    navigate(`/documents?year=${newYear}`, { replace: true });
+    if (!isInOverlay) {
+      navigate(`/documents?year=${newYear}`, { replace: true });
+    }
   };
   
   // Redirect to person selection if multiple filers exist and no selection confirmed
+  // Skip redirect when rendered inside overlay
   useEffect(() => {
-    if (hasMultipleFilers && !selectionConfirmed) {
+    if (!isInOverlay && hasMultipleFilers && !selectionConfirmed) {
       navigate('/select-person', { replace: true });
     }
-  }, [hasMultipleFilers, selectionConfirmed, navigate]);
+  }, [hasMultipleFilers, selectionConfirmed, navigate, isInOverlay]);
 
-  // Show loading while redirecting
-  if (hasMultipleFilers && !selectionConfirmed) {
+  // Show loading while redirecting (only when not in overlay)
+  if (!isInOverlay && hasMultipleFilers && !selectionConfirmed) {
     return null;
   }
 
