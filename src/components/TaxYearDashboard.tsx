@@ -88,9 +88,9 @@ export const TaxYearDashboard: React.FC = () => {
     }
   }, [allAngabenComplete]);
 
-  // Show skeleton while loading
+  // Show nothing while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
-    return <FormDashboardSkeleton />;
+    return null;
   }
 
   const getAngabenProgress = () => {
