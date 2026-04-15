@@ -1,33 +1,21 @@
 
 
-# Fix: Chatbot reports incorrect completion status for finished tax returns
+# Remove colorful gradient background from User Detail header
 
 ## Problem
-The chatbot's `loadUserStatusContext` function checks `form_data.data._completed === true` to determine if sections are completed. For some users, the form data exists (with actual content) but the `_completed` flag was never set (likely from older imports or data migrations). Meanwhile, the `tax_returns` table correctly shows `status: success` and `workflow_step: completed`.
+The User Detail page header card and UserInfoCard both use a colorful pastel gradient background (`linear-gradient(135deg, hsla(280, 60%, 85%, 1) 0%, ...)`). The user confirms this doesn't match the actual design — the tax year cards follow a minimalist white background style per the project's design memory.
 
-The chatbot context sent to the AI shows conflicting info: "Workflow-Schritt: Abgeschlossen" but "Persönliche Angaben: ✗ Noch nicht ausgefüllt" — the AI prioritizes the negative flags and gives wrong guidance.
+## Changes
 
-**Verified via DB**: User `604af39e...`, Sandro's 2025 tax return is `status: success, workflow_step: completed`, but all 4 form_data records have `_completed: null`.
+### 1. `src/pages/UserDetail.tsx` (~line 586-590)
+Replace the gradient background on the header card with a clean, light style:
+- Remove `linear-gradient(135deg, hsla(280, ...))`
+- Use `background: hsla(0, 0%, 97%, 1)` (light white/grey matching the bottom sheet cards)
+- Border: `1px solid rgba(0, 0, 0, 0.06)` instead of white
+- Adjust child elements (avatar, badge backgrounds) from `bg-white/50` to appropriate neutral tones
 
-## Fix (1 file)
+### 2. `src/components/user-detail/UserInfoCard.tsx` (~line 14-17)
+Same treatment — remove the gradient, use clean white/light background with subtle border.
 
-### `supabase/functions/chatbot-response/index.ts`
-
-In the `loadUserStatusContext` function, add an override: when a tax return's `status` is `success` or `completed`, or `workflow_step` is `completed`, force all form sections to show as completed regardless of the `_completed` flag.
-
-```
-// Inside the for (const tr of filerReturns) loop, after line 95:
-const year = tr.tax_year
-
-// NEW: If the tax return is already completed/successful, all forms are done by definition
-const taxReturnCompleted = tr.status === 'success' || tr.status === 'completed' || tr.workflow_step === 'completed'
-
-// Modify lines 107-110:
-const contactDone = taxReturnCompleted || isFormCompleted('contactInfo')
-const incomeDone = taxReturnCompleted || isFormCompleted('income')
-const assetsDone = taxReturnCompleted || isFormCompleted('assets')
-const deductionsDone = taxReturnCompleted || isFormCompleted('deductions')
-```
-
-After editing, deploy the `chatbot-response` edge function to apply the fix immediately.
+Both files: 2 style property changes each, no logic changes.
 
