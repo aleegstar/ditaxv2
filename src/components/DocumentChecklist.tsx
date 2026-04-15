@@ -356,13 +356,7 @@ const DocumentChecklist: React.FC = () => {
   };
 
   if (isAuthLoading) {
-return <div className="min-h-screen">
-        <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full bg-slate-100" />
-        </div>
-      </div>;
+    return null;
   }
 
   if (!isAuthValid) {
@@ -389,13 +383,7 @@ return <div className="min-h-screen">
   }
 
   if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-return <div className="min-h-screen">
-        <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full bg-slate-100" />
-        </div>
-      </div>;
+    return null;
   }
 
   return <div className="min-h-screen flex flex-col items-center">
