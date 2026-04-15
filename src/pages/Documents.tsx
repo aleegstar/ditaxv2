@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, FolderOpen, CheckCircle2, FileText, MoreVertical, Plus, Calendar, ScanLine, Search, SlidersHorizontal, X, Lock } from 'lucide-react';
@@ -19,113 +19,14 @@ import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { de, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
-import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
+import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 
-// Global image cache to prevent re-fetching
-const imageCache = new Map<string, string>();
-
-// Memoized component to render document thumbnail with actual image
-const DocumentThumbnail = memo<{
-  doc: any;
-}>(({
-  doc
-}) => {
-  const [imageUrl, setImageUrl] = useState<string | null>(() => {
-    // Check cache first
-    return imageCache.get(doc.id) || null;
-  });
-  const [loading, setLoading] = useState(!imageCache.has(doc.id));
-  const [error, setError] = useState(false);
-  useEffect(() => {
-    // Skip if already cached
-    if (imageCache.has(doc.id)) {
-      setImageUrl(imageCache.get(doc.id)!);
-      setLoading(false);
-      return;
-    }
-    let isMounted = true;
-    let objectUrl: string | null = null;
-    const loadImage = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const {
-          data: {
-            user
-          }
-        } = await supabase.auth.getUser();
-        if (!user || !isMounted) return;
-        const metadata = doc.metadata as any;
-
-        // Check if document is encrypted
-        if (metadata?.encrypted) {
-          // Use encrypted document service to decrypt
-          const encryptedService = EncryptedDocumentService.getInstance();
-          const {
-            blob
-          } = await encryptedService.downloadOwnDecryptedDocument(doc.id, user.id);
-          if (!isMounted) return;
-          objectUrl = URL.createObjectURL(blob);
-          imageCache.set(doc.id, objectUrl);
-          setImageUrl(objectUrl);
-        } else {
-          // Non-encrypted: get signed URL from documents bucket
-          const {
-            data,
-            error: urlError
-          } = await supabase.storage.from('documents').createSignedUrl(doc.file_path, 3600);
-          if (urlError) {
-            console.error('Error getting signed URL:', urlError);
-            setError(true);
-          } else if (data?.signedUrl && isMounted) {
-            imageCache.set(doc.id, data.signedUrl);
-            setImageUrl(data.signedUrl);
-          }
-        }
-      } catch (err) {
-        console.error('Error loading image:', err);
-        if (isMounted) setError(true);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-    loadImage();
-    return () => {
-      isMounted = false;
-      // Don't revoke cached URLs - they may be reused
-    };
-  }, [doc.id, doc.file_path, doc.metadata]);
-
-  // Show loading state
-  if (loading) {
-    return <div className="w-full h-full bg-zinc-100 animate-pulse" />;
-  }
-
-  // Get file extension for fallback
-  const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
-
-  // Show error/fallback state
-  if (error || !imageUrl) {
-    return <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 relative overflow-hidden">
-        {/* Decorative gradient orb */}
-        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-2xl" />
-        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-orange-400/15 to-pink-400/15 rounded-full blur-2xl" />
-        
-        {/* Blue square with pill inside */}
-        <div className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
-          <span className="px-2.5 py-1 rounded-full bg-white/90 text-[10px] font-bold text-blue-600 shadow-sm">
-            {fileExt}
-          </span>
-        </div>
-      </div>;
-  }
-  return <img src={imageUrl} alt={doc.file_name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={() => setError(true)} />;
-});
+// Separate content component that uses FormContext
 // Separate content component that uses FormContext
 const DocumentsContent: React.FC<{
   selectedYear: string;
@@ -158,8 +59,7 @@ const DocumentsContent: React.FC<{
     toast
   } = useToast();
   const navigate = useNavigate();
-  const { documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
-  const isInOverlay = documentsOverlayOpen;
+  
   const {
     checklistItems,
     generateChecklist,
@@ -482,7 +382,7 @@ const DocumentsContent: React.FC<{
       <div className={cn("min-h-screen text-zinc-900 antialiased")}>
         {/* Top Navigation */}
         <SubpageHeader 
-          onBack={() => isInOverlay ? setDocumentsOverlayOpen(false) : navigate(-1)}
+          onBack={() => navigate(-1)}
           titleElement={
             <div className="flex items-center gap-2" data-tour="documents-year-selector">
               <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
@@ -626,7 +526,7 @@ const DocumentsContent: React.FC<{
 
         {/* Floating Upload Button - rendered via portal to ensure visibility */}
         {!isLocked && createPortal(
-          <div className={cn("fixed bottom-24 left-1/2 -translate-x-1/2", isInOverlay ? "z-[9999]" : "z-[90]")}>
+          <div className={cn("fixed bottom-24 left-1/2 -translate-x-1/2 z-[90]")}>
             <Button onClick={() => fileInputRef.current?.click()} data-tour="document-upload-card" className="px-8 py-4 text-lg gap-2 shadow-lg shadow-primary/20">
               <Plus className="w-5 h-5" strokeWidth={2.5} />
               {t.documentsPage.upload}
@@ -659,34 +559,25 @@ const Documents: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
-  const { documentsOverlayOpen } = useSidebar();
-  const isInOverlay = documentsOverlayOpen;
   
-  // URL-Parameter hat Priorität für das Steuerjahr
   const yearFromUrl = searchParams.get('year');
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<string>(
     yearFromUrl || currentYear.toString()
   );
   
-  // Handler für Jahreswechsel - aktualisiert auch die URL
   const handleYearChange = (newYear: string) => {
     setSelectedYear(newYear);
-    if (!isInOverlay) {
-      navigate(`/documents?year=${newYear}`, { replace: true });
-    }
+    navigate(`/documents?year=${newYear}`, { replace: true });
   };
   
-  // Redirect to person selection if multiple filers exist and no selection confirmed
-  // Skip redirect when rendered inside overlay
   useEffect(() => {
-    if (!isInOverlay && hasMultipleFilers && !selectionConfirmed) {
+    if (hasMultipleFilers && !selectionConfirmed) {
       navigate('/select-person', { replace: true });
     }
-  }, [hasMultipleFilers, selectionConfirmed, navigate, isInOverlay]);
+  }, [hasMultipleFilers, selectionConfirmed, navigate]);
 
-  // Show loading while redirecting (only when not in overlay)
-  if (!isInOverlay && hasMultipleFilers && !selectionConfirmed) {
+  if (hasMultipleFilers && !selectionConfirmed) {
     return null;
   }
 
