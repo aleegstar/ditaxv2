@@ -295,16 +295,27 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
         onChange={handleFileInputChange}
       />
 
-      {/* Floating upload button */}
+      {/* Floating upload pill – same design as chat input bar */}
       {createPortal(
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[10001]">
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-8 py-4 text-lg gap-2 shadow-lg shadow-primary/20"
-          >
-            <Plus className="w-5 h-5" strokeWidth={2.5} />
-            {t.documentsPage.upload}
-          </Button>
+        <div className="fixed inset-x-0 bottom-0 z-[10001] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none">
+          <div className="max-w-2xl mx-auto pointer-events-auto">
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="group relative flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
+              style={{
+                background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+              }}
+            >
+              <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50">
+                {t.documentsPage.upload}
+              </span>
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                <Plus className="w-4 h-4 text-white/50" strokeWidth={2} />
+              </div>
+            </div>
+          </div>
         </div>,
         document.body
       )}
