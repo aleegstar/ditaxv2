@@ -24,7 +24,7 @@ import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
-import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
+
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
 import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
 import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
