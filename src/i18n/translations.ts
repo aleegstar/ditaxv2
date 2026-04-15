@@ -2123,7 +2123,7 @@ export const translations: Record<'de' | 'en', Translation> = {
       addPerson: 'Person hinzufügen',
       editPerson: 'Person bearbeiten',
       deletePerson: 'Person löschen',
-      addPersonHint: 'Sie können weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.',
+      addPersonHint: 'Du kannst weitere Personen hinzufügen, um deren Steuererklärungen zu verwalten.',
       noPersons: 'Keine Personen gefunden.',
       firstName: 'Vorname',
       lastName: 'Nachname',
