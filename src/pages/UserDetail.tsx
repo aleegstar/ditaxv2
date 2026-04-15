@@ -581,112 +581,25 @@ const UserDetail: React.FC = () => {
       <AdminSidebar />
       
       <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
-        <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm min-h-[calc(100vh-2rem)]">
-          {/* Refined Header */}
-          <div className="px-5 py-3 border-b border-white/30">
-            {/* Main Header Row */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-              {/* Left: Back + Client Identity (Primary Focus) */}
-              <div className="flex items-center gap-3">
-                {/* Back Button */}
-                <Link 
-                  to="/admin" 
-                  className="w-9 h-9 rounded-full bg-white/50 border border-white/60 flex items-center justify-center hover:bg-white/70 transition-colors flex-shrink-0"
-                >
-                  <ArrowLeft className="h-4 w-4 text-slate-500" />
-                </Link>
-                
-                {/* Avatar */}
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-semibold text-primary">
-                    {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
-                    {user.last_name?.charAt(0)?.toUpperCase() || ''}
-                  </span>
-                </div>
-                
-                {/* Name & ID - Primary Hierarchy */}
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-base font-semibold tracking-tight truncate">
-                      {user.first_name} {user.last_name}
-                    </h1>
-                    {transformedUser.formData?.contactInfo?.adressnummer && (
-                      <span className="text-[10px] font-mono text-muted-foreground/70 bg-muted/50 px-1.5 py-0.5 rounded flex-shrink-0">
-                        ID: {transformedUser.formData.contactInfo.adressnummer}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground/70 truncate max-w-[180px]">
-                    {user.email || 'Keine E-Mail'}
-                  </p>
-                </div>
-                
-                {/* Divider */}
-                <div className="hidden lg:block w-px h-7 bg-border/50 mx-2" />
-                
-                {/* Status Cluster - Secondary Focus */}
-                <div className="hidden lg:flex items-center gap-1.5">
-                  {/* Tax Filer Selector - Only show if multiple filers exist */}
-                  {taxFilers.length > 1 && (
-                    <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
-                      <Users className="h-3.5 w-3.5" />
-                      <select
-                        value={selectedTaxFilerId || ''}
-                        onChange={(e) => setSelectedTaxFilerId(e.target.value)}
-                        className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
-                      >
-                        {taxFilers.map(filer => (
-                          <option key={filer.id} value={filer.id}>
-                            {filer.first_name} {filer.last_name}
-                            {filer.is_primary ? ' (Hauptperson)' : filer.relationship ? ` (${filer.relationship})` : ''}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  
-                  {/* Year Selector - Subdued */}
-                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => handleYearChange(e.target.value)}
-                      className="text-xs font-medium bg-transparent border-none outline-none cursor-pointer"
-                    >
-                      {Array.from(new Set([
-                        ...formData.map(fd => fd.tax_year),
-                        ...taxReturns.map(tr => tr.tax_year),
-                        ...completedTaxReturns.map(cr => cr.tax_year),
-                        new Date().getFullYear().toString()
-                      ])).filter(Boolean).sort((a, b) => parseInt(b) - parseInt(a)).map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Status Chip */}
-                  <TaxReturnStatusChanger
-                    userId={user.id}
-                    taxYear={selectedYear}
-                    currentStatus={currentStatus || null}
-                    onStatusChanged={fetchUserData}
-                  />
-                  
-                  {/* Missing Items - Warning State */}
-                  {pendingMissingItemsCount > 0 && (
-                    <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      <span className="text-xs font-medium">
-                        {pendingMissingItemsCount} offen
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+        {/* User Profile Header Card - Gradient style matching TaxYearCard */}
+        <div 
+          className="rounded-[20px] p-6 mb-4 relative overflow-hidden shadow-lg"
+          style={{
+            background: 'linear-gradient(135deg, hsla(280, 60%, 85%, 1) 0%, hsla(20, 70%, 88%, 1) 15%, hsla(0, 0%, 97%, 1) 30%, hsla(190, 70%, 85%, 1) 50%, hsla(185, 60%, 82%, 1) 70%, hsla(280, 50%, 87%, 1) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.8)',
+          }}
+        >
+          <div className="relative z-10">
+            {/* Top Row: Back + Actions */}
+            <div className="flex items-center justify-between mb-5">
+              <Link 
+                to="/admin" 
+                className="w-9 h-9 rounded-full bg-white/60 backdrop-blur-sm border border-white/60 flex items-center justify-center hover:bg-white/80 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 text-slate-600" />
+              </Link>
               
-              {/* Right: Actions - Clear Hierarchy */}
               <div className="flex items-center gap-2">
-                {/* Primary Action - Prominent */}
                 <Button
                   onClick={() => setMissingItemDialogOpen(true)}
                   className="h-9 rounded-full px-4 font-medium gap-1.5 bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-[1.04] text-white text-xs shadow-sm border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -694,9 +607,7 @@ const UserDetail: React.FC = () => {
                   <AlertCircle className="h-3.5 w-3.5" />
                   Unterlagen anfordern
                 </Button>
-                
-                {/* Secondary Actions - Subdued */}
-                <div className="flex items-center gap-0.5 border-l border-white/40 pl-2 ml-1">
+                <div className="flex items-center gap-0.5 border-l border-black/10 pl-2 ml-1">
                   <FormDataPdfDownloader 
                     userId={user.id} 
                     taxYear={selectedYear}
@@ -717,11 +628,34 @@ const UserDetail: React.FC = () => {
               </div>
             </div>
             
-            {/* Mobile Status Row */}
-            <div className="flex flex-wrap items-center gap-1.5 mt-2 lg:hidden">
-              {/* Tax Filer Selector - Mobile */}
+            {/* User Identity */}
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/60 flex items-center justify-center">
+                <span className="text-lg font-bold text-slate-700">
+                  {user.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user.last_name?.charAt(0)?.toUpperCase() || ''}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-black tracking-tight">
+                  {user.first_name} {user.last_name}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {user.email || 'Keine E-Mail'}
+                </p>
+              </div>
+              {transformedUser.formData?.contactInfo?.adressnummer && (
+                <span className="text-[10px] font-mono text-gray-500 bg-white/40 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/50 ml-auto">
+                  ID: {transformedUser.formData.contactInfo.adressnummer}
+                </span>
+              )}
+            </div>
+            
+            {/* Status Row */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Tax Filer Selector */}
               {taxFilers.length > 1 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/60 text-gray-600">
                   <Users className="h-3.5 w-3.5" />
                   <select
                     value={selectedTaxFilerId || ''}
@@ -739,7 +673,7 @@ const UserDetail: React.FC = () => {
               )}
               
               {/* Year Selector */}
-              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 border border-white/60 text-muted-foreground">
+              <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/50 backdrop-blur-sm border border-white/60 text-gray-600">
                 <Calendar className="h-3.5 w-3.5" />
                 <select
                   value={selectedYear}
@@ -756,14 +690,18 @@ const UserDetail: React.FC = () => {
                   ))}
                 </select>
               </div>
+              
+              {/* Status Chip */}
               <TaxReturnStatusChanger
                 userId={user.id}
                 taxYear={selectedYear}
                 currentStatus={currentStatus || null}
                 onStatusChanged={fetchUserData}
               />
+              
+              {/* Missing Items Warning */}
               {pendingMissingItemsCount > 0 && (
-                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700">
+                <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-50/80 backdrop-blur-sm border border-amber-200/60 text-amber-700">
                   <AlertCircle className="h-3.5 w-3.5" />
                   <span className="text-xs font-medium">
                     {pendingMissingItemsCount} offen
@@ -772,24 +710,24 @@ const UserDetail: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
 
-          {/* Main Content - Reduced padding for tighter layout */}
-          <div className="p-4">
-            <UserTabs
-              user={transformedUser}
-              taxReturns={taxReturns}
-              onTaxReturnClick={handleTaxReturnClick}
-              onUploadClick={handleUploadClick}
-              userId={user.id}
-              allFormData={formData}
-              onYearChange={handleYearChange}
-              initialNotes={currentAdminNotes}
-              selectedYear={selectedYear}
-              selectedTaxFilerId={selectedTaxFilerId}
-              completedTaxReturns={completedTaxReturns}
-              onCompletedTaxReturnsRefresh={fetchUserData}
-            />
-          </div>
+        {/* Main Content */}
+        <div className="bg-white/60 backdrop-blur-xl rounded-[20px] shadow-sm p-4" style={{ border: '1px solid rgba(255, 255, 255, 0.6)' }}>
+          <UserTabs
+            user={transformedUser}
+            taxReturns={taxReturns}
+            onTaxReturnClick={handleTaxReturnClick}
+            onUploadClick={handleUploadClick}
+            userId={user.id}
+            allFormData={formData}
+            onYearChange={handleYearChange}
+            initialNotes={currentAdminNotes}
+            selectedYear={selectedYear}
+            selectedTaxFilerId={selectedTaxFilerId}
+            completedTaxReturns={completedTaxReturns}
+            onCompletedTaxReturnsRefresh={fetchUserData}
+          />
         </div>
 
         {/* Missing Item Request Dialog */}
