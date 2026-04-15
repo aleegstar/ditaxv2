@@ -347,7 +347,8 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   const isMobile = useIsMobile();
   const {
     menuSheetOpen,
-    setMenuSheetOpen
+    setMenuSheetOpen,
+    setDocumentsOverlayOpen
   } = useSidebar();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -529,12 +530,8 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
 
               {/* Documents Button */}
               <motion.button onClick={() => {
-                const { setDocumentsOverlayOpen } = require('@/contexts/SidebarContext');
-                // Use the context from the component tree
                 if (location.pathname === '/') {
-                  // On home page, open overlay
-                  const event = new CustomEvent('open-documents-overlay');
-                  window.dispatchEvent(event);
+                  setDocumentsOverlayOpen(true);
                 } else {
                   navigate('/documents');
                 }
