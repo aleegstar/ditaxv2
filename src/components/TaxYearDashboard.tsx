@@ -3,7 +3,7 @@ import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileT
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { FormDashboardSkeleton } from '@/components/ui/form-dashboard-skeleton';
+
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
@@ -88,9 +88,9 @@ export const TaxYearDashboard: React.FC = () => {
     }
   }, [allAngabenComplete]);
 
-  // Show skeleton while loading
+  // Show nothing while loading
   if (isDataLoading || !isReady || !formDataLoaded) {
-    return <FormDashboardSkeleton />;
+    return null;
   }
 
   const getAngabenProgress = () => {

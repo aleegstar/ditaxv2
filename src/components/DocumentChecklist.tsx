@@ -10,7 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { useNavigate } from 'react-router-dom';
 import { useDocuments } from '@/hooks/use-documents';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
@@ -356,13 +356,7 @@ const DocumentChecklist: React.FC = () => {
   };
 
   if (isAuthLoading) {
-return <div className="min-h-screen">
-        <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full bg-slate-100" />
-        </div>
-      </div>;
+    return null;
   }
 
   if (!isAuthValid) {
@@ -389,13 +383,7 @@ return <div className="min-h-screen">
   }
 
   if (!initialLoadComplete || isLoading && checklistItems.length === 0) {
-return <div className="min-h-screen">
-        <div className="p-6 pt-24">
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full mb-4 bg-slate-100" />
-          <Skeleton className="h-16 w-full bg-slate-100" />
-        </div>
-      </div>;
+    return null;
   }
 
   return <div className="min-h-screen flex flex-col items-center">

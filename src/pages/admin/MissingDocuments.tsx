@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { 
   FileText, 
   RefreshCw,
@@ -260,13 +260,8 @@ const MissingDocuments = () => {
       {activeTab === 'pending' && (
         <>
           {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                 <div key={i} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
-                  <Skeleton className="h-4 w-32 mb-3" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-              ))}
+            <div className="flex justify-center py-20">
+              <p className="text-sm text-muted-foreground">Laden...</p>
             </div>
           ) : pendingItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -338,13 +333,8 @@ const MissingDocuments = () => {
       {activeTab === 'submitted' && (
         <>
           {submittedLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
-                  <Skeleton className="h-4 w-32 mb-3" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-              ))}
+            <div className="flex justify-center py-20">
+              <p className="text-sm text-muted-foreground">Laden...</p>
             </div>
           ) : submittedItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">

@@ -24,7 +24,7 @@ import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
-import { UserTaxReturnsSkeleton } from '@/components/ui/user-tax-returns-skeleton';
+
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
 import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
 import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
@@ -273,24 +273,24 @@ const UserTaxReturns = () => {
     return uploadedDocuments[year]?.length || 0;
   };
   if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading || !activeTaxFilerId) && !safetyTimeout) {
-    return <UserTaxReturnsSkeleton />;
+    return null;
   }
 
   // If safety timeout fired but profile still loading with no tax returns,
-  // keep showing skeleton to prevent false consent screen
+  // keep showing nothing to prevent false consent screen
   if (safetyTimeout && profileLoading && taxReturns.length === 0) {
-    return <UserTaxReturnsSkeleton />;
+    return null;
   }
 
-  // Guard: valid session but profile not yet loaded → keep skeleton visible
+  // Guard: valid session but profile not yet loaded
   // prevents "Benutzer" fallback from flashing during auth/profile race condition
   if (isValid && !profileLoading && !userProfile && !safetyTimeout) {
-    return <UserTaxReturnsSkeleton />;
+    return null;
   }
 
-  // Also show skeleton while redirecting to select-person
+  // Also wait while redirecting to select-person
   if (hasMultipleFilers && !selectionConfirmed) {
-    return <UserTaxReturnsSkeleton />;
+    return null;
   }
 
   // Only show TaxYearSelector for truly new users who haven't completed onboarding yet.
@@ -368,9 +368,7 @@ const UserTaxReturns = () => {
                 {getGreeting()}
               </p>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
-                {getUserDisplayName() ?? (
-                  <span className="inline-block bg-muted rounded-md animate-pulse w-32 h-9" />
-                )}
+              {getUserDisplayName()}
               </h1>
             </div>
             

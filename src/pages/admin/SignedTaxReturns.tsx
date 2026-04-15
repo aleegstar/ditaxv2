@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { validateStoragePath } from '@/utils/fileValidation';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { 
   FileText, 
   ExternalLink, 
@@ -286,13 +286,8 @@ const SignedTaxReturns: React.FC = () => {
 
       {/* Content */}
       {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl p-5 shadow-sm">
-              <Skeleton className="h-4 w-40 mb-3" />
-              <Skeleton className="h-3 w-56" />
-            </div>
-          ))}
+        <div className="flex justify-center py-20">
+          <p className="text-sm text-muted-foreground">Laden...</p>
         </div>
       ) : filteredReturns.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
