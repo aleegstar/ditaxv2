@@ -12,8 +12,8 @@ const UserInfoCard: React.FC<UserInfoCardProps> = ({ user }) => {
     <div 
       className="rounded-[20px] p-6 relative overflow-hidden shadow-lg"
       style={{
-        background: 'linear-gradient(135deg, hsla(280, 60%, 85%, 1) 0%, hsla(20, 70%, 88%, 1) 15%, hsla(0, 0%, 97%, 1) 30%, hsla(190, 70%, 85%, 1) 50%, hsla(185, 60%, 82%, 1) 70%, hsla(280, 50%, 87%, 1) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.8)',
+        background: 'hsla(0, 0%, 97%, 1)',
+        border: '1px solid rgba(0, 0, 0, 0.06)',
       }}
     >
       <div className="relative z-10">
