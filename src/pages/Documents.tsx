@@ -19,6 +19,7 @@ import UploadActionSheet from '@/components/documents/UploadActionSheet';
 import { de, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useStatusBar } from '@/hooks/useStatusBar';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
