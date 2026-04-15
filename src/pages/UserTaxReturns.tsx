@@ -684,6 +684,12 @@ const UserTaxReturns = () => {
         <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
       )}
 
+      {/* Documents Overlay */}
+      <DocumentsOverlay 
+        isOpen={documentsOverlayOpen} 
+        onClose={() => setDocumentsOverlayOpen(false)} 
+      />
+
       {/* White Overlay for Transition */}
       <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{
       backgroundColor: 'hsl(var(--background))'
