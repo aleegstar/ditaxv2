@@ -64,37 +64,33 @@ export function AddTaxYearDropdown({ onYearSelect, existingYears, isCreating, va
   const sheetContent = (
     <>
       {/* Handle bar */}
-      <div className="flex justify-center pt-3 pb-2">
-        <div className="w-12 h-1.5 rounded-full bg-gray-200" />
+      <div className="flex justify-center pt-3 pb-1">
+        <div className="w-10 h-[5px] rounded-full bg-gray-300/60" />
       </div>
 
       {/* Header */}
-      <div className="px-6 pt-4 pb-5 border-b border-gray-100 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-[18px] bg-blue-50 flex items-center justify-center flex-shrink-0 border border-blue-100/50 shadow-sm">
-          <Plus className="w-6 h-6 text-blue-600" strokeWidth={1.5} />
-        </div>
-        <div>
-          <h3 className="text-xl font-semibold tracking-tight text-gray-900 leading-tight">{t.addTaxYear.addTaxYear}</h3>
-          <p className="text-base text-gray-500 mt-1">{t.addTaxYear.chooseYear}</p>
-        </div>
+      <div className="px-6 pt-5 pb-4">
+        <h3 className="text-[22px] font-bold tracking-tight text-gray-900 leading-tight">{t.addTaxYear.addTaxYear}</h3>
+        <p className="text-[15px] text-gray-400 mt-1 font-medium">{t.addTaxYear.chooseYear}</p>
       </div>
 
       {/* Year options */}
-      <div className="p-4 space-y-3 bg-gray-50/30 overflow-y-auto">
+      <div className="px-5 pb-8 space-y-2 overflow-y-auto">
         {availableYears.map((year) => (
           <button
             key={year}
             onClick={() => handleYearClick(year)}
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-            className="w-full group flex items-center gap-4 p-4 rounded-2xl border border-gray-200/80 bg-white hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            className="w-full group flex items-center gap-4 px-4 py-[14px] rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all duration-200 text-left focus:outline-none active:scale-[0.98]"
           >
-            <div className="w-10 h-10 rounded-full bg-gray-50 group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 border border-gray-100 group-hover:border-blue-200">
-              <Plus className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" strokeWidth={1.5} />
+            <div className="w-11 h-11 rounded-[14px] bg-white group-hover:bg-blue-100 flex items-center justify-center flex-shrink-0 transition-colors duration-200 shadow-sm">
+              <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors duration-200" strokeWidth={2} />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-base font-medium text-gray-900">{t.addTaxYear.taxYear} {year}</p>
-              <p className="text-sm text-gray-500">{t.addTaxYear.createTaxReturn}</p>
+              <p className="text-[16px] font-semibold text-gray-900">{year}</p>
+              <p className="text-[13px] text-gray-400 font-medium">{t.addTaxYear.createTaxReturn}</p>
             </div>
+            <svg className="w-5 h-5 text-gray-300 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
           </button>
         ))}
       </div>
