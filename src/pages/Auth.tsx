@@ -663,14 +663,6 @@ const Auth = () => {
                     </AnimatePresence>
                   </div>
 
-                  {/* Trust indicator */}
-                  <div className="mt-9 flex items-center justify-center gap-2.5">
-                    <div className="flex items-center justify-center w-4 h-4 rounded-full" style={{ background: 'linear-gradient(135deg, hsla(222,60%,60%,0.12) 0%, hsla(222,60%,60%,0.06) 100%)' }}>
-                      <ShieldCheck className="w-2.5 h-2.5 text-primary/50" />
-                    </div>
-                    <span className="text-[10px] font-medium text-muted-foreground/35 tracking-[0.04em] uppercase">Verschlüsselt & DSGVO-konform</span>
-                  </div>
-
                   {/* Footer Links */}
                   <div className="mt-6 flex flex-col items-center gap-5 w-full">
                     <div className="flex items-center gap-4 text-[11px] text-muted-foreground/40">
