@@ -265,9 +265,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 <div
                   className="relative rounded-full"
                   style={{
-                    background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    boxShadow: '0 2px 12px -2px rgba(0,0,0,0.1)',
                   }}
                 >
                   {/* Single row: textarea + icons + send */}
