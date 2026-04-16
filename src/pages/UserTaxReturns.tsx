@@ -695,7 +695,7 @@ const UserTaxReturns = () => {
 
       {/* Delete Confirmation Bottom Sheet */}
       <Drawer open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DrawerContent>
+        <DrawerContent variant="bottom-sheet">
           <div className="mx-auto w-full max-w-lg px-6 pb-8">
             <DrawerHeader className="text-center pt-6 pb-2">
               <DrawerTitle className="text-xl font-semibold">{t.userDashboard.deleteDialogTitle}</DrawerTitle>
