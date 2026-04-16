@@ -362,7 +362,7 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="fixed inset-0 z-[10000] flex flex-col"
           style={{
-            background: 'linear-gradient(180deg, hsl(222, 30%, 8%) 0%, hsl(222, 40%, 12%) 60%, hsl(220, 80%, 30%) 100%)',
+            background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 50%, rgb(15, 56, 138) 100%)',
           }}
         >
           <FormProvider taxYear={currentYear.toString()}>
