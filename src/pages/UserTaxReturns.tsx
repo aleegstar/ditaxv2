@@ -344,7 +344,7 @@ const UserTaxReturns = () => {
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
+      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-6xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
@@ -430,7 +430,7 @@ const UserTaxReturns = () => {
         )}
 
         {/* Cards - Timeline Layout */}
-        <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
