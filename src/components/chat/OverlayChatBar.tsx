@@ -150,8 +150,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 onClick={handleClose}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.85)',
-                  backdropFilter: 'blur(12px)',
+                  background: 'rgb(255,255,255)',
                   boxShadow: '0 4px 16px -2px rgba(0,0,0,0.12)',
                 }}
               >
