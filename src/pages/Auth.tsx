@@ -479,19 +479,19 @@ const Auth = () => {
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
 
       {/* Rainbow glow strip at top */}
-      <div className="fixed top-0 left-0 right-0 z-0 pointer-events-none flex justify-center" style={{ height: '120px' }}>
+      <div className="fixed top-0 left-0 right-0 z-0 pointer-events-none flex justify-center" style={{ height: '80px' }}>
         <div
           style={{
-            width: '60%',
+            width: '50%',
             height: '100%',
             position: 'absolute',
-            bottom: '-20%',
+            top: '-30%',
             left: '50%',
             transform: 'translateX(-50%)',
             background: 'linear-gradient(90deg, #06b6d4, #22c55e, #3b82f6, #a855f7, #ec4899, #06b6d4)',
             backgroundSize: '200% 100%',
-            filter: 'blur(60px)',
-            opacity: 0.2,
+            filter: 'blur(50px)',
+            opacity: 0.12,
             animation: 'rainbow-glow-slide 3s linear infinite',
           }}
         />
@@ -499,22 +499,6 @@ const Auth = () => {
 
       {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary glow - behind card, larger and warmer */}
-        <motion.div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[52%] w-[800px] h-[800px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsla(222,65%,68%,0.1) 0%, hsla(245,45%,65%,0.05) 35%, transparent 65%)' }}
-          animate={{ scale: [1, 1.04, 1], opacity: [0.85, 1, 0.85] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        {/* Branded accent orb - top right */}
-        <motion.div 
-          className="absolute -top-16 -right-16 w-[350px] h-[350px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsla(250,55%,62%,0.06) 0%, transparent 65%)' }}
-          animate={{ x: [0, 8, 0], y: [0, -6, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        {/* Bottom left accent */}
-        <div className="absolute -bottom-28 -left-28 w-[450px] h-[450px] rounded-full" style={{ background: 'radial-gradient(circle, hsla(200,60%,62%,0.04) 0%, transparent 65%)' }} />
         {/* Grain texture */}
         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
       </div>
