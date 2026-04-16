@@ -187,18 +187,6 @@ export const TaxYearDashboard: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  {/* Progress dots */}
-                  <div className="flex items-center gap-1">
-                    {angabenSections.map((s) => (
-                      <div
-                        key={s.id}
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full transition-colors duration-300",
-                          isCompleted(s.id) ? "bg-primary" : "bg-border"
-                        )}
-                      />
-                    ))}
-                  </div>
                 </div>
               </div>
 
