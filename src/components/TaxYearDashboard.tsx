@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, LucideIcon, Lock } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -119,15 +119,15 @@ export const TaxYearDashboard: React.FC = () => {
   const isDocumentsComplete = isCompleted('documents');
   const canSubmit = allAngabenComplete && isDocumentsComplete;
 
-  /* ── Check circle (screenshot 1 style) ── */
-  const CheckCircle = ({ done }: { done: boolean }) => (
+  /* ── Step number badge ── */
+  const StepBadge = ({ step, active, done }: { step: number; active: boolean; done: boolean }) => (
     <div className={cn(
-      "w-6 h-6 shrink-0 rounded-full flex items-center justify-center transition-all duration-300 border-[1.5px]",
-      done
-        ? "bg-primary border-primary text-white"
-        : "border-border bg-transparent"
+      "w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300",
+      done && "bg-primary/10 text-primary",
+      active && !done && "bg-primary text-white shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.4)]",
+      !active && !done && "bg-muted text-muted-foreground"
     )}>
-      {done && <Check className="w-3 h-3" strokeWidth={3} />}
+      {done ? <Check className="w-4 h-4" strokeWidth={2.5} /> : step}
     </div>
   );
 
@@ -151,12 +151,11 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-1"
               onClick={() => setIsAngabenExpanded(true)}
-              className="group rounded-2xl bg-white border border-border/40 p-5 flex items-center gap-3.5 cursor-pointer transition-all duration-200"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)' }}
+              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
-              <CheckCircle done />
+              <StepBadge step={1} active={false} done />
               <div className="flex-1 min-w-0">
-                <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
+                <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
                   {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
                 </p>
@@ -166,22 +165,21 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <section
               data-tour="form-step-1"
-              className="rounded-2xl bg-white border border-border/40 overflow-hidden transition-all duration-200"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)' }}
+              className="rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               {/* Step header */}
               <div
                 onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
                 className={cn(
-                  "px-5 pt-5 pb-3",
-                  allAngabenComplete && "cursor-pointer"
+                  "p-5 sm:p-6",
+                  allAngabenComplete && "cursor-pointer hover:bg-muted/30"
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle done={allAngabenComplete} />
+                  <div className="flex items-center gap-3.5">
+                    <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
                     <div>
-                      <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
+                      <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
                       <p className="text-[12px] text-muted-foreground mt-0.5">
                         {t.formDashboard.tasksCompleted
                           .replace('{completed}', String(angabenProgress.completed))
@@ -205,21 +203,26 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
 
               {/* Section items */}
-              <div className="px-3 pb-3">
-                {angabenSections.map((section, idx) => {
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-1">
+                {angabenSections.map(section => {
+                  const Icon = section.icon;
                   const completed = isCompleted(section.id);
                   return (
                     <button
                       key={section.id}
                       onClick={() => handleSectionClick(section)}
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                      className={cn(
-                        "w-full flex items-center gap-3 px-3 py-3.5 text-left group/item active:scale-[0.99] transition-all duration-150",
-                        idx < angabenSections.length - 1 && "border-b border-border/30"
-                      )}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all duration-150 text-left group/item active:scale-[0.98]"
                     >
-                      <CheckCircle done={completed} />
-                      <span className="flex-1 text-[14px] font-medium text-foreground tracking-tight">
+                      <div className={cn(
+                        "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200",
+                        completed
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground group-hover/item:text-foreground"
+                      )}>
+                        {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" strokeWidth={1.5} />}
+                      </div>
+                      <span className="flex-1 text-[13px] font-medium text-foreground tracking-tight">
                         {section.title}
                       </span>
                       <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover/item:text-muted-foreground group-hover/item:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -235,13 +238,12 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className="group rounded-2xl bg-white border border-border/40 overflow-hidden cursor-pointer transition-all duration-200"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)' }}
+              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
-              <div className="p-5 flex items-center gap-3.5">
-                <CheckCircle done={isDocumentsComplete} />
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
+                <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
+                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
                   <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.uploadDocuments}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -250,11 +252,11 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-2"
-              className="rounded-2xl border border-border/40 border-dashed p-5 flex items-center gap-3.5 opacity-40"
+              className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
             >
-              <CheckCircle done={false} />
+              <StepBadge step={2} active={false} done={false} />
               <div>
-                <h2 className="text-[14px] font-medium text-muted-foreground">{t.formDashboard.documentsTitle}</h2>
+                <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.documentsTitle}</h2>
                 <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeStep1First}</p>
               </div>
               <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
@@ -266,13 +268,12 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-3"
               onClick={handleSubmitClick}
-              className="group rounded-2xl bg-white border border-border/40 overflow-hidden cursor-pointer transition-all duration-200"
-              style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)' }}
+              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
-              <div className="p-5 flex items-center gap-3.5">
-                <CheckCircle done={false} />
+              <div className="p-5 sm:p-6 flex items-center gap-3.5">
+                <StepBadge step={3} active done={false} />
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
+                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
                   <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.completeAndPay}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
@@ -281,11 +282,11 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <div
               data-tour="form-step-3"
-              className="rounded-2xl border border-border/40 border-dashed p-5 flex items-center gap-3.5 opacity-40"
+              className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
             >
-              <CheckCircle done={false} />
+              <StepBadge step={3} active={false} done={false} />
               <div>
-                <h2 className="text-[14px] font-medium text-muted-foreground">{t.formDashboard.reviewAndSubmit}</h2>
+                <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.reviewAndSubmit}</h2>
                 <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeSteps12First}</p>
               </div>
               <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
