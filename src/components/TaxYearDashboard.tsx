@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
+import { ChevronRight, ChevronDown, Check, Lock } from 'lucide-react';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
