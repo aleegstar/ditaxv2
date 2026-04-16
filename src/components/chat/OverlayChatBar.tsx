@@ -355,7 +355,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 className="group relative flex-1 flex items-center gap-3 sm:gap-4 rounded-full px-4 sm:px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
                 style={{
                   background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 100%)',
-                  boxShadow: '0 6px 24px -4px rgba(0,67,224,0.45), 0 2px 8px rgba(0,0,0,0.15)',
+                  border: '1px solid rgb(0, 67, 224)',
+                  boxShadow: '0 6px 24px -4px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.1)',
                 }}
               >
 
