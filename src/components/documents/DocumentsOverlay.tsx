@@ -300,24 +300,19 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
 
       {/* Floating upload pill – same design as chat input bar */}
       {createPortal(
-        <div className="fixed inset-x-0 bottom-0 z-[10001] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none">
-          <div className="max-w-2xl mx-auto pointer-events-auto">
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="group relative flex items-center gap-4 rounded-full px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
-              style={{
-                background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
-              }}
-            >
-              <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white/50">
-                {t.documentsPage.upload}
-              </span>
-              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.1)' }}>
-                <Plus className="w-4 h-4 text-white/50" strokeWidth={2} />
-              </div>
-            </div>
+        <div className="fixed inset-x-0 bottom-0 z-[10001] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none flex justify-center">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="pointer-events-auto flex items-center gap-3 rounded-full px-5 py-3.5 cursor-pointer transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 100%)',
+              boxShadow: '0 6px 24px -4px rgba(0,67,224,0.45), 0 2px 8px rgba(0,0,0,0.15)',
+            }}
+          >
+            <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2} />
+            <span className="text-[15px] select-none font-semibold tracking-tight text-white">
+              {t.documentsPage.upload}
+            </span>
           </div>
         </div>,
         document.body
