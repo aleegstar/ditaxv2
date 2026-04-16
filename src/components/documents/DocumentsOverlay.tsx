@@ -181,9 +181,9 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       {/* Search bar */}
       <div className="px-5 mb-4">
         <div className="relative flex items-center rounded-full overflow-hidden" style={{
-          background: 'linear-gradient(180deg, hsl(222, 47%, 16%) 0%, hsl(222, 55%, 22%) 100%)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 4px 24px -4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+          background: 'rgba(255,255,255,0.15)',
+          border: '1px solid rgba(255,255,255,0.25)',
+          boxShadow: '0 2px 12px -2px rgba(0,0,0,0.1)',
         }}>
           <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-white/50" strokeWidth={1.5} />
