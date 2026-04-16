@@ -165,7 +165,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <section
               data-tour="form-step-1"
-              className="rounded-[1.5rem] bg-white border border-white/60 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               {/* Step header */}
               <div
