@@ -191,7 +191,7 @@ export const TaxYearDashboard: React.FC = () => {
               </div>
 
               {/* Section items */}
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-1">
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-2.5">
                 {angabenSections.map(section => {
                   const Icon = section.icon;
                   const completed = isCompleted(section.id);
@@ -200,7 +200,7 @@ export const TaxYearDashboard: React.FC = () => {
                       key={section.id}
                       onClick={() => handleSectionClick(section)}
                       data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-all duration-150 text-left group/item active:scale-[0.98]"
+                      className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white shadow-[rgba(0,0,0,0.04)_0px_4px_16px_-2px,rgba(0,0,0,0.03)_0px_1px_4px] ring-1 ring-slate-100/80 hover:shadow-[rgba(0,0,0,0.08)_0px_6px_20px_-2px,rgba(0,0,0,0.04)_0px_2px_6px] transition-all duration-200 text-left group/item active:scale-[0.98]"
                     >
                       <div className={cn(
                         "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200",
