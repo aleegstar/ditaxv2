@@ -359,7 +359,7 @@ const UserTaxReturns = () => {
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
             <button
               onClick={() => setMenuSheetOpen(true)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
             >
               <Menu className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
