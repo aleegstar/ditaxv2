@@ -453,7 +453,7 @@ const UserTaxReturns = () => {
         )}
 
         {/* Cards - Timeline Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr">
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
