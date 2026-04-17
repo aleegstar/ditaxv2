@@ -478,25 +478,6 @@ const Auth = () => {
   };
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
 
-      {/* Rainbow glow strip at top */}
-      <div className="fixed top-0 left-0 right-0 z-0 pointer-events-none flex justify-center" style={{ height: '80px' }}>
-        <div
-          style={{
-            width: '50%',
-            height: '100%',
-            position: 'absolute',
-            top: '-30%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'linear-gradient(90deg, #06b6d4, #22c55e, #3b82f6, #a855f7, #ec4899, #06b6d4)',
-            backgroundSize: '200% 100%',
-            filter: 'blur(50px)',
-            opacity: 0.12,
-            animation: 'rainbow-glow-slide 3s linear infinite',
-          }}
-        />
-      </div>
-
       {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Grain texture */}
