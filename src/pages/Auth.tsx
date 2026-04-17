@@ -478,21 +478,6 @@ const Auth = () => {
   };
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
 
-      {/* Sphere video peeking from top */}
-      <div
-        className="fixed left-1/2 -translate-x-1/2 z-0 pointer-events-none overflow-hidden"
-        style={{ top: '-120px', width: '240px', height: '240px', borderRadius: '9999px' }}
-      >
-        <video
-          src="/auth-sphere.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        />
-      </div>
-
       {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Grain texture */}
