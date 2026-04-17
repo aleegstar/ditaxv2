@@ -363,15 +363,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   Wie kann ich dir helfen?
                 </span>
 
-                {/* Sound wave icon */}
-                <div className="flex-shrink-0 flex items-center gap-[3px] h-6">
-                  {[14, 20, 10, 22, 12].map((h, i) => (
-                    <div
-                      key={i}
-                      className="w-[3px] rounded-full bg-white/40"
-                      style={{ height: `${h}px` }}
-                    />
-                  ))}
+                {/* AI Sphere */}
+                <div className="flex-shrink-0 w-8 h-8 overflow-hidden" style={{ borderRadius: '9999px' }}>
+                  <img
+                    src="/sphere-animation.gif"
+                    alt="AI Sphere"
+                    className="w-[140%] h-[140%] object-cover -translate-x-[14%] -translate-y-[14%]"
+                  />
                 </div>
               </div>
             </div>
