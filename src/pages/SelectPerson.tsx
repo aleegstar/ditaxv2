@@ -74,7 +74,7 @@ const SelectPerson: React.FC = () => {
           <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-[-0.02em] mb-3">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
-          <p className="text-[1.05rem] leading-relaxed text-muted-foreground">
+          <p className="leading-relaxed text-muted-foreground text-xs text-center">
             {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
           </p>
         </motion.div>
