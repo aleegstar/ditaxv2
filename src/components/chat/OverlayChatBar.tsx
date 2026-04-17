@@ -249,9 +249,15 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                     <div className="flex items-end gap-2">
                       <div
                         className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
-                        style={{ background: 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))' }}
                       >
-                        <img src="/bot-avatar.png" alt="AI" className="w-full h-full object-cover" />
+                        <video
+                          src="/sphere-animation.mp4"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover scale-110"
+                        />
                       </div>
                       <div className="px-4 py-3 rounded-[20px] bg-white/15" style={{ backdropFilter: 'blur(12px)' }}>
                         <div className="flex gap-1">
