@@ -364,14 +364,14 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 </span>
 
                 {/* AI Sphere */}
-                <div className="flex-shrink-0 w-8 h-8 overflow-hidden" style={{ borderRadius: '9999px' }}>
+                <div className="flex-shrink-0 w-10 h-10 overflow-hidden" style={{ borderRadius: '9999px' }}>
                   <video
                     src="/sphere-animation.mp4"
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-[140%] h-[140%] object-cover -translate-x-[14%] -translate-y-[14%]"
+                    className="w-full h-full object-cover scale-110"
                   />
                 </div>
               </div>
