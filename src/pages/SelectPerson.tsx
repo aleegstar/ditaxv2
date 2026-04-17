@@ -87,11 +87,9 @@ const SelectPerson: React.FC = () => {
               onClick={() => handleSelectPerson(filer)}
               className="w-full group relative overflow-hidden text-left transition-all duration-300 cursor-pointer active:scale-[0.98]"
               style={{
-                background: 'rgba(255, 255, 255, 0.40)',
-                backdropFilter: 'blur(40px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.60)',
+                background: 'linear-gradient(160deg, rgb(0, 46, 153) 0%, rgb(0, 34, 112) 100%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.10)',
                 borderRadius: '2rem',
                 padding: '2rem 2.5rem',
               }}
