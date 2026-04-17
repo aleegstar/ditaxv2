@@ -348,30 +348,12 @@ const UserTaxReturns = () => {
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
-            <div
-              role="img"
-              aria-label="ditax"
-              className="h-8 w-[106px] overflow-hidden"
-              style={{
-                WebkitMaskImage: 'url(/ditax-logo-mask.svg)',
-                maskImage: 'url(/ditax-logo-mask.svg)',
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-                WebkitMaskSize: 'contain',
-                maskSize: 'contain',
-                WebkitMaskPosition: 'center',
-                maskPosition: 'center',
-              }}
-            >
-              <video
-                src="/sphere-animation.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover scale-[2]"
-              />
-            </div>
+            <img
+              src="/ditax-logo-mask.svg"
+              alt="ditax"
+              className="h-8 w-[106px] object-contain"
+              style={{ filter: 'brightness(0) saturate(100%) invert(28%) sepia(95%) saturate(2476%) hue-rotate(217deg) brightness(99%) contrast(101%)' }}
+            />
           </div>
           <div className="flex items-center gap-2">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
