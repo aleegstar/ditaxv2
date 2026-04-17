@@ -34,7 +34,7 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
         ))}
       </div>
       {/* Counter text */}
-      <p className="text-xs text-muted-foreground mt-2.5 text-center font-medium tabular-nums">
+      <p className="text-[11px] text-muted-foreground mt-2 text-center font-medium tabular-nums">
         Frage {safeCurrent + 1} von {safeTotal}
       </p>
     </div>
