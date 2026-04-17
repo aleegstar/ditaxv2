@@ -520,7 +520,7 @@ const Auth = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.2, duration: 0.5 }}
                     />
-                    <h1 className="text-[32px] font-bold tracking-[-0.035em] text-foreground mb-2.5">
+                    <h1 className="font-bold tracking-[-0.035em] text-foreground mb-2.5 text-2xl">
                       {t.authFlow.login}
                     </h1>
                     <p className="text-[15px] text-muted-foreground/60 font-light leading-relaxed tracking-wide">
