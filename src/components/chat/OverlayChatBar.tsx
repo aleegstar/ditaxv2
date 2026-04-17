@@ -105,7 +105,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
             style={{
-              background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 50%, rgb(15, 56, 138) 100%)',
+              background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 0, 0) 50%, rgb(15, 56, 138) 100%)',
             }}
           >
             {/* Top bar with menu + close */}
