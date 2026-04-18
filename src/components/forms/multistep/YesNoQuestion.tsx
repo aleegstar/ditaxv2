@@ -160,9 +160,10 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
 
   const handleButtonAnswer = useCallback(
     (isYes: boolean) => {
-      cardRef.current?.triggerExit(isYes ? 'right' : 'left');
+      setExitDirection(isYes ? 1 : -1);
+      onAnswer(isYes);
     },
-    []
+    [onAnswer]
   );
 
   return (
