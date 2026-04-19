@@ -337,6 +337,107 @@ const UserTaxReturns = () => {
   const getGreeting = () => {
     return t.userDashboard.greeting;
   };
+
+  // Helper to render an unpaid in-progress tax return card
+  const renderUnpaidCard = (year: string) => {
+    const yearProgressSections = formProgress[year]?.form_sections;
+    const yearFormDataItems = formData[year] || [];
+
+    const isSectionDone = (sectionKey: string, formType: string) => {
+      if (yearProgressSections?.[sectionKey]) return true;
+      const record = yearFormDataItems.find((r: any) => r.form_type === formType);
+      if (record?.data?._completed) return true;
+      if (record && !['income', 'assets', 'deductions', 'contactInfo'].includes(formType)) return true;
+      return false;
+    };
+
+    const hasDocuments = (uploadedDocuments[year] || []).length > 0;
+
+    const steps = [
+      { label: 'Angaben', done: isSectionDone('contactInfo', 'contactInfo') },
+      { label: 'Einkommen', done: isSectionDone('income', 'income') },
+      { label: 'Abzüge', done: isSectionDone('deductions', 'deductions') },
+      { label: 'Vermögen', done: isSectionDone('assets', 'assets') },
+      { label: 'Belege', done: hasDocuments || isSectionDone('documents', 'documents') },
+      { label: 'Zahlung', done: false },
+    ];
+    const completedSteps = steps.filter(s => s.done).length;
+
+    return (
+      <motion.div
+        key={year}
+        data-tour="tax-year-card"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+        className="relative h-full"
+      >
+        <div
+          onClick={() => navigate(`/form?year=${year}`)}
+          className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
+          style={{
+            background: 'rgba(255, 255, 255, 0.40)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.60)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-medium text-primary">In Erfassung</span>
+              </div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
+                  <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={e => {
+                  e.stopPropagation();
+                  setYearToDelete(year);
+                  setDeleteDialogOpen(true);
+                }} className="text-red-600 hover:text-red-700">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t.common.delete}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
+            {year}
+          </h2>
+          <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
+            {completedSteps === 0
+              ? 'Beginne damit deine Angaben zu erfassen.'
+              : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
+          </p>
+
+          <div className="flex gap-1.5 mb-8">
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                className="flex-1 h-2.5 rounded-full transition-all duration-500"
+                style={i < completedSteps ? {
+                  background: 'hsl(var(--primary))',
+                } : {
+                  background: 'rgba(255, 255, 255, 0.30)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
   return <div 
     className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
     onTouchStart={pullHandlers.onTouchStart}
