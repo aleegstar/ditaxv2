@@ -389,44 +389,6 @@ const UserTaxReturns = () => {
           pendingInformation={pendingInformation} 
         />
 
-        {/* Quick Action Cards */}
-        <section className="grid grid-cols-2 gap-3 mb-8">
-          {/* Upload Documents Card */}
-          <button
-            onClick={handleDocumentsClick}
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
-            style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
-              <FileCheck2 className="w-5 h-5 text-white" strokeWidth={1.5} />
-            </div>
-            <span className="text-[13px] font-medium text-white/90 leading-tight">
-              Unterlagen<br/>hochladen
-            </span>
-          </button>
-
-          {/* Add Tax Year Card */}
-          <button
-            onClick={() => setShowAddYearSheet(true)}
-            data-tour="quick-add-year"
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
-            style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
-              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
-            </div>
-            <span className="text-[13px] font-medium text-white/90 leading-tight">
-              Steuerjahr<br/>hinzufügen
-            </span>
-          </button>
-        </section>
-
         {/* Tax Returns Section Title */}
         {availableYears.length > 0 && (
           <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
@@ -435,7 +397,7 @@ const UserTaxReturns = () => {
         )}
 
         {/* Cards - Timeline Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr mb-8">
           {/* Unpaid In-Progress Tax Returns */}
           {unpaidYears.map((year, index) => {
             const progress = calculateProgress(year) ?? 0;
