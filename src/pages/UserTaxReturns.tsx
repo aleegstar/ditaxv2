@@ -501,135 +501,53 @@ const UserTaxReturns = () => {
           </h2>
         )}
 
+        {/* Featured: most recent unfinished tax return */}
+        {featuredUnpaidYear && (
+          <div className="mb-5">
+            {renderUnpaidCard(featuredUnpaidYear)}
+          </div>
+        )}
+
+        {/* Quick Action Cards */}
+        <section className="grid grid-cols-2 gap-3 mb-8">
+          <button
+            onClick={handleDocumentsClick}
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <FileCheck2 className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Unterlagen<br/>hochladen
+            </span>
+          </button>
+
+          <button
+            onClick={() => setShowAddYearSheet(true)}
+            data-tour="quick-add-year"
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
+              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Steuerjahr<br/>hinzufügen
+            </span>
+          </button>
+        </section>
+
         {/* Cards - Timeline Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr mb-8">
-          {/* Unpaid In-Progress Tax Returns */}
-          {unpaidYears.map((year, index) => {
-            const progress = calculateProgress(year) ?? 0;
-            const yearProgressSections = formProgress[year]?.form_sections;
-            const yearFormDataItems = formData[year] || [];
-            
-            // Helper: check completion from form_progress.form_sections OR form_data records
-            const isSectionDone = (sectionKey: string, formType: string) => {
-              // Check form_sections first
-              if (yearProgressSections?.[sectionKey]) return true;
-              // Fallback: check if form_data has a record with _completed flag
-              const record = yearFormDataItems.find((r: any) => r.form_type === formType);
-              if (record?.data?._completed) return true;
-              // For non-multistep sections, existence of form_data record means done
-              if (record && !['income', 'assets', 'deductions', 'contactInfo'].includes(formType)) return true;
-              return false;
-            };
-            
-            const hasDocuments = (uploadedDocuments[year] || []).length > 0;
-            
-            const steps = [
-              { label: 'Angaben', done: isSectionDone('contactInfo', 'contactInfo') },
-              { label: 'Einkommen', done: isSectionDone('income', 'income') },
-              { label: 'Abzüge', done: isSectionDone('deductions', 'deductions') },
-              { label: 'Vermögen', done: isSectionDone('assets', 'assets') },
-              { label: 'Belege', done: hasDocuments || isSectionDone('documents', 'documents') },
-              { label: 'Zahlung', done: false },
-            ];
-            const completedSteps = steps.filter(s => s.done).length;
-            // Find the next incomplete step
-            const nextStep = steps.find(s => !s.done);
-            const nextStepIndex = nextStep ? steps.indexOf(nextStep) : -1;
-            const nextStepLabel = nextStep?.label || '';
-            
-            // Map step labels to navigation routes
-            const getStepRoute = (label: string) => {
-              switch (label) {
-                case 'Angaben': return `/form?year=${year}&section=kontakt`;
-                case 'Einkommen': return `/form?year=${year}&section=einkommen`;
-                case 'Abzüge': return `/form?year=${year}&section=abzuege`;
-                case 'Vermögen': return `/form?year=${year}&section=vermoegen`;
-                case 'Belege': return `/form?year=${year}&section=unterlagen`;
-                case 'Zahlung': return `/payment?year=${year}`;
-                default: return `/form?year=${year}`;
-              }
-            };
-
-            return <motion.div
-              key={year}
-              data-tour="tax-year-card"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative h-full"
-            >
-              {/* Main Card */}
-              <div 
-                onClick={() => navigate(`/form?year=${year}`)}
-                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.40)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
-                }}
-              >
-                {/* Year + Menu */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
-                      <span className="text-xs font-medium text-primary">
-                        In Erfassung
-                      </span>
-                    </div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
-                        <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={e => {
-                        e.stopPropagation();
-                        setYearToDelete(year);
-                        setDeleteDialogOpen(true);
-                      }} className="text-red-600 hover:text-red-700">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t.common.delete}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Title & Description */}
-                <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
-                  {year}
-                </h2>
-                <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
-                  {completedSteps === 0 
-                    ? 'Beginne damit deine Angaben zu erfassen.'
-                    : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`
-                  }
-                </p>
-
-                {/* Progress Bar */}
-                <div className="flex gap-1.5 mb-8">
-                  {steps.map((step, i) => (
-                    <div 
-                      key={i} 
-                      className="flex-1 h-2.5 rounded-full transition-all duration-500"
-                      style={i < completedSteps ? {
-                        background: 'hsl(var(--primary))',
-                      } : {
-                        background: 'rgba(255, 255, 255, 0.30)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(255, 255, 255, 0.60)',
-                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
-                      }}
-                    />
-                  ))}
-                </div>
-
-              </div>
-            </motion.div>;
-          })}
+          {/* Remaining Unpaid In-Progress Tax Returns */}
+          {remainingUnpaidYears.map(year => renderUnpaidCard(year))}
 
           {/* Paid In-Progress Tax Returns (Processing) */}
           {paidInProgressYears.map(year => {
