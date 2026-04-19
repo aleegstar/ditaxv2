@@ -324,6 +324,10 @@ const UserTaxReturns = () => {
     const taxReturn = getExistingReturn(year);
     return taxReturn?.payment_status === 'paid';
   });
+
+  // Most recent unfinished (unpaid) tax return — shown above quick actions
+  const featuredUnpaidYear = unpaidYears[0] || null;
+  const remainingUnpaidYears = featuredUnpaidYear ? unpaidYears.slice(1) : unpaidYears;
   const getUserDisplayName = () => {
     if (userProfile?.first_name) {
       return userProfile.first_name;
