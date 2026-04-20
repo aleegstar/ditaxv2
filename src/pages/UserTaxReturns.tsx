@@ -421,12 +421,11 @@ const UserTaxReturns = () => {
                 key={i}
                 className="flex-1 h-2.5 rounded-full transition-all duration-500"
                 style={i < completedSteps ? {
-                  background: 'hsl(var(--primary))',
+                  background: 'rgba(60, 45, 25, 0.7)',
                 } : {
-                  background: 'rgba(255, 255, 255, 0.30)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                  background: 'rgba(255, 255, 255, 0.45)',
+                  border: '1px solid rgba(255, 255, 255, 0.6)',
+                  boxShadow: 'inset 0 1px 2px rgba(120,100,70,0.08)',
                 }}
               />
             ))}
