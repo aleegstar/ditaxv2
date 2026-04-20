@@ -232,7 +232,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       <div className="flex-1 overflow-y-auto px-5 pb-32" style={{ WebkitOverflowScrolling: 'touch' }}>
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
           </div>
         ) : documents.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
@@ -247,16 +247,16 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                 <button
                   key={doc.id}
                   onClick={() => { setSelectedDocument(doc); setShowActionSheet(true); }}
-                  className="group relative flex flex-col bg-white/[0.08] backdrop-blur-sm p-3 rounded-2xl text-left transition-all duration-300 cursor-pointer border border-white/10 hover:border-white/25 hover:bg-white/[0.12]"
+                  className="group relative flex flex-col bg-white p-3 rounded-2xl text-left transition-all duration-300 cursor-pointer border border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow-md"
                 >
-                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-white/5 mb-3">
+                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-zinc-50 mb-3">
                     {isImage ? (
                       <DocumentThumbnail doc={doc} />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-white/5 via-white/10 to-white/5 relative overflow-hidden">
-                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-violet-400/10 rounded-full blur-2xl" />
-                        <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
-                          <span className="px-2 py-0.5 rounded-full bg-white/90 text-[10px] font-bold text-blue-600">
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-50 relative overflow-hidden">
+                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full blur-2xl" />
+                        <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-[hsl(221,100%,42%)] shadow-lg shadow-primary/25 flex items-center justify-center">
+                          <span className="px-2 py-0.5 rounded-full bg-white text-[10px] font-bold text-primary">
                             {fileExt}
                           </span>
                         </div>
@@ -264,8 +264,8 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                     )}
                   </div>
                   <div className="px-1 pb-1">
-                    <p className="text-sm font-medium text-white truncate leading-snug mb-0.5">{doc.file_name}</p>
-                    <p className="text-xs text-white/40">{uploadDate}</p>
+                    <p className="text-sm font-medium text-foreground truncate leading-snug mb-0.5">{doc.file_name}</p>
+                    <p className="text-xs text-muted-foreground">{uploadDate}</p>
                   </div>
                 </button>
               );
@@ -276,8 +276,8 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(221,100%,42%)] flex items-center justify-center mb-5 shadow-[0_8px_24px_-6px_rgba(29,100,255,0.3)]">
               <FolderOpen strokeWidth={1.5} className="w-7 h-7 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-white tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
-            <p className="text-sm text-white/50 max-w-[260px] mx-auto text-center leading-relaxed">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
+            <p className="text-sm text-muted-foreground max-w-[260px] mx-auto text-center leading-relaxed">
               {t.documentsPage.collectReceiptsDescription}
             </p>
           </div>
