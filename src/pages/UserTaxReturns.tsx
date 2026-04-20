@@ -411,7 +411,7 @@ const UserTaxReturns = () => {
           <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
             {year}
           </h2>
-          <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
+          <p className="text-muted-foreground leading-relaxed mb-6 text-sm">
             {completedSteps === 0
               ? 'Beginne damit deine Angaben zu erfassen.'
               : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
