@@ -131,11 +131,11 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       >
         {/* Year selector */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-white">{t.documentsPage.taxYear}</span>
+          <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
           <div className="relative">
             <button
               onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-              className="flex items-center gap-1 text-base text-white/60 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-base text-muted-foreground hover:text-foreground transition-colors"
             >
               <span>{selectedYear}</span>
               <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
@@ -143,7 +143,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
             {isYearDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full left-0 mt-2 z-[200] bg-white/10 backdrop-blur-2xl rounded-xl border border-white/20 overflow-hidden min-w-[140px]">
+                <div className="absolute top-full left-0 mt-2 z-[200] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 border border-zinc-200 overflow-hidden min-w-[140px]">
                   <div className="max-h-64 overflow-y-auto py-1">
                     {allYears.map(year => (
                       <button
@@ -151,7 +151,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                         onClick={() => { setSelectedYear(year); setIsYearDropdownOpen(false); }}
                         className={cn(
                           "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                          year === selectedYear ? "text-white font-medium bg-white/20" : "text-white/70 hover:bg-white/10"
+                          year === selectedYear ? "text-primary font-medium bg-primary/10" : "text-zinc-800 hover:bg-zinc-100"
                         )}
                       >
                         {year}
