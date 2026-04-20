@@ -21,7 +21,7 @@
 
 @layer base {
   :root {
-    --background: 40 18% 96%;
+    --background: 36 33% 93%;
     --foreground: 30 8% 18%;
 
     --card: 40 25% 99%;
@@ -215,7 +215,7 @@
   }
 
   html {
-    background: #F3EFEA;
+    background: #F5EFE7;
     background-attachment: fixed;
     min-height: 100%;
   }
