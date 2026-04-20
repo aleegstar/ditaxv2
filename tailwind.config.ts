@@ -21,7 +21,12 @@ export default {
     	extend: {
     		fontFamily: {
     			sans: [
-    				'Plus Jakarta Sans',
+    				'SF Pro Text',
+    				'-apple-system',
+    				'BlinkMacSystemFont',
+    				'Inter',
+    				'Helvetica Neue',
+    				'Arial',
     				'ui-sans-serif',
     				'system-ui',
     				'sans-serif',
