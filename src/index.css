@@ -21,42 +21,42 @@
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 100 8% 15%;
+    --background: 40 18% 96%;
+    --foreground: 30 8% 18%;
 
     --card: 40 25% 99%;
-    --card-foreground: 100 8% 15%;
+    --card-foreground: 30 8% 18%;
 
     --popover: 40 25% 99%;
-    --popover-foreground: 100 8% 15%;
+    --popover-foreground: 30 8% 18%;
 
-    --primary: 110 14% 45%;
+    --primary: 30 10% 28%;
     --primary-foreground: 40 25% 98%;
 
-    --secondary: 110 14% 45%;
-    --secondary-foreground: 40 25% 98%;
+    --secondary: 35 14% 88%;
+    --secondary-foreground: 30 10% 25%;
 
-    --muted: 40 18% 94%;
-    --muted-foreground: 100 6% 42%;
+    --muted: 38 14% 92%;
+    --muted-foreground: 30 6% 48%;
 
-    --accent: 40 18% 94%;
-    --accent-foreground: 100 8% 20%;
+    --accent: 38 14% 92%;
+    --accent-foreground: 30 10% 25%;
 
-    --destructive: 8 55% 52%;
+    --destructive: 8 40% 50%;
     --destructive-foreground: 40 25% 98%;
 
-    --success: 110 25% 40%;
+    --success: 100 14% 42%;
     --success-foreground: 40 25% 98%;
 
-  --border: 40 12% 88%;
-  --input: 40 12% 88%;
-  --ring: 110 14% 45%;
+  --border: 35 12% 86%;
+  --input: 35 12% 86%;
+  --ring: 30 10% 28%;
 
-  --color-1: 110 18% 40%;
-  --color-2: 110 14% 50%;
-  --color-3: 90 12% 48%;
-  --color-4: 75 14% 55%;
-  --color-5: 120 12% 52%;
+  --color-1: 30 10% 30%;
+  --color-2: 30 8% 40%;
+  --color-3: 35 8% 45%;
+  --color-4: 38 10% 55%;
+  --color-5: 40 12% 60%;
 
     --radius: 0.75rem;
 
@@ -78,12 +78,12 @@
 
     --font-sans: "Plus Jakarta Sans", sans-serif;
 
-    /* Standard button colors - sage & stone */
-    --color-1: 110 18% 40%;
-    --color-2: 110 14% 50%;
-    --color-3: 90 12% 48%;
-    --color-4: 75 14% 55%;
-    --color-5: 120 12% 52%;
+    /* Standard button colors - warm stone monochrome */
+    --color-1: 30 10% 30%;
+    --color-2: 30 8% 40%;
+    --color-3: 35 8% 45%;
+    --color-4: 38 10% 55%;
+    --color-5: 40 12% 60%;
 
     /* Additional variables for new checkbox */
     --hu-font-geist: var(--font-geist);
@@ -214,7 +214,7 @@
   }
 
   html {
-    background: linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%));
+    background: linear-gradient(to bottom, hsl(40, 20%, 97%), hsl(38, 16%, 95%), hsl(36, 14%, 94%));
     background-attachment: fixed;
     min-height: 100%;
   }
