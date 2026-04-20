@@ -78,12 +78,12 @@ export const BottomNavBar: React.FC = () => {
       style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
     >
       <div
-        className="pointer-events-auto rounded-full flex items-center gap-1 px-2 py-1.5"
+        className="pointer-events-auto rounded-full flex items-center gap-1 px-1.5 py-1.5"
         style={{
-          background: 'rgba(255, 255, 255, 0.65)',
+          background: 'rgba(250, 245, 235, 0.85)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.7)',
+          border: '1px solid rgba(255, 255, 255, 0.6)',
           boxShadow: '0 8px 28px rgba(80, 65, 45, 0.10), 0 2px 8px rgba(80, 65, 45, 0.05)',
         }}
       >
