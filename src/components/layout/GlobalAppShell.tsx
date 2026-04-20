@@ -29,6 +29,7 @@ export const GlobalAppShell: React.FC = () => {
 
   return (
     <>
+      <AIChatTrigger />
       <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
       <DocumentsOverlay
         isOpen={documentsOverlayOpen}
