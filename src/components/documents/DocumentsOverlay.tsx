@@ -180,39 +180,35 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
 
       {/* Search bar */}
       <div className="px-5 mb-4">
-        <div className="relative flex items-center rounded-full overflow-hidden" style={{
-          background: 'rgba(255,255,255,0.15)',
-          border: '1px solid rgba(255,255,255,0.25)',
-          boxShadow: '0 2px 12px -2px rgba(0,0,0,0.1)',
-        }}>
+        <div className="relative flex items-center rounded-full overflow-hidden bg-white border border-zinc-200 shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-white/50" strokeWidth={1.5} />
+            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           </div>
           <input
             type="text"
             placeholder={t.documentsPage.search}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-12 py-[18px] bg-transparent text-[15px] font-medium tracking-tight text-white placeholder:text-white/40 focus:outline-none transition-all"
+            className="w-full pl-12 pr-12 py-[18px] bg-transparent text-[15px] font-medium tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none transition-all"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-1">
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                <X className="h-4 w-4 text-white/40" strokeWidth={1.5} />
+              <button onClick={() => setSearchQuery('')} className="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
+                <X className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               </button>
             )}
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className={cn("p-1.5 rounded-lg hover:bg-white/10 transition-colors", showSortDropdown && "bg-white/10")}
+              className={cn("p-1.5 rounded-lg hover:bg-zinc-100 transition-colors", showSortDropdown && "bg-zinc-100")}
             >
-              <SlidersHorizontal className="h-4 w-4 text-white/40" strokeWidth={1.5} />
+              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
           </div>
         </div>
         {showSortDropdown && (
           <>
             <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-            <div className="absolute right-5 mt-2 z-[60] bg-white/10 backdrop-blur-2xl rounded-xl border border-white/20 overflow-hidden min-w-[200px]">
+            <div className="absolute right-5 mt-2 z-[60] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 border border-zinc-200 overflow-hidden min-w-[200px]">
               <div className="py-1">
                 {sortOptions.map(option => (
                   <button
@@ -220,7 +216,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                     onClick={() => { setSortBy(option.value); setShowSortDropdown(false); }}
                     className={cn(
                       "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                      sortBy === option.value ? "text-white font-medium bg-white/20" : "text-white/70 hover:bg-white/10"
+                      sortBy === option.value ? "text-primary font-medium bg-primary/10" : "text-zinc-800 hover:bg-zinc-100"
                     )}
                   >
                     {option.label}
