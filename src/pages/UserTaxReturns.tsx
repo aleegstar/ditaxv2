@@ -519,7 +519,7 @@ const UserTaxReturns = () => {
             >
               <FileCheck2 className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
               <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-                Unterlagen
+                Unterlagen hinzufügen
               </span>
             </button>
 
@@ -537,7 +537,7 @@ const UserTaxReturns = () => {
             >
               <Plus className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
               <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-                Steuerjahr
+                Steuerjahr hinzufügen
               </span>
             </button>
           </div>
