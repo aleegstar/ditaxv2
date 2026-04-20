@@ -77,13 +77,14 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     --font-sans: "Plus Jakarta Sans", sans-serif;
+    --font-serif: "Fraunces", "Georgia", serif;
 
-    /* Standard button colors - warm stone monochrome */
-    --color-1: 30 10% 30%;
-    --color-2: 30 8% 40%;
-    --color-3: 35 8% 45%;
-    --color-4: 38 10% 55%;
-    --color-5: 40 12% 60%;
+    /* Standard button colors - warm sand monochrome */
+    --color-1: 28 18% 32%;
+    --color-2: 28 14% 42%;
+    --color-3: 32 14% 50%;
+    --color-4: 35 18% 60%;
+    --color-5: 38 22% 70%;
 
     /* Additional variables for new checkbox */
     --hu-font-geist: var(--font-geist);
