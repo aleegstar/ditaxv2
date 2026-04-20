@@ -406,103 +406,18 @@ const UserTaxReturns = () => {
             </DropdownMenu>
           </div>
 
-          <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
+          <h2 className="tracking-tight leading-tight mb-2 text-3xl font-medium text-[#41372a]">
             {year}
           </h2>
-          <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
-            {completedSteps === 0
-              ? 'Beginne damit deine Angaben zu erfassen.'
-              : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
-          </p>
-
-          <div className="flex gap-1.5 mb-8">
-            {steps.map((step, i) => (
-              <div
-                key={i}
-                className="flex-1 h-2.5 rounded-full transition-all duration-500"
-                style={i < completedSteps ? {
-                  background: 'rgba(60, 45, 25, 0.7)',
-                } : {
-                  background: 'rgba(255, 255, 255, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.6)',
-                  boxShadow: 'inset 0 1px 2px rgba(120,100,70,0.08)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  return <div 
-    className="antialiased min-h-screen selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
-    onTouchStart={pullHandlers.onTouchStart}
-    onTouchMove={pullHandlers.onTouchMove}
-    onTouchEnd={pullHandlers.onTouchEnd}
-  >
-
-      {/* Pull-to-Refresh Indicator */}
-      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
-      
-      {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-6xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
-        {/* Header */}
-        <header className="flex pb-6 items-center justify-between">
-          <div className="flex items-center">
-            <img
-              src="/ditax-logo-mask.svg"
-              alt="ditax"
-              className="h-8 w-[106px] object-contain"
-              style={{ filter: 'brightness(0) saturate(100%)' }}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
-            <button
-              onClick={() => setMenuSheetOpen(true)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
-            >
-              <Menu className="w-[18px] h-[18px]" strokeWidth={1.5} />
-            </button>
-          </div>
-        </header>
-
-        {/* Greeting Section */}
-        <section className="pb-6">
-          <div className="flex items-end justify-between gap-4 mb-0">
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <p className="text-base text-muted-foreground font-normal">
-                {getGreeting()}
-              </p>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
+...
+              <h1 className="text-3xl md:text-4xl tracking-tight text-foreground leading-tight truncate font-normal">
               {getUserDisplayName()}
               </h1>
-            </div>
-            
-            {/* Tax Filer Selector */}
-            <TaxFilerSelector className="flex-shrink-0" />
-          </div>
-        </section>
-
-        {/* Missing Items Alert */}
-        <MissingItemsAlert
-          pendingDocuments={pendingDocuments} 
-          pendingInformation={pendingInformation} 
-        />
-
-        {/* Featured: most recent unfinished tax return */}
-        {featuredUnpaidYear && (
-          <div className="mb-5">
-            {renderUnpaidCard(featuredUnpaidYear)}
-          </div>
-        )}
-
-        {/* Explore Section */}
+...
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground tracking-tight">
-              Explore
+            <h2 className="text-lg text-foreground tracking-tight font-medium">
+              Funktionen
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
