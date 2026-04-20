@@ -545,7 +545,7 @@ const UserTaxReturns = () => {
 
         {/* Tax Returns Section Title */}
         {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
-          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+          <h2 className="text-lg text-foreground tracking-tight mb-4 font-normal">
             Steuererklärungen
           </h2>
         )}
