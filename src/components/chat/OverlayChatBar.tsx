@@ -361,7 +361,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none"
           >
-            <div className="max-w-xs sm:max-w-sm mx-auto flex items-center gap-3 pointer-events-auto">
+            <div className="max-w-[260px] sm:max-w-[300px] mx-auto flex items-center gap-3 pointer-events-auto">
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
