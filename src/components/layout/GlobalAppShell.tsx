@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebar } from '@/contexts/SidebarContext';
-import { BottomNavBar } from '@/components/layout/BottomNavBar';
+import { AIChatTrigger } from '@/components/chat/AIChatTrigger';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 
