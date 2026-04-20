@@ -409,7 +409,7 @@ const UserTaxReturns = () => {
           <h2 className="tracking-tight leading-tight mb-2 text-3xl font-medium text-[#41372a]">
             {year}
           </h2>
-          <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
+          <p className="text-muted-foreground leading-relaxed mb-6 text-sm">
             {completedSteps === 0
               ? 'Beginne damit deine Angaben zu erfassen.'
               : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
