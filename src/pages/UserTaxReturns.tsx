@@ -507,8 +507,8 @@ const UserTaxReturns = () => {
             onClick={handleDocumentsClick}
             className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+              background: 'linear-gradient(160deg, hsl(100 10% 30%) 0%, hsl(100 12% 22%) 100%)',
+              boxShadow: '0 8px 32px rgba(60,70,55,0.15), 0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
@@ -524,8 +524,8 @@ const UserTaxReturns = () => {
             data-tour="quick-add-year"
             className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
-              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
+              background: 'linear-gradient(160deg, hsl(110 16% 48%) 0%, hsl(110 18% 38%) 100%)',
+              boxShadow: '0 8px 32px rgba(120,135,110,0.2), 0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
