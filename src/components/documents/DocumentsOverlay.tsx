@@ -360,10 +360,7 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[10000] flex flex-col"
-          style={{
-            background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 50%, rgb(15, 56, 138) 100%)',
-          }}
+          className="fixed inset-0 z-[10000] flex flex-col bg-background"
         >
           <FormProvider taxYear={currentYear.toString()}>
             <DocumentsOverlayContent onClose={onClose} />
