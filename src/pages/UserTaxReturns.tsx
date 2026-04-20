@@ -501,6 +501,11 @@ const UserTaxReturns = () => {
           </div>
         )}
 
+        {/* Functions Section Title */}
+        <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+          Funktionen
+        </h2>
+
         {/* Quick Action Cards */}
         <section className="grid grid-cols-2 gap-3 mb-8">
           <button
