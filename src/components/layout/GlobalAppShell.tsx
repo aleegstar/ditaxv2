@@ -11,7 +11,7 @@ import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
  * Hidden on auth, welcome, onboarding-style routes.
  */
 export const GlobalAppShell: React.FC = () => {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const location = useLocation();
   const {
     documentsOverlayOpen,
@@ -21,7 +21,7 @@ export const GlobalAppShell: React.FC = () => {
 
   const hiddenRoutes = ['/auth', '/welcome', '/select-person', '/login', '/signup'];
   const shouldHide =
-    !user ||
+    !userId ||
     hiddenRoutes.some((p) => location.pathname.startsWith(p)) ||
     location.pathname.startsWith('/admin');
 
@@ -30,7 +30,7 @@ export const GlobalAppShell: React.FC = () => {
   return (
     <>
       <BottomNavBar />
-      <OverlayChatBar userId={user.id} onMenuOpen={() => setMenuSheetOpen(true)} />
+      <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
       <DocumentsOverlay
         isOpen={documentsOverlayOpen}
         onClose={() => setDocumentsOverlayOpen(false)}
