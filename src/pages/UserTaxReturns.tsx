@@ -406,7 +406,7 @@ const UserTaxReturns = () => {
             </DropdownMenu>
           </div>
 
-          <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
+          <h2 className="tracking-tight leading-tight mb-2 text-3xl font-medium text-[#41372a]">
             {year}
           </h2>
           <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
@@ -475,7 +475,7 @@ const UserTaxReturns = () => {
               <p className="text-base text-muted-foreground font-normal">
                 {getGreeting()}
               </p>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
+              <h1 className="text-3xl md:text-4xl tracking-tight text-foreground leading-tight truncate font-normal">
               {getUserDisplayName()}
               </h1>
             </div>
@@ -501,8 +501,8 @@ const UserTaxReturns = () => {
         {/* Explore Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground tracking-tight">
-              Explore
+            <h2 className="text-lg text-foreground tracking-tight font-medium">
+              Funktionen
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
