@@ -53,7 +53,6 @@ const Invoices = lazy(() => import("./pages/Invoices"));
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { MobileMenuSheet } from "@/components/ui/modern-mobile-menu";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { GlobalAppShell } from "@/components/layout/GlobalAppShell";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingTourProvider, useOnboardingTour } from "@/contexts/OnboardingTourContext";
 import { DocumentsTourProvider } from "@/contexts/DocumentsTourContext";
@@ -345,9 +344,6 @@ const AuthenticatedApp = () => {
           
           {/* Global Mobile Menu Sheet - single instance for entire app */}
           <GlobalMobileMenuSheet />
-
-          {/* Global App Shell: Bottom Navbar + Chat Overlay + Documents Overlay */}
-          <GlobalAppShell />
           
           </SidebarProvider>
         </DocumentsTourProvider>

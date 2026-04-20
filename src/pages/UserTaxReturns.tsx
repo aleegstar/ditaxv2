@@ -376,9 +376,11 @@ const UserTaxReturns = () => {
           onClick={() => navigate(`/form?year=${year}`)}
           className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
           style={{
-            background: 'linear-gradient(135deg, #E9E2D8 0%, #DDD3C6 40%, #D2C8B8 100%)',
-            boxShadow: '0 10px 32px rgba(120, 100, 70, 0.12), 0 2px 8px rgba(120, 100, 70, 0.06)',
-            border: '1px solid rgba(255, 255, 255, 0.45)',
+            background: 'rgba(255, 255, 255, 0.40)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.60)',
           }}
         >
           <div className="flex items-center justify-between mb-3">
@@ -406,10 +408,10 @@ const UserTaxReturns = () => {
             </DropdownMenu>
           </div>
 
-          <h2 className="tracking-tight leading-tight mb-2 text-3xl font-medium text-[#41372a]">
+          <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
             {year}
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-6 text-sm">
+          <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
             {completedSteps === 0
               ? 'Beginne damit deine Angaben zu erfassen.'
               : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
@@ -421,11 +423,12 @@ const UserTaxReturns = () => {
                 key={i}
                 className="flex-1 h-2.5 rounded-full transition-all duration-500"
                 style={i < completedSteps ? {
-                  background: 'rgba(60, 45, 25, 0.7)',
+                  background: 'hsl(var(--primary))',
                 } : {
-                  background: 'rgba(255, 255, 255, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.6)',
-                  boxShadow: 'inset 0 1px 2px rgba(120,100,70,0.08)',
+                  background: 'rgba(255, 255, 255, 0.30)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255, 255, 255, 0.60)',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
                 }}
               />
             ))}
@@ -454,14 +457,14 @@ const UserTaxReturns = () => {
               src="/ditax-logo-mask.svg"
               alt="ditax"
               className="h-8 w-[106px] object-contain"
-              style={{ filter: 'brightness(0) saturate(100%)' }}
+              style={{ filter: 'brightness(0) saturate(100%) invert(28%) sepia(95%) saturate(2476%) hue-rotate(217deg) brightness(99%) contrast(101%)' }}
             />
           </div>
           <div className="flex items-center gap-2">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
             <button
               onClick={() => setMenuSheetOpen(true)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground hover:text-foreground transition-colors bg-transparent"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
             >
               <Menu className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
@@ -475,7 +478,7 @@ const UserTaxReturns = () => {
               <p className="text-base text-muted-foreground font-normal">
                 {getGreeting()}
               </p>
-              <h1 className="text-3xl md:text-4xl tracking-tight text-foreground leading-tight truncate font-normal">
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
               {getUserDisplayName()}
               </h1>
             </div>
@@ -498,54 +501,45 @@ const UserTaxReturns = () => {
           </div>
         )}
 
-        {/* Explore Section */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg text-foreground tracking-tight font-normal">
-              Funktionen
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={handleDocumentsClick}
-              className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
-              style={{
-                background: 'linear-gradient(135deg, #EAE7DC 0%, #F1EBE1 100%)',
-                backdropFilter: 'blur(20px) saturate(160%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                border: '1px solid rgba(255,255,255,0.7)',
-                boxShadow: '0 4px 18px rgba(80, 65, 45, 0.05)',
-              }}
-            >
-              <FileCheck2 className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
-              <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-                Unterlagen hinzufügen
-              </span>
-            </button>
+        {/* Quick Action Cards */}
+        <section className="grid grid-cols-2 gap-3 mb-8">
+          <button
+            onClick={handleDocumentsClick}
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <FileCheck2 className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Unterlagen<br/>hochladen
+            </span>
+          </button>
 
-            <button
-              onClick={() => setShowAddYearSheet(true)}
-              data-tour="quick-add-year"
-              className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
-              style={{
-                background: 'linear-gradient(135deg, #EEE6DA 0%, #F3EBE1 100%)',
-                backdropFilter: 'blur(20px) saturate(160%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                border: '1px solid rgba(255,255,255,0.7)',
-                boxShadow: '0 4px 18px rgba(80, 65, 45, 0.05)',
-              }}
-            >
-              <Plus className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
-              <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-                Steuerjahr hinzufügen
-              </span>
-            </button>
-          </div>
+          <button
+            onClick={() => setShowAddYearSheet(true)}
+            data-tour="quick-add-year"
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            style={{
+              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
+              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </div>
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Steuerjahr<br/>hinzufügen
+            </span>
+          </button>
         </section>
 
         {/* Tax Returns Section Title */}
         {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
-          <h2 className="text-lg text-foreground tracking-tight mb-4 font-normal">
+          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
             Steuererklärungen
           </h2>
         )}
@@ -674,7 +668,16 @@ const UserTaxReturns = () => {
 
       </main>
 
-      {/* Bottom navigation, chat overlay & documents overlay are rendered globally in GlobalAppShell */}
+      {/* Overlay Chat Bar */}
+      {!showTour && userId && (
+        <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
+      )}
+
+      {/* Documents Overlay */}
+      <DocumentsOverlay 
+        isOpen={documentsOverlayOpen} 
+        onClose={() => setDocumentsOverlayOpen(false)} 
+      />
 
       {/* White Overlay for Transition */}
       <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{

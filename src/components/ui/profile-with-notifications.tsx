@@ -92,7 +92,7 @@ export const ProfileWithNotifications: React.FC<ProfileWithNotificationsProps> =
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className={cn("relative shrink-0 focus:outline-none w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors bg-transparent", className)}>
+        <button className={cn("relative shrink-0 focus:outline-none w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]", className)}>
           <Bell className="w-[18px] h-[18px] text-foreground" strokeWidth={1.75} />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full ring-2 ring-background flex items-center justify-center">
