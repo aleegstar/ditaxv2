@@ -16,30 +16,30 @@ const NavItem: React.FC<NavItemProps> = ({ label, icon: Icon, active, onClick })
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center justify-center gap-1.5 rounded-full transition-all duration-300 active:scale-[0.96] focus:outline-none',
-        active
-          ? 'px-4 py-2'
-          : 'px-3 py-2 opacity-70 hover:opacity-100'
+        'flex flex-col items-center justify-center gap-1 rounded-full transition-all duration-300 active:scale-[0.96] focus:outline-none px-5 py-2',
+        !active && 'opacity-80 hover:opacity-100'
       )}
       style={
         active
           ? {
-              background: 'rgba(255,255,255,0.85)',
-              border: '1px solid rgba(255,255,255,0.9)',
-              boxShadow: '0 2px 8px rgba(80, 65, 45, 0.08)',
+              background: 'rgba(240, 230, 215, 0.85)',
+              boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.6), 0 1px 3px rgba(80, 65, 45, 0.06)',
             }
           : undefined
       }
     >
       <Icon
-        className={cn('w-[18px] h-[18px]', active ? 'text-foreground' : 'text-foreground/70')}
+        className="w-[18px] h-[18px] text-foreground"
         strokeWidth={1.6}
       />
-      {active && (
-        <span className="text-[13px] font-medium tracking-tight text-foreground whitespace-nowrap">
-          {label}
-        </span>
-      )}
+      <span
+        className={cn(
+          'text-[11px] tracking-tight text-foreground whitespace-nowrap leading-none',
+          active ? 'font-semibold' : 'font-normal'
+        )}
+      >
+        {label}
+      </span>
     </button>
   );
 };
@@ -78,12 +78,12 @@ export const BottomNavBar: React.FC = () => {
       style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
     >
       <div
-        className="pointer-events-auto rounded-full flex items-center gap-1 px-2 py-1.5"
+        className="pointer-events-auto rounded-full flex items-center gap-1 px-1.5 py-1.5"
         style={{
-          background: 'rgba(255, 255, 255, 0.65)',
+          background: 'rgba(250, 245, 235, 0.85)',
           backdropFilter: 'blur(24px) saturate(180%)',
           WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(255, 255, 255, 0.7)',
+          border: '1px solid rgba(255, 255, 255, 0.6)',
           boxShadow: '0 8px 28px rgba(80, 65, 45, 0.10), 0 2px 8px rgba(80, 65, 45, 0.05)',
         }}
       >
