@@ -376,9 +376,9 @@ const UserTaxReturns = () => {
           onClick={() => navigate(`/form?year=${year}`)}
           className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
           style={{
-            background: 'linear-gradient(135deg, #D9C9A8 0%, #C9B68F 45%, #B8A37A 100%)',
-            boxShadow: '0 10px 32px rgba(120, 100, 70, 0.15), 0 2px 8px rgba(120, 100, 70, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.35)',
+            background: 'linear-gradient(135deg, #E9E2D8 0%, #DDD3C6 40%, #D2C8B8 100%)',
+            boxShadow: '0 10px 32px rgba(120, 100, 70, 0.12), 0 2px 8px rgba(120, 100, 70, 0.06)',
+            border: '1px solid rgba(255, 255, 255, 0.45)',
           }}
         >
           <div className="flex items-center justify-between mb-3">
