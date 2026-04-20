@@ -21,44 +21,44 @@
 
 @layer base {
   :root {
-    --background: 40 18% 96%;
-    --foreground: 30 8% 18%;
+    --background: 38 30% 94%;
+    --foreground: 30 12% 20%;
 
-    --card: 40 25% 99%;
-    --card-foreground: 30 8% 18%;
+    --card: 40 35% 97%;
+    --card-foreground: 30 12% 20%;
 
-    --popover: 40 25% 99%;
-    --popover-foreground: 30 8% 18%;
+    --popover: 40 35% 97%;
+    --popover-foreground: 30 12% 20%;
 
-    --primary: 30 10% 28%;
-    --primary-foreground: 40 25% 98%;
+    --primary: 28 18% 32%;
+    --primary-foreground: 40 30% 97%;
 
-    --secondary: 35 14% 88%;
-    --secondary-foreground: 30 10% 25%;
+    --secondary: 35 22% 84%;
+    --secondary-foreground: 28 14% 28%;
 
-    --muted: 38 14% 92%;
-    --muted-foreground: 30 6% 48%;
+    --muted: 36 22% 88%;
+    --muted-foreground: 30 8% 42%;
 
-    --accent: 38 14% 92%;
-    --accent-foreground: 30 10% 25%;
+    --accent: 35 28% 80%;
+    --accent-foreground: 28 14% 28%;
 
     --destructive: 8 40% 50%;
     --destructive-foreground: 40 25% 98%;
 
-    --success: 100 14% 42%;
+    --success: 90 18% 42%;
     --success-foreground: 40 25% 98%;
 
-  --border: 35 12% 86%;
-  --input: 35 12% 86%;
-  --ring: 30 10% 28%;
+  --border: 35 18% 82%;
+  --input: 35 18% 82%;
+  --ring: 28 18% 32%;
 
-  --color-1: 30 10% 30%;
-  --color-2: 30 8% 40%;
-  --color-3: 35 8% 45%;
-  --color-4: 38 10% 55%;
-  --color-5: 40 12% 60%;
+  --color-1: 28 18% 32%;
+  --color-2: 28 14% 42%;
+  --color-3: 32 14% 50%;
+  --color-4: 35 18% 60%;
+  --color-5: 38 22% 70%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 96%;
 
