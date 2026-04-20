@@ -35,7 +35,6 @@ export default {
     				'sans-serif'
     			],
     			serif: [
-    				'Fraunces',
     				'ui-serif',
     				'Georgia',
     				'Cambria',
