@@ -1,12 +1,12 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, FileText, MessageCircle } from 'lucide-react';
+import { Home, FileText, MessageCircle, LucideIcon } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
 
 interface NavItemProps {
   label: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   active: boolean;
   onClick: () => void;
 }
