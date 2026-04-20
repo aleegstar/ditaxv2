@@ -131,11 +131,11 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       >
         {/* Year selector */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-white">{t.documentsPage.taxYear}</span>
+          <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
           <div className="relative">
             <button
               onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-              className="flex items-center gap-1 text-base text-white/60 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-base text-muted-foreground hover:text-foreground transition-colors"
             >
               <span>{selectedYear}</span>
               <ChevronDown className={cn("h-4 w-4 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={1.5} />
@@ -143,7 +143,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
             {isYearDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
-                <div className="absolute top-full left-0 mt-2 z-[200] bg-white/10 backdrop-blur-2xl rounded-xl border border-white/20 overflow-hidden min-w-[140px]">
+                <div className="absolute top-full left-0 mt-2 z-[200] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 border border-zinc-200 overflow-hidden min-w-[140px]">
                   <div className="max-h-64 overflow-y-auto py-1">
                     {allYears.map(year => (
                       <button
@@ -151,7 +151,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                         onClick={() => { setSelectedYear(year); setIsYearDropdownOpen(false); }}
                         className={cn(
                           "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                          year === selectedYear ? "text-white font-medium bg-white/20" : "text-white/70 hover:bg-white/10"
+                          year === selectedYear ? "text-primary font-medium bg-primary/10" : "text-zinc-800 hover:bg-zinc-100"
                         )}
                       >
                         {year}
@@ -180,39 +180,35 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
 
       {/* Search bar */}
       <div className="px-5 mb-4">
-        <div className="relative flex items-center rounded-full overflow-hidden" style={{
-          background: 'rgba(255,255,255,0.15)',
-          border: '1px solid rgba(255,255,255,0.25)',
-          boxShadow: '0 2px 12px -2px rgba(0,0,0,0.1)',
-        }}>
+        <div className="relative flex items-center rounded-full overflow-hidden bg-white border border-zinc-200 shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-white/50" strokeWidth={1.5} />
+            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
           </div>
           <input
             type="text"
             placeholder={t.documentsPage.search}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-12 py-[18px] bg-transparent text-[15px] font-medium tracking-tight text-white placeholder:text-white/40 focus:outline-none transition-all"
+            className="w-full pl-12 pr-12 py-[18px] bg-transparent text-[15px] font-medium tracking-tight text-foreground placeholder:text-muted-foreground focus:outline-none transition-all"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-1">
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                <X className="h-4 w-4 text-white/40" strokeWidth={1.5} />
+              <button onClick={() => setSearchQuery('')} className="p-1.5 rounded-lg hover:bg-zinc-100 transition-colors">
+                <X className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               </button>
             )}
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className={cn("p-1.5 rounded-lg hover:bg-white/10 transition-colors", showSortDropdown && "bg-white/10")}
+              className={cn("p-1.5 rounded-lg hover:bg-zinc-100 transition-colors", showSortDropdown && "bg-zinc-100")}
             >
-              <SlidersHorizontal className="h-4 w-4 text-white/40" strokeWidth={1.5} />
+              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             </button>
           </div>
         </div>
         {showSortDropdown && (
           <>
             <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-            <div className="absolute right-5 mt-2 z-[60] bg-white/10 backdrop-blur-2xl rounded-xl border border-white/20 overflow-hidden min-w-[200px]">
+            <div className="absolute right-5 mt-2 z-[60] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 border border-zinc-200 overflow-hidden min-w-[200px]">
               <div className="py-1">
                 {sortOptions.map(option => (
                   <button
@@ -220,7 +216,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                     onClick={() => { setSortBy(option.value); setShowSortDropdown(false); }}
                     className={cn(
                       "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                      sortBy === option.value ? "text-white font-medium bg-white/20" : "text-white/70 hover:bg-white/10"
+                      sortBy === option.value ? "text-primary font-medium bg-primary/10" : "text-zinc-800 hover:bg-zinc-100"
                     )}
                   >
                     {option.label}
@@ -236,7 +232,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       <div className="flex-1 overflow-y-auto px-5 pb-32" style={{ WebkitOverflowScrolling: 'touch' }}>
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
           </div>
         ) : documents.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
@@ -251,16 +247,16 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                 <button
                   key={doc.id}
                   onClick={() => { setSelectedDocument(doc); setShowActionSheet(true); }}
-                  className="group relative flex flex-col bg-white/[0.08] backdrop-blur-sm p-3 rounded-2xl text-left transition-all duration-300 cursor-pointer border border-white/10 hover:border-white/25 hover:bg-white/[0.12]"
+                  className="group relative flex flex-col bg-white p-3 rounded-2xl text-left transition-all duration-300 cursor-pointer border border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow-md"
                 >
-                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-white/5 mb-3">
+                  <div className="aspect-square w-full rounded-xl overflow-hidden bg-zinc-50 mb-3">
                     {isImage ? (
                       <DocumentThumbnail doc={doc} />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-white/5 via-white/10 to-white/5 relative overflow-hidden">
-                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-violet-400/10 rounded-full blur-2xl" />
-                        <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25 flex items-center justify-center">
-                          <span className="px-2 py-0.5 rounded-full bg-white/90 text-[10px] font-bold text-blue-600">
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-50 relative overflow-hidden">
+                        <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full blur-2xl" />
+                        <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-[hsl(221,100%,42%)] shadow-lg shadow-primary/25 flex items-center justify-center">
+                          <span className="px-2 py-0.5 rounded-full bg-white text-[10px] font-bold text-primary">
                             {fileExt}
                           </span>
                         </div>
@@ -268,8 +264,8 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
                     )}
                   </div>
                   <div className="px-1 pb-1">
-                    <p className="text-sm font-medium text-white truncate leading-snug mb-0.5">{doc.file_name}</p>
-                    <p className="text-xs text-white/40">{uploadDate}</p>
+                    <p className="text-sm font-medium text-foreground truncate leading-snug mb-0.5">{doc.file_name}</p>
+                    <p className="text-xs text-muted-foreground">{uploadDate}</p>
                   </div>
                 </button>
               );
@@ -280,8 +276,8 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(221,100%,42%)] flex items-center justify-center mb-5 shadow-[0_8px_24px_-6px_rgba(29,100,255,0.3)]">
               <FolderOpen strokeWidth={1.5} className="w-7 h-7 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-white tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
-            <p className="text-sm text-white/50 max-w-[260px] mx-auto text-center leading-relaxed">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
+            <p className="text-sm text-muted-foreground max-w-[260px] mx-auto text-center leading-relaxed">
               {t.documentsPage.collectReceiptsDescription}
             </p>
           </div>
