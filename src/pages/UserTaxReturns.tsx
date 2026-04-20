@@ -537,6 +537,13 @@ const UserTaxReturns = () => {
           </button>
         </section>
 
+        {/* Tax Returns Section Title */}
+        {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
+          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+            Steuererklärungen
+          </h2>
+        )}
+
         {/* Cards - Timeline Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr mb-8">
           {/* Remaining Unpaid In-Progress Tax Returns */}
