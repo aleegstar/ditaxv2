@@ -21,19 +21,27 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     <div className={`relative min-h-screen ${className}`}>
       <GooeyFilter />
       
-      {/* Warm off-white linen base – ultra calm monochrome */}
+      {/* Warm sand & linen base – calm natural tone */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, #F6F3EC 0%, #F3F0E8 50%, #EFECE3 100%)'
+          background: 'linear-gradient(180deg, #F2EBDD 0%, #EDE5D3 50%, #E7DFCB 100%)'
         }}
       />
       
-      {/* Very soft warm light from top */}
+      {/* Soft warm sun glow from top-right */}
       <div 
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(220,210,190,0.25) 0%, transparent 60%)'
+          background: 'radial-gradient(ellipse 70% 50% at 80% 0%, rgba(220,200,165,0.35) 0%, transparent 60%)'
+        }}
+      />
+      
+      {/* Subtle bottom warmth */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 90% 40% at 20% 100%, rgba(210,190,155,0.18) 0%, transparent 60%)'
         }}
       />
       
