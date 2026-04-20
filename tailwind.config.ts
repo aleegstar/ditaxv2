@@ -21,7 +21,12 @@ export default {
     	extend: {
     		fontFamily: {
     			sans: [
-    				'Plus Jakarta Sans',
+    				'SF Pro Text',
+    				'-apple-system',
+    				'BlinkMacSystemFont',
+    				'Inter',
+    				'Helvetica Neue',
+    				'Arial',
     				'ui-sans-serif',
     				'system-ui',
     				'sans-serif',
@@ -29,6 +34,15 @@ export default {
     				'Segoe UI Emoji',
     				'Segoe UI Symbol',
     				'Noto Color Emoji'
+    			],
+    			display: [
+    				'SF Pro Display',
+    				'-apple-system',
+    				'BlinkMacSystemFont',
+    				'Inter',
+    				'Helvetica Neue',
+    				'Arial',
+    				'sans-serif'
     			],
     			jakarta: [
     				'Plus Jakarta Sans',
