@@ -35,6 +35,15 @@ export default {
     				'Segoe UI Symbol',
     				'Noto Color Emoji'
     			],
+    			display: [
+    				'SF Pro Display',
+    				'-apple-system',
+    				'BlinkMacSystemFont',
+    				'Inter',
+    				'Helvetica Neue',
+    				'Arial',
+    				'sans-serif'
+    			],
     			jakarta: [
     				'Plus Jakarta Sans',
     				'sans-serif'
