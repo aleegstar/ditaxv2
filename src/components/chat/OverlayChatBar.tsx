@@ -351,48 +351,6 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
         )}
       </AnimatePresence>
 
-      {/* Collapsed / Resting Input Bar */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            key="resting-bar"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none"
-          >
-            <div className="max-w-2xl md:max-w-md mx-auto flex items-center gap-3 pointer-events-auto">
-              {/* Glass input pill */}
-              <div
-                onClick={handleOpen}
-                className="group relative flex-1 flex items-center gap-3 sm:gap-4 rounded-full px-4 sm:px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
-                style={{
-                  background: 'linear-gradient(160deg, hsl(100 12% 32%) 0%, hsl(100 14% 18%) 100%)',
-                  boxShadow: 'rgba(60, 70, 55, 0.18) 0px 6px 24px -4px, rgba(0, 0, 0, 0.08) 0px 2px 8px',
-                }}
-              >
-
-                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white truncate">
-                  Wie kann ich dir helfen?
-                </span>
-
-                {/* AI Sphere */}
-                <div className="flex-shrink-0 w-10 h-10 overflow-hidden" style={{ borderRadius: '9999px' }}>
-                  <video
-                    src="/sphere-animation.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover scale-110"
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 };
