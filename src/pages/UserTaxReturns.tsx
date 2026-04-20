@@ -510,7 +510,7 @@ const UserTaxReturns = () => {
               onClick={handleDocumentsClick}
               className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
               style={{
-                background: 'rgba(245, 235, 220, 0.55)',
+                background: 'linear-gradient(135deg, #EAE7DC 0%, #F1EBE1 100%)',
                 backdropFilter: 'blur(20px) saturate(160%)',
                 WebkitBackdropFilter: 'blur(20px) saturate(160%)',
                 border: '1px solid rgba(255,255,255,0.7)',
