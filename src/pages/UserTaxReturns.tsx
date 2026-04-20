@@ -494,13 +494,6 @@ const UserTaxReturns = () => {
           pendingInformation={pendingInformation} 
         />
 
-        {/* Tax Returns Section Title */}
-        {availableYears.length > 0 && (
-          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
-            Steuererklärungen
-          </h2>
-        )}
-
         {/* Featured: most recent unfinished tax return */}
         {featuredUnpaidYear && (
           <div className="mb-5">
