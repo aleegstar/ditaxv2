@@ -8,11 +8,13 @@ interface SidebarContextType {
   desktopOpen: boolean;
   menuSheetOpen: boolean;
   documentsOverlayOpen: boolean;
+  chatOverlayOpen: boolean;
   toggleSidebar: () => void;
   setMobileOpen: (open: boolean) => void;
   setDesktopOpen: (open: boolean) => void;
   setMenuSheetOpen: (open: boolean) => void;
   setDocumentsOverlayOpen: (open: boolean) => void;
+  setChatOverlayOpen: (open: boolean) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [menuSheetOpen, setMenuSheetOpen] = useState(false);
   const [documentsOverlayOpen, setDocumentsOverlayOpen] = useState(false);
+  const [chatOverlayOpen, setChatOverlayOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const toggleSidebar = () => {
@@ -40,11 +43,13 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       desktopOpen,
       menuSheetOpen,
       documentsOverlayOpen,
+      chatOverlayOpen,
       toggleSidebar, 
       setMobileOpen,
       setDesktopOpen,
       setMenuSheetOpen,
-      setDocumentsOverlayOpen
+      setDocumentsOverlayOpen,
+      setChatOverlayOpen,
     }}>
       {children}
     </SidebarContext.Provider>

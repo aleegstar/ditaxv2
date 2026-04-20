@@ -498,46 +498,49 @@ const UserTaxReturns = () => {
           </div>
         )}
 
-        {/* Quick Action Cards */}
-        <section className="grid grid-cols-2 gap-3 mb-8">
-          <button
-            onClick={handleDocumentsClick}
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
-            style={{
-              background: 'rgba(255, 255, 255, 0.55)',
-              backdropFilter: 'blur(20px) saturate(160%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-              border: '1px solid rgba(255,255,255,0.7)',
-              boxShadow: '0 4px 20px rgba(60,55,45,0.06)',
-            }}
-          >
-            <div className="w-11 h-11 rounded-full bg-foreground/5 flex items-center justify-center">
+        {/* Explore Section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">
+              Explore
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleDocumentsClick}
+              className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.55)',
+                backdropFilter: 'blur(20px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+                border: '1px solid rgba(255,255,255,0.7)',
+                boxShadow: '0 4px 18px rgba(80, 65, 45, 0.05)',
+              }}
+            >
               <FileCheck2 className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
-            </div>
-            <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-              Unterlagen<br/>hochladen
-            </span>
-          </button>
+              <span className="text-[13px] font-medium text-foreground/80 leading-tight">
+                Unterlagen
+              </span>
+            </button>
 
-          <button
-            onClick={() => setShowAddYearSheet(true)}
-            data-tour="quick-add-year"
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
-            style={{
-              background: 'rgba(255, 255, 255, 0.55)',
-              backdropFilter: 'blur(20px) saturate(160%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-              border: '1px solid rgba(255,255,255,0.7)',
-              boxShadow: '0 4px 20px rgba(60,55,45,0.06)',
-            }}
-          >
-            <div className="w-11 h-11 rounded-full bg-foreground/5 flex items-center justify-center">
+            <button
+              onClick={() => setShowAddYearSheet(true)}
+              data-tour="quick-add-year"
+              className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
+              style={{
+                background: 'rgba(255, 255, 255, 0.55)',
+                backdropFilter: 'blur(20px) saturate(160%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+                border: '1px solid rgba(255,255,255,0.7)',
+                boxShadow: '0 4px 18px rgba(80, 65, 45, 0.05)',
+              }}
+            >
               <Plus className="w-5 h-5 text-foreground/70" strokeWidth={1.5} />
-            </div>
-            <span className="text-[13px] font-medium text-foreground/80 leading-tight">
-              Steuerjahr<br/>hinzufügen
-            </span>
-          </button>
+              <span className="text-[13px] font-medium text-foreground/80 leading-tight">
+                Steuerjahr
+              </span>
+            </button>
+          </div>
         </section>
 
         {/* Tax Returns Section Title */}
@@ -671,16 +674,7 @@ const UserTaxReturns = () => {
 
       </main>
 
-      {/* Overlay Chat Bar */}
-      {!showTour && userId && (
-        <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
-      )}
-
-      {/* Documents Overlay */}
-      <DocumentsOverlay 
-        isOpen={documentsOverlayOpen} 
-        onClose={() => setDocumentsOverlayOpen(false)} 
-      />
+      {/* Bottom navigation, chat overlay & documents overlay are rendered globally in GlobalAppShell */}
 
       {/* White Overlay for Transition */}
       <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{
