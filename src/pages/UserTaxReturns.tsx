@@ -501,7 +501,7 @@ const UserTaxReturns = () => {
         {/* Explore Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg text-foreground tracking-tight font-medium">
+            <h2 className="text-lg text-foreground tracking-tight font-normal">
               Funktionen
             </h2>
           </div>
