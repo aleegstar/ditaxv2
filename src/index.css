@@ -215,7 +215,7 @@
   }
 
   html {
-    background: linear-gradient(to bottom, hsl(40, 20%, 97%), hsl(38, 16%, 95%), hsl(36, 14%, 94%));
+    background: linear-gradient(to bottom, hsl(38, 32%, 95%), hsl(36, 28%, 93%), hsl(34, 24%, 91%));
     background-attachment: fixed;
     min-height: 100%;
   }
