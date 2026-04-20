@@ -528,7 +528,7 @@ const UserTaxReturns = () => {
               data-tour="quick-add-year"
               className="flex flex-col items-center justify-center gap-3 rounded-[1.5rem] py-7 px-4 text-center transition-all duration-200 active:scale-[0.97]"
               style={{
-                background: 'rgba(255, 255, 255, 0.55)',
+                background: 'linear-gradient(135deg, #EEE6DA 0%, #F3EBE1 100%)',
                 backdropFilter: 'blur(20px) saturate(160%)',
                 WebkitBackdropFilter: 'blur(20px) saturate(160%)',
                 border: '1px solid rgba(255,255,255,0.7)',
