@@ -294,21 +294,19 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
         onChange={handleFileInputChange}
       />
 
-      {/* Floating upload pill – same design as chat input bar */}
-      <div className="fixed inset-x-0 bottom-0 z-[10001] px-4 pb-[max(20px,env(safe-area-inset-bottom))] pointer-events-none flex justify-center">
-        <div
+      {/* Floating upload FAB – icon only, bottom right */}
+      <div className="fixed bottom-0 right-0 z-[10001] pr-5 pb-[max(20px,env(safe-area-inset-bottom))] pointer-events-none">
+        <button
           onClick={() => fileInputRef.current?.click()}
-          className="pointer-events-auto flex items-center gap-2.5 rounded-full px-6 py-3.5 cursor-pointer transition-all duration-200 active:scale-[0.97]"
+          aria-label={t.documentsPage.upload}
+          className="pointer-events-auto flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-200 active:scale-[0.95] hover:scale-[1.03]"
           style={{
-            background: 'white',
-            boxShadow: '0 8px 32px -4px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.1)',
+            background: 'linear-gradient(180deg, hsl(222,100%,60%) 0%, hsl(222,100%,47%) 100%)',
+            boxShadow: '0 8px 24px -4px rgba(0,67,224,0.45), 0 2px 8px rgba(0,0,0,0.12)',
           }}
         >
-          <Plus className="w-4.5 h-4.5 text-[rgb(0,67,224)]" strokeWidth={2.5} />
-          <span className="text-[15px] select-none font-semibold tracking-tight text-[rgb(0,67,224)]">
-            {t.documentsPage.upload}
-          </span>
-        </div>
+          <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Document action sheet */}
