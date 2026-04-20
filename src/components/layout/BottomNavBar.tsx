@@ -16,38 +16,30 @@ const NavItem: React.FC<NavItemProps> = ({ label, icon: Icon, active, onClick })
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center justify-center gap-1 flex-1 py-1.5 transition-all duration-200 active:scale-[0.96]',
-        active ? '' : 'opacity-60 hover:opacity-90'
+        'flex items-center justify-center gap-1.5 rounded-full transition-all duration-300 active:scale-[0.96] focus:outline-none',
+        active
+          ? 'px-4 py-2'
+          : 'px-3 py-2 opacity-70 hover:opacity-100'
       )}
+      style={
+        active
+          ? {
+              background: 'rgba(255,255,255,0.85)',
+              border: '1px solid rgba(255,255,255,0.9)',
+              boxShadow: '0 2px 8px rgba(80, 65, 45, 0.08)',
+            }
+          : undefined
+      }
     >
-      <div
-        className={cn(
-          'flex items-center justify-center w-11 h-9 rounded-full transition-all duration-200',
-          active ? 'bg-foreground/8' : 'bg-transparent'
-        )}
-        style={
-          active
-            ? {
-                background: 'rgba(255,255,255,0.55)',
-                border: '1px solid rgba(255,255,255,0.7)',
-                boxShadow: '0 2px 6px rgba(80, 65, 45, 0.06)',
-              }
-            : undefined
-        }
-      >
-        <Icon
-          className={cn('w-[18px] h-[18px]', active ? 'text-foreground' : 'text-foreground/70')}
-          strokeWidth={1.6}
-        />
-      </div>
-      <span
-        className={cn(
-          'text-[11px] tracking-tight',
-          active ? 'text-foreground font-medium' : 'text-foreground/70 font-normal'
-        )}
-      >
-        {label}
-      </span>
+      <Icon
+        className={cn('w-[18px] h-[18px]', active ? 'text-foreground' : 'text-foreground/70')}
+        strokeWidth={1.6}
+      />
+      {active && (
+        <span className="text-[13px] font-medium tracking-tight text-foreground whitespace-nowrap">
+          {label}
+        </span>
+      )}
     </button>
   );
 };
@@ -82,34 +74,32 @@ export const BottomNavBar: React.FC = () => {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[60] pointer-events-none"
-      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
+      className="fixed inset-x-0 bottom-0 z-[60] pointer-events-none flex justify-center"
+      style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto max-w-md px-4">
-        <div
-          className="pointer-events-auto rounded-full flex items-center justify-around px-2 py-1.5"
-          style={{
-            background: 'rgba(255, 255, 255, 0.65)',
-            backdropFilter: 'blur(24px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            border: '1px solid rgba(255, 255, 255, 0.7)',
-            boxShadow: '0 8px 28px rgba(80, 65, 45, 0.10), 0 2px 8px rgba(80, 65, 45, 0.05)',
-          }}
-        >
-          <NavItem label="Home" icon={Home} active={isHome} onClick={handleHome} />
-          <NavItem
-            label="Unterlagen"
-            icon={FileText}
-            active={documentsOverlayOpen}
-            onClick={handleDocs}
-          />
-          <NavItem
-            label="Chat"
-            icon={MessageCircle}
-            active={chatOverlayOpen}
-            onClick={handleChat}
-          />
-        </div>
+      <div
+        className="pointer-events-auto rounded-full flex items-center gap-1 px-2 py-1.5"
+        style={{
+          background: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.7)',
+          boxShadow: '0 8px 28px rgba(80, 65, 45, 0.10), 0 2px 8px rgba(80, 65, 45, 0.05)',
+        }}
+      >
+        <NavItem label="Home" icon={Home} active={isHome} onClick={handleHome} />
+        <NavItem
+          label="Unterlagen"
+          icon={FileText}
+          active={documentsOverlayOpen}
+          onClick={handleDocs}
+        />
+        <NavItem
+          label="Chat"
+          icon={MessageCircle}
+          active={chatOverlayOpen}
+          onClick={handleChat}
+        />
       </div>
     </nav>
   );
