@@ -496,9 +496,14 @@ const UserTaxReturns = () => {
 
         {/* Featured: most recent unfinished tax return */}
         {featuredUnpaidYear && (
-          <div className="mb-5">
-            {renderUnpaidCard(featuredUnpaidYear)}
-          </div>
+          <>
+            <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+              Fortsetzen
+            </h2>
+            <div className="mb-5">
+              {renderUnpaidCard(featuredUnpaidYear)}
+            </div>
+          </>
         )}
 
         {/* Functions Section Title */}
