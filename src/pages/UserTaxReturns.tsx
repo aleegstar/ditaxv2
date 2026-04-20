@@ -494,13 +494,6 @@ const UserTaxReturns = () => {
           pendingInformation={pendingInformation} 
         />
 
-        {/* Tax Returns Section Title */}
-        {availableYears.length > 0 && (
-          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
-            Steuererklärungen
-          </h2>
-        )}
-
         {/* Featured: most recent unfinished tax return */}
         {featuredUnpaidYear && (
           <div className="mb-5">
@@ -543,6 +536,13 @@ const UserTaxReturns = () => {
             </span>
           </button>
         </section>
+
+        {/* Tax Returns Section Title */}
+        {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
+          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
+            Steuererklärungen
+          </h2>
+        )}
 
         {/* Cards - Timeline Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr mb-8">
