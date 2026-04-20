@@ -102,15 +102,15 @@ export default {
     				ring: 'hsl(var(--sidebar-ring))'
     			},
     			tax: {
-    				blue: '#1d64ff',
-    				'blue-light': '#60a5fa',
-    				gray: '#64748b',
-    				'gray-light': '#e2e8f0',
-    				success: '#10b981',
-    				warning: '#f59e0b',
-    				error: '#ef4444',
-    				violet: '#8b5cf6',
-    				petrol: '#0d9488'
+    				blue: '#6b7d5f',
+    				'blue-light': '#9aa890',
+    				gray: '#6f6e66',
+    				'gray-light': '#e2e0d6',
+    				success: '#7a9070',
+    				warning: '#c9a96e',
+    				error: '#b56b5a',
+    				violet: '#8a8b6e',
+    				petrol: '#6b8478'
     			},
     			'color-1': 'hsl(var(--color-1))',
     			'color-2': 'hsl(var(--color-2))',
