@@ -272,11 +272,11 @@ export default {
 			},
 			'pulse-glow': {
 				'0%, 100%': {
-					boxShadow: '0 0 25px -5px rgba(29, 100, 255, 0.4)',
+					boxShadow: '0 0 25px -5px rgba(107, 125, 95, 0.35)',
 					transform: 'scale(1)'
 				},
 				'50%': {
-					boxShadow: '0 0 45px -5px rgba(29, 100, 255, 0.65)',
+					boxShadow: '0 0 45px -5px rgba(107, 125, 95, 0.55)',
 					transform: 'scale(1.03)'
 				}
 			},
