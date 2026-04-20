@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 interface OverlayChatBarProps {
   userId: string;
-  onMenuOpen: () => void;
+  onMenuOpen?: () => void;
 }
 
 const formatTime = (date: Date) =>
@@ -24,7 +25,7 @@ const containerVariants = {
 };
 
 export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { chatOverlayOpen: isOpen, setChatOverlayOpen } = useSidebar();
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,11 +51,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
   }, [isOpen]);
 
   const handleOpen = () => {
-    setIsOpen(true);
+    setChatOverlayOpen(true);
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    setChatOverlayOpen(false);
     setInputValue('');
     setShowMenu(false);
   };
