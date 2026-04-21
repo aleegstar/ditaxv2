@@ -361,9 +361,10 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
             <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-white/30 rounded-full blur-[80px]" />
           </div>
           <div className="relative z-10 flex flex-col h-full">
-          <FormProvider taxYear={currentYear.toString()}>
-            <DocumentsOverlayContent onClose={onClose} />
-          </FormProvider>
+            <FormProvider taxYear={currentYear.toString()}>
+              <DocumentsOverlayContent onClose={onClose} />
+            </FormProvider>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
