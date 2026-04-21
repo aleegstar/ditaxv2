@@ -21,29 +21,18 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     <div className={`relative min-h-screen ${className}`}>
       <GooeyFilter />
       
-      {/* Warm rose-tinted base gradient inspired by iOS onboarding */}
-      <div 
+      {/* Light blue base */}
+      <div
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          background: 'linear-gradient(180deg, #F5EFED 0%, #F3F0EE 25%, #F1F0F0 50%, #EEEDF0 75%, #EBEBEE 100%)'
-        }}
+        style={{ background: '#EAEFF5' }}
       />
-      
-      {/* Soft warm radial glow at top – simulates ambient rose light */}
-      <div 
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 90% 45% at 50% 0%, rgba(235,210,205,0.35) 0%, transparent 55%)'
-        }}
-      />
-      
-      {/* Very subtle depth at bottom */}
-      <div 
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          background: 'linear-gradient(180deg, transparent 80%, rgba(0,0,0,0.015) 100%)'
-        }}
-      />
+
+      {/* Soft white/blue blur glows */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/40 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-[#dce5f2]/60 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-white/30 rounded-full blur-[80px]" />
+      </div>
       
       {/* Content */}
       <div className="relative z-10">
