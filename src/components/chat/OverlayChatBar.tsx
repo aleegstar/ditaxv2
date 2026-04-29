@@ -373,12 +373,35 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 }}
               >
 
-                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white truncate">
-                  Wie kann ich dir helfen?
+                <span className="relative flex-1 h-6 select-none overflow-hidden" aria-label="Wie kann ich dir helfen?">
+                  <span className="sr-only">Wie kann ich dir helfen?</span>
+                  <div
+                    className="absolute inset-0 overflow-hidden"
+                    style={{
+                      WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, Arial, sans-serif' font-size='15' font-weight='600' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
+                      maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, Arial, sans-serif' font-size='15' font-weight='600' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
+                      WebkitMaskRepeat: 'no-repeat',
+                      maskRepeat: 'no-repeat',
+                      WebkitMaskSize: '190px 24px',
+                      maskSize: '190px 24px',
+                      WebkitMaskPosition: 'left center',
+                      maskPosition: 'left center',
+                    }}
+                  >
+                    <video
+                      src="/sphere-animation.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute -left-3 top-1/2 h-16 w-[220px] -translate-y-1/2 object-cover"
+                    />
+                  </div>
                 </span>
 
-                {/* AI Sphere */}
-                <div className="flex-shrink-0 w-10 h-10 overflow-hidden" style={{ borderRadius: '9999px' }}>
+                <div className="flex-shrink-0 w-1" aria-hidden="true" />
+                {/* Masked text uses the sphere animation; no separate sphere icon */}
+                <div className="hidden">
                   <video
                     src="/sphere-animation.mp4"
                     autoPlay
