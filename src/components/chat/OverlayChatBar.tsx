@@ -398,19 +398,6 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                     />
                   </div>
                 </span>
-
-                <div className="flex-shrink-0 w-1" aria-hidden="true" />
-                {/* Masked text uses the sphere animation; no separate sphere icon */}
-                <div className="hidden">
-                  <video
-                    src="/sphere-animation.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover scale-110"
-                  />
-                </div>
               </div>
             </div>
           </motion.div>
