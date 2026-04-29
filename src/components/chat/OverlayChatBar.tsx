@@ -378,8 +378,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                   <div
                     className="absolute inset-0 overflow-hidden"
                     style={{
-                      WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, Arial, sans-serif' font-size='15' font-weight='600' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
-                      maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, Arial, sans-serif' font-size='15' font-weight='600' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
+                      WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, -apple-system, BlinkMacSystemFont, sans-serif' font-size='15' font-weight='500' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
+                      maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 24'%3E%3Ctext x='0' y='17' font-family='Inter, -apple-system, BlinkMacSystemFont, sans-serif' font-size='15' font-weight='500' fill='white'%3EWie kann ich dir helfen?%3C/text%3E%3C/svg%3E")`,
                       WebkitMaskRepeat: 'no-repeat',
                       maskRepeat: 'no-repeat',
                       WebkitMaskSize: '190px 24px',
