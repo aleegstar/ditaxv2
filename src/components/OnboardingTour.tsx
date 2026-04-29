@@ -32,14 +32,14 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     id: 'add-year',
     titleKey: 'addYearTitle',
     descriptionKey: 'addYearDescription',
-    targetElement: '[data-tour="add-year-card"]',
+    targetElement: '[data-tour="quick-add-year"]',
     position: 'top'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
-    targetElement: '[data-tour="chat-header-icon"]',
+    targetElement: '[data-tour="floating-chat-button"]',
     position: 'top'
   },
   {
@@ -119,6 +119,8 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
       }
       
       const fallbackSelectors = [
+        '[data-tour="quick-add-year"]',
+        '[data-tour="floating-chat-button"]',
         '[data-tour="add-year"]',
         '.year-dropdown-button',
         '[data-tour="floating-document-button"]',
