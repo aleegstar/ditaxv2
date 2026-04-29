@@ -376,7 +376,9 @@ const UserTaxReturns = () => {
           onClick={() => navigate(`/form?year=${year}`)}
           className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
           style={{
-            background: 'hsl(var(--card))',
+            background: 'rgba(255, 255, 255, 0.40)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
             border: '1px solid rgba(255, 255, 255, 0.60)',
           }}
@@ -572,7 +574,9 @@ const UserTaxReturns = () => {
                 onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
                 className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
                 style={{
-                  background: 'hsl(var(--card))',
+                  background: 'rgba(255, 255, 255, 0.40)',
+                  backdropFilter: 'blur(40px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.60)',
                 }}
