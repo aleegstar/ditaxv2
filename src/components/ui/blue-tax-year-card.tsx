@@ -73,7 +73,7 @@ export function BlueTaxYearCard({
   return <>
       <div className="mb-8 relative blue-tax-year-card" data-tour="tax-year-card">
         {/* Background Transparent Card (Overall Progress) */}
-        <div className="z-0 bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
+        <div className="z-0 bg-card border border-border rounded-[2rem] p-6 pb-24 relative shadow-[0_8px_32px_rgba(0,0,0,0.04)] translate-y-8 mx-3">
           <div className="flex items-center justify-between text-slate-600">
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 rounded-full border-2 border-slate-600/20 border-t-slate-600 animate-spin-slow" />
@@ -86,7 +86,7 @@ export function BlueTaxYearCard({
         {/* Main Card Wrapper for Border Effect */}
         <div className="z-10 -mt-14 relative rounded-[2rem]">
           {/* Main Card */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[2rem] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/60 relative">
+          <div className="bg-card rounded-[2rem] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-border relative">
           {/* Three Dots Menu - Top Right */}
           <div className="absolute top-5 right-5 z-20">
             <DropdownMenu>
