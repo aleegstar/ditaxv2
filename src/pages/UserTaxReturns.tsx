@@ -530,18 +530,17 @@ const UserTaxReturns = () => {
           <button
             onClick={() => setShowAddYearSheet(true)}
             data-tour="quick-add-year"
-            className="flex items-center justify-center gap-3 rounded-2xl h-[52px] px-6 text-center transition-all duration-200 active:scale-[0.97] border text-foreground font-semibold text-[14px] tracking-tight self-center"
+            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--muted) / 0.45) 100%)',
-              borderColor: 'hsl(var(--border))',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
+              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
             }}
           >
-            <div className="w-[18px] h-[18px] shrink-0 flex items-center justify-center">
-              <Plus className="w-[18px] h-[18px] text-foreground" strokeWidth={1.8} />
+            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
             </div>
-            <span>
-              Steuerjahr hinzufügen
+            <span className="text-[13px] font-medium text-white/90 leading-tight">
+              Steuerjahr<br/>hinzufügen
             </span>
           </button>
         </section>
