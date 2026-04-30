@@ -523,7 +523,7 @@ const Auth = () => {
                     <h1 className="font-bold tracking-[-0.035em] text-foreground mb-2.5 text-2xl">
                       {t.authFlow.login}
                     </h1>
-                    <p className="text-[15px] text-muted-foreground/60 font-light leading-relaxed tracking-wide">
+                    <p className="text-[15px] font-light leading-relaxed tracking-wide text-muted-foreground">
                       Steuererklärung ganz einfach.
                     </p>
                   </div>
