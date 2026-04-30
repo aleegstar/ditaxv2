@@ -173,13 +173,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               >
                 {isLoadingHistory ? (
                   <motion.div variants={bubbleVariants} className="flex justify-center py-8">
-                    <span className="text-sm text-white/60">Nachrichten werden geladen...</span>
+                    <span className="text-sm text-muted-foreground">Nachrichten werden geladen...</span>
                   </motion.div>
                 ) : lastMessages.length === 0 ? (
                   <motion.div variants={bubbleVariants} className="flex justify-center py-8">
                     <div className="text-center">
-                      <p className="text-white/80 text-sm font-medium">Wie kann ich dir helfen?</p>
-                      <p className="text-white/50 text-xs mt-1">Stelle mir eine Frage zu deiner Steuererklärung</p>
+                      <p className="text-foreground text-sm font-medium">Wie kann ich dir helfen?</p>
+                      <p className="text-muted-foreground text-xs mt-1">Stelle mir eine Frage zu deiner Steuererklärung</p>
                     </div>
                   </motion.div>
                 ) : (
@@ -217,15 +217,18 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
                         <div className="flex flex-col gap-0.5">
                           {message.isAdmin && message.senderName && (
-                            <span className="text-[10px] text-white/50 ml-1">{message.senderName}</span>
+                            <span className="text-[10px] text-muted-foreground ml-1">{message.senderName}</span>
                           )}
                           <div
-                            className={`px-3.5 py-2.5 rounded-[20px] text-[13px] leading-relaxed text-white`}
+                            className={`px-3.5 py-2.5 rounded-[20px] text-[13px] leading-relaxed ${
+                              message.isBot || message.isAdmin ? 'text-foreground' : 'text-white'
+                            }`}
                             style={
                               message.isBot || message.isAdmin
                                 ? {
-                                    background: 'linear-gradient(160deg, rgb(0, 46, 153) 0%, rgb(0, 34, 112) 100%)',
-                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    background: 'hsl(var(--card))',
+                                    border: '1px solid hsl(var(--border) / 0.6)',
+                                    boxShadow: '0 1px 2px hsl(var(--foreground) / 0.04)',
                                   }
                                 : {
                                     background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 67, 224) 100%)',
@@ -233,9 +236,9 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                                   }
                             }
                           >
-                            <p className="whitespace-pre-wrap !text-white">{message.content}</p>
+                            <p className="whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <span className={`text-[9px] text-white/35 ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
+                          <span className={`text-[9px] text-muted-foreground/70 ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
                             {formatTime(message.timestamp)}
                           </span>
                         </div>
