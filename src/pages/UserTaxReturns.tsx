@@ -521,59 +521,59 @@ const UserTaxReturns = () => {
         </h2>
 
         {/* Quick Action Cards */}
-        <section className="grid grid-cols-2 gap-3 mb-8">
+        <section className="grid grid-cols-2 gap-2.5 mb-8">
           <button
             onClick={handleDocumentsClick}
-            className="relative min-h-[176px] overflow-hidden rounded-[1.25rem] p-4 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
+            className="relative min-h-[132px] overflow-hidden rounded-[1.25rem] p-3.5 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
             style={{
               background: 'linear-gradient(145deg, hsl(221 100% 62%) 0%, hsl(221 100% 47%) 52%, hsl(221 100% 33%) 100%)',
               boxShadow: '0 14px 34px -16px hsl(var(--primary) / 0.55), 0 2px 10px hsl(var(--foreground) / 0.06)',
             }}
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-primary shadow-sm sm:h-12 sm:w-12">
-              <FileCheck2 className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.6} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-primary shadow-sm sm:h-12 sm:w-12">
+              <FileCheck2 className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.6} />
             </div>
-            <div className="mt-5 max-w-[112px] pb-9 sm:max-w-[140px] sm:pb-0">
-              <span className="block text-[17px] font-semibold leading-[1.08] text-primary-foreground sm:text-lg">
+            <div className="mt-3 max-w-[112px] pb-7 sm:mt-5 sm:max-w-[140px] sm:pb-0">
+              <span className="block text-[14px] font-semibold leading-[1.1] text-primary-foreground sm:text-lg">
                 Unterlagen<br />hochladen
               </span>
-              <span className="mt-2 block text-[11px] font-medium leading-snug text-primary-foreground/85 sm:text-[12px]">
+              <span className="mt-1 block text-[10px] font-medium leading-snug text-primary-foreground/85 sm:mt-2 sm:text-[12px]">
                 Belege und Dokumente hochladen
               </span>
             </div>
-            <div className="absolute bottom-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/18 text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10">
-              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
+            <div className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/18 text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
             </div>
           </button>
 
           <button
             onClick={() => setShowAddYearSheet(true)}
             data-tour="quick-add-year"
-            className="relative min-h-[176px] overflow-hidden rounded-[1.25rem] bg-card p-4 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
+            className="relative min-h-[132px] overflow-hidden rounded-[1.25rem] bg-card p-3.5 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
             style={{
               boxShadow: '0 14px 34px -18px hsl(var(--foreground) / 0.18), 0 2px 10px hsl(var(--foreground) / 0.04)',
               border: '1px solid hsl(var(--border) / 0.55)',
             }}
           >
             <div
-              className="flex h-11 w-11 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
               style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
             >
-              <Plus className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.8} />
+              <Plus className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.8} />
             </div>
-            <div className="mt-5 max-w-[112px] pb-9 sm:max-w-[140px] sm:pb-0">
-              <span className="block text-[17px] font-semibold leading-[1.08] text-foreground sm:text-lg">
+            <div className="mt-3 max-w-[112px] pb-7 sm:mt-5 sm:max-w-[140px] sm:pb-0">
+              <span className="block text-[14px] font-semibold leading-[1.1] text-foreground sm:text-lg">
                 Steuerjahr<br />hinzufügen
               </span>
-              <span className="mt-2 block text-[11px] font-medium leading-snug text-muted-foreground sm:text-[12px]">
+              <span className="mt-1 block text-[10px] font-medium leading-snug text-muted-foreground sm:mt-2 sm:text-[12px]">
                 Neues Steuerjahr erfassen
               </span>
             </div>
             <div
-              className="absolute bottom-4 right-4 flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
+              className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
               style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
             >
-              <ChevronRight className="h-5 w-5" strokeWidth={2} />
+              <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
             </div>
           </button>
         </section>
