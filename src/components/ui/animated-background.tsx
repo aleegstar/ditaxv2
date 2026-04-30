@@ -21,10 +21,10 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     <div className={`relative min-h-screen ${className}`}>
       <GooeyFilter />
       
-      {/* Light blue base */}
+      {/* Warm off-white base */}
       <div
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ background: '#EAEFF5' }}
+        style={{ background: 'hsl(45, 40%, 98%)' }}
       />
 
       {/* Soft white/blue blur glows */}
