@@ -582,17 +582,16 @@ const Auth = () => {
                     <motion.button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      whileHover={{ y: -2, boxShadow: '0 3px 10px rgba(0,0,0,0.06), 0 8px 22px rgba(0,0,0,0.04)' }}
+                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
                       whileTap={{ scale: 0.97 }}
-                      className="w-full text-muted-foreground/80 font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 relative flex items-center justify-center border"
+                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 border"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(248,250,253,0.75) 100%)',
-                        borderColor: 'rgba(0,0,0,0.07)',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
+                        borderColor: 'rgba(0,0,0,0.1)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
                       }}
                     >
-                      
-                      <span>{'Weiter mit E-Mail '}</span>
+                      <span>{'Weiter mit E-Mail'}</span>
                     </motion.button>
 
                     <AnimatePresence>
