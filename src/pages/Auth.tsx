@@ -627,9 +627,14 @@ const Auth = () => {
                             <motion.button
                               type="submit"
                               disabled={isLoading}
-                              whileHover={{ scale: 1.02, filter: 'brightness(1.04)' }}
-                              whileTap={{ scale: 0.98 }}
-                              className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-sm font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)]"
+                              whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
+                              whileTap={{ scale: 0.97 }}
+                              className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
+                              style={{
+                                background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
+                                borderColor: 'rgba(0,0,0,0.1)',
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+                              }}
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </motion.button>
@@ -696,12 +701,13 @@ const Auth = () => {
                     <motion.button 
                       onClick={handleWeiterClick} 
                       disabled={isLoading || code.length !== 6} 
-                      whileHover={{ y: -1, boxShadow: '0 4px 16px hsla(222,100%,56%,0.35), inset 0 1px 0 rgba(255,255,255,0.2)' }}
+                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
                       whileTap={{ scale: 0.97 }}
-                      className="flex w-full items-center justify-center h-[52px] px-6 rounded-2xl text-[14px] font-semibold tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 text-white"
+                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
                       style={{
-                        background: 'linear-gradient(145deg, hsl(222,100%,62%) 0%, hsl(222,100%,50%) 100%)',
-                        boxShadow: '0 2px 10px hsla(222,100%,56%,0.25), inset 0 1px 0 rgba(255,255,255,0.18)',
+                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
+                        borderColor: 'rgba(0,0,0,0.1)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
                       }}
                     >
                       {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
