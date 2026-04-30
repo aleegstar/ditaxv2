@@ -6,6 +6,7 @@ import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 interface OverlayChatBarProps {
   userId: string;
   onMenuOpen: () => void;
+  inline?: boolean;
 }
 
 const formatTime = (date: Date) =>
@@ -23,7 +24,7 @@ const containerVariants = {
   exit: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
 };
 
-export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
+export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen, inline = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
