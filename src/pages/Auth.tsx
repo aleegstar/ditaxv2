@@ -476,7 +476,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-transparent">
 
       {/* Ambient background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
