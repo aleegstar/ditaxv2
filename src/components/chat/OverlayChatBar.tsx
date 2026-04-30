@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal } from 'lucide-react';
+import { Send, Menu, User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal, Sparkles } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
 
 interface OverlayChatBarProps {
@@ -361,24 +361,32 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 bottom-0 z-[9999] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none"
           >
-            <div className="max-w-[260px] sm:max-w-[300px] mx-auto flex items-center gap-3 pointer-events-auto">
+            <div className="max-w-[320px] sm:max-w-[380px] mx-auto flex items-center gap-3 pointer-events-auto">
               {/* Glass input pill */}
               <div
                 onClick={handleOpen}
                 data-tour="floating-chat-button"
-                className="group relative flex-1 flex items-center gap-3 sm:gap-4 rounded-full px-4 sm:px-[18px] py-[21px] h-[60px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
+                className="group relative flex-1 flex items-center gap-3 rounded-[1.4rem] px-4 py-3 h-[64px] cursor-pointer transition-all duration-200 active:scale-[0.98] overflow-hidden"
                 style={{
-                  background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 0, 0) 100%)',
-                  boxShadow: 'rgba(0, 0, 0, 0.15) 0px 6px 24px -4px, rgba(0, 0, 0, 0.1) 0px 2px 8px',
+                  background: 'linear-gradient(145deg, hsl(221 100% 44%) 0%, hsl(221 100% 24%) 52%, hsl(221 100% 10%) 100%)',
+                  boxShadow: '0 10px 28px -10px hsl(var(--primary) / 0.55), 0 4px 14px hsl(var(--foreground) / 0.12)',
                 }}
               >
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-primary-foreground/95">
+                  <Sparkles className="h-5 w-5" strokeWidth={1.7} />
+                </div>
 
-                <span className="text-[15px] flex-1 select-none font-medium tracking-tight text-white truncate">
-                  Wie kann ich dir helfen?
-                </span>
+                <div className="min-w-0 flex-1 select-none">
+                  <span className="block truncate text-[13px] font-semibold leading-tight text-primary-foreground">
+                    Wie kann ich dir helfen?
+                  </span>
+                  <span className="mt-1 block truncate text-[11px] font-medium leading-tight text-primary-foreground/80">
+                    Frag mich etwas oder lass dir helfen.
+                  </span>
+                </div>
 
                 {/* AI Sphere */}
-                <div className="flex-shrink-0 w-10 h-10 overflow-hidden" style={{ borderRadius: '9999px' }}>
+                <div className="flex-shrink-0 w-11 h-11 overflow-hidden" style={{ borderRadius: '9999px' }}>
                   <video
                     src="/sphere-animation.mp4"
                     autoPlay
