@@ -236,7 +236,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                                   }
                             }
                           >
-                            <p className="whitespace-pre-wrap">{message.content}</p>
+                            <p className={`whitespace-pre-wrap ${message.isBot || message.isAdmin ? 'text-foreground' : 'text-white'}`}>{message.content}</p>
                           </div>
                           <span className={`text-[9px] text-muted-foreground/70 ${message.isBot || message.isAdmin ? 'ml-1' : 'mr-1 text-right'}`}>
                             {formatTime(message.timestamp)}
