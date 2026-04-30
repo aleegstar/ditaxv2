@@ -578,6 +578,14 @@ const UserTaxReturns = () => {
           </button>
         </section>
 
+        {/* Inline Chat Assistant */}
+        {!showTour && userId && (
+          <div className="mb-8">
+            <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} inline />
+          </div>
+        )}
+
+
         {/* Tax Returns Section Title */}
         {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
           <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
