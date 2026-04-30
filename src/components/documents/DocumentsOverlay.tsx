@@ -352,7 +352,7 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
           exit={{ opacity: 0, y: '100%' }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="fixed inset-0 z-[10000] flex flex-col overflow-hidden"
-          style={{ background: '#EAEFF5' }}
+          style={{ background: 'hsl(45, 40%, 98%)' }}
         >
           {/* Soft white/blue blur glows matching global background */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
