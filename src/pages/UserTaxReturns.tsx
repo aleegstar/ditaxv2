@@ -513,35 +513,57 @@ const UserTaxReturns = () => {
         <section className="grid grid-cols-2 gap-3 mb-8">
           <button
             onClick={handleDocumentsClick}
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            className="relative min-h-[150px] overflow-hidden rounded-[1.25rem] p-5 text-left transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 30%) 0%, hsl(222 100% 22%) 100%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+              background: 'linear-gradient(145deg, hsl(221 100% 62%) 0%, hsl(221 100% 47%) 52%, hsl(221 100% 33%) 100%)',
+              boxShadow: '0 14px 34px -16px hsl(var(--primary) / 0.55), 0 2px 10px hsl(var(--foreground) / 0.06)',
             }}
           >
-            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
-              <FileCheck2 className="w-5 h-5 text-white" strokeWidth={1.5} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-card text-primary shadow-sm">
+              <FileCheck2 className="h-6 w-6" strokeWidth={1.6} />
             </div>
-            <span className="text-[13px] font-medium text-white/90 leading-tight">
-              Unterlagen<br/>hochladen
-            </span>
+            <div className="mt-5 max-w-[140px]">
+              <span className="block text-lg font-semibold leading-tight text-primary-foreground">
+                Unterlagen<br />hochladen
+              </span>
+              <span className="mt-2 block text-[12px] font-medium leading-snug text-primary-foreground/85">
+                Belege und Dokumente sicher hochladen
+              </span>
+            </div>
+            <div className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/18 text-primary-foreground">
+              <ChevronRight className="h-5 w-5" strokeWidth={2} />
+            </div>
           </button>
 
           <button
             onClick={() => setShowAddYearSheet(true)}
             data-tour="quick-add-year"
-            className="flex flex-col items-center justify-center gap-3 rounded-[1.25rem] p-6 text-center transition-all duration-200 active:scale-[0.97]"
+            className="relative min-h-[150px] overflow-hidden rounded-[1.25rem] bg-card p-5 text-left transition-all duration-200 active:scale-[0.97]"
             style={{
-              background: 'linear-gradient(160deg, hsl(222 100% 56%) 0%, hsl(222 100% 44%) 100%)',
-              boxShadow: '0 8px 32px rgba(29,100,255,0.2), 0 2px 8px rgba(0,0,0,0.06)',
+              boxShadow: '0 14px 34px -18px hsl(var(--foreground) / 0.18), 0 2px 10px hsl(var(--foreground) / 0.04)',
+              border: '1px solid hsl(var(--border) / 0.55)',
             }}
           >
-            <div className="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-full text-primary-foreground shadow-sm"
+              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+            >
+              <Plus className="h-6 w-6" strokeWidth={1.8} />
             </div>
-            <span className="text-[13px] font-medium text-white/90 leading-tight">
-              Steuerjahr<br/>hinzufügen
-            </span>
+            <div className="mt-5 max-w-[140px]">
+              <span className="block text-lg font-semibold leading-tight text-foreground">
+                Steuerjahr<br />hinzufügen
+              </span>
+              <span className="mt-2 block text-[12px] font-medium leading-snug text-muted-foreground">
+                Neues Steuerjahr erfassen
+              </span>
+            </div>
+            <div
+              className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full text-primary-foreground"
+              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+            >
+              <ChevronRight className="h-5 w-5" strokeWidth={2} />
+            </div>
           </button>
         </section>
 
