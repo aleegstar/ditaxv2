@@ -707,10 +707,8 @@ const UserTaxReturns = () => {
 
       </main>
 
-      {/* Overlay Chat Bar */}
-      {!showTour && userId && (
-        <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />
-      )}
+      {/* Overlay Chat Bar - only the open overlay; resting bar is rendered inline above */}
+
 
       {/* Documents Overlay */}
       <DocumentsOverlay 
