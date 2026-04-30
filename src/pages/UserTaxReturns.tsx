@@ -374,16 +374,17 @@ const UserTaxReturns = () => {
       >
         <div
           onClick={() => navigate(`/form?year=${year}`)}
-          className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
+          className="relative z-10 rounded-[1.6rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-6 h-full"
           style={{
             background: 'hsl(var(--card))',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-            border: '1px solid hsl(var(--border))',
+            boxShadow: '0 18px 48px -24px hsl(var(--foreground) / 0.16), 0 2px 10px hsl(var(--foreground) / 0.04)',
+            border: '1px solid hsl(var(--border) / 0.7)',
           }}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 <span className="text-xs font-medium text-primary">In Erfassung</span>
               </div>
             </div>
@@ -415,21 +416,31 @@ const UserTaxReturns = () => {
               : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
           </p>
 
-          <div className="flex gap-1.5 mb-8">
+          <div className="flex gap-2 mb-5">
             {steps.map((step, i) => (
               <div
                 key={i}
-                className="flex-1 h-2.5 rounded-full transition-all duration-500"
+                className="flex-1 h-2 rounded-full transition-all duration-500"
                 style={i < completedSteps ? {
                   background: 'hsl(var(--primary))',
                 } : {
-                  background: 'rgba(255, 255, 255, 0.30)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255, 255, 255, 0.60)',
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                  background: 'hsl(var(--muted))',
                 }}
               />
             ))}
+          </div>
+
+          <div className="flex items-center gap-3 rounded-[1.2rem] bg-primary/5 p-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Clock className="h-5 w-5" strokeWidth={1.7} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold leading-tight text-foreground">Weiterarbeiten</p>
+              <p className="mt-1 truncate text-[11px] font-medium leading-tight text-muted-foreground">Letzte Änderung: Heute, 09:42</p>
+            </div>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-sm" style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}>
+              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+            </div>
           </div>
         </div>
       </motion.div>
