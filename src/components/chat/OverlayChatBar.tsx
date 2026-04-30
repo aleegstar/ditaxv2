@@ -107,7 +107,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
             style={{
-              background: 'linear-gradient(160deg, rgb(31, 98, 255) 0%, rgb(0, 0, 0) 50%, rgb(15, 56, 138) 100%)',
+              background: 'hsl(45, 40%, 98%)',
             }}
           >
             {/* Top bar with menu + close */}
@@ -115,10 +115,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none bg-card"
                   style={{
-                    background: 'rgb(255,255,255)',
-                    boxShadow: '0 4px 16px -2px rgba(0,0,0,0.12)',
+                    boxShadow: '0 4px 16px -2px rgba(0,0,0,0.08)',
+                    border: '1px solid hsl(var(--border) / 0.6)',
                   }}
                 >
                   <MoreHorizontal className="w-4 h-4 text-foreground" strokeWidth={2} />
@@ -130,17 +130,16 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: -4 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-12 rounded-xl overflow-hidden pointer-events-auto"
+                      className="absolute right-0 top-12 rounded-xl overflow-hidden pointer-events-auto bg-card"
                       style={{
-                        background: 'rgba(255,255,255,0.92)',
                         backdropFilter: 'blur(16px)',
-                        boxShadow: '0 8px 32px -4px rgba(0,0,0,0.18)',
-                        border: '1px solid rgba(0,0,0,0.06)',
+                        boxShadow: '0 8px 32px -4px rgba(0,0,0,0.12)',
+                        border: '1px solid hsl(var(--border) / 0.6)',
                       }}
                     >
                       <button
                         onClick={() => { clearMessages(); setShowMenu(false); }}
-                        className="px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 w-full text-left whitespace-nowrap transition-colors"
+                        className="px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 w-full text-left whitespace-nowrap transition-colors"
                       >
                         Chat löschen
                       </button>
@@ -150,10 +149,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               </div>
               <button
                 onClick={handleClose}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none bg-card"
                 style={{
-                  background: 'rgb(255,255,255)',
-                  boxShadow: '0 4px 16px -2px rgba(0,0,0,0.12)',
+                  boxShadow: '0 4px 16px -2px rgba(0,0,0,0.08)',
+                  border: '1px solid hsl(var(--border) / 0.6)',
                 }}
               >
                 <X className="w-4 h-4 text-foreground" strokeWidth={2} />
