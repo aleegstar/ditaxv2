@@ -263,11 +263,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                           className="w-full h-full object-cover scale-110"
                         />
                       </div>
-                      <div className="px-4 py-3 rounded-[20px] bg-white/15" style={{ backdropFilter: 'blur(12px)' }}>
+                      <div className="px-4 py-3 rounded-[20px] bg-card border border-border/60" style={{ boxShadow: '0 1px 2px hsl(var(--foreground) / 0.04)' }}>
                         <div className="flex gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0.1s' }} />
-                          <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: '0.1s' }} />
+                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: '0.2s' }} />
                         </div>
                       </div>
                     </div>
@@ -280,11 +280,10 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
-                  className="relative rounded-full"
+                  className="relative rounded-full bg-card"
                   style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    border: '1px solid rgba(255,255,255,0.25)',
-                    boxShadow: '0 2px 12px -2px rgba(0,0,0,0.1)',
+                    border: '1px solid hsl(var(--border) / 0.7)',
+                    boxShadow: '0 2px 12px -2px hsl(var(--foreground) / 0.06)',
                   }}
                 >
                   {/* Single row: textarea + icons + send */}
@@ -296,7 +295,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       onKeyDown={handleKeyDown}
                       placeholder={showEscalation ? "Mit Mitarbeitern sprechen..." : escalatedMode ? "Nachricht an Support..." : "Schreib eine Nachricht..."}
                       rows={1}
-                      className="flex-1 min-w-0 bg-transparent text-[15px] font-medium tracking-tight outline-none resize-none placeholder:text-white/40 text-white min-h-[24px] max-h-24"
+                      className="flex-1 min-w-0 bg-transparent text-[15px] font-medium tracking-tight outline-none resize-none placeholder:text-muted-foreground/60 text-foreground min-h-[24px] max-h-24"
                       style={{ lineHeight: '1.5' }}
                       onInput={(e) => {
                         const textarea = e.target as HTMLTextAreaElement;
@@ -307,18 +306,18 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       <button className="focus:outline-none transition-colors">
-                        <Paperclip className="w-5 h-5 text-white/30" strokeWidth={1.5} />
+                        <Paperclip className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowEscalation(!showEscalation)}
                         className={`rounded-full transition-all flex items-center gap-1 px-1.5 sm:px-2 py-1 border h-8 ${
                           showEscalation
-                            ? 'bg-blue-500/20 border-blue-400/40 text-blue-400'
-                            : 'bg-transparent border-transparent text-white/30 hover:text-white/50'
+                            ? 'bg-primary/10 border-primary/30 text-primary'
+                            : 'bg-transparent border-transparent text-muted-foreground/60 hover:text-foreground'
                         }`}
                       >
-                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-blue-400' : ''}`} strokeWidth={1.5} />
+                        <UserRound className={`w-4 h-4 ${showEscalation ? 'text-primary' : ''}`} strokeWidth={1.5} />
                         <AnimatePresence>
                           {showEscalation && (
                             <motion.span
@@ -326,7 +325,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                               animate={{ width: 'auto', opacity: 1 }}
                               exit={{ width: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="text-xs overflow-hidden whitespace-nowrap text-blue-400 flex-shrink-0 hidden sm:inline"
+                              className="text-xs overflow-hidden whitespace-nowrap text-primary flex-shrink-0 hidden sm:inline"
                             >
                               Mit Mitarbeitern sprechen
                             </motion.span>
@@ -337,13 +336,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                       <button
                         onClick={handleSend}
                         disabled={!inputValue.trim() || isLoading}
-                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-30"
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] focus:outline-none disabled:opacity-30 text-primary-foreground"
                         style={{
-                          background: 'rgba(255,255,255,0.1)',
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)',
+                          boxShadow: '0 2px 8px -2px hsl(var(--primary) / 0.4)',
                         }}
                       >
-                        <ChevronRight className="w-4 h-4 text-white/50" strokeWidth={1.5} />
+                        <ChevronRight className="w-4 h-4" strokeWidth={2} />
                       </button>
                     </div>
                   </div>
