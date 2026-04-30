@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal, Sparkles } from 'lucide-react';
+import { User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal, Sparkles, MessageCircle } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
+import chatBgLines from '@/assets/chat-bg-lines.png';
 
 interface OverlayChatBarProps {
   userId: string;
   onMenuOpen: () => void;
+  inline?: boolean;
 }
 
 const formatTime = (date: Date) =>
@@ -23,7 +25,7 @@ const containerVariants = {
   exit: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
 };
 
-export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen }) => {
+export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOpen, inline = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
@@ -353,6 +355,46 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
       {/* Collapsed / Resting Input Bar */}
       <AnimatePresence>
         {!isOpen && (
+          inline ? (
+            <motion.div
+              key="resting-bar-inline"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              onClick={handleOpen}
+              data-tour="floating-chat-button"
+              className="group relative w-full overflow-hidden rounded-[1.4rem] cursor-pointer transition-all duration-200 active:scale-[0.99] bg-card"
+              style={{
+                boxShadow: '0 14px 34px -18px hsl(var(--foreground) / 0.18), 0 2px 10px hsl(var(--foreground) / 0.04)',
+                border: '1px solid hsl(var(--border) / 0.55)',
+              }}
+            >
+              {/* Linien-Background */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-no-repeat bg-right-bottom opacity-90"
+                style={{
+                  backgroundImage: `url(${chatBgLines})`,
+                  backgroundSize: '70% auto',
+                  backgroundPosition: 'right bottom',
+                }}
+              />
+              <div className="relative flex items-center gap-3 px-4 py-3.5">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted/60 text-foreground">
+                  <MessageCircle className="h-4 w-4" strokeWidth={1.7} />
+                </div>
+                <div className="min-w-0 flex-1 select-none">
+                  <span className="block truncate text-[14px] font-semibold leading-tight text-foreground">
+                    Wie kann ich dir helfen?
+                  </span>
+                  <span className="mt-0.5 block truncate text-[11px] font-medium leading-tight text-muted-foreground">
+                    Frag mich etwas oder lass dir helfen.
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
           <motion.div
             key="resting-bar"
             initial={{ opacity: 0, y: 20 }}
@@ -399,6 +441,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               </div>
             </div>
           </motion.div>
+          )
         )}
       </AnimatePresence>
     </>
