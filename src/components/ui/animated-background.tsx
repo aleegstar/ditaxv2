@@ -24,14 +24,14 @@ export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
       {/* Warm off-white base */}
       <div
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ background: 'hsl(45, 40%, 98%)' }}
+        style={{ background: 'hsl(var(--background))' }}
       />
 
-      {/* Soft white/blue blur glows */}
+      {/* Soft warm blur glows */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/40 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-[#dce5f2]/60 rounded-full blur-[120px]" />
-        <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-white/30 rounded-full blur-[80px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-card/45 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[60%] h-[60%] bg-background/80 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-card/35 rounded-full blur-[80px]" />
       </div>
       
       {/* Content */}

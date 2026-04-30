@@ -225,7 +225,7 @@ const AuthenticatedApp = () => {
         <OnboardingTourProvider>
           <DocumentsTourProvider>
             <SidebarProvider>
-            <div className="min-h-screen w-full flex flex-col">
+            <div className="min-h-screen w-full flex flex-col bg-background">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <PageTransition>
               <TaxFilerGate>

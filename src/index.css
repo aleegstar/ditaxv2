@@ -21,7 +21,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 45 40% 98%;
     --foreground: 0 0% 5%;
 
     --card: 0 0% 100%;
@@ -214,7 +214,7 @@
   }
 
   html {
-    background: linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%));
+    background: hsl(var(--background));
     background-attachment: fixed;
     min-height: 100%;
   }
@@ -222,7 +222,7 @@
   body {
     font-family: var(--font-sans);
     color: hsl(var(--foreground));
-    background: transparent;
+    background: hsl(var(--background));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -.01em;
