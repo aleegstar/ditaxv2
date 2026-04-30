@@ -374,11 +374,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               {/* Linien-Background */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 bg-no-repeat bg-right-bottom opacity-90"
+                className="pointer-events-none absolute inset-y-0 right-0 opacity-90"
                 style={{
                   backgroundImage: `url(${chatBgLines})`,
-                  backgroundSize: '70% auto',
-                  backgroundPosition: 'right bottom',
+                  backgroundSize: 'auto 100%',
+                  backgroundPosition: 'right center',
+                  backgroundRepeat: 'no-repeat',
+                  width: '55%',
                 }}
               />
               <div className="relative flex items-center gap-3 px-4 py-3.5">
