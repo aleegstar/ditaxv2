@@ -679,7 +679,7 @@ return <div className="min-h-screen">
 
                 <button
                   onClick={() => setShowCompletionDialog(false)}
-                  className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-card to-muted px-5 py-3 font-medium text-base text-foreground transition-all border border-border shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97]"
+                  className="flex w-full items-center justify-center rounded-2xl bg-background px-5 py-3 font-medium text-base text-foreground transition-all border border-border hover:bg-muted/50 active:scale-[0.97]"
                 >
                   {t.documentChecklist.later}
                 </button>
