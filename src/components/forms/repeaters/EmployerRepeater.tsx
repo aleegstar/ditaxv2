@@ -49,16 +49,14 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-600">Arbeitgeber Details</span>
-        <Button
+        <button
           type="button"
           onClick={addEmployer}
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2 text-white border border-[#1D64FF] rounded-lg bg-[#1D64FF] hover:bg-[#1D64FF]/90"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
           <Plus className="w-4 h-4" />
           Arbeitgeber hinzufügen
-        </Button>
+        </button>
       </div>
 
       {employers.map((employer, index) => (
