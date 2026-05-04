@@ -672,7 +672,7 @@ return <div className="min-h-screen">
               <div className="w-full flex flex-col gap-3">
                 <button
                   onClick={() => navigate(`/payment?year=${taxYear}`)}
-                  className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-5 py-3 font-medium text-base text-white transition-all hover:brightness-110 active:scale-[0.97]"
+                  className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-5 py-3 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
                 >
                   {t.documentChecklist.createNow}
                 </button>
