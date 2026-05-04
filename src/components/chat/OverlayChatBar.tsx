@@ -384,8 +384,14 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 }}
               />
               <div className="relative flex items-center gap-3 px-4 py-3.5">
-                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm">
-                  <MessageCircle className="h-5 w-5 text-white" strokeWidth={2} />
+                <div
+                  className="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)',
+                  }}
+                >
+                  <MessageCircle className="h-5 w-5 text-white" strokeWidth={2.2} />
                 </div>
                 <div className="min-w-0 flex-1 select-none">
                   <span className="block truncate text-[14px] font-semibold leading-tight text-foreground">
