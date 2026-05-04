@@ -229,20 +229,13 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                             style={{
                               background: message.isAdmin
                                 ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))'
-                                : 'transparent',
+                                : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))',
                             }}
                           >
                             {message.isAdmin ? (
                               <User className="w-3.5 h-3.5 text-white" />
                             ) : (
-                              <video
-                                src="/sphere-animation.mp4"
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover scale-110"
-                              />
+                              <img src="/bot-avatar.png" alt="Ditax" className="w-full h-full object-cover" />
                             )}
                           </div>
                         )}
