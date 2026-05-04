@@ -110,53 +110,85 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
               background: 'hsl(45, 40%, 98%)',
             }}
           >
-            {/* Top bar with menu + close */}
-            <div className="pointer-events-auto flex justify-end items-center gap-2 px-4 pb-1" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
-              <div className="relative">
+            {/* Top bar with assistant info + menu + close */}
+            <div className="pointer-events-auto flex justify-between items-center gap-2 px-4 pb-2 border-b border-border" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))', paddingBottom: '12px' }}>
+              {/* Left: assistant identity */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden flex-shrink-0"
+                  style={{
+                    background: escalatedMode
+                      ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))'
+                      : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))',
+                  }}
+                >
+                  {escalatedMode ? (
+                    <User className="w-5 h-5 text-white" />
+                  ) : (
+                    <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight truncate">
+                    {escalatedMode ? 'Support-Team' : 'Steuer-Assistent'}
+                  </h1>
+                  <div className="flex items-center gap-1.5">
+                    <div className="relative w-2 h-2 bg-emerald-500 rounded-full">
+                      <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-40" />
+                    </div>
+                    <span className="text-xs font-medium text-emerald-600">Online</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: menu + close */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none bg-card"
+                    style={{
+                      boxShadow: '0 4px 16px -2px rgba(0,0,0,0.08)',
+                      border: '1px solid hsl(var(--border) / 0.6)',
+                    }}
+                  >
+                    <MoreHorizontal className="w-4 h-4 text-foreground" strokeWidth={2} />
+                  </button>
+                  <AnimatePresence>
+                    {showMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-12 rounded-xl overflow-hidden pointer-events-auto bg-card z-10"
+                        style={{
+                          backdropFilter: 'blur(16px)',
+                          boxShadow: '0 8px 32px -4px rgba(0,0,0,0.12)',
+                          border: '1px solid hsl(var(--border) / 0.6)',
+                        }}
+                      >
+                        <button
+                          onClick={() => { clearMessages(); setShowMenu(false); }}
+                          className="px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 w-full text-left whitespace-nowrap transition-colors"
+                        >
+                          Chat löschen
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <button
-                  onClick={() => setShowMenu(!showMenu)}
+                  onClick={handleClose}
                   className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none bg-card"
                   style={{
                     boxShadow: '0 4px 16px -2px rgba(0,0,0,0.08)',
                     border: '1px solid hsl(var(--border) / 0.6)',
                   }}
                 >
-                  <MoreHorizontal className="w-4 h-4 text-foreground" strokeWidth={2} />
+                  <X className="w-4 h-4 text-foreground" strokeWidth={2} />
                 </button>
-                <AnimatePresence>
-                  {showMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-12 rounded-xl overflow-hidden pointer-events-auto bg-card"
-                      style={{
-                        backdropFilter: 'blur(16px)',
-                        boxShadow: '0 8px 32px -4px rgba(0,0,0,0.12)',
-                        border: '1px solid hsl(var(--border) / 0.6)',
-                      }}
-                    >
-                      <button
-                        onClick={() => { clearMessages(); setShowMenu(false); }}
-                        className="px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 w-full text-left whitespace-nowrap transition-colors"
-                      >
-                        Chat löschen
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
-              <button
-                onClick={handleClose}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] focus:outline-none bg-card"
-                style={{
-                  boxShadow: '0 4px 16px -2px rgba(0,0,0,0.08)',
-                  border: '1px solid hsl(var(--border) / 0.6)',
-                }}
-              >
-                <X className="w-4 h-4 text-foreground" strokeWidth={2} />
-              </button>
             </div>
 
             {/* Messages scroll area */}
