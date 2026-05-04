@@ -151,7 +151,7 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-1"
               onClick={() => setIsAngabenExpanded(true)}
-              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="group rounded-[1.5rem] bg-white border border-slate-200/80 p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <StepBadge step={1} active={false} done />
               <div className="flex-1 min-w-0">
@@ -165,7 +165,7 @@ export const TaxYearDashboard: React.FC = () => {
           ) : (
             <section
               data-tour="form-step-1"
-              className="rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               {/* Step header */}
               <div
@@ -226,7 +226,7 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-2"
               onClick={handleDocumentsClick}
-              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
@@ -256,7 +256,7 @@ export const TaxYearDashboard: React.FC = () => {
             <div
               data-tour="form-step-3"
               onClick={handleSubmitClick}
-              className="group rounded-[1.5rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+              className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
             >
               <div className="p-5 sm:p-6 flex items-center gap-3.5">
                 <StepBadge step={3} active done={false} />
