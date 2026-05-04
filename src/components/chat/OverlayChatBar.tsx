@@ -384,15 +384,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
                 }}
               />
               <div className="relative flex items-center gap-3 px-4 py-3.5">
-                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
-                  <video
-                    src="/sphere-animation.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover scale-110"
-                  />
+                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm">
+                  <MessageCircle className="h-5 w-5 text-white" strokeWidth={2} />
                 </div>
                 <div className="min-w-0 flex-1 select-none">
                   <span className="block truncate text-[14px] font-semibold leading-tight text-foreground">
