@@ -436,10 +436,9 @@ const UserTaxReturns = () => {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold leading-tight text-foreground">Weiterarbeiten</p>
-              <p className="mt-1 truncate text-[11px] font-medium leading-tight text-muted-foreground">Letzte Änderung: Heute, 09:42</p>
             </div>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-sm" style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}>
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              <ChevronRight className="h-4 w-4" strokeWidth={2} />
             </div>
           </div>
         </div>
