@@ -422,7 +422,7 @@ const UserTaxReturns = () => {
                 key={i}
                 className="flex-1 h-2 rounded-full transition-all duration-500"
                 style={i < completedSteps ? {
-                  background: 'hsl(var(--primary))',
+                  background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)',
                 } : {
                   background: 'hsl(var(--muted))',
                 }}
@@ -437,7 +437,7 @@ const UserTaxReturns = () => {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold leading-tight text-foreground">Weiterarbeiten</p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-sm" style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-sm" style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}>
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             </div>
           </div>
@@ -530,7 +530,7 @@ const UserTaxReturns = () => {
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
-              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
             >
               <FileCheck2 className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.8} />
             </div>
@@ -544,7 +544,7 @@ const UserTaxReturns = () => {
             </div>
             <div
               className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
-              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
             >
               <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
             </div>
@@ -561,7 +561,7 @@ const UserTaxReturns = () => {
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
-              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
             >
               <Plus className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.8} />
             </div>
@@ -575,7 +575,7 @@ const UserTaxReturns = () => {
             </div>
             <div
               className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
-              style={{ background: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
             >
               <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
             </div>
