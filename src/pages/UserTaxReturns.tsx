@@ -465,7 +465,6 @@ const UserTaxReturns = () => {
               src="/ditax-logo-mask.svg"
               alt="ditax"
               className="h-8 w-[106px] object-contain"
-              style={{ filter: 'brightness(0) saturate(100%) invert(28%) sepia(95%) saturate(2476%) hue-rotate(217deg) brightness(99%) contrast(101%)' }}
             />
           </div>
           <div className="flex items-center gap-2">
