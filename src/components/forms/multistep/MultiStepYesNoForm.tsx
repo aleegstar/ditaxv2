@@ -805,15 +805,6 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="py-4 text-center shrink-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 border border-border/30">
-            <ShieldCheck className="w-3 h-3 text-emerald-500" strokeWidth={1.5} />
-            <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-              Verschlüsselt &amp; Sicher
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
