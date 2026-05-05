@@ -422,7 +422,7 @@ const UserTaxReturns = () => {
                 key={i}
                 className="flex-1 h-2 rounded-full transition-all duration-500"
                 style={i < completedSteps ? {
-                  background: 'hsl(var(--primary))',
+                  background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)',
                 } : {
                   background: 'hsl(var(--muted))',
                 }}
