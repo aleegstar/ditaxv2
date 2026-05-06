@@ -277,7 +277,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                       isActive ? 'flex-[1.3]' : 'flex-1'
                     )}
                     style={{
-                      height: '48px',
+                      height: '56px',
                     }}
                   >
                     {isActive && (
@@ -296,14 +296,14 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     )}
                     <span
                       className={cn(
-                        'relative z-10 flex flex-col items-center justify-center',
+                        'relative z-10 flex flex-col items-center justify-center gap-1',
                         isActive ? 'text-white' : 'text-[#7A8498]'
                       )}
                     >
-                      <Icon className="w-[18px] h-[18px] mb-0.5" strokeWidth={1.6} />
+                      <Icon className="w-[18px] h-[18px]" strokeWidth={1.6} />
                       <span
                         style={{
-                          fontSize: '10.5px',
+                          fontSize: '9.5px',
                           fontWeight: 500,
                           lineHeight: 1,
                           letterSpacing: '-0.01em',
