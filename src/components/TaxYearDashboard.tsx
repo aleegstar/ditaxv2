@@ -158,8 +158,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
               <Check className="w-5 h-5" strokeWidth={2.5} />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-[19px] font-semibold text-[#111827] tracking-tight leading-snug">{t.formDashboard.personalInfo}</h2>
-              <p className="text-[14px] text-[#7A8498]">
+              <h2 className="text-[#111827] tracking-tight leading-snug font-medium text-sm">{t.formDashboard.personalInfo}</h2>
+              <p className="text-[#7A8498] text-xs">
                 {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
               </p>
             </div>
@@ -179,12 +179,12 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                 allAngabenComplete && "cursor-pointer"
               )}
             >
-              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-b from-[#508BFF] to-[#1656FF] text-white rounded-full shadow-[0_16px_32px_-8px_rgba(22,86,255,0.6),inset_0_2px_4px_rgba(255,255,255,0.4)] text-[19px] font-semibold shrink-0">
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-b from-[#508BFF] to-[#1656FF] text-white rounded-full shadow-[0_16px_32px_-8px_rgba(22,86,255,0.6),inset_0_2px_4px_rgba(255,255,255,0.4)] font-semibold shrink-0 text-sm">
                 {allAngabenComplete ? <Check className="w-5 h-5" strokeWidth={2.5} /> : 1}
               </div>
               <div>
-                <h2 className="text-[19px] font-semibold text-[#111827] tracking-tight leading-snug">{t.formDashboard.personalInfo}</h2>
-                <p className="text-[14px] text-[#7A8498]">
+                <h2 className="text-[#111827] tracking-tight leading-snug font-medium text-sm">{t.formDashboard.personalInfo}</h2>
+                <p className="text-[#7A8498] text-xs">
                   {t.formDashboard.tasksCompleted
                     .replace('{completed}', String(angabenProgress.completed))
                     .replace('{total}', String(angabenProgress.total))}
@@ -208,11 +208,11 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                         "w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-300",
                         completed
                           ? "bg-[#EBF2FF] text-[#1656FF]"
-                          : "bg-[#F4F7FB] text-[#7A8498] group-hover/item:text-[#1656FF] group-hover/item:bg-[#EBF2FF]"
+                        : "bg-[#F4F7FB] text-[#7A8498] group-hover/item:text-[#1656FF] group-hover/item:bg-[#EBF2FF]"
                       )}>
                         {completed ? <Check className="w-5 h-5" strokeWidth={2} /> : <Icon className="w-5 h-5" strokeWidth={1.5} />}
                       </div>
-                      <span className="text-[15px] font-medium text-[#111827]">
+                      <span className="font-medium text-[#111827] text-sm">
                         {section.title}
                       </span>
                     </div>
@@ -248,8 +248,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         >
           <StepBadge step={2} active={false} done={false} />
           <div>
-            <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.documentsTitle}</h2>
-            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeStep1First}</p>
+            <h2 className="font-medium text-muted-foreground text-sm">{t.formDashboard.documentsTitle}</h2>
+            <p className="text-muted-foreground/60 mt-0.5 text-xs">{t.formDashboard.completeStep1First}</p>
           </div>
           <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
         </div>
@@ -278,8 +278,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         >
           <StepBadge step={3} active={false} done={false} />
           <div>
-            <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.reviewAndSubmit}</h2>
-            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeSteps12First}</p>
+            <h2 className="font-medium text-muted-foreground text-sm">{t.formDashboard.reviewAndSubmit}</h2>
+            <p className="text-muted-foreground/60 mt-0.5 text-xs">{t.formDashboard.completeSteps12First}</p>
           </div>
           <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
         </div>
