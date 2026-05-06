@@ -274,8 +274,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     aria-current={isActive ? 'page' : undefined}
                     className="relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors"
                     style={{
-                      height: '54px',
-                      width: isActive ? '86px' : '64px',
+                      height: '46px',
+                      width: isActive ? '76px' : '58px',
                     }}
                   >
                     {isActive && (
@@ -297,10 +297,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         isActive ? 'text-white' : 'text-[#7A8498]'
                       )}
                     >
-                      <Icon className="w-[18px] h-[18px] mb-0.5" strokeWidth={1.75} />
+                      <Icon className="w-4 h-4 mb-0.5" strokeWidth={1.75} />
                       <span
                         style={{
-                          fontSize: '10.5px',
+                          fontSize: '9.5px',
                           fontWeight: 500,
                           lineHeight: 1,
                           letterSpacing: '-0.01em',
