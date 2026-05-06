@@ -18,21 +18,41 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div className="inline-flex items-center gap-2.5 text-xs border border-gray-200/80 rounded-full py-1.5 px-3.5 bg-white/60 backdrop-blur-md shadow-sm">
-      <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-      <div className="flex gap-2 font-medium">
-        <button
-          onClick={() => switchLanguage('de')}
-          className={`transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          DE
-        </button>
-        <button
-          onClick={() => switchLanguage('en')}
-          className={`transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          EN
-        </button>
-      </div>
-    </div>);
+    <div
+      className="relative inline-flex items-center gap-1 rounded-full p-1 pl-3"
+      style={{
+        background: 'rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(14px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+        border: '1px solid rgba(0,0,0,0.04)',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)',
+      }}
+    >
+      <Globe className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.75} />
+      {(['de', 'en'] as const).map((lng) => {
+        const active = language === lng;
+        return (
+          <button
+            key={lng}
+            onClick={() => switchLanguage(lng)}
+            className="relative px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-colors"
+          >
+            {active && (
+              <motion.span
+                layoutId="lang-pill"
+                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                className="absolute inset-0 rounded-full bg-white"
+                style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)' }}
+              />
+            )}
+            <span className={active ? 'relative text-foreground' : 'relative text-muted-foreground/60'}>
+              {lng.toUpperCase()}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 
 const Auth = () => {
