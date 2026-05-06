@@ -494,28 +494,6 @@ return <div className="min-h-screen">
                     </div>
                   );
                 })}
-                      <div className="flex items-center gap-2">
-                        {hasUnassignedDocs && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                            className="rounded-full"
-                          >
-                            <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
-                            {t.documentChecklist.assign}
-                          </Button>
-                        )}
-                        <Button
-                          onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                          className="flex-1"
-                        >
-                          Hochladen
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
 
                 {/* Completed items grouped in single card */}
                 {completedItems.length > 0 && (
