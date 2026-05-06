@@ -18,7 +18,11 @@ interface DashboardSection {
   param: string;
 }
 
-export const TaxYearDashboard: React.FC = () => {
+interface TaxYearDashboardProps {
+  embedded?: boolean;
+}
+
+export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = false }) => {
   const { t } = useI18n();
   const {
     formProgress,
@@ -131,156 +135,157 @@ export const TaxYearDashboard: React.FC = () => {
     </div>
   );
 
+  const stepsContent = (
+    <div className="space-y-3">
+
+      {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
+      {allAngabenComplete && !isAngabenExpanded ? (
+        <div
+          data-tour="form-step-1"
+          onClick={() => setIsAngabenExpanded(true)}
+          className="group rounded-[1.5rem] bg-white border border-slate-200/80 p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+        >
+          <StepBadge step={1} active={false} done />
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
+            </p>
+          </div>
+          <ChevronDown className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" strokeWidth={2} />
+        </div>
+      ) : (
+        <section
+          data-tour="form-step-1"
+          className="rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+        >
+          <div
+            onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
+            className={cn(
+              "p-5 sm:p-6",
+              allAngabenComplete && "cursor-pointer hover:bg-muted/30"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3.5">
+                <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
+                <div>
+                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">
+                    {t.formDashboard.tasksCompleted
+                      .replace('{completed}', String(angabenProgress.completed))
+                      .replace('{total}', String(angabenProgress.total))}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-2.5">
+            {angabenSections.map(section => {
+              const Icon = section.icon;
+              const completed = isCompleted(section.id);
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => handleSectionClick(section)}
+                  data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
+                  className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white shadow-[rgba(0,0,0,0.04)_0px_4px_16px_-2px,rgba(0,0,0,0.03)_0px_1px_4px] ring-1 ring-slate-100/80 hover:shadow-[rgba(0,0,0,0.08)_0px_6px_20px_-2px,rgba(0,0,0,0.04)_0px_2px_6px] transition-all duration-200 text-left group/item active:scale-[0.98]"
+                >
+                  <div className={cn(
+                    "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200",
+                    completed
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground group-hover/item:text-foreground"
+                  )}>
+                    {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" strokeWidth={1.5} />}
+                  </div>
+                  <span className="flex-1 text-[13px] font-medium text-foreground tracking-tight">
+                    {section.title}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover/item:text-muted-foreground group-hover/item:translate-x-0.5 transition-all" strokeWidth={1.5} />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════ Step 2: Belege & Unterlagen ═══════════ */}
+      {allAngabenComplete ? (
+        <div
+          data-tour="form-step-2"
+          onClick={handleDocumentsClick}
+          className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+        >
+          <div className="p-5 sm:p-6 flex items-center gap-3.5">
+            <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
+            <div className="flex-1 min-w-0">
+              <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
+              <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.uploadDocuments}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+          </div>
+        </div>
+      ) : (
+        <div
+          data-tour="form-step-2"
+          className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
+        >
+          <StepBadge step={2} active={false} done={false} />
+          <div>
+            <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.documentsTitle}</h2>
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeStep1First}</p>
+          </div>
+          <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
+        </div>
+      )}
+
+      {/* ═══════════ Step 3: Prüfung & Versand ═══════════ */}
+      {canSubmit ? (
+        <div
+          data-tour="form-step-3"
+          onClick={handleSubmitClick}
+          className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+        >
+          <div className="p-5 sm:p-6 flex items-center gap-3.5">
+            <StepBadge step={3} active done={false} />
+            <div className="flex-1 min-w-0">
+              <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
+              <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.completeAndPay}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+          </div>
+        </div>
+      ) : (
+        <div
+          data-tour="form-step-3"
+          className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
+        >
+          <StepBadge step={3} active={false} done={false} />
+          <div>
+            <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.reviewAndSubmit}</h2>
+            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeSteps12First}</p>
+          </div>
+          <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
+        </div>
+      )}
+    </div>
+  );
+
+  if (embedded) {
+    return <div className="w-full">{stepsContent}</div>;
+  }
+
   return (
     <div className="min-h-screen text-foreground antialiased">
-      {/* Header */}
       <SubpageHeader
         title={t.formDashboard.title.replace('{year}', taxYear)}
         onBack={() => navigate('/')}
       />
-
-      {/* Tax Filer Selector */}
       <TaxFilerSelector className="max-w-xl mx-auto px-4 sm:px-6 mb-6" />
-
-      {/* Steps */}
       <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
-        <div className="space-y-3">
-
-          {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
-          {allAngabenComplete && !isAngabenExpanded ? (
-            <div
-              data-tour="form-step-1"
-              onClick={() => setIsAngabenExpanded(true)}
-              className="group rounded-[1.5rem] bg-white border border-slate-200/80 p-5 sm:p-6 flex items-center gap-3.5 cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
-            >
-              <StepBadge step={1} active={false} done />
-              <div className="flex-1 min-w-0">
-                <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
-                <p className="text-[12px] text-muted-foreground mt-0.5">
-                  {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
-                </p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" strokeWidth={2} />
-            </div>
-          ) : (
-            <section
-              data-tour="form-step-1"
-              className="rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
-            >
-              {/* Step header */}
-              <div
-                onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-                className={cn(
-                  "p-5 sm:p-6",
-                  allAngabenComplete && "cursor-pointer hover:bg-muted/30"
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
-                    <div>
-                      <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">
-                        {t.formDashboard.tasksCompleted
-                          .replace('{completed}', String(angabenProgress.completed))
-                          .replace('{total}', String(angabenProgress.total))}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section items */}
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-2.5">
-                {angabenSections.map(section => {
-                  const Icon = section.icon;
-                  const completed = isCompleted(section.id);
-                  return (
-                    <button
-                      key={section.id}
-                      onClick={() => handleSectionClick(section)}
-                      data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                      className="w-full flex items-center gap-3 p-4 rounded-2xl bg-white shadow-[rgba(0,0,0,0.04)_0px_4px_16px_-2px,rgba(0,0,0,0.03)_0px_1px_4px] ring-1 ring-slate-100/80 hover:shadow-[rgba(0,0,0,0.08)_0px_6px_20px_-2px,rgba(0,0,0,0.04)_0px_2px_6px] transition-all duration-200 text-left group/item active:scale-[0.98]"
-                    >
-                      <div className={cn(
-                        "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200",
-                        completed
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground group-hover/item:text-foreground"
-                      )}>
-                        {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : <Icon className="w-4 h-4" strokeWidth={1.5} />}
-                      </div>
-                      <span className="flex-1 text-[13px] font-medium text-foreground tracking-tight">
-                        {section.title}
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover/item:text-muted-foreground group-hover/item:translate-x-0.5 transition-all" strokeWidth={1.5} />
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* ═══════════ Step 2: Belege & Unterlagen ═══════════ */}
-          {allAngabenComplete ? (
-            <div
-              data-tour="form-step-2"
-              onClick={handleDocumentsClick}
-              className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
-            >
-              <div className="p-5 sm:p-6 flex items-center gap-3.5">
-                <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.uploadDocuments}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
-              </div>
-            </div>
-          ) : (
-            <div
-              data-tour="form-step-2"
-              className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
-            >
-              <StepBadge step={2} active={false} done={false} />
-              <div>
-                <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.documentsTitle}</h2>
-                <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeStep1First}</p>
-              </div>
-              <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
-            </div>
-          )}
-
-          {/* ═══════════ Step 3: Prüfung & Versand ═══════════ */}
-          {canSubmit ? (
-            <div
-              data-tour="form-step-3"
-              onClick={handleSubmitClick}
-              className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
-            >
-              <div className="p-5 sm:p-6 flex items-center gap-3.5">
-                <StepBadge step={3} active done={false} />
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.completeAndPay}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
-              </div>
-            </div>
-          ) : (
-            <div
-              data-tour="form-step-3"
-              className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
-            >
-              <StepBadge step={3} active={false} done={false} />
-              <div>
-                <h2 className="text-[13px] font-medium text-muted-foreground">{t.formDashboard.reviewAndSubmit}</h2>
-                <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t.formDashboard.completeSteps12First}</p>
-              </div>
-              <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
-            </div>
-          )}
-        </div>
+        {stepsContent}
       </main>
     </div>
   );
