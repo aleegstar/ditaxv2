@@ -33,6 +33,7 @@ const AssetsForm = ({
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasVehicle, setHasVehicle] = useState<boolean>(false);
