@@ -106,9 +106,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
+            className="fixed inset-x-0 top-0 z-[9999] flex flex-col pointer-events-none rounded-t-[28px] overflow-hidden"
             style={{
               background: 'hsl(45, 40%, 98%)',
+              bottom: 'calc(env(safe-area-inset-bottom) + 84px)',
+              boxShadow: '0 -10px 40px -10px rgba(17,24,39,0.18)',
             }}
           >
             {/* Top bar with assistant info + menu + close */}
