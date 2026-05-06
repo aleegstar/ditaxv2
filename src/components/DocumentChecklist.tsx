@@ -463,16 +463,37 @@ return <div className="min-h-screen">
                   return (
                     <div
                       key={item.id}
-                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4"
+                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4 space-y-3"
                     >
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                          <FolderOpen className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug pt-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug">
                           {item.title}
                         </h3>
+                        <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium border border-amber-100">
+                          Offen
+                        </span>
                       </div>
+                      <div className="flex items-center gap-2">
+                        {hasUnassignedDocs && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
+                            className="rounded-full"
+                          >
+                            {t.documentChecklist.assign}
+                          </Button>
+                        )}
+                        <Button
+                          onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                          className="flex-1"
+                        >
+                          Hochladen
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
                       <div className="flex items-center gap-2">
                         {hasUnassignedDocs && (
                           <Button
