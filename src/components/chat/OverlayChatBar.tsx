@@ -54,12 +54,14 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
   const handleOpen = () => {
     setIsOpen(true);
+    document.dispatchEvent(new CustomEvent('overlay-chat-state', { detail: { open: true } }));
   };
 
   const handleClose = () => {
     setIsOpen(false);
     setInputValue('');
     setShowMenu(false);
+    document.dispatchEvent(new CustomEvent('overlay-chat-state', { detail: { open: false } }));
   };
 
   const handleSend = async () => {
