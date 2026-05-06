@@ -4,7 +4,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { useI18n } from '@/contexts/I18nContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ExpertFormContainer } from '@/components/ui/expert-form-container';
 import { MultiStepYesNoForm } from './multistep/MultiStepYesNoForm';
 import ErrorBoundary from '@/components/ErrorBoundary';
