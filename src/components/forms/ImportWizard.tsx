@@ -106,7 +106,7 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
       
       updateFormProgress(section, true);
       toast.success(`${sectionName} erfolgreich aus ${previousYear} übernommen`);
-      closeAndRun(() => navigate(`/form?year=${taxYear}`));
+      closeAndRun(() => navigate('/'));
       
     } catch (error) {
       console.error('Import error:', error);

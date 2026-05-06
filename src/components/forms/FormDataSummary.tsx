@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useFormContext } from '@/contexts';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -18,9 +18,10 @@ export const FormDataSummary: React.FC = () => {
     saveSection
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isConfirming, setIsConfirming] = useState(false);
   const handleBack = () => {
-    setSearchParams({});
+    navigate('/');
   };
   const handleConfirm = async () => {
     setIsConfirming(true);

@@ -4,7 +4,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { useI18n } from '@/contexts/I18nContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ExpertFormContainer } from '@/components/ui/expert-form-container';
 import { VehicleRepeater } from './repeaters/VehicleRepeater';
 import { PropertyRepeater } from './repeaters/PropertyRepeater';
@@ -33,6 +33,7 @@ const AssetsForm = ({
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasVehicle, setHasVehicle] = useState<boolean>(false);
@@ -118,7 +119,7 @@ const AssetsForm = ({
       });
       
       if (!embedded) {
-        setSearchParams({ year: taxYear });
+        navigate('/');
       } else {
         onSave();
       }
@@ -159,7 +160,7 @@ const AssetsForm = ({
   const renderAssetsForm = () => (
     <ExpertFormContainer
       title={t.assets.title}
-      onBack={() => setSearchParams({ year: taxYear })}
+      onBack={() => navigate('/')}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}

@@ -4,7 +4,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { useI18n } from '@/contexts/I18nContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ExpertFormContainer } from '@/components/ui/expert-form-container';
 import { EmployerRepeater } from './repeaters/EmployerRepeater';
 import { MultiStepYesNoForm } from './multistep/MultiStepYesNoForm';
@@ -30,6 +30,7 @@ const IncomeForm = ({
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasSalary, setHasSalary] = useState<boolean>(false);
@@ -113,7 +114,7 @@ const IncomeForm = ({
       });
       
       if (!embedded) {
-        setSearchParams({ year: taxYear });
+        navigate('/');
       } else {
         onSave();
       }
@@ -153,7 +154,7 @@ const IncomeForm = ({
   const renderIncomeForm = () => (
     <ExpertFormContainer
       title={t.taxReturn.dashboard.sections.income}
-      onBack={() => setSearchParams({ year: taxYear })}
+      onBack={() => navigate('/')}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}

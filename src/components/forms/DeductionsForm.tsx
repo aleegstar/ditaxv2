@@ -4,7 +4,7 @@ import { useFormContext } from '../../contexts/FormContext';
 import { toast } from '@/hooks/use-toast';
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { useI18n } from '@/contexts/I18nContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ExpertFormContainer } from '@/components/ui/expert-form-container';
 import { MultiStepYesNoForm } from './multistep/MultiStepYesNoForm';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -29,6 +29,7 @@ const DeductionsForm = ({
     t
   } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasPillar3a, setHasPillar3a] = useState<boolean>(false);
@@ -94,7 +95,7 @@ const DeductionsForm = ({
         description: t.forms.savedSuccessfullyDescription
       });
       if (!embedded) {
-        setSearchParams({ year: taxYear });
+        navigate('/');
       } else {
         onSave();
       }
@@ -125,7 +126,7 @@ const DeductionsForm = ({
         <MultiStepYesNoForm section="deductions" onComplete={handleYesNoComplete} onModeSwitch={handleModeSwitch} />
       </ErrorBoundary>;
   }
-  const renderDeductionsForm = () => <ExpertFormContainer title={t.deductions.title} onBack={() => setSearchParams({ year: taxYear })} onSubmit={handleSubmit} submitLabel={t.forms.save} showFooter={!embedded}>
+  const renderDeductionsForm = () => <ExpertFormContainer title={t.deductions.title} onBack={() => navigate('/')} onSubmit={handleSubmit} submitLabel={t.forms.save} showFooter={!embedded}>
       {/* Checkbox List */}
       <div className="animate-fade-in opacity-0" style={{
       animationDelay: '0ms',
