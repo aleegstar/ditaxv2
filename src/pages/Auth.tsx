@@ -18,21 +18,41 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div className="inline-flex items-center gap-2.5 text-xs border border-gray-200/80 rounded-full py-1.5 px-3.5 bg-white/60 backdrop-blur-md shadow-sm">
-      <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-      <div className="flex gap-2 font-medium">
-        <button
-          onClick={() => switchLanguage('de')}
-          className={`transition-colors ${language === 'de' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          DE
-        </button>
-        <button
-          onClick={() => switchLanguage('en')}
-          className={`transition-colors ${language === 'en' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-          EN
-        </button>
-      </div>
-    </div>);
+    <div
+      className="relative inline-flex items-center gap-1 rounded-full p-1 pl-3"
+      style={{
+        background: 'rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(14px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+        border: '1px solid rgba(0,0,0,0.04)',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)',
+      }}
+    >
+      <Globe className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.75} />
+      {(['de', 'en'] as const).map((lng) => {
+        const active = language === lng;
+        return (
+          <button
+            key={lng}
+            onClick={() => switchLanguage(lng)}
+            className="relative px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-colors"
+          >
+            {active && (
+              <motion.span
+                layoutId="lang-pill"
+                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                className="absolute inset-0 rounded-full bg-white"
+                style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)' }}
+              />
+            )}
+            <span className={active ? 'relative text-foreground' : 'relative text-muted-foreground/60'}>
+              {lng.toUpperCase()}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 
 const Auth = () => {
@@ -476,70 +496,79 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-transparent">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
 
-      {/* Ambient background elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Grain texture */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
+      {/* Ambient warm off-white background with subtle radial gradient */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 90% 70% at 50% 0%, #ffffff 0%, #fafaf7 45%, #f5f3ee 100%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
+          }}
+        />
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-5 sm:p-8">
 
         {/* Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 28, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          whileHover={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 30px 90px -12px rgba(0,0,0,0.12), 0 10px 30px -8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6)' }}
-          className="w-full sm:max-w-[440px] min-h-screen sm:min-h-0 px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
+          className="w-full sm:max-w-[420px] px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden rounded-[36px]"
           style={{
-            background: 'linear-gradient(165deg, rgba(255,255,255,0.9) 0%, rgba(250,251,255,0.8) 50%, rgba(246,248,253,0.74) 100%)',
-            backdropFilter: 'blur(40px) saturate(200%)',
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 25px 80px -12px rgba(0,0,0,0.1), 0 8px 24px -8px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.6)',
-            transition: 'box-shadow 0.4s ease',
+            background: 'rgba(255,255,255,0.78)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            boxShadow:
+              '0 20px 60px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8)',
           }}
         >
-          {/* Inner top highlight - more refined */}
-          <div className="absolute inset-x-0 top-0 h-[100px] rounded-t-[2.5rem] pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 60%, transparent 100%)' }} />
-          {/* Side edge highlights */}
-          <div className="absolute inset-y-0 left-0 w-px pointer-events-none hidden sm:block" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)' }} />
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
-              {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
+              {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}>
 
                   {/* Logo & Title */}
-                  <div className="flex flex-col items-center text-center mb-6">
-                    <motion.img 
-                      alt="Ditax" 
-                      className="w-auto h-8 object-contain mb-8" 
+                  <div className="flex flex-col items-center text-center mb-10">
+                    <motion.img
+                      alt="Ditax"
+                      className="w-auto h-7 object-contain mb-10"
                       src="/lovable-uploads/3691c98c-9243-4894-b562-0ecf0e208722.png"
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2, duration: 0.5 }}
+                      transition={{ delay: 0.15, duration: 0.5 }}
                     />
-                    <h1 className="font-bold tracking-[-0.035em] text-foreground mb-2.5 text-2xl">
+                    <h1 className="font-semibold tracking-[-0.02em] text-foreground mb-3 text-[26px] leading-tight">
                       {t.authFlow.login}
                     </h1>
-                    <p className="leading-relaxed tracking-wide text-muted-foreground font-normal text-base">
+                    <p className="text-[14px] tracking-tight text-muted-foreground/70 font-normal">
                       Steuererklärung ganz einfach.
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-3 w-full mb-8">
+                  <div className="flex flex-col gap-2.5 w-full mb-7">
                     {/* Google */}
-                    <motion.button 
-                      onClick={handleGoogleAuth} 
-                      disabled={isLoading} 
-                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
-                      whileTap={{ scale: 0.97 }}
-                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
+                    <motion.button
+                      onClick={handleGoogleAuth}
+                      disabled={isLoading}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
-                        borderColor: 'rgba(0,0,0,0.1)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+                        background: '#ffffff',
+                        boxShadow:
+                          '0 1px 2px rgba(0,0,0,0.04), 0 6px 18px rgba(0,0,0,0.05)',
                       }}
                     >
                       <svg className="w-[18px] h-[18px] shrink-0" viewBox="0 0 24 24">
@@ -552,15 +581,17 @@ const Auth = () => {
                     </motion.button>
 
                     {/* Apple */}
-                    <motion.button 
-                      onClick={handleAppleAuth} 
-                      disabled={isLoading} 
-                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.18), 0 10px 28px rgba(0,0,0,0.14)' }}
-                      whileTap={{ scale: 0.97 }}
-                      className="group w-full font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
+                    <motion.button
+                      onClick={handleAppleAuth}
+                      disabled={isLoading}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                      className="group w-full font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
                       style={{
-                        background: 'linear-gradient(145deg, #2d2d2f 0%, #0a0a0a 100%)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.14), 0 6px 16px rgba(0,0,0,0.1)',
+                        background: 'linear-gradient(180deg, #1f1f22 0%, #000000 100%)',
+                        boxShadow:
+                          '0 1px 2px rgba(0,0,0,0.18), 0 8px 22px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08)',
                       }}
                     >
                       <svg className="w-[18px] h-[18px] shrink-0 fill-current" viewBox="0 0 24 24">
@@ -571,26 +602,28 @@ const Auth = () => {
                   </div>
 
                   {/* Divider */}
-                  <div className="w-full flex items-center gap-6 mb-8 px-2">
-                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.07) 40%, rgba(0,0,0,0.07) 60%, transparent 100%)' }} />
-                    <span className="text-[9px] font-semibold text-muted-foreground/35 uppercase tracking-[0.25em]">{t.authFlow.or}</span>
-                    <div className="h-[0.5px] flex-1" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.07) 40%, rgba(0,0,0,0.07) 60%, transparent 100%)' }} />
+                  <div className="w-full flex items-center gap-5 mb-7 px-1">
+                    <div className="h-px flex-1 bg-black/[0.06]" />
+                    <span className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-[0.22em]">{t.authFlow.or}</span>
+                    <div className="h-px flex-1 bg-black/[0.06]" />
                   </div>
 
-                  {/* Email Accordion */}
+                  {/* Email */}
                   <div className="w-full">
                     <motion.button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
-                      whileTap={{ scale: 0.97 }}
-                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 border"
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3"
                       style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
-                        borderColor: 'rgba(0,0,0,0.1)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+                        background: '#ffffff',
+                        boxShadow:
+                          '0 1px 2px rgba(0,0,0,0.04), 0 6px 18px rgba(0,0,0,0.05)',
                       }}
                     >
+                      <Mail className="w-[18px] h-[18px] shrink-0 text-foreground/80" strokeWidth={1.75} />
                       <span>{'Weiter mit E-Mail'}</span>
                     </motion.button>
 
@@ -606,40 +639,41 @@ const Auth = () => {
                           <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
                             <div>
                               <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
-                              <input 
-                                type="email" name="email" id="email" value={email} 
-                                onChange={(e) => setEmail(e.target.value)} 
-                                onFocus={() => setIsInputFocused(true)} 
-                                onBlur={() => setTimeout(() => setIsInputFocused(false), 150)} 
-                                className="block w-full rounded-2xl h-[52px] px-5 text-[14px] text-foreground placeholder:text-muted-foreground/35 focus:outline-none transition-all border focus:ring-2 focus:ring-primary/15" 
+                              <input
+                                type="email" name="email" id="email" value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setTimeout(() => setIsInputFocused(false), 150)}
+                                className="block w-full rounded-full h-[56px] px-6 text-[14.5px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all focus:ring-2 focus:ring-primary/20"
                                 style={{
-                                  background: 'rgba(255,255,255,0.85)',
-                                  borderColor: 'rgba(0,0,0,0.07)',
-                                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
+                                  background: '#ffffff',
+                                  boxShadow:
+                                    '0 1px 2px rgba(0,0,0,0.04), 0 6px 18px rgba(0,0,0,0.05)',
                                 }}
-                                placeholder={t.authFlow.emailPlaceholder} 
-                                aria-label={t.authFlow.emailPlaceholder} 
-                                required 
-                                disabled={isLoading} 
+                                placeholder={t.authFlow.emailPlaceholder}
+                                aria-label={t.authFlow.emailPlaceholder}
+                                required
+                                disabled={isLoading}
                               />
                             </div>
 
                             <motion.button
                               type="submit"
                               disabled={isLoading}
-                              whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
-                              whileTap={{ scale: 0.97 }}
-                              className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
+                              whileHover={{ y: -1 }}
+                              whileTap={{ scale: 0.98 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              className="group w-full font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
                               style={{
-                                background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
-                                borderColor: 'rgba(0,0,0,0.1)',
-                                boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
+                                background: 'linear-gradient(180deg, #2563FF 0%, #3B82F6 100%)',
+                                boxShadow:
+                                  '0 4px 14px rgba(37,99,255,0.32), 0 1px 3px rgba(37,99,255,0.18)',
                               }}
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </motion.button>
 
-                            <p className="text-center text-[11px] text-muted-foreground/40 leading-relaxed px-4 pt-1">
+                            <p className="text-center text-[11px] text-muted-foreground/50 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
                             </p>
                           </form>
@@ -649,10 +683,10 @@ const Auth = () => {
                   </div>
 
                   {/* Footer Links */}
-                  <div className="mt-6 flex flex-col items-center gap-5 w-full">
-                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground/40">
+                  <div className="mt-10 flex flex-col items-center gap-6 w-full">
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground/45">
                       <a href="/impressum" className="hover:text-foreground/70 transition-colors">Impressum</a>
-                      <span className="text-muted-foreground/15">·</span>
+                      <span className="text-muted-foreground/20">·</span>
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground/70 transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
