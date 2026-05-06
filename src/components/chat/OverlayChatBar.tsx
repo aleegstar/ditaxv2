@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal, Sparkles, MessageCircle } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
@@ -79,7 +80,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
   const lastMessages = messages.slice(-15);
 
-  return (
+  const content = (
     <>
       {/* Dark Overlay */}
       <AnimatePresence>
@@ -480,4 +481,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
       </AnimatePresence>
     </>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(content, document.body);
 };
