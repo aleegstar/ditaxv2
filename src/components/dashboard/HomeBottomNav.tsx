@@ -257,21 +257,22 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             <span className="text-[14px] font-medium">Dokumente</span>
           </button>
 
-          {/* Divider */}
-          <div className="h-5 w-px bg-gray-200/80 mx-0.5" />
-
-          {/* Chat */}
+          {/* Chat (text style like Dokumente) */}
           <button
             onClick={onChatClick}
             aria-label="Chat"
-            className={roundButtonClass}
-            style={roundButtonShadow}
+            className="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 ring-1 ring-gray-200/60 rounded-full transition-all duration-300"
+            style={{
+              boxShadow:
+                '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 6px -2px rgba(17,24,39,0.04)',
+            }}
           >
-            <MessageSquare className="w-5 h-5" strokeWidth={1.75} />
+            <MessageSquare className="w-[18px] h-[18px] text-gray-400" strokeWidth={1.75} />
+            <span className="text-[14px] font-medium">Chat</span>
           </button>
 
-          {/* Notifications */}
-          <NotificationsBellButton />
+          {/* Divider */}
+          <div className="h-5 w-px bg-gray-200/80 mx-0.5" />
 
           {/* Menu */}
           <button
