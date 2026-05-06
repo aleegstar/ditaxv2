@@ -295,7 +295,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       />
 
       {/* Floating upload FAB – icon only, bottom right */}
-      <div className="fixed bottom-0 right-0 z-[10001] pr-5 pb-[max(20px,env(safe-area-inset-bottom))] pointer-events-none">
+      <div className="fixed bottom-0 right-0 z-[10011] pr-5 pb-[calc(max(20px,env(safe-area-inset-bottom))+84px)] pointer-events-none">
         <button
           onClick={() => fileInputRef.current?.click()}
           aria-label={t.documentsPage.upload}
