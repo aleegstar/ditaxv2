@@ -357,9 +357,7 @@ const UserTaxReturns = () => {
 
       {/* Bottom Navbar */}
       {!showTour && <HomeBottomNav
-        onChatClick={() => {
-          document.dispatchEvent(new CustomEvent('open-overlay-chat'));
-        }}
+        onChatClick={() => navigate('/chat')}
         onDocumentsClick={() => navigate('/documents')}
         onMenuClick={() => setMenuSheetOpen(true)}
         onActionClick={() => {
