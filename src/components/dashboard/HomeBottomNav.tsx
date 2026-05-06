@@ -33,16 +33,6 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 strokeWidth={1.5}
               />
             </button>
-            <button
-              onClick={onDocumentsClick}
-              aria-label="Unterlagen"
-              className="group flex items-center justify-center focus:outline-none transition-transform active:scale-[0.94]"
-            >
-              <FolderClosed
-                className="w-7 h-7 text-foreground/55 transition-all duration-200 group-hover:text-foreground group-hover:-translate-y-0.5"
-                strokeWidth={1.5}
-              />
-            </button>
           </div>
 
           <button
