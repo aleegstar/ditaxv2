@@ -347,7 +347,7 @@ const UserTaxReturns = () => {
         onChatClick={() => {
           document.dispatchEvent(new CustomEvent('open-overlay-chat'));
         }}
-        onDocumentsClick={() => setDocumentsOverlayOpen(true)}
+        onDocumentsClick={() => navigate('/documents')}
         onMenuClick={() => setMenuSheetOpen(true)}
         onActionClick={() => {
           setDocumentsOverlayOpen(false);
