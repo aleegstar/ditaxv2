@@ -228,7 +228,6 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
     { key: 'home', label: 'Steuern', icon: Home, onClick: () => onActionClick?.() },
     { key: 'documents', label: 'Dokumente', icon: Folder, onClick: onDocumentsClick },
     { key: 'chat', label: 'Chat', icon: MessageSquare, onClick: onChatClick },
-    { key: 'more', label: 'Mehr', icon: LayoutGrid, onClick: () => onMenuClick?.() },
   ];
 
   const active: TabKey = (activeTab as TabKey) ?? 'home';
