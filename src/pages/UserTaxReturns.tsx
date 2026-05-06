@@ -349,7 +349,10 @@ const UserTaxReturns = () => {
         }}
         onDocumentsClick={() => setDocumentsOverlayOpen(true)}
         onMenuClick={() => setMenuSheetOpen(true)}
-        onActionClick={() => setDocumentsOverlayOpen(false)}
+        onActionClick={() => {
+          setDocumentsOverlayOpen(false);
+          document.dispatchEvent(new CustomEvent('close-overlay-chat'));
+        }}
         activeTab={documentsOverlayOpen ? 'documents' : chatOverlayOpen ? 'chat' : 'home'}
       />}
 
