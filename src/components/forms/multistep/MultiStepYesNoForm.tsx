@@ -451,8 +451,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           // Mark section as complete in progress
           updateFormProgress(section, true);
 
-          // Navigate back to form overview (card selection)
-          navigate(`/form?year=${taxYear}`);
+          // Navigate back to dashboard home
+          navigate('/');
         } catch (error) {
           console.error('Error saving section:', error);
           toast({
