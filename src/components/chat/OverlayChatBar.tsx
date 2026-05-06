@@ -80,47 +80,8 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
 
   const lastMessages = messages.slice(-15);
 
-  const overlayContent = (
+  const content = (
     <>
-      {/* Dark Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="overlay-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-0 z-[9998]"
-            onClick={handleClose}
-          />
-        )}
-      </AnimatePresence>
-    </>
-  );
-
-  return (
-    <>
-      {typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              key="chat-overlay-portal"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[9998]"
-              style={{ background: 'hsl(45, 40%, 98%)' }}
-              onClick={handleClose}
-            />
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-      <></>
-      {/* Original render block follows */}
-      <></>
       {/* Dark Overlay */}
       <AnimatePresence>
         {isOpen && (
