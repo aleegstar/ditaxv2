@@ -22,16 +22,13 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const navigate = useNavigate();
   const { formProgress, isDataLoading, formDataLoaded } = useFormContext();
 
-  const sections: SectionItem[] = [
+  const sections: Array<{ id: string; title: string; description: string; icon: LucideIcon; param: string }> = [
     {
       id: 'contact',
       title: t.formDashboard.contactInfo,
       description: 'Adresse, Zivilstand, Familie',
       icon: User,
       param: 'kontakt',
-      gradient: 'from-[#EFF4FF] to-[#FFFFFF]',
-      iconBg: 'bg-[#E0EAFF]',
-      iconColor: 'text-[#1656FF]',
     },
     {
       id: 'income',
@@ -39,9 +36,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       description: 'Lohn, Renten, Nebeneinkünfte',
       icon: Wallet,
       param: 'einkommen',
-      gradient: 'from-[#FFF4E8] to-[#FFFFFF]',
-      iconBg: 'bg-[#FFE6CC]',
-      iconColor: 'text-[#E07A1F]',
     },
     {
       id: 'deductions',
@@ -49,9 +43,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       description: 'Versicherungen, Spenden, Säule 3a',
       icon: Shield,
       param: 'abzuege',
-      gradient: 'from-[#F1ECFF] to-[#FFFFFF]',
-      iconBg: 'bg-[#E5DCFF]',
-      iconColor: 'text-[#6B47D9]',
     },
     {
       id: 'assets',
@@ -59,9 +50,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
       description: 'Konten, Wertschriften, Liegenschaften',
       icon: Landmark,
       param: 'vermoegen',
-      gradient: 'from-[#E8F8F0] to-[#FFFFFF]',
-      iconBg: 'bg-[#D2F0DE]',
-      iconColor: 'text-[#1F9D55]',
     },
   ];
 
@@ -103,8 +91,8 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           </div>
         </div>
 
-        {/* 2x2 grid of cards */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Cards — neutral, matching main page */}
+        <div className="space-y-3">
           {sections.map((section) => {
             const Icon = section.icon;
             const completed = isCompleted(section.id);
@@ -113,34 +101,28 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 key={section.id}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
-                  "relative overflow-hidden text-left rounded-[20px] p-4 bg-gradient-to-br border border-white/70",
-                  "shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)]",
-                  "active:scale-[0.98] transition-all duration-200 min-h-[150px] flex flex-col justify-between",
-                  section.gradient
+                  "w-full text-left rounded-2xl bg-white border border-slate-200/80",
+                  "shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  "active:scale-[0.99] transition-all duration-200 p-4 flex items-center gap-3"
                 )}
               >
-                <div className="flex items-start justify-between">
-                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", section.iconBg)}>
-                    <Icon className={cn("w-5 h-5", section.iconColor)} strokeWidth={1.75} />
-                  </div>
-                  {completed && (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
-                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                  )}
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                  completed ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}>
+                  {completed
+                    ? <Check className="w-5 h-5" strokeWidth={2.5} />
+                    : <Icon className="w-5 h-5" strokeWidth={1.75} />}
                 </div>
-                <div>
-                  <h3 className="text-[15px] font-semibold text-[#111827] tracking-tight leading-snug">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
                   </h3>
-                  <p className="text-[11px] text-[#7A8498] mt-1 leading-snug line-clamp-2">
+                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug truncate">
                     {section.description}
                   </p>
                 </div>
-                <ChevronRight
-                  className="absolute top-4 right-4 w-4 h-4 text-[#C4C9D4] opacity-0"
-                  strokeWidth={1.5}
-                />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" strokeWidth={2} />
               </button>
             );
           })}
