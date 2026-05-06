@@ -243,7 +243,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-stretch gap-0 rounded-[36px] px-3 py-2.5"
+          className="relative flex items-stretch gap-0 rounded-[1.5rem] px-3 py-2.5"
           style={{
             background: 'rgba(255,255,255,0.85)',
             backdropFilter: 'blur(24px) saturate(180%)',
