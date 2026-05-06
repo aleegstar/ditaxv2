@@ -48,6 +48,7 @@ const TaxReturnActions = lazy(() => import("./pages/TaxReturnActions"));
 const TaxFilers = lazy(() => import("./pages/TaxFilers"));
 const SelectPerson = lazy(() => import("./pages/SelectPerson"));
 const Invoices = lazy(() => import("./pages/Invoices"));
+const PersonalInfo = lazy(() => import("./pages/PersonalInfo"));
 
 // Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
