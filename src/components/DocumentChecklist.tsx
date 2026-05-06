@@ -516,11 +516,9 @@ return <div className="min-h-screen">
                           </Button>
                         )}
                         <Button
-                          size="sm"
                           onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                          className="rounded-full flex-1"
+                          className="flex-1"
                         >
-                          <Plus className="w-4 h-4" strokeWidth={2} />
                           Hochladen
                         </Button>
                       </div>
