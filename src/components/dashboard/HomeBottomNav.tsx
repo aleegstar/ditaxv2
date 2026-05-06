@@ -1,5 +1,6 @@
 import React from 'react';
-import { Home, Folder, Menu, MessageSquare, Bell } from 'lucide-react';
+import { motion, LayoutGroup } from 'framer-motion';
+import { Home, Folder, MessageSquare, LayoutGrid, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
