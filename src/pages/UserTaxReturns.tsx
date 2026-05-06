@@ -253,14 +253,14 @@ const UserTaxReturns = () => {
 
   return (
     <div
-      className="antialiased min-h-screen bg-background selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
+      className="antialiased min-h-screen bg-background selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+var(--safe-area-bottom, env(safe-area-inset-bottom, 0px))))] text-foreground relative overflow-hidden"
       onTouchStart={pullHandlers.onTouchStart}
       onTouchMove={pullHandlers.onTouchMove}
       onTouchEnd={pullHandlers.onTouchEnd}
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-4xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
+      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-4xl mx-auto pt-[max(1.5rem,var(--safe-area-top, env(safe-area-inset-top, 0px)))] px-4 md:px-8">
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">

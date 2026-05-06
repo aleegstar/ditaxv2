@@ -385,7 +385,7 @@ const DocumentsContent: React.FC<{
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 pb-3"
-          style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
+          style={{ paddingTop: 'max(16px, var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
         >
           <div className="flex items-center gap-2" data-tour="documents-year-selector">
             <span className="text-lg font-semibold text-foreground">{t.documentsPage.taxYear}</span>
@@ -555,7 +555,7 @@ const DocumentsContent: React.FC<{
 
         {/* Floating upload FAB - icon only, bottom right */}
         {!isLocked && createPortal(
-          <div className="fixed bottom-0 right-0 z-[90] pr-5 pb-[calc(max(20px,env(safe-area-inset-bottom))+84px)] pointer-events-none">
+          <div className="fixed bottom-0 right-0 z-[90] pr-5 pb-[calc(max(20px,var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))+84px)] pointer-events-none">
             <button
               onClick={() => fileInputRef.current?.click()}
               data-tour="document-upload-card"

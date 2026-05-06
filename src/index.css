@@ -122,6 +122,12 @@
     --component-active-bg: var(--secondary);
     --component-line-inactive-color: var(--border);
     --component-active-color-default: var(--accent-foreground);
+
+    /* Despia Safe Area pattern: runtime var → native env → 0px fallback */
+    --sat: var(--safe-area-top, env(safe-area-inset-top, 0px));
+    --sab: var(--safe-area-bottom, env(safe-area-inset-bottom, 0px));
+    --sal: var(--safe-area-left, env(safe-area-inset-left, 0px));
+    --sar: var(--safe-area-right, env(safe-area-inset-right, 0px));
   }
 
   .dark {
