@@ -160,7 +160,7 @@ const AssetsForm = ({
   const renderAssetsForm = () => (
     <ExpertFormContainer
       title={t.assets.title}
-      onBack={() => setSearchParams({ year: taxYear })}
+      onBack={() => navigate('/')}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}
