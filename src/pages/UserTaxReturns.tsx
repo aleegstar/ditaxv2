@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, Plus } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
+import ditaxLogoMask from '@/assets/ditax-logo-mask.svg';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
