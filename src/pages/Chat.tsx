@@ -293,7 +293,7 @@ const Chat: React.FC = () => {
       {/* Input */}
       <div
         className="px-4 pt-2"
-        style={{ paddingBottom: 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 84px + 12px)' }}
+        style={{ paddingBottom: 'calc(var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 12px)' }}
       >
         <div className="max-w-2xl mx-auto">
           <div
