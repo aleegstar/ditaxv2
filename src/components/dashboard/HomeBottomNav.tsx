@@ -274,8 +274,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     aria-current={isActive ? 'page' : undefined}
                     className="relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors"
                     style={{
-                      height: '54px',
-                      width: isActive ? '86px' : '64px',
+                      height: '46px',
+                      width: isActive ? '76px' : '58px',
                     }}
                   >
                     {isActive && (
