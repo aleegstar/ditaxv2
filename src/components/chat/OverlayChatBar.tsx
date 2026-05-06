@@ -307,7 +307,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             </div>
 
             {/* Input bar (always visible at bottom when open) */}
-            <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+            <div className="pointer-events-auto px-4 pb-3 pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
                   className="relative rounded-full bg-card"
