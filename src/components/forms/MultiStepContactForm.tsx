@@ -47,6 +47,7 @@ const MultiStepContactForm = ({
     isSwitchingTaxYear
   } = useFormContext();
   const { t } = useI18n();
+  const navigate = useNavigate();
 
   // Steps with translated content
   const steps = [
