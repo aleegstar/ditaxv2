@@ -12,6 +12,7 @@ interface HomeBottomNavProps {
   onDocumentsClick: () => void;
   onActionClick?: () => void;
   onMenuClick?: () => void;
+  activeTab?: 'home' | 'documents' | 'chat';
 }
 
 const roundButtonClass =
