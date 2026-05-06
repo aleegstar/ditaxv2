@@ -235,79 +235,88 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[10010] px-4 pointer-events-none"
-      style={{ paddingBottom: 'max(18px, calc(env(safe-area-inset-bottom) + 8px))' }}
+      className="fixed inset-x-0 bottom-0 z-[10010] px-3 pointer-events-none"
+      style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto w-full max-w-[400px] pointer-events-auto">
+      <div className="mx-auto w-full max-w-[440px] pointer-events-auto">
         <motion.div
-          initial={{ y: 16, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-          className="relative flex items-center justify-between rounded-full"
+          transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+          className="relative rounded-full w-full"
           style={{
             padding: '6px',
-            gap: '4px',
-            background: 'rgba(255,255,255,0.78)',
-            backdropFilter: 'blur(20px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-            border: '1px solid rgba(15, 23, 42, 0.05)',
-            boxShadow:
-              '0 8px 24px -8px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04)',
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.6)',
+            boxShadow: '0 18px 36px -12px rgba(0,0,0,0.08)',
           }}
         >
-          <LayoutGroup id="bottom-nav">
-            {tabs.map((tab) => {
-              const isActive = active === tab.key;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={tab.onClick}
-                  aria-label={tab.label}
-                  aria-current={isActive ? 'page' : undefined}
-                  className="relative flex-1 flex items-center justify-center rounded-full focus:outline-none transition-colors"
-                  style={{ height: '44px' }}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-active-pill"
-                      transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: 'rgba(22, 86, 255, 0.10)',
-                      }}
-                    />
-                  )}
-                  <span
+          <div
+            className="relative flex items-center justify-between bg-white rounded-full w-full"
+            style={{
+              padding: '4px',
+              gap: '3px',
+              boxShadow:
+                'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
+            }}
+          >
+            <LayoutGroup id="bottom-nav">
+              {tabs.map((tab) => {
+                const isActive = active === tab.key;
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={tab.onClick}
+                    aria-label={tab.label}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'relative z-10 flex items-center justify-center gap-1.5 transition-colors duration-200',
-                      isActive ? 'text-[#1656FF]' : 'text-[#8A93A6]'
+                      'relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors',
+                      isActive ? 'flex-[1.3]' : 'flex-1'
                     )}
+                    style={{
+                      height: '48px',
+                    }}
                   >
-                    <Icon
-                      className="w-[18px] h-[18px]"
-                      strokeWidth={isActive ? 2.1 : 1.75}
-                    />
                     {isActive && (
                       <motion.span
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: 'auto' }}
-                        transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="overflow-hidden whitespace-nowrap"
+                        layoutId="nav-active-pill"
+                        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+                        className="absolute inset-0 rounded-full"
                         style={{
-                          fontSize: '12.5px',
-                          fontWeight: 600,
+                          background:
+                            'linear-gradient(180deg, rgb(80, 139, 255) 0%, rgb(22, 86, 255) 100%)',
+                          boxShadow:
+                            '0 12px 30px rgba(22, 86, 255, 0.28), 0 4px 10px rgba(22, 86, 255, 0.18), inset 0 1px 2px rgba(255,255,255,0.45), inset 0 -1px 1px rgba(255,255,255,0.08)',
+                          opacity: 1,
+                        }}
+                      />
+                    )}
+                    <span
+                      className={cn(
+                        'relative z-10 flex flex-col items-center justify-center',
+                        isActive ? 'text-white' : 'text-[#7A8498]'
+                      )}
+                    >
+                      <Icon className="w-[18px] h-[18px] mb-0.5" strokeWidth={1.6} />
+                      <span
+                        style={{
+                          fontSize: '10.5px',
+                          fontWeight: 500,
+                          lineHeight: 1,
                           letterSpacing: '-0.01em',
                         }}
                       >
                         {tab.label}
-                      </motion.span>
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </LayoutGroup>
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </LayoutGroup>
+          </div>
         </motion.div>
       </div>
     </nav>
