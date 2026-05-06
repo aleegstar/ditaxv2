@@ -245,25 +245,31 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           className="relative flex items-center"
           style={{
-            height: '72px',
-            borderRadius: '36px',
-            paddingInline: '12px',
-            gap: '4px',
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(28px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.45)',
+            height: '70px',
+            borderRadius: '38px',
+            paddingInline: '10px',
+            gap: '6px',
+            background: 'rgba(255,255,255,0.62)',
+            backdropFilter: 'blur(32px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.55)',
             boxShadow: [
-              '0 20px 40px rgba(0,0,0,0.04)',
-              '0 8px 18px rgba(0,0,0,0.03)',
-              'inset 0 1px 0 rgba(255,255,255,0.95)',
+              '0 24px 50px rgba(15,23,42,0.06)',
+              '0 8px 22px rgba(15,23,42,0.035)',
+              '0 1px 0 rgba(255,255,255,0.6)',
+              'inset 0 1px 0 rgba(255,255,255,0.9)',
+              'inset 0 -1px 0 rgba(15,23,42,0.025)',
             ].join(', '),
           }}
         >
-          {/* Ambient glow */}
+          {/* Soft top highlight */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-[36px] bg-white/20"
+            className="pointer-events-none absolute inset-x-3 top-0 h-1/2 rounded-t-[38px]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))',
+            }}
           />
 
           <LayoutGroup id="bottom-nav">
@@ -278,8 +284,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   aria-current={isActive ? 'page' : undefined}
                   className="relative flex items-center justify-center rounded-full focus:outline-none"
                   style={{
-                    height: '56px',
-                    minWidth: isActive ? '116px' : '74px',
+                    height: '52px',
+                    minWidth: isActive ? '108px' : '70px',
                   }}
                 >
                   {isActive && (
@@ -289,21 +295,21 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                       className="absolute inset-0 rounded-full"
                       style={{
                         background:
-                          'linear-gradient(180deg, #4D8DFF 0%, #2563FF 48%, #1E56F0 100%)',
+                          'linear-gradient(180deg, #5391FF 0%, #2A6BFF 50%, #1F58F2 100%)',
                         boxShadow: [
-                          '0 10px 24px rgba(37,99,255,0.24)',
-                          '0 2px 8px rgba(37,99,255,0.14)',
-                          'inset 0 1.5px 0 rgba(255,255,255,0.38)',
+                          '0 8px 20px rgba(37,99,255,0.22)',
+                          '0 2px 6px rgba(37,99,255,0.12)',
+                          'inset 0 1px 0 rgba(255,255,255,0.42)',
+                          'inset 0 -1px 0 rgba(0,0,0,0.06)',
                         ].join(', '),
                       }}
                     >
-                      {/* glossy top highlight */}
                       <span
                         aria-hidden
-                        className="absolute top-[3px] left-[10px] right-[10px] h-[18px] rounded-full opacity-50"
+                        className="absolute top-[2px] left-[12px] right-[12px] h-[16px] rounded-full opacity-55"
                         style={{
                           background:
-                            'linear-gradient(to bottom, rgba(255,255,255,0.42), rgba(255,255,255,0))',
+                            'linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0))',
                         }}
                       />
                     </motion.span>
@@ -312,14 +318,15 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     animate={{ scale: isActive ? 1 : 0.98 }}
                     transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                     className="relative z-10 flex flex-col items-center justify-center"
+                    style={{ marginTop: '-1px' }}
                   >
                     <Icon
                       className={cn(
                         'transition-colors duration-200',
-                        isActive ? 'text-white' : 'text-[#74829B]'
+                        isActive ? 'text-white' : 'text-[#7A8499]'
                       )}
-                      style={{ width: 22, height: 22, opacity: isActive ? 1 : 0.9 }}
-                      strokeWidth={isActive ? 2 : 1.85}
+                      style={{ width: 21, height: 21, opacity: isActive ? 1 : 0.92 }}
+                      strokeWidth={isActive ? 2 : 1.8}
                     />
                     <span
                       className={cn(
@@ -327,10 +334,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         isActive ? 'text-white' : 'text-[#6B7890]'
                       )}
                       style={{
-                        fontSize: '13px',
+                        fontSize: '11.5px',
                         fontWeight: 500,
-                        letterSpacing: '-0.01em',
-                        marginTop: '3px',
+                        letterSpacing: '-0.012em',
+                        marginTop: '4px',
                       }}
                     >
                       {tab.label}
