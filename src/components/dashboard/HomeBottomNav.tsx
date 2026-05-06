@@ -263,19 +263,19 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   onClick={tab.onClick}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex flex-col items-center justify-start gap-1.5 px-4 pt-3 pb-1 min-w-[80px] rounded-2xl focus:outline-none"
+                  className="relative flex flex-col items-center justify-start gap-1 px-3 pt-2.5 pb-1 min-w-[68px] rounded-2xl focus:outline-none"
                 >
                   {isActive && (
                     <motion.span
                       layoutId="nav-active-bar"
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                      className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full"
+                      className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-[2.5px] w-7 rounded-full"
                       style={{ background: 'hsl(var(--primary))' }}
                     />
                   )}
                   <Icon
                     className={cn(
-                      'w-[24px] h-[24px] transition-colors duration-200',
+                      'w-[20px] h-[20px] transition-colors duration-200',
                       isActive ? 'text-primary' : 'text-gray-500'
                     )}
                     strokeWidth={isActive ? 2 : 1.75}
@@ -283,7 +283,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   />
                   <span
                     className={cn(
-                      'text-xs tracking-tight transition-colors duration-200',
+                      'text-[11px] tracking-tight transition-colors duration-200',
                       isActive ? 'text-primary font-semibold' : 'text-gray-500 font-medium'
                     )}
                   >
