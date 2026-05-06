@@ -300,10 +300,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         isActive ? 'text-white' : 'text-[#7A8498]'
                       )}
                     >
-                      <Icon className="w-6 h-6 mb-1.5" strokeWidth={1.5} />
+                      <Icon className="w-[18px] h-[18px] mb-0.5" strokeWidth={1.6} />
                       <span
                         style={{
-                          fontSize: '13px',
+                          fontSize: '10.5px',
                           fontWeight: 500,
                           lineHeight: 1,
                           letterSpacing: '-0.01em',
