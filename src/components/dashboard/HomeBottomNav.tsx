@@ -243,12 +243,12 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-center gap-1 rounded-[32px] px-2 py-2"
+          className="relative flex items-stretch gap-1 rounded-[28px] px-2 py-1.5"
           style={{
-            background: 'rgba(255,255,255,0.72)',
+            background: 'rgba(255,255,255,0.78)',
             backdropFilter: 'blur(24px) saturate(180%)',
             WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.5)',
+            border: '1px solid rgba(255,255,255,0.6)',
             boxShadow:
               '0 1px 0 rgba(255,255,255,0.7) inset, 0 -1px 0 rgba(17,24,39,0.04) inset, 0 24px 48px -16px rgba(17,24,39,0.18), 0 8px 24px -10px rgba(17,24,39,0.10)',
           }}
@@ -263,43 +263,32 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   onClick={tab.onClick}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex items-center justify-center px-3.5 h-12 rounded-full focus:outline-none"
+                  className="relative flex flex-col items-center justify-start gap-1 px-3 pt-2.5 pb-1.5 min-w-[68px] rounded-2xl focus:outline-none"
                 >
                   {isActive && (
                     <motion.span
-                      layoutId="nav-active-pill"
+                      layoutId="nav-active-bar"
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background:
-                          'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)',
-                        boxShadow:
-                          '0 8px 20px -6px hsl(var(--primary) / 0.55), 0 2px 6px -2px hsl(var(--primary) / 0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
-                      }}
+                      className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-7 rounded-full"
+                      style={{ background: 'hsl(var(--primary))' }}
                     />
                   )}
-                  <motion.span
-                    animate={{ scale: isActive ? 1.04 : 1 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                  <Icon
                     className={cn(
-                      'relative z-10 flex items-center gap-2 transition-colors duration-200',
-                      isActive ? 'text-white' : 'text-gray-500'
+                      'w-[22px] h-[22px] transition-colors duration-200',
+                      isActive ? 'text-primary' : 'text-gray-500'
+                    )}
+                    strokeWidth={isActive ? 2.2 : 1.75}
+                    {...(isActive ? { fill: 'currentColor' as any } : {})}
+                  />
+                  <span
+                    className={cn(
+                      'text-[11px] tracking-tight transition-colors duration-200',
+                      isActive ? 'text-primary font-semibold' : 'text-gray-500 font-medium'
                     )}
                   >
-                    <Icon className="w-[19px] h-[19px]" strokeWidth={isActive ? 2.1 : 1.75} />
-                    <motion.span
-                      initial={false}
-                      animate={{
-                        width: isActive ? 'auto' : 0,
-                        opacity: isActive ? 1 : 0,
-                        marginLeft: isActive ? 4 : 0,
-                      }}
-                      transition={{ type: 'spring', stiffness: 360, damping: 30 }}
-                      className="overflow-hidden whitespace-nowrap text-[13.5px] font-semibold tracking-tight"
-                    >
-                      {tab.label}
-                    </motion.span>
-                  </motion.span>
+                    {tab.label}
+                  </span>
                 </button>
               );
             })}
