@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, X, ChevronRight, Paperclip, UserRound, MoreHorizontal, Sparkles, MessageCircle } from 'lucide-react';
 import { useChatMessages, ChatMessage } from '@/hooks/useChatMessages';
