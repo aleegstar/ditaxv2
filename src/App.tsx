@@ -235,6 +235,7 @@ const AuthenticatedApp = () => {
                 <Route path="/select-person" element={<ProtectedRoute><SelectPerson /></ProtectedRoute>} />
                 <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
                 <Route path="/form" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/personal-info" element={<ProtectedRoute><PersonalInfo /></ProtectedRoute>} />
                 <Route path="/form/documents/upload/:itemId" element={<ProtectedRoute><DocumentUploadPage /></ProtectedRoute>} />
                 <Route path="/documents" element={
                   <ProtectedRoute>
