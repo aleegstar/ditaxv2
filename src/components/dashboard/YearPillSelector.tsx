@@ -24,10 +24,10 @@ export const YearPillSelector: React.FC<YearPillSelectorProps> = ({
             key={year}
             onClick={() => onSelect(year)}
             className={cn(
-              'shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 active:scale-[0.97]',
+              'shrink-0 px-5 py-2 rounded-full text-[15px] font-medium transition-all duration-200 active:scale-[0.97]',
               active
-                ? 'bg-white text-primary border-2 border-primary shadow-sm'
-                : 'bg-muted text-muted-foreground border-2 border-transparent hover:bg-muted/80'
+                ? 'bg-white text-primary ring-[1.5px] ring-primary'
+                : 'bg-[#EEEFF1] text-foreground/80 hover:bg-[#E6E7EA]'
             )}
           >
             {year}
