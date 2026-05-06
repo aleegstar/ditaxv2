@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
