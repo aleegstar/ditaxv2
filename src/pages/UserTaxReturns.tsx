@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, Plus } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
+import ditaxLogoMask from '@/assets/ditax-logo-mask.svg';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
@@ -241,7 +242,7 @@ const UserTaxReturns = () => {
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
-            <img src="/ditax-logo-mask.svg" alt="ditax" className="h-8 w-[106px] object-contain" />
+            <img src={ditaxLogoMask} alt="ditax" className="h-8 w-[106px] object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
