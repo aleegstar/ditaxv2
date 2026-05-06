@@ -243,18 +243,38 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-center gap-1 px-1.5"
+          className="relative flex items-center px-2"
           style={{
-            height: '70px',
-            borderRadius: '30px',
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(14px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(14px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.5)',
-            boxShadow:
-              '0 6px 18px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02)',
+            height: '76px',
+            borderRadius: '38px',
+            gap: '6px',
+            background: 'rgba(255,255,255,0.78)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            boxShadow: [
+              // ambient diffuse
+              '0 20px 40px rgba(0,0,0,0.04)',
+              '0 8px 18px rgba(0,0,0,0.03)',
+              // optical "border" via light
+              '0 0 0 1px rgba(255,255,255,0.6)',
+              '0 0 0 1px rgba(15,23,42,0.04)',
+              // inner top highlight
+              'inset 0 1px 0 rgba(255,255,255,0.9)',
+              // inner bottom soft shade
+              'inset 0 -1px 0 rgba(15,23,42,0.03)',
+            ].join(', '),
           }}
         >
+          {/* Inner top highlight overlay (glass shine) */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-3 top-0 h-1/2 rounded-t-[38px]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%)',
+            }}
+          />
+
           <LayoutGroup id="bottom-nav">
             {tabs.map((tab) => {
               const isActive = active === tab.key;
@@ -266,41 +286,59 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                   className="relative flex items-center justify-center rounded-full focus:outline-none"
-                  style={{ minWidth: isActive ? undefined : '70px' }}
+                  style={{ minWidth: isActive ? '116px' : '78px', height: '60px' }}
                 >
                   {isActive && (
                     <motion.span
                       layoutId="nav-active-pill"
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      transition={{ type: 'spring', stiffness: 360, damping: 32 }}
                       className="absolute inset-0 rounded-full"
                       style={{
-                        background: 'linear-gradient(180deg, #2563FF 0%, #3B82F6 100%)',
-                        boxShadow:
-                          '0 4px 12px -2px rgba(37,99,255,0.35), 0 1px 3px rgba(37,99,255,0.18)',
+                        background:
+                          'linear-gradient(180deg, #3B82F6 0%, #2563FF 55%, #1E5BE0 100%)',
+                        boxShadow: [
+                          '0 8px 20px rgba(37,99,255,0.22)',
+                          '0 2px 8px rgba(37,99,255,0.12)',
+                          'inset 0 1px 0 rgba(255,255,255,0.35)',
+                          'inset 0 -1px 0 rgba(0,0,0,0.06)',
+                        ].join(', '),
                       }}
-                    />
+                    >
+                      {/* glossy top sheen */}
+                      <span
+                        aria-hidden
+                        className="absolute inset-x-2 top-0 h-1/2 rounded-t-full"
+                        style={{
+                          background:
+                            'linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 100%)',
+                        }}
+                      />
+                    </motion.span>
                   )}
                   <motion.div
-                    animate={{ scale: isActive ? 1 : 0.96 }}
+                    animate={{ scale: isActive ? 1 : 0.98 }}
                     transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-                    className={cn(
-                      'relative flex flex-col items-center justify-center gap-0.5',
-                      isActive ? 'px-[22px] py-2.5' : 'px-3 py-1.5'
-                    )}
+                    className="relative flex flex-col items-center justify-center"
+                    style={{ gap: '4px' }}
                   >
                     <Icon
                       className={cn(
                         'transition-colors duration-200',
-                        isActive ? 'text-white' : 'text-gray-500'
+                        isActive ? 'text-white' : 'text-slate-500/85'
                       )}
-                      style={{ width: 20, height: 20 }}
-                      strokeWidth={1.75}
+                      style={{ width: 22, height: 22 }}
+                      strokeWidth={isActive ? 2 : 1.85}
                     />
                     <span
                       className={cn(
-                        'text-[11px] tracking-tight transition-colors duration-200 leading-none',
-                        isActive ? 'text-white font-medium' : 'text-gray-500 font-medium'
+                        'transition-colors duration-200 leading-none',
+                        isActive ? 'text-white' : 'text-slate-500/85'
                       )}
+                      style={{
+                        fontSize: '11.5px',
+                        fontWeight: 500,
+                        letterSpacing: '-0.005em',
+                      }}
                     >
                       {tab.label}
                     </span>
