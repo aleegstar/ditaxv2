@@ -283,7 +283,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   />
                   <span
                     className={cn(
-                      'text-[12.5px] tracking-tight transition-colors duration-200',
+                      'text-xs tracking-tight transition-colors duration-200',
                       isActive ? 'text-primary font-semibold' : 'text-gray-500 font-medium'
                     )}
                   >
