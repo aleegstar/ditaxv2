@@ -389,9 +389,9 @@ return <div className="min-h-screen">
   return <div className="min-h-screen flex flex-col items-center">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" />
 
-      <main className="w-full max-w-[880px] space-y-8 sm:py-8 sm:px-6 pt-6 px-4 pb-24">
-        
-        {/* Dark Progress Card */}
+      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24">
+
+        {/* Compact Progress */}
         {checklistItems.length > 0 && (() => {
         const requiredItems = checklistItems.filter(item => item.required);
         const completedRequired = requiredItems.filter(item => item.uploaded).length;
@@ -400,60 +400,30 @@ return <div className="min-h-screen">
         const totalCompleted = checklistItems.filter(item => item.uploaded).length;
         const currentCount = allOptional ? totalCompleted : completedRequired;
         const totalCount = allOptional ? checklistItems.length : totalRequired;
-        const progressPercent = totalCount > 0 ? Math.round((currentCount / totalCount) * 100) : 0;
-        const isComplete = progressPercent === 100;
+        const isComplete = currentCount === totalCount;
         const remaining = totalCount - currentCount;
 
-        // Find first incomplete category for hint text
-        const firstIncompleteCategory = Object.entries(categorizedItems).find(([_, items]) => 
-          items.some(item => !item.uploaded)
+        return (
+          <div className="px-1 pt-2">
+            <div className="flex items-end justify-between mb-2">
+              <p className="text-sm text-muted-foreground">
+                {isComplete
+                  ? t.documentChecklist.allMandatoryPresent
+                  : <>Noch <span className="text-primary font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span></>}
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                <span className="text-primary">{currentCount}</span>
+                <span className="text-muted-foreground"> / {totalCount}</span>
+              </p>
+            </div>
+            <div className="h-1.5 w-full bg-white/70 rounded-full overflow-hidden border border-white/60">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#508BFF] to-[#1656FF] transition-all duration-500"
+                style={{ width: `${totalCount > 0 ? (currentCount / totalCount) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
         );
-        const incompleteCategoryName = firstIncompleteCategory ? categoryMap[firstIncompleteCategory[0]] : '';
-        
-        return <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] transition-all duration-300">
-
-              <div className="relative z-10">
-                <div className="mb-6">
-                  <h2 className="text-[22px] font-semibold text-foreground tracking-tight leading-tight">
-                    Gesamtfortschritt
-                  </h2>
-                  <p className="text-[15px] text-muted-foreground mt-1.5">
-                    {currentCount} von {totalCount} hochgeladen
-                  </p>
-                </div>
-
-                {/* Segmented progress bar */}
-                <div className="flex gap-1.5 h-2 w-full mb-5">
-                  {Array.from({ length: totalCount }).map((_, i) => (
-                    <div 
-                      key={i}
-                      className={cn(
-                        "flex-1 rounded-full transition-all duration-500",
-                        i < currentCount 
-                          ? "bg-primary" 
-                          : "bg-muted"
-                      )}
-                    />
-                  ))}
-                </div>
-
-                {/* Hint text */}
-                {!isComplete && remaining > 0 && (
-                  <div className="flex items-start gap-3 text-[14px] text-muted-foreground">
-                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
-                    <span className="leading-relaxed">
-                      Nur noch <span className="text-primary font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span> hochladen.
-                    </span>
-                  </div>
-                )}
-                {isComplete && (
-                  <div className="flex items-start gap-3 text-[14px] text-emerald-600">
-                    <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span className="leading-relaxed font-medium">{t.documentChecklist.allMandatoryPresent}</span>
-                  </div>
-                )}
-              </div>
-            </div>;
       })()}
 
         {/* Flat checklist */}
@@ -493,15 +463,15 @@ return <div className="min-h-screen">
                   return (
                     <div
                       key={item.id}
-                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4"
+                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4 space-y-3"
                     >
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                          <FolderOpen className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug pt-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug">
                           {item.title}
                         </h3>
+                        <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium border border-amber-100">
+                          Offen
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {hasUnassignedDocs && (
@@ -511,7 +481,6 @@ return <div className="min-h-screen">
                             onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
                             className="rounded-full"
                           >
-                            <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
                             {t.documentChecklist.assign}
                           </Button>
                         )}
