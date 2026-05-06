@@ -101,13 +101,13 @@ const SelectPerson: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 bg-white/15 px-2.5 py-1 rounded-full w-fit mb-3">
-                    <span className="text-xs font-medium text-white">
+                  <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
+                    <span className="text-xs font-medium text-primary">
                       {getRelationshipLabel(filer.relationship, t)}
                       {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
                     </span>
                   </div>
-                  <h3 className="tracking-tight text-white leading-tight text-lg font-medium">
+                  <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
                     {filer.first_name} {filer.last_name}
                   </h3>
                 </div>
