@@ -287,9 +287,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         className="absolute inset-0 rounded-full"
                         style={{
                           background:
-                            'linear-gradient(180deg, #508BFF 0%, #1656FF 100%)',
+                            'linear-gradient(180deg, rgb(80, 139, 255) 0%, rgb(22, 86, 255) 100%)',
                           boxShadow:
-                            '0 10px 20px -6px rgba(22,86,255,0.55), inset 0 1.5px 3px rgba(255,255,255,0.4)',
+                            '0 12px 30px rgba(22, 86, 255, 0.28), 0 4px 10px rgba(22, 86, 255, 0.18), inset 0 1px 2px rgba(255,255,255,0.45), inset 0 -1px 1px rgba(255,255,255,0.08)',
+                          opacity: 1,
                         }}
                       />
                     )}
