@@ -57,6 +57,15 @@ const UserTaxReturns = () => {
   const { showTour } = useOnboardingTour();
   useUnreadMessages();
   const { pendingDocuments, pendingInformation } = usePendingMissingItemsCount(userId);
+  const [chatOverlayOpen, setChatOverlayOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setChatOverlayOpen(!!detail?.open);
+    };
+    document.addEventListener('overlay-chat-state', handler);
+    return () => document.removeEventListener('overlay-chat-state', handler);
+  }, []);
 
   const handleRefresh = useCallback(async () => { await refetch(); }, [refetch]);
   const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({
