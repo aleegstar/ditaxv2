@@ -104,12 +104,20 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const handleSectionClick = (section: DashboardSection) => {
     formTour?.skipTour();
-    setSearchParams({ section: section.param, year: taxYear });
+    if (embedded) {
+      navigate(`/form?section=${section.param}&year=${taxYear}`);
+    } else {
+      setSearchParams({ section: section.param, year: taxYear });
+    }
   };
 
   const handleDocumentsClick = () => {
     formTour?.skipTour();
-    setSearchParams({ section: 'unterlagen', year: taxYear });
+    if (embedded) {
+      navigate(`/form?section=unterlagen&year=${taxYear}`);
+    } else {
+      setSearchParams({ section: 'unterlagen', year: taxYear });
+    }
   };
 
   const handleSubmitClick = () => {
