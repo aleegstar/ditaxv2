@@ -243,110 +243,76 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-center"
+          className="relative rounded-full"
           style={{
-            height: '70px',
-            borderRadius: '38px',
-            paddingInline: '10px',
-            gap: '6px',
-            background: 'rgba(255,255,255,0.62)',
-            backdropFilter: 'blur(32px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.55)',
-            boxShadow: [
-              '0 24px 50px rgba(15,23,42,0.06)',
-              '0 8px 22px rgba(15,23,42,0.035)',
-              '0 1px 0 rgba(255,255,255,0.6)',
-              'inset 0 1px 0 rgba(255,255,255,0.9)',
-              'inset 0 -1px 0 rgba(15,23,42,0.025)',
-            ].join(', '),
+            padding: '10px',
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.6)',
+            boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08)',
           }}
         >
-          {/* Soft top highlight */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-3 top-0 h-1/2 rounded-t-[38px]"
+          <div
+            className="relative flex items-center bg-white rounded-full"
             style={{
-              background:
-                'linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))',
+              padding: '8px',
+              gap: '6px',
+              boxShadow:
+                'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
             }}
-          />
-
-          <LayoutGroup id="bottom-nav">
-            {tabs.map((tab) => {
-              const isActive = active === tab.key;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={tab.onClick}
-                  aria-label={tab.label}
-                  aria-current={isActive ? 'page' : undefined}
-                  className="relative flex items-center justify-center rounded-full focus:outline-none"
-                  style={{
-                    height: '52px',
-                    minWidth: isActive ? '108px' : '70px',
-                  }}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-active-pill"
-                      transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background:
-                          'linear-gradient(180deg, #5391FF 0%, #2A6BFF 50%, #1F58F2 100%)',
-                        boxShadow: [
-                          '0 8px 20px rgba(37,99,255,0.22)',
-                          '0 2px 6px rgba(37,99,255,0.12)',
-                          'inset 0 1px 0 rgba(255,255,255,0.42)',
-                          'inset 0 -1px 0 rgba(0,0,0,0.06)',
-                        ].join(', '),
-                      }}
-                    >
-                      <span
-                        aria-hidden
-                        className="absolute top-[2px] left-[12px] right-[12px] h-[16px] rounded-full opacity-55"
+          >
+            <LayoutGroup id="bottom-nav">
+              {tabs.map((tab) => {
+                const isActive = active === tab.key;
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={tab.onClick}
+                    aria-label={tab.label}
+                    aria-current={isActive ? 'page' : undefined}
+                    className="relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors"
+                    style={{
+                      height: '76px',
+                      width: isActive ? '110px' : '84px',
+                    }}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-active-pill"
+                        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+                        className="absolute inset-0 rounded-full"
                         style={{
                           background:
-                            'linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0))',
+                            'linear-gradient(180deg, #508BFF 0%, #1656FF 100%)',
+                          boxShadow:
+                            '0 16px 32px -8px rgba(22,86,255,0.6), inset 0 2px 4px rgba(255,255,255,0.4)',
                         }}
                       />
-                    </motion.span>
-                  )}
-                  <motion.div
-                    animate={{ scale: isActive ? 1 : 0.98 }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-                    className="relative z-10 flex flex-col items-center justify-center"
-                    style={{ marginTop: '-1px' }}
-                  >
-                    <Icon
-                      className={cn(
-                        'transition-colors duration-200',
-                        isActive ? 'text-white' : 'text-[#7A8499]'
-                      )}
-                      style={{ width: 21, height: 21, opacity: isActive ? 1 : 0.92 }}
-                      strokeWidth={isActive ? 2 : 1.8}
-                    />
+                    )}
                     <span
                       className={cn(
-                        'transition-colors duration-200 leading-none',
-                        isActive ? 'text-white' : 'text-[#6B7890]'
+                        'relative z-10 flex flex-col items-center justify-center',
+                        isActive ? 'text-white' : 'text-[#7A8498]'
                       )}
-                      style={{
-                        fontSize: '11.5px',
-                        fontWeight: 500,
-                        letterSpacing: '-0.012em',
-                        marginTop: '4px',
-                      }}
                     >
-                      {tab.label}
+                      <Icon className="w-6 h-6 mb-1.5" strokeWidth={1.5} />
+                      <span
+                        style={{
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {tab.label}
+                      </span>
                     </span>
-                  </motion.div>
-                </button>
-              );
-            })}
-          </LayoutGroup>
+                  </button>
+                );
+              })}
+            </LayoutGroup>
+          </div>
         </motion.div>
       </div>
     </nav>
