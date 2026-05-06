@@ -271,18 +271,6 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             <span className="text-[14px] font-medium">Chat</span>
           </button>
 
-          {/* Divider */}
-          <div className="h-5 w-px bg-gray-200/80 mx-0.5" />
-
-          {/* Menu */}
-          <button
-            onClick={onMenuClick}
-            aria-label="Menü"
-            className={roundButtonClass}
-            style={roundButtonShadow}
-          >
-            <Menu className="w-5 h-5" strokeWidth={1.75} />
-          </button>
         </div>
       </div>
     </nav>
