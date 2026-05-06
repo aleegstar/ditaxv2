@@ -91,8 +91,8 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           </div>
         </div>
 
-        {/* Cards — neutral, matching main page */}
-        <div className="space-y-3">
+        {/* 2x2 grid — neutral white cards */}
+        <div className="grid grid-cols-2 gap-3">
           {sections.map((section) => {
             const Icon = section.icon;
             const completed = isCompleted(section.id);
@@ -101,28 +101,29 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 key={section.id}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
-                  "w-full text-left rounded-2xl bg-white border border-slate-200/80",
+                  "relative text-left rounded-2xl bg-white border border-slate-200/80 p-4",
                   "shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  "active:scale-[0.99] transition-all duration-200 p-4 flex items-center gap-3"
+                  "active:scale-[0.98] transition-all duration-200 min-h-[150px] flex flex-col justify-between"
                 )}
               >
-                <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-                  completed ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                )}>
-                  {completed
-                    ? <Check className="w-5 h-5" strokeWidth={2.5} />
-                    : <Icon className="w-5 h-5" strokeWidth={1.75} />}
+                <div className="flex items-start justify-between">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
+                  </div>
+                  {completed && (
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
+                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                    </div>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div>
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
                   </h3>
-                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug truncate">
+                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug line-clamp-2">
                     {section.description}
                   </p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" strokeWidth={2} />
               </button>
             );
           })}
