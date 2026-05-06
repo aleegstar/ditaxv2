@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, FolderClosed, Plus } from 'lucide-react';
+import { MessageSquare, Plus } from 'lucide-react';
 
 interface HomeBottomNavProps {
   onChatClick: () => void;
