@@ -1,5 +1,6 @@
 import React from 'react';
-import { Home, Folder, Menu, MessageSquare, Bell } from 'lucide-react';
+import { motion, LayoutGroup } from 'framer-motion';
+import { Home, Folder, MessageSquare, LayoutGrid, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -214,6 +215,8 @@ const NotificationsBellButton: React.FC = () => {
   );
 };
 
+type TabKey = 'home' | 'documents' | 'chat' | 'more';
+
 export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   onChatClick,
   onDocumentsClick,
@@ -221,66 +224,87 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   onMenuClick,
   activeTab = 'home',
 }) => {
-  const activePillClass =
-    'relative flex items-center gap-2 pl-3.5 pr-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full ring-1 ring-white/20 transition-all duration-300 active:scale-[0.98]';
-  const activePillStyle = {
-    boxShadow:
-      '0 8px 16px -4px hsl(var(--primary) / 0.5), 0 4px 6px -2px hsl(var(--primary) / 0.3)',
-  } as const;
-  const inactivePillClass =
-    'flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-gray-900 hover:bg-gray-50 ring-1 ring-gray-200/60 rounded-full transition-all duration-300';
-  const inactivePillStyle = {
-    boxShadow:
-      '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 6px -2px rgba(17,24,39,0.04)',
-  } as const;
+  const tabs: { key: TabKey; label: string; icon: React.ComponentType<any>; onClick: () => void }[] = [
+    { key: 'home', label: 'Steuern', icon: Home, onClick: () => onActionClick?.() },
+    { key: 'documents', label: 'Dokumente', icon: Folder, onClick: onDocumentsClick },
+    { key: 'chat', label: 'Chat', icon: MessageSquare, onClick: onChatClick },
+    { key: 'more', label: 'Mehr', icon: LayoutGrid, onClick: () => onMenuClick?.() },
+  ];
 
-  const isHome = activeTab === 'home';
-  const isDocs = activeTab === 'documents';
-  const isChat = activeTab === 'chat';
+  const active: TabKey = (activeTab as TabKey) ?? 'home';
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-[10010] px-4 pb-[max(14px,env(safe-area-inset-bottom))] pointer-events-none">
+    <nav
+      className="fixed inset-x-0 bottom-0 z-[10010] px-5 pointer-events-none"
+      style={{ paddingBottom: 'max(14px, env(safe-area-inset-bottom))' }}
+    >
       <div className="mx-auto w-fit pointer-events-auto">
-        <div
-          className="group flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-xl ring-1 ring-gray-900/5 transition-all duration-500 px-[10px] py-[10px]"
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+          className="relative flex items-center gap-1 rounded-[32px] px-2 py-2"
           style={{
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.5)',
             boxShadow:
-              '0 30px 60px -12px rgba(17,24,39,0.25), 0 18px 36px -18px rgba(17,24,39,0.15), inset 0 1px 0 rgba(255,255,255,0.6)',
+              '0 1px 0 rgba(255,255,255,0.7) inset, 0 -1px 0 rgba(17,24,39,0.04) inset, 0 24px 48px -16px rgba(17,24,39,0.18), 0 8px 24px -10px rgba(17,24,39,0.10)',
           }}
         >
-          {/* Steuern */}
-          <button
-            onClick={onActionClick}
-            aria-label="Steuern"
-            className={isHome ? activePillClass : inactivePillClass}
-            style={isHome ? activePillStyle : inactivePillStyle}
-          >
-            <Home className={cn('w-[18px] h-[18px]', !isHome && 'text-gray-400')} strokeWidth={1.75} />
-            <span className="text-[14px] font-medium">Steuern</span>
-          </button>
-
-          {/* Dokumente */}
-          <button
-            onClick={onDocumentsClick}
-            aria-label="Dokumente"
-            className={isDocs ? activePillClass : inactivePillClass}
-            style={isDocs ? activePillStyle : inactivePillStyle}
-          >
-            <Folder className={cn('w-[18px] h-[18px]', !isDocs && 'text-gray-400')} strokeWidth={1.75} />
-            <span className="text-[14px] font-medium">Dokumente</span>
-          </button>
-
-          {/* Chat */}
-          <button
-            onClick={onChatClick}
-            aria-label="Chat"
-            className={isChat ? activePillClass : inactivePillClass}
-            style={isChat ? activePillStyle : inactivePillStyle}
-          >
-            <MessageSquare className={cn('w-[18px] h-[18px]', !isChat && 'text-gray-400')} strokeWidth={1.75} />
-            <span className="text-[14px] font-medium">Chat</span>
-          </button>
-        </div>
+          <LayoutGroup id="bottom-nav">
+            {tabs.map((tab) => {
+              const isActive = active === tab.key;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={tab.onClick}
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
+                  className="relative flex items-center justify-center px-3.5 h-12 rounded-full focus:outline-none"
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active-pill"
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(221 100% 47%) 100%)',
+                        boxShadow:
+                          '0 8px 20px -6px hsl(var(--primary) / 0.55), 0 2px 6px -2px hsl(var(--primary) / 0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
+                      }}
+                    />
+                  )}
+                  <motion.span
+                    animate={{ scale: isActive ? 1.04 : 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                    className={cn(
+                      'relative z-10 flex items-center gap-2 transition-colors duration-200',
+                      isActive ? 'text-white' : 'text-gray-500'
+                    )}
+                  >
+                    <Icon className="w-[19px] h-[19px]" strokeWidth={isActive ? 2.1 : 1.75} />
+                    <motion.span
+                      initial={false}
+                      animate={{
+                        width: isActive ? 'auto' : 0,
+                        opacity: isActive ? 1 : 0,
+                        marginLeft: isActive ? 4 : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+                      className="overflow-hidden whitespace-nowrap text-[13.5px] font-semibold tracking-tight"
+                    >
+                      {tab.label}
+                    </motion.span>
+                  </motion.span>
+                </button>
+              );
+            })}
+          </LayoutGroup>
+        </motion.div>
       </div>
     </nav>
   );
