@@ -95,7 +95,7 @@ const DeductionsForm = ({
         description: t.forms.savedSuccessfullyDescription
       });
       if (!embedded) {
-        setSearchParams({ year: taxYear });
+        navigate('/');
       } else {
         onSave();
       }
