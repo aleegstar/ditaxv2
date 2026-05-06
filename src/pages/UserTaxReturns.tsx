@@ -48,6 +48,7 @@ interface TaxReturn {
 
 const UserTaxReturns = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useI18n();
   const { setMenuSheetOpen, documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
   const { profile: userProfile, loading: profileLoading } = useProfile();
