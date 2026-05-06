@@ -415,8 +415,10 @@ const ChatOverlayMounted: React.FC<{ userId: string; onMenuOpen: () => void }> =
     return () => document.removeEventListener('open-overlay-chat', handler);
   }, []);
   return (
-    <div ref={wrapperRef} className="sr-only">
-      <OverlayChatBar userId={userId} onMenuOpen={onMenuOpen} inline />
+    <div ref={wrapperRef} style={{ position: 'fixed', left: -99999, top: -99999, width: 1, height: 1, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden>
+      <div style={{ pointerEvents: 'auto' }}>
+        <OverlayChatBar userId={userId} onMenuOpen={onMenuOpen} inline />
+      </div>
     </div>
   );
 };
