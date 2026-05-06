@@ -493,28 +493,32 @@ return <div className="min-h-screen">
                   return (
                     <div
                       key={item.id}
-                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4 flex items-center gap-3"
+                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4"
                     >
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <FolderOpen className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                          <FolderOpen className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
+                        </div>
+                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug pt-1">
+                          {item.title}
+                        </h3>
                       </div>
-                      <h3 className="flex-1 text-[14px] font-medium text-foreground leading-snug">
-                        {item.title}
-                      </h3>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2">
                         {hasUnassignedDocs && (
                           <Button
                             variant="secondary"
                             size="sm"
                             onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
+                            className="rounded-full"
                           >
                             <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+                            {t.documentChecklist.assign}
                           </Button>
                         )}
                         <Button
                           size="sm"
                           onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                          className="rounded-full"
+                          className="rounded-full flex-1"
                         >
                           <Plus className="w-4 h-4" strokeWidth={2} />
                           Hochladen
