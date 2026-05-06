@@ -588,9 +588,7 @@ const DocumentsContent: React.FC<{
 
       {/* Bottom Navbar */}
       <HomeBottomNav
-        onChatClick={() => {
-          navigate('/', { state: { openChat: true } });
-        }}
+        onChatClick={() => navigate('/chat')}
         onDocumentsClick={() => {}}
         onMenuClick={() => {}}
         onActionClick={() => navigate('/')}
