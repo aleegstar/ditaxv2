@@ -278,8 +278,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                       'w-[22px] h-[22px] transition-colors duration-200',
                       isActive ? 'text-primary' : 'text-gray-500'
                     )}
-                    strokeWidth={isActive ? 2.2 : 1.75}
-                    {...(isActive ? { fill: 'currentColor' as any } : {})}
+                    strokeWidth={isActive ? 2 : 1.75}
+                    fill={isActive ? 'currentColor' : 'none'}
                   />
                   <span
                     className={cn(
