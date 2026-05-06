@@ -273,31 +273,16 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     aria-label={tab.label}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors',
-                      isActive ? 'flex-[1.3]' : 'flex-1'
+                      'relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors flex-1'
                     )}
                     style={{
                       height: '56px',
                     }}
                   >
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active-pill"
-                        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background:
-                            'linear-gradient(180deg, rgb(80, 139, 255) 0%, rgb(22, 86, 255) 100%)',
-                          boxShadow:
-                            '0 12px 30px rgba(22, 86, 255, 0.28), 0 4px 10px rgba(22, 86, 255, 0.18), inset 0 1px 2px rgba(255,255,255,0.45), inset 0 -1px 1px rgba(255,255,255,0.08)',
-                          opacity: 1,
-                        }}
-                      />
-                    )}
                     <span
                       className={cn(
                         'relative z-10 flex flex-col items-center justify-center gap-1',
-                        isActive ? 'text-white' : 'text-[#7A8498]'
+                        isActive ? 'text-[#1656FF]' : 'text-[#7A8498]'
                       )}
                     >
                       <Icon className="w-[18px] h-[18px]" strokeWidth={1.6} />
@@ -312,6 +297,14 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         {tab.label}
                       </span>
                     </span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-active-indicator"
+                        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+                        className="absolute bottom-1.5 h-[2px] w-4 rounded-full"
+                        style={{ background: '#1656FF' }}
+                      />
+                    )}
                   </button>
                 );
               })}
