@@ -18,7 +18,11 @@ interface DashboardSection {
   param: string;
 }
 
-export const TaxYearDashboard: React.FC = () => {
+interface TaxYearDashboardProps {
+  embedded?: boolean;
+}
+
+export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = false }) => {
   const { t } = useI18n();
   const {
     formProgress,
@@ -130,6 +134,16 @@ export const TaxYearDashboard: React.FC = () => {
       {done ? <Check className="w-4 h-4" strokeWidth={2.5} /> : step}
     </div>
   );
+
+  if (embedded) {
+    return (
+      <div className="w-full">
+        <div className="space-y-3">
+          {renderSteps()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-foreground antialiased">
