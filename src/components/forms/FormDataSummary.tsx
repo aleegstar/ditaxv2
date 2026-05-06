@@ -18,9 +18,10 @@ export const FormDataSummary: React.FC = () => {
     saveSection
   } = useFormContext();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isConfirming, setIsConfirming] = useState(false);
   const handleBack = () => {
-    setSearchParams({});
+    navigate('/');
   };
   const handleConfirm = async () => {
     setIsConfirming(true);
