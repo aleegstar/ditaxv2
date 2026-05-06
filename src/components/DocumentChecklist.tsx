@@ -413,17 +413,17 @@ return <div className="min-h-screen">
         return <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 border border-white/60 p-7 md:p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] transition-all duration-300">
 
               <div className="relative z-10">
-                <div className="mb-5">
-                  <span className="text-sm font-medium text-muted-foreground">
+                <div className="mb-6">
+                  <h2 className="text-[22px] font-semibold text-foreground tracking-tight leading-tight">
                     Gesamtfortschritt
-                  </span>
-                  <p className="text-[15px] text-muted-foreground mt-3 leading-relaxed">
+                  </h2>
+                  <p className="text-[15px] text-muted-foreground mt-1.5">
                     {currentCount} von {totalCount} hochgeladen
                   </p>
                 </div>
 
                 {/* Segmented progress bar */}
-                <div className="flex gap-1.5 h-1.5 w-full mb-5">
+                <div className="flex gap-1.5 h-2 w-full mb-5">
                   {Array.from({ length: totalCount }).map((_, i) => (
                     <div 
                       key={i}
@@ -439,16 +439,15 @@ return <div className="min-h-screen">
 
                 {/* Hint text */}
                 {!isComplete && remaining > 0 && (
-                  <div className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-3 text-[14px] text-muted-foreground">
                     <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
                     <span className="leading-relaxed">
-                      Nur noch <span className="text-primary font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span>
-                      {incompleteCategoryName && <> im Bereich <span className="text-foreground font-medium">{incompleteCategoryName}</span></>} hochladen.
+                      Nur noch <span className="text-primary font-medium">{remaining} {remaining === 1 ? 'Dokument' : 'Dokumente'}</span> hochladen.
                     </span>
                   </div>
                 )}
                 {isComplete && (
-                  <div className="flex items-start gap-3 text-sm text-emerald-600">
+                  <div className="flex items-start gap-3 text-[14px] text-emerald-600">
                     <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span className="leading-relaxed font-medium">{t.documentChecklist.allMandatoryPresent}</span>
                   </div>
