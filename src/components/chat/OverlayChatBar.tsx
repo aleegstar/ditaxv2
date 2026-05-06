@@ -481,4 +481,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
       </AnimatePresence>
     </>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(content, document.body);
 };
