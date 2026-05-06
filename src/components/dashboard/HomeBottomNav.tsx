@@ -235,29 +235,29 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[10010] px-5 pointer-events-none"
-      style={{ paddingBottom: 'max(14px, env(safe-area-inset-bottom))' }}
+      className="fixed inset-x-0 bottom-0 z-[10010] px-3 pointer-events-none"
+      style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto w-fit pointer-events-auto">
+      <div className="mx-auto w-fit max-w-full pointer-events-auto">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           className="relative rounded-full"
           style={{
-            padding: '10px',
+            padding: '6px',
             background: 'rgba(255,255,255,0.5)',
             backdropFilter: 'blur(24px) saturate(180%)',
             WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08)',
+            boxShadow: '0 18px 36px -12px rgba(0,0,0,0.08)',
           }}
         >
           <div
             className="relative flex items-center bg-white rounded-full"
             style={{
-              padding: '8px',
-              gap: '6px',
+              padding: '5px',
+              gap: '3px',
               boxShadow:
                 'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
             }}
@@ -274,8 +274,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     aria-current={isActive ? 'page' : undefined}
                     className="relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors"
                     style={{
-                      height: '76px',
-                      width: isActive ? '110px' : '84px',
+                      height: '54px',
+                      width: isActive ? '86px' : '64px',
                     }}
                   >
                     {isActive && (
@@ -287,7 +287,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                           background:
                             'linear-gradient(180deg, #508BFF 0%, #1656FF 100%)',
                           boxShadow:
-                            '0 16px 32px -8px rgba(22,86,255,0.6), inset 0 2px 4px rgba(255,255,255,0.4)',
+                            '0 10px 20px -6px rgba(22,86,255,0.55), inset 0 1.5px 3px rgba(255,255,255,0.4)',
                         }}
                       />
                     )}
@@ -297,12 +297,13 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         isActive ? 'text-white' : 'text-[#7A8498]'
                       )}
                     >
-                      <Icon className="w-6 h-6 mb-1.5" strokeWidth={1.5} />
+                      <Icon className="w-[18px] h-[18px] mb-0.5" strokeWidth={1.75} />
                       <span
                         style={{
-                          fontSize: '13px',
+                          fontSize: '10.5px',
                           fontWeight: 500,
                           lineHeight: 1,
+                          letterSpacing: '-0.01em',
                         }}
                       >
                         {tab.label}
