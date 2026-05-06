@@ -127,7 +127,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       {/* Header */}
       <div
         className="flex items-center justify-between px-5 pb-3"
-        style={{ paddingTop: 'max(16px, var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
+        style={{ paddingTop: 'calc(16px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
       >
         {/* Year selector */}
         <div className="flex items-center gap-2">
@@ -295,7 +295,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       />
 
       {/* Floating upload FAB – icon only, bottom right */}
-      <div className="fixed bottom-0 right-0 z-[10011] pr-5 pb-[calc(max(20px,var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))+84px)] pointer-events-none">
+      <div className="fixed bottom-0 right-0 z-[10011] pr-5 pb-[calc(20px+var(--safe-area-bottom,env(safe-area-inset-bottom,0px))+84px)] pointer-events-none">
         <button
           onClick={() => fileInputRef.current?.click()}
           aria-label={t.documentsPage.upload}

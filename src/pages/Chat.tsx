@@ -79,7 +79,7 @@ const Chat: React.FC = () => {
       {/* Top bar */}
       <div
         className="flex justify-between items-center gap-2 px-4 pb-3 border-b border-border"
-        style={{ paddingTop: 'max(12px, var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
+        style={{ paddingTop: 'calc(12px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
       >
         <div className="flex items-center gap-3 min-w-0">
           <div

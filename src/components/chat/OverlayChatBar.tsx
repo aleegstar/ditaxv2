@@ -127,7 +127,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             }}
           >
             {/* Top bar with assistant info + menu + close */}
-            <div className="pointer-events-auto flex justify-between items-center gap-2 px-4 pb-2 border-b border-border" style={{ paddingTop: 'max(12px, var(--safe-area-top, env(safe-area-inset-top, 0px)))', paddingBottom: '12px' }}>
+            <div className="pointer-events-auto flex justify-between items-center gap-2 px-4 pb-2 border-b border-border" style={{ paddingTop: 'calc(12px + var(--safe-area-top, env(safe-area-inset-top, 0px)))', paddingBottom: '12px' }}>
               {/* Left: assistant identity */}
               <div className="flex items-center gap-3 min-w-0">
                 <div
