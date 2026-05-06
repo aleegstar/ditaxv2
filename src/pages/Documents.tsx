@@ -585,6 +585,17 @@ const DocumentsContent: React.FC<{
           setSelectedDocument(null);
         }} onUpdate={loadDocuments} availableYears={allYears} isLocked={isLocked} />
       </div>
+
+      {/* Bottom Navbar */}
+      <HomeBottomNav
+        onChatClick={() => {
+          document.dispatchEvent(new CustomEvent('open-overlay-chat'));
+        }}
+        onDocumentsClick={() => {}}
+        onMenuClick={() => {}}
+        onActionClick={() => navigate('/')}
+        activeTab="documents"
+      />
     </>;
 };
 
