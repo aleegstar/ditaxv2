@@ -243,14 +243,14 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-stretch gap-1 rounded-[28px] px-2 py-1.5"
+          className="relative flex items-stretch gap-0 rounded-[36px] px-3 py-2.5"
           style={{
-            background: 'rgba(255,255,255,0.78)',
+            background: 'rgba(255,255,255,0.85)',
             backdropFilter: 'blur(24px) saturate(180%)',
             WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.7)',
             boxShadow:
-              '0 1px 0 rgba(255,255,255,0.7) inset, 0 -1px 0 rgba(17,24,39,0.04) inset, 0 24px 48px -16px rgba(17,24,39,0.18), 0 8px 24px -10px rgba(17,24,39,0.10)',
+              '0 1px 0 rgba(255,255,255,0.8) inset, 0 -1px 0 rgba(17,24,39,0.04) inset, 0 24px 48px -16px rgba(17,24,39,0.18), 0 8px 24px -10px rgba(17,24,39,0.10)',
           }}
         >
           <LayoutGroup id="bottom-nav">
@@ -263,19 +263,19 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   onClick={tab.onClick}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex flex-col items-center justify-start gap-1 px-3 pt-2.5 pb-1.5 min-w-[68px] rounded-2xl focus:outline-none"
+                  className="relative flex flex-col items-center justify-start gap-1.5 px-4 pt-3 pb-1 min-w-[80px] rounded-2xl focus:outline-none"
                 >
                   {isActive && (
                     <motion.span
                       layoutId="nav-active-bar"
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                      className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-7 rounded-full"
+                      className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full"
                       style={{ background: 'hsl(var(--primary))' }}
                     />
                   )}
                   <Icon
                     className={cn(
-                      'w-[22px] h-[22px] transition-colors duration-200',
+                      'w-[24px] h-[24px] transition-colors duration-200',
                       isActive ? 'text-primary' : 'text-gray-500'
                     )}
                     strokeWidth={isActive ? 2 : 1.75}
@@ -283,7 +283,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   />
                   <span
                     className={cn(
-                      'text-[11px] tracking-tight transition-colors duration-200',
+                      'text-[12.5px] tracking-tight transition-colors duration-200',
                       isActive ? 'text-primary font-semibold' : 'text-gray-500 font-medium'
                     )}
                   >
