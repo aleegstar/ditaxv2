@@ -30,6 +30,7 @@ const IncomeForm = ({
   } = useFormContext();
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasSalary, setHasSalary] = useState<boolean>(false);
