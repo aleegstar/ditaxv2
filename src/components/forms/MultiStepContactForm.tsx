@@ -270,7 +270,7 @@ const MultiStepContactForm = ({
         {!embedded && (
           <SubpageHeader
             title={t.multiStepContactForm.title}
-            onBack={() => window.history.back()}
+            onBack={() => navigate('/')}
           />
         )}
 
