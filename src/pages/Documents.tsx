@@ -25,6 +25,8 @@ import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
+import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 // Separate content component that uses FormContext
 // Separate content component that uses FormContext
