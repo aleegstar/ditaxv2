@@ -457,8 +457,8 @@ return <div className="min-h-screen">
             </div>;
       })()}
 
-        {/* Categories */}
-        <div className="space-y-6">
+        {/* Flat checklist */}
+        <div className="space-y-3">
           {error && <Alert variant="destructive" className="rounded-3xl">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Fehler beim Laden</AlertTitle>
@@ -472,7 +472,8 @@ return <div className="min-h-screen">
               </AlertDescription>
             </Alert>}
 
-          {Object.keys(categorizedItems).length === 0 ? <div className="text-center py-16">
+          {checklistItems.length === 0 ? (
+            <div className="text-center py-16">
               <FolderSearch className="w-8 h-8 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-600 mb-1 font-medium">Checkliste wird erstellt</p>
               <p className="text-sm text-slate-400 mb-6">
@@ -481,144 +482,97 @@ return <div className="min-h-screen">
               <Button onClick={handleForceGeneration} disabled={isLoading} className="rounded-xl">
                 {isLoading ? "Wird geladen..." : "Checkliste generieren"}
               </Button>
-        </div> : Object.entries(categorizedItems).map(([category, items]) => {
-          const isComplete = isCategoryComplete(category);
-          const isOpen = openCategories[category];
-          const Icon = categoryIcons[category];
-          const uploadedCount = items.filter(i => i.uploaded).length;
-          const openCount = items.length - uploadedCount;
-          const pendingItems = items.filter(i => !i.uploaded);
-          const completedItems = items.filter(i => i.uploaded);
-          
-          return <Collapsible key={category} open={isOpen} onOpenChange={open => {
-            setOpenCategories(prev => ({ ...prev, [category]: open }));
-          }}>
-              {/* Card wrapper — matching TaxYearDashboard style */}
-              <div className="rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200">
-                <div className="p-5 sm:p-6">
-                  {/* Section Header */}
-                  <CollapsibleTrigger className="group w-full text-left">
-                    <div className="flex items-center gap-3.5">
-                      <div className={cn(
-                        "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
-                        isComplete 
-                          ? "bg-primary text-primary-foreground" 
-                          : "bg-muted text-muted-foreground"
-                      )}>
-                        {isComplete 
-                          ? <Check className="w-5 h-5" strokeWidth={2.5} /> 
-                          : <Icon className="w-5 h-5" />
-                        }
+            </div>
+          ) : (() => {
+            const pendingItems = checklistItems.filter(i => !i.uploaded);
+            const completedItems = checklistItems.filter(i => i.uploaded);
+            return (
+              <>
+                {/* Pending items */}
+                {pendingItems.map((item) => {
+                  const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4 flex items-center gap-3"
+                    >
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <FolderOpen className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h2 className="text-[14px] font-semibold text-foreground tracking-tight">
-                          {categoryMap[category]}
-                        </h2>
-                        <p className={cn(
-                          "text-[12px] mt-0.5",
-                          isComplete ? "text-primary font-medium" : "text-muted-foreground"
-                        )}>
-                          {isComplete ? 'Vollständig' : `${uploadedCount} von ${items.length} erledigt`}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {!isComplete && openCount > 0 && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                            {openCount} Offen
-                          </span>
+                      <h3 className="flex-1 text-[14px] font-medium text-foreground leading-snug">
+                        {item.title}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {hasUnassignedDocs && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
+                          >
+                            <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+                          </Button>
                         )}
-                        <ChevronRight className={cn(
-                          "w-4 h-4 text-muted-foreground/40 transition-transform duration-200",
-                          isOpen && "rotate-90"
-                        )} strokeWidth={2} />
+                        <Button
+                          size="sm"
+                          onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
+                          className="rounded-full"
+                        >
+                          <Plus className="w-4 h-4" strokeWidth={2} />
+                          Hochladen
+                        </Button>
                       </div>
                     </div>
-                  </CollapsibleTrigger>
+                  );
+                })}
 
-                  <CollapsibleContent>
-                    <div className="mt-5 space-y-2">
-                      {/* Pending items */}
-                      {pendingItems.map((item) => {
-                        const hasUnassignedDocs = (unassignedDocsCounts[item.id] || 0) > 0;
-                        
-                        return <div key={item.id} className="rounded-xl bg-muted/40 ring-1 ring-border p-4 transition-all hover:ring-primary/20">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
-                            <div className="flex items-center gap-2 w-full sm:w-auto">
-                              {hasUnassignedDocs && (
-                                <Button 
-                                  variant="secondary"
-                                  size="sm"
-                                  onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                                  className="flex-1 sm:flex-none"
-                                >
-                                  <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
-                                  {t.documentChecklist.assign}
-                                </Button>
+                {/* Completed items grouped in single card */}
+                {completedItems.length > 0 && (
+                  <div className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] overflow-hidden mt-4">
+                    <div className="px-4 pt-3 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Erledigt ({completedItems.length})
+                    </div>
+                    {completedItems.map((item, idx) => {
+                      const itemFiles = getUserDocumentsForItem(item.id);
+                      return (
+                        <div key={item.id}>
+                          {idx > 0 && <div className="border-t border-border/60 mx-4" />}
+                          <div className="flex items-center gap-3 px-4 py-2.5">
+                            <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-[13px] text-muted-foreground line-through truncate">
+                                {item.title}
+                              </h3>
+                              {itemFiles.length > 0 && (
+                                <span className="text-[11px] text-muted-foreground/70">
+                                  {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files}
+                                </span>
                               )}
-                              <Button 
-                                size="sm"
-                                onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                                className="flex-1 sm:flex-none"
-                              >
-                                <Plus className="w-4 h-4" strokeWidth={1.5} />
-                                Hochladen
-                              </Button>
                             </div>
-                          </div>
-                        </div>;
-                      })}
-
-                      {/* Separator */}
-                      {pendingItems.length > 0 && completedItems.length > 0 && (
-                        <div className="border-t border-border my-2" />
-                      )}
-
-                      {/* Completed items */}
-                      {completedItems.map((item, idx) => {
-                        const itemFiles = getUserDocumentsForItem(item.id);
-                        
-                        return <div key={item.id}>
-                          {idx > 0 && <div className="border-t border-border my-1" />}
-                          <div className="group flex flex-col sm:flex-row sm:items-center justify-between py-2.5 gap-3">
-                            <div className="flex items-start gap-3 opacity-50 hover:opacity-100 transition-opacity">
-                              <div>
-                                <h3 className="text-sm text-muted-foreground line-through">
-                                  {item.title}
-                                </h3>
-                                {itemFiles.length > 0 && (
-                                  <div className="flex items-center gap-1.5 mt-0.5 text-primary">
-                                    <FileCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                    <span className="text-xs font-medium">
-                                      {itemFiles.length} {itemFiles.length === 1 ? t.documentChecklist.file : t.documentChecklist.files} hochgeladen
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 pl-0 sm:pl-0">
-                              <button 
-                                onClick={() => handleViewDocuments(item.id, 0)} 
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <button
+                                onClick={() => handleViewDocuments(item.id, 0)}
                                 className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                               >
                                 <Eye className="w-4 h-4" strokeWidth={1.5} />
                               </button>
-                              <button 
-                                onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)} 
+                              <button
+                                onClick={() => handleDocumentDeleted(itemFiles[0]?.id, item.id)}
                                 className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                               </button>
                             </div>
                           </div>
-                        </div>;
-                      })}
-                    </div>
-                  </CollapsibleContent>
-                </div>
-              </div>
-            </Collapsible>;
-        })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </main>
 
