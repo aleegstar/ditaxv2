@@ -52,14 +52,27 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const closer = () => {
+      setIsOpen(false);
+      setInputValue('');
+      setShowMenu(false);
+      document.dispatchEvent(new CustomEvent('overlay-chat-state', { detail: { open: false } }));
+    };
+    document.addEventListener('close-overlay-chat', closer);
+    return () => document.removeEventListener('close-overlay-chat', closer);
+  }, []);
+
   const handleOpen = () => {
     setIsOpen(true);
+    document.dispatchEvent(new CustomEvent('overlay-chat-state', { detail: { open: true } }));
   };
 
   const handleClose = () => {
     setIsOpen(false);
     setInputValue('');
     setShowMenu(false);
+    document.dispatchEvent(new CustomEvent('overlay-chat-state', { detail: { open: false } }));
   };
 
   const handleSend = async () => {
@@ -106,9 +119,11 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-0 bottom-0 z-[9999] flex flex-col pointer-events-none"
+            className="fixed inset-x-0 top-0 z-[9999] flex flex-col pointer-events-none rounded-t-[28px] overflow-hidden"
             style={{
               background: 'hsl(45, 40%, 98%)',
+              bottom: 'calc(env(safe-area-inset-bottom) + 84px)',
+              boxShadow: '0 -10px 40px -10px rgba(17,24,39,0.18)',
             }}
           >
             {/* Top bar with assistant info + menu + close */}
@@ -303,7 +318,7 @@ export const OverlayChatBar: React.FC<OverlayChatBarProps> = ({ userId, onMenuOp
             </div>
 
             {/* Input bar (always visible at bottom when open) */}
-            <div className="pointer-events-auto px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+            <div className="pointer-events-auto px-4 pb-3 pt-2">
               <div className="max-w-2xl mx-auto">
                 <div
                   className="relative rounded-full bg-card"

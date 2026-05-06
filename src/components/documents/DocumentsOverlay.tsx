@@ -295,7 +295,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
       />
 
       {/* Floating upload FAB – icon only, bottom right */}
-      <div className="fixed bottom-0 right-0 z-[10001] pr-5 pb-[max(20px,env(safe-area-inset-bottom))] pointer-events-none">
+      <div className="fixed bottom-0 right-0 z-[10011] pr-5 pb-[calc(max(20px,env(safe-area-inset-bottom))+84px)] pointer-events-none">
         <button
           onClick={() => fileInputRef.current?.click()}
           aria-label={t.documentsPage.upload}
@@ -328,16 +328,13 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.classList.add('hide-bottom-navbar');
       document.body.setAttribute('data-documents-overlay', 'true');
     } else {
       document.body.style.overflow = '';
-      document.body.classList.remove('hide-bottom-navbar');
       document.body.removeAttribute('data-documents-overlay');
     }
     return () => {
       document.body.style.overflow = '';
-      document.body.classList.remove('hide-bottom-navbar');
       document.body.removeAttribute('data-documents-overlay');
     };
   }, [isOpen]);
@@ -351,8 +348,12 @@ export const DocumentsOverlay: React.FC<DocumentsOverlayProps> = ({ isOpen, onCl
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[10000] flex flex-col overflow-hidden"
-          style={{ background: 'hsl(var(--background))' }}
+          className="fixed inset-x-0 top-0 z-[10000] flex flex-col overflow-hidden rounded-t-[28px]"
+          style={{
+            background: 'hsl(var(--background))',
+            bottom: 'calc(env(safe-area-inset-bottom) + 84px)',
+            boxShadow: '0 -10px 40px -10px rgba(17,24,39,0.18)',
+          }}
         >
           {/* Soft warm blur glows matching global background */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
