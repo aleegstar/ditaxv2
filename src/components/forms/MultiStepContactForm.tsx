@@ -13,6 +13,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChildrenRepeater } from './ChildrenRepeater';
 import { MobileFriendlyDateInput } from '@/components/ui/mobile-friendly-date-input';
+import { useNavigate } from 'react-router-dom';
 
 interface MultiStepContactFormProps {
   onSave: () => void;
