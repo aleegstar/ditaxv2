@@ -243,15 +243,16 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-center gap-1 rounded-full px-2"
+          className="relative flex items-center gap-1 px-1.5"
           style={{
-            height: '80px',
+            height: '70px',
+            borderRadius: '30px',
             background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(18px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+            backdropFilter: 'blur(14px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(14px) saturate(180%)',
             border: '1px solid rgba(255,255,255,0.5)',
             boxShadow:
-              '0 10px 30px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03)',
+              '0 6px 18px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02)',
           }}
         >
           <LayoutGroup id="bottom-nav">
@@ -265,7 +266,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                   className="relative flex items-center justify-center rounded-full focus:outline-none"
-                  style={{ minWidth: isActive ? undefined : '76px' }}
+                  style={{ minWidth: isActive ? undefined : '70px' }}
                 >
                   {isActive && (
                     <motion.span
@@ -275,7 +276,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                       style={{
                         background: 'linear-gradient(180deg, #2563FF 0%, #3B82F6 100%)',
                         boxShadow:
-                          '0 8px 20px -4px rgba(37,99,255,0.45), 0 2px 6px rgba(37,99,255,0.25)',
+                          '0 4px 12px -2px rgba(37,99,255,0.35), 0 1px 3px rgba(37,99,255,0.18)',
                       }}
                     />
                   )}
@@ -283,8 +284,8 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     animate={{ scale: isActive ? 1 : 0.96 }}
                     transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                     className={cn(
-                      'relative flex flex-col items-center justify-center gap-1.5',
-                      isActive ? 'px-7 py-3.5' : 'px-3 py-2'
+                      'relative flex flex-col items-center justify-center gap-0.5',
+                      isActive ? 'px-[22px] py-2.5' : 'px-3 py-1.5'
                     )}
                   >
                     <Icon
@@ -292,12 +293,12 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         'transition-colors duration-200',
                         isActive ? 'text-white' : 'text-gray-500'
                       )}
-                      style={{ width: 22, height: 22 }}
+                      style={{ width: 20, height: 20 }}
                       strokeWidth={1.75}
                     />
                     <span
                       className={cn(
-                        'text-[12px] tracking-tight transition-colors duration-200 leading-none',
+                        'text-[11px] tracking-tight transition-colors duration-200 leading-none',
                         isActive ? 'text-white font-medium' : 'text-gray-500 font-medium'
                       )}
                     >
