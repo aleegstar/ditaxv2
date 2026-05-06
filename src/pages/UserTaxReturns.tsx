@@ -68,6 +68,18 @@ const UserTaxReturns = () => {
     return () => document.removeEventListener('overlay-chat-state', handler);
   }, []);
 
+  // Open chat overlay when navigated here with state.openChat
+  useEffect(() => {
+    const state = location.state as { openChat?: boolean } | null;
+    if (state?.openChat) {
+      const t = setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('open-overlay-chat'));
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [location, navigate]);
+
   const handleRefresh = useCallback(async () => { await refetch(); }, [refetch]);
   const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({
     onRefresh: handleRefresh,
