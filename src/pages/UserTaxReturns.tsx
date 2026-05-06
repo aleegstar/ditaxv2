@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
@@ -48,6 +48,7 @@ interface TaxReturn {
 
 const UserTaxReturns = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useI18n();
   const { setMenuSheetOpen, documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
   const { profile: userProfile, loading: profileLoading } = useProfile();
@@ -66,6 +67,18 @@ const UserTaxReturns = () => {
     document.addEventListener('overlay-chat-state', handler);
     return () => document.removeEventListener('overlay-chat-state', handler);
   }, []);
+
+  // Open chat overlay when navigated here with state.openChat
+  useEffect(() => {
+    const state = location.state as { openChat?: boolean } | null;
+    if (state?.openChat) {
+      const t = setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('open-overlay-chat'));
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [location, navigate]);
 
   const handleRefresh = useCallback(async () => { await refetch(); }, [refetch]);
   const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({

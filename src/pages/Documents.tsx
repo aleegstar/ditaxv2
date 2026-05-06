@@ -589,7 +589,7 @@ const DocumentsContent: React.FC<{
       {/* Bottom Navbar */}
       <HomeBottomNav
         onChatClick={() => {
-          document.dispatchEvent(new CustomEvent('open-overlay-chat'));
+          navigate('/', { state: { openChat: true } });
         }}
         onDocumentsClick={() => {}}
         onMenuClick={() => {}}
