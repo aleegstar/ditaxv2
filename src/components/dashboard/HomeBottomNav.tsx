@@ -236,7 +236,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-[10010] px-3 pointer-events-none"
-      style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
+      style={{ paddingBottom: 'calc(10px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
     >
       <div className="mx-auto w-full max-w-[440px] pointer-events-auto">
         <motion.div
