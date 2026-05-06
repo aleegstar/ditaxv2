@@ -340,6 +340,8 @@ const UserTaxReturns = () => {
         }}
         onDocumentsClick={() => setDocumentsOverlayOpen(true)}
         onMenuClick={() => setMenuSheetOpen(true)}
+        onActionClick={() => setDocumentsOverlayOpen(false)}
+        activeTab={documentsOverlayOpen ? 'documents' : chatOverlayOpen ? 'chat' : 'home'}
       />}
 
       {/* Hidden chat overlay (controlled via event) */}
