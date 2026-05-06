@@ -16,7 +16,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
     <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pointer-events-none">
       <div className="mx-auto w-fit pointer-events-auto">
         <div
-          className="group flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-xl ring-1 ring-gray-900/5 p-2 transition-all duration-500"
+          className="group flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-xl ring-1 ring-gray-900/5 transition-all duration-500 px-[10px] py-[10px]"
           style={{
             boxShadow:
               '0 30px 60px -12px rgba(17,24,39,0.25), 0 18px 36px -18px rgba(17,24,39,0.15), inset 0 1px 0 rgba(255,255,255,0.6)',
