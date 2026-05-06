@@ -243,14 +243,15 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative flex items-stretch gap-0 rounded-[1.5rem] px-3 py-2.5"
+          className="relative flex items-center gap-1 rounded-full px-2"
           style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(24px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.7)',
+            height: '80px',
+            background: 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(18px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(18px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.5)',
             boxShadow:
-              '0 1px 0 rgba(255,255,255,0.8) inset, 0 -1px 0 rgba(17,24,39,0.04) inset, 0 24px 48px -16px rgba(17,24,39,0.18), 0 8px 24px -10px rgba(17,24,39,0.10)',
+              '0 10px 30px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03)',
           }}
         >
           <LayoutGroup id="bottom-nav">
@@ -263,32 +264,46 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                   onClick={tab.onClick}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex flex-col items-center justify-start gap-1 px-3 pt-2.5 pb-1 min-w-[68px] rounded-2xl focus:outline-none"
+                  className="relative flex items-center justify-center rounded-full focus:outline-none"
+                  style={{ minWidth: isActive ? undefined : '76px' }}
                 >
                   {isActive && (
                     <motion.span
-                      layoutId="nav-active-bar"
+                      layoutId="nav-active-pill"
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                      className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-[2.5px] w-7 rounded-full"
-                      style={{ background: 'hsl(var(--primary))' }}
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'linear-gradient(180deg, #2563FF 0%, #3B82F6 100%)',
+                        boxShadow:
+                          '0 8px 20px -4px rgba(37,99,255,0.45), 0 2px 6px rgba(37,99,255,0.25)',
+                      }}
                     />
                   )}
-                  <Icon
+                  <motion.div
+                    animate={{ scale: isActive ? 1 : 0.96 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                     className={cn(
-                      'w-[20px] h-[20px] transition-colors duration-200',
-                      isActive ? 'text-primary' : 'text-gray-500'
-                    )}
-                    strokeWidth={isActive ? 2 : 1.75}
-                    fill={isActive ? 'currentColor' : 'none'}
-                  />
-                  <span
-                    className={cn(
-                      'text-[11px] tracking-tight transition-colors duration-200',
-                      isActive ? 'text-primary font-semibold' : 'text-gray-500 font-medium'
+                      'relative flex flex-col items-center justify-center gap-1.5',
+                      isActive ? 'px-7 py-3.5' : 'px-3 py-2'
                     )}
                   >
-                    {tab.label}
-                  </span>
+                    <Icon
+                      className={cn(
+                        'transition-colors duration-200',
+                        isActive ? 'text-white' : 'text-gray-500'
+                      )}
+                      style={{ width: 22, height: 22 }}
+                      strokeWidth={1.75}
+                    />
+                    <span
+                      className={cn(
+                        'text-[12px] tracking-tight transition-colors duration-200 leading-none',
+                        isActive ? 'text-white font-medium' : 'text-gray-500 font-medium'
+                      )}
+                    >
+                      {tab.label}
+                    </span>
+                  </motion.div>
                 </button>
               );
             })}
