@@ -95,7 +95,7 @@ const DocumentChecklist: React.FC = () => {
   const navigate = useNavigate();
 
   const handleNext = () => { navigate(`/payment?year=${taxYear}`); };
-  const handleBack = () => { navigate(`/form?section=deductions&year=${taxYear}`); };
+  const handleBack = () => { navigate('/'); };
 
   const handleSheetUploaded = useCallback(async (itemId: string) => {
     // Optimistic update
