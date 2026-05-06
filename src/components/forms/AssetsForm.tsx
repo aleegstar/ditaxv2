@@ -119,7 +119,7 @@ const AssetsForm = ({
       });
       
       if (!embedded) {
-        setSearchParams({ year: taxYear });
+        navigate('/');
       } else {
         onSave();
       }
