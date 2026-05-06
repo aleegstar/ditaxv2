@@ -147,83 +147,27 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     <div className="space-y-3">
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
-      {allAngabenComplete && !isAngabenExpanded ? (
-        <div
-          data-tour="form-step-1"
-          onClick={() => setIsAngabenExpanded(true)}
-          className="group p-2 rounded-[24px] bg-white/50 border border-white/60 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] backdrop-blur-[24px] cursor-pointer transition-all duration-200"
-        >
-          <div className="bg-white rounded-[18px] shadow-[inset_0_2px_6px_rgba(255,255,255,1),inset_0_0_2px_rgba(0,0,0,0.05),0_6px_20px_rgba(0,0,0,0.05)] p-3 flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-b from-[#508BFF] to-[#1656FF] text-white rounded-full shadow-[0_10px_20px_-6px_rgba(22,86,255,0.55),inset_0_1px_2px_rgba(255,255,255,0.4)] font-semibold shrink-0 text-xs">
-              <Check className="w-4 h-4" strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-[#111827] tracking-tight leading-snug font-medium text-[13px]">{t.formDashboard.personalInfo}</h2>
-              <p className="text-[#7A8498] text-[11px]">
-                {t.formDashboard.tasksCompleted.replace('{completed}', '4').replace('{total}', '4')}
-              </p>
-            </div>
-            <ChevronDown className="w-4 h-4 text-[#C4C9D4] group-hover:text-[#1656FF] transition-colors" strokeWidth={1.5} />
+      <div
+        data-tour="form-step-1"
+        onClick={() => {
+          formTour?.skipTour();
+          navigate(`/personal-info?year=${taxYear}`);
+        }}
+        className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+      >
+        <div className="p-5 sm:p-6 flex items-center gap-3.5">
+          <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              {t.formDashboard.tasksCompleted
+                .replace('{completed}', String(angabenProgress.completed))
+                .replace('{total}', String(angabenProgress.total))}
+            </p>
           </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
         </div>
-      ) : (
-        <section
-          data-tour="form-step-1"
-          className="p-2 rounded-[24px] bg-white/50 border border-white/60 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] backdrop-blur-[24px] transition-all duration-200"
-        >
-          <div className="bg-white rounded-[18px] shadow-[inset_0_2px_6px_rgba(255,255,255,1),inset_0_0_2px_rgba(0,0,0,0.05),0_6px_20px_rgba(0,0,0,0.05)] p-3.5">
-            <div
-              onClick={() => allAngabenComplete && setIsAngabenExpanded(false)}
-              className={cn(
-                "flex items-center gap-3 mb-3.5 px-0.5",
-                allAngabenComplete && "cursor-pointer"
-              )}
-            >
-              <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-b from-[#508BFF] to-[#1656FF] text-white rounded-full shadow-[0_10px_20px_-6px_rgba(22,86,255,0.55),inset_0_1px_2px_rgba(255,255,255,0.4)] font-semibold shrink-0 text-xs">
-                {allAngabenComplete ? <Check className="w-4 h-4" strokeWidth={2.5} /> : 1}
-              </div>
-              <div>
-                <h2 className="text-[#111827] tracking-tight leading-snug font-medium text-[13px]">{t.formDashboard.personalInfo}</h2>
-                <p className="text-[#7A8498] text-[11px]">
-                  {t.formDashboard.tasksCompleted
-                    .replace('{completed}', String(angabenProgress.completed))
-                    .replace('{total}', String(angabenProgress.total))}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              {angabenSections.map(section => {
-                const Icon = section.icon;
-                const completed = isCompleted(section.id);
-                return (
-                  <button
-                    key={section.id}
-                    onClick={() => handleSectionClick(section)}
-                    data-tour={section.id === 'contact' ? 'kontaktangaben' : undefined}
-                    className="flex items-center justify-between p-2 bg-white rounded-[14px] shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),inset_0_0_0_1px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08),inset_0_0_0_1px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 group/item text-left"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn(
-                        "w-8 h-8 flex items-center justify-center rounded-full transition-colors duration-300",
-                        completed
-                          ? "bg-[#EBF2FF] text-[#1656FF]"
-                        : "bg-[#F4F7FB] text-[#7A8498] group-hover/item:text-[#1656FF] group-hover/item:bg-[#EBF2FF]"
-                      )}>
-                        {completed ? <Check className="w-3.5 h-3.5" strokeWidth={2} /> : <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />}
-                      </div>
-                      <span className="font-medium text-[#111827] text-[13px]">
-                        {section.title}
-                      </span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-[#C4C9D4] group-hover/item:text-[#1656FF] group-hover/item:translate-x-0.5 transition-all duration-300 mr-0.5" strokeWidth={1.5} />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+      </div>
 
       {/* ═══════════ Step 2: Belege & Unterlagen ═══════════ */}
       {allAngabenComplete ? (
