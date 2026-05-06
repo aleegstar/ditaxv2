@@ -87,9 +87,11 @@ const SelectPerson: React.FC = () => {
               onClick={() => handleSelectPerson(filer)}
               className="w-full group relative overflow-hidden text-left transition-all duration-300 cursor-pointer active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(160deg, rgb(0, 46, 153) 0%, rgb(0, 34, 112) 100%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                border: '1px solid rgba(255, 255, 255, 0.10)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
                 borderRadius: '2rem',
                 padding: '2rem 2.5rem',
               }}
@@ -99,13 +101,13 @@ const SelectPerson: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 bg-white/15 px-2.5 py-1 rounded-full w-fit mb-3">
-                    <span className="text-xs font-medium text-white">
+                  <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
+                    <span className="text-xs font-medium text-primary">
                       {getRelationshipLabel(filer.relationship, t)}
                       {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
                     </span>
                   </div>
-                  <h3 className="tracking-tight text-white leading-tight text-lg font-medium">
+                  <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
                     {filer.first_name} {filer.last_name}
                   </h3>
                 </div>
