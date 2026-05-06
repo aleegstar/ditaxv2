@@ -1,37 +1,37 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Plus, Menu, ChevronRight, Check, ExternalLink, Inbox, Trash2, MoreVertical, PenTool, Clock, Zap, Home, FileCheck2, CreditCard, ArrowRight } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { AddTaxYearDropdown } from '@/components/ui/add-tax-year-dropdown';
 import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
-import ditaxLogoFull from '@/assets/ditax-logo.svg';
-import uploadIcon from '@/assets/upload-icon.svg';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
-import { calculateTaxReturnProgress } from '@/utils/taxReturnProgress';
 import { useTaxYearData } from '@/hooks/use-tax-year-data';
 import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
-
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
 import { usePendingMissingItemsCount } from '@/hooks/usePendingMissingItemsCount';
 import { MissingItemsAlert } from '@/components/dashboard/MissingItemsAlert';
 import { useI18n } from '@/contexts/I18nContext';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
+import { YearPillSelector } from '@/components/dashboard/YearPillSelector';
+import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
+import { ProcessingContent } from '@/components/dashboard/ProcessingContent';
+import { CompletedContent } from '@/components/dashboard/CompletedContent';
+import { TaxYearDashboard } from '@/components/TaxYearDashboard';
+import { FormProvider } from '@/contexts/form/FormContext';
+
 interface TaxReturn {
   id: string;
   tax_year: string;
@@ -44,696 +44,314 @@ interface TaxReturn {
   user_id: string;
   express_service?: boolean;
 }
+
 const UserTaxReturns = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
-  const {
-    setMenuSheetOpen,
-    documentsOverlayOpen,
-    setDocumentsOverlayOpen
-  } = useSidebar();
-  const {
-    profile: userProfile,
-    loading: profileLoading
-  } = useProfile();
-  const {
-    userId,
-    isValid,
-    isLoading: authLoading
-  } = useAuthValidation();
-  const { activeTaxFilerId, hasMultipleFilers, selectionConfirmed, confirmSelection, isLoading: taxFilerLoading } = useTaxFiler();
-  const {
-    taxReturns,
-    formProgress,
-    formData,
-    uploadedDocuments,
-    completedTaxReturns,
-    definitiveTaxBills,
-    supportTickets,
-    loading,
-    error,
-    refetch
-  } = useTaxYearData(userId, activeTaxFilerId);
-  const {
-    forceTour,
-    showTour
-  } = useOnboardingTour();
-  const {
-    unreadCount
-  } = useUnreadMessages();
-  const {
-    pendingDocuments,
-    pendingInformation
-  } = usePendingMissingItemsCount(userId);
-  
-  // Pull-to-refresh for mobile
-  const handleRefresh = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
-  
+  const { setMenuSheetOpen, documentsOverlayOpen, setDocumentsOverlayOpen } = useSidebar();
+  const { profile: userProfile, loading: profileLoading } = useProfile();
+  const { userId, isValid, isLoading: authLoading } = useAuthValidation();
+  const { activeTaxFilerId, hasMultipleFilers, selectionConfirmed, isLoading: taxFilerLoading } = useTaxFiler();
+  const { taxReturns, completedTaxReturns, loading, refetch } = useTaxYearData(userId, activeTaxFilerId);
+  const { showTour } = useOnboardingTour();
+  useUnreadMessages();
+  const { pendingDocuments, pendingInformation } = usePendingMissingItemsCount(userId);
+
+  const handleRefresh = useCallback(async () => { await refetch(); }, [refetch]);
   const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({
     onRefresh: handleRefresh,
     threshold: 60,
-    maxPullDistance: 100
+    maxPullDistance: 100,
   });
-  
+
   useEffect(() => {
     if (authLoading) return;
     if (!isValid || !userId) {
       navigate('/auth');
       return;
     }
-    // Redirect to person selection if multiple filers exist and no selection confirmed
     if (hasMultipleFilers && !selectionConfirmed) {
       navigate('/select-person', { replace: true });
-      return;
     }
   }, [userId, isValid, authLoading, navigate, hasMultipleFilers, selectionConfirmed]);
+
   useEffect(() => {
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        refetch();
-      }
-    };
+    const onVisibility = () => { if (document.visibilityState === 'visible') refetch(); };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [refetch]);
+
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
   const [showAddYearSheet, setShowAddYearSheet] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [signatureDialogOpen, setSignatureDialogOpen] = useState(false);
   const [safetyTimeout, setSafetyTimeout] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
-  // Safety timeout to prevent infinite skeleton loading
   useEffect(() => {
-    const timer = setTimeout(() => {
-      console.warn('UserTaxReturns: Safety timeout after 8s');
-      setSafetyTimeout(true);
-    }, 8000);
+    const timer = setTimeout(() => setSafetyTimeout(true), 8000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Reset when loading resolves normally
   useEffect(() => {
-    if (!authLoading && !loading && !profileLoading && !taxFilerLoading) {
-      setSafetyTimeout(false);
-    }
+    if (!authLoading && !loading && !profileLoading && !taxFilerLoading) setSafetyTimeout(false);
   }, [authLoading, loading, profileLoading, taxFilerLoading]);
 
-  // Find the first unsigned completed tax return
   const unsignedTaxReturn = useMemo(() => {
-    const completedYearsWithData = Object.entries(completedTaxReturns || {});
-    for (const [year, data] of completedYearsWithData) {
-      if (data && data.signature_status !== 'signed') {
-        return data;
-      }
+    for (const [, data] of Object.entries(completedTaxReturns || {})) {
+      if (data && (data as any).signature_status !== 'signed') return data as any;
     }
     return null;
   }, [completedTaxReturns]);
 
-  // Auto-open signature dialog when there's an unsigned tax return
   useEffect(() => {
     if (unsignedTaxReturn && isReady && userProfile && !signatureDialogOpen) {
-      // Small delay to ensure page is fully rendered
-      const timer = setTimeout(() => {
-        setSignatureDialogOpen(true);
-      }, 500);
+      const timer = setTimeout(() => setSignatureDialogOpen(true), 500);
       return () => clearTimeout(timer);
     }
   }, [unsignedTaxReturn, isReady, userProfile]);
-  const handleDeleteTaxYear = async (year: string) => {
-    if (!userId) return;
-    setIsDeleting(true);
-    try {
-      const taxReturn = taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
-      if (!taxReturn) {
-        toast.error(t.userDashboard.taxReturnNotFound);
-        return;
-      }
 
-      // Delete associated data for the specific tax filer
-      await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
-      await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
-      await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
-
-      // Delete the tax return
-      const {
-        error
-      } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
-      if (error) throw error;
-      toast.success(t.userDashboard.taxReturnDeleted.replace('{year}', year));
-      await refetch();
-    } catch (error) {
-      console.error('Error deleting tax year:', error);
-      toast.error(t.userDashboard.deleteError);
-    } finally {
-      setIsDeleting(false);
-      setDeleteDialogOpen(false);
-      setYearToDelete(null);
-      // Force cleanup of any lingering dialog overlays (Android WebView issue)
-      setTimeout(() => {
-        document.body.style.pointerEvents = '';
-        document.body.style.overflow = '';
-        document.querySelectorAll('[data-radix-portal]').forEach(el => {
-          if (el.children.length === 0) el.remove();
-        });
-      }, 300);
-    }
-  };
-  const handleDocumentsClick = useCallback(() => {
-    setDocumentsOverlayOpen(true);
-  }, [setDocumentsOverlayOpen]);
   useEffect(() => {
     if (!loading && !authLoading && !profileLoading && !taxFilerLoading && activeTaxFilerId && !isReady) {
       setIsReady(true);
     }
   }, [loading, authLoading, profileLoading, taxFilerLoading, activeTaxFilerId, isReady]);
+
+  const availableYears = useMemo(() => {
+    const years = taxReturns.map((tr: TaxReturn) => tr.tax_year);
+    return [...new Set(years)].sort((a, b) => parseInt(b) - parseInt(a));
+  }, [taxReturns]);
+
+  const getExistingReturn = (year: string) => taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
+  const isCompletedYear = (year: string) => {
+    const r = getExistingReturn(year);
+    return r?.status === 'completed' || r?.status === 'success' || !!completedTaxReturns[year];
+  };
+
+  // Default selectedYear: first unpaid, else newest
+  useEffect(() => {
+    if (!selectedYear && availableYears.length > 0) {
+      const firstUnpaid = availableYears.find(y => {
+        const r = getExistingReturn(y);
+        return r?.payment_status !== 'paid' && !isCompletedYear(y);
+      });
+      setSelectedYear(firstUnpaid || availableYears[0]);
+    }
+    // If selectedYear not in list anymore, reset
+    if (selectedYear && availableYears.length > 0 && !availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [availableYears, selectedYear]);
+
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
     try {
-      const {
-        data: existingReturn
-      } = await supabase.from('tax_returns').select('id').eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId).maybeSingle();
-      if (existingReturn) {
+      const { data: existing } = await supabase
+        .from('tax_returns').select('id').eq('user_id', userId).eq('tax_year', year)
+        .eq('tax_filer_id', activeTaxFilerId).maybeSingle();
+      if (existing) {
         toast.info(t.userDashboard.taxReturnExists.replace('{year}', year));
         await refetch();
-        setIsCreatingTaxReturn(false);
+        setSelectedYear(year);
         return;
       }
-      const {
-        data,
-        error
-      } = await supabase.from('tax_returns').insert({
+      const { error } = await supabase.from('tax_returns').insert({
         user_id: userId,
         tax_filer_id: activeTaxFilerId,
         tax_year: year,
         status: 'pending',
         payment_status: 'pending',
-        workflow_step: 'data_collection'
-      }).select().single();
-      if (error) {
-        if (error.code === '23505') {
-          toast.success(t.userDashboard.taxReturnAlreadyExists.replace('{year}', year));
-          await refetch();
-          navigate('/');
-          return;
-        }
-        throw error;
-      }
+        workflow_step: 'data_collection',
+      });
+      if (error && error.code !== '23505') throw error;
       toast.success(t.userDashboard.taxReturnCreated.replace('{year}', year));
       await refetch();
-      navigate('/');
-    } catch (error) {
-      console.error('Error creating tax return:', error);
+      setSelectedYear(year);
+    } catch (e) {
+      console.error(e);
       toast.error(t.userDashboard.createError);
     } finally {
       setIsCreatingTaxReturn(false);
     }
   };
-  const calculateProgress = (year: string): number | null => {
-    if (loading) return null;
-    const taxReturn = getExistingReturn(year);
-    const yearProgress = formProgress[year];
-    const yearFormData = formData[year] || [];
-    const yearDocuments = uploadedDocuments[year] || [];
-    return calculateTaxReturnProgress({
-      formData: yearFormData,
-      uploadedDocuments: yearDocuments,
-      paymentStatus: taxReturn?.payment_status,
-      workflowStep: taxReturn?.workflow_step,
-      status: taxReturn?.status,
-      formProgress: yearProgress?.form_sections
-    });
+
+  const handleDeleteTaxYear = async (year: string) => {
+    if (!userId) return;
+    setIsDeleting(true);
+    try {
+      const taxReturn = taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
+      if (!taxReturn) { toast.error(t.userDashboard.taxReturnNotFound); return; }
+      await supabase.from('form_data').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
+      await supabase.from('form_progress').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
+      await supabase.from('uploaded_documents').delete().eq('user_id', userId).eq('tax_year', year).eq('tax_filer_id', activeTaxFilerId);
+      const { error } = await supabase.from('tax_returns').delete().eq('id', taxReturn.id);
+      if (error) throw error;
+      toast.success(t.userDashboard.taxReturnDeleted.replace('{year}', year));
+      await refetch();
+    } catch (e) {
+      console.error(e);
+      toast.error(t.userDashboard.deleteError);
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setYearToDelete(null);
+    }
   };
-  const getDocumentCount = (year: string): number => {
-    return uploadedDocuments[year]?.length || 0;
-  };
+
   if ((authLoading || loading || profileLoading || !isReady || taxFilerLoading || !activeTaxFilerId) && !safetyTimeout) {
     return null;
   }
+  if (safetyTimeout && profileLoading && taxReturns.length === 0) return null;
+  if (isValid && !profileLoading && !userProfile && !safetyTimeout) return null;
+  if (hasMultipleFilers && !selectionConfirmed) return null;
 
-  // If safety timeout fired but profile still loading with no tax returns,
-  // keep showing nothing to prevent false consent screen
-  if (safetyTimeout && profileLoading && taxReturns.length === 0) {
-    return null;
-  }
-
-  // Guard: valid session but profile not yet loaded
-  // prevents "Benutzer" fallback from flashing during auth/profile race condition
-  if (isValid && !profileLoading && !userProfile && !safetyTimeout) {
-    return null;
-  }
-
-  // Also wait while redirecting to select-person
-  if (hasMultipleFilers && !selectionConfirmed) {
-    return null;
-  }
-
-  // Only show TaxYearSelector for truly new users who haven't completed onboarding yet.
-  // Use first_name as the indicator: it's set during WelcomeFlow and reliably shows
-  // that the user already went through the consent/name flow. Previously used
-  // onboarding_tour_completed which stays false after WelcomeFlow, causing the
-  // consent page to flash for existing users on navigation or filer-switch.
+  // New user without onboarding -> year selector
   if (!loading && !profileLoading && activeTaxFilerId && taxReturns.length === 0 && !userProfile?.first_name && !userProfile?.terms_accepted_at) {
     return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
   }
-  const getExistingReturn = (year: string) => {
-    return taxReturns.find((tr: TaxReturn) => tr.tax_year === year);
-  };
-  const currentYear = new Date().getFullYear();
-  const existingYears = taxReturns.map((tr: TaxReturn) => tr.tax_year);
-  const availableYears = [...new Set([...existingYears])].sort((a, b) => parseInt(b) - parseInt(a));
-  const isCompleted = (year: string) => {
-    const existingReturn = getExistingReturn(year);
-    return existingReturn?.status === 'completed' || existingReturn?.status === 'success' || !!completedTaxReturns[year];
-  };
-  const inProgressYears = availableYears.filter(year => !isCompleted(year));
-  const completedYears = availableYears.filter(year => isCompleted(year));
 
-  // Split in-progress years into unpaid and paid (processing)
-  const unpaidYears = inProgressYears.filter(year => {
-    const taxReturn = getExistingReturn(year);
-    return taxReturn?.payment_status !== 'paid';
-  });
-  const paidInProgressYears = inProgressYears.filter(year => {
-    const taxReturn = getExistingReturn(year);
-    return taxReturn?.payment_status === 'paid';
-  });
+  const getUserDisplayName = () => userProfile?.first_name || null;
+  const getGreeting = () => t.userDashboard.greeting;
 
-  // Most recent unfinished (unpaid) tax return — shown above quick actions
-  const featuredUnpaidYear = unpaidYears[0] || null;
-  const remainingUnpaidYears = featuredUnpaidYear ? unpaidYears.slice(1) : unpaidYears;
-  const getUserDisplayName = () => {
-    if (userProfile?.first_name) {
-      return userProfile.first_name;
-    }
-    return null;
-  };
-  const getGreeting = () => {
-    return t.userDashboard.greeting;
-  };
+  // Determine status of selected year
+  const selectedReturn = selectedYear ? getExistingReturn(selectedYear) : undefined;
+  const selectedCompleted = selectedYear ? completedTaxReturns?.[selectedYear] : undefined;
+  const selectedStatus: 'draft' | 'processing' | 'completed' | 'empty' = (() => {
+    if (!selectedYear) return 'empty';
+    if (selectedCompleted || selectedReturn?.status === 'completed' || selectedReturn?.status === 'success') return 'completed';
+    if (selectedReturn?.payment_status === 'paid') return 'processing';
+    if (selectedReturn) return 'draft';
+    return 'empty';
+  })();
 
-  // Helper to render an unpaid in-progress tax return card
-  const renderUnpaidCard = (year: string) => {
-    const yearProgressSections = formProgress[year]?.form_sections;
-    const yearFormDataItems = formData[year] || [];
-
-    const isSectionDone = (sectionKey: string, formType: string) => {
-      if (yearProgressSections?.[sectionKey]) return true;
-      const record = yearFormDataItems.find((r: any) => r.form_type === formType);
-      if (record?.data?._completed) return true;
-      if (record && !['income', 'assets', 'deductions', 'contactInfo'].includes(formType)) return true;
-      return false;
-    };
-
-    const hasDocuments = (uploadedDocuments[year] || []).length > 0;
-
-    const steps = [
-      { label: 'Angaben', done: isSectionDone('contactInfo', 'contactInfo') },
-      { label: 'Einkommen', done: isSectionDone('income', 'income') },
-      { label: 'Abzüge', done: isSectionDone('deductions', 'deductions') },
-      { label: 'Vermögen', done: isSectionDone('assets', 'assets') },
-      { label: 'Belege', done: hasDocuments || isSectionDone('documents', 'documents') },
-      { label: 'Zahlung', done: false },
-    ];
-    const completedSteps = steps.filter(s => s.done).length;
-
-    return (
-      <motion.div
-        key={year}
-        data-tour="tax-year-card"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        className="relative h-full"
-      >
-        <div
-          onClick={() => navigate(`/form?year=${year}`)}
-          className="relative z-10 rounded-[1.6rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-6 h-full"
-          style={{
-            background: 'hsl(var(--card))',
-            boxShadow: '0 18px 48px -24px hsl(var(--foreground) / 0.16), 0 2px 10px hsl(var(--foreground) / 0.04)',
-            border: '1px solid hsl(var(--border) / 0.7)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                <span className="text-xs font-medium text-primary">In Erfassung</span>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-white/40 rounded-full -mr-2">
-                  <MoreVertical className="h-5 w-5" strokeWidth={1.5} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={e => {
-                  e.stopPropagation();
-                  setYearToDelete(year);
-                  setDeleteDialogOpen(true);
-                }} className="text-red-600 hover:text-red-700">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t.common.delete}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
-            {year}
-          </h2>
-          <p className="text-muted-foreground leading-relaxed mb-6 text-sm">
-            {completedSteps === 0
-              ? 'Beginne damit deine Angaben zu erfassen.'
-              : `${completedSteps} von ${steps.length} Schritten erfolgreich abgeschlossen.`}
-          </p>
-
-          <div className="flex gap-2 mb-5">
-            {steps.map((step, i) => (
-              <div
-                key={i}
-                className="flex-1 h-2 rounded-full transition-all duration-500"
-                style={i < completedSteps ? {
-                  background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)',
-                } : {
-                  background: 'hsl(var(--muted))',
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 rounded-[1.2rem] bg-primary/5 p-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Clock className="h-5 w-5" strokeWidth={1.7} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold leading-tight text-foreground">Weiterarbeiten</p>
-            </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-sm" style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}>
-              <ChevronRight className="h-4 w-4" strokeWidth={2} />
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  return <div 
-    className="antialiased min-h-screen bg-background selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
-    onTouchStart={pullHandlers.onTouchStart}
-    onTouchMove={pullHandlers.onTouchMove}
-    onTouchEnd={pullHandlers.onTouchEnd}
-  >
-
-      {/* Pull-to-Refresh Indicator */}
+  return (
+    <div
+      className="antialiased min-h-screen bg-background selection:bg-primary/10 selection:text-foreground pb-[max(7rem,calc(5rem+env(safe-area-inset-bottom)))] text-foreground relative overflow-hidden"
+      onTouchStart={pullHandlers.onTouchStart}
+      onTouchMove={pullHandlers.onTouchMove}
+      onTouchEnd={pullHandlers.onTouchEnd}
+    >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
-      
-      {/* Main Container */}
-      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-6xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
+
+      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-4xl mx-auto pt-[max(1.5rem,env(safe-area-inset-top))] px-4 md:px-8">
         {/* Header */}
         <header className="flex pb-6 items-center justify-between">
           <div className="flex items-center">
-            <img
-              src="/ditax-logo-mask.svg"
-              alt="ditax"
-              className="h-8 w-[106px] object-contain"
-            />
+            <img src="/ditax-logo-mask.svg" alt="ditax" className="h-8 w-[106px] object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
             <button
               onClick={() => setMenuSheetOpen(true)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground hover:text-foreground transition-colors bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
             >
               <Menu className="w-[18px] h-[18px]" strokeWidth={1.5} />
             </button>
           </div>
         </header>
 
-        {/* Greeting Section */}
-        <section className="pb-6">
-          <div className="flex items-end justify-between gap-4 mb-0">
+        {/* Greeting */}
+        <section className="pb-5">
+          <div className="flex items-end justify-between gap-4">
             <div className="flex flex-col gap-0.5 min-w-0">
-              <p className="text-base text-muted-foreground font-normal">
-                {getGreeting()}
-              </p>
+              <p className="text-base text-muted-foreground font-normal">{getGreeting()}</p>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
-              {getUserDisplayName()}
+                {getUserDisplayName()}
               </h1>
             </div>
-            
-            {/* Tax Filer Selector */}
             <TaxFilerSelector className="flex-shrink-0" />
           </div>
         </section>
 
-        {/* Missing Items Alert */}
-        <MissingItemsAlert
-          pendingDocuments={pendingDocuments} 
-          pendingInformation={pendingInformation} 
-        />
+        {/* Missing Items */}
+        <MissingItemsAlert pendingDocuments={pendingDocuments} pendingInformation={pendingInformation} />
 
-        {/* Featured: most recent unfinished tax return */}
-        {featuredUnpaidYear && (
-          <>
-            <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
-              Fortsetzen
-            </h2>
-            <div className="mb-5">
-              {renderUnpaidCard(featuredUnpaidYear)}
-            </div>
-          </>
-        )}
-
-        {/* Functions Section Title */}
-        <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
-          Funktionen
-        </h2>
-
-        {/* Quick Action Cards */}
-        <section className="grid grid-cols-2 gap-2.5 mb-8">
-          <button
-            onClick={handleDocumentsClick}
-            className="relative min-h-[132px] overflow-hidden rounded-[1.25rem] bg-card p-3.5 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
-            style={{
-              boxShadow: '0 14px 34px -18px hsl(var(--foreground) / 0.18), 0 2px 10px hsl(var(--foreground) / 0.04)',
-              border: '1px solid hsl(var(--border) / 0.55)',
-            }}
-          >
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
-              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-            >
-              <FileCheck2 className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.8} />
-            </div>
-            <div className="mt-3 max-w-[112px] pb-7 sm:mt-5 sm:max-w-[140px] sm:pb-0">
-              <span className="block text-[14px] font-semibold leading-[1.1] text-foreground sm:text-lg">
-                Unterlagen<br />hochladen
-              </span>
-              <span className="mt-1 block text-[10px] font-medium leading-snug text-muted-foreground sm:mt-2 sm:text-[12px]">
-                Belege und Dokumente hochladen
-              </span>
-            </div>
-            <div
-              className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
-              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-            >
-              <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
-            </div>
-          </button>
-
-          <button
-            onClick={() => setShowAddYearSheet(true)}
-            data-tour="quick-add-year"
-            className="relative min-h-[132px] overflow-hidden rounded-[1.25rem] bg-card p-3.5 text-left transition-all duration-200 active:scale-[0.97] sm:min-h-[150px] sm:p-5"
-            style={{
-              boxShadow: '0 14px 34px -18px hsl(var(--foreground) / 0.18), 0 2px 10px hsl(var(--foreground) / 0.04)',
-              border: '1px solid hsl(var(--border) / 0.55)',
-            }}
-          >
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-full text-primary-foreground shadow-sm sm:h-12 sm:w-12"
-              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-            >
-              <Plus className="h-4 w-4 sm:h-6 sm:w-6" strokeWidth={1.8} />
-            </div>
-            <div className="mt-3 max-w-[112px] pb-7 sm:mt-5 sm:max-w-[140px] sm:pb-0">
-              <span className="block text-[14px] font-semibold leading-[1.1] text-foreground sm:text-lg">
-                Steuerjahr<br />hinzufügen
-              </span>
-              <span className="mt-1 block text-[10px] font-medium leading-snug text-muted-foreground sm:mt-2 sm:text-[12px]">
-                Neues Steuerjahr erfassen
-              </span>
-            </div>
-            <div
-              className="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-primary-foreground sm:bottom-5 sm:right-5 sm:h-10 sm:w-10"
-              style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-            >
-              <ChevronRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={2} />
-            </div>
-          </button>
-        </section>
-
-        {/* Inline Chat Assistant */}
-        {!showTour && userId && (
-          <div className="mb-8">
-            <OverlayChatBar userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} inline />
+        {/* Year Pills */}
+        {availableYears.length > 0 && (
+          <div className="mb-6">
+            <YearPillSelector
+              years={availableYears}
+              selectedYear={selectedYear}
+              onSelect={setSelectedYear}
+              onAdd={() => setShowAddYearSheet(true)}
+            />
           </div>
         )}
 
-
-        {/* Tax Returns Section Title */}
-        {(remainingUnpaidYears.length > 0 || paidInProgressYears.length > 0 || completedYears.length > 0) && (
-          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">
-            Steuererklärungen
-          </h2>
-        )}
-
-        {/* Cards - Timeline Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 auto-rows-fr mb-8">
-          {/* Remaining Unpaid In-Progress Tax Returns */}
-          {remainingUnpaidYears.map(year => renderUnpaidCard(year))}
-
-          {/* Paid In-Progress Tax Returns (Processing) */}
-          {paidInProgressYears.map(year => {
-            const taxReturn = getExistingReturn(year);
-            const isExpress = taxReturn?.express_service;
-            return <motion.div
-              key={year}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative h-full"
+        {/* Active Year Content */}
+        <motion.div
+          key={`${selectedYear}-${selectedStatus}`}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="mb-8"
+        >
+          {selectedStatus === 'empty' && (
+            <button
+              onClick={() => setShowAddYearSheet(true)}
+              className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] active:scale-[0.99] transition-all"
             >
-              <div 
-                onClick={() => navigate(`/tax-return-tracking/${taxReturn?.id}`)}
-                className="relative z-10 rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer active:scale-[0.98] p-8 sm:p-10 h-full"
-                style={{
-                  background: 'hsl(var(--card))',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  border: '1px solid hsl(var(--border))',
-                }}
+              <div
+                className="h-12 w-12 rounded-full flex items-center justify-center text-primary-foreground"
+                style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
               >
-                {/* Year + Status Badges */}
-                <div className="flex items-center gap-3 mb-6">
-                  
-                  <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
-                    <Clock className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
-                    <span className="text-xs font-medium text-amber-700">
-                      {t.userDashboard.processing}
-                    </span>
-                  </div>
-                  {isExpress && (
-                    <div className="flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-full">
-                      <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
-                      <span className="text-xs font-medium text-primary">{t.userDashboard.expressService}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Title & Description */}
-                <h2 className="font-semibold tracking-tight text-foreground leading-tight mb-2 text-3xl">
-                  {taxReturn.tax_year}
-                </h2>
-                <p className="text-[15px] text-muted-foreground leading-relaxed mb-8">
-                  Deine Steuererklärung wird von unserem Team bearbeitet. Du wirst benachrichtigt, sobald sie fertig ist.
-                </p>
-
+                <Plus className="w-6 h-6" strokeWidth={2} />
               </div>
-            </motion.div>;
-          })}
-
-          {/* Completed Tax Returns */}
-          {completedYears.map(year => {
-            const existingReturn = getExistingReturn(year);
-            const completedReturn = completedTaxReturns?.[year];
-            const isSigned = completedReturn?.signature_status === 'signed';
-            const needsSignature = completedReturn && !isSigned;
-            return <motion.article
-              key={year}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              onClick={() => {
-                if (completedReturn?.id) {
-                  navigate(`/tax-return-actions/${completedReturn.id}?year=${year}`);
-                }
-              }}
-              className="group relative overflow-hidden rounded-[2rem] p-7 md:p-8 cursor-pointer transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.1)] active:scale-[0.98] h-full"
-              style={{
-                background: 'linear-gradient(160deg, #ffffff 0%, #f7f8ff 50%, #ffffff 100%)',
-                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-                border: '1px solid rgba(0,0,0,0.06)',
-              }}
-            >
-
-              <div className="relative z-10">
-                <div className="flex justify-between items-center mb-5">
-                  <div className="flex items-center gap-2.5">
-                    {needsSignature ? (
-                      <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
-                        <PenTool className="w-3.5 h-3.5 text-amber-600" strokeWidth={1.8} />
-                        <span className="text-xs font-medium text-amber-700">
-                          {t.userDashboard.signaturePending}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full">
-                        <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={2} />
-                        <span className="text-xs font-medium text-emerald-700">
-                          {t.userDashboard.finished}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <h2 className="font-semibold tracking-tight text-foreground mb-2 leading-tight text-3xl">
-                  {needsSignature ? t.userDashboard.signatureRequired : year}
-                </h2>
-
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                  {needsSignature 
-                    ? 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.' 
-                    : t.userDashboard.decisionFrom.replace('{date}', existingReturn?.updated_at ? new Date(existingReturn.updated_at).toLocaleDateString('de-CH', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                      }) : '–')}
-                </p>
-
+              <div className="text-center">
+                <h3 className="text-base font-semibold text-foreground">Steuerjahr hinzufügen</h3>
+                <p className="text-sm text-muted-foreground mt-1">Lege eine neue Steuererklärung an.</p>
               </div>
-            </motion.article>;
-          })}
+            </button>
+          )}
 
+          {selectedStatus === 'draft' && selectedYear && (
+            <FormProvider taxYear={selectedYear}>
+              <TaxYearDashboard embedded />
+            </FormProvider>
+          )}
 
-        </div>
+          {selectedStatus === 'processing' && selectedReturn && (
+            <ProcessingContent
+              taxReturnId={selectedReturn.id}
+              workflowStep={selectedReturn.workflow_step}
+              expressService={!!selectedReturn.express_service}
+            />
+          )}
 
+          {selectedStatus === 'completed' && selectedYear && selectedCompleted && (
+            <CompletedContent
+              taxYear={selectedYear}
+              completedTaxReturnId={(selectedCompleted as any).id}
+              signatureStatus={(selectedCompleted as any).signature_status}
+            />
+          )}
+        </motion.div>
       </main>
 
-      {/* Overlay Chat Bar - only the open overlay; resting bar is rendered inline above */}
+      {/* Bottom Navbar */}
+      {!showTour && <HomeBottomNav
+        onChatClick={() => {
+          // open chat overlay via custom event
+          document.dispatchEvent(new CustomEvent('open-overlay-chat'));
+        }}
+        onDocumentsClick={() => setDocumentsOverlayOpen(true)}
+      />}
 
+      {/* Hidden chat overlay (controlled via event) */}
+      {!showTour && userId && (
+        <div className="hidden">
+          {/* OverlayChatBar manages its own open state; we listen for event and click the bar */}
+        </div>
+      )}
+      {!showTour && userId && <ChatOverlayMounted userId={userId} onMenuOpen={() => setMenuSheetOpen(true)} />}
 
-      {/* Documents Overlay */}
-      <DocumentsOverlay 
-        isOpen={documentsOverlayOpen} 
-        onClose={() => setDocumentsOverlayOpen(false)} 
-      />
+      <DocumentsOverlay isOpen={documentsOverlayOpen} onClose={() => setDocumentsOverlayOpen(false)} />
 
-      {/* White Overlay for Transition */}
-      <div className={`fixed inset-0 z-[200] pointer-events-none transition-opacity duration-300 ease-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`} style={{
-      backgroundColor: 'hsl(var(--background))'
-    }} />
-
-      {/* Delete Confirmation Bottom Sheet */}
+      {/* Delete Dialog */}
       <Drawer open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DrawerContent variant="bottom-sheet">
           <div className="mx-auto w-full max-w-lg px-6 pb-8">
@@ -744,20 +362,10 @@ const UserTaxReturns = () => {
               </DrawerDescription>
             </DrawerHeader>
             <DrawerFooter className="flex flex-col gap-3 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setDeleteDialogOpen(false)}
-                disabled={isDeleting}
-                className="w-full"
-              >
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting} className="w-full">
                 {t.userDashboard.cancelDelete}
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)}
-                disabled={isDeleting}
-                className="w-full"
-              >
+              <Button variant="destructive" onClick={() => yearToDelete && handleDeleteTaxYear(yearToDelete)} disabled={isDeleting} className="w-full">
                 {isDeleting ? t.userDashboard.deleting : t.userDashboard.delete}
               </Button>
             </DrawerFooter>
@@ -765,32 +373,52 @@ const UserTaxReturns = () => {
         </DrawerContent>
       </Drawer>
 
-      {/* Add Tax Year Bottom Sheet (from quick action card) */}
       <AddTaxYearSheet
         open={showAddYearSheet}
         onOpenChange={setShowAddYearSheet}
-        existingYears={existingYears}
-        onYearSelect={(year) => {
-          setShowAddYearSheet(false);
-          createNewTaxReturn(year);
-        }}
+        existingYears={taxReturns.map((tr: TaxReturn) => tr.tax_year)}
+        onYearSelect={(year) => { setShowAddYearSheet(false); createNewTaxReturn(year); }}
       />
 
-
-      {userProfile && unsignedTaxReturn && <SignatureDialog open={signatureDialogOpen} onOpenChange={setSignatureDialogOpen} completedTaxReturn={{
-      id: unsignedTaxReturn.id,
-      tax_year: unsignedTaxReturn.tax_year,
-      file_name: unsignedTaxReturn.file_name,
-      file_path: unsignedTaxReturn.file_path
-    }} userProfile={{
-      first_name: userProfile.first_name || '',
-      last_name: userProfile.last_name || '',
-      email: userProfile.email || '',
-      date_of_birth: userProfile.date_of_birth || undefined
-    }} onSignatureComplete={() => {
-      refetch();
-      setSignatureDialogOpen(false);
-    }} />}
-    </div>;
+      {userProfile && unsignedTaxReturn && (
+        <SignatureDialog
+          open={signatureDialogOpen}
+          onOpenChange={setSignatureDialogOpen}
+          completedTaxReturn={{
+            id: unsignedTaxReturn.id,
+            tax_year: unsignedTaxReturn.tax_year,
+            file_name: unsignedTaxReturn.file_name,
+            file_path: unsignedTaxReturn.file_path,
+          }}
+          userProfile={{
+            first_name: userProfile.first_name || '',
+            last_name: userProfile.last_name || '',
+            email: userProfile.email || '',
+            date_of_birth: userProfile.date_of_birth || undefined,
+          }}
+          onSignatureComplete={() => { refetch(); setSignatureDialogOpen(false); }}
+        />
+      )}
+    </div>
+  );
 };
+
+// Wrapper that listens to event and opens chat overlay programmatically by simulating click
+const ChatOverlayMounted: React.FC<{ userId: string; onMenuOpen: () => void }> = ({ userId, onMenuOpen }) => {
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = () => {
+      const trigger = wrapperRef.current?.querySelector('[data-tour="floating-chat-button"]') as HTMLElement | null;
+      trigger?.click();
+    };
+    document.addEventListener('open-overlay-chat', handler);
+    return () => document.removeEventListener('open-overlay-chat', handler);
+  }, []);
+  return (
+    <div ref={wrapperRef} className="sr-only">
+      <OverlayChatBar userId={userId} onMenuOpen={onMenuOpen} inline />
+    </div>
+  );
+};
+
 export default UserTaxReturns;
