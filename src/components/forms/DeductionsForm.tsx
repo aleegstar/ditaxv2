@@ -29,6 +29,7 @@ const DeductionsForm = ({
     t
   } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Boolean states
   const [hasPillar3a, setHasPillar3a] = useState<boolean>(false);
