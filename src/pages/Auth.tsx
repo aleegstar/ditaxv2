@@ -496,26 +496,6 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-transparent">
-
-      {/* Ambient background elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Grain texture */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
-      </div>
-
-      {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-6 lg:p-8">
-
-        {/* Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 28, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          whileHover={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.7), 0 30px 90px -12px rgba(0,0,0,0.12), 0 10px 30px -8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6)' }}
-          className="w-full sm:max-w-[440px] min-h-screen sm:min-h-0 px-6 py-10 sm:px-12 sm:py-14 relative overflow-hidden sm:rounded-[2.5rem]"
-          style={{
-            background: 'linear-gradient(165deg, rgba(255,255,255,0.9) 0%, rgba(250,251,255,0.8) 50%, rgba(246,248,253,0.74) 100%)',
   return <div className="min-h-screen text-foreground antialiased overflow-hidden relative">
 
       {/* Ambient warm off-white background with subtle radial gradient */}
