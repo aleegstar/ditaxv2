@@ -130,7 +130,7 @@ const IndexContent = () => {
     // Normal flow - always render the form content
     switch (section) {
       case 'kontakt':
-        return <MultiStepContactForm onSave={() => navigate(`/form?year=${taxYear}`)} />;
+        return <MultiStepContactForm onSave={() => navigate('/')} />;
       case 'einkommen':
         return <IncomeForm onSave={() => {}} embedded={false} />;
       case 'abzuege':
