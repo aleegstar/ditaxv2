@@ -238,12 +238,12 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
       className="fixed inset-x-0 bottom-0 z-[10010] px-3 pointer-events-none"
       style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto w-fit max-w-full pointer-events-auto">
+      <div className="mx-auto w-full max-w-[440px] pointer-events-auto">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative rounded-full"
+          className="relative rounded-full w-full"
           style={{
             padding: '6px',
             background: 'rgba(255,255,255,0.5)',
@@ -254,10 +254,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           }}
         >
           <div
-            className="relative flex items-center bg-white rounded-full"
+            className="relative flex items-center justify-between bg-white rounded-full w-full"
             style={{
               padding: '5px',
-              gap: '3px',
+              gap: '4px',
               boxShadow:
                 'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
             }}
@@ -272,10 +272,12 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                     onClick={tab.onClick}
                     aria-label={tab.label}
                     aria-current={isActive ? 'page' : undefined}
-                    className="relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors"
+                    className={cn(
+                      'relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors',
+                      isActive ? 'flex-[1.5]' : 'flex-1'
+                    )}
                     style={{
                       height: '46px',
-                      width: isActive ? '76px' : '58px',
                     }}
                   >
                     {isActive && (
