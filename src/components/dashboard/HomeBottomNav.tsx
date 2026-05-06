@@ -245,19 +245,19 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           className="relative rounded-full w-full"
           style={{
-            padding: '12px',
+            padding: '6px',
             background: 'rgba(255,255,255,0.5)',
             backdropFilter: 'blur(24px) saturate(180%)',
             WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 24px 48px -12px rgba(0,0,0,0.08)',
+            boxShadow: '0 18px 36px -12px rgba(0,0,0,0.08)',
           }}
         >
           <div
             className="relative flex items-center justify-between bg-white rounded-full w-full"
             style={{
-              padding: '8px',
-              gap: '4px',
+              padding: '4px',
+              gap: '3px',
               boxShadow:
                 'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
             }}
@@ -277,7 +277,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                       isActive ? 'flex-[1.3]' : 'flex-1'
                     )}
                     style={{
-                      height: '76px',
+                      height: '48px',
                     }}
                   >
                     {isActive && (
