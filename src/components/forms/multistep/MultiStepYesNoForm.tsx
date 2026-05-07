@@ -101,7 +101,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     generateChecklist,
     setCurrentStep,
     handleBack: contextHandleBack,
-    taxYear
+    taxYear,
+    isDataLoading,
+    formDataLoaded
   } = useFormContext();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -118,32 +120,61 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   const questionsConfig = getQuestionsForSection(section, t);
   const questions = questionsConfig.questions;
 
-  const [formState, setFormState] = useState<MultiStepFormState>({
-    currentQuestionIndex: 0,
-    answers: {},
-    repeaterData: {},
-    isComplete: false,
-    mode: 'yesno'
-  });
+  // Lazy initial state derivation — uses formProgress/formData synchronously
+  // so that completed sections render the summary immediately (no flash of Q&A).
+  const buildInitialFormState = (): MultiStepFormState => {
+    const existingData = (formData as any)?.[section] || {};
+    const answers: Record<string, boolean> = {};
+    const repeaterData: Record<string, any[]> = {};
+    questions.forEach((question) => {
+      if (!question?.id) return;
+      answers[question.id] = existingData[question.id] || false;
+      if (question.requiresRepeater) {
+        const dataKey = getRepeaterDataKey(question.id);
+        if (dataKey) repeaterData[question.id] = existingData[dataKey] || [];
+      }
+    });
+    const completed = !!formProgress?.[section];
+    const savedIndex = questionProgress?.[section];
+    const currentQuestionIndex = completed
+      ? Math.max(questions.length - 1, 0)
+      : (savedIndex !== undefined ? savedIndex : 0);
+    return {
+      currentQuestionIndex,
+      answers,
+      repeaterData,
+      isComplete: completed,
+      mode: 'yesno',
+    };
+  };
 
-  // Use reducer for view state management
-  const [viewState, dispatchViewState] = useReducer(formViewReducer, {
-    showRepeater: false,
-    showSummary: false,
-    isEditing: false,
-    editingQuestionId: null
-  });
+  const [formState, setFormState] = useState<MultiStepFormState>(buildInitialFormState);
+
+  // Use reducer for view state management — initialise summary view immediately if completed.
+  const [viewState, dispatchViewState] = useReducer(
+    formViewReducer,
+    undefined,
+    () => ({
+      showRepeater: false,
+      showSummary: !!formProgress?.[section],
+      isEditing: false,
+      editingQuestionId: null,
+    })
+  );
 
   // Ref to track that initial data has been loaded for this section
-  const dataLoadedForSectionRef = useRef<string | null>(null);
+  const dataLoadedForSectionRef = useRef<string | null>(section);
   
   // Ref to ensure initial check only runs once per section
-  const initialCheckDoneRef = useRef(false);
+  const initialCheckDoneRef = useRef(true);
   
-  // Reset refs when section changes
+  // Reset refs and state when section changes
   useEffect(() => {
-    initialCheckDoneRef.current = false;
-    dataLoadedForSectionRef.current = null;
+    initialCheckDoneRef.current = true;
+    dataLoadedForSectionRef.current = section;
+    setFormState(buildInitialFormState());
+    dispatchViewState({ type: 'SET_SUMMARY', show: !!formProgress?.[section] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section]);
 
   // Load existing data and answers - ONLY on initial mount or section change, never on formData updates
