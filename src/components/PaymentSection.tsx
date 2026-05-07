@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X, FileText, Columns, Bitcoin, Home, Briefcase, Calculator, Receipt, Sparkles, Lock, Check } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { usePromoCodes } from '@/hooks/usePromoCodes';
