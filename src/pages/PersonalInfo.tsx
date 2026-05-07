@@ -119,7 +119,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug line-clamp-2">
+                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug min-h-[2.4em] line-clamp-2">
                     {section.description}
                   </p>
                 </div>
