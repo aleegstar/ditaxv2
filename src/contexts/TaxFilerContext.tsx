@@ -89,6 +89,18 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [userId, authLoading]);
 
+  // Force person re-selection on every fresh sign-in
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        sessionStorage.removeItem(SESSION_KEY);
+        setSelectionConfirmed(false);
+        setActiveTaxFilerId(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Load tax filers — called directly with userId from AuthContext
   const loadTaxFilers = useCallback(async () => {
     const currentUserId = userIdRef.current;
