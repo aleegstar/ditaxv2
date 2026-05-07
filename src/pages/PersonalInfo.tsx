@@ -98,7 +98,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         {/* 2x2 grid — neutral white cards */}
         <div className="grid grid-cols-2 gap-3">
           {sections.map((section) => {
-            const Icon = section.icon;
             const completed = isCompleted(section.id);
             return (
               <button
@@ -111,9 +110,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 )}
               >
                 <div className="flex items-start justify-between">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
-                  </div>
+                  <img src={section.image} alt="" className="w-12 h-12 object-contain -ml-1 -mt-1" />
                   {completed && (
                     <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
