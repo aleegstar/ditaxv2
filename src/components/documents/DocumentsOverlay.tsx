@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import DocumentActionSheet from '@/components/documents/DocumentActionSheet';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
+import { getAvailableTaxYears, getLatestAvailableTaxYear } from '@/config/availableTaxYears';
 
 interface DocumentsOverlayProps {
   isOpen: boolean;
@@ -22,8 +23,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
   const { t, language } = useI18n();
   const { activeTaxFilerId } = useTaxFiler();
   const { toast } = useToast();
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState(currentYear.toString());
+  const [selectedYear, setSelectedYear] = useState(getLatestAvailableTaxYear());
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +35,7 @@ const DocumentsOverlayContent: React.FC<{ onClose: () => void }> = ({ onClose })
   const fileInputRef = useRef<HTMLInputElement>(null);
   const loadingRef = useRef(false);
 
-  const allYears = React.useMemo(() => Array.from({ length: 11 }, (_, i) => (2024 + i).toString()), []);
+  const allYears = React.useMemo(() => getAvailableTaxYears(), []);
 
   const loadDocuments = useCallback(async (showSpinner = true) => {
     if (loadingRef.current) return;
