@@ -515,8 +515,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   };
 
   const handleHeaderBack = () => {
-    // Navigate back to the dashboard home (no /form anymore)
-    navigate('/');
+    navigate(`/personal-info?year=${taxYear}`);
   };
 
   const getSectionTitle = () => {
