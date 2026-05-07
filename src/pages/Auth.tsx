@@ -180,6 +180,7 @@ const Auth = () => {
 
           window.history.replaceState({}, '', '/auth');
           toast.success('Erfolgreich angemeldet!');
+          sessionStorage.setItem('ditax_force_person_selection', '1');
           navigate('/', { replace: true });
         } catch (error: any) {
           console.error('Auth error:', error);
