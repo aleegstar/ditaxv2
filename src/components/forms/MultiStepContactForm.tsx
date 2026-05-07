@@ -644,7 +644,7 @@ const MultiStepContactForm = ({
               <button
                 type="button"
                 onClick={handleBack}
-                className="group w-full flex items-center justify-center gap-3 rounded-full bg-gradient-to-b from-card to-muted border border-border px-6 py-3.5 font-medium text-sm text-foreground transition-all shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97]"
+                className="w-full flex items-center justify-center rounded-2xl bg-white border border-border px-6 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted active:scale-[0.97]"
               >
                 {t.multiStepContactForm.back}
               </button>
