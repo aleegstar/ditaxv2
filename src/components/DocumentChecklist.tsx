@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import checklistEmptyImg from '@/assets/checklist-empty.png';
 import uploadEmptyImg from '@/assets/upload-empty.webp';
+import documentsCompleteImg from '@/assets/documents-complete-illustration.webp';
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
