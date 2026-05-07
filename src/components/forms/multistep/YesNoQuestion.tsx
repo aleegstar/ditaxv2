@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
+import yesNoIllustration from '@/assets/yesno-illustration.png';
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
@@ -87,7 +88,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
       whileDrag={{ scale: 1.01 }}
       className="w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
     >
-      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-10 shadow-sm overflow-hidden">
+      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-8 shadow-sm overflow-hidden">
         {/* Subtle Swipe Indicators */}
         <motion.div
           style={{ opacity: yesOpacity }}
@@ -106,20 +107,44 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           </span>
         </motion.div>
 
+        {/* Illustration */}
+        <div className="flex justify-center pointer-events-none">
+          <img
+            src={yesNoIllustration}
+            alt=""
+            className="w-48 h-48 object-contain select-none"
+            draggable={false}
+          />
+        </div>
+
         {/* Question Content */}
-        <div className="text-center">
-          <h2 className="text-2xl text-foreground tracking-tight font-semibold leading-tight pointer-events-none">
+        <div className="text-center mt-2">
+          <h2 className="text-2xl text-foreground tracking-tight font-bold leading-tight pointer-events-none">
             {question.text}
           </h2>
 
           {question.explanation && (
             <div className="mt-6 pointer-events-auto">
+              <div className="flex items-start gap-3 rounded-2xl bg-muted/40 border border-border/40 px-4 py-3 text-left">
+                <svg className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {question.explanation}
+                </p>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-muted-foreground/40 hover:decoration-foreground transition-colors"
+                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:brightness-110 transition"
               >
                 {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
               </button>
 
               <AnimatePresence initial={false}>
