@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Plus } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
 import ditaxLogoMask from '@/assets/ditax-logo-mask.svg';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
@@ -8,7 +8,6 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -16,8 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useTaxYearData } from '@/hooks/use-tax-year-data';
-import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
+import { getAvailableTaxYears } from '@/config/availableTaxYears';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
@@ -105,7 +104,6 @@ const UserTaxReturns = () => {
   }, [refetch]);
 
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
-  const [showAddYearSheet, setShowAddYearSheet] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
