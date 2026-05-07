@@ -95,7 +95,7 @@ const DeductionsForm = ({
         description: t.forms.savedSuccessfullyDescription
       });
       if (!embedded) {
-        navigate('/');
+        navigate(`/personal-info?year=${taxYear}`);
       } else {
         onSave();
       }
