@@ -383,7 +383,7 @@ export const WelcomeFlow = () => {
   
   const getStepTitle = () => {
     if (currentStep === 2) {
-      return firstName ? `Hallo ${firstName}, wir sind bereit!` : 'Wir sind bereit!';
+      return firstName ? `Grüezi ${firstName}, wir sind bereit!` : 'Wir sind bereit!';
     }
     return steps[currentStep].title;
   };
