@@ -1,5 +1,6 @@
 
 import React from 'react';
+import propertyEmptyImg from '@/assets/property-empty.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,18 +46,15 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-slate-600 font-medium">Immobilien</h4>
-        <Button
+        <span className="text-sm font-medium text-slate-600">Immobilien</span>
+        <button
           type="button"
           onClick={addProperty}
-          size="sm"
-          className="border-slate-200 text-slate-600 hover:bg-slate-100"
-          variant="outline"
-          style={{ touchAction: 'manipulation' }}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Immobilie hinzufügen
-        </Button>
+        </button>
       </div>
 
       {properties.map((property, index) => (
@@ -236,17 +234,17 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
       ))}
 
       {properties.length === 0 && (
-        <div className="text-center py-8 bg-slate-50 border border-slate-200 rounded-2xl text-slate-500">
-          <p>Noch keine Immobilien hinzugefügt</p>
-          <Button
+        <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+          <img src={propertyEmptyImg} alt="" className="w-64 h-64 object-contain -my-8" />
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Immobilien hinzugefügt</h3>
+          <p className="text-sm text-slate-500 mb-5">Füge deine erste Immobilie hinzu, um fortzufahren.</p>
+          <button
             type="button"
             onClick={addProperty}
-            className="mt-2 border-slate-200 text-slate-600 hover:bg-slate-100"
-            variant="outline"
-            style={{ touchAction: 'manipulation' }}
+            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
           >
             Erste Immobilie hinzufügen
-          </Button>
+          </button>
         </div>
       )}
 
