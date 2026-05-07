@@ -587,7 +587,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         <div className="h-screen w-full relative flex flex-col overflow-hidden">
           <SubpageHeader 
             title={getSectionTitle()} 
-            onBack={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })} 
+            onBack={() => navigate(`/personal-info?year=${taxYear}`)} 
           />
 
           {/* Summary Content */}
@@ -597,7 +597,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
               summaryItems={summaryItems}
               onEdit={handleEditFromSummary}
               onConfirm={handleConfirmSummary}
-              onBack={() => dispatchViewState({ type: 'SET_SUMMARY', show: false })}
+              onBack={() => navigate(`/personal-info?year=${taxYear}`)}
             />
           </div>
 
