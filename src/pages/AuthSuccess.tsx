@@ -55,6 +55,7 @@ const AuthSuccess = () => {
                 window.location.href = deeplinkUrl;
               } else {
                 console.log('🔗 AuthSuccess: Soft-navigating to home...');
+                sessionStorage.setItem('ditax_force_person_selection', '1');
                 navigate('/', { replace: true });
               }
             }, 100);
