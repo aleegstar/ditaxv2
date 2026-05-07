@@ -274,7 +274,7 @@ export const WelcomeFlow = () => {
                placeholder={t.onboarding.firstName} 
                value={firstName} 
                onChange={e => setFirstName(e.target.value)} 
-               className="text-lg h-auto py-5 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-2xl px-5 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
+               className="text-sm h-auto py-3 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-2xl px-6 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 shadow-sm" 
                onKeyDown={e => e.key === 'Enter' && handleNext()} 
                autoFocus 
              />
