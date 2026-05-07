@@ -262,7 +262,7 @@ export const WelcomeFlow = () => {
              <Button 
                onClick={handleNext} 
                disabled={isLoading || !canProceed()} 
-               className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
+               className="w-full shadow-none hover:shadow-none"
              >
                {t.onboarding.next}
             </Button>
@@ -282,7 +282,7 @@ export const WelcomeFlow = () => {
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading || !canProceed()} 
-                className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
+                className="w-full shadow-none hover:shadow-none"
               >
                 {t.onboarding.next}
               </Button>
@@ -306,7 +306,7 @@ export const WelcomeFlow = () => {
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading} 
-                className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
+                className="w-full shadow-none hover:shadow-none"
               >
                 {t.onboarding.next}
              </Button>
@@ -379,7 +379,7 @@ export const WelcomeFlow = () => {
                <Button
                  onClick={handleFamilyLater}
                  disabled={isLoading}
-                  className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
+                 className="w-full shadow-none hover:shadow-none"
                >
                   {t.onboarding.familyHintLater}
                </Button>
