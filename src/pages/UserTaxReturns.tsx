@@ -383,12 +383,6 @@ const UserTaxReturns = () => {
         </DrawerContent>
       </Drawer>
 
-      <AddTaxYearSheet
-        open={showAddYearSheet}
-        onOpenChange={setShowAddYearSheet}
-        existingYears={taxReturns.map((tr: TaxReturn) => tr.tax_year)}
-        onYearSelect={(year) => { setShowAddYearSheet(false); createNewTaxReturn(year); }}
-      />
 
       {userProfile && unsignedTaxReturn && (
         <SignatureDialog
