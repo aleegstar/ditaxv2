@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, X } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.png';
+import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
