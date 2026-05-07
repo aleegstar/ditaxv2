@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -109,10 +109,12 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                   "active:scale-[0.98] transition-all duration-200 min-h-[170px] flex flex-col items-center justify-between"
                 )}
               >
-                {completed && (
+                {completed ? (
                   <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                   </div>
+                ) : (
+                  <ChevronRight className="absolute top-3 right-3 w-4 h-4 text-muted-foreground/40" strokeWidth={2} />
                 )}
                 <img src={section.image} alt="" width={320} height={320} loading="lazy" decoding="async" className="w-20 h-20 object-contain" />
                 <div className="text-center">
