@@ -5,10 +5,10 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-import sectionContactImg from '@/assets/section-contact.png';
-import sectionIncomeImg from '@/assets/section-income.png';
-import sectionDeductionsImg from '@/assets/section-deductions.png';
-import sectionAssetsImg from '@/assets/section-assets.png';
+import sectionContactImg from '@/assets/section-contact.webp';
+import sectionIncomeImg from '@/assets/section-income.webp';
+import sectionDeductionsImg from '@/assets/section-deductions.webp';
+import sectionAssetsImg from '@/assets/section-assets.webp';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
@@ -114,7 +114,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                   </div>
                 )}
-                <img src={section.image} alt="" className="w-20 h-20 object-contain" />
+                <img src={section.image} alt="" width={320} height={320} loading="lazy" decoding="async" className="w-20 h-20 object-contain" />
                 <div className="text-center">
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
