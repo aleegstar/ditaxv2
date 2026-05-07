@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, X } from 'lucide-react';
-import tipFolderImg from '@/assets/tip-folder.png';
+import tipFolderImg from '@/assets/tip-info.png';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -236,10 +236,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
       {/* ═══════════ Tipp Card ═══════════ */}
       {!tipDismissed && !allAngabenComplete && (
-        <div className="mt-2 rounded-[1.5rem] bg-primary/5 border border-primary/15 p-4 sm:p-5 flex items-start gap-3 relative">
-          <img src={tipFolderImg} alt="" className="w-14 h-14 sm:w-16 sm:h-16 object-contain flex-shrink-0" />
+        <div className="mt-2 rounded-[1.5rem] bg-primary/5 border border-primary/15 px-4 py-4 sm:px-5 flex items-center gap-4 relative">
+          <img src={tipFolderImg} alt="" className="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0" />
           <div className="flex-1 min-w-0 pr-6">
-            <h3 className="text-[14px] font-semibold text-foreground tracking-tight">
+            <h3 className="text-[14px] font-semibold text-foreground tracking-tight leading-snug">
               Tipp: Starte mit deinen persönlichen Angaben.
             </h3>
             <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
