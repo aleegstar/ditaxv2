@@ -230,10 +230,8 @@ const UserTaxReturns = () => {
   if (isValid && !profileLoading && !userProfile && !safetyTimeout) return null;
   if (hasMultipleFilers && !selectionConfirmed) return null;
 
-  // New user without onboarding -> year selector
-  if (!loading && !profileLoading && activeTaxFilerId && taxReturns.length === 0 && !userProfile?.first_name && !userProfile?.terms_accepted_at) {
-    return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
-  }
+  // Note: tax years are system-managed (see src/config/availableTaxYears.ts).
+  // Missing years are auto-created in the effect below.
 
   const getUserDisplayName = () => userProfile?.first_name || null;
   const getGreeting = () => t.userDashboard.greeting;
@@ -298,7 +296,6 @@ const UserTaxReturns = () => {
               years={availableYears}
               selectedYear={selectedYear}
               onSelect={setSelectedYear}
-              onAdd={() => setShowAddYearSheet(true)}
             />
           </div>
         )}
@@ -312,21 +309,10 @@ const UserTaxReturns = () => {
           className="mb-8"
         >
           {selectedStatus === 'empty' && (
-            <button
-              onClick={() => setShowAddYearSheet(true)}
-              className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] active:scale-[0.99] transition-all"
-            >
-              <div
-                className="h-12 w-12 rounded-full flex items-center justify-center text-primary-foreground"
-                style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-              >
-                <Plus className="w-6 h-6" strokeWidth={2} />
-              </div>
-              <div className="text-center">
-                <h3 className="text-base font-semibold text-foreground">Steuerjahr hinzufügen</h3>
-                <p className="text-sm text-muted-foreground mt-1">Lege eine neue Steuererklärung an.</p>
-              </div>
-            </button>
+            <div className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] text-center">
+              <h3 className="text-base font-semibold text-foreground">Steuerjahr wird vorbereitet</h3>
+              <p className="text-sm text-muted-foreground">Einen Moment bitte – dein Steuerjahr wird angelegt.</p>
+            </div>
           )}
 
           {selectedStatus === 'draft' && selectedYear && (
