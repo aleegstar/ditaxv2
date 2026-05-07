@@ -137,6 +137,7 @@ const Auth = () => {
             console.log('✅ Session found! User authenticated.');
             window.history.replaceState({}, '', '/auth');
             toast.success('Erfolgreich angemeldet!');
+            sessionStorage.setItem('ditax_force_person_selection', '1');
             navigate('/', { replace: true });
             return;
           } else {
