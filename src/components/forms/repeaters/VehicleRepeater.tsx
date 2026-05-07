@@ -1,5 +1,6 @@
 
 import React from 'react';
+import vehicleEmptyImg from '@/assets/vehicle-empty.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
@@ -39,16 +40,14 @@ export const VehicleRepeater: React.FC<VehicleRepeaterProps> = ({ vehicles, onUp
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-600">Fahrzeuge</span>
-        <Button
+        <button
           type="button"
           onClick={addVehicle}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2 text-slate-600 hover:text-[#1D64FF] border border-slate-200 rounded-lg bg-white hover:bg-slate-50"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
           <Plus className="w-4 h-4" />
           Fahrzeug hinzufügen
-        </Button>
+        </button>
       </div>
 
       {vehicles.map((vehicle, index) => (
@@ -124,16 +123,17 @@ export const VehicleRepeater: React.FC<VehicleRepeaterProps> = ({ vehicles, onUp
 
       {/* Empty State */}
       {vehicles.length === 0 && (
-        <div className="text-center py-8 bg-slate-50 border border-slate-200 rounded-2xl">
-          <p className="text-slate-500 mb-3">Noch keine Fahrzeuge hinzugefügt</p>
-          <Button
+        <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+          <img src={vehicleEmptyImg} alt="" className="w-40 h-40 object-contain mb-4" />
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Fahrzeuge hinzugefügt</h3>
+          <p className="text-sm text-slate-500 mb-5">Füge dein erstes Fahrzeug hinzu, um fortzufahren.</p>
+          <button
             type="button"
             onClick={addVehicle}
-            variant="outline"
-            className="text-[#1D64FF] border-slate-200 hover:text-[#1D64FF] hover:bg-[#1D64FF]/10"
+            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
           >
             Erstes Fahrzeug hinzufügen
-          </Button>
+          </button>
         </div>
       )}
 
