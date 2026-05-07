@@ -461,6 +461,7 @@ const Auth = () => {
       }
 
       toast.success(t.authFlow.loginSuccess);
+      sessionStorage.setItem('ditax_force_person_selection', '1');
       navigate("/");
     } catch (error: any) {
       toast.error(error.message || t.authFlow.codeVerificationError);
