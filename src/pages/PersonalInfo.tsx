@@ -15,33 +15,33 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const navigate = useNavigate();
   const { formProgress, isDataLoading, formDataLoaded } = useFormContext();
 
-  const sections: Array<{ id: string; title: string; description: string; icon: LucideIcon; param: string }> = [
+  const sections: Array<{ id: string; title: string; description: string; image: string; param: string }> = [
     {
       id: 'contact',
       title: t.formDashboard.contactInfo,
       description: 'Adresse, Zivilstand, Familie',
-      icon: User,
+      image: sectionContactImg,
       param: 'kontakt',
     },
     {
       id: 'income',
       title: t.formDashboard.income,
       description: 'Lohn, Renten, Nebeneinkünfte',
-      icon: Wallet,
+      image: sectionIncomeImg,
       param: 'einkommen',
     },
     {
       id: 'deductions',
       title: t.formDashboard.deductions,
       description: 'Versicherungen, Spenden, Säule 3a',
-      icon: Shield,
+      image: sectionDeductionsImg,
       param: 'abzuege',
     },
     {
       id: 'assets',
       title: t.formDashboard.assets,
       description: 'Konten, Wertschriften, Liegenschaften',
-      icon: Landmark,
+      image: sectionAssetsImg,
       param: 'vermoegen',
     },
   ];
