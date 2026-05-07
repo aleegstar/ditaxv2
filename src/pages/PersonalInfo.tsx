@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
