@@ -49,9 +49,7 @@ const IncomeForm = ({
   const [freelanceIncome, setFreelanceIncome] = useState<any[]>([]);
 
   // Form mode state
-  const [formMode, setFormMode] = useState<'standard' | 'yesno'>(() => {
-    return (formData?.income as any)?._completed ? 'standard' : 'yesno';
-  });
+  const [formMode, setFormMode] = useState<'standard' | 'yesno'>('yesno');
 
   const currentIncomeData = useMemo(() => ({
     hasSalary,
