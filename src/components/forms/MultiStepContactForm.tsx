@@ -272,7 +272,7 @@ const MultiStepContactForm = ({
         {!embedded && (
           <SubpageHeader
             title={t.multiStepContactForm.title}
-            onBack={() => navigate('/')}
+            onBack={() => navigate(`/personal-info?year=${taxYear}`)}
           />
         )}
 
