@@ -644,7 +644,7 @@ const Auth = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 onFocus={() => setIsInputFocused(true)}
                                 onBlur={() => setTimeout(() => setIsInputFocused(false), 150)}
-                                className="block w-full rounded-full h-[56px] px-6 text-[14.5px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all focus:ring-2 focus:ring-primary/20"
+                                className="block w-full rounded-2xl h-[56px] px-6 text-[14.5px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all focus:ring-2 focus:ring-primary/20"
                                 style={{
                                   background: '#ffffff',
                                   boxShadow:
@@ -663,12 +663,7 @@ const Auth = () => {
                               whileHover={{ y: -1 }}
                               whileTap={{ scale: 0.98 }}
                               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                              className="group w-full font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
-                              style={{
-                                background: 'linear-gradient(180deg, #2563FF 0%, #3B82F6 100%)',
-                                boxShadow:
-                                  '0 4px 14px rgba(37,99,255,0.32), 0 1px 3px rgba(37,99,255,0.18)',
-                              }}
+                              className="group w-full font-semibold text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:brightness-[1.04]"
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </motion.button>
