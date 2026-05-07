@@ -165,9 +165,9 @@ export const WelcomeFlow = () => {
       // Wait for DB transaction to commit
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Mark data as saved and proceed to step 4 (family hint) - no animation
+      // Mark data as saved and proceed to family hint step
       setDataSaved(true);
-      setCurrentStep(3);
+      setCurrentStep(2);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error(t.onboarding.genericError);
@@ -287,30 +287,6 @@ export const WelcomeFlow = () => {
            </div>
          );
       case 2:
-         return (
-           <div className="w-full space-y-5">
-            <Select value={taxYear} onValueChange={setTaxYear}>
-               <SelectTrigger className="text-lg h-auto py-5 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground rounded-2xl shadow-sm px-5 focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-border transition-all">
-                <SelectValue />
-              </SelectTrigger>
-               <SelectContent className="bg-white/50 backdrop-blur-sm border border-border/40 rounded-2xl">
-                 {TAX_YEARS.map(year => (
-                   <SelectItem key={year} value={year} className="text-foreground text-lg hover:bg-muted/30 focus:bg-muted/30 py-3">
-                    {year}
-                   </SelectItem>
-                 ))}
-              </SelectContent>
-            </Select>
-              <Button 
-                onClick={handleNext} 
-                disabled={isLoading} 
-                className="w-full shadow-none hover:shadow-none"
-              >
-                {t.onboarding.next}
-             </Button>
-           </div>
-         );
-      case 3:
         // Family hint + referral code as collapsible accordion
          return (
            <div className="w-full space-y-5">
@@ -403,11 +379,11 @@ export const WelcomeFlow = () => {
   };
   
   const getStepTitle = () => {
-    if (currentStep === 2 && firstName) {
-      return t.onboarding.yearTitle.replace('{name}', firstName);
-    }
-    if (currentStep === 3) {
+    if (currentStep === 2) {
       return firstName ? `Hallo ${firstName}, wir sind bereit!` : 'Wir sind bereit!';
+    }
+    return steps[currentStep].title;
+  };
     }
     return steps[currentStep].title;
   };
