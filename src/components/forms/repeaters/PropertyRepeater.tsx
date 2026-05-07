@@ -46,18 +46,15 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-slate-600 font-medium">Immobilien</h4>
-        <Button
+        <span className="text-sm font-medium text-slate-600">Immobilien</span>
+        <button
           type="button"
           onClick={addProperty}
-          size="sm"
-          className="border-slate-200 text-slate-600 hover:bg-slate-100"
-          variant="outline"
-          style={{ touchAction: 'manipulation' }}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Immobilie hinzufügen
-        </Button>
+        </button>
       </div>
 
       {properties.map((property, index) => (
