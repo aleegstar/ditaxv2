@@ -287,83 +287,8 @@ export const WelcomeFlow = () => {
            </div>
          );
       case 2:
-        // Family hint + referral code as collapsible accordion
          return (
-           <div className="w-full space-y-5">
-            <Accordion type="single" collapsible className="w-full space-y-2">
-              <AccordionItem value="family" className="bg-muted/30 rounded-2xl border border-white/60 px-5 data-[state=open]:pb-2">
-                <AccordionTrigger className="hover:no-underline py-4">
-                  <div className="flex items-center gap-3 text-left">
-                    <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Users className="w-4 h-4 text-primary" />
-                    </div>
-                    <span className="text-sm font-medium text-foreground">Weitere Personen hinzufügen</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-left">
-                  <p className="text-muted-foreground text-sm leading-relaxed pb-2">
-                    {t.onboarding.familyHintDescription}
-                  </p>
-                  <Button
-                    onClick={handleFamilyNow}
-                    disabled={isLoading}
-                    variant="outline"
-                    className="w-full mt-2"
-                  >
-                    {t.onboarding.familyHintNow}
-                  </Button>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="referral" className="bg-muted/30 rounded-2xl border border-white/60 px-5 data-[state=open]:pb-2">
-                <AccordionTrigger className="hover:no-underline py-4">
-                  <div className="flex items-center gap-3 text-left">
-                    <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                      {referralApplied ? (
-                        <CheckCircle className="w-4 h-4 text-primary" />
-                      ) : (
-                        <Ticket className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
-                    <span className="text-sm font-medium text-foreground">
-                      {referralApplied ? 'Einladungscode aktiviert' : 'Einladungscode einlösen'}
-                    </span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-left">
-                  <p className="text-muted-foreground text-xs leading-relaxed pb-3">
-                    Hast du einen Einladungscode? Erhalte CHF 20 Rabatt.
-                  </p>
-                  {!referralApplied ? (
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Code eingeben"
-                        value={referralCode}
-                        onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                        onKeyDown={e => e.key === 'Enter' && handleApplyReferral()}
-                        className="flex-1 h-11 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-xl px-4 text-sm focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 uppercase tracking-wider font-medium"
-                        disabled={referralLoading}
-                      />
-                      <Button
-                        onClick={handleApplyReferral}
-                        disabled={!referralCode.trim() || referralLoading}
-                        className="h-11 px-5 rounded-xl text-sm shadow-none hover:shadow-none"
-                      >
-                        {referralLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einlösen'}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-primary text-sm font-medium">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>CHF 20 Rabatt aktiviert!</span>
-                    </div>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Primary continue button */}
+           <div className="w-full space-y-3">
             <Button
               onClick={handleFamilyLater}
               disabled={isLoading}
@@ -371,10 +296,84 @@ export const WelcomeFlow = () => {
             >
               {t.onboarding.familyHintLater}
             </Button>
-            <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              Optional: Code einlösen oder weitere Personen hinzufügen
-            </p>
+
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="options" className="border-none">
+                <AccordionTrigger className="hover:no-underline py-2 justify-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground flex-none mx-auto">
+                  <span className="text-xs text-muted-foreground font-normal">
+                    Optional: Code einlösen oder weitere Personen hinzufügen
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="text-left pt-2">
+                  <div className="space-y-2">
+                    <div className="bg-muted/30 rounded-2xl border border-white/60 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-foreground">Weitere Personen hinzufügen</span>
+                      </div>
+                      <p className="text-muted-foreground text-sm leading-relaxed pb-2">
+                        {t.onboarding.familyHintDescription}
+                      </p>
+                      <Button
+                        onClick={handleFamilyNow}
+                        disabled={isLoading}
+                        variant="outline"
+                        className="w-full mt-2"
+                      >
+                        {t.onboarding.familyHintNow}
+                      </Button>
+                    </div>
+
+                    <div className="bg-muted/30 rounded-2xl border border-white/60 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          {referralApplied ? (
+                            <CheckCircle className="w-4 h-4 text-primary" />
+                          ) : (
+                            <Ticket className="w-4 h-4 text-primary" />
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">
+                          {referralApplied ? 'Einladungscode aktiviert' : 'Einladungscode einlösen'}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-xs leading-relaxed pb-3">
+                        Hast du einen Einladungscode? Erhalte CHF 20 Rabatt.
+                      </p>
+                      {!referralApplied ? (
+                        <div className="flex gap-2">
+                          <Input
+                            type="text"
+                            placeholder="Code eingeben"
+                            value={referralCode}
+                            onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                            onKeyDown={e => e.key === 'Enter' && handleApplyReferral()}
+                            className="flex-1 h-11 bg-white/50 backdrop-blur-sm border border-border/40 text-foreground placeholder:text-muted-foreground rounded-xl px-4 text-sm focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 uppercase tracking-wider font-medium"
+                            disabled={referralLoading}
+                          />
+                          <Button
+                            onClick={handleApplyReferral}
+                            disabled={!referralCode.trim() || referralLoading}
+                            className="h-11 px-5 rounded-xl text-sm shadow-none hover:shadow-none"
+                          >
+                            {referralLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einlösen'}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-primary text-sm font-medium">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>CHF 20 Rabatt aktiviert!</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
            </div>
+         );
          );
       default:
         return null;
