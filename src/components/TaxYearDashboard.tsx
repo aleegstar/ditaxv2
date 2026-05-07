@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
-import tipFolderImg from '@/assets/tip-info.png';
+import tipFolderImg from '@/assets/tip-info.webp';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
