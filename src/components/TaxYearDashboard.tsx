@@ -233,6 +233,31 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
         </div>
       )}
+
+      {/* ═══════════ Tipp Card ═══════════ */}
+      {!tipDismissed && !allAngabenComplete && (
+        <div className="mt-2 rounded-[1.5rem] bg-primary/5 border border-primary/15 p-4 sm:p-5 flex items-start gap-3 relative">
+          <img src={tipFolderImg} alt="" className="w-14 h-14 sm:w-16 sm:h-16 object-contain flex-shrink-0" />
+          <div className="flex-1 min-w-0 pr-6">
+            <h3 className="text-[14px] font-semibold text-foreground tracking-tight">
+              Tipp: Starte mit deinen persönlichen Angaben.
+            </h3>
+            <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+              Wir führen dich Schritt für Schritt durch deine Steuererklärung.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setTipDismissed(true);
+              localStorage.setItem('dashboard-tip-dismissed', 'true');
+            }}
+            className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-colors"
+            aria-label="Schliessen"
+          >
+            <X className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+        </div>
+      )}
     </div>
   );
 
