@@ -23,6 +23,7 @@ import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
+import documentsEmptyImg from '@/assets/documents-empty.png';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
@@ -536,12 +537,14 @@ const DocumentsContent: React.FC<{
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[hsl(var(--primary))] to-[hsl(221,100%,42%)] flex items-center justify-center mb-5 shadow-[0_8px_24px_-6px_rgba(29,100,255,0.3)]">
-                <FolderOpen strokeWidth={1.5} className="w-7 h-7 text-white" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground tracking-tight mb-1">{t.documentsPage.collectReceipts}</h2>
-              <p className="text-sm text-muted-foreground max-w-[260px] mx-auto text-center leading-relaxed">
+            <div className="flex flex-col items-center justify-center py-12">
+              <img
+                src={documentsEmptyImg}
+                alt=""
+                className="w-56 h-56 object-contain mb-2"
+              />
+              <h2 className="text-lg font-semibold text-foreground tracking-tight mb-2">{t.documentsPage.collectReceipts}</h2>
+              <p className="text-sm text-muted-foreground max-w-[300px] mx-auto text-center leading-relaxed">
                 {t.documentsPage.collectReceiptsDescription}
               </p>
             </div>
