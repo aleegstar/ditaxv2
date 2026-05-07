@@ -1,5 +1,6 @@
 import React from 'react';
-import { Zap, ArrowRight } from 'lucide-react';
+import { Zap } from 'lucide-react';
+import expressIllustration from '@/assets/express-upgrade-illustration.webp';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -26,8 +27,13 @@ export const ExpressUpgradeCard: React.FC<ExpressUpgradeCardProps> = ({
 
   return (
     <div className="px-6 mt-8">
-      <div className="rounded-2xl p-5 relative overflow-hidden bg-slate-50 border border-slate-200">
+      <div className="rounded-2xl p-5 relative overflow-hidden bg-white border border-slate-200">
         <div className="relative z-10">
+          <img
+            src={expressIllustration}
+            alt="Express-Service"
+            className="w-full h-32 object-contain mb-4"
+          />
           {/* Header */}
           <div className="flex items-center gap-2.5 mb-3">
             <Zap className="w-4 h-4 text-amber-500 fill-amber-500/20" />
