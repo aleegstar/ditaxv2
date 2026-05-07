@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import checklistEmptyImg from '@/assets/checklist-empty.png';
+import uploadEmptyImg from '@/assets/upload-empty.png';
 import { Button } from "@/components/ui/button";
 import { useFormContext } from '../contexts';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
@@ -469,33 +470,37 @@ return <div className="min-h-screen">
                   return (
                     <div
                       key={item.id}
-                      className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.03)] p-4 space-y-3"
+                      className="rounded-3xl bg-white/60 border border-slate-200 p-5 flex flex-col items-center text-center"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="flex-1 text-[15px] font-semibold text-foreground leading-snug">
+                      <img src={uploadEmptyImg} alt="" className="w-28 h-28 object-contain mb-3" />
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-[15px] font-semibold text-slate-900 leading-snug">
                           {item.title}
                         </h3>
                         <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium border border-amber-100">
                           Offen
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <p className="text-sm text-slate-500 mb-4">
+                        Lade dieses Dokument hoch, um fortzufahren.
+                      </p>
+                      <div className="flex items-center gap-2 w-full justify-center">
                         {hasUnassignedDocs && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={(e) => { e.stopPropagation(); setAssignmentModal({ open: true, item }); }}
-                            className="rounded-full"
+                            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-5 py-2.5 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
                           >
                             {t.documentChecklist.assign}
-                          </Button>
+                          </button>
                         )}
-                        <Button
+                        <button
+                          type="button"
                           onClick={(e) => { e.stopPropagation(); setUploadSheetItem(item); setUploadSheetOpen(true); }}
-                          className="flex-1"
+                          className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
                         >
                           Hochladen
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   );
