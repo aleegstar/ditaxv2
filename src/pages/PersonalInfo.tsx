@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Wallet, Shield, Landmark, ChevronRight, Check, LucideIcon } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
@@ -63,9 +63,19 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
     }
   };
 
-  if (isDataLoading || !formDataLoaded) return null;
-
   const completedCount = sections.filter(s => isCompleted(s.id)).length;
+  const allCompleted = completedCount === sections.length;
+
+  const hasNavigatedRef = useRef(false);
+  useEffect(() => {
+    if (isDataLoading || !formDataLoaded) return;
+    if (allCompleted && !hasNavigatedRef.current) {
+      hasNavigatedRef.current = true;
+      navigate(`/?year=${taxYear}`);
+    }
+  }, [allCompleted, isDataLoading, formDataLoaded, navigate, taxYear]);
+
+  if (isDataLoading || !formDataLoaded) return null;
 
   return (
     <div className="min-h-screen text-foreground antialiased">
