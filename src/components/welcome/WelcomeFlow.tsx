@@ -420,6 +420,16 @@ export const WelcomeFlow = () => {
         {/* Content */}
         <div className="px-6 py-10 sm:px-10 sm:pb-16 flex flex-col items-center text-center">
 
+          {/* Illustration */}
+          <motion.img
+            src={welcomeIllustration}
+            alt=""
+            className="w-40 h-40 sm:w-48 sm:h-48 object-contain mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+          />
+
           {/* Heading */}
           <AnimatePresence mode="wait">
             <motion.h1 key={currentStep} initial={{
