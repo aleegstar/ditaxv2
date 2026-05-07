@@ -109,8 +109,8 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                   "active:scale-[0.98] transition-all duration-200 min-h-[150px] flex flex-col justify-between"
                 )}
               >
-                <div className="flex items-start justify-between">
-                  <img src={section.image} alt="" className="w-12 h-12 object-contain -ml-1 -mt-1" />
+                <div className="flex items-start justify-between -mt-2">
+                  <img src={section.image} alt="" className="w-20 h-20 object-contain -ml-3 -mt-3" />
                   {completed && (
                     <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
