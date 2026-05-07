@@ -268,7 +268,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <img
               src={tipFolderImg}
               alt="Info"
-              className="w-12 h-12 object-contain opacity-90 shrink-0"
+              className="w-14 h-14 object-contain opacity-90 shrink-0"
               loading="lazy"
               decoding="async"
               width={96}
