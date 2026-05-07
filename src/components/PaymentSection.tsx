@@ -38,6 +38,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expressService, setExpressService] = useState(isUpgrade);
+  const [selectedMethod, setSelectedMethod] = useState<'twint' | 'visa' | 'mastercard' | 'klarna'>('twint');
   const [user, setUser] = useState<any>(null);
   const { promoCodes, getActivePromoCode } = usePromoCodes();
   const [manualPromoCode, setManualPromoCode] = useState('');
