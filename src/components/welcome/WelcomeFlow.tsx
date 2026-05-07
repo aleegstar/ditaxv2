@@ -371,6 +371,9 @@ export const WelcomeFlow = () => {
             >
               {t.onboarding.familyHintLater}
             </Button>
+            <p className="text-xs text-muted-foreground text-center leading-relaxed">
+              Optional: Code einlösen oder weitere Personen hinzufügen
+            </p>
            </div>
          );
       default:
