@@ -176,16 +176,17 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
 
       {/* Empty State */}
       {employers.length === 0 && (
-        <div className="text-center py-8 bg-slate-50 border border-slate-200 rounded-2xl">
-          <p className="text-slate-500 mb-3">Noch keine Arbeitgeber hinzugefügt</p>
-          <Button
+        <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+          <img src={employerEmptyImg} alt="" className="w-40 h-40 object-contain mb-4" />
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Arbeitgeber hinzugefügt</h3>
+          <p className="text-sm text-slate-500 mb-5">Füge deinen ersten Arbeitgeber hinzu, um fortzufahren.</p>
+          <button
             type="button"
             onClick={addEmployer}
-            variant="ghost"
-            className="text-[#1D64FF] hover:text-[#1D64FF] hover:bg-[#1D64FF]/10"
+            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
           >
             Ersten Arbeitgeber hinzufügen
-          </Button>
+          </button>
         </div>
       )}
 
