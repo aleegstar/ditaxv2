@@ -564,7 +564,7 @@ const Auth = () => {
                       whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl border border-black/10 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
                       style={{
                         background: '#ffffff',
                         boxShadow:
@@ -587,7 +587,7 @@ const Auth = () => {
                       whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                      className="group w-full font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
+                      className="group w-full font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl border border-white/10 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white"
                       style={{
                         background: 'linear-gradient(180deg, #1f1f22 0%, #000000 100%)',
                         boxShadow:
@@ -616,7 +616,7 @@ const Auth = () => {
                       whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-full flex items-center justify-center gap-3"
+                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl border border-black/10 flex items-center justify-center gap-3"
                       style={{
                         background: '#ffffff',
                         boxShadow:
