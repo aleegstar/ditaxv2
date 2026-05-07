@@ -12,6 +12,7 @@ import { useFormContext } from '@/contexts';
 import { FormSectionKey } from '@/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import importWizardIllustration from '@/assets/import-wizard-illustration.webp';
 
 interface ImportWizardProps {
   section: FormSectionKey;
@@ -152,6 +153,11 @@ export const ImportWizard: React.FC<ImportWizardProps> = ({
             }}
           >
             <div className="text-center space-y-2 mb-6">
+              <img
+                src={importWizardIllustration}
+                alt=""
+                className="w-28 h-28 object-contain mx-auto mb-2"
+              />
               <DrawerTitle className="text-xl font-bold text-foreground">
                 Daten aus {previousYear} übernehmen?
               </DrawerTitle>
