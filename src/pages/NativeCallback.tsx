@@ -140,6 +140,7 @@ const NativeCallback = () => {
           // Fallback: If deeplink doesn't work after 1.5 seconds, navigate directly
           setTimeout(() => {
             console.log('🔗 Deeplink fallback: navigating to home...');
+            sessionStorage.setItem('ditax_force_person_selection', '1');
             window.location.href = '/?success=true';
           }, 1500);
         } else {
