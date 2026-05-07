@@ -239,10 +239,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <div className="mt-2 rounded-[1.5rem] bg-primary/5 border border-primary/15 px-4 py-4 sm:px-5 flex items-center gap-4 relative">
           <img src={tipFolderImg} alt="" className="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0" />
           <div className="flex-1 min-w-0 pr-6">
-            <h3 className="text-[14px] font-semibold text-foreground tracking-tight leading-snug">
+            <h3 className="font-semibold text-foreground tracking-tight leading-snug text-sm">
               Tipp: Starte mit deinen persönlichen Angaben.
             </h3>
-            <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+            <p className="text-muted-foreground mt-1 leading-relaxed text-xs">
               Wir führen dich Schritt für Schritt durch deine Steuererklärung.
             </p>
           </div>
