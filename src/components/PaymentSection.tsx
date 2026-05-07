@@ -343,42 +343,30 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               onClick={() => setExpressService(!expressService)}
               className={`relative w-full overflow-hidden p-4 text-left transition-all active:scale-[0.995] ${cardClass}`}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    'radial-gradient(120% 80% at 100% 0%, rgba(37,99,255,0.10) 0%, rgba(37,99,255,0.03) 35%, transparent 70%)',
-                }}
-              />
-              <div className="relative flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#2563FF]/10 text-[#2563FF] text-[9px] font-semibold tracking-[0.1em] uppercase mb-2">
-                    <Sparkles className="w-2.5 h-2.5" strokeWidth={2.5} />
-                    Empfohlen
-                  </span>
-                  <h3 className="text-[16px] leading-tight font-semibold text-slate-900 tracking-tight">
+              <div className="relative flex items-center gap-4">
+                <img
+                  src={expressIllustration}
+                  alt=""
+                  className="w-16 h-16 object-contain shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[15px] leading-tight font-semibold text-slate-900 tracking-tight">
                     Express-Service
                   </h3>
-                  <p className="text-[12px] text-slate-500 mt-1 leading-snug">
-                    Bearbeitung in 10 Arbeitstagen
+                  <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
+                    Innert 10 Tagen · +CHF 100.00
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-2 shrink-0 pt-0.5">
-                  <span className="text-[14px] font-semibold text-[#2563FF] tabular-nums whitespace-nowrap">
-                    +100.00
-                  </span>
+                <div
+                  className={`w-11 h-[26px] rounded-full transition-colors relative shadow-inner shrink-0 ${
+                    expressService ? 'bg-[#2563FF]' : 'bg-slate-200/80'
+                  }`}
+                >
                   <div
-                    className={`w-11 h-[26px] rounded-full transition-colors relative shadow-inner ${
-                      expressService ? 'bg-[#2563FF]' : 'bg-slate-200/80'
+                    className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(15,23,42,0.18)] transition-all ${
+                      expressService ? 'left-[calc(100%-1.4rem)]' : 'left-[3px]'
                     }`}
-                  >
-                    <div
-                      className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(15,23,42,0.18)] transition-all ${
-                        expressService ? 'left-[calc(100%-1.4rem)]' : 'left-[3px]'
-                      }`}
-                    />
-                  </div>
+                  />
                 </div>
               </div>
             </button>
