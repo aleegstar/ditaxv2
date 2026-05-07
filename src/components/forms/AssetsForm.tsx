@@ -50,9 +50,7 @@ const AssetsForm = ({
   const [debts, setDebts] = useState<Debt[]>([]);
   
   // Form mode state
-  const [formMode, setFormMode] = useState<'standard' | 'yesno'>(() => {
-    return (formData?.assets as any)?._completed ? 'standard' : 'yesno';
-  });
+  const [formMode, setFormMode] = useState<'standard' | 'yesno'>('yesno');
 
   const currentAssetsData = useMemo(() => ({
     hasVehicle,
