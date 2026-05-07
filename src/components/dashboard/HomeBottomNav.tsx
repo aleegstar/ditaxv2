@@ -235,82 +235,39 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[10010] px-3 pointer-events-none"
-      style={{ paddingBottom: 'calc(10px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
+      className="fixed inset-x-0 bottom-0 z-[10010] bg-white border-t border-border/40"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <div className="mx-auto w-full max-w-[440px] pointer-events-auto">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative rounded-full w-full"
-          style={{
-            padding: '6px',
-            background: 'rgba(255,255,255,0.5)',
-            backdropFilter: 'blur(24px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 18px 36px -12px rgba(0,0,0,0.08)',
-          }}
-        >
-          <div
-            className="relative flex items-center justify-between bg-white rounded-full w-full"
-            style={{
-              padding: '4px',
-              gap: '3px',
-              boxShadow:
-                'inset 0 2px 6px rgba(255,255,255,1), inset 0 0 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05)',
-            }}
-          >
-            <LayoutGroup id="bottom-nav">
-              {tabs.map((tab) => {
-                const isActive = active === tab.key;
-                const Icon = isActive ? tab.activeIcon : tab.icon;
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={tab.onClick}
-                    aria-label={tab.label}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn(
-                      'relative flex flex-col items-center justify-center rounded-full focus:outline-none transition-colors flex-1'
-                    )}
-                    style={{
-                      height: '56px',
-                    }}
-                  >
-                    <span
-                      className={cn(
-                        'relative z-10 flex flex-col items-center justify-center gap-1',
-                        isActive ? 'text-[#1656FF]' : 'text-[#7A8498]'
-                      )}
-                    >
-                      <Icon className="w-[18px] h-[18px]" />
-                      <span
-                        style={{
-                          fontSize: '9.5px',
-                          fontWeight: 500,
-                          lineHeight: 1,
-                          letterSpacing: '-0.01em',
-                        }}
-                      >
-                        {tab.label}
-                      </span>
-                    </span>
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active-indicator"
-                        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                        className="absolute bottom-1.5 h-[2px] w-4 rounded-full"
-                        style={{ background: '#1656FF' }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </LayoutGroup>
-          </div>
-        </motion.div>
+      <div className="flex items-stretch justify-around px-2 pt-2 pb-2">
+        <LayoutGroup id="bottom-nav">
+          {tabs.map((tab) => {
+            const isActive = active === tab.key;
+            const Icon = isActive ? tab.activeIcon : tab.icon;
+            return (
+              <button
+                key={tab.key}
+                onClick={tab.onClick}
+                aria-label={tab.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'relative flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors focus:outline-none',
+                  isActive ? 'text-[#1656FF]' : 'text-[#7A8498]'
+                )}
+              >
+                <Icon className="w-6 h-6" />
+                <span className="text-xs font-medium leading-none">{tab.label}</span>
+                {isActive && (
+                  <motion.span
+                    layoutId="nav-active-indicator"
+                    transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+                    className="absolute bottom-0 h-0.5 w-8 rounded-full"
+                    style={{ background: '#1656FF' }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </LayoutGroup>
       </div>
     </nav>
   );
