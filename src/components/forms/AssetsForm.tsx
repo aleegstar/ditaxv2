@@ -119,7 +119,7 @@ const AssetsForm = ({
       });
       
       if (!embedded) {
-        navigate('/');
+        navigate(`/personal-info?year=${taxYear}`);
       } else {
         onSave();
       }
