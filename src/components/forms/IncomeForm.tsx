@@ -154,7 +154,7 @@ const IncomeForm = ({
   const renderIncomeForm = () => (
     <ExpertFormContainer
       title={t.taxReturn.dashboard.sections.income}
-      onBack={() => navigate('/')}
+      onBack={() => navigate(`/personal-info?year=${taxYear}`)}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}
