@@ -265,6 +265,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                   : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
               </p>
             </div>
+            <img
+              src={tipFolderImg}
+              alt="Info"
+              className="w-12 h-12 object-contain opacity-90 shrink-0"
+              loading="lazy"
+              decoding="async"
+              width={96}
+              height={96}
+            />
           </div>
         );
       })()}
