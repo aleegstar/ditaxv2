@@ -15,10 +15,10 @@ export const ProcessingContent: React.FC<ProcessingContentProps> = ({
 }) => {
   return (
     <div className="w-full">
-      <TrackingProgressSteps workflowStep={workflowStep} />
-      <div className="mt-12 -mx-6">
+      <div className="mb-12 -mx-6">
         <ExpressUpgradeCard taxReturnId={taxReturnId} currentExpressService={expressService} />
       </div>
+      <TrackingProgressSteps workflowStep={workflowStep} />
     </div>
   );
 };

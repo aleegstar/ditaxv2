@@ -122,16 +122,16 @@ export default function TaxReturnTracking() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
 
-        {/* Timeline */}
-        <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
-
         {/* Express Upgrade */}
-        <div className="mt-16">
+        <div className="mb-16">
           <ExpressUpgradeCard
             taxReturnId={taxReturn.id}
             currentExpressService={taxReturn.express_service}
           />
         </div>
+
+        {/* Timeline */}
+        <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
       </div>
     </div>
   );
