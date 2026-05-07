@@ -235,30 +235,39 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         </div>
       )}
 
-      {/* ═══════════ Tipp Card ═══════════ */}
-      {!tipDismissed && (!allAngabenComplete || !isDocumentsComplete) && (
-        <div className="mt-2 rounded-2xl bg-primary/5 border border-primary/15 px-3 py-2.5 flex items-center gap-3 relative">
-          <img src={tipFolderImg} alt="" className="w-20 h-20 object-contain flex-shrink-0 -my-2" />
-          <div className="flex-1 min-w-0 pr-5">
-            <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[13px]">
-              {!allAngabenComplete ? 'Persönlichen Angaben' : 'Belege & Unterlagen'}
-            </h3>
-            <p className="text-muted-foreground mt-0.5 leading-snug text-[11px]">
-              {!allAngabenComplete
-                ? 'Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.'
-                : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
-            </p>
+      {/* ═══════════ Tipp Card mit Fortschritt ═══════════ */}
+      {(!allAngabenComplete || !isDocumentsComplete) && (() => {
+        const totalTasks = 6; // 4 angaben + 1 docs + 1 submit
+        const completedTasks =
+          angabenSections.filter(s => isCompleted(s.id)).length +
+          (isDocumentsComplete ? 1 : 0) +
+          (paymentStatus === 'paid' ? 1 : 0);
+        const percent = Math.round((completedTasks / totalTasks) * 100);
+        return (
+          <div className="mt-2 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3.5 flex items-center gap-3.5">
+            <div className="relative flex-shrink-0">
+              <AnimatedCircularProgressBar
+                max={100}
+                min={0}
+                value={percent}
+                gaugePrimaryColor="hsl(var(--primary))"
+                gaugeSecondaryColor="hsl(var(--primary) / 0.12)"
+                className="size-14 text-[11px] font-semibold text-primary"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[13px]">
+                {!allAngabenComplete ? 'Persönliche Angaben' : 'Belege & Unterlagen'}
+              </h3>
+              <p className="text-muted-foreground mt-0.5 leading-snug text-[11px]">
+                {!allAngabenComplete
+                  ? 'Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.'
+                  : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
+              </p>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              setTipDismissed(true);
-              localStorage.setItem('dashboard-tip-dismissed', 'true');
-            }}
-            className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-colors"
-            aria-label="Schliessen"
-          >
-            <X className="w-3.5 h-3.5" strokeWidth={1.5} />
-          </button>
+        );
+      })()}
         </div>
       )}
     </div>
