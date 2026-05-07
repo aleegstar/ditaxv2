@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
-import { Home, Folder, MessageSquare, LayoutGrid, Bell } from 'lucide-react';
+import { MessageSquare, LayoutGrid, Bell } from 'lucide-react';
+import { HomeOutlineIcon, HomeSolidIcon, FolderOutlineIcon, FolderSolidIcon, ChatOutlineIcon, ChatSolidIcon } from './NavIcons';
 import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -224,10 +225,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   onMenuClick,
   activeTab = 'home',
 }) => {
-  const tabs: { key: TabKey; label: string; icon: React.ComponentType<any>; onClick: () => void }[] = [
-    { key: 'home', label: 'Steuern', icon: Home, onClick: () => onActionClick?.() },
-    { key: 'documents', label: 'Dokumente', icon: Folder, onClick: onDocumentsClick },
-    { key: 'chat', label: 'Chat', icon: MessageSquare, onClick: onChatClick },
+  const tabs: { key: TabKey; label: string; icon: React.ComponentType<any>; activeIcon: React.ComponentType<any>; onClick: () => void }[] = [
+    { key: 'home', label: 'Steuern', icon: HomeOutlineIcon, activeIcon: HomeSolidIcon, onClick: () => onActionClick?.() },
+    { key: 'documents', label: 'Dokumente', icon: FolderOutlineIcon, activeIcon: FolderSolidIcon, onClick: onDocumentsClick },
+    { key: 'chat', label: 'Chat', icon: ChatOutlineIcon, activeIcon: ChatSolidIcon, onClick: onChatClick },
   ];
 
   const active: TabKey = (activeTab as TabKey) ?? 'home';
@@ -264,7 +265,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
             <LayoutGroup id="bottom-nav">
               {tabs.map((tab) => {
                 const isActive = active === tab.key;
-                const Icon = tab.icon;
+                const Icon = isActive ? tab.activeIcon : tab.icon;
                 return (
                   <button
                     key={tab.key}
@@ -284,7 +285,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                         isActive ? 'text-[#1656FF]' : 'text-[#7A8498]'
                       )}
                     >
-                      <Icon className="w-[18px] h-[18px]" strokeWidth={1.6} />
+                      <Icon className="w-[18px] h-[18px]" />
                       <span
                         style={{
                           fontSize: '9.5px',
