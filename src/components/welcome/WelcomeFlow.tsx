@@ -300,11 +300,12 @@ export const WelcomeFlow = () => {
 
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="options" className="border-none">
-                <AccordionTrigger className="hover:no-underline py-2 justify-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground flex-none mx-auto">
-                  <span className="text-xs text-muted-foreground font-normal">
+                <AccordionTrigger className="hover:no-underline py-2 flex-col gap-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-muted-foreground [&>svg]:mx-auto">
+                  <span className="text-xs text-muted-foreground font-normal text-center w-full">
                     Optional: Code einlösen oder weitere Personen hinzufügen
                   </span>
                 </AccordionTrigger>
+
                 <AccordionContent className="text-left pt-2">
                   <div className="space-y-2">
                     <div className="bg-muted/30 rounded-2xl border border-white/60 p-4">
