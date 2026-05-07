@@ -268,8 +268,6 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           </div>
         );
       })()}
-        </div>
-      )}
     </div>
   );
 
