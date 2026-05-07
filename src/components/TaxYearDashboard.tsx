@@ -240,10 +240,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           <img src={tipFolderImg} alt="" className="w-20 h-20 object-contain flex-shrink-0 -my-2" />
           <div className="flex-1 min-w-0 pr-5">
             <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[13px]">
-              Tipp: Starte mit deinen persönlichen Angaben.
+              Persönlichen Angaben
             </h3>
             <p className="text-muted-foreground mt-0.5 leading-snug text-[11px]">
-              Wir führen dich Schritt für Schritt durch deine Steuererklärung.
+              Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.
             </p>
           </div>
           <button
