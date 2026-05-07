@@ -374,7 +374,6 @@ export const WelcomeFlow = () => {
             </Accordion>
            </div>
          );
-         );
       default:
         return null;
     }
