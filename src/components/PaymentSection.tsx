@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
-import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X } from "lucide-react";
+import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X, FileText, Columns, Bitcoin, Home, Briefcase, Calculator, Receipt, Sparkles, Lock, Check } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
 import { usePromoCodes } from '@/hooks/usePromoCodes';
@@ -38,6 +38,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [expressService, setExpressService] = useState(isUpgrade);
+  const [selectedMethod, setSelectedMethod] = useState<'twint' | 'visa' | 'mastercard' | 'klarna'>('twint');
   const [user, setUser] = useState<any>(null);
   const { promoCodes, getActivePromoCode } = usePromoCodes();
   const [manualPromoCode, setManualPromoCode] = useState('');
@@ -305,156 +306,173 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   const priceAfterDiscount = Math.max(0, finalPrice - totalDiscount);
   const hasAnyPromo = !!activePromo || !!manualPromoResult;
 
+  const getItemIcon = (label: string) => {
+    const l = label.toLowerCase();
+    if (l.includes('grund') || l.includes('basis')) return FileText;
+    if (l.includes('säule') || l.includes('saule') || l.includes('3a') || l.includes('vorsorge')) return Columns;
+    if (l.includes('krypto') || l.includes('bitcoin')) return Bitcoin;
+    if (l.includes('immo') || l.includes('liegenschaft') || l.includes('haus') || l.includes('wohn')) return Home;
+    if (l.includes('selbst') || l.includes('gewerb') || l.includes('beruf')) return Briefcase;
+    if (l.includes('express')) return Zap;
+    if (l.includes('abzug') || l.includes('rabatt')) return Tag;
+    return Calculator;
+  };
+
+  const methods: Array<{ id: 'twint' | 'visa' | 'mastercard' | 'klarna'; render: React.ReactNode }> = [
+    { id: 'twint', render: <img src={paymentTwint} alt="TWINT" className="h-5 object-contain" loading="lazy" /> },
+    { id: 'visa', render: <img src={paymentVisa} alt="Visa" className="h-5 object-contain" loading="lazy" /> },
+    { id: 'mastercard', render: <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" loading="lazy" /> },
+    { id: 'klarna', render: <span className="font-bold text-[#FFB3C7] text-sm tracking-tight">Klarna.</span> },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col text-foreground">
-      {/* Header */}
-      <SubpageHeader
-        title="Zahlung"
-        onBack={() => navigate(-1)}
-      />
+      <SubpageHeader title="Zahlung" onBack={() => navigate(-1)} />
 
-      <main className="flex-grow pt-4 sm:pt-8 pb-16 px-3 sm:px-6">
-        <div className="max-w-[640px] mx-auto">
+      <main className="flex-grow pt-2 sm:pt-6 pb-16 px-4 sm:px-6">
+        <div className="max-w-[640px] mx-auto space-y-4">
 
-          {/* Main Card Container */}
-          <div className="bg-gradient-to-br from-white/70 to-white/30 backdrop-blur-2xl backdrop-saturate-200 rounded-[1.5rem] sm:rounded-[2rem] border border-white/60 p-1 sm:p-2 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)]">
-            <div className="p-4 sm:p-8 space-y-5 sm:space-y-8">
+          {/* Express Service Card */}
+          {!isUpgrade && (
+            <button
+              type="button"
+              onClick={() => setExpressService(!expressService)}
+              className="relative w-full overflow-hidden rounded-3xl bg-white border border-slate-100 p-5 text-left shadow-sm transition-all active:scale-[0.99]"
+            >
+              {/* decorative blob */}
+              <div className="pointer-events-none absolute -right-10 -top-10 w-40 h-40 rounded-full bg-primary/5" />
+              <div className="relative flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold tracking-wider uppercase mb-3">
+                    <Sparkles className="w-3 h-3" strokeWidth={2.5} />
+                    Empfohlen
+                  </span>
+                  <h3 className="text-xl font-semibold text-slate-900 tracking-tight">Express-Service</h3>
+                  <p className="text-sm text-slate-500 mt-1">Bearbeitung in 10 Arbeitstagen</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0 pt-1">
+                  <span className="text-base font-semibold text-primary tabular-nums whitespace-nowrap">+100.00</span>
+                  <div className={`w-12 h-7 rounded-full transition-all relative ${expressService ? 'bg-primary' : 'bg-slate-200'}`}>
+                    <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all ${expressService ? 'left-[calc(100%-1.625rem)]' : 'left-0.5'}`} />
+                  </div>
+                </div>
+              </div>
+            </button>
+          )}
 
-              {/* Express Service Toggle */}
-              {!isUpgrade && (
-                <button
-                  type="button"
-                  onClick={() => setExpressService(!expressService)}
-                  className={`relative w-full overflow-hidden rounded-2xl border-2 p-3.5 sm:p-5 transition-all active:scale-[0.99] ${
-                    expressService
-                      ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                      : 'border-white/60 bg-white/40 hover:border-white/80 hover:bg-white/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-3">
+          {/* Promo Code Display (referral) */}
+          {activePromo && (
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Gift className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-green-700 text-sm">Rabattcode aktiv</p>
+                    <p className="text-xs text-green-600">Code <span className="font-mono">{activePromo.code}</span></p>
+                  </div>
+                </div>
+                <span className="text-lg font-bold text-green-600">-{formatPrice(promoDiscount)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Cost Breakdown Card */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 sm:p-6">
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Kostenaufstellung</h4>
+            <div className="divide-y divide-slate-100">
+              {priceBreakdown.items.map((item, idx) => {
+                const Icon = getItemIcon(item.label);
+                return (
+                  <div key={idx} className="flex items-center justify-between py-3.5 gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex flex-col items-start text-left min-w-0">
-                        <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] sm:text-[10px] font-bold tracking-wide uppercase mb-1">Empfohlen</span>
-                        <h3 className="text-sm sm:text-base font-semibold text-slate-900 tracking-tight">Express-Service</h3>
-                        <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">Bearbeitung in 10 Arbeitstagen</p>
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
                       </div>
+                      <span className="text-slate-900 font-medium text-base truncate">{item.label}</span>
                     </div>
-                    <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-                      <span className="text-sm sm:text-base font-semibold text-slate-900 tabular-nums whitespace-nowrap">+100.00</span>
-                      <div className={`w-11 sm:w-12 h-6 sm:h-7 rounded-full transition-all relative ${
-                        expressService ? 'bg-primary' : 'bg-slate-200'
-                      }`}>
-                        <div className={`absolute top-0.5 w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-white shadow-md transition-all ${
-                          expressService ? 'left-[calc(100%-1.375rem)] sm:left-[calc(100%-1.625rem)]' : 'left-0.5'
-                        }`} />
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {/* Promo Code Display (referral) */}
-              {activePromo && (
-                <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 rounded-full">
-                        <Gift className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-green-700 text-sm">Rabattcode aktiv</p>
-                        <p className="text-xs text-green-600">Code <span className="font-mono">{activePromo.code}</span></p>
-                      </div>
-                    </div>
-                    <span className="text-lg font-bold text-green-600">-{formatPrice(promoDiscount)}</span>
-                  </div>
-                </div>
-              )}
-
-
-
-              {/* Cost Breakdown */}
-              <div className="rounded-2xl border border-white/60 bg-white/30 overflow-hidden">
-                <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/40 bg-white/20">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Kostenaufstellung</h4>
-                </div>
-                <div className="bg-white/20 divide-y divide-white/30">
-                  {priceBreakdown.items.map((item, idx) => (
-                    <div key={idx} className="flex justify-between items-center px-3 sm:px-6 py-3 sm:py-4 hover:bg-white/20 transition-colors gap-2">
-                      <span className="text-foreground/70 font-normal text-sm sm:text-base truncate min-w-0">{item.label}</span>
-                      <span className="text-foreground font-medium tabular-nums text-sm sm:text-base whitespace-nowrap shrink-0">CHF {formatPrice(item.amount)}</span>
-                    </div>
-                  ))}
-                </div>
-                {/* Total */}
-                <div className="bg-white/20 px-3 sm:px-6 py-4 sm:py-5 border-t border-white/40">
-                  {hasAnyPromo && (
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-muted-foreground">Zwischensumme</span>
-                      <span className="text-xs text-muted-foreground line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                      <span className="text-foreground font-semibold text-base tracking-tight">
-                        {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground font-normal uppercase tracking-wide">inkl. MwSt.</span>
-                    </div>
-                    <span className="text-foreground font-semibold text-xl tracking-tight tabular-nums">
-                      CHF {formatPrice(priceAfterDiscount)}
+                    <span className="text-slate-900 font-medium tabular-nums text-base whitespace-nowrap shrink-0">
+                      CHF {formatPrice(item.amount)}
                     </span>
                   </div>
-                </div>
-              </div>
+                );
+              })}
+            </div>
 
-              {/* Payment Methods */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">Zahlungsmethoden</h4>
-                <div className="flex gap-2.5 flex-wrap">
-                  {/* TWINT */}
-                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
-                    <img src={paymentTwint} alt="TWINT" className="h-5 object-contain" loading="lazy" />
-                  </div>
-                  {/* VISA */}
-                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
-                    <img src={paymentVisa} alt="Visa" className="h-5 object-contain" loading="lazy" />
-                  </div>
-                  {/* Mastercard */}
-                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
-                    <img src={paymentMastercard} alt="Mastercard" className="h-7 object-contain" loading="lazy" />
-                  </div>
-                  {/* Klarna */}
-                  <div className="h-11 sm:h-12 px-3.5 bg-white/50 border border-white/60 rounded-xl flex items-center justify-center shrink-0 shadow-sm hover:bg-white/70 transition-colors cursor-pointer">
-                    <span className="font-bold text-[#FFB3C7] text-sm tracking-tight">Klarna.</span>
-                  </div>
-                </div>
-              </div>
+            {/* Dotted divider */}
+            <div className="border-t border-dashed border-slate-200 my-4" />
 
-              {/* Primary Action */}
-              <div className="pt-2">
-                <button
-                  onClick={handlePayment}
-                  disabled={isLoading || !priceBreakdown || !isValid || authLoading}
-                  className="flex w-full items-center justify-center rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 font-semibold text-sm text-primary-foreground transition-all shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  {isLoading ? 'Lädt…' : authLoading ? 'Sitzung wird geprüft…' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'}
-                </button>
+            {hasAnyPromo && (
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-slate-400">Zwischensumme</span>
+                <span className="text-xs text-slate-400 line-through tabular-nums">CHF {formatPrice(finalPrice)}</span>
               </div>
-
-              {/* Trust Badge */}
-              <div className="flex justify-center pb-2">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/30 rounded-full border border-white/40">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span className="text-sm text-muted-foreground font-normal">Sichere Zahlung mit Stripe</span>
-                </div>
+            )}
+            <div className="flex justify-between items-end">
+              <div className="flex flex-col">
+                <span className="text-slate-900 font-semibold text-2xl tracking-tight leading-none">
+                  {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
+                </span>
+                <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">inkl. MwSt.</span>
               </div>
+              <span className="text-slate-900 font-semibold text-3xl tracking-tight tabular-nums leading-none">
+                CHF {formatPrice(priceAfterDiscount)}
+              </span>
+            </div>
+          </div>
 
+          {/* Payment Methods Card */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 sm:p-6">
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Zahlungsmethoden</h4>
+            <div className="grid grid-cols-4 gap-2.5">
+              {methods.map((m) => {
+                const active = selectedMethod === m.id;
+                return (
+                  <button
+                    type="button"
+                    key={m.id}
+                    onClick={() => setSelectedMethod(m.id)}
+                    className={`relative h-14 rounded-2xl flex items-center justify-center transition-all ${
+                      m.id === 'klarna'
+                        ? 'bg-[#FFE0EC]'
+                        : 'bg-white border'
+                    } ${active && m.id !== 'klarna' ? 'border-primary border-2' : 'border-slate-200'} ${active && m.id === 'klarna' ? 'ring-2 ring-primary' : ''}`}
+                  >
+                    {m.render}
+                    {active && (
+                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow">
+                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Primary Action */}
+          <div className="pt-2">
+            <button
+              onClick={handlePayment}
+              disabled={isLoading || !priceBreakdown || !isValid || authLoading}
+              className="flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-4 font-semibold text-base text-primary-foreground transition-all shadow-[0_8px_24px_-6px_hsl(222,100%,50%/0.5)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {!isLoading && !authLoading && isValid && <Lock className="w-4 h-4" strokeWidth={2.5} />}
+              {isLoading ? 'Lädt…' : authLoading ? 'Sitzung wird geprüft…' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'}
+            </button>
+          </div>
+
+          {/* Trust Badge */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm text-slate-500 font-normal">Sichere Zahlung mit Stripe</span>
             </div>
           </div>
 
           {errorMessage && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm mt-4">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm">
               {errorMessage}
             </div>
           )}
