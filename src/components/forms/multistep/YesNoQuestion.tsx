@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import yesNoIllustration from '@/assets/yesno-illustration.png';
+import yesNoIllustration from '@/assets/yesno-illustration.webp';
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
@@ -112,6 +112,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           <img
             src={yesNoIllustration}
             alt=""
+            width={768}
+            height={768}
+            loading="lazy"
+            decoding="async"
             className="w-48 h-48 object-contain select-none"
             draggable={false}
           />
