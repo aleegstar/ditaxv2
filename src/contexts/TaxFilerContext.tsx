@@ -85,6 +85,7 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSelectionConfirmed(false);
       setDataFetched(false);
       sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem('ditax_force_person_selection');
       setIsLoading(false);
     }
   }, [userId, authLoading]);
