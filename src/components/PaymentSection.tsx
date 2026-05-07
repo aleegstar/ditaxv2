@@ -333,16 +333,15 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       <SubpageHeader title="Zahlung" onBack={() => navigate(-1)} />
 
       <main className="flex-grow pt-2 sm:pt-6 pb-20 px-4 sm:px-6">
-        <div className="max-w-[640px] mx-auto space-y-6">
+        <div className="max-w-[640px] mx-auto space-y-4">
 
           {/* Express Service Card */}
           {!isUpgrade && (
             <button
               type="button"
               onClick={() => setExpressService(!expressService)}
-              className={`relative w-full overflow-hidden p-6 text-left transition-all active:scale-[0.995] ${cardClass}`}
+              className={`relative w-full overflow-hidden p-4 text-left transition-all active:scale-[0.995] ${cardClass}`}
             >
-              {/* Radial gradient backdrop */}
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0"
@@ -351,31 +350,31 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     'radial-gradient(120% 80% at 100% 0%, rgba(37,99,255,0.10) 0%, rgba(37,99,255,0.03) 35%, transparent 70%)',
                 }}
               />
-              <div className="relative flex items-start justify-between gap-4">
+              <div className="relative flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#2563FF]/10 text-[#2563FF] text-[10px] font-semibold tracking-[0.12em] uppercase mb-3">
-                    <Sparkles className="w-3 h-3" strokeWidth={2.5} />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#2563FF]/10 text-[#2563FF] text-[9px] font-semibold tracking-[0.1em] uppercase mb-2">
+                    <Sparkles className="w-2.5 h-2.5" strokeWidth={2.5} />
                     Empfohlen
                   </span>
-                  <h3 className="text-[22px] leading-tight font-semibold text-slate-900 tracking-tight">
+                  <h3 className="text-[16px] leading-tight font-semibold text-slate-900 tracking-tight">
                     Express-Service
                   </h3>
-                  <p className="text-[13px] text-slate-500 mt-1.5 leading-relaxed">
+                  <p className="text-[12px] text-slate-500 mt-1 leading-snug">
                     Bearbeitung in 10 Arbeitstagen
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-3 shrink-0 pt-1">
-                  <span className="text-[17px] font-semibold text-[#2563FF] tabular-nums whitespace-nowrap">
+                <div className="flex flex-col items-end gap-2 shrink-0 pt-0.5">
+                  <span className="text-[14px] font-semibold text-[#2563FF] tabular-nums whitespace-nowrap">
                     +100.00
                   </span>
                   <div
-                    className={`w-[52px] h-8 rounded-full transition-colors relative shadow-inner ${
+                    className={`w-11 h-[26px] rounded-full transition-colors relative shadow-inner ${
                       expressService ? 'bg-[#2563FF]' : 'bg-slate-200/80'
                     }`}
                   >
                     <div
-                      className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-[0_2px_6px_rgba(15,23,42,0.18)] transition-all ${
-                        expressService ? 'left-[calc(100%-1.75rem)]' : 'left-1'
+                      className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(15,23,42,0.18)] transition-all ${
+                        expressService ? 'left-[calc(100%-1.4rem)]' : 'left-[3px]'
                       }`}
                     />
                   </div>
@@ -386,20 +385,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
           {/* Promo Code Display (referral) */}
           {activePromo && (
-            <div className="bg-emerald-50/80 backdrop-blur border border-emerald-100 rounded-3xl p-4">
+            <div className="bg-emerald-50/80 backdrop-blur border border-emerald-100 rounded-2xl p-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-100 rounded-full">
-                    <Gift className="w-4 h-4 text-emerald-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-emerald-100 rounded-full">
+                    <Gift className="w-3.5 h-3.5 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-emerald-700 text-sm">Rabattcode aktiv</p>
-                    <p className="text-xs text-emerald-600">
+                    <p className="font-medium text-emerald-700 text-[13px]">Rabattcode aktiv</p>
+                    <p className="text-[11px] text-emerald-600">
                       Code <span className="font-mono">{activePromo.code}</span>
                     </p>
                   </div>
                 </div>
-                <span className="text-lg font-semibold text-emerald-600 tabular-nums">
+                <span className="text-[15px] font-semibold text-emerald-600 tabular-nums">
                   -{formatPrice(promoDiscount)}
                 </span>
               </div>
@@ -407,24 +406,24 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           )}
 
           {/* Cost Breakdown Card */}
-          <div className={`p-6 sm:p-7 ${cardClass}`}>
-            <h4 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-5">
+          <div className={`p-4 sm:p-5 ${cardClass}`}>
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] mb-3">
               Kostenaufstellung
             </h4>
             <div className="divide-y divide-slate-100/80">
               {priceBreakdown.items.map((item, idx) => {
                 const Icon = getItemIcon(item.label);
                 return (
-                  <div key={idx} className="flex items-center justify-between py-4 gap-3">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-10 h-10 rounded-2xl bg-[#2563FF]/8 flex items-center justify-center shrink-0">
-                        <Icon className="w-[18px] h-[18px] text-[#2563FF]" strokeWidth={2} />
+                  <div key={idx} className="flex items-center justify-between py-2.5 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-[#2563FF]/8 flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-[#2563FF]" strokeWidth={2} />
                       </div>
-                      <span className="text-slate-900 font-medium text-[15px] truncate">
+                      <span className="text-slate-900 font-medium text-[13px] truncate">
                         {item.label}
                       </span>
                     </div>
-                    <span className="text-slate-900 font-medium tabular-nums text-[15px] whitespace-nowrap shrink-0">
+                    <span className="text-slate-900 font-medium tabular-nums text-[13px] whitespace-nowrap shrink-0">
                       CHF {formatPrice(item.amount)}
                     </span>
                   </div>
@@ -432,38 +431,37 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               })}
             </div>
 
-            {/* Dotted divider */}
-            <div className="border-t border-dashed border-slate-200 my-5" />
+            <div className="border-t border-dashed border-slate-200 my-3" />
 
             {hasAnyPromo && (
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-slate-400">Zwischensumme</span>
-                <span className="text-xs text-slate-400 line-through tabular-nums">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[11px] text-slate-400">Zwischensumme</span>
+                <span className="text-[11px] text-slate-400 line-through tabular-nums">
                   CHF {formatPrice(finalPrice)}
                 </span>
               </div>
             )}
             <div className="flex justify-between items-end">
               <div className="flex flex-col">
-                <span className="text-slate-900 font-semibold text-[22px] tracking-tight leading-none">
+                <span className="text-slate-900 font-semibold text-[16px] tracking-tight leading-none">
                   {hasAnyPromo ? 'Nach Rabatt' : 'Total'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-[0.16em] mt-2">
+                <span className="text-[9px] text-slate-400 font-medium uppercase tracking-[0.14em] mt-1.5">
                   inkl. MwSt.
                 </span>
               </div>
-              <span className="text-slate-900 font-bold text-[40px] tracking-[-0.02em] tabular-nums leading-none">
+              <span className="text-slate-900 font-bold text-[26px] tracking-[-0.02em] tabular-nums leading-none">
                 CHF {formatPrice(priceAfterDiscount)}
               </span>
             </div>
           </div>
 
           {/* Payment Methods Card */}
-          <div className={`p-6 sm:p-7 ${cardClass}`}>
-            <h4 className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.16em] mb-5">
+          <div className={`p-4 sm:p-5 ${cardClass}`}>
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] mb-3">
               Zahlungsmethoden
             </h4>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-2">
               {methods.map((m) => {
                 const active = selectedMethod === m.id;
                 return (
@@ -471,18 +469,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     type="button"
                     key={m.id}
                     onClick={() => setSelectedMethod(m.id)}
-                    className={`relative h-16 rounded-2xl flex items-center justify-center transition-all duration-200 active:scale-[0.97] ${
+                    className={`relative h-12 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-[0.97] ${
                       m.id === 'klarna' ? 'bg-[#FFE0EC]' : 'bg-white'
                     } ${
                       active
-                        ? 'shadow-[0_0_0_1.5px_#2563FF,0_8px_24px_-8px_rgba(37,99,255,0.45)]'
-                        : 'shadow-[0_2px_8px_rgba(15,23,42,0.05),inset_0_0_0_1px_rgba(15,23,42,0.04)] hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]'
+                        ? 'shadow-[0_0_0_1.5px_#2563FF,0_6px_18px_-8px_rgba(37,99,255,0.45)]'
+                        : 'shadow-[0_2px_6px_rgba(15,23,42,0.05),inset_0_0_0_1px_rgba(15,23,42,0.04)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)]'
                     }`}
                   >
-                    {m.render}
+                    <div className="scale-[0.85]">{m.render}</div>
                     {active && (
-                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#2563FF] flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
-                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#2563FF] flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
+                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                       </span>
                     )}
                   </button>
@@ -492,12 +490,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           </div>
 
           {/* Primary Action */}
-          <div className="pt-1">
+          <div className="pt-0.5">
             <Button
               type="button"
               onClick={handlePayment}
               disabled={isLoading || !priceBreakdown || !isValid || authLoading}
-              className="w-full h-14 text-[15px]"
+              className="w-full"
             >
               {isLoading ? 'Lädt…' : authLoading ? 'Sitzung wird geprüft…' : !isValid ? 'Bitte anmelden' : 'Jetzt bezahlen'}
             </Button>
