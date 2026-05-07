@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, ArrowRight, PenTool } from 'lucide-react';
+import { Check, PenTool } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CompletedContentProps {
   taxYear: string;
@@ -44,14 +45,13 @@ export const CompletedContent: React.FC<CompletedContentProps> = ({
             : 'Bitte unterschreibe deine Steuererklärung, um den Prozess abzuschliessen.'}
         </p>
 
-        <button
+        <Button
+          type="button"
           onClick={() => navigate(`/tax-return-actions/${completedTaxReturnId}?year=${taxYear}`)}
-          className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-primary-foreground text-sm font-semibold transition-all duration-200 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
+          className="w-full shadow-none hover:shadow-none"
         >
-          <span>Ansehen & Herunterladen</span>
-          <ArrowRight className="w-4 h-4" strokeWidth={2} />
-        </button>
+          Ansehen & Herunterladen
+        </Button>
       </div>
     </div>
   );
