@@ -124,7 +124,7 @@ export const VehicleRepeater: React.FC<VehicleRepeaterProps> = ({ vehicles, onUp
       {/* Empty State */}
       {vehicles.length === 0 && (
         <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
-          <img src={vehicleEmptyImg} alt="" className="w-64 h-64 object-contain -my-8" />
+          <img src={vehicleEmptyImg} alt="" className="w-40 h-40 object-contain mb-4" />
           <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Fahrzeuge hinzugefügt</h3>
           <p className="text-sm text-slate-500 mb-5">Füge dein erstes Fahrzeug hinzu, um fortzufahren.</p>
           <button
