@@ -579,11 +579,13 @@ return <div className="min-h-screen">
             <div className="w-10 h-1 rounded-full bg-muted mx-auto mb-6" />
 
             <div className="flex flex-col items-center">
-              {/* Success Icon */}
-              <div className="mb-6 relative">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <Check className="w-7 h-7" strokeWidth={2.5} />
-                </div>
+              {/* Success Illustration */}
+              <div className="mb-6">
+                <img
+                  src={documentsCompleteImg}
+                  alt=""
+                  className="w-40 h-40 object-contain"
+                />
               </div>
 
               {/* Title */}
@@ -611,13 +613,6 @@ return <div className="min-h-screen">
                   className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-5 py-3 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
                 >
                   {t.documentChecklist.createNow}
-                </button>
-
-                <button
-                  onClick={() => setShowCompletionDialog(false)}
-                  className="flex w-full items-center justify-center rounded-2xl bg-background px-5 py-3 font-medium text-base text-foreground transition-all border border-border hover:bg-muted/50 active:scale-[0.97]"
-                >
-                  {t.documentChecklist.later}
                 </button>
               </div>
             </div>
