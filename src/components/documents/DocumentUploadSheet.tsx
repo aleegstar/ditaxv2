@@ -269,12 +269,12 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
           {/* Phase: Select file source */}
           {phase === 'select' && (
             <div>
-              <div className="text-center mb-5">
-                <h3 className="text-lg font-semibold text-foreground">
+              <div className="text-center mb-6 px-2">
+                <h3 className="text-[22px] leading-tight font-semibold tracking-tight text-foreground">
                   {item?.title || 'Dokument hochladen'}
                 </h3>
                 {item?.description && (
-                  <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                  <p className="text-[15px] text-muted-foreground/90 mt-2 leading-snug">{item.description}</p>
                 )}
               </div>
 
@@ -282,43 +282,48 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
               <input ref={photoInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,image/heic" capture="environment" onChange={handleInputChange} />
               <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/jpg,application/pdf" onChange={handleInputChange} />
 
-              <div className="space-y-3">
-                <button
-                  onClick={() => photoInputRef.current?.click()}
-                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <Image className="w-5 h-5 text-primary" />
-                  Fotos hochladen
-                </button>
-                <button
-                  onClick={() => {
-                    // Open camera directly via capture
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.capture = 'environment';
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) handleFileSelected(file);
-                    };
-                    input.click();
-                  }}
-                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <Camera className="w-5 h-5 text-muted-foreground" />
-                  Dokument scannen
-                </button>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-14 rounded-2xl border border-border bg-white text-foreground font-medium text-[15px] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 px-5"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <FileText className="w-5 h-5 text-muted-foreground" />
-                  Dateien (PDF, Docs...)
-                </button>
-              </div>
+              {(() => {
+                const glassBtn = "group relative w-full h-16 rounded-[22px] flex items-center gap-4 px-4 text-[16px] font-medium text-foreground bg-white/55 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_8px_24px_-12px_rgba(15,23,42,0.18)] active:scale-[0.985] transition-all duration-200 overflow-hidden";
+                const sheen = <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-[22px] bg-gradient-to-b from-white/70 to-transparent opacity-80" />;
+                const iconWrap = "relative w-11 h-11 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_4px_10px_-6px_rgba(29,100,255,0.25)] flex items-center justify-center flex-shrink-0";
+                const chevron = <span aria-hidden className="ml-auto text-muted-foreground/50 text-lg leading-none">›</span>;
+                return (
+                  <div className="space-y-3">
+                    <button onClick={() => photoInputRef.current?.click()} className={glassBtn} style={{ touchAction: 'manipulation' }}>
+                      {sheen}
+                      <div className={iconWrap}><Image className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
+                      <span className="relative">Fotos hochladen</span>
+                      {chevron}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.capture = 'environment';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) handleFileSelected(file);
+                        };
+                        input.click();
+                      }}
+                      className={glassBtn}
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      {sheen}
+                      <div className={iconWrap}><Camera className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
+                      <span className="relative">Dokument scannen</span>
+                      {chevron}
+                    </button>
+                    <button onClick={() => fileInputRef.current?.click()} className={glassBtn} style={{ touchAction: 'manipulation' }}>
+                      {sheen}
+                      <div className={iconWrap}><FileText className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
+                      <span className="relative">Dateien (PDF, Docs...)</span>
+                      {chevron}
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
