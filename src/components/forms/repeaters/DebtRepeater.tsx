@@ -1,5 +1,6 @@
 
 import React from 'react';
+import debtEmptyImg from '@/assets/debt-empty.png';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
