@@ -101,7 +101,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     generateChecklist,
     setCurrentStep,
     handleBack: contextHandleBack,
-    taxYear
+    taxYear,
+    isDataLoading,
+    formDataLoaded
   } = useFormContext();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -118,117 +120,64 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
   const questionsConfig = getQuestionsForSection(section, t);
   const questions = questionsConfig.questions;
 
-  const [formState, setFormState] = useState<MultiStepFormState>({
-    currentQuestionIndex: 0,
-    answers: {},
-    repeaterData: {},
-    isComplete: false,
-    mode: 'yesno'
-  });
+  // Lazy initial state derivation — uses formProgress/formData synchronously
+  // so that completed sections render the summary immediately (no flash of Q&A).
+  const buildInitialFormState = (): MultiStepFormState => {
+    const existingData = (formData as any)?.[section] || {};
+    const answers: Record<string, boolean> = {};
+    const repeaterData: Record<string, any[]> = {};
+    questions.forEach((question) => {
+      if (!question?.id) return;
+      answers[question.id] = existingData[question.id] || false;
+      if (question.requiresRepeater) {
+        const dataKey = getRepeaterDataKey(question.id);
+        if (dataKey) repeaterData[question.id] = existingData[dataKey] || [];
+      }
+    });
+    const completed = !!formProgress?.[section];
+    const savedIndex = questionProgress?.[section];
+    const currentQuestionIndex = completed
+      ? Math.max(questions.length - 1, 0)
+      : (savedIndex !== undefined ? savedIndex : 0);
+    return {
+      currentQuestionIndex,
+      answers,
+      repeaterData,
+      isComplete: completed,
+      mode: 'yesno',
+    };
+  };
 
-  // Use reducer for view state management
-  const [viewState, dispatchViewState] = useReducer(formViewReducer, {
-    showRepeater: false,
-    showSummary: false,
-    isEditing: false,
-    editingQuestionId: null
-  });
+  const [formState, setFormState] = useState<MultiStepFormState>(buildInitialFormState);
+
+  // Use reducer for view state management — initialise summary view immediately if completed.
+  const [viewState, dispatchViewState] = useReducer(
+    formViewReducer,
+    undefined,
+    () => ({
+      showRepeater: false,
+      showSummary: !!formProgress?.[section],
+      isEditing: false,
+      editingQuestionId: null,
+    })
+  );
 
   // Ref to track that initial data has been loaded for this section
-  const dataLoadedForSectionRef = useRef<string | null>(null);
+  const dataLoadedForSectionRef = useRef<string | null>(section);
   
   // Ref to ensure initial check only runs once per section
-  const initialCheckDoneRef = useRef(false);
+  const initialCheckDoneRef = useRef(true);
   
-  // Reset refs when section changes
+  // Reset refs and state when section changes
   useEffect(() => {
-    initialCheckDoneRef.current = false;
-    dataLoadedForSectionRef.current = null;
+    initialCheckDoneRef.current = true;
+    dataLoadedForSectionRef.current = section;
+    setFormState(buildInitialFormState());
+    dispatchViewState({ type: 'SET_SUMMARY', show: !!formProgress?.[section] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section]);
 
-  // Load existing data and answers - ONLY on initial mount or section change, never on formData updates
-  useEffect(() => {
-    // Only load once per section
-    if (dataLoadedForSectionRef.current === section) {
-      return;
-    }
-
-    console.log('Loading existing data for section:', section);
-    dataLoadedForSectionRef.current = section;
-    
-    try {
-      const existingData = formData[section] || {};
-      const answers: Record<string, boolean> = {};
-      const repeaterData: Record<string, any[]> = {};
-
-      if (!questions || questions.length === 0) {
-        console.warn('No questions available for section:', section);
-        return;
-      }
-
-      questions.forEach((question, index) => {
-        try {
-          if (!question || !question.id) {
-            console.warn(`Invalid question at index ${index}:`, question);
-            return;
-          }
-          
-          answers[question.id] = existingData[question.id] || false;
-          
-          if (question.requiresRepeater) {
-            const dataKey = getRepeaterDataKey(question.id);
-            if (dataKey) {
-              repeaterData[question.id] = existingData[dataKey] || [];
-            }
-          }
-        } catch (questionError) {
-          console.error(`Error processing question ${question.id}:`, questionError);
-        }
-      });
-
-      setFormState(prev => ({
-        ...prev,
-        answers,
-        repeaterData
-      }));
-    } catch (error) {
-      console.error('Error loading existing data:', error);
-    }
-  }, [section, formData, questions]);
-
-  // Handle initial position - only run once per section mount
-  useEffect(() => {
-    // Only run the initial check once per section
-    if (initialCheckDoneRef.current) return;
-    
-    const sectionProgress = formProgress[section];
-    const savedQuestionIndex = questionProgress[section];
-
-    // Debug current state
-    console.debug('MultiStepYesNoForm initial state check', {
-      section,
-      questionsLength: questions.length,
-      savedQuestionIndex,
-      sectionProgress,
-    });
-
-    // Mark as checked
-    initialCheckDoneRef.current = true;
-
-    // If section is completed, show summary instead of expert mode
-    if (sectionProgress) {
-      console.debug('Section completed previously. Showing summary.', { section });
-      dispatchViewState({ type: 'SET_SUMMARY', show: true });
-      // Set to last question index so summary has all data
-      setFormState(prev => ({ ...prev, currentQuestionIndex: questions.length - 1 }));
-      return;
-    }
-    
-    // Only set initial position if we have saved progress and are starting fresh
-    const initialIndex = savedQuestionIndex !== undefined ? savedQuestionIndex : 0;
-    setFormState(prev => ({ ...prev, currentQuestionIndex: initialIndex }));
-    dispatchViewState({ type: 'RESET_VIEW' });
-  }, [section, formProgress, questionProgress, questions.length, onModeSwitch]);
+  // (Initial data + position are derived synchronously via lazy useState/useReducer above.)
 
   // Effect to handle progress updates - only on actual question changes, not during editing or summary
   useEffect(() => {
@@ -577,6 +526,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       });
     }
   }, [onModeSwitch]);
+
+  // Wait until form context has finished loading so the initial view (Q&A vs. summary)
+  // is correct on first paint and we don't flash the wrong screen.
+  if (isDataLoading || !formDataLoaded) {
+    return <div className="min-h-screen" />;
+  }
 
   // Render summary if showSummary is true
   if (viewState.showSummary && !viewState.isEditing) {
