@@ -104,20 +104,18 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 key={section.id}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
-                  "relative text-left rounded-2xl bg-white border border-slate-200/80 p-4",
+                  "relative text-left rounded-2xl bg-white border border-slate-200/80 p-4 pt-5",
                   "shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  "active:scale-[0.98] transition-all duration-200 min-h-[150px] flex flex-col justify-between"
+                  "active:scale-[0.98] transition-all duration-200 min-h-[170px] flex flex-col items-center justify-between"
                 )}
               >
-                <div className="flex items-start justify-between -mt-2">
-                  <img src={section.image} alt="" className="w-20 h-20 object-contain -ml-3 -mt-3" />
-                  {completed && (
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
-                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-                    </div>
-                  )}
-                </div>
-                <div>
+                {completed && (
+                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
+                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                  </div>
+                )}
+                <img src={section.image} alt="" className="w-20 h-20 object-contain" />
+                <div className="text-center">
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
                   </h3>
