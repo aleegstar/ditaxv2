@@ -443,15 +443,20 @@ return <div className="min-h-screen">
             </Alert>}
 
           {checklistItems.length === 0 ? (
-            <div className="text-center py-16">
-              <FolderSearch className="w-8 h-8 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600 mb-1 font-medium">Checkliste wird erstellt</p>
-              <p className="text-sm text-slate-400 mb-6">
-                {!formDataLoaded ? "Daten werden geladen..." : "Basierend auf deinen Angaben."}
+            <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+              <img src={checklistEmptyImg} alt="" className="w-40 h-40 object-contain mb-4" />
+              <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Checkliste vorhanden</h3>
+              <p className="text-sm text-slate-500 mb-5">
+                {!formDataLoaded ? 'Daten werden geladen…' : 'Erstelle deine Dokumentencheckliste basierend auf deinen Angaben.'}
               </p>
-              <Button onClick={handleForceGeneration} disabled={isLoading} className="rounded-xl">
-                {isLoading ? "Wird geladen..." : "Checkliste generieren"}
-              </Button>
+              <button
+                type="button"
+                onClick={handleForceGeneration}
+                disabled={isLoading}
+                className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all disabled:opacity-60"
+              >
+                {isLoading ? 'Wird geladen…' : 'Dokumentencheckliste hinzufügen'}
+              </button>
             </div>
           ) : (() => {
             const pendingItems = checklistItems.filter(i => !i.uploaded);
