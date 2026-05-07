@@ -11,6 +11,7 @@ import { Users, Ticket, CheckCircle, Loader2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/contexts/I18nContext';
+import welcomeIllustration from '@/assets/welcome-illustration.webp';
 
 const TAX_YEARS = Array.from({
   length: 3
@@ -418,6 +419,16 @@ export const WelcomeFlow = () => {
 
         {/* Content */}
         <div className="px-6 py-10 sm:px-10 sm:pb-16 flex flex-col items-center text-center">
+
+          {/* Illustration */}
+          <motion.img
+            src={welcomeIllustration}
+            alt=""
+            className="w-40 h-40 sm:w-48 sm:h-48 object-contain mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+          />
 
           {/* Heading */}
           <AnimatePresence mode="wait">
