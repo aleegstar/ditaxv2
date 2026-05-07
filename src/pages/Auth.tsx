@@ -137,6 +137,7 @@ const Auth = () => {
             console.log('✅ Session found! User authenticated.');
             window.history.replaceState({}, '', '/auth');
             toast.success('Erfolgreich angemeldet!');
+            sessionStorage.setItem('ditax_force_person_selection', '1');
             navigate('/', { replace: true });
             return;
           } else {
@@ -149,6 +150,7 @@ const Auth = () => {
               console.log('✅ Session found on retry!');
               window.history.replaceState({}, '', '/auth');
               toast.success('Erfolgreich angemeldet!');
+              sessionStorage.setItem('ditax_force_person_selection', '1');
               navigate('/', { replace: true });
               return;
             }
@@ -178,6 +180,7 @@ const Auth = () => {
 
           window.history.replaceState({}, '', '/auth');
           toast.success('Erfolgreich angemeldet!');
+          sessionStorage.setItem('ditax_force_person_selection', '1');
           navigate('/', { replace: true });
         } catch (error: any) {
           console.error('Auth error:', error);
@@ -458,6 +461,7 @@ const Auth = () => {
       }
 
       toast.success(t.authFlow.loginSuccess);
+      sessionStorage.setItem('ditax_force_person_selection', '1');
       navigate("/");
     } catch (error: any) {
       toast.error(error.message || t.authFlow.codeVerificationError);

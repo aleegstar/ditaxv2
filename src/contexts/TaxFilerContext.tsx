@@ -85,20 +85,21 @@ export const TaxFilerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setSelectionConfirmed(false);
       setDataFetched(false);
       sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem('ditax_force_person_selection');
       setIsLoading(false);
     }
   }, [userId, authLoading]);
 
-  // Force person re-selection on every fresh sign-in
+  // Force person re-selection only after an explicit fresh login
+  // (set via sessionStorage flag from auth entry points)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') {
-        sessionStorage.removeItem(SESSION_KEY);
-        setSelectionConfirmed(false);
-        setActiveTaxFilerId(null);
-      }
-    });
-    return () => subscription.unsubscribe();
+    if (typeof window === 'undefined') return;
+    if (sessionStorage.getItem('ditax_force_person_selection') === '1') {
+      sessionStorage.removeItem('ditax_force_person_selection');
+      sessionStorage.removeItem(SESSION_KEY);
+      setSelectionConfirmed(false);
+      setActiveTaxFilerId(null);
+    }
   }, []);
 
   // Load tax filers — called directly with userId from AuthContext
