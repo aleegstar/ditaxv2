@@ -1,31 +1,36 @@
-## Ziel
+## Problem
 
-Navbar bleibt sichtbar, wenn das Dokumente- oder Chat-Overlay geöffnet ist. Overlays animieren von unten herein, hören aber oberhalb der Navbar auf, sodass die Navigation jederzeit erreichbar ist.
+Beim Öffnen einer abgeschlossenen Sektion (Einkommen / Abzüge / Vermögen) sieht man kurz das Ja/Nein-Formular, bevor die Zusammenfassung erscheint. Ursache: `MultiStepYesNoForm` initialisiert `viewState.showSummary` immer mit `false`. Erst nach dem ersten Render entscheidet ein `useEffect`, ob die Sektion abgeschlossen ist, und schaltet dann auf die Zusammenfassung um. Dasselbe Flackern tritt beim Zurücknavigieren auf, sobald die Komponente neu gemountet wird.
 
-## Änderungen
+## Lösung
 
-### 1. `src/components/dashboard/HomeBottomNav.tsx`
-- Z-Index der Navbar von `z-40` auf `z-[10010]` anheben, damit sie über dem Overlay-Layer (`z-[10000]` / `z-[9999]`) liegt.
-- Active-State der Buttons: `Steuern`/`Dokumente`/`Chat` reagieren auf einen optionalen `active`-Prop, sodass beim geöffneten Overlay der entsprechende Button als aktive Pille angezeigt wird (visuelles Feedback während Übergang).
-- Neuer Prop `activeTab?: 'home' | 'documents' | 'chat'`.
+`MultiStepYesNoForm.tsx` so anpassen, dass der Anfangszustand bereits korrekt gesetzt wird, bevor irgendetwas gerendert wird:
 
-### 2. `src/components/documents/DocumentsOverlay.tsx`
-- `hide-bottom-navbar`-Logik entfernen (keine Body-Klasse, keine Attribute mehr).
-- Overlay-Container so anpassen, dass er Platz für die Navbar lässt:
-  - Statt `fixed inset-0` → `fixed inset-x-0 top-0` mit `bottom: calc(env(safe-area-inset-bottom) + 84px)` (Navbar-Höhe + Padding) und `rounded-t-[28px]` plus weicher Schatten an der Oberkante für saubere Abgrenzung.
-- Initial-Animation bleibt `y: '100%'` mit etwas weicherem Easing für flüssigen Übergang (bereits 0.35s `cubic-bezier(0.22,1,0.36,1)`).
+1. **Lazy-Initialisierung von `useReducer` und `useState`** anhand von `formProgress[section]`:
+   - Wenn die Sektion bereits abgeschlossen ist (`formProgress[section] === true`), startet `viewState` direkt mit `showSummary: true` und `formState.currentQuestionIndex` mit `questions.length - 1`.
+   - Sonst wie bisher (Position aus `questionProgress[section]` oder `0`).
 
-### 3. `src/components/chat/OverlayChatBar.tsx`
-- Backdrop (`z-[9998]`) und Chat-Container (`z-[9999]`) so anpassen, dass beide oberhalb der Navbar enden:
-  - Container: `fixed inset-x-0 top-0` + `bottom: calc(env(safe-area-inset-bottom) + 84px)`.
-  - Rounded-Top + Schatten passend zum Dokumente-Overlay für konsistentes Look & Feel.
-- Eingabeleiste innerhalb des Chats bleibt am unteren Rand des Containers (über der Navbar, nicht dahinter).
+2. **Render-Gate, bis FormContext bereit ist**: Solange `formData`/`formProgress` noch geladen werden (`isDataLoading` / `formDataLoaded` aus `FormContext`), nichts rendern (oder konsistenten leeren Zustand). Damit wird verhindert, dass das Ja/Nein-UI angezeigt wird, bevor wir wissen, ob die Sektion abgeschlossen ist.
 
-### 4. `src/pages/UserTaxReturns.tsx`
-- `activeTab` an `HomeBottomNav` durchreichen: `documentsOverlayOpen ? 'documents' : chatOpen ? 'chat' : 'home'`.
-- Chat-Open-State über Custom-Event-Hook oder einfaches Lifting in der Page tracken (Listener für `open-overlay-chat` / `close-overlay-chat`).
+3. **Initial-Check-`useEffect` aufräumen**: Den bisherigen Effect, der `dispatchViewState({ type: 'SET_SUMMARY', show: true })` zeitversetzt aufruft, entfernen — er ist durch die Lazy-Initialisierung obsolet und Quelle des doppelten Renderns.
 
-## Ergebnis
-- Navbar bleibt während aller Overlays sichtbar und klickbar.
-- Aktiver Reiter wird visuell hervorgehoben.
-- Übergänge bleiben flüssig (slide-up, gleiche Easing-Kurve in beiden Overlays).
+4. **Daten-Lade-Effect frühzeitig synchron befüllen**: `answers` und `repeaterData` ebenfalls per Lazy-Init in `useState` setzen, damit die Zusammenfassung beim allerersten Render bereits Inhalte hat (kein zweites Render mit leerer Liste).
+
+5. **Zurück-Verhalten** bleibt wie zuletzt eingebaut: Aus der Zusammenfassung führt der Header-Back direkt zu `/personal-info?year=…` — kein Wechsel zurück in den Q&A-Modus, also auch kein Flicker beim Zurückgehen.
+
+## Betroffene Datei
+
+- `src/components/forms/multistep/MultiStepYesNoForm.tsx`
+
+## Technische Details
+
+- `useReducer(formViewReducer, undefined, () => ({ showRepeater: false, showSummary: !!formProgress[section], isEditing: false, editingQuestionId: null }))`
+- `useState<MultiStepFormState>(() => { … sectionData ableiten, currentQuestionIndex setzen … })`
+- `if (isDataLoading || !formDataLoaded) return null;` direkt nach den Hook-Aufrufen
+- Initial-Check-Effect (Zeilen ~199–231) entfernen oder auf reines Logging reduzieren
+
+## Akzeptanzkriterien
+
+- Klick auf eine abgeschlossene Sektion zeigt sofort die Zusammenfassung, kein Aufblitzen der Ja/Nein-Frage.
+- Zurück aus der Zusammenfassung navigiert direkt nach `/personal-info` ohne Zwischenflash.
+- Nicht abgeschlossene Sektionen verhalten sich unverändert (Q&A startet an gespeicherter Position).
