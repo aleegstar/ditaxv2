@@ -86,10 +86,8 @@ const DocumentsContent: React.FC<{
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
 
-  // Generate year options (2024-2034) - memoized to prevent infinite loops
-  const allYears = React.useMemo(() => Array.from({
-    length: 11
-  }, (_, i) => (2024 + i).toString()), []);
+  // System-managed tax years (see src/config/availableTaxYears.ts)
+  const allYears = React.useMemo(() => getAvailableTaxYears(), []);
   const mountedRef = React.useRef(true);
 
   // Ref to track if documents are currently being loaded to prevent duplicate requests
