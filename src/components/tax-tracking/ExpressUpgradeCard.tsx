@@ -62,7 +62,6 @@ export const ExpressUpgradeCard: React.FC<ExpressUpgradeCardProps> = ({
               className="w-full h-11 rounded-xl bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white font-semibold text-sm flex items-center justify-center gap-2 border-0 shadow-none"
             >
               Jetzt auf Express upgraden
-              <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </div>
         </div>
