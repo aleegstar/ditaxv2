@@ -40,16 +40,14 @@ export const VehicleRepeater: React.FC<VehicleRepeaterProps> = ({ vehicles, onUp
       {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-600">Fahrzeuge</span>
-        <Button
+        <button
           type="button"
           onClick={addVehicle}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2 text-slate-600 hover:text-[#1D64FF] border border-slate-200 rounded-lg bg-white hover:bg-slate-50"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
           <Plus className="w-4 h-4" />
           Fahrzeug hinzufügen
-        </Button>
+        </button>
       </div>
 
       {vehicles.map((vehicle, index) => (
