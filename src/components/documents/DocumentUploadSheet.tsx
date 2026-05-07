@@ -21,6 +21,7 @@ import { getDocumentProfile } from '@/config/documentProfiles';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { isMobileAppContext } from '@/utils/platform';
+import documentScanImg from '@/assets/document-scan.webp';
 
 interface DocumentUploadSheetProps {
   open: boolean;
@@ -311,7 +312,7 @@ const DocumentUploadSheet: React.FC<DocumentUploadSheetProps> = ({
                       style={{ touchAction: 'manipulation' }}
                     >
                       {sheen}
-                      <div className={iconWrap}><Camera className="w-5 h-5 text-[#1D64FF]" strokeWidth={2} /></div>
+                      <div className={iconWrap}><img src={documentScanImg} alt="" width={448} height={448} loading="lazy" decoding="async" className="w-9 h-9 object-contain" /></div>
                       <span className="relative">Dokument scannen</span>
                       {chevron}
                     </button>
