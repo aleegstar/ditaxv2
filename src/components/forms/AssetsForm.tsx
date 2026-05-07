@@ -119,7 +119,7 @@ const AssetsForm = ({
       });
       
       if (!embedded) {
-        navigate('/');
+        navigate(`/personal-info?year=${taxYear}`);
       } else {
         onSave();
       }
@@ -160,7 +160,7 @@ const AssetsForm = ({
   const renderAssetsForm = () => (
     <ExpertFormContainer
       title={t.assets.title}
-      onBack={() => navigate('/')}
+      onBack={() => navigate(`/personal-info?year=${taxYear}`)}
       onSubmit={handleSubmit}
       submitLabel={t.forms.save}
       showFooter={!embedded}

@@ -231,7 +231,7 @@ const MultiStepContactForm = ({
         if (embedded) {
           setCurrentStep(1);
         } else {
-          window.location.href = `/form?year=${taxYear}`;
+          window.location.href = `/personal-info?year=${taxYear}`;
         }
       }
     } catch (error) {
@@ -272,7 +272,7 @@ const MultiStepContactForm = ({
         {!embedded && (
           <SubpageHeader
             title={t.multiStepContactForm.title}
-            onBack={() => navigate('/')}
+            onBack={() => navigate(`/personal-info?year=${taxYear}`)}
           />
         )}
 
