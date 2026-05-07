@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap } from 'lucide-react';
+
 import expressIllustration from '@/assets/express-upgrade-illustration.webp';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -35,8 +35,7 @@ export const ExpressUpgradeCard: React.FC<ExpressUpgradeCardProps> = ({
             className="w-full h-32 object-contain mb-4"
           />
           {/* Header */}
-          <div className="flex items-center gap-2.5 mb-3">
-            <Zap className="w-4 h-4 text-amber-500 fill-amber-500/20" />
+          <div className="mb-3">
             <h3 className="text-sm font-semibold text-slate-800">Express-Service</h3>
           </div>
           
