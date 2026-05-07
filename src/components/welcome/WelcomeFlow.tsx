@@ -262,10 +262,9 @@ export const WelcomeFlow = () => {
              <Button 
                onClick={handleNext} 
                disabled={isLoading || !canProceed()} 
-               className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+               className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
              >
                {t.onboarding.next}
-               <ArrowRight className="w-5 h-5 ml-2 text-white" />
             </Button>
           </div>;
       case 1:
@@ -283,10 +282,9 @@ export const WelcomeFlow = () => {
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading || !canProceed()} 
-                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+                className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
               >
                 {t.onboarding.next}
-                <ArrowRight className="w-5 h-5 ml-2 text-white" />
               </Button>
            </div>
          );
@@ -308,10 +306,9 @@ export const WelcomeFlow = () => {
               <Button 
                 onClick={handleNext} 
                 disabled={isLoading} 
-                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+                className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
               >
                 {t.onboarding.next}
-                <ArrowRight className="w-5 h-5 ml-2 text-white" />
              </Button>
            </div>
          );
@@ -382,10 +379,9 @@ export const WelcomeFlow = () => {
                <Button
                  onClick={handleFamilyLater}
                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl py-5 h-auto text-lg font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-primary/20"
+                  className="w-full rounded-full py-5 h-auto text-base font-semibold text-white transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-[0_8px_24px_-8px_rgba(22,86,255,0.5)] bg-gradient-to-b from-[#508BFF] to-[#1656FF] hover:brightness-[1.05]"
                >
                   {t.onboarding.familyHintLater}
-                  <ArrowRight className="w-5 h-5 ml-2 text-white" />
                </Button>
               <Button
                 onClick={handleFamilyNow}
@@ -425,7 +421,7 @@ export const WelcomeFlow = () => {
       </motion.div>
 
       {/* Main Card Container */}
-      <motion.main className="w-full max-w-lg bg-white/70 backdrop-blur-2xl rounded-3xl shadow-xl shadow-black/5 overflow-hidden border border-white/60" initial={{
+      <motion.main className="w-full max-w-lg bg-white border border-slate-200/80 rounded-[1.75rem] shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden" initial={{
       opacity: 0,
       y: 20
     }} animate={{
