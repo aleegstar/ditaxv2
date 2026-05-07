@@ -235,15 +235,17 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       )}
 
       {/* ═══════════ Tipp Card ═══════════ */}
-      {!tipDismissed && !allAngabenComplete && (
+      {!tipDismissed && (!allAngabenComplete || !isDocumentsComplete) && (
         <div className="mt-2 rounded-2xl bg-primary/5 border border-primary/15 px-3 py-2.5 flex items-center gap-3 relative">
           <img src={tipFolderImg} alt="" className="w-20 h-20 object-contain flex-shrink-0 -my-2" />
           <div className="flex-1 min-w-0 pr-5">
             <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[13px]">
-              Persönlichen Angaben
+              {!allAngabenComplete ? 'Persönlichen Angaben' : 'Belege & Unterlagen'}
             </h3>
             <p className="text-muted-foreground mt-0.5 leading-snug text-[11px]">
-              Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.
+              {!allAngabenComplete
+                ? 'Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.'
+                : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
             </p>
           </div>
           <button
