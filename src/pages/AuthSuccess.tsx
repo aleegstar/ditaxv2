@@ -81,6 +81,7 @@ const AuthSuccess = () => {
               const deeplinkUrl = `ditax://oauth/auth?success=true&at=${session.access_token}&rt=${session.refresh_token}`;
               window.location.href = deeplinkUrl;
             } else {
+              sessionStorage.setItem('ditax_force_person_selection', '1');
               navigate('/', { replace: true });
             }
           } else {
