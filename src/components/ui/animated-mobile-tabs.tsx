@@ -62,38 +62,41 @@ export function AnimatedMobileTabs({
   }
 
   return (
-    <div className={cn(
-      "fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 md:hidden",
-      "flex w-fit rounded-full bg-white/20 backdrop-blur-xl border border-white/30 p-1",
-      "shadow-2xl shadow-black/20",
-      className
-    )}>
-      {items.map((item) => {
-        const isSelected = selected === item.route
+    <div
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-50 md:hidden",
+        "bg-white border-t border-border/40",
+        className
+      )}
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="flex items-stretch justify-around px-2 pt-2 pb-2">
+        {items.map((item) => {
+          const isSelected = selected === item.route
+          const Icon = item.icon
 
-        return (
-          <button
-            key={item.route}
-            onClick={() => handleTabSelect(item.route)}
-            className={cn(
-              "relative w-fit px-6 py-3 text-sm font-semibold transition-colors",
-              "flex items-center justify-center",
-              "text-black"
-            )}
-          >
-            <div className="relative z-10">
-              <span>{item.label}</span>
-            </div>
-            {isSelected && (
-              <motion.span
-                layoutId="mobile-tab"
-                transition={{ type: "spring", duration: 0.4 }}
-                className="absolute inset-0 z-0 rounded-full bg-white shadow-lg"
-              />
-            )}
-          </button>
-        )
-      })}
+          return (
+            <button
+              key={item.route}
+              onClick={() => handleTabSelect(item.route)}
+              className={cn(
+                "relative flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors",
+                isSelected ? "text-primary" : "text-foreground/70"
+              )}
+            >
+              <Icon className="w-6 h-6" />
+              <span className="text-xs font-medium">{item.label}</span>
+              {isSelected && (
+                <motion.span
+                  layoutId="mobile-tab-indicator"
+                  transition={{ type: "spring", duration: 0.4 }}
+                  className="absolute bottom-0 h-0.5 w-8 rounded-full bg-primary"
+                />
+              )}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
