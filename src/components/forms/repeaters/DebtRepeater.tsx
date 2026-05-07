@@ -1,5 +1,6 @@
 
 import React from 'react';
+import debtEmptyImg from '@/assets/debt-empty.png';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,17 +40,15 @@ export const DebtRepeater: React.FC<DebtRepeaterProps> = ({ debts, onUpdate }) =
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-slate-600 font-medium">Schulden</h4>
-        <Button
+        <span className="text-sm font-medium text-slate-600">Schulden</span>
+        <button
           type="button"
           onClick={addDebt}
-          size="sm"
-          className="border-slate-200 text-slate-600 hover:bg-slate-100"
-          variant="outline"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-4 py-2.5 font-semibold text-sm tracking-tight text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Schuld hinzufügen
-        </Button>
+        </button>
       </div>
 
       {debts.map((debt, index) => (
@@ -124,16 +123,17 @@ export const DebtRepeater: React.FC<DebtRepeaterProps> = ({ debts, onUpdate }) =
       ))}
 
       {debts.length === 0 && (
-        <div className="text-center py-8 bg-slate-50 border border-slate-200 rounded-2xl text-slate-500">
-          <p>Noch keine Schulden hinzugefügt</p>
-          <Button
+        <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+          <img src={debtEmptyImg} alt="" className="w-64 h-64 object-contain -my-8" />
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Schulden hinzugefügt</h3>
+          <p className="text-sm text-slate-500 mb-5">Füge deine erste Schuld hinzu, um fortzufahren.</p>
+          <button
             type="button"
             onClick={addDebt}
-            className="mt-2 border-slate-200 text-slate-600 hover:bg-slate-100"
-            variant="outline"
+            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
           >
             Erste Schuld hinzufügen
-          </Button>
+          </button>
         </div>
       )}
 
