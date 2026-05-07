@@ -34,16 +34,13 @@ export const WelcomeFlow = () => {
   const [referralApplied, setReferralApplied] = useState(false);
   const [referralLoading, setReferralLoading] = useState(false);
 
-  // 4 steps: consent, name, year, family
+  // 3 steps: consent, name, family (year is auto-selected)
   const steps = [{
     id: 'consent',
     title: t.onboarding.consentTitle
   }, {
     id: 'name',
     title: t.onboarding.nameTitle
-  }, {
-    id: 'year',
-    title: '' // Will be set dynamically with firstName
   }, {
     id: 'family',
     title: t.onboarding.familyHintTitle
@@ -59,8 +56,8 @@ export const WelcomeFlow = () => {
       return;
     }
     
-    // After step 3 (year selection), save data and show transition
-    if (currentStep === 2) {
+    // After step 1 (name), save data and proceed to family step
+    if (currentStep === 1) {
       await handleSaveData();
       return;
     }
