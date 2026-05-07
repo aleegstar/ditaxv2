@@ -145,6 +145,7 @@ const NativeCallback = () => {
         } else {
           // Not in native - navigate to home immediately
           console.log('🔗 Not in native, navigating to home...');
+          sessionStorage.setItem('ditax_force_person_selection', '1');
           navigate('/', { replace: true });
         }
 
