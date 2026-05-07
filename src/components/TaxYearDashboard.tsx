@@ -37,6 +37,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
+  const [tipDismissed, setTipDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('dashboard-tip-dismissed') === 'true';
+  });
 
   const { activeTaxFilerId } = useTaxFiler();
   const formTour = useFormTourSafe();
