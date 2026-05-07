@@ -114,7 +114,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                     <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                   </div>
                 )}
-                <img src={section.image} alt="" className="w-20 h-20 object-contain" />
+                <img src={section.image} alt="" width={320} height={320} loading="lazy" decoding="async" className="w-20 h-20 object-contain" />
                 <div className="text-center">
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
