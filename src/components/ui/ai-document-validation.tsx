@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
-import documentCheckImg from '@/assets/document-check.png';
+import documentCheckImg from '@/assets/document-check.webp';
 import { cn } from '@/lib/utils';
 import { ValidationProgress } from '@/types/documentProfile';
 

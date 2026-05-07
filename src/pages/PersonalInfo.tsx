@@ -5,10 +5,10 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-import sectionContactImg from '@/assets/section-contact.png';
-import sectionIncomeImg from '@/assets/section-income.png';
-import sectionDeductionsImg from '@/assets/section-deductions.png';
-import sectionAssetsImg from '@/assets/section-assets.png';
+import sectionContactImg from '@/assets/section-contact.webp';
+import sectionIncomeImg from '@/assets/section-income.webp';
+import sectionDeductionsImg from '@/assets/section-deductions.webp';
+import sectionAssetsImg from '@/assets/section-assets.webp';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
