@@ -167,6 +167,40 @@ const UserTaxReturns = () => {
     }
   }, [availableYears, selectedYear]);
 
+  // Auto-create system-managed tax years that don't yet exist for this filer.
+  const autoCreateRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (!userId || !activeTaxFilerId || loading) return;
+    const key = `${userId}:${activeTaxFilerId}`;
+    if (autoCreateRef.current === key) return;
+    const required = getAvailableTaxYears();
+    const existing = new Set(taxReturns.map((tr: TaxReturn) => tr.tax_year));
+    const missing = required.filter(y => !existing.has(y));
+    if (missing.length === 0) {
+      autoCreateRef.current = key;
+      return;
+    }
+    autoCreateRef.current = key;
+    (async () => {
+      for (const year of missing) {
+        try {
+          const { error } = await supabase.from('tax_returns').insert({
+            user_id: userId,
+            tax_filer_id: activeTaxFilerId,
+            tax_year: year,
+            status: 'pending',
+            payment_status: 'pending',
+            workflow_step: 'data_collection',
+          });
+          if (error && error.code !== '23505') console.error('Auto-create tax year failed', year, error);
+        } catch (e) {
+          console.error('Auto-create tax year exception', year, e);
+        }
+      }
+      await refetch();
+    })();
+  }, [userId, activeTaxFilerId, loading, taxReturns, refetch]);
+
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
     setIsCreatingTaxReturn(true);
