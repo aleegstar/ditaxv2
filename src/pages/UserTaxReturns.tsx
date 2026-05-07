@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Plus } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { OverlayChatBar } from '@/components/chat/OverlayChatBar';
 import ditaxLogoMask from '@/assets/ditax-logo-mask.svg';
 import { DocumentsOverlay } from '@/components/documents/DocumentsOverlay';
@@ -8,7 +8,6 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { AddTaxYearSheet } from '@/components/ui/add-tax-year-sheet';
 import { ProfileWithNotifications } from '@/components/ui/profile-with-notifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -16,8 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuthValidation } from '@/hooks/use-auth-validation';
 import { useTaxYearData } from '@/hooks/use-tax-year-data';
-import { TaxYearSelector } from '@/components/TaxYearSelector';
 import { useOnboardingTour } from '@/contexts/OnboardingTourContext';
+import { getAvailableTaxYears } from '@/config/availableTaxYears';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useProfile } from '@/hooks/useProfile';
 import { SignatureDialog } from '@/components/signature/SignatureDialog';
@@ -105,7 +104,6 @@ const UserTaxReturns = () => {
   }, [refetch]);
 
   const [isCreatingTaxReturn, setIsCreatingTaxReturn] = useState(false);
-  const [showAddYearSheet, setShowAddYearSheet] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
@@ -168,6 +166,40 @@ const UserTaxReturns = () => {
       setSelectedYear(availableYears[0]);
     }
   }, [availableYears, selectedYear]);
+
+  // Auto-create system-managed tax years that don't yet exist for this filer.
+  const autoCreateRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (!userId || !activeTaxFilerId || loading) return;
+    const key = `${userId}:${activeTaxFilerId}`;
+    if (autoCreateRef.current === key) return;
+    const required = getAvailableTaxYears();
+    const existing = new Set(taxReturns.map((tr: TaxReturn) => tr.tax_year));
+    const missing = required.filter(y => !existing.has(y));
+    if (missing.length === 0) {
+      autoCreateRef.current = key;
+      return;
+    }
+    autoCreateRef.current = key;
+    (async () => {
+      for (const year of missing) {
+        try {
+          const { error } = await supabase.from('tax_returns').insert({
+            user_id: userId,
+            tax_filer_id: activeTaxFilerId,
+            tax_year: year,
+            status: 'pending',
+            payment_status: 'pending',
+            workflow_step: 'data_collection',
+          });
+          if (error && error.code !== '23505') console.error('Auto-create tax year failed', year, error);
+        } catch (e) {
+          console.error('Auto-create tax year exception', year, e);
+        }
+      }
+      await refetch();
+    })();
+  }, [userId, activeTaxFilerId, loading, taxReturns, refetch]);
 
   const createNewTaxReturn = async (year: string) => {
     if (!userId) return;
@@ -232,10 +264,8 @@ const UserTaxReturns = () => {
   if (isValid && !profileLoading && !userProfile && !safetyTimeout) return null;
   if (hasMultipleFilers && !selectionConfirmed) return null;
 
-  // New user without onboarding -> year selector
-  if (!loading && !profileLoading && activeTaxFilerId && taxReturns.length === 0 && !userProfile?.first_name && !userProfile?.terms_accepted_at) {
-    return <TaxYearSelector onYearSelect={createNewTaxReturn} isCreating={isCreatingTaxReturn} />;
-  }
+  // Note: tax years are system-managed (see src/config/availableTaxYears.ts).
+  // Missing years are auto-created in the effect below.
 
   const getUserDisplayName = () => userProfile?.first_name || null;
   const getGreeting = () => t.userDashboard.greeting;
@@ -300,7 +330,6 @@ const UserTaxReturns = () => {
               years={availableYears}
               selectedYear={selectedYear}
               onSelect={setSelectedYear}
-              onAdd={() => setShowAddYearSheet(true)}
             />
           </div>
         )}
@@ -314,21 +343,10 @@ const UserTaxReturns = () => {
           className="mb-8"
         >
           {selectedStatus === 'empty' && (
-            <button
-              onClick={() => setShowAddYearSheet(true)}
-              className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] active:scale-[0.99] transition-all"
-            >
-              <div
-                className="h-12 w-12 rounded-full flex items-center justify-center text-primary-foreground"
-                style={{ background: 'linear-gradient(135deg, #779DFF 0%, #2D68FF 100%)' }}
-              >
-                <Plus className="w-6 h-6" strokeWidth={2} />
-              </div>
-              <div className="text-center">
-                <h3 className="text-base font-semibold text-foreground">Steuerjahr hinzufügen</h3>
-                <p className="text-sm text-muted-foreground mt-1">Lege eine neue Steuererklärung an.</p>
-              </div>
-            </button>
+            <div className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] text-center">
+              <h3 className="text-base font-semibold text-foreground">Steuerjahr wird vorbereitet</h3>
+              <p className="text-sm text-muted-foreground">Einen Moment bitte – dein Steuerjahr wird angelegt.</p>
+            </div>
           )}
 
           {selectedStatus === 'draft' && selectedYear && (
@@ -399,12 +417,6 @@ const UserTaxReturns = () => {
         </DrawerContent>
       </Drawer>
 
-      <AddTaxYearSheet
-        open={showAddYearSheet}
-        onOpenChange={setShowAddYearSheet}
-        existingYears={taxReturns.map((tr: TaxReturn) => tr.tax_year)}
-        onYearSelect={(year) => { setShowAddYearSheet(false); createNewTaxReturn(year); }}
-      />
 
       {userProfile && unsignedTaxReturn && (
         <SignatureDialog

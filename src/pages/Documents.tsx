@@ -28,6 +28,7 @@ import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { getAvailableTaxYears } from '@/config/availableTaxYears';
 
 // Separate content component that uses FormContext
 // Separate content component that uses FormContext
@@ -86,10 +87,8 @@ const DocumentsContent: React.FC<{
   // Set light status bar for this page (white background, dark text)
   useStatusBar('light');
 
-  // Generate year options (2024-2034) - memoized to prevent infinite loops
-  const allYears = React.useMemo(() => Array.from({
-    length: 11
-  }, (_, i) => (2024 + i).toString()), []);
+  // System-managed tax years (see src/config/availableTaxYears.ts)
+  const allYears = React.useMemo(() => getAvailableTaxYears(), []);
   const mountedRef = React.useRef(true);
 
   // Ref to track if documents are currently being loaded to prevent duplicate requests
@@ -607,11 +606,19 @@ const Documents: React.FC = () => {
   const { hasMultipleFilers, selectionConfirmed } = useTaxFiler();
   
   const yearFromUrl = searchParams.get('year');
-  const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<string>(
-    yearFromUrl || currentYear.toString()
-  );
-  
+  const allowedYears = React.useMemo(() => getAvailableTaxYears(), []);
+  const initialYear = yearFromUrl && allowedYears.includes(yearFromUrl)
+    ? yearFromUrl
+    : allowedYears[allowedYears.length - 1];
+  const [selectedYear, setSelectedYear] = useState<string>(initialYear);
+
+  // If URL holds an unavailable year, normalize it.
+  useEffect(() => {
+    if (yearFromUrl && !allowedYears.includes(yearFromUrl)) {
+      navigate(`/documents?year=${initialYear}`, { replace: true });
+    }
+  }, [yearFromUrl, allowedYears, initialYear, navigate]);
+
   const handleYearChange = (newYear: string) => {
     setSelectedYear(newYear);
     navigate(`/documents?year=${newYear}`, { replace: true });
