@@ -66,14 +66,15 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const completedCount = sections.filter(s => isCompleted(s.id)).length;
   const allCompleted = completedCount === sections.length;
 
-  const hasNavigatedRef = useRef(false);
+  const prevCompletedRef = useRef<number | null>(null);
   useEffect(() => {
     if (isDataLoading || !formDataLoaded) return;
-    if (allCompleted && !hasNavigatedRef.current) {
-      hasNavigatedRef.current = true;
+    const prev = prevCompletedRef.current;
+    if (prev !== null && prev < sections.length && completedCount === sections.length) {
       navigate(`/?year=${taxYear}`);
     }
-  }, [allCompleted, isDataLoading, formDataLoaded, navigate, taxYear]);
+    prevCompletedRef.current = completedCount;
+  }, [completedCount, isDataLoading, formDataLoaded, navigate, taxYear, sections.length]);
 
   if (isDataLoading || !formDataLoaded) return null;
 
