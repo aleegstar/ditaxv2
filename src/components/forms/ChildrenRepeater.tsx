@@ -1,4 +1,5 @@
 import React from 'react';
+import childEmptyImg from '@/assets/child-empty.png';
 import { Button } from '@/components/ui/button';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
 import { Label } from '@/components/ui/label';
@@ -176,17 +177,17 @@ export const ChildrenRepeater: React.FC<ChildrenRepeaterProps> = ({
       ))}
 
       {children.length === 0 && (
-        <div className="text-center py-8 text-slate-500">
-          <p className="mb-4">Keine Kinder hinzugefügt</p>
-          <Button
+        <div className="text-center py-10 px-6 bg-white/60 border border-slate-200 rounded-3xl flex flex-col items-center">
+          <img src={childEmptyImg} alt="" className="w-40 h-40 object-contain mb-4" />
+          <h3 className="text-base font-semibold text-slate-900 mb-1">Noch keine Kinder hinzugefügt</h3>
+          <p className="text-sm text-slate-500 mb-5">Füge dein erstes Kind hinzu, um fortzufahren.</p>
+          <button
             type="button"
             onClick={addChild}
-            variant="outline"
-            className="flex items-center gap-2 bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+            className="rounded-2xl border border-[#1D64FF]/30 bg-white px-6 py-3 text-sm font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
           >
-            <Plus className="w-4 h-4" />
             Erstes Kind hinzufügen
-          </Button>
+          </button>
         </div>
       )}
 
