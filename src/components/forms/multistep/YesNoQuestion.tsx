@@ -125,21 +125,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
 
           {question.explanation && (
             <div className="mt-6 pointer-events-auto">
-              <div className="flex items-start gap-3 rounded-2xl bg-muted/40 border border-border/40 px-4 py-3 text-left">
-                <svg className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="16" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {question.explanation}
-                </p>
-              </div>
-
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:brightness-110 transition"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:brightness-110 transition"
               >
                 {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -156,9 +145,16 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
                     transition={{ duration: 0.25, ease: 'easeOut' }}
                     className="overflow-hidden"
                   >
-                    <p className="text-sm text-muted-foreground leading-relaxed mt-4 px-2">
-                      {question.explanation}
-                    </p>
+                    <div className="flex items-start gap-3 rounded-2xl bg-muted/40 border border-border/40 px-4 py-3 text-left mt-4">
+                      <svg className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {question.explanation}
+                      </p>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
