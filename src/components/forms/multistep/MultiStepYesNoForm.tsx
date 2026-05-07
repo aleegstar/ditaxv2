@@ -527,6 +527,12 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [onModeSwitch]);
 
+  // Wait until form context has finished loading so the initial view (Q&A vs. summary)
+  // is correct on first paint and we don't flash the wrong screen.
+  if (isDataLoading || !formDataLoaded) {
+    return <div className="min-h-screen" />;
+  }
+
   // Render summary if showSummary is true
   if (viewState.showSummary && !viewState.isEditing) {
     const summaryItems = generateSummaryItems();
