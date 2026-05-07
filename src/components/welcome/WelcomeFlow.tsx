@@ -11,6 +11,7 @@ import { Users, Ticket, CheckCircle, Loader2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/contexts/I18nContext';
+import welcomeIllustration from '@/assets/welcome-illustration.webp';
 
 const TAX_YEARS = Array.from({
   length: 3
