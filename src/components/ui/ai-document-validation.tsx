@@ -7,7 +7,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, FileText, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
+import documentCheckImg from '@/assets/document-check.png';
 import { cn } from '@/lib/utils';
 import { ValidationProgress } from '@/types/documentProfile';
 
@@ -145,22 +146,13 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
         
         {/* Scanner Icon */}
         <div className="relative mb-8">
-          {/* Glowing aura */}
           <div className="absolute -inset-4 bg-primary/10 rounded-full blur-xl animate-pulse" />
-          
-          {/* Icon container with scan animation */}
-          <div className="relative w-20 h-20 bg-background rounded-2xl border border-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center overflow-hidden z-10">
-            <FileText className="w-8 h-8 text-muted-foreground/40" strokeWidth={1.5} />
-            
-            {/* Scanning beam */}
-            <div className="absolute inset-x-0 h-1 bg-primary/50 shadow-[0_0_15px_hsl(var(--primary)/0.6)] animate-scan z-20" />
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/0 via-primary/5 to-primary/0 animate-scan z-10" />
-          </div>
-
-          {/* Processing badge */}
-          <div className="absolute -bottom-2 -right-2 z-20 bg-background rounded-full p-1.5 shadow-md border border-border/50">
-            <Loader2 className="w-4 h-4 text-primary animate-spin" strokeWidth={2} />
-          </div>
+          <img
+            src={documentCheckImg}
+            alt=""
+            className="relative w-28 h-28 object-contain z-10 select-none pointer-events-none"
+            draggable={false}
+          />
         </div>
 
         {/* Title + Subtitle */}
