@@ -208,17 +208,17 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       {/* Action Buttons */}
       <div className="flex items-center justify-center gap-3 mt-8 mb-4 shrink-0 w-full max-w-sm mx-auto px-4">
         <button
-          onClick={() => handleButtonAnswer(false)}
-          className="flex-1 flex items-center justify-center rounded-2xl border border-border bg-background px-6 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted/50 active:scale-[0.97]"
-        >
-          {t.yesNoForm.no}
-        </button>
-
-        <button
           onClick={() => handleButtonAnswer(true)}
           className="flex-1 flex items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.97]"
         >
           {t.yesNoForm.yes}
+        </button>
+
+        <button
+          onClick={() => handleButtonAnswer(false)}
+          className="flex-1 flex items-center justify-center rounded-2xl border border-border bg-background px-6 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted/50 active:scale-[0.97]"
+        >
+          {t.yesNoForm.no}
         </button>
       </div>
     </div>
