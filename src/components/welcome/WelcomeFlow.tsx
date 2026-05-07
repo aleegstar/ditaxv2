@@ -383,10 +383,6 @@ export const WelcomeFlow = () => {
       return firstName ? `Hallo ${firstName}, wir sind bereit!` : 'Wir sind bereit!';
     }
     return steps[currentStep].title;
-  };
-    }
-    return steps[currentStep].title;
-  };
 
   return <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 antialiased relative">
       {/* Logo above card */}
