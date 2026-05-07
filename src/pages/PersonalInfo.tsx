@@ -19,28 +19,28 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
     {
       id: 'contact',
       title: t.formDashboard.contactInfo,
-      description: 'Adresse, Zivilstand, Familie',
+      description: 'Adresse & Familie',
       image: sectionContactImg,
       param: 'kontakt',
     },
     {
       id: 'income',
       title: t.formDashboard.income,
-      description: 'Lohn, Renten, Nebeneinkünfte',
+      description: 'Lohn & Renten',
       image: sectionIncomeImg,
       param: 'einkommen',
     },
     {
       id: 'deductions',
       title: t.formDashboard.deductions,
-      description: 'Versicherungen, Spenden, Säule 3a',
+      description: 'Versicherung & 3a',
       image: sectionDeductionsImg,
       param: 'abzuege',
     },
     {
       id: 'assets',
       title: t.formDashboard.assets,
-      description: 'Konten, Wertschriften, Liegenschaften',
+      description: 'Konten & Wertschriften',
       image: sectionAssetsImg,
       param: 'vermoegen',
     },
@@ -119,7 +119,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
                     {section.title}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug min-h-[2.4em] line-clamp-2">
+                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug truncate">
                     {section.description}
                   </p>
                 </div>
