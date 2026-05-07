@@ -1,21 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { User, Wallet, Shield, Landmark, ChevronRight, Check, LucideIcon } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-
-interface SectionItem {
-  id: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  param: string;
-  gradient: string;
-  iconBg: string;
-  iconColor: string;
-}
+import sectionContactImg from '@/assets/section-contact.png';
+import sectionIncomeImg from '@/assets/section-income.png';
+import sectionDeductionsImg from '@/assets/section-deductions.png';
+import sectionAssetsImg from '@/assets/section-assets.png';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
