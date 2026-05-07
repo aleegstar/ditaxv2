@@ -1,54 +1,47 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { User, Wallet, Shield, Landmark, ChevronRight, Check, LucideIcon } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-
-interface SectionItem {
-  id: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  param: string;
-  gradient: string;
-  iconBg: string;
-  iconColor: string;
-}
+import sectionContactImg from '@/assets/section-contact.png';
+import sectionIncomeImg from '@/assets/section-income.png';
+import sectionDeductionsImg from '@/assets/section-deductions.png';
+import sectionAssetsImg from '@/assets/section-assets.png';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { formProgress, isDataLoading, formDataLoaded } = useFormContext();
 
-  const sections: Array<{ id: string; title: string; description: string; icon: LucideIcon; param: string }> = [
+  const sections: Array<{ id: string; title: string; description: string; image: string; param: string }> = [
     {
       id: 'contact',
       title: t.formDashboard.contactInfo,
       description: 'Adresse, Zivilstand, Familie',
-      icon: User,
+      image: sectionContactImg,
       param: 'kontakt',
     },
     {
       id: 'income',
       title: t.formDashboard.income,
       description: 'Lohn, Renten, Nebeneinkünfte',
-      icon: Wallet,
+      image: sectionIncomeImg,
       param: 'einkommen',
     },
     {
       id: 'deductions',
       title: t.formDashboard.deductions,
       description: 'Versicherungen, Spenden, Säule 3a',
-      icon: Shield,
+      image: sectionDeductionsImg,
       param: 'abzuege',
     },
     {
       id: 'assets',
       title: t.formDashboard.assets,
       description: 'Konten, Wertschriften, Liegenschaften',
-      icon: Landmark,
+      image: sectionAssetsImg,
       param: 'vermoegen',
     },
   ];
@@ -105,7 +98,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         {/* 2x2 grid — neutral white cards */}
         <div className="grid grid-cols-2 gap-3">
           {sections.map((section) => {
-            const Icon = section.icon;
             const completed = isCompleted(section.id);
             return (
               <button
@@ -118,9 +110,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 )}
               >
                 <div className="flex items-start justify-between">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
-                  </div>
+                  <img src={section.image} alt="" className="w-12 h-12 object-contain -ml-1 -mt-1" />
                   {completed && (
                     <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
                       <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
