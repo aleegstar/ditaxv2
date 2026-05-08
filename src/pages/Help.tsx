@@ -91,13 +91,6 @@ const Help = () => {
                 Ctrl+K
               </span>
             </div>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors shrink-0"
-            >
-              <Sparkles className="w-4 h-4" />
-              Ask AI
-            </button>
           </div>
 
           {/* Mobile: search icon + AI icon + menu */}
@@ -107,12 +100,6 @@ const Help = () => {
               className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
             >
               <Search className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
-            >
-              <Sparkles className="w-5 h-5 text-muted-foreground" />
             </button>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
