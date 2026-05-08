@@ -155,9 +155,9 @@ export function AdminSidebar() {
   ];
 
   return (
-    <div 
-      data-sidebar 
-      className="h-full flex-shrink-0 w-[240px] flex flex-col relative min-h-0 bg-transparent px-3 py-5 justify-between"
+    <aside
+      data-sidebar
+      className="hidden md:flex flex-col w-[252px] flex-shrink-0 h-screen sticky top-0 bg-white px-3 py-5"
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Logo */}
