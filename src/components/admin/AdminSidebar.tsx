@@ -224,7 +224,7 @@ export function AdminSidebar() {
             ))}
           </NavGroup>
 
-          <NavGroup title="Verwaltung">
+          <NavGroup title="Verwaltung" collapsible defaultOpen={false} hasActive={managementHasActive}>
             {managementNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
             ))}
