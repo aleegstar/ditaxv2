@@ -95,9 +95,9 @@ export const UserSidebar: React.FC = () => {
   ];
 
   const helpItems: NavItem[] = [
-    { label: t.menu.knowledgeBase, icon: HelpCircle, route: '/help' },
-    { label: t.menu.feedback, icon: MessageSquare, route: '/feedback' },
-    { label: t.menu.inviteFriends, icon: Gift, route: '/invite-friends' },
+    { label: t.menu.knowledgeBase, icon: BookOutlineIcon, iconActive: BookSolidIcon, route: '/help' },
+    { label: t.menu.feedback, icon: StarOutlineIcon, iconActive: StarSolidIcon, route: '/feedback' },
+    { label: t.menu.inviteFriends, icon: HeartOutlineIcon, iconActive: HeartSolidIcon, route: '/invite-friends' },
   ];
 
   const handleLogout = async () => {
