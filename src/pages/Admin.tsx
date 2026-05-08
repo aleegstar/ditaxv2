@@ -327,7 +327,7 @@ const Admin: React.FC = () => {
           </Routes>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
