@@ -257,21 +257,101 @@ type ArticleComponent = React.FC<{ categoryTitle: string }>;
 
 const IntroductionArticle: ArticleComponent = ({ categoryTitle }) => (
   <div>
-    <ArticleHeader categoryTitle={categoryTitle} title="Willkommen bei Ditax" subtitle="Deine Steuererklärung – einfach, sicher und von Experten erstellt. Lade deine Dokumente hoch und lehn dich zurück." />
+    {/* Hero: Category pill + title + subtitle on left, illustration on right */}
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center mb-8">
+      <div>
+        <span className="inline-block text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full mb-5">
+          {categoryTitle}
+        </span>
+        <h1 className="text-[40px] sm:text-[48px] font-bold text-foreground leading-[1.05] tracking-tight mb-4">
+          Willkommen<br />bei Ditax
+        </h1>
+        <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+          Deine Steuererklärung – einfach, sicher und von Experten erstellt. Lade deine Dokumente hoch und lehn dich zurück.
+        </p>
+      </div>
+      <img
+        src={docsFolderHero}
+        alt="Ditax Dokumente"
+        className="w-full max-w-[300px] md:max-w-[280px] mx-auto md:mx-0"
+      />
+    </div>
 
     <TipBox variant="info">
       Diese Dokumentation erklärt dir Schritt für Schritt, wie du mit Ditax deine Steuererklärung erledigen kannst – von der Registrierung bis zur fertigen Einreichung.
     </TipBox>
 
-    <DashboardMockup />
+    {/* Custom Dashboard mockup matching the screenshot */}
+    <div className="border border-border/50 rounded-2xl overflow-hidden bg-white my-6">
+      <div className="border-b border-border/50 px-4 py-2.5 flex items-center gap-2">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-300/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-300/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-300/70" />
+        </div>
+        <span className="text-[11px] text-muted-foreground/70 ml-2">Dashboard</span>
+      </div>
+      <div className="p-4 sm:p-5 space-y-3">
+        <div className="rounded-2xl border border-border/40 bg-white p-4">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Steuerjahr</p>
+              <p className="text-2xl font-bold text-foreground">2025</p>
+            </div>
+            <span className="text-xs font-medium bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1 rounded-full">In Erfassung</span>
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs"><span className="text-muted-foreground">Fortschritt</span><span className="font-bold text-foreground">65%</span></div>
+            <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+              <div className="h-full w-[65%] bg-primary rounded-full" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border/40 p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Folder className="w-4 h-4 text-primary" strokeWidth={1.8} />
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground">Angaben</p>
+              <p className="text-base font-bold text-foreground leading-tight">3/4</p>
+              <p className="text-[11px] text-muted-foreground">erledigt</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border/40 p-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+              <CloudUpload className="w-4 h-4 text-emerald-600" strokeWidth={1.8} />
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground">Dokumente</p>
+              <p className="text-base font-bold text-foreground leading-tight">5/7</p>
+              <p className="text-[11px] text-muted-foreground">hochgeladen</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <SectionTitle>Übersicht</SectionTitle>
     <Paragraph>
-      Ditax nimmt dir die Arbeit ab: Du lädst deine Dokumente hoch, füllst einfache Formulare aus – und unsere zertifizierten Steuerexperten (Treuhänder mit eidg. Fachausweis) erstellen deine komplette Steuererklärung.
+      Ditax nimmt dir die Arbeit ab: Du lädst deine Dokumente hoch, füllst einfache Formulare aus – und unsere zertifizierten Steuerexperten (Treuhänder mit eidg. Fachausweis) erledigen den Rest.
     </Paragraph>
-    <Paragraph>
-      Alle Abzüge werden geprüft und optimiert, damit du garantiert nicht zu viel Steuern zahlst. Verfügbar auf iOS und Android.
-    </Paragraph>
+
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+      {[
+        { icon: ShieldCheck, title: 'Sicher & vertraulich', desc: 'Deine Daten sind bei uns in besten Händen.', bg: 'bg-primary/10', color: 'text-primary' },
+        { icon: User, title: 'Experten an deiner Seite', desc: 'Zertifizierte Fachpersonen erledigen deine Steuererklärung.', bg: 'bg-emerald-100', color: 'text-emerald-600' },
+        { icon: Clock, title: 'Zeit sparen', desc: 'Lehn dich zurück – wir machen den Rest.', bg: 'bg-purple-100', color: 'text-purple-600' },
+      ].map((f, i) => (
+        <div key={i} className="text-center">
+          <div className={`w-12 h-12 rounded-full ${f.bg} flex items-center justify-center mx-auto mb-3`}>
+            <f.icon className={`w-5 h-5 ${f.color}`} strokeWidth={1.8} />
+          </div>
+          <p className="text-sm font-bold text-foreground mb-1">{f.title}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
+        </div>
+      ))}
+    </div>
 
     <SectionTitle>Warum Ditax?</SectionTitle>
     <FeatureGrid items={[
@@ -289,8 +369,8 @@ const IntroductionArticle: ArticleComponent = ({ categoryTitle }) => (
       { title: 'Steuererklärung erhalten', desc: 'Unsere Experten erstellen deine optimierte Steuererklärung und reichen sie ein.' },
     ]} />
 
-    <SectionTitle>Status-Tracking</SectionTitle>
-    <Paragraph>Verfolge jederzeit den Fortschritt deiner Steuererklärung – vom Einreichen bis zur Zustellung.</Paragraph>
+    <SectionTitle>Verfügbarkeit</SectionTitle>
+    <Paragraph>Ditax ist verfügbar auf iOS, Android und im Web. Verfolge jederzeit den Fortschritt deiner Steuererklärung – vom Einreichen bis zur Zustellung.</Paragraph>
     <StatusMockup />
 
     <SectionTitle>Nächste Schritte</SectionTitle>
