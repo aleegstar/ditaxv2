@@ -428,7 +428,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[10020]"
           />
 
           {/* Desktop: Centered Dialog */}
@@ -437,7 +437,7 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="hidden md:flex fixed inset-0 z-[101] items-center justify-center px-4"
+            className="hidden md:flex fixed inset-0 z-[10021] items-center justify-center px-4"
           >
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
               {renderContent()}
@@ -450,9 +450,9 @@ const DocumentActionSheet: React.FC<DocumentActionSheetProps> = ({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="md:hidden fixed bottom-0 left-0 right-0 z-[101] px-4 pb-8"
+            className="md:hidden fixed bottom-0 left-0 right-0 z-[10021]"
           >
-            <div className="bg-white rounded-[2rem] shadow-2xl max-w-lg mx-auto overflow-hidden">
+            <div className="bg-white rounded-t-[2rem] shadow-2xl w-full overflow-hidden pb-[max(env(safe-area-inset-bottom),1.5rem)]">
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-1">
                 <div className="w-10 h-1 bg-slate-200 rounded-full" />
