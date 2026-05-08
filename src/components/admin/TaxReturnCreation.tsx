@@ -389,35 +389,32 @@ const TaxReturnCreation: React.FC = () => {
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || expressFilter;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Steuererklärungen
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-[20px] font-semibold text-foreground tracking-tight">Steuererklärungen</h1>
+          <p className="text-[13px] text-muted-foreground mt-0.5">
             {paidTaxReturns.length} bezahlte Aufträge zur Bearbeitung
           </p>
         </div>
         <button
           onClick={fetchPaidTaxReturns}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" />
-          Aktualisieren
         </button>
       </div>
 
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div className="relative flex-1 max-w-sm">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="relative flex-1 w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <Input
             placeholder="Suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 rounded-lg bg-background border-border/60 text-sm"
+            className="pl-9 h-9 rounded-xl bg-background border-border/60 text-sm"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -425,7 +422,7 @@ const TaxReturnCreation: React.FC = () => {
             </button>
           )}
         </div>
-        <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5">
+        <div className="flex gap-1 bg-muted/40 rounded-xl p-0.5">
           {[
             { key: 'all' as const, label: 'Alle' },
             { key: 'pending' as const, label: 'Bereit' },
@@ -435,7 +432,7 @@ const TaxReturnCreation: React.FC = () => {
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
               className={cn(
-                "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
                 statusFilter === f.key
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -448,10 +445,10 @@ const TaxReturnCreation: React.FC = () => {
         <button
           onClick={() => setExpressFilter(!expressFilter)}
           className={cn(
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all border",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
             expressFilter
               ? "border-foreground/20 bg-foreground/[0.06] text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
+              : "border-border/60 text-muted-foreground hover:text-foreground"
           )}
         >
           <Zap className="h-3 w-3" />
@@ -460,7 +457,7 @@ const TaxReturnCreation: React.FC = () => {
       </div>
 
       {hasActiveFilters && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground -mt-2">
           {filteredTaxReturns.length} von {paidTaxReturns.length} Ergebnissen
           <button onClick={() => { setSearchQuery(''); setStatusFilter('all'); setExpressFilter(false); }} className="text-foreground hover:underline ml-2">
             Zurücksetzen
