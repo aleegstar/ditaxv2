@@ -308,6 +308,7 @@ const AuthenticatedApp = () => {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </AppShell>
               </TaxFilerGate>
               </PageTransition>
             </Suspense>
