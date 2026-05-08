@@ -283,16 +283,16 @@ const UserTaxReturns = () => {
 
   return (
     <div
-      className="antialiased min-h-screen bg-background selection:bg-primary/10 selection:text-foreground pb-[calc(5rem+var(--safe-area-bottom,env(safe-area-inset-bottom,0px)))] text-foreground relative overflow-hidden"
+      className="antialiased min-h-screen bg-background md:min-h-0 selection:bg-primary/10 selection:text-foreground pb-[calc(5rem+var(--safe-area-bottom,env(safe-area-inset-bottom,0px)))] md:pb-8 text-foreground relative overflow-hidden"
       onTouchStart={pullHandlers.onTouchStart}
       onTouchMove={pullHandlers.onTouchMove}
       onTouchEnd={pullHandlers.onTouchEnd}
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <main className="relative z-10 min-h-screen max-w-3xl lg:max-w-4xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] px-4 md:px-8">
-        {/* Header */}
-        <header className="flex pb-6 items-center justify-between">
+      <main className="relative z-10 min-h-screen md:min-h-0 max-w-3xl lg:max-w-4xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-8 px-4 md:px-8">
+        {/* Header (mobile only — desktop uses sidebar) */}
+        <header className="md:hidden flex pb-6 items-center justify-between">
           <div className="flex items-center">
             <img src={ditaxLogoMask} alt="ditax" className="h-8 w-[106px] object-contain" />
           </div>
