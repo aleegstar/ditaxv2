@@ -10,7 +10,6 @@ import {
   MessagesSquare,
   Sparkles,
   UsersRound,
-  Layers,
   Wallet,
   Scan,
   FileWarning,
