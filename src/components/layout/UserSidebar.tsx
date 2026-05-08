@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 interface NavItem {
   label: string;
   icon: React.ElementType;
+  iconActive?: React.ElementType;
   route: string;
   badge?: number;
 }
@@ -37,7 +38,7 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
   isActive,
   onClick,
 }) => {
-  const Icon = item.icon;
+  const Icon = isActive && item.iconActive ? item.iconActive : item.icon;
   return (
     <button
       onClick={onClick}
@@ -85,10 +86,9 @@ export const UserSidebar: React.FC = () => {
   };
 
   const mainItems: NavItem[] = [
-    { label: t.menu.taxes, icon: Home, route: '/' },
-    { label: t.menu.documents, icon: Folder, route: '/documents' },
-    { label: t.menu.chat, icon: MessageSquare, route: '/chat', badge: unreadCount },
-    { label: t.menu.managePeople, icon: Users, route: '/tax-filers' },
+    { label: t.menu.taxes, icon: HomeOutlineIcon, iconActive: HomeSolidIcon, route: '/' },
+    { label: t.menu.documents, icon: FolderOutlineIcon, iconActive: FolderSolidIcon, route: '/documents' },
+    { label: t.menu.chat, icon: ChatOutlineIcon, iconActive: ChatSolidIcon, route: '/chat', badge: unreadCount },
   ];
 
   const helpItems: NavItem[] = [
