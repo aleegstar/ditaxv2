@@ -230,12 +230,11 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+    <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
       <AdminSidebar />
-      
-      <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
-        <div className="w-full h-full overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+      <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
+        <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60">
+          <div className="p-4 lg:p-8">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
