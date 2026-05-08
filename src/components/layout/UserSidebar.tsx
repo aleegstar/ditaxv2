@@ -2,9 +2,6 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  MessageSquare,
-  HelpCircle,
-  Gift,
   Settings,
   User as UserIcon,
   LogOut,
@@ -18,6 +15,12 @@ import {
   FolderSolidIcon,
   ChatOutlineIcon,
   ChatSolidIcon,
+  BookOutlineIcon,
+  BookSolidIcon,
+  HeartOutlineIcon,
+  HeartSolidIcon,
+  StarOutlineIcon,
+  StarSolidIcon,
 } from '@/components/dashboard/NavIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
