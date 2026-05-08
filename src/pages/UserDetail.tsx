@@ -465,23 +465,23 @@ const UserDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+      <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
         <AdminSidebar />
-        <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
-          <div className="flex items-center justify-center h-full">
+        <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
+          <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60 flex items-center justify-center min-h-[60vh]">
             <div className="text-sm text-muted-foreground animate-pulse">Lädt Benutzerdaten...</div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="flex min-h-screen w-full" style={{ background: 'linear-gradient(to bottom right, hsl(225, 60%, 97%), hsl(240, 20%, 98%), hsl(270, 30%, 97%))' }}>
+      <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
         <AdminSidebar />
-        <main className="flex-1 py-4 pr-4 pl-4 lg:pl-0">
-          <div className="flex flex-col items-center justify-center h-full gap-2">
+        <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
+          <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60 flex flex-col items-center justify-center min-h-[60vh] gap-2">
             <p className="text-sm font-medium text-foreground">Benutzer nicht gefunden</p>
             <Link 
               to="/admin/users" 
@@ -490,7 +490,7 @@ const UserDetail: React.FC = () => {
               ← Zurück zur Übersicht
             </Link>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
