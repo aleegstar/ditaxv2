@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { AppShell } from "@/components/layout/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { App as CapacitorApp } from '@capacitor/app';
 
@@ -226,10 +227,11 @@ const AuthenticatedApp = () => {
         <OnboardingTourProvider>
           <DocumentsTourProvider>
             <SidebarProvider>
-            <div className="min-h-screen w-full flex flex-col bg-background">
+            <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <PageTransition>
               <TaxFilerGate>
+              <AppShell>
               <Routes>
                 <Route path="/" element={<ProtectedRoute><UserTaxReturns /></ProtectedRoute>} />
                 <Route path="/select-person" element={<ProtectedRoute><SelectPerson /></ProtectedRoute>} />
@@ -307,6 +309,7 @@ const AuthenticatedApp = () => {
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </AppShell>
               </TaxFilerGate>
               </PageTransition>
             </Suspense>
