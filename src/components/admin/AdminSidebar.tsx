@@ -144,7 +144,6 @@ export function AdminSidebar() {
 
   const managementNavItems = [
     { title: "Benutzer", url: "/admin/users", icon: UsersRound },
-    { title: "Vorlagen", url: "/admin/templates", icon: Layers },
     { title: "Zahlungen", url: "/admin/payment-status", icon: Wallet },
     { title: "OCR Konfiguration", url: "/admin/ocr-config", icon: Scan },
     { title: "Nicht erkannte Uploads", url: "/admin/ocr-unrecognized", icon: FileWarning },
