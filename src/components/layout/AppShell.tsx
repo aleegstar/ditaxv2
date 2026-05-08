@@ -18,7 +18,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
     <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
       <UserSidebar />
       <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
-        <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:ring-1 md:ring-border/40">
+        <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60">
           {children}
         </div>
       </div>
