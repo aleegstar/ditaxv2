@@ -59,20 +59,18 @@ const Help = () => {
       {/* ══════ Header ══════ */}
       <header className="border-b border-border/50 bg-background sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 flex items-center h-14 mt-[var(--safe-area-top,env(safe-area-inset-top,0px))] gap-3">
-          {/* Back button */}
+          {/* Back button - mobile only */}
           <button
             onClick={() => navigate('/')}
-            className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2 bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+            className="sm:hidden w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0 -ml-2 bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
             aria-label="Zurück"
           >
             <ChevronLeft className="w-[18px] h-[18px]" strokeWidth={1.5} />
           </button>
 
-          {/* spacer removed - hamburger moved to right */}
-
-          {/* Logo */}
-          <button onClick={() => navigate('/')} className="shrink-0">
-            <img src={ditaxLogo} alt="Ditax" className="h-7 sm:h-8" />
+          {/* Logo - mobile only */}
+          <button onClick={() => navigate('/')} className="sm:hidden shrink-0">
+            <img src={ditaxLogo} alt="Ditax" className="h-7" />
           </button>
 
           <div className="flex-1" />
