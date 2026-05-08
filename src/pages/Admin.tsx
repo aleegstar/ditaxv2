@@ -242,7 +242,6 @@ const Admin: React.FC = () => {
           <Route path="signed-returns" element={<SignedTaxReturns />} />
           <Route path="definitive-tax-bills" element={<DefinitiveTaxBills />} />
           <Route path="tickets" element={<TicketManagement />} />
-          <Route path="templates" element={<DocumentTemplateManager />} />
           <Route path="chat" element={
             <EnhancedAdminChatOverview />
           } />
