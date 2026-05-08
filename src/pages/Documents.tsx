@@ -488,7 +488,7 @@ const DocumentsContent: React.FC<{
               <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
             </div>
           ) : documents.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {filteredDocuments.map(doc => {
                 const isImage = doc.file_type?.startsWith('image/');
                 const fileExt = doc.file_name?.split('.').pop()?.toUpperCase() || 'FILE';
