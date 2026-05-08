@@ -757,6 +757,7 @@ const UserDetail: React.FC = () => {
           }}
         />
       </main>
+      </div>
     </div>
   );
 };
