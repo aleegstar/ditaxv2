@@ -177,11 +177,11 @@ export function AdminSidebar() {
   const supportNavItems = [
     { title: "Support Tickets", url: "/admin/tickets", icon: LifeBuoy },
     { title: "Chat", url: "/admin/chat", icon: MessagesSquare },
-    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Sparkles },
   ];
 
   const managementNavItems = [
     { title: "Benutzer", url: "/admin/users", icon: UsersRound },
+    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Sparkles },
     { title: "Zahlungen", url: "/admin/payment-status", icon: Wallet },
     { title: "OCR Konfiguration", url: "/admin/ocr-config", icon: Scan },
     { title: "Nicht erkannte Uploads", url: "/admin/ocr-unrecognized", icon: FileWarning },
@@ -189,6 +189,8 @@ export function AdminSidebar() {
     { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: MessageSquareDashed },
     { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
   ];
+
+  const managementHasActive = managementNavItems.some(item => currentPath === item.url);
 
   return (
     <aside
