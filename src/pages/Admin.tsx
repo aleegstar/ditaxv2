@@ -11,7 +11,6 @@ import { Home, RefreshCw } from 'lucide-react';
 import { User, FormData } from '@/types';
 import TaxReturnCreation from "@/components/admin/TaxReturnCreation";
 import { TicketManagement } from "@/components/admin/TicketManagement";
-import { DocumentTemplateManager } from "@/components/admin/DocumentTemplateManager";
 import { EnhancedAdminChatOverview } from '@/components/chat/EnhancedAdminChatOverview';
 import { OnboardingTourManager } from '@/components/admin/OnboardingTourManager';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -243,7 +242,6 @@ const Admin: React.FC = () => {
           <Route path="signed-returns" element={<SignedTaxReturns />} />
           <Route path="definitive-tax-bills" element={<DefinitiveTaxBills />} />
           <Route path="tickets" element={<TicketManagement />} />
-          <Route path="templates" element={<DocumentTemplateManager />} />
           <Route path="chat" element={
             <EnhancedAdminChatOverview />
           } />
