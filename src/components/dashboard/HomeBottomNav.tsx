@@ -235,7 +235,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-[10010] bg-white border-t border-border/40"
+      className="md:hidden fixed inset-x-0 bottom-0 z-[10010] bg-white border-t border-border/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-stretch justify-around px-2 pt-2 pb-2">
