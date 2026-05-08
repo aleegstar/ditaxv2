@@ -19,7 +19,8 @@ import {
   LogOut, 
   Settings, 
   User as UserIcon, 
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -60,19 +61,56 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
 interface NavGroupProps {
   title: string;
   children: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  hasActive?: boolean;
 }
 
-function NavGroup({ title, children }: NavGroupProps) {
+function NavGroup({ title, children, collapsible = false, defaultOpen = true, hasActive = false }: NavGroupProps) {
+  const [open, setOpen] = useState(defaultOpen || hasActive);
+
+  useEffect(() => {
+    if (hasActive) setOpen(true);
+  }, [hasActive]);
+
+  if (!collapsible) {
+    return (
+      <div className="space-y-0.5">
+        <div className="px-3 pt-6 pb-1">
+          <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em]">
+            {title}
+          </span>
+        </div>
+        <div className="space-y-px">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-0.5">
-      <div className="px-3 pt-6 pb-1">
-        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em]">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-3 pt-6 pb-1 group"
+      >
+        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em] group-hover:text-muted-foreground/70 transition-colors">
           {title}
         </span>
-      </div>
-      <div className="space-y-px">
-        {children}
-      </div>
+        <ChevronDown
+          className={cn(
+            'w-3 h-3 text-muted-foreground/40 transition-transform group-hover:text-muted-foreground/70',
+            open ? 'rotate-0' : '-rotate-90'
+          )}
+          strokeWidth={2}
+        />
+      </button>
+      {open && (
+        <div className="space-y-px">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -139,11 +177,11 @@ export function AdminSidebar() {
   const supportNavItems = [
     { title: "Support Tickets", url: "/admin/tickets", icon: LifeBuoy },
     { title: "Chat", url: "/admin/chat", icon: MessagesSquare },
-    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Sparkles },
   ];
 
   const managementNavItems = [
     { title: "Benutzer", url: "/admin/users", icon: UsersRound },
+    { title: "Schnellantworten", url: "/admin/quick-replies", icon: Sparkles },
     { title: "Zahlungen", url: "/admin/payment-status", icon: Wallet },
     { title: "OCR Konfiguration", url: "/admin/ocr-config", icon: Scan },
     { title: "Nicht erkannte Uploads", url: "/admin/ocr-unrecognized", icon: FileWarning },
@@ -151,6 +189,8 @@ export function AdminSidebar() {
     { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: MessageSquareDashed },
     { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
   ];
+
+  const managementHasActive = managementNavItems.some(item => currentPath === item.url);
 
   return (
     <aside
@@ -184,7 +224,7 @@ export function AdminSidebar() {
             ))}
           </NavGroup>
 
-          <NavGroup title="Verwaltung">
+          <NavGroup title="Verwaltung" collapsible defaultOpen={false} hasActive={managementHasActive}>
             {managementNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
             ))}
