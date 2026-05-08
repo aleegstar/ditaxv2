@@ -2,20 +2,23 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Home,
-  Folder,
   MessageSquare,
-  Users,
   HelpCircle,
-  FileText,
   Gift,
   Settings,
   User as UserIcon,
   LogOut,
-  Bell,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
+import {
+  HomeOutlineIcon,
+  HomeSolidIcon,
+  FolderOutlineIcon,
+  FolderSolidIcon,
+  ChatOutlineIcon,
+  ChatSolidIcon,
+} from '@/components/dashboard/NavIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { useI18n } from '@/contexts/I18nContext';
@@ -25,6 +28,7 @@ import { cn } from '@/lib/utils';
 interface NavItem {
   label: string;
   icon: React.ElementType;
+  iconActive?: React.ElementType;
   route: string;
   badge?: number;
 }
@@ -34,7 +38,7 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
   isActive,
   onClick,
 }) => {
-  const Icon = item.icon;
+  const Icon = isActive && item.iconActive ? item.iconActive : item.icon;
   return (
     <button
       onClick={onClick}
@@ -82,10 +86,9 @@ export const UserSidebar: React.FC = () => {
   };
 
   const mainItems: NavItem[] = [
-    { label: t.menu.taxes, icon: Home, route: '/' },
-    { label: t.menu.documents, icon: Folder, route: '/documents' },
-    { label: t.menu.chat, icon: MessageSquare, route: '/chat', badge: unreadCount },
-    { label: t.menu.managePeople, icon: Users, route: '/tax-filers' },
+    { label: t.menu.taxes, icon: HomeOutlineIcon, iconActive: HomeSolidIcon, route: '/' },
+    { label: t.menu.documents, icon: FolderOutlineIcon, iconActive: FolderSolidIcon, route: '/documents' },
+    { label: t.menu.chat, icon: ChatOutlineIcon, iconActive: ChatSolidIcon, route: '/chat', badge: unreadCount },
   ];
 
   const helpItems: NavItem[] = [
