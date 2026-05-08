@@ -91,13 +91,6 @@ const Help = () => {
                 Ctrl+K
               </span>
             </div>
-            <button
-              onClick={() => setChatOpen(true)}
-              className="flex items-center gap-2 h-10 px-4 rounded-lg border border-border/50 bg-background hover:bg-muted/40 text-sm font-medium transition-colors shrink-0"
-            >
-              <Sparkles className="w-4 h-4" />
-              Ask AI
-            </button>
           </div>
 
           {/* Mobile: search icon + AI icon + menu */}
