@@ -19,7 +19,8 @@ import {
   LogOut, 
   Settings, 
   User as UserIcon, 
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
