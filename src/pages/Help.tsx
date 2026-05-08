@@ -82,7 +82,7 @@ const Help = () => {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search"
+                placeholder="Suchen"
                 className="w-full h-10 pl-10 pr-16 rounded-lg border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all placeholder:text-muted-foreground/40 bg-background"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground/50 border border-border/50 rounded px-1.5 py-0.5 font-medium">
