@@ -226,10 +226,11 @@ const AuthenticatedApp = () => {
         <OnboardingTourProvider>
           <DocumentsTourProvider>
             <SidebarProvider>
-            <div className="min-h-screen w-full flex flex-col bg-background">
+            <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
             <Suspense fallback={<LoadingSpinner fullScreen />}>
               <PageTransition>
               <TaxFilerGate>
+              <AppShell>
               <Routes>
                 <Route path="/" element={<ProtectedRoute><UserTaxReturns /></ProtectedRoute>} />
                 <Route path="/select-person" element={<ProtectedRoute><SelectPerson /></ProtectedRoute>} />
