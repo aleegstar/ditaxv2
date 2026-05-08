@@ -2,20 +2,23 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Home,
-  Folder,
   MessageSquare,
-  Users,
   HelpCircle,
-  FileText,
   Gift,
   Settings,
   User as UserIcon,
   LogOut,
-  Bell,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
+import {
+  HomeOutlineIcon,
+  HomeSolidIcon,
+  FolderOutlineIcon,
+  FolderSolidIcon,
+  ChatOutlineIcon,
+  ChatSolidIcon,
+} from '@/components/dashboard/NavIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { useI18n } from '@/contexts/I18nContext';
