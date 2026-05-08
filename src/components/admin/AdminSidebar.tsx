@@ -61,19 +61,56 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
 interface NavGroupProps {
   title: string;
   children: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  hasActive?: boolean;
 }
 
-function NavGroup({ title, children }: NavGroupProps) {
+function NavGroup({ title, children, collapsible = false, defaultOpen = true, hasActive = false }: NavGroupProps) {
+  const [open, setOpen] = useState(defaultOpen || hasActive);
+
+  useEffect(() => {
+    if (hasActive) setOpen(true);
+  }, [hasActive]);
+
+  if (!collapsible) {
+    return (
+      <div className="space-y-0.5">
+        <div className="px-3 pt-6 pb-1">
+          <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em]">
+            {title}
+          </span>
+        </div>
+        <div className="space-y-px">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-0.5">
-      <div className="px-3 pt-6 pb-1">
-        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em]">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-3 pt-6 pb-1 group"
+      >
+        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em] group-hover:text-muted-foreground/70 transition-colors">
           {title}
         </span>
-      </div>
-      <div className="space-y-px">
-        {children}
-      </div>
+        <ChevronDown
+          className={cn(
+            'w-3 h-3 text-muted-foreground/40 transition-transform group-hover:text-muted-foreground/70',
+            open ? 'rotate-0' : '-rotate-90'
+          )}
+          strokeWidth={2}
+        />
+      </button>
+      {open && (
+        <div className="space-y-px">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
