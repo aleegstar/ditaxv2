@@ -125,23 +125,6 @@ const Help = () => {
           <div className="hidden sm:block flex-1" />
         </div>
 
-        {/* Row 2: Nav tabs (hidden on very small screens to save space) */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 hidden sm:block">
-          <nav className="flex items-center gap-6 -mb-px">
-            <span className="text-sm font-medium text-primary border-b-2 border-primary pb-2.5 pt-1 cursor-default">
-              Documentation
-            </span>
-            <button
-              onClick={() => navigate('/chat')}
-              className="text-sm text-muted-foreground hover:text-foreground pb-2.5 pt-1 transition-colors border-b-2 border-transparent"
-            >
-              Help Center
-            </button>
-            <span className="text-sm text-muted-foreground pb-2.5 pt-1 border-b-2 border-transparent cursor-default">
-              Changelog
-            </span>
-          </nav>
-        </div>
 
         {/* Mobile search bar (expandable) */}
         {mobileSearchOpen && (
