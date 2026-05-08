@@ -236,6 +236,6 @@ export function AdminSidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
+    </aside>
   );
 }
