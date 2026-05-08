@@ -40,18 +40,19 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        "group flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-[13px] transition-all duration-150",
+        'group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all text-left',
         isActive
-          ? "bg-foreground/[0.06] text-foreground font-medium"
-          : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground/80 font-normal"
+          ? 'bg-primary/10 text-primary font-medium'
+          : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
       )}
     >
-      <Icon className={cn(
-        "h-4 w-4 flex-shrink-0 transition-colors",
-        isActive 
-          ? "text-foreground/70"
-          : "text-muted-foreground/60 group-hover:text-foreground/60"
-      )} strokeWidth={1.5} />
+      <Icon
+        className={cn(
+          'w-[18px] h-[18px] flex-shrink-0',
+          isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground/80'
+        )}
+        strokeWidth={1.75}
+      />
       <span className="truncate">{title}</span>
     </NavLink>
   );
@@ -154,9 +155,9 @@ export function AdminSidebar() {
   ];
 
   return (
-    <div 
-      data-sidebar 
-      className="h-full flex-shrink-0 w-[240px] flex flex-col relative min-h-0 bg-transparent px-3 py-5 justify-between"
+    <aside
+      data-sidebar
+      className="hidden md:flex flex-col w-[252px] flex-shrink-0 h-screen sticky top-0 bg-white px-3 py-5"
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Logo */}
@@ -235,6 +236,6 @@ export function AdminSidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
+    </aside>
   );
 }
