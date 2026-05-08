@@ -11,7 +11,6 @@ import { Home, RefreshCw } from 'lucide-react';
 import { User, FormData } from '@/types';
 import TaxReturnCreation from "@/components/admin/TaxReturnCreation";
 import { TicketManagement } from "@/components/admin/TicketManagement";
-import { DocumentTemplateManager } from "@/components/admin/DocumentTemplateManager";
 import { EnhancedAdminChatOverview } from '@/components/chat/EnhancedAdminChatOverview';
 import { OnboardingTourManager } from '@/components/admin/OnboardingTourManager';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
