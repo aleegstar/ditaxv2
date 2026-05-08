@@ -102,12 +102,6 @@ const Help = () => {
               <Search className="w-5 h-5 text-muted-foreground" />
             </button>
             <button
-              onClick={() => setChatOpen(true)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
-            >
-              <Sparkles className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg hover:bg-muted transition-colors touch-manipulation"
             >
