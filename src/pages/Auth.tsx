@@ -521,21 +521,14 @@ const Auth = () => {
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-5 sm:p-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center p-0 sm:p-8">
 
         {/* Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full sm:max-w-[420px] px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden rounded-[36px]"
-          style={{
-            background: 'rgba(255,255,255,0.78)',
-            backdropFilter: 'blur(24px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-            boxShadow:
-              '0 20px 60px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8)',
-          }}
+          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-center sm:block sm:max-w-[420px] px-7 py-12 sm:px-10 sm:py-14 relative overflow-hidden sm:rounded-[36px] sm:bg-[rgba(255,255,255,0.78)] sm:backdrop-blur-[24px] sm:[box-shadow:0_20px_60px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,0.8)]"
         >
 
           <div className="relative z-10">
