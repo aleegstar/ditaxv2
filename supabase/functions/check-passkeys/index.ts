@@ -41,35 +41,33 @@ serve(async (req) => {
     if (error) {
       console.error('❌ RPC Error:', error)
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Failed to check passkeys',
-          details: error.message,
           has_passkeys: false,
-          passkey_count: 0
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
-    console.log('✅ RPC Response:', passkeyCheck)
+    console.log('✅ RPC Response received')
 
-    // Get the first result or default values
-    const result = passkeyCheck?.[0] || { 
-      has_passkeys: false, 
-      passkey_count: 0,
-      user_id: null,
-      email: email
+    // SECURITY: This endpoint must remain callable pre-authentication so the
+    // login UI can decide whether to offer the passkey flow. To minimize user
+    // enumeration risk we only return the boolean `has_passkeys` and the
+    // submitted email back — never the internal user_id or exact passkey count.
+    const row = passkeyCheck?.[0]
+    const result = {
+      has_passkeys: !!row?.has_passkeys,
+      email,
     }
-
-    console.log('📤 Returning result:', result)
 
     return new Response(
       JSON.stringify(result),
-      { 
-        status: 200, 
+      {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
@@ -77,15 +75,13 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 Unexpected error:', error)
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
         has_passkeys: false,
-        passkey_count: 0
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
