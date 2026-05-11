@@ -9,6 +9,9 @@ export interface NewsletterTemplateInput {
   bodyHtml: string;
   appUrl: string;
   isTest?: boolean;
+  // Tracking (optional – nur in echten Versänden gesetzt, nicht in Tests)
+  unsubscribeUrl?: string;
+  clickTrackBase?: string; // z.B. "https://<proj>.supabase.co/functions/v1/newsletter-track-click?t=<token>&u="
 }
 
 export function wrapNewsletterHtml({
@@ -16,6 +19,8 @@ export function wrapNewsletterHtml({
   bodyHtml,
   appUrl,
   isTest = false,
+  unsubscribeUrl,
+  clickTrackBase,
 }: NewsletterTemplateInput): string {
   const year = new Date().getFullYear();
   const safeSubject = escapeHtml(subject);
@@ -83,7 +88,7 @@ export function wrapNewsletterHtml({
                 ${safeSubject}
               </h2>
               <div style="color:#52525b;font-size:16px;line-height:1.65;">
-                ${renderBody(bodyHtml)}
+                ${rewriteLinksForTracking(renderBody(bodyHtml), clickTrackBase)}
               </div>
             </td>
           </tr>
@@ -95,7 +100,7 @@ export function wrapNewsletterHtml({
                 Du erhältst diese E-Mail, weil du dich für Marketing-E-Mails angemeldet hast.
               </p>
               <p style="margin:8px 0 0 0;color:#a1a1aa;font-size:12px;text-align:center;line-height:1.5;">
-                <a href="${appUrl}/privacy-settings" style="color:#1D64FF;text-decoration:underline;font-weight:600;">
+                <a href="${unsubscribeUrl || `${appUrl}/privacy-settings`}" style="color:#1D64FF;text-decoration:underline;font-weight:600;">
                   Newsletter abbestellen
                 </a>
               </p>
@@ -159,4 +164,21 @@ function autoLink(text: string): string {
     '<a href="$1" style="color:#1D64FF;text-decoration:underline;">$1</a>',
   );
 }
+
+// Ersetzt jeden href="https?://..." durch einen Click-Tracking-Redirect.
+// Lässt mailto:, tel: und bereits umgeschriebene Tracking-URLs unangetastet.
+function rewriteLinksForTracking(html: string, clickTrackBase?: string): string {
+  if (!clickTrackBase) return html;
+  return html.replace(
+    /href="(https?:\/\/[^"]+)"/gi,
+    (_match, url: string) => {
+      // bereits Tracking-URL? Nicht doppelt einpacken.
+      if (url.startsWith(clickTrackBase.split("?")[0])) {
+        return `href="${url}"`;
+      }
+      return `href="${clickTrackBase}${encodeURIComponent(url)}"`;
+    },
+  );
+}
+
 

@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.docs-chatbot]
 verify_jwt = false
+
+[functions.newsletter-unsubscribe]
+verify_jwt = false
+
+[functions.newsletter-track-click]
+verify_jwt = false

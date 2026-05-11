@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical } from 'lucide-react';
+import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical, MousePointerClick, UserMinus } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -28,6 +28,9 @@ interface Campaign {
   recipient_count: number;
   sent_at: string | null;
   created_at: string;
+  clicks?: number;
+  unique_clicks?: number;
+  unsubscribes?: number;
 }
 
 export default function Newsletter() {
@@ -99,7 +102,39 @@ export default function Newsletter() {
         .order('created_at', { ascending: false })
         .limit(20);
 
-      setCampaigns((data as Campaign[]) || []);
+      const baseCampaigns = (data as Campaign[]) || [];
+
+      // Tracking-Statistiken pro Kampagne
+      if (baseCampaigns.length > 0) {
+        const ids = baseCampaigns.map((c) => c.id);
+
+        const [{ data: clicks }, { data: unsubs }] = await Promise.all([
+          supabase.from('newsletter_clicks').select('campaign_id, user_id, email').in('campaign_id', ids),
+          supabase.from('newsletter_unsubscribes').select('campaign_id').in('campaign_id', ids),
+        ]);
+
+        const clickCounts = new Map<string, number>();
+        const uniqueClicks = new Map<string, Set<string>>();
+        (clicks || []).forEach((row: any) => {
+          clickCounts.set(row.campaign_id, (clickCounts.get(row.campaign_id) || 0) + 1);
+          const set = uniqueClicks.get(row.campaign_id) || new Set();
+          set.add(row.user_id || row.email);
+          uniqueClicks.set(row.campaign_id, set);
+        });
+
+        const unsubCounts = new Map<string, number>();
+        (unsubs || []).forEach((row: any) => {
+          unsubCounts.set(row.campaign_id, (unsubCounts.get(row.campaign_id) || 0) + 1);
+        });
+
+        baseCampaigns.forEach((c) => {
+          c.clicks = clickCounts.get(c.id) || 0;
+          c.unique_clicks = uniqueClicks.get(c.id)?.size || 0;
+          c.unsubscribes = unsubCounts.get(c.id) || 0;
+        });
+      }
+
+      setCampaigns(baseCampaigns);
     } catch (err) {
       console.error('Error loading newsletter data:', err);
     } finally {
@@ -294,20 +329,43 @@ export default function Newsletter() {
               const config = statusConfig[campaign.status] || statusConfig.draft;
               const StatusIcon = config.icon;
               return (
-                <div key={campaign.id} className="p-4 flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-foreground truncate">{campaign.subject}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {campaign.sent_at
-                        ? format(new Date(campaign.sent_at), 'dd. MMM yyyy, HH:mm', { locale: de })
-                        : format(new Date(campaign.created_at), 'dd. MMM yyyy, HH:mm', { locale: de })}
-                      {campaign.recipient_count > 0 && ` · ${campaign.recipient_count} Empfänger`}
-                    </p>
+                <div key={campaign.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium text-foreground truncate">{campaign.subject}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {campaign.sent_at
+                          ? format(new Date(campaign.sent_at), 'dd. MMM yyyy, HH:mm', { locale: de })
+                          : format(new Date(campaign.created_at), 'dd. MMM yyyy, HH:mm', { locale: de })}
+                        {campaign.recipient_count > 0 && ` · ${campaign.recipient_count} Empfänger`}
+                      </p>
+                    </div>
+                    <Badge variant={config.variant} className="gap-1 text-[11px]">
+                      <StatusIcon className="h-3 w-3" />
+                      {config.label}
+                    </Badge>
                   </div>
-                  <Badge variant={config.variant} className="gap-1 text-[11px]">
-                    <StatusIcon className="h-3 w-3" />
-                    {config.label}
-                  </Badge>
+
+                  {(campaign.status === 'sent' || (campaign.clicks || 0) > 0 || (campaign.unsubscribes || 0) > 0) && (
+                    <div className="flex flex-wrap gap-3 pt-1 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <MousePointerClick className="h-3 w-3" strokeWidth={1.8} />
+                        <span className="text-foreground font-medium">{campaign.clicks ?? 0}</span> Klicks
+                        {(campaign.unique_clicks ?? 0) > 0 && (
+                          <span className="text-muted-foreground/70"> ({campaign.unique_clicks} unique)</span>
+                        )}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <UserMinus className="h-3 w-3" strokeWidth={1.8} />
+                        <span className="text-foreground font-medium">{campaign.unsubscribes ?? 0}</span> Abmeldungen
+                      </span>
+                      {campaign.recipient_count > 0 && (campaign.clicks ?? 0) > 0 && (
+                        <span className="text-muted-foreground/70">
+                          CTR {((campaign.unique_clicks || 0) / campaign.recipient_count * 100).toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

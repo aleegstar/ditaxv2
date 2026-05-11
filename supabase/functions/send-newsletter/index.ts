@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { corsHeaders } from "https://esm.sh/@supabase/supabase-js@2.95.0/cors";
 import { wrapNewsletterHtml } from "../_shared/newsletter-template.ts";
+import { signNewsletterToken } from "../_shared/newsletter-token.ts";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 
@@ -109,18 +110,34 @@ serve(async (req) => {
     }
 
     const appUrl = Deno.env.get("APP_URL") || "https://app.ditax.ch";
+    const functionsBase = `${supabaseUrl}/functions/v1`;
     let sentCount = 0;
     let failedCount = 0;
 
-    const personalizedHtml = wrapNewsletterHtml({
-      subject: campaign.subject,
-      bodyHtml: campaign.html_content,
-      appUrl,
-      isTest: false,
-    });
-
     for (const subscriber of subscribers) {
       if (!subscriber.email) continue;
+
+      // Per-Empfänger signierte Tokens für Unsubscribe + Click-Tracking
+      const unsubToken = await signNewsletterToken(
+        { u: subscriber.id, c: campaign_id, e: subscriber.email, k: "u" },
+        serviceRoleKey,
+      );
+      const clickToken = await signNewsletterToken(
+        { u: subscriber.id, c: campaign_id, e: subscriber.email, k: "c" },
+        serviceRoleKey,
+      );
+
+      const unsubscribeUrl = `${functionsBase}/newsletter-unsubscribe?t=${unsubToken}`;
+      const clickTrackBase = `${functionsBase}/newsletter-track-click?t=${clickToken}&u=`;
+
+      const personalizedHtml = wrapNewsletterHtml({
+        subject: campaign.subject,
+        bodyHtml: campaign.html_content,
+        appUrl,
+        isTest: false,
+        unsubscribeUrl,
+        clickTrackBase,
+      });
 
       try {
         const res = await fetch(RESEND_API_URL, {
@@ -134,6 +151,10 @@ serve(async (req) => {
             to: [subscriber.email],
             subject: campaign.subject,
             html: personalizedHtml,
+            headers: {
+              "List-Unsubscribe": `<${unsubscribeUrl}>`,
+              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
           }),
         });
 
