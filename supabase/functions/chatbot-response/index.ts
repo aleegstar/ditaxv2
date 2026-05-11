@@ -496,9 +496,9 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: `${SAFETY_SYSTEM_ANCHOR}\n\n${systemPrompt}` },
           ...conversationHistory,
-          { role: 'user', content: message }
+          { role: 'user', content: `<user_content>\n${safeUserMessage}\n</user_content>` }
         ],
         max_tokens: 700,
         temperature: 0.7,
