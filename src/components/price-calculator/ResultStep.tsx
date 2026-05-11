@@ -34,7 +34,7 @@ export const ResultStep: React.FC<ResultStepProps> = ({
           <div className="text-sm text-foreground">
             <p className="font-medium">Aktionswoche bis 17.05.2026</p>
             <p className="text-muted-foreground text-[13px] mt-0.5">
-              Steuererklärung pauschal CHF 100, Express-Service nur CHF 20 – unabhängig von deinen Angaben.
+              Steuererklärung pauschal CHF 99, Express-Service nur CHF 29 – unabhängig von deinen Angaben.
             </p>
           </div>
         </div>

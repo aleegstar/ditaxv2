@@ -233,8 +233,8 @@ serve(async (req) => {
       const nowMs = Date.now();
       const promoWeekActive = nowMs >= PROMO_WEEK_START_UTC && nowMs <= PROMO_WEEK_END_UTC;
       if (promoWeekActive) {
-        const PROMO_BASE = 10000;
-        const PROMO_EXPRESS = 2000;
+        const PROMO_BASE = 9900;
+        const PROMO_EXPRESS = 2900;
         const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
         if (amount !== enforced) {
           logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
