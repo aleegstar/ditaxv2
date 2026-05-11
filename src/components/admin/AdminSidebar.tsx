@@ -16,6 +16,7 @@ import {
   Star,
   MessageSquareDashed,
   Mail,
+  Ticket,
   LogOut, 
   Settings, 
   User as UserIcon, 
