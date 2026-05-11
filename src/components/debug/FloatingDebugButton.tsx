@@ -9,13 +9,10 @@ const FloatingDebugButton = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Show debug button if:
-    // 1. Running on Android native platform
-    // 2. Debug mode is enabled via URL param or development environment
-    const urlParams = new URLSearchParams(window.location.search);
-    const debugMode = urlParams.get('debug') === '1' || import.meta.env.DEV;
-    
-    setShow(Capacitor.getPlatform() === 'android' && debugMode);
+    // SECURITY: only expose debug button in dev builds on Android native.
+    // The previous `?debug=1` URL param bypass has been removed to prevent
+    // production exposure of debugging surfaces.
+    setShow(Capacitor.getPlatform() === 'android' && import.meta.env.DEV);
   }, []);
 
   if (!show) return null;

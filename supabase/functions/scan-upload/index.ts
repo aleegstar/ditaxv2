@@ -191,11 +191,13 @@ serve(async (req) => {
  */
 async function scanWithClamAV(fileBuffer: Blob): Promise<ScanResult> {
   const clamavUrl = Deno.env.get('CLAMAV_SERVICE_URL');
-  
+
   if (!clamavUrl) {
-    console.warn('⚠️ ClamAV not configured - skipping scan');
-    // In production, this should throw an error
-    // For now, allow uploads to proceed
+    // SECURITY: fail-closed. Never allow uploads when the malware scanner is
+    // not configured — silently skipping would let stored malware reach admins.
+    console.error('❌ CLAMAV_SERVICE_URL not configured — rejecting upload (fail-closed)');
+    throw new Error('Malware scanning service unavailable');
+    // Unreachable, kept for type compatibility
     return {
       infected: false,
       scanTime: 0
