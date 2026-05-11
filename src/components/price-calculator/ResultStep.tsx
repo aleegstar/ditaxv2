@@ -65,7 +65,7 @@ export const ResultStep: React.FC<ResultStepProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">+100.00 CHF</span>
+              <span className="text-sm text-gray-600">+{formatPrice(expressFee)} CHF</span>
               <Switch checked={expressService} onCheckedChange={setExpressService} />
             </div>
           </div>
