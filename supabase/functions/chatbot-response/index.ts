@@ -385,8 +385,9 @@ serve(async (req) => {
     // Build conversation context for OpenAI
     const conversationHistory = recentMessages?.reverse().map(msg => ({
       role: msg.chat_type === 'bot' ? 'assistant' : 'user',
-      content: msg.content || ''
+      content: sanitizePromptInput(msg.content || '', 4000)
     })) || []
+    const safeUserMessage = sanitizePromptInput(message, 5000)
 
     // System prompt for the Ditax assistant bot
     const systemPrompt = `Du bist der KI-Assistent von Ditax, der digitalen Steuerplattform für die Schweiz.
