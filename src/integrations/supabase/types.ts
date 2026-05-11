@@ -1379,6 +1379,7 @@ export type Database = {
       payment_events: {
         Row: {
           amount: number | null
+          claimed_at: string | null
           created_at: string
           currency: string | null
           customer_id: string | null
@@ -1386,11 +1387,13 @@ export type Database = {
           event_type: string
           failure_code: string | null
           failure_message: string | null
+          failure_reason: string | null
           id: string
           payment_intent_id: string | null
           payment_method: string | null
           payment_method_type: string | null
           processed: boolean | null
+          processing_state: string
           raw_event: Json | null
           session_id: string | null
           status: string | null
@@ -1399,6 +1402,7 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
+          claimed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_id?: string | null
@@ -1406,11 +1410,13 @@ export type Database = {
           event_type: string
           failure_code?: string | null
           failure_message?: string | null
+          failure_reason?: string | null
           id?: string
           payment_intent_id?: string | null
           payment_method?: string | null
           payment_method_type?: string | null
           processed?: boolean | null
+          processing_state?: string
           raw_event?: Json | null
           session_id?: string | null
           status?: string | null
@@ -1419,6 +1425,7 @@ export type Database = {
         }
         Update: {
           amount?: number | null
+          claimed_at?: string | null
           created_at?: string
           currency?: string | null
           customer_id?: string | null
@@ -1426,11 +1433,13 @@ export type Database = {
           event_type?: string
           failure_code?: string | null
           failure_message?: string | null
+          failure_reason?: string | null
           id?: string
           payment_intent_id?: string | null
           payment_method?: string | null
           payment_method_type?: string | null
           processed?: boolean | null
+          processing_state?: string
           raw_event?: Json | null
           session_id?: string | null
           status?: string | null
@@ -2833,6 +2842,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_stripe_event: {
+        Args: { p_event_id: string; p_event_type: string; p_raw_event: Json }
+        Returns: Json
+      }
       cleanup_old_data: { Args: never; Returns: Json }
       cleanup_security_logs: { Args: never; Returns: number }
       delete_auth_user_admin: {
@@ -2936,6 +2949,14 @@ export type Database = {
           p_user_agent?: string
         }
         Returns: string
+      }
+      mark_stripe_event_failed: {
+        Args: { p_event_id: string; p_reason: string }
+        Returns: undefined
+      }
+      mark_stripe_event_processed: {
+        Args: { p_event_id: string; p_patch: Json }
+        Returns: undefined
       }
       mask_admin_notes: {
         Args: {

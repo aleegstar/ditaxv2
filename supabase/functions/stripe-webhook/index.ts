@@ -81,6 +81,33 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // === BL-02: Atomic idempotency claim BEFORE any side-effects ===
+    // Only the first invocation per event_id is allowed to mutate state.
+    // Replays (Stripe retries, attacker-injected re-deliveries) are short-circuited.
+    const { data: claim, error: claimError } = await supabase.rpc('claim_stripe_event', {
+      p_event_id: event.id,
+      p_event_type: event.type,
+      p_raw_event: event as unknown as Record<string, unknown>,
+    });
+
+    if (claimError) {
+      logStep("Idempotency claim failed", { error: claimError, requestId });
+      return new Response(JSON.stringify({ error: "claim_failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (claim && (claim as any).claimed === false) {
+      logStep("Replay detected — skipping side effects", {
+        eventId: event.id, state: (claim as any).existing_state, requestId,
+      });
+      // Always 200 so Stripe stops retrying.
+      return new Response(JSON.stringify({ received: true, replay: true, eventId: event.id }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Extract common data
     const eventData = event.data.object as any;
     const sessionId = eventData.id || null;
