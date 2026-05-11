@@ -88,7 +88,7 @@ export function wrapNewsletterHtml({
                 ${safeSubject}
               </h2>
               <div style="color:#52525b;font-size:16px;line-height:1.65;">
-                ${renderBody(bodyHtml)}
+                ${rewriteLinksForTracking(renderBody(bodyHtml), clickTrackBase)}
               </div>
             </td>
           </tr>
@@ -100,7 +100,7 @@ export function wrapNewsletterHtml({
                 Du erhältst diese E-Mail, weil du dich für Marketing-E-Mails angemeldet hast.
               </p>
               <p style="margin:8px 0 0 0;color:#a1a1aa;font-size:12px;text-align:center;line-height:1.5;">
-                <a href="${appUrl}/privacy-settings" style="color:#1D64FF;text-decoration:underline;font-weight:600;">
+                <a href="${unsubscribeUrl || `${appUrl}/privacy-settings`}" style="color:#1D64FF;text-decoration:underline;font-weight:600;">
                   Newsletter abbestellen
                 </a>
               </p>
