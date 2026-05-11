@@ -151,6 +151,10 @@ serve(async (req) => {
             to: [subscriber.email],
             subject: campaign.subject,
             html: personalizedHtml,
+            headers: {
+              "List-Unsubscribe": `<${unsubscribeUrl}>`,
+              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
           }),
         });
 
