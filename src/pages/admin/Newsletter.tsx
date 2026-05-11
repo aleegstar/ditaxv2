@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
