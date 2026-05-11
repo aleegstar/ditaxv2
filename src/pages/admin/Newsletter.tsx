@@ -37,6 +37,33 @@ export default function Newsletter() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+
+  const handleSendTest = async () => {
+    if (!subject.trim() || !htmlContent.trim()) {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Betreff und Inhalt sind erforderlich.' });
+      return;
+    }
+    if (!testEmail.trim()) {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Test-E-Mail-Adresse erforderlich.' });
+      return;
+    }
+    setSendingTest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-newsletter-test', {
+        body: { subject: subject.trim(), html_content: htmlContent.trim(), test_email: testEmail.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: 'Test-E-Mail versendet', description: `Gesendet an ${data.recipient}` });
+    } catch (err: any) {
+      console.error('Test send error:', err);
+      toast({ variant: 'destructive', title: 'Fehler', description: err.message || 'Test-E-Mail konnte nicht versendet werden.' });
+    } finally {
+      setSendingTest(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
