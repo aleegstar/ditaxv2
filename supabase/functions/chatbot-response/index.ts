@@ -512,7 +512,8 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
     }
 
     const openaiData = await openaiResponse.json()
-    const botResponse = openaiData.choices[0]?.message?.content || 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte versuchen Sie es erneut.'
+    const rawBotResponse = openaiData.choices[0]?.message?.content || 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte versuchen Sie es erneut.'
+    const botResponse = sanitizeMarkdownOutput(rawBotResponse)
 
     console.log('OpenAI response received:', botResponse.substring(0, 100) + '...')
 
