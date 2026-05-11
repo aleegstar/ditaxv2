@@ -1,21 +1,26 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
+
+/**
+ * SECURITY:
+ *  - Production builds MUST NOT contain `server.url` (would load remote code → MITM risk).
+ *  - `cleartext` is only enabled for local dev; never for shipped binaries.
+ *  - For physical-device dev hot-reload, set CAP_DEV_SERVER_URL=https://… and CAP_DEV=1.
+ */
+const isDev = process.env.CAP_DEV === '1';
+const devServerUrl = process.env.CAP_DEV_SERVER_URL;
 
 const config: CapacitorConfig = {
   appId: 'ch.ditax.app',
-  appName: 'ditax-42',
+  appName: 'Ditax',
   webDir: 'dist',
-  server: {
-    url: 'https://316cea7b-cd59-4e51-945e-829a5b4f8fa0.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  ...(isDev && devServerUrl
+    ? { server: { url: devServerUrl, cleartext: false, androidScheme: 'https' } }
+    : { server: { androidScheme: 'https' } }),
   plugins: {
-    App: {
-      // Remove launchUrl to prevent redirect loop
-    },
-    Browser: {
-      presentationStyle: 'popover'
-    }
-  }
+    CapacitorHttp: { enabled: true }, // Native TLS path — enables cert-pinning configs
+    App: {},
+    Browser: { presentationStyle: 'popover' },
+  },
 };
 
 export default config;
