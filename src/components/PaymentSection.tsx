@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
+import { isPromoWeekActive, PROMO_WEEK_BASE_PRICE, PROMO_WEEK_EXPRESS_PRICE } from '@/config/promoWeek';
 import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X, FileText, Columns, Bitcoin, Home, Briefcase, Calculator, Receipt, Sparkles, Lock, Check } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
@@ -86,16 +87,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   useEffect(() => {
     if (isUpgrade) {
+      const promo = isPromoWeekActive();
+      const expressAmount = promo ? PROMO_WEEK_EXPRESS_PRICE : 10000;
       setPriceBreakdown({
         basePrice: 0,
         incomeAdditional: 0,
         deductionsDiscount: 0,
         assetsAdditional: 0,
-        expressService: 10000,
-        totalPrice: 10000,
+        expressService: expressAmount,
+        totalPrice: expressAmount,
         items: [{
-          label: 'Express-Service Upgrade',
-          amount: 10000
+          label: promo ? 'Express-Service Upgrade (Aktionswoche)' : 'Express-Service Upgrade',
+          amount: expressAmount
         }]
       });
     } else {
@@ -336,6 +339,23 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       <main className="flex-grow pt-2 sm:pt-6 pb-20 px-4 sm:px-6">
         <div className="max-w-[640px] mx-auto space-y-4">
 
+          {/* Aktionswoche Banner */}
+          {isPromoWeekActive() && (
+            <div className="rounded-2xl p-4 bg-gradient-to-r from-[#2563FF]/10 to-[#7C3AED]/10 border border-[#2563FF]/20 backdrop-blur-xl">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-full bg-[#2563FF]/15 shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#2563FF]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-slate-900">Aktionswoche bis 17.05.2026</p>
+                  <p className="text-[12px] text-slate-600 mt-0.5 leading-snug">
+                    Pauschalpreis CHF 100 für deine Steuererklärung · Express-Service nur CHF 20.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Express Service Card */}
           {!isUpgrade && (
             <button
@@ -354,7 +374,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     Express-Service
                   </h3>
                   <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
-                    Innert 10 Tagen · +CHF 100.00
+                    Innert 10 Tagen · +CHF {isPromoWeekActive() ? '20.00' : '100.00'}
                   </p>
                 </div>
                 <div
