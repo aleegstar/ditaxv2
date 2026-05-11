@@ -41,15 +41,13 @@ serve(async (req) => {
     if (error) {
       console.error('❌ RPC Error:', error)
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Failed to check passkeys',
-          details: error.message,
           has_passkeys: false,
-          passkey_count: 0
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
