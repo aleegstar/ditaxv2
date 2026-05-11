@@ -54,12 +54,23 @@ export default function Newsletter() {
       const { data, error } = await supabase.functions.invoke('send-newsletter-test', {
         body: { subject: subject.trim(), html_content: htmlContent.trim(), test_email: testEmail.trim() },
       });
-      if (error) throw error;
+      if (error) {
+        // Try to surface body details from FunctionsHttpError
+        let detail = error.message;
+        try {
+          const ctx: any = (error as any).context;
+          if (ctx?.json) {
+            const j = await ctx.json();
+            detail = j?.error || j?.message || detail;
+          }
+        } catch {}
+        throw new Error(detail);
+      }
       if (data?.error) throw new Error(data.error);
       toast({ title: 'Test-E-Mail versendet', description: `Gesendet an ${data.recipient}` });
     } catch (err: any) {
       console.error('Test send error:', err);
-      toast({ variant: 'destructive', title: 'Fehler', description: err.message || 'Test-E-Mail konnte nicht versendet werden.' });
+      toast({ variant: 'destructive', title: 'Versand fehlgeschlagen', description: err.message || 'Test-E-Mail konnte nicht versendet werden.' });
     } finally {
       setSendingTest(false);
     }

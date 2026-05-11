@@ -97,10 +97,12 @@ serve(async (req) => {
       }),
     });
 
-    const resBody = await res.json();
+    const resBody = await res.json().catch(() => ({}));
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: "Send failed", details: resBody }), {
-        status: 500,
+      const detailMsg = resBody?.message || resBody?.error?.message || JSON.stringify(resBody);
+      console.error("Resend send failed:", res.status, resBody);
+      return new Response(JSON.stringify({ error: `Resend ${res.status}: ${detailMsg}`, details: resBody }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
