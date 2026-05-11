@@ -165,3 +165,20 @@ function autoLink(text: string): string {
   );
 }
 
+// Ersetzt jeden href="https?://..." durch einen Click-Tracking-Redirect.
+// Lässt mailto:, tel: und bereits umgeschriebene Tracking-URLs unangetastet.
+function rewriteLinksForTracking(html: string, clickTrackBase?: string): string {
+  if (!clickTrackBase) return html;
+  return html.replace(
+    /href="(https?:\/\/[^"]+)"/gi,
+    (_match, url: string) => {
+      // bereits Tracking-URL? Nicht doppelt einpacken.
+      if (url.startsWith(clickTrackBase.split("?")[0])) {
+        return `href="${url}"`;
+      }
+      return `href="${clickTrackBase}${encodeURIComponent(url)}"`;
+    },
+  );
+}
+
+
