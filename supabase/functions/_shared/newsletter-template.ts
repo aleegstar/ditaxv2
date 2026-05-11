@@ -9,6 +9,9 @@ export interface NewsletterTemplateInput {
   bodyHtml: string;
   appUrl: string;
   isTest?: boolean;
+  // Tracking (optional – nur in echten Versänden gesetzt, nicht in Tests)
+  unsubscribeUrl?: string;
+  clickTrackBase?: string; // z.B. "https://<proj>.supabase.co/functions/v1/newsletter-track-click?t=<token>&u="
 }
 
 export function wrapNewsletterHtml({
@@ -16,6 +19,8 @@ export function wrapNewsletterHtml({
   bodyHtml,
   appUrl,
   isTest = false,
+  unsubscribeUrl,
+  clickTrackBase,
 }: NewsletterTemplateInput): string {
   const year = new Date().getFullYear();
   const safeSubject = escapeHtml(subject);
