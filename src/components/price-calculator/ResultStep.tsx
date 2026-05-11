@@ -4,8 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  isPromoWeekActive,
+  PROMO_WEEK_EXPRESS_PRICE,
+} from '@/config/promoWeek';
 interface ResultStepProps {
   priceBreakdown: PriceBreakdown;
 }
@@ -14,8 +18,9 @@ export const ResultStep: React.FC<ResultStepProps> = ({
 }) => {
   const [expressService, setExpressService] = useState(false);
   const navigate = useNavigate();
-  const finalPrice = expressService ? priceBreakdown.totalPrice + 10000 // Add 100 CHF for express
-  : priceBreakdown.totalPrice;
+  const promoActive = isPromoWeekActive();
+  const expressFee = promoActive ? PROMO_WEEK_EXPRESS_PRICE : 10000;
+  const finalPrice = expressService ? priceBreakdown.totalPrice + expressFee : priceBreakdown.totalPrice;
   const formatPrice = (cents: number) => {
     return (cents / 100).toFixed(2);
   };
@@ -23,7 +28,19 @@ export const ResultStep: React.FC<ResultStepProps> = ({
     window.location.href = 'https://app.ditax.ch';
   };
   return <div className="space-y-8">
+      {promoActive && (
+        <div className="rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl shadow-sm p-4 flex items-start gap-3">
+          <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" strokeWidth={1.8} />
+          <div className="text-sm text-foreground">
+            <p className="font-medium">Aktionswoche bis 17.05.2026</p>
+            <p className="text-muted-foreground text-[13px] mt-0.5">
+              Steuererklärung pauschal CHF 100, Express-Service nur CHF 20 – unabhängig von deinen Angaben.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
+
       <div className="text-center">
         <div className="flex items-center justify-center mb-4">
           <CheckCircle className="w-12 h-12 text-green-500" />
