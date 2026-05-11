@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useFormContext } from '../contexts/FormContext';
 import { calculatePrice, PriceBreakdown } from '@/utils/priceCalculator';
+import { isPromoWeekActive, PROMO_WEEK_BASE_PRICE, PROMO_WEEK_EXPRESS_PRICE } from '@/config/promoWeek';
 import { CheckCircle, Clock, Zap, ShieldCheck, Gift, Tag, Loader2, X, FileText, Columns, Bitcoin, Home, Briefcase, Calculator, Receipt, Sparkles, Lock, Check } from "lucide-react";
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from "react-router-dom";
@@ -86,16 +87,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   useEffect(() => {
     if (isUpgrade) {
+      const promo = isPromoWeekActive();
+      const expressAmount = promo ? PROMO_WEEK_EXPRESS_PRICE : 10000;
       setPriceBreakdown({
         basePrice: 0,
         incomeAdditional: 0,
         deductionsDiscount: 0,
         assetsAdditional: 0,
-        expressService: 10000,
-        totalPrice: 10000,
+        expressService: expressAmount,
+        totalPrice: expressAmount,
         items: [{
-          label: 'Express-Service Upgrade',
-          amount: 10000
+          label: promo ? 'Express-Service Upgrade (Aktionswoche)' : 'Express-Service Upgrade',
+          amount: expressAmount
         }]
       });
     } else {
