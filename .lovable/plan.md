@@ -1,69 +1,42 @@
-## Problem
+## Ziel
 
-Beim TWINT-Checkout (und auch bei Klarna) verlangt Stripe Name und Adresse, obwohl diese im Ditax-Profil/Formular vorhanden sind. Ursache liegt in `supabase/functions/create-payment/index.ts`:
+Beim Zahlen (TWINT, Klarna, Karte) sollen Name + vollständige Schweizer Adresse automatisch an Stripe übergeben werden, sodass keine erneute Eingabe nötig ist.
 
-1. **Adresse wird unvollständig an Stripe übergeben.** Beim Anlegen/Update des Stripe-Customers wird nur `line1: customerData.address` und `country: 'CH'` gesetzt. `postal_code` und `city` werden nie befüllt – obwohl die Felder unter `contactInfo` als `address` (Strasse), `postalCode` und `city` separat existieren.
-2. **`customerData` lädt diese Felder gar nicht erst.** Aus `profiles` wird nur `address` (eine zusammengeführte Stringspalte) gelesen; aus `form_data.contactInfo` wird zwar gemappt, aber nur `address` (= Strasse) – `postalCode`/`city` werden ignoriert.
-3. Folge: Stripe sieht eine "unvollständige" Customer-Adresse, `billing_address_collection: 'auto'` kann sie nicht vorfüllen, und TWINT/Klarna verlangen vom Nutzer die manuelle Eingabe.
+## Ursache
 
-Zusätzlich ist `customer.name` zwar gesetzt, wird aber bei `customer_update: { name: 'auto' }` nur durchgereicht, wenn Stripe sie als gültig erkennt – was nach dem Address-Fix automatisch zieht.
+In `supabase/functions/create-payment/index.ts` wird die Adresse aus `form_data` mit `.single()` geladen, ohne nach `tax_filer_id` zu filtern. Bei Multi-Personen-Konten (z.B. Sandro + Kind Leano) gibt es mehrere `contactInfo`-Zeilen pro Jahr – `.single()` schlägt fehl und die Adresse wird verworfen. Zusätzlich kann der ausgewählte Filer eine unvollständige Adresse haben (kein PLZ/Ort).
 
-## Plan
+## Änderungen
 
-Nur eine Datei anfassen: `supabase/functions/create-payment/index.ts`.
+**Datei: `supabase/functions/create-payment/index.ts`** (nur der Block "Loading customer data from database")
 
-### 1. Volle Adresse aus `form_data.contactInfo` laden
+1. **Nach tax_filer_id filtern, wenn vorhanden**
+   - Wenn `taxFilerId` im Request übergeben wird → `contactInfo`-Query um `.eq('tax_filer_id', taxFilerId)` ergänzen.
+   - `.single()` durch `.maybeSingle()` ersetzen, damit Multi-Row-Fälle nicht hart fehlschlagen.
 
-Im Block "Loading customer data from database" das Form-Data-Mapping erweitern, sodass auch `postalCode` und `city` übernommen werden:
+2. **Fallback auf vollständige Adresse desselben Users/Jahres**
+   - Wenn der gefundene `contactInfo`-Eintrag keine vollständige Adresse hat (`address` + `postalCode` + `city`), zusätzlich ALLE `contactInfo`-Zeilen für `user_id` + `tax_year` laden und die **erste vollständige** als Fallback für die Adressfelder verwenden. Name (firstName/lastName) bleibt immer vom Haupt-Datensatz.
+   - Begründung: Die Rechnungsadresse gehört zum zahlenden Konto – wenn irgendwo im Account eine vollständige CH-Adresse hinterlegt ist, ist es vertretbar diese als Stripe-Billing zu nutzen, statt den User erneut tippen zu lassen.
 
-```ts
-customerData = {
-  first_name: customerData?.first_name || contactInfo.firstName,
-  last_name:  customerData?.last_name  || contactInfo.lastName,
-  address:    customerData?.address    || contactInfo.address,
-  postal_code: contactInfo.postalCode,
-  city:        contactInfo.city,
-  phone: customerData?.phone || contactInfo.phone || '',
-};
-```
+3. **profiles als sekundärer Fallback**
+   - Wenn `profiles.address` gesetzt, aber nicht parsbar ist (Free-Text), zumindest als `line1` weiterhin nutzen – wie heute.
 
-Wenn nur das Profil verfügbar ist (kein contactInfo), bleibt `postal_code`/`city` leer und Stripe sammelt sie wie heute via `billing_address_collection: 'required'`.
+4. **Diagnose-Logging erweitern**
+   - `logStep("Address resolution", { source: 'filer'|'fallback_filer'|'profile'|'none', hasFullAddress, taxFilerId })` damit man bei Folgemeldungen direkt sieht, woher die Adresse kam.
 
-### 2. Strukturierte Adresse an Stripe Customer übergeben
+5. **Bestehende Logik unverändert**
+   - `billing_address_collection: 'auto' | 'required'`-Switch bleibt wie zuletzt eingebaut.
+   - Stripe-Customer Create/Update bleibt unverändert (sendet bereits `line1`, `postal_code`, `city`, `country:'CH'`).
 
-Beim `stripe.customers.create` und `stripe.customers.update` das Address-Objekt vollständig befüllen:
+## Verifizierung
 
-```ts
-if (customerData.address) {
-  newCustomerData.address = {
-    line1: customerData.address,
-    postal_code: customerData.postal_code || undefined,
-    city: customerData.city || undefined,
-    country: 'CH',
-  };
-}
-```
+1. Edge Function neu deployen.
+2. Testen mit Sandros Account + Steuerjahr 2025: erwartet wird, dass Stripe TWINT-Checkout Vorname, Nachname und Adresse (Haselweg 5607 Hägglingen aus Leanos Zeile als Fallback) vorausgefüllt zeigt → keine erneute Eingabe.
+3. In den Function-Logs prüfen, dass `Address resolution source=fallback_filer hasFullAddress=true` geloggt wird.
 
-Analog im Update-Pfad.
+## Nicht im Scope
 
-### 3. `billing_address_collection` korrekt steuern
-
-Bedingung verschärfen: nur dann auf `'auto'`, wenn `address`, `postal_code` und `city` vorhanden sind – sonst `'required'`. Das verhindert halbleere Stripe-Eingabeformulare:
-
-```ts
-const hasFullAddress = !!(customerData?.address && customerData?.postal_code && customerData?.city);
-sessionData.billing_address_collection = hasFullAddress ? 'auto' : 'required';
-```
-
-### 4. Verifikation
-
-- Edge Function deployen.
-- Mit einem Test-Account mit vollständigem `contactInfo` (Strasse, PLZ, Ort) Zahlung auslösen → TWINT-Flow zeigt vorausgefüllten Namen + Adresse, keine erneute Eingabe nötig.
-- Mit einem Account ohne PLZ/Ort prüfen, dass weiterhin sauber abgefragt wird (kein Crash, `billing_address_collection: 'required'`).
-- Edge Function Logs nach `Billing address collection` und `Customer updated/created` querchecken.
-
-### Nicht Teil des Plans
-
-- Keine Änderungen am Frontend, an `PaymentSection.tsx` oder am Preisrechner.
-- Kein Eingriff in die Aktionswochen-Logik.
-- Keine DB-Schema-Änderung (`profiles.address` bleibt ein Freitext-Fallback).
+- Kein UI-Wechsel.
+- Keine DB-Migration.
+- Keine Änderung am Stripe-Webhook oder anderen Funktionen.
+- Sandros eigene Sandro-Adresse wird nicht automatisch ergänzt – das ist eine Datenpflege-Frage, die der User über das Kontaktformular selbst lösen müsste.
