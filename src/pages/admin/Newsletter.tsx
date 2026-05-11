@@ -202,7 +202,36 @@ export default function Newsletter() {
           />
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        {/* Test send */}
+        <div className="rounded-xl border border-dashed border-border/60 bg-white/40 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <FlaskConical className="h-3.5 w-3.5 text-muted-foreground/70" strokeWidth={1.8} />
+            <span className="text-[12px] font-medium text-foreground">Test-E-Mail</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Sende eine Vorschau an eine beliebige E-Mail-Adresse, um die Darstellung zu prüfen. Es werden keine Abonnenten benachrichtigt.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Input
+              type="email"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              placeholder="test@example.com"
+              className="bg-white/50 border-border/40 flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSendTest}
+              disabled={!subject.trim() || !htmlContent.trim() || !testEmail.trim() || sendingTest}
+              className="rounded-full gap-2"
+            >
+              {sendingTest ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              {sendingTest ? 'Wird gesendet...' : 'Test senden'}
+            </Button>
+          </div>
+        </div>
+
           <p className="text-[12px] text-muted-foreground">
             Wird an {subscriberCount} Abonnent{subscriberCount !== 1 ? 'en' : ''} gesendet
           </p>
