@@ -110,8 +110,11 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: DOCS_CONTEXT },
-          ...messages.slice(-20), // limit context window
+          { role: "system", content: `${SAFETY_SYSTEM_ANCHOR}\n\n${DOCS_CONTEXT}` },
+          ...messages.slice(-20).map((m: { role: string; content: unknown }) => ({
+            role: m.role === 'assistant' ? 'assistant' : 'user',
+            content: sanitizePromptInput(String(m.content ?? ''), 4000),
+          })),
         ],
         stream: true,
         max_tokens: 1000,
