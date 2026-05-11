@@ -225,10 +225,13 @@ async function verifyWebAuthnSignature(
       console.log('✅ Public key imported successfully');
     } catch (keyError) {
       console.error('❌ Failed to import public key:', keyError);
-      // For now, if key import fails, we'll do a simplified verification
-      // This is still more secure than the placeholder as we verified the challenge
-      console.log('⚠️ Key import failed, falling back to challenge verification only');
-      return { verified: true, error: undefined }; // Challenge was verified
+      // SECURITY: Never treat a key import failure as a successful verification.
+      // Doing so would allow an attacker with a malformed stored public key to
+      // authenticate without a valid signature.
+      return {
+        verified: false,
+        error: 'Public key import failed — cannot verify signature',
+      };
     }
     
     // The WebAuthn signature is in ASN.1 DER format for ECDSA
