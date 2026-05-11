@@ -27,6 +27,7 @@ import { ChatQuickRepliesManager } from '@/components/admin/ChatQuickRepliesMana
 import { OcrDocumentConfigManager } from '@/components/admin/OcrDocumentConfigManager';
 import { OcrUnrecognizedUploads } from '@/components/admin/OcrUnrecognizedUploads';
 import Newsletter from './admin/Newsletter';
+import PromoCodes from './admin/PromoCodes';
 
 interface AdminUser {
   id: string;
