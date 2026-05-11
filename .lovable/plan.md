@@ -1,28 +1,69 @@
-## Newsletter: Zeilenumbrüche & Absätze korrekt rendern
+## Problem
 
-### Problem
-Der Admin gibt im Textfeld `Inhalt` reinen Text mit echten Zeilenumbrüchen und Leerzeilen ein (siehe Aktionswochen-Text). Aktuell wird dieser String 1:1 als HTML ins Template eingesetzt – HTML ignoriert aber `\n`, deshalb erscheint alles als ein einziger Fliesstext-Block.
+Beim TWINT-Checkout (und auch bei Klarna) verlangt Stripe Name und Adresse, obwohl diese im Ditax-Profil/Formular vorhanden sind. Ursache liegt in `supabase/functions/create-payment/index.ts`:
 
-### Lösung
-Im Shared-Wrapper `supabase/functions/_shared/newsletter-template.ts` den eingehenden `bodyHtml` vor dem Einsetzen normalisieren:
+1. **Adresse wird unvollständig an Stripe übergeben.** Beim Anlegen/Update des Stripe-Customers wird nur `line1: customerData.address` und `country: 'CH'` gesetzt. `postal_code` und `city` werden nie befüllt – obwohl die Felder unter `contactInfo` als `address` (Strasse), `postalCode` und `city` separat existieren.
+2. **`customerData` lädt diese Felder gar nicht erst.** Aus `profiles` wird nur `address` (eine zusammengeführte Stringspalte) gelesen; aus `form_data.contactInfo` wird zwar gemappt, aber nur `address` (= Strasse) – `postalCode`/`city` werden ignoriert.
+3. Folge: Stripe sieht eine "unvollständige" Customer-Adresse, `billing_address_collection: 'auto'` kann sie nicht vorfüllen, und TWINT/Klarna verlangen vom Nutzer die manuelle Eingabe.
 
-1. **Erkennen, ob es bereits HTML ist**: Heuristik – enthält der Input ein Block-Tag (`<p`, `<div`, `<br`, `<h1`–`<h6`, `<ul`, `<ol`, `<table`)? Wenn ja → unverändert einsetzen (Power-User-HTML weiterhin erlaubt).
-2. **Sonst als Plain-Text behandeln**:
-   - HTML-Sonderzeichen escapen (`&`, `<`, `>`).
-   - Auf Leerzeilen (`\n\s*\n`) splitten → jedes Stück wird ein `<p>`-Absatz.
-   - Innerhalb eines Absatzes verbleibende einfache `\n` → `<br />`.
-   - URLs (http/https) automatisch als anklickbare `<a>` mit Brand-Blau `#1D64FF` rendern (kleiner Bonus, kein Aufwand).
-3. Die Absätze bekommen konsistente Bottom-Spacings (z.B. `margin:0 0 16px 0`) im OTP-Stil; der letzte Absatz hat `margin-bottom:0`.
+Zusätzlich ist `customer.name` zwar gesetzt, wird aber bei `customer_update: { name: 'auto' }` nur durchgereicht, wenn Stripe sie als gültig erkennt – was nach dem Address-Fix automatisch zieht.
 
-Damit wird der eingefügte Aktionstext automatisch zu sauberen Absätzen mit Abständen, ohne dass der Admin HTML schreiben muss.
+## Plan
 
-### Geänderte Dateien
-- `supabase/functions/_shared/newsletter-template.ts` – neue Hilfsfunktion `renderBody(bodyHtml)` + Aufruf im Template. Keine Änderungen an den Edge-Function-Entrypoints.
+Nur eine Datei anfassen: `supabase/functions/create-payment/index.ts`.
 
-### Verifikation
-- Test-Mail mit dem exakten Aktionswochen-Text aus dem Chat senden → Erwartung: gleiche Absatz-Struktur wie im Wunsch-Layout (Hallo / Pauschalpreis-Absatz / „Und das Beste:" / Express / Liste mit ✅ je auf eigener Zeile / ⏳-Hinweis / Liebe Grüsse / Dein Ditax-Team).
-- Gegentest mit bereits formatiertem HTML (z.B. `<p>Foo</p>`) → bleibt unverändert, kein Doppel-Wrapping.
+### 1. Volle Adresse aus `form_data.contactInfo` laden
 
-### Nicht Teil dieses Plans
-- Kein WYSIWYG-Editor im Admin.
-- Kein Markdown-Parsing (nur Plain-Text-Newlines + Auto-Links).
+Im Block "Loading customer data from database" das Form-Data-Mapping erweitern, sodass auch `postalCode` und `city` übernommen werden:
+
+```ts
+customerData = {
+  first_name: customerData?.first_name || contactInfo.firstName,
+  last_name:  customerData?.last_name  || contactInfo.lastName,
+  address:    customerData?.address    || contactInfo.address,
+  postal_code: contactInfo.postalCode,
+  city:        contactInfo.city,
+  phone: customerData?.phone || contactInfo.phone || '',
+};
+```
+
+Wenn nur das Profil verfügbar ist (kein contactInfo), bleibt `postal_code`/`city` leer und Stripe sammelt sie wie heute via `billing_address_collection: 'required'`.
+
+### 2. Strukturierte Adresse an Stripe Customer übergeben
+
+Beim `stripe.customers.create` und `stripe.customers.update` das Address-Objekt vollständig befüllen:
+
+```ts
+if (customerData.address) {
+  newCustomerData.address = {
+    line1: customerData.address,
+    postal_code: customerData.postal_code || undefined,
+    city: customerData.city || undefined,
+    country: 'CH',
+  };
+}
+```
+
+Analog im Update-Pfad.
+
+### 3. `billing_address_collection` korrekt steuern
+
+Bedingung verschärfen: nur dann auf `'auto'`, wenn `address`, `postal_code` und `city` vorhanden sind – sonst `'required'`. Das verhindert halbleere Stripe-Eingabeformulare:
+
+```ts
+const hasFullAddress = !!(customerData?.address && customerData?.postal_code && customerData?.city);
+sessionData.billing_address_collection = hasFullAddress ? 'auto' : 'required';
+```
+
+### 4. Verifikation
+
+- Edge Function deployen.
+- Mit einem Test-Account mit vollständigem `contactInfo` (Strasse, PLZ, Ort) Zahlung auslösen → TWINT-Flow zeigt vorausgefüllten Namen + Adresse, keine erneute Eingabe nötig.
+- Mit einem Account ohne PLZ/Ort prüfen, dass weiterhin sauber abgefragt wird (kein Crash, `billing_address_collection: 'required'`).
+- Edge Function Logs nach `Billing address collection` und `Customer updated/created` querchecken.
+
+### Nicht Teil des Plans
+
+- Keine Änderungen am Frontend, an `PaymentSection.tsx` oder am Preisrechner.
+- Kein Eingriff in die Aktionswochen-Logik.
+- Keine DB-Schema-Änderung (`profiles.address` bleibt ein Freitext-Fallback).

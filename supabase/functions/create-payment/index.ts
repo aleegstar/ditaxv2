@@ -343,9 +343,11 @@ serve(async (req) => {
               first_name: customerData?.first_name || contactInfo.firstName,
               last_name: customerData?.last_name || contactInfo.lastName,
               address: customerData?.address || contactInfo.address,
+              postal_code: contactInfo.postalCode,
+              city: contactInfo.city,
               phone: customerData?.phone || contactInfo.phone || ''
-            };
-            logStep("Form data loaded and merged", { hasData: !!customerData, requestId });
+            } as any;
+            logStep("Form data loaded and merged", { hasData: !!customerData, hasFullAddress: !!(contactInfo.address && contactInfo.postalCode && contactInfo.city), requestId });
           }
         }
       } catch (dataError) {
