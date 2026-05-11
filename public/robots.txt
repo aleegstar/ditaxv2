@@ -1,8 +1,21 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /debug
+Disallow: /android-debug
+Disallow: /edge-function-debug
+Disallow: /mfa-verify
+Disallow: /auth-success
+Disallow: /native-callback
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /debug
+Disallow: /android-debug
+Disallow: /edge-function-debug
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +25,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /debug
+Disallow: /android-debug
+Disallow: /edge-function-debug
+Disallow: /mfa-verify
+Disallow: /auth-success
+Disallow: /native-callback
