@@ -102,7 +102,39 @@ export default function Newsletter() {
         .order('created_at', { ascending: false })
         .limit(20);
 
-      setCampaigns((data as Campaign[]) || []);
+      const baseCampaigns = (data as Campaign[]) || [];
+
+      // Tracking-Statistiken pro Kampagne
+      if (baseCampaigns.length > 0) {
+        const ids = baseCampaigns.map((c) => c.id);
+
+        const [{ data: clicks }, { data: unsubs }] = await Promise.all([
+          supabase.from('newsletter_clicks').select('campaign_id, user_id, email').in('campaign_id', ids),
+          supabase.from('newsletter_unsubscribes').select('campaign_id').in('campaign_id', ids),
+        ]);
+
+        const clickCounts = new Map<string, number>();
+        const uniqueClicks = new Map<string, Set<string>>();
+        (clicks || []).forEach((row: any) => {
+          clickCounts.set(row.campaign_id, (clickCounts.get(row.campaign_id) || 0) + 1);
+          const set = uniqueClicks.get(row.campaign_id) || new Set();
+          set.add(row.user_id || row.email);
+          uniqueClicks.set(row.campaign_id, set);
+        });
+
+        const unsubCounts = new Map<string, number>();
+        (unsubs || []).forEach((row: any) => {
+          unsubCounts.set(row.campaign_id, (unsubCounts.get(row.campaign_id) || 0) + 1);
+        });
+
+        baseCampaigns.forEach((c) => {
+          c.clicks = clickCounts.get(c.id) || 0;
+          c.unique_clicks = uniqueClicks.get(c.id)?.size || 0;
+          c.unsubscribes = unsubCounts.get(c.id) || 0;
+        });
+      }
+
+      setCampaigns(baseCampaigns);
     } catch (err) {
       console.error('Error loading newsletter data:', err);
     } finally {
