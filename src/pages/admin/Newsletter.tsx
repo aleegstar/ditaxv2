@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical } from 'lucide-react';
+import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical, MousePointerClick, UserMinus } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -28,6 +28,9 @@ interface Campaign {
   recipient_count: number;
   sent_at: string | null;
   created_at: string;
+  clicks?: number;
+  unique_clicks?: number;
+  unsubscribes?: number;
 }
 
 export default function Newsletter() {
