@@ -51,18 +51,18 @@ async function handleRequest(request) {
   // Clone response to modify headers
   const newResponse = new Response(response.body, response);
   
-  // Content Security Policy (CSP)
-  // Note: Adjusted for Lovable's requirements (includes unsafe-inline/unsafe-eval for now)
+  // Content Security Policy (CSP) — production hardened
   newResponse.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.gpteng.co https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
-    "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; " +
-    "img-src 'self' data: blob: https://*.supabase.co https://gqbhilftduwxjszznnzy.supabase.co https://storage.googleapis.com; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com; " +
     "media-src 'self' https://ditax.ch; " +
-    "connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co https://api.openai.com; " +
+    "connect-src 'self' https://gqbhilftduwxjszznnzy.supabase.co wss://gqbhilftduwxjszznnzy.supabase.co; " +
     "frame-src 'self' https://ditax.productlift.dev; " +
+    "worker-src 'self' blob:; " +
     "object-src 'none'; " +
     "base-uri 'self'; " +
     "form-action 'self'; " +
@@ -71,36 +71,38 @@ async function handleRequest(request) {
     "block-all-mixed-content; " +
     "report-uri https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/csp-report"
   );
-  
-  // Strict Transport Security (HSTS)
-  newResponse.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  );
-  
-  // X-Frame-Options (prevents clickjacking)
+
+  // HSTS — 2-year, includeSubDomains, preload eligible
+  newResponse.headers.set('Strict-Transport-Security',
+    'max-age=63072000; includeSubDomains; preload');
+
+  // Clickjacking
   newResponse.headers.set('X-Frame-Options', 'DENY');
-  
-  // X-Content-Type-Options (prevents MIME sniffing)
+
+  // MIME sniffing
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
-  
-  // Referrer-Policy (controls referrer information)
+
+  // Referrer
   newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // Permissions-Policy (restricts browser features)
-  newResponse.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
-  );
-  
-  // X-XSS-Protection (legacy but still useful)
-  newResponse.headers.set('X-XSS-Protection', '1; mode=block');
-  
-  // Cross-Origin-Opener-Policy
+
+  // Permissions-Policy — explicit deny for sensitive surfaces
+  newResponse.headers.set('Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(self), usb=(), ' +
+    'accelerometer=(), gyroscope=(), magnetometer=(), serial=(), ' +
+    'midi=(), bluetooth=(), interest-cohort=()');
+
+  // Cross-Origin isolation
   newResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-  
-  // Cross-Origin-Resource-Policy
   newResponse.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
-  
+  newResponse.headers.set('Cross-Origin-Embedder-Policy', 'credentialless');
+
+  // Reporting endpoint
+  newResponse.headers.set('Report-To',
+    '{"group":"csp","max_age":10886400,"endpoints":[{"url":"https://gqbhilftduwxjszznnzy.supabase.co/functions/v1/csp-report"}]}');
+
+  // Remove server fingerprinting headers if present
+  newResponse.headers.delete('Server');
+  newResponse.headers.delete('X-Powered-By');
+
   return newResponse;
 }
