@@ -1,4 +1,9 @@
 import { FormData } from "@/types";
+import {
+  isPromoWeekActive,
+  PROMO_WEEK_BASE_PRICE,
+  PROMO_WEEK_EXPRESS_PRICE,
+} from "@/config/promoWeek";
 
 export interface PriceBreakdown {
   basePrice: number;
@@ -14,12 +19,33 @@ export interface PriceBreakdown {
 const TEST_MODE = false;
 
 export const calculatePrice = (formData: FormData, expressService: boolean = false): PriceBreakdown => {
+  // PROMO WEEK: pauschal CHF 100 + Express CHF 20 vom 11.05.–17.05.2026
+  if (isPromoWeekActive()) {
+    const expressFee = expressService ? PROMO_WEEK_EXPRESS_PRICE : 0;
+    const items: { label: string; amount: number }[] = [
+      { label: "Steuererklärung (Aktionswoche)", amount: PROMO_WEEK_BASE_PRICE },
+    ];
+    if (expressService) {
+      items.push({ label: "Express-Service (Aktionswoche)", amount: expressFee });
+    }
+    return {
+      basePrice: PROMO_WEEK_BASE_PRICE,
+      incomeAdditional: 0,
+      deductionsDiscount: 0,
+      assetsAdditional: 0,
+      expressService: expressFee,
+      totalPrice: PROMO_WEEK_BASE_PRICE + expressFee,
+      items,
+    };
+  }
+
   // TEST MODE: Use 100 cents (1.00 CHF) as base price instead of 150 CHF
   const basePrice = TEST_MODE ? 100 : 15000; // 100 cents vs 150 CHF in cents
   let totalPrice = basePrice;
   const items: { label: string; amount: number }[] = [
     { label: "Grundpreis", amount: basePrice }
   ];
+
 
   // In TEST MODE, skip all additional charges to keep price at 1.00 CHF
   if (TEST_MODE) {
