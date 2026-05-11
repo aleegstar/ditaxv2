@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { wrapNewsletterHtml } from "../_shared/newsletter-template.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,18 +71,13 @@ serve(async (req) => {
       });
     }
 
-    const appUrl = Deno.env.get("APP_URL") || "https://ditaxv2.lovable.app";
-    const personalizedHtml = `
-      <div style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:16px;">
-        ⚠️ Dies ist eine Test-E-Mail (Vorschau). Sie wurde nicht an Abonnenten versendet.
-      </div>
-      ${html_content}
-      <hr style="margin-top: 32px; border: none; border-top: 1px solid #e5e7eb;" />
-      <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px;">
-        Du erhältst diese E-Mail, weil du dich für Marketing-E-Mails angemeldet hast.<br />
-        <a href="${appUrl}/privacy-settings" style="color: #6b7280;">Newsletter abbestellen</a>
-      </p>
-    `;
+    const appUrl = Deno.env.get("APP_URL") || "https://app.ditax.ch";
+    const personalizedHtml = wrapNewsletterHtml({
+      subject,
+      bodyHtml: html_content,
+      appUrl,
+      isTest: true,
+    });
 
     const res = await fetch(RESEND_API_URL, {
       method: "POST",

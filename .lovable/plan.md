@@ -1,29 +1,42 @@
-## Newsletter 401 – Auth-Prüfung in Edge Functions auf Signing-Keys umstellen
+## Newsletter-Design im Stil des OTP-Mails
 
-### Ursache
-Sowohl `send-newsletter-test` als auch `send-newsletter` validieren die Anfrage mit:
-```ts
-const supabaseUser = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { headers: { Authorization } } });
-const { data: { user } } = await supabaseUser.auth.getUser();
-```
-Mit dem neuen Supabase Signing-Keys-System ist die korrekte serverseitige JWT-Verifizierung `supabase.auth.getClaims(token)`. `getUser()` schlägt hier in vielen Projekten still fehl und liefert keinen User → Function antwortet **401 Unauthorized** an den Client, was im UI als „Edge Function returned a non-2xx status code" landet.
+### Ziel
+Newsletter-Mails (Test- und echter Versand) erhalten ein einheitliches, sauberes Grunddesign analog zum OTP-Mail: heller Hintergrund, weisses gerundetes Card-Layout mit Logo-Header, Schatten, gepflegter Footer. Der Admin schreibt im `/admin/newsletter` weiterhin nur den Inhalt (Plain HTML/Text) – das Wrapping erfolgt automatisch beim Versand.
 
-### Fix
-Beide Edge Functions auf das empfohlene Muster umstellen:
-1. `Authorization`-Header lesen, Bearer-Token extrahieren.
-2. `supabase.auth.getClaims(token)` aufrufen → `userId = claims.sub` daraus ziehen.
-3. Admin-Check (`user_roles` mit `role='admin'`) unverändert wie bisher, nur jetzt mit der korrekt validierten `userId`.
-4. Alle Error-Responses inkl. CORS-Headers ausliefern (ist bereits so) und den genauen Resend-Fehler im Body durchreichen, damit das UI sinnvoll anzeigt.
+### Was geändert wird
 
-### Betroffene Dateien
-- `supabase/functions/send-newsletter-test/index.ts` – Auth-Block ersetzen.
-- `supabase/functions/send-newsletter/index.ts` – Auth-Block ersetzen.
+1. **Neuer Shared-Wrapper für Edge Functions**
+   - Datei: `supabase/functions/_shared/newsletter-template.ts`
+   - Exportierte Funktion: `wrapNewsletterHtml({ subject, bodyHtml, appUrl, isTest })` → liefert das vollständige HTML-Dokument.
+   - Aufbau identisch zum OTP-Mail:
+     - Outer: `background:#f4f4f5`, Padding 40px/20px, zentriert.
+     - Card: `max-width:600px`, `background:#ffffff`, `border-radius:16px`, `box-shadow:0 10px 25px rgba(0,0,0,0.08)`.
+     - Header: linearer Gradient `#f3f4f6 → #e5e7eb`, Padding 20px/24px, Ditax-Logo links (160px Breite, `https://fresh-start-git.lovable.app/ditax-logo-email.png` – derselbe Asset wie OTP).
+     - Weiche Trennung 14px wie im OTP (`border-radius:16px 16px 0 0; margin-top:-14px`).
+     - Content-Bereich: Padding 34px 40px 36px, H2 `#18181b` 20px 700, Body-Fliesstext `#52525b` 16px line-height 1.65, Links `#1D64FF` unterstrichen.
+     - Footer: `background:#fafafa`, `border-top:1px solid #e4e4e7`, Padding 22px 40px, Copyright `© {Jahr} Ditax. Alle Rechte vorbehalten.` + Abmelden-Link (`{appUrl}/privacy-settings`).
+   - Test-Modus: oberhalb des Inhalts der bekannte gelbe „Test-E-Mail (Vorschau)"-Banner, aber innerhalb der Card und mit weicheren Rundungen, damit das Layout konsistent bleibt.
+   - Subject wird als H2 oben im Content-Bereich verwendet (so wirkt es wie eine Headline), zusätzlich als Preheader unsichtbar.
+   - `bodyHtml` des Admins wird unverändert in einen `<div>` mit den Grundtext-Styles eingebettet, damit auch reine Textabsätze gut aussehen.
 
-### Verifikation
-- Nach Redeploy: im Admin → Newsletter eine Test-Mail abschicken. Erwartet: 200 + „Test-E-Mail versendet" Toast, oder bei Resend-Problem konkrete Fehlermeldung statt 401.
-- Edge-Logs (`send-newsletter-test`, `send-newsletter`) zeigen jetzt POST 200 statt 401.
-- Falls Resend selbst ablehnt (z. B. Domain nicht verifiziert), erscheint dies im Toast als detaillierte Meldung; dann wäre der nächste Schritt, den Absender (`noreply@ditax.ch`) auf eine verifizierte Adresse umzustellen – das ist aber ein separates Thema.
+2. **`send-newsletter-test/index.ts`**
+   - `personalizedHtml`-Block durch `wrapNewsletterHtml({ subject, bodyHtml: html_content, appUrl, isTest: true })` ersetzen.
+   - Abmelden-Hinweis nicht mehr inline, sondern aus dem Wrapper.
+
+3. **`send-newsletter/index.ts`**
+   - Analog: pro Empfänger wird `wrapNewsletterHtml({ subject: campaign.subject, bodyHtml: campaign.html_content, appUrl, isTest: false })` verwendet.
+
+4. **Redeploy** beider Functions am Schluss.
+
+### Was sich für den Admin nicht ändert
+- Eingabefelder bleiben „Betreff" + „Inhalt (HTML)" wie heute.
+- Der Admin muss/soll keinerlei Layout-HTML mehr selber schreiben – einfacher Text in `<p>`-Tags reicht völlig, das Design liefert der Wrapper.
+- Bestehende Kampagnen-Drafts in der Datenbank bleiben unverändert nutzbar (der Wrapper umschliesst nur den Inhalt).
 
 ### Nicht Teil dieses Plans
-- Keine Änderungen an `newsletter_campaigns`-Tabelle, RLS oder UI-Flow.
-- Kein Wechsel weg von Resend; nur die Auth-Schicht der Functions wird modernisiert.
+- Kein Wechsel des E-Mail-Providers (bleibt Resend).
+- Kein Visual Editor / WYSIWYG im Admin – falls gewünscht, separat angehen.
+- Keine Änderung an OTP-/Auth-Mails.
+
+### Verifikation
+- Im Admin → Newsletter eine Test-Mail an dich senden. Erwartet: weisses Card-Layout mit Logo-Header, gelben „Test-E-Mail"-Hinweis innerhalb der Card, sauberer Footer mit Copyright + Abmelden-Link – visuell konsistent zum OTP-Mail.
