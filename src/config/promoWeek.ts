@@ -14,8 +14,8 @@
 export const PROMO_WEEK_START_UTC = Date.UTC(2026, 4, 10, 22, 0, 0); // 11.05.2026 00:00 CEST
 export const PROMO_WEEK_END_UTC = Date.UTC(2026, 4, 17, 21, 59, 59); // 17.05.2026 23:59:59 CEST
 
-export const PROMO_WEEK_BASE_PRICE = 10000; // 100 CHF in Rappen
-export const PROMO_WEEK_EXPRESS_PRICE = 2000; // 20 CHF in Rappen
+export const PROMO_WEEK_BASE_PRICE = 9900; // 99 CHF in Rappen
+export const PROMO_WEEK_EXPRESS_PRICE = 2900; // 29 CHF in Rappen
 
 export const PROMO_WEEK_LABEL = 'Aktionswoche bis 17.05.2026';
 
