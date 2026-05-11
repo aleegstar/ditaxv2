@@ -54,22 +54,22 @@ serve(async (req) => {
       )
     }
 
-    console.log('✅ RPC Response:', passkeyCheck)
+    console.log('✅ RPC Response received')
 
-    // Get the first result or default values
-    const result = passkeyCheck?.[0] || { 
-      has_passkeys: false, 
-      passkey_count: 0,
-      user_id: null,
-      email: email
+    // SECURITY: This endpoint must remain callable pre-authentication so the
+    // login UI can decide whether to offer the passkey flow. To minimize user
+    // enumeration risk we only return the boolean `has_passkeys` and the
+    // submitted email back — never the internal user_id or exact passkey count.
+    const row = passkeyCheck?.[0]
+    const result = {
+      has_passkeys: !!row?.has_passkeys,
+      email,
     }
-
-    console.log('📤 Returning result:', result)
 
     return new Response(
       JSON.stringify(result),
-      { 
-        status: 200, 
+      {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
