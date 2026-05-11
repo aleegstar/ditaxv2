@@ -16,6 +16,7 @@ import {
   Star,
   MessageSquareDashed,
   Mail,
+  Ticket,
   LogOut, 
   Settings, 
   User as UserIcon, 
@@ -188,6 +189,7 @@ export function AdminSidebar() {
     { title: "User-Feedback", url: "/admin/user-feedback", icon: Star },
     { title: "Lösch-Feedback", url: "/admin/deletion-feedback", icon: MessageSquareDashed },
     { title: "Newsletter", url: "/admin/newsletter", icon: Mail },
+    { title: "Aktionscodes", url: "/admin/promo-codes", icon: Ticket },
   ];
 
   const managementHasActive = managementNavItems.some(item => currentPath === item.url);
