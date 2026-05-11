@@ -349,7 +349,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-slate-900">Aktionswoche bis 17.05.2026</p>
                   <p className="text-[12px] text-slate-600 mt-0.5 leading-snug">
-                    Pauschalpreis CHF 100 für deine Steuererklärung · Express-Service nur CHF 20.
+                    Pauschalpreis CHF 99 für deine Steuererklärung · Express-Service nur CHF 29.
                   </p>
                 </div>
               </div>
@@ -374,7 +374,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     Express-Service
                   </h3>
                   <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
-                    Innert 10 Tagen · +CHF {isPromoWeekActive() ? '20.00' : '100.00'}
+                    Innert 10 Tagen · +CHF {isPromoWeekActive() ? '29.00' : '100.00'}
                   </p>
                 </div>
                 <div
