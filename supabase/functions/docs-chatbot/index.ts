@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { sanitizePromptInput, SAFETY_SYSTEM_ANCHOR } from "../_shared/ai-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
