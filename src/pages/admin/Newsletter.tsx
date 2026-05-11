@@ -232,6 +232,7 @@ export default function Newsletter() {
           </div>
         </div>
 
+        <div className="flex items-center justify-between pt-2">
           <p className="text-[12px] text-muted-foreground">
             Wird an {subscriberCount} Abonnent{subscriberCount !== 1 ? 'en' : ''} gesendet
           </p>
