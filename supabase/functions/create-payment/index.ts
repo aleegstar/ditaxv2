@@ -327,28 +327,72 @@ serve(async (req) => {
           logStep("Profile data loaded", { hasData: !!customerData, requestId });
         }
 
-        // If no profile data or incomplete, try form_data
+        // If no profile data or incomplete, try form_data (filtered by tax_filer_id if provided)
         if (!customerData || !customerData.first_name || !customerData.address) {
-          const { data: formData, error: formError } = await supabaseService
-            .from('form_data')
-            .select('data')
-            .eq('user_id', user.id)
-            .eq('tax_year', taxYear)
-            .eq('form_type', 'contactInfo')
-            .single();
+          let primaryContact: any = null;
 
-          if (!formError && formData?.data) {
-            const contactInfo = formData.data as any;
-            customerData = {
-              first_name: customerData?.first_name || contactInfo.firstName,
-              last_name: customerData?.last_name || contactInfo.lastName,
-              address: customerData?.address || contactInfo.address,
-              postal_code: contactInfo.postalCode,
-              city: contactInfo.city,
-              phone: customerData?.phone || contactInfo.phone || ''
-            } as any;
-            logStep("Form data loaded and merged", { hasData: !!customerData, hasFullAddress: !!(contactInfo.address && contactInfo.postalCode && contactInfo.city), requestId });
+          if (taxFilerId) {
+            const { data: filerForm, error: filerErr } = await supabaseService
+              .from('form_data')
+              .select('data')
+              .eq('user_id', user.id)
+              .eq('tax_year', taxYear)
+              .eq('form_type', 'contactInfo')
+              .eq('tax_filer_id', taxFilerId)
+              .maybeSingle();
+            if (!filerErr && filerForm?.data) primaryContact = filerForm.data;
           }
+
+          // Fallback: any contactInfo row for this user/year
+          if (!primaryContact) {
+            const { data: anyForm } = await supabaseService
+              .from('form_data')
+              .select('data')
+              .eq('user_id', user.id)
+              .eq('tax_year', taxYear)
+              .eq('form_type', 'contactInfo')
+              .limit(1);
+            if (anyForm && anyForm.length > 0) primaryContact = anyForm[0].data;
+          }
+
+          // Address fallback: if primary contact lacks full address, find any complete one
+          let addressSource: any = primaryContact;
+          let resolutionSource: 'filer' | 'fallback_filer' | 'profile' | 'none' = primaryContact ? 'filer' : 'none';
+
+          const isComplete = (c: any) => !!(c && c.address && c.postalCode && c.city);
+          if (primaryContact && !isComplete(primaryContact)) {
+            const { data: allContacts } = await supabaseService
+              .from('form_data')
+              .select('data, tax_filer_id')
+              .eq('user_id', user.id)
+              .eq('tax_year', taxYear)
+              .eq('form_type', 'contactInfo');
+            const completeRow = (allContacts || []).find((r: any) => isComplete(r.data));
+            if (completeRow) {
+              addressSource = completeRow.data;
+              resolutionSource = 'fallback_filer';
+            }
+          }
+
+          if (primaryContact) {
+            customerData = {
+              first_name: customerData?.first_name || primaryContact.firstName,
+              last_name: customerData?.last_name || primaryContact.lastName,
+              address: customerData?.address || addressSource?.address || primaryContact.address,
+              postal_code: addressSource?.postalCode || primaryContact.postalCode,
+              city: addressSource?.city || primaryContact.city,
+              phone: customerData?.phone || primaryContact.phone || ''
+            } as any;
+          } else if (customerData?.address) {
+            resolutionSource = 'profile';
+          }
+
+          logStep("Address resolution", {
+            source: resolutionSource,
+            hasFullAddress: !!(customerData && (customerData as any).address && (customerData as any).postal_code && (customerData as any).city),
+            taxFilerId: taxFilerId || null,
+            requestId
+          });
         }
       } catch (dataError) {
         logStep("Error loading customer data", { error: dataError instanceof Error ? dataError.message : 'Unknown error', requestId });
