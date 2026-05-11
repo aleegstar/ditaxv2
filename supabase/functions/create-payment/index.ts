@@ -398,6 +398,8 @@ serve(async (req) => {
             if (customerData.address) {
               updateData.address = {
                 line1: customerData.address,
+                postal_code: (customerData as any).postal_code || undefined,
+                city: (customerData as any).city || undefined,
                 country: 'CH'
               };
             }
