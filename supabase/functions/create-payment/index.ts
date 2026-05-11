@@ -544,15 +544,13 @@ serve(async (req) => {
           ...(promoCodeId && { discounts: [{ promotion_code: promoCodeId }] }), // Auto-apply promo code
         };
 
-        // Configure billing address collection based on available data
-        if (customerData?.address) {
-          // If we have address data, make it auto-filled but allow updates
+        const hasFullAddress = !!(customerData?.address && (customerData as any)?.postal_code && (customerData as any)?.city);
+        if (hasFullAddress) {
           sessionData.billing_address_collection = 'auto';
-          logStep("Billing address collection set to 'auto' - address will be pre-filled", { requestId });
+          logStep("Billing address collection set to 'auto' - full address available", { requestId });
         } else {
-          // If no address data, require it
           sessionData.billing_address_collection = 'required';
-          logStep("Billing address collection set to 'required' - no existing address", { requestId });
+          logStep("Billing address collection set to 'required' - address incomplete", { hasStreet: !!customerData?.address, hasPlz: !!(customerData as any)?.postal_code, hasCity: !!(customerData as any)?.city, requestId });
         }
 
         const session = await stripe.checkout.sessions.create(sessionData);
