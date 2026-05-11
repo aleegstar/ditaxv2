@@ -80,9 +80,11 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
     let statusLines: string[] = []
 
     for (const filer of taxFilers) {
+      const safeFirstName = sanitizePromptInput(String(filer.first_name ?? ''), 80)
+      const safeRelationship = sanitizePromptInput(String(filer.relationship ?? 'Weitere Person'), 80)
       const filerLabel = filer.is_primary
-        ? `${filer.first_name} (Hauptperson)`
-        : `${filer.first_name} (${filer.relationship || 'Weitere Person'})`
+        ? `${safeFirstName} (Hauptperson)`
+        : `${safeFirstName} (${safeRelationship})`
 
       const filerReturns = taxReturns.filter((tr: any) =>
         tr.tax_filer_id === filer.id || (!tr.tax_filer_id && filer.is_primary)
