@@ -15,11 +15,15 @@
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 export const corsHeaders = {
+  // Kept '*' for backwards compatibility with public endpoints.
+  // Sensitive endpoints MUST use `corsHeadersFor(req)` instead, which echoes
+  // only allow-listed origins.
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Max-Age": "86400",
+  "Vary": "Origin",
 };
 
 /** Allowed Origins for state-changing requests (Origin header validation). */
@@ -34,6 +38,17 @@ const ALLOWED_ORIGINS = new Set([
   "ionic://localhost",
   "http://localhost",
 ]);
+
+/**
+ * Hardened CORS headers that echo ONLY an allow-listed origin (never '*').
+ * Use this in every function returning sensitive data (auth, payments,
+ * decrypted documents, admin endpoints, chat).
+ */
+export function corsHeadersFor(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin") ?? "";
+  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : "null";
+  return { ...corsHeaders, "Access-Control-Allow-Origin": allowed };
+}
 
 type AuthOk = {
   ok: true;

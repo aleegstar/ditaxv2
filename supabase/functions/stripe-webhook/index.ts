@@ -81,6 +81,33 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // === BL-02: Atomic idempotency claim BEFORE any side-effects ===
+    // Only the first invocation per event_id is allowed to mutate state.
+    // Replays (Stripe retries, attacker-injected re-deliveries) are short-circuited.
+    const { data: claim, error: claimError } = await supabase.rpc('claim_stripe_event', {
+      p_event_id: event.id,
+      p_event_type: event.type,
+      p_raw_event: event as unknown as Record<string, unknown>,
+    });
+
+    if (claimError) {
+      logStep("Idempotency claim failed", { error: claimError, requestId });
+      return new Response(JSON.stringify({ error: "claim_failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (claim && (claim as any).claimed === false) {
+      logStep("Replay detected — skipping side effects", {
+        eventId: event.id, state: (claim as any).existing_state, requestId,
+      });
+      // Always 200 so Stripe stops retrying.
+      return new Response(JSON.stringify({ received: true, replay: true, eventId: event.id }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Extract common data
     const eventData = event.data.object as any;
     const sessionId = eventData.id || null;
@@ -301,22 +328,24 @@ serve(async (req) => {
         logStep("Unhandled event type", { eventType: event.type, requestId });
     }
 
-    // Store the event in payment_events table
-    const { error: insertError } = await supabase
-      .from('payment_events')
-      .insert(paymentEvent);
-
-    if (insertError) {
-      logStep("Error storing payment event", { error: insertError, requestId });
-    } else {
-      logStep("Payment event stored", { eventId: event.id, requestId });
+    // Persist enriched fields onto the already-claimed event row & mark processed.
+    const { error: finalizeError } = await supabase.rpc('mark_stripe_event_processed', {
+      p_event_id: event.id,
+      p_patch: {
+        session_id: paymentEvent.session_id,
+        payment_intent_id: paymentEvent.payment_intent_id,
+        customer_id: paymentEvent.customer_id,
+        user_id: paymentEvent.user_id,
+        tax_return_id: paymentEvent.tax_return_id,
+        status: paymentEvent.status ?? null,
+        amount: paymentEvent.amount ?? null,
+        currency: paymentEvent.currency ?? null,
+        payment_method: paymentEvent.payment_method ?? null,
+      },
+    });
+    if (finalizeError) {
+      logStep("Failed to finalize event", { error: finalizeError, requestId });
     }
-
-    // Mark event as processed
-    await supabase
-      .from('payment_events')
-      .update({ processed: true })
-      .eq('event_id', event.id);
 
     return new Response(JSON.stringify({ received: true, eventId: event.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -328,7 +357,22 @@ serve(async (req) => {
       stack: error instanceof Error ? error.stack : undefined,
       requestId 
     });
-    
+
+    // Best-effort: flag the event as failed so SIEM can alert.
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (supabaseUrl && supabaseServiceKey) {
+        const sb = createClient(supabaseUrl, supabaseServiceKey);
+        // event may be undefined if signature verification failed
+        // @ts-ignore - event is in outer scope when reachable
+        if (typeof event !== 'undefined' && event?.id) {
+          // @ts-ignore
+          await sb.rpc('mark_stripe_event_failed', { p_event_id: event.id, p_reason: error instanceof Error ? error.message : 'unknown' });
+        }
+      }
+    } catch (_) { /* swallow */ }
+
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error',
       requestId 
