@@ -1,29 +1,22 @@
 /**
- * Malware Scanning Edge Function
- * 
- * PHASE 1 CRITICAL FIX: Scan uploaded files for malware
- * 
- * REQUIREMENTS:
- * 1. ClamAV service running (Docker or cloud service)
- * 2. CLAMAV_SERVICE_URL environment variable
- * 3. Quarantine bucket configured in Supabase Storage
- * 
- * See SECURITY_IMPLEMENTATION.md for setup instructions
+ * Malware Scanning & Upload Validation Edge Function
+ *
+ * Hardening layers (fail-closed throughout):
+ *  1. Auth gate via shared requireAuth() (Origin + Bearer JWT)
+ *  2. Size + magic-byte + MIME-mismatch + polyglot + active-PDF checks
+ *  3. ClamAV remote scan with timeout + retry; rejects on any error
+ *  4. Quarantine on infection + immutable audit log
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { requireAuth, corsHeaders, preflight } from "../_shared/auth.ts";
+import { validateFileBlob, MAX_FILE_BYTES } from "../_shared/file-validation.ts";
 
 interface ScanRequest {
   filePath: string;
   bucket: string;
-  userId: string;
   documentId: string;
+  declaredMime?: string;
 }
 
 interface ScanResult {
@@ -32,205 +25,149 @@ interface ScanResult {
   scanTime: number;
 }
 
+const CLAMAV_TIMEOUT_MS = 30_000;
+const CLAMAV_RETRIES = 2;
+
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  const pf = preflight(req);
+  if (pf) return pf;
 
+  const auth = await requireAuth(req);
+  if (!auth.ok) return auth.response;
+  const { userId, supabaseAdmin } = auth;
+
+  let body: ScanRequest;
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Missing authorization header');
-    }
-
-    // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    );
-
-    // Verify user
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
-
-    // Get request body
-    const { filePath, bucket, userId, documentId }: ScanRequest = await req.json();
-
-    console.log(`🔍 Scanning file: ${filePath} for user: ${userId}`);
-
-    // Create admin client for storage operations
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Download file from storage
-    const { data: fileData, error: downloadError } = await supabaseAdmin.storage
-      .from(bucket)
-      .download(filePath);
-
-    if (downloadError || !fileData) {
-      throw new Error(`Failed to download file: ${downloadError?.message}`);
-    }
-
-    console.log(`📥 Downloaded file (${fileData.size} bytes)`);
-
-    // Scan with ClamAV
-    const scanResult = await scanWithClamAV(fileData);
-
-    if (scanResult.infected) {
-      console.error(`🦠 MALWARE DETECTED: ${scanResult.virusName}`);
-
-      // Move to quarantine
-      const quarantinePath = `infected/${userId}/${Date.now()}_${filePath.split('/').pop()}`;
-      await supabaseAdmin.storage
-        .from('quarantine')
-        .upload(quarantinePath, fileData);
-
-      // Delete from original bucket
-      await supabaseAdmin.storage
-        .from(bucket)
-        .remove([filePath]);
-
-      // Mark document as infected in database
-      await supabaseAdmin
-        .from('uploaded_documents')
-        .update({ 
-          status: 'quarantined',
-          metadata: { 
-            infected: true,
-            virus_name: scanResult.virusName,
-            quarantine_path: quarantinePath
-          }
-        })
-        .eq('id', documentId);
-
-      // Log security event
-      await supabaseAdmin
-        .from('security_audit_logs')
-        .insert({
-          user_id: userId,
-          action: 'MALWARE_DETECTED',
-          resource: filePath,
-          success: false,
-          error_message: `Virus detected: ${scanResult.virusName}`,
-          metadata: {
-            virus_name: scanResult.virusName,
-            file_path: filePath,
-            quarantine_path: quarantinePath
-          }
-        });
-
-      return new Response(
-        JSON.stringify({
-          status: 'infected',
-          virus: scanResult.virusName,
-          message: 'Datei wurde unter Quarantäne gestellt'
-        }),
-        { 
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    console.log(`✅ File clean: ${filePath}`);
-
-    // Log successful scan
-    await supabaseAdmin
-      .from('security_audit_logs')
-      .insert({
-        user_id: userId,
-        action: 'FILE_SCAN_CLEAN',
-        resource: filePath,
-        success: true,
-        metadata: {
-          scan_time: scanResult.scanTime
-        }
-      });
-
-    return new Response(
-      JSON.stringify({
-        status: 'clean',
-        scanTime: scanResult.scanTime
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
-
-  } catch (error) {
-    console.error('Scan error:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    body = await req.json();
+  } catch {
+    return json({ error: "invalid_json" }, 400);
   }
+  const { filePath, bucket, documentId, declaredMime } = body ?? {};
+  if (!filePath || !bucket || !documentId) {
+    return json({ error: "missing_fields" }, 400);
+  }
+
+  // Defense: paths must be scoped to the calling user's folder.
+  const pathOwner = filePath.split("/")[0];
+  if (pathOwner !== userId) {
+    await audit(supabaseAdmin, userId, "SCAN_PATH_OWNERSHIP_VIOLATION", filePath, false);
+    return json({ error: "path_ownership_violation" }, 403);
+  }
+
+  // 1) Download
+  const { data: fileData, error: downloadError } = await supabaseAdmin
+    .storage.from(bucket).download(filePath);
+  if (downloadError || !fileData) {
+    return json({ error: "download_failed", detail: downloadError?.message }, 404);
+  }
+  if (fileData.size > MAX_FILE_BYTES) {
+    await quarantine(supabaseAdmin, userId, bucket, filePath, fileData, "oversize");
+    return json({ error: "file_too_large" }, 413);
+  }
+
+  // 2) Static validation (magic bytes / MIME / polyglot / active-PDF)
+  const v = await validateFileBlob(fileData, declaredMime);
+  if (!v.ok) {
+    await quarantine(supabaseAdmin, userId, bucket, filePath, fileData, v.reason ?? "static_validation");
+    await markDocument(supabaseAdmin, documentId, "rejected", { reason: v.reason });
+    return json({ status: "rejected", reason: v.reason }, 415);
+  }
+
+  // 3) Remote AV scan (fail-closed)
+  let scan: ScanResult;
+  try {
+    scan = await scanWithClamAVHardened(fileData);
+  } catch (e) {
+    await audit(supabaseAdmin, userId, "SCANNER_UNAVAILABLE", filePath, false,
+      e instanceof Error ? e.message : String(e));
+    return json({ error: "scanner_unavailable" }, 503);
+  }
+
+  if (scan.infected) {
+    await quarantine(supabaseAdmin, userId, bucket, filePath, fileData,
+      `infected:${scan.virusName ?? "unknown"}`);
+    await markDocument(supabaseAdmin, documentId, "quarantined", {
+      infected: true, virus_name: scan.virusName,
+    });
+    await audit(supabaseAdmin, userId, "MALWARE_DETECTED", filePath, false,
+      `Virus: ${scan.virusName}`);
+    return json({ status: "infected", virus: scan.virusName,
+      message: "Datei wurde unter Quarantäne gestellt" }, 403);
+  }
+
+  await audit(supabaseAdmin, userId, "FILE_SCAN_CLEAN", filePath, true, undefined, {
+    scan_time: scan.scanTime, real_mime: v.realMime,
+  });
+  return json({ status: "clean", scanTime: scan.scanTime, realMime: v.realMime });
 });
 
-/**
- * Scan file with ClamAV service
- * 
- * SETUP REQUIRED:
- * 1. Deploy ClamAV Docker container or use cloud service
- * 2. Set CLAMAV_SERVICE_URL environment variable
- */
-async function scanWithClamAV(fileBuffer: Blob): Promise<ScanResult> {
-  const clamavUrl = Deno.env.get('CLAMAV_SERVICE_URL');
+// ---- helpers ----
 
-  if (!clamavUrl) {
-    // SECURITY: fail-closed. Never allow uploads when the malware scanner is
-    // not configured — silently skipping would let stored malware reach admins.
-    console.error('❌ CLAMAV_SERVICE_URL not configured — rejecting upload (fail-closed)');
-    throw new Error('Malware scanning service unavailable');
-    // Unreachable, kept for type compatibility
-    return {
-      infected: false,
-      scanTime: 0
-    };
-  }
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
-  const startTime = Date.now();
+async function audit(
+  admin: any, userId: string, action: string, resource: string,
+  success: boolean, errorMessage?: string, metadata?: Record<string, unknown>,
+) {
+  await admin.from("security_audit_logs").insert({
+    user_id: userId, action, resource, success,
+    error_message: errorMessage, metadata,
+  });
+}
 
+async function markDocument(admin: any, documentId: string, status: string, metadata: Record<string, unknown>) {
+  await admin.from("uploaded_documents").update({ status, metadata }).eq("id", documentId);
+}
+
+async function quarantine(
+  admin: any, userId: string, bucket: string, filePath: string,
+  data: Blob, reason: string,
+) {
+  const qPath = `infected/${userId}/${Date.now()}_${filePath.split("/").pop()}`;
   try {
-    const response = await fetch(`${clamavUrl}/scan`, {
-      method: 'POST',
-      body: fileBuffer,
-      headers: {
-        'Content-Type': 'application/octet-stream'
-      }
+    await admin.storage.from("quarantine").upload(qPath, data, {
+      contentType: "application/octet-stream", upsert: false,
     });
-
-    if (!response.ok) {
-      throw new Error(`ClamAV scan failed: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    const scanTime = Date.now() - startTime;
-
-    return {
-      infected: result.infected === true,
-      virusName: result.virus_name,
-      scanTime
-    };
-
-  } catch (error) {
-    console.error('ClamAV connection error:', error);
-    // In production, fail secure (reject upload)
-    throw new Error('Malware scanning service unavailable');
+  } catch (e) {
+    console.error("Quarantine upload failed:", e);
   }
+  await admin.storage.from(bucket).remove([filePath]);
+  await audit(admin, userId, "FILE_QUARANTINED", filePath, false, reason, {
+    quarantine_path: qPath, reason,
+  });
+}
+
+async function scanWithClamAVHardened(blob: Blob): Promise<ScanResult> {
+  const clamavUrl = Deno.env.get("CLAMAV_SERVICE_URL");
+  if (!clamavUrl) throw new Error("CLAMAV_SERVICE_URL not configured");
+
+  const start = Date.now();
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= CLAMAV_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), CLAMAV_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${clamavUrl}/scan`, {
+        method: "POST", body: blob, signal: controller.signal,
+        headers: { "Content-Type": "application/octet-stream" },
+      });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`scanner_http_${res.status}`);
+      const r = await res.json();
+      return {
+        infected: r.infected === true,
+        virusName: r.virus_name,
+        scanTime: Date.now() - start,
+      };
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = e;
+      if (attempt < CLAMAV_RETRIES) await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+    }
+  }
+  throw new Error(`scanner_failed: ${lastErr instanceof Error ? lastErr.message : "unknown"}`);
 }
