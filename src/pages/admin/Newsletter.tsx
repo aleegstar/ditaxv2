@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Mail, Send, Users, Clock, CheckCircle2, XCircle, RefreshCw, FlaskConical } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -37,6 +37,33 @@ export default function Newsletter() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+
+  const handleSendTest = async () => {
+    if (!subject.trim() || !htmlContent.trim()) {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Betreff und Inhalt sind erforderlich.' });
+      return;
+    }
+    if (!testEmail.trim()) {
+      toast({ variant: 'destructive', title: 'Fehler', description: 'Test-E-Mail-Adresse erforderlich.' });
+      return;
+    }
+    setSendingTest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-newsletter-test', {
+        body: { subject: subject.trim(), html_content: htmlContent.trim(), test_email: testEmail.trim() },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: 'Test-E-Mail versendet', description: `Gesendet an ${data.recipient}` });
+    } catch (err: any) {
+      console.error('Test send error:', err);
+      toast({ variant: 'destructive', title: 'Fehler', description: err.message || 'Test-E-Mail konnte nicht versendet werden.' });
+    } finally {
+      setSendingTest(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -173,6 +200,36 @@ export default function Newsletter() {
             rows={10}
             className="bg-white/50 border-border/40 font-mono text-[13px]"
           />
+        </div>
+
+        {/* Test send */}
+        <div className="rounded-xl border border-dashed border-border/60 bg-white/40 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <FlaskConical className="h-3.5 w-3.5 text-muted-foreground/70" strokeWidth={1.8} />
+            <span className="text-[12px] font-medium text-foreground">Test-E-Mail</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Sende eine Vorschau an eine beliebige E-Mail-Adresse, um die Darstellung zu prüfen. Es werden keine Abonnenten benachrichtigt.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Input
+              type="email"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              placeholder="test@example.com"
+              className="bg-white/50 border-border/40 flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSendTest}
+              disabled={!subject.trim() || !htmlContent.trim() || !testEmail.trim() || sendingTest}
+              className="rounded-full gap-2"
+            >
+              {sendingTest ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+              {sendingTest ? 'Wird gesendet...' : 'Test senden'}
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between pt-2">
