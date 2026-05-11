@@ -323,6 +323,7 @@ const Admin: React.FC = () => {
           <Route path="ocr-config" element={<OcrDocumentConfigManager />} />
           <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
           <Route path="newsletter" element={<Newsletter />} />
+          <Route path="promo-codes" element={<PromoCodes />} />
           </Routes>
           </div>
         </div>
