@@ -343,9 +343,11 @@ serve(async (req) => {
               first_name: customerData?.first_name || contactInfo.firstName,
               last_name: customerData?.last_name || contactInfo.lastName,
               address: customerData?.address || contactInfo.address,
+              postal_code: contactInfo.postalCode,
+              city: contactInfo.city,
               phone: customerData?.phone || contactInfo.phone || ''
-            };
-            logStep("Form data loaded and merged", { hasData: !!customerData, requestId });
+            } as any;
+            logStep("Form data loaded and merged", { hasData: !!customerData, hasFullAddress: !!(contactInfo.address && contactInfo.postalCode && contactInfo.city), requestId });
           }
         }
       } catch (dataError) {
@@ -396,6 +398,8 @@ serve(async (req) => {
             if (customerData.address) {
               updateData.address = {
                 line1: customerData.address,
+                postal_code: (customerData as any).postal_code || undefined,
+                city: (customerData as any).city || undefined,
                 country: 'CH'
               };
             }
@@ -426,6 +430,8 @@ serve(async (req) => {
             if (customerData.address) {
               newCustomerData.address = {
                 line1: customerData.address,
+                postal_code: (customerData as any).postal_code || undefined,
+                city: (customerData as any).city || undefined,
                 country: 'CH'
               };
             }
@@ -538,15 +544,13 @@ serve(async (req) => {
           ...(promoCodeId && { discounts: [{ promotion_code: promoCodeId }] }), // Auto-apply promo code
         };
 
-        // Configure billing address collection based on available data
-        if (customerData?.address) {
-          // If we have address data, make it auto-filled but allow updates
+        const hasFullAddress = !!(customerData?.address && (customerData as any)?.postal_code && (customerData as any)?.city);
+        if (hasFullAddress) {
           sessionData.billing_address_collection = 'auto';
-          logStep("Billing address collection set to 'auto' - address will be pre-filled", { requestId });
+          logStep("Billing address collection set to 'auto' - full address available", { requestId });
         } else {
-          // If no address data, require it
           sessionData.billing_address_collection = 'required';
-          logStep("Billing address collection set to 'required' - no existing address", { requestId });
+          logStep("Billing address collection set to 'required' - address incomplete", { hasStreet: !!customerData?.address, hasPlz: !!(customerData as any)?.postal_code, hasCity: !!(customerData as any)?.city, requestId });
         }
 
         const session = await stripe.checkout.sessions.create(sessionData);
