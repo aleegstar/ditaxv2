@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from 'https://deno.land/x/zod@v3.23.8/mod.ts'
+import { sanitizePromptInput, sanitizeMarkdownOutput, SAFETY_SYSTEM_ANCHOR } from '../_shared/ai-safety.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -79,9 +80,11 @@ async function loadUserStatusContext(supabase: any, userId: string): Promise<str
     let statusLines: string[] = []
 
     for (const filer of taxFilers) {
+      const safeFirstName = sanitizePromptInput(String(filer.first_name ?? ''), 80)
+      const safeRelationship = sanitizePromptInput(String(filer.relationship ?? 'Weitere Person'), 80)
       const filerLabel = filer.is_primary
-        ? `${filer.first_name} (Hauptperson)`
-        : `${filer.first_name} (${filer.relationship || 'Weitere Person'})`
+        ? `${safeFirstName} (Hauptperson)`
+        : `${safeFirstName} (${safeRelationship})`
 
       const filerReturns = taxReturns.filter((tr: any) =>
         tr.tax_filer_id === filer.id || (!tr.tax_filer_id && filer.is_primary)
@@ -382,8 +385,9 @@ serve(async (req) => {
     // Build conversation context for OpenAI
     const conversationHistory = recentMessages?.reverse().map(msg => ({
       role: msg.chat_type === 'bot' ? 'assistant' : 'user',
-      content: msg.content || ''
+      content: sanitizePromptInput(msg.content || '', 4000)
     })) || []
+    const safeUserMessage = sanitizePromptInput(message, 5000)
 
     // System prompt for the Ditax assistant bot
     const systemPrompt = `Du bist der KI-Assistent von Ditax, der digitalen Steuerplattform für die Schweiz.
@@ -492,9 +496,9 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: `${SAFETY_SYSTEM_ANCHOR}\n\n${systemPrompt}` },
           ...conversationHistory,
-          { role: 'user', content: message }
+          { role: 'user', content: `<user_content>\n${safeUserMessage}\n</user_content>` }
         ],
         max_tokens: 700,
         temperature: 0.7,
@@ -508,7 +512,8 @@ WICHTIG: Falls der Chat zuvor eskaliert war und nun wieder an dich zurückgegebe
     }
 
     const openaiData = await openaiResponse.json()
-    const botResponse = openaiData.choices[0]?.message?.content || 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte versuchen Sie es erneut.'
+    const rawBotResponse = openaiData.choices[0]?.message?.content || 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte versuchen Sie es erneut.'
+    const botResponse = sanitizeMarkdownOutput(rawBotResponse)
 
     console.log('OpenAI response received:', botResponse.substring(0, 100) + '...')
 

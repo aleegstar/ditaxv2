@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { sanitizePromptInput } from "../_shared/ai-safety.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -109,7 +110,12 @@ serve(async (req) => {
     }
 
     // Prepare the prompt - only extract specific keywords, never return full text
-    const keywordList = keywords.slice(0, 50).join(', '); // Max 50 keywords
+    const safeKeywords = (keywords as unknown[])
+      .filter((k): k is string => typeof k === 'string')
+      .map(k => sanitizePromptInput(k, 50).replace(/[^\p{L}\p{N}\s\-_.]/gu, '').trim())
+      .filter(k => k.length > 0 && k.length <= 50)
+      .slice(0, 50);
+    const keywordList = safeKeywords.join(', '); // Max 50 keywords, sanitized
     const systemPrompt = `Du bist ein Dokumenten-Scanner. Analysiere das Bild und finde NUR folgende Begriffe:
 ${keywordList}
 
