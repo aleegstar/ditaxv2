@@ -83,7 +83,7 @@ export function wrapNewsletterHtml({
                 ${safeSubject}
               </h2>
               <div style="color:#52525b;font-size:16px;line-height:1.65;">
-                ${bodyHtml}
+                ${renderBody(bodyHtml)}
               </div>
             </td>
           </tr>
@@ -123,3 +123,40 @@ function escapeHtml(input: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+// Wenn der Admin reinen Text eingibt, in Absätze + <br /> umwandeln.
+// Wenn bereits HTML (Block-Tags) drin ist, unverändert lassen.
+function renderBody(input: string): string {
+  const trimmed = (input ?? "").trim();
+  if (!trimmed) return "";
+
+  const hasBlockHtml = /<\s*(p|div|br|h[1-6]|ul|ol|li|table|section|article|blockquote)\b/i.test(trimmed);
+  if (hasBlockHtml) return trimmed;
+
+  // Normalize line endings, escape HTML, dann in Absätze splitten.
+  const normalized = trimmed.replace(/\r\n?/g, "\n");
+  const escaped = escapeHtml(normalized);
+
+  const paragraphs = escaped
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+
+  return paragraphs
+    .map((p, idx) => {
+      const withBr = p.replace(/\n/g, "<br />");
+      const withLinks = autoLink(withBr);
+      const isLast = idx === paragraphs.length - 1;
+      const margin = isLast ? "0" : "0 0 16px 0";
+      return `<p style="margin:${margin};color:#52525b;font-size:16px;line-height:1.65;">${withLinks}</p>`;
+    })
+    .join("");
+}
+
+function autoLink(text: string): string {
+  return text.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" style="color:#1D64FF;text-decoration:underline;">$1</a>',
+  );
+}
+
