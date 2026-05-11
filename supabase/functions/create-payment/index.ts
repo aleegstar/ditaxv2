@@ -214,8 +214,6 @@ serve(async (req) => {
 
       const { 
         taxYear, 
-        amount, 
-        items, 
         expressService, 
         taxReturnId,
         taxFilerId,
@@ -224,6 +222,30 @@ serve(async (req) => {
         promoCodeId,
         isDespia
       } = validatedRequest;
+      let amount = validatedRequest.amount;
+      let items = validatedRequest.items;
+
+      // Aktionswoche 11.05.–17.05.2026 (Europe/Zurich, CEST = UTC+2):
+      // pauschal CHF 100 + Express CHF 20. Serverseitig erzwungen, damit
+      // Client-Manipulation den Aktionspreis nicht umgehen kann.
+      const PROMO_WEEK_START_UTC = Date.UTC(2026, 4, 10, 22, 0, 0);
+      const PROMO_WEEK_END_UTC = Date.UTC(2026, 4, 17, 21, 59, 59);
+      const nowMs = Date.now();
+      const promoWeekActive = nowMs >= PROMO_WEEK_START_UTC && nowMs <= PROMO_WEEK_END_UTC;
+      if (promoWeekActive) {
+        const PROMO_BASE = 10000;
+        const PROMO_EXPRESS = 2000;
+        const enforced = PROMO_BASE + (expressService ? PROMO_EXPRESS : 0);
+        if (amount !== enforced) {
+          logStep("Promo week price enforced", { sent: amount, enforced, expressService, requestId });
+        }
+        amount = enforced;
+        items = [
+          { label: "Steuererklärung (Aktionswoche)", amount: PROMO_BASE },
+          ...(expressService ? [{ label: "Express-Service (Aktionswoche)", amount: PROMO_EXPRESS }] : []),
+        ];
+      }
+
       
       // Check minimum amount for TWINT (CHF 5.00 = 500 cents)
       const TWINT_MIN_AMOUNT = 500;
