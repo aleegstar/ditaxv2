@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import yesNoIllustration from '@/assets/yesno-illustration.webp';
+import yesNoBgVideo from '@/assets/yesno-bg.mp4';
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
