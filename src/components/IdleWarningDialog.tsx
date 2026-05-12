@@ -6,8 +6,8 @@ import {
   DrawerDescription,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Clock } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
+import idleShield from '@/assets/idle-shield.webp';
 
 interface IdleWarningDialogProps {
   isOpen: boolean;
