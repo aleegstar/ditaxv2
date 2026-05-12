@@ -149,6 +149,35 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           })}
         </div>
       </main>
+
+      <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <img
+              src={completeIllustration}
+              alt=""
+              className="w-28 h-28 object-contain mx-auto mb-2"
+            />
+            <DrawerTitle className="text-xl font-bold text-foreground">
+              Alle Angaben vollständig!
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
+              Du hast alle persönlichen Angaben erfasst. Möchtest du jetzt mit deinen Unterlagen fortfahren?
+            </DrawerDescription>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Button className="w-full" onClick={handleGoToDocuments} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
+              <FileText className="w-5 h-5" />
+              Ja, weiter zu Unterlagen
+            </Button>
+            <Button variant="secondary" className="w-full" onClick={handleLater} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
+              <Clock className="w-5 h-5" />
+              Später
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
