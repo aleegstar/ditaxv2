@@ -652,6 +652,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
                 question={currentQuestion}
                 answer={formState.answers[currentQuestion.id]}
                 onAnswer={handleAnswer}
+                section={section}
               />
             )}
           </div>
