@@ -102,7 +102,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           aria-hidden="true"
         />
         {/* Readability overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-card/90 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-card/30 to-card/90 pointer-events-none" />
 
         {/* Subtle Swipe Indicators */}
         <motion.div
@@ -122,7 +122,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           </span>
         </motion.div>
 
-        <div className="relative z-10 mt-auto">
+        <div className="relative z-10 mb-auto">
 
         {/* Question Content */}
         <div className="text-center">
