@@ -37,7 +37,7 @@ export const PageTransition = ({ children, className }: PageTransitionProps) => 
         variants={pageVariants}
         transition={pageTransition}
         className={className}
-        style={{ willChange: 'opacity, transform' }}
+        style={{ willChange: 'opacity' }}
       >
         {children}
       </motion.div>
