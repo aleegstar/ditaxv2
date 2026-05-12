@@ -1,6 +1,6 @@
 
 import React from 'react';
-import employerEmptyImg from '@/assets/employer-empty.png';
+import employerEmptyImg from '@/assets/employer-empty.webp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
