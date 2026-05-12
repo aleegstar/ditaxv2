@@ -163,7 +163,7 @@ export const getDeductionsQuestions = (t: Translation): QuestionConfig => ({
 });
 
 export const getQuestionsForSection = (
-  section: 'income' | 'assets' | 'deductions',
+  section: 'income' | 'assets' | 'deductions' | 'contact',
   t: Translation
 ): QuestionConfig => {
   switch (section) {
@@ -173,6 +173,8 @@ export const getQuestionsForSection = (
       return getAssetsQuestions(t);
     case 'deductions':
       return getDeductionsQuestions(t);
+    case 'contact':
+      return { section: 'contact', questions: [] } as any;
     default:
       throw new Error(`Unknown section: ${section}`);
   }

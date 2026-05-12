@@ -18,7 +18,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { ShieldCheck } from 'lucide-react';
 
 interface MultiStepYesNoFormProps {
-  section: 'income' | 'assets' | 'deductions';
+  section: 'income' | 'assets' | 'deductions' | 'contact';
   onComplete: () => void;
   onModeSwitch: () => void;
 }
@@ -117,7 +117,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [section]);
 
-  const questionsConfig = getQuestionsForSection(section, t);
+  const questionsConfig = getQuestionsForSection(section as any, t);
   const questions = questionsConfig.questions;
 
   // Lazy initial state derivation — uses formProgress/formData synchronously
@@ -198,7 +198,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       return;
     }
     
-    updateQuestionProgress(section, formState.currentQuestionIndex);
+    updateQuestionProgress(section as any, formState.currentQuestionIndex);
   }, [formState.currentQuestionIndex, section, updateQuestionProgress, viewState.isEditing, viewState.showSummary, formProgress]);
 
 // Define function at module level to avoid TDZ issues
@@ -257,9 +257,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
       // Save the answer (async, non-blocking for UI)
       try {
-        const sectionData = { ...formData[section], [qid]: answer };
-        updateFormData(section, sectionData);
-        await saveSection(section, sectionData);
+        const sectionData = { ...formData[section as any], [qid]: answer };
+        updateFormData(section as any, sectionData);
+        await saveSection(section as any, sectionData);
       } catch (saveError) {
         console.error('Error saving answer:', saveError);
       }
@@ -363,9 +363,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         
         if (dataKey && repeaterData.length > 0) {
           try {
-            const sectionData = { ...formData[section], [dataKey]: repeaterData };
-            updateFormData(section, sectionData);
-            await saveSection(section, sectionData);
+            const sectionData = { ...formData[section as any], [dataKey]: repeaterData };
+            updateFormData(section as any, sectionData);
+            await saveSection(section as any, sectionData);
           } catch (saveError) {
             console.error('Error saving repeater data:', saveError);
           }
@@ -404,13 +404,13 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           });
 
           // Update local state first
-          updateFormData(section, sectionData);
+          updateFormData(section as any, sectionData);
           
           // Save to database
-          await saveSection(section, sectionData);
+          await saveSection(section as any, sectionData);
           
           // Mark section as complete in progress
-          updateFormProgress(section, true);
+          updateFormProgress(section as any, true);
 
           // Navigate back to personal info overview
           navigate(`/personal-info?year=${taxYear}`);
@@ -487,6 +487,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         return 'Vermögen';
       case 'deductions':
         return 'Abzüge';
+      case 'contact':
+        return 'Kontakt';
       default:
         return section;
     }
