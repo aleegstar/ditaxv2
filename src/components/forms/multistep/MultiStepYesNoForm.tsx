@@ -177,6 +177,18 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section]);
 
+  // Re-sync summary view once form data finishes loading (e.g. on direct navigation
+  // to an already-completed section). Only flips to "show summary" — never hides it
+  // mid-edit.
+  useEffect(() => {
+    if (!formDataLoaded) return;
+    if (formProgress?.[section] && !viewState.isEditing && !viewState.showSummary) {
+      setFormState(buildInitialFormState());
+      dispatchViewState({ type: 'SET_SUMMARY', show: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formDataLoaded, formProgress, section]);
+
   // (Initial data + position are derived synchronously via lazy useState/useReducer above.)
 
   // Effect to handle progress updates - only on actual question changes, not during editing or summary
