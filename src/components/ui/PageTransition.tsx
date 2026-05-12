@@ -10,18 +10,24 @@ interface PageTransitionProps {
 const pageVariants = {
   initial: {
     opacity: 0,
+    y: 6,
+    scale: 0.995,
   },
   animate: {
     opacity: 1,
+    y: 0,
+    scale: 1,
   },
   exit: {
     opacity: 0,
+    y: -4,
+    scale: 0.995,
   },
 };
 
 const pageTransition = {
-  duration: 0.15,
-  ease: 'easeOut' as const,
+  duration: 0.22,
+  ease: [0.22, 0.61, 0.36, 1] as const, // easeOutCubic — quick + smooth
 };
 
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
@@ -37,6 +43,7 @@ export const PageTransition = ({ children, className }: PageTransitionProps) => 
         variants={pageVariants}
         transition={pageTransition}
         className={className}
+        style={{ willChange: 'opacity, transform' }}
       >
         {children}
       </motion.div>
