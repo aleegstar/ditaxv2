@@ -91,7 +91,7 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
         dragElastic={0.55}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.01 }}
-        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-6 pt-[260px] pb-8"
+        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-6 pt-[220px] pb-16"
       >
         <div className="mb-auto">
           <div className="text-center">
