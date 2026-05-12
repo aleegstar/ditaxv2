@@ -180,10 +180,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
               <FileText className="w-5 h-5" />
               Ja, weiter zu Unterlagen
             </Button>
-            <Button variant="secondary" className="w-full" onClick={handleLater} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-              <Clock className="w-5 h-5" />
-              Später
-            </Button>
           </div>
         </DrawerContent>
       </Drawer>
