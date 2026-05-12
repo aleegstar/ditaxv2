@@ -29,32 +29,32 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     position: 'bottom'
   },
   {
-    id: 'add-year',
+    id: 'year-selector',
     titleKey: 'addYearTitle',
     descriptionKey: 'addYearDescription',
-    targetElement: '[data-tour="quick-add-year"]',
+    targetElement: '[data-tour="year-selector"]',
+    position: 'bottom'
+  },
+  {
+    id: 'continue-card',
+    titleKey: 'continueCardTitle',
+    descriptionKey: 'continueCardDescription',
+    targetElement: '[data-tour="form-step-1"]',
+    position: 'bottom'
+  },
+  {
+    id: 'documents',
+    titleKey: 'documentsTitle',
+    descriptionKey: 'documentsDescription',
+    targetElement: '[data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
     position: 'top'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
-    targetElement: '[data-tour="floating-chat-button"]',
+    targetElement: '[data-tour="bottom-nav-chat"]',
     position: 'top'
-  },
-  {
-    id: 'documents',
-    titleKey: 'documentsTitle',
-    descriptionKey: 'documentsDescription',
-    targetElement: '[data-tour="floating-document-button"]',
-    position: 'top'
-  },
-  {
-    id: 'continue-card',
-    titleKey: 'continueCardTitle',
-    descriptionKey: 'continueCardDescription',
-    targetElement: '[data-tour="tax-year-card"]',
-    position: 'bottom'
   }
 ];
 
@@ -119,16 +119,11 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({ onComplete, onSk
       }
       
       const fallbackSelectors = [
-        '[data-tour="quick-add-year"]',
-        '[data-tour="floating-chat-button"]',
-        '[data-tour="add-year"]',
-        '.year-dropdown-button',
-        '[data-tour="floating-document-button"]',
-        '[data-tour="chat-header-icon"]',
-        '[data-tour="tax-year-card"]',
-        '.blue-tax-year-card',
-        '.continue-tax-card',
-        '.card'
+        '[data-tour="year-selector"]',
+        '[data-tour="form-step-1"]',
+        '[data-tour="bottom-nav-documents"]',
+        '[data-tour="documents-nav"]',
+        '[data-tour="bottom-nav-chat"]',
       ];
       
       for (const fb of fallbackSelectors) {

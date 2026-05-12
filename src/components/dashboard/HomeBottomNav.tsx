@@ -225,10 +225,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   onMenuClick,
   activeTab = 'home',
 }) => {
-  const tabs: { key: TabKey; label: string; icon: React.ComponentType<any>; activeIcon: React.ComponentType<any>; onClick: () => void }[] = [
+  const tabs: { key: TabKey; label: string; icon: React.ComponentType<any>; activeIcon: React.ComponentType<any>; onClick: () => void; tourId?: string }[] = [
     { key: 'home', label: 'Steuern', icon: HomeOutlineIcon, activeIcon: HomeSolidIcon, onClick: () => onActionClick?.() },
-    { key: 'documents', label: 'Dokumente', icon: FolderOutlineIcon, activeIcon: FolderSolidIcon, onClick: onDocumentsClick },
-    { key: 'chat', label: 'Chat', icon: ChatOutlineIcon, activeIcon: ChatSolidIcon, onClick: onChatClick },
+    { key: 'documents', label: 'Dokumente', icon: FolderOutlineIcon, activeIcon: FolderSolidIcon, onClick: onDocumentsClick, tourId: 'bottom-nav-documents' },
+    { key: 'chat', label: 'Chat', icon: ChatOutlineIcon, activeIcon: ChatSolidIcon, onClick: onChatClick, tourId: 'bottom-nav-chat' },
   ];
 
   const active: TabKey = (activeTab as TabKey) ?? 'home';
@@ -247,6 +247,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
               <button
                 key={tab.key}
                 onClick={tab.onClick}
+                data-tour={tab.tourId}
                 aria-label={tab.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
