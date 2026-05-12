@@ -79,11 +79,16 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const closeSheet = useCallback(() => setShowCompleteSheet(false), []);
   const handleGoToDocuments = () => {
     setShowCompleteSheet(false);
-    navigate(`/form?section=unterlagen&year=${taxYear}`);
+    // Wait for Drawer close animation to release body pointer-events
+    setTimeout(() => {
+      navigate(`/form?section=unterlagen&year=${taxYear}`);
+    }, 250);
   };
   const handleLater = () => {
     setShowCompleteSheet(false);
-    navigate(`/?year=${taxYear}`);
+    setTimeout(() => {
+      navigate(`/?year=${taxYear}`);
+    }, 250);
   };
 
   if (isDataLoading || !formDataLoaded) return null;
