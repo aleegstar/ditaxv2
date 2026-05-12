@@ -218,7 +218,7 @@ const AuthenticatedApp = () => {
 
   // Show loading while checking onboarding status or while redirect is pending (prevents flash of "Benutzer")
   if (!onboardingChecked || needsOnboarding) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner fullScreen delay={0} />;
   }
 
   return (
