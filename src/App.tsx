@@ -232,7 +232,7 @@ const AuthenticatedApp = () => {
               <PageTransition>
               <TaxFilerGate>
               <AppShell>
-              <Routes>
+              <Routes location={location}>
                 <Route path="/" element={<ProtectedRoute><UserTaxReturns /></ProtectedRoute>} />
                 <Route path="/select-person" element={<ProtectedRoute><SelectPerson /></ProtectedRoute>} />
                 <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
