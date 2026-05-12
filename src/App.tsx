@@ -218,7 +218,7 @@ const AuthenticatedApp = () => {
 
   // Show loading while checking onboarding status or while redirect is pending (prevents flash of "Benutzer")
   if (!onboardingChecked || needsOnboarding) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner fullScreen delay={0} />;
   }
 
   return (
@@ -228,7 +228,7 @@ const AuthenticatedApp = () => {
           <DocumentsTourProvider>
             <SidebarProvider>
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
-            <Suspense fallback={<LoadingSpinner fullScreen />}>
+            <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
               <TaxFilerGate>
               <AppShell>
