@@ -228,7 +228,7 @@ const AuthenticatedApp = () => {
           <DocumentsTourProvider>
             <SidebarProvider>
             <div className="min-h-screen w-full flex flex-col bg-background md:bg-white">
-            <Suspense fallback={<LoadingSpinner fullScreen />}>
+            <Suspense fallback={<LoadingSpinner fullScreen delay={0} />}>
               <PageTransition>
               <TaxFilerGate>
               <AppShell>

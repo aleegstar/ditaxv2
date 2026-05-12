@@ -10,12 +10,16 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
  * redirects to /select-person BEFORE any route content is rendered.
  */
 const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
-  const { isLoading, dataFetched, hasMultipleFilers, selectionConfirmed } = useTaxFiler();
+  const { isLoading, dataFetched, hasMultipleFilers, selectionConfirmed, activeTaxFilerId } = useTaxFiler();
   const { userId } = useAuth();
   const location = useLocation();
   const [safetyTimeout, setSafetyTimeout] = useState(false);
+  const storedSelection = typeof window !== 'undefined'
+    ? sessionStorage.getItem('ditax_selected_tax_filer')
+    : null;
+  const hasResolvedSelection = !!(activeTaxFilerId || storedSelection);
 
-  const isWaiting = isLoading || (!!userId && !dataFetched);
+  const isWaiting = isLoading || (!!userId && !dataFetched && !hasResolvedSelection);
 
   // Safety timeout: prevent infinite loading if data never resolves
   useEffect(() => {
@@ -40,14 +44,13 @@ const TaxFilerGate = ({ children }: { children: React.ReactNode }) => {
 
   // Show loading spinner while tax filer data is being fetched (with safety timeout)
   if (isWaiting && !safetyTimeout) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner fullScreen delay={0} />;
   }
 
   // Redirect to person selection before rendering any route content
   // Also check sessionStorage as fallback — React state may not have committed yet after navigate()
   if (hasMultipleFilers && !selectionConfirmed) {
-    const storedId = sessionStorage.getItem('ditax_selected_tax_filer');
-    if (!storedId) {
+    if (!storedSelection && !activeTaxFilerId) {
       return <Navigate to="/select-person" replace />;
     }
   }
