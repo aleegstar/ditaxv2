@@ -3,13 +3,22 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import yesNoBgVideo from '@/assets/yesno-bg.mp4';
+import sectionIncomeImg from '@/assets/section-income.avif';
+import sectionDeductionsImg from '@/assets/section-deductions.avif';
+import sectionAssetsImg from '@/assets/section-assets.avif';
+
+const sectionImages: Record<string, string> = {
+  income: sectionIncomeImg,
+  deductions: sectionDeductionsImg,
+  assets: sectionAssetsImg,
+};
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
   answer?: boolean;
   onAnswer: (answer: boolean) => void;
   className?: string;
+  section?: 'income' | 'deductions' | 'assets';
 }
 
 const SWIPE_THRESHOLD = 60;
