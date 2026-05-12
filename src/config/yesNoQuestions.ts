@@ -163,7 +163,7 @@ export const getDeductionsQuestions = (t: Translation): QuestionConfig => ({
 });
 
 export const getQuestionsForSection = (
-  section: 'income' | 'assets' | 'deductions',
+  section: 'income' | 'assets' | 'deductions' | 'contact',
   t: Translation
 ): QuestionConfig => {
   switch (section) {

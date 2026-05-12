@@ -24,6 +24,7 @@ export interface QuestionProgressType {
   income?: number;
   assets?: number;
   deductions?: number;
+  contact?: number;
 }
 
 export interface FormContextType {
@@ -32,7 +33,7 @@ export interface FormContextType {
   formProgress: FormProgressType;
   updateFormProgress: (section: FormSectionKey, completed: boolean) => void;
   questionProgress: QuestionProgressType;
-  updateQuestionProgress: (section: 'income' | 'assets' | 'deductions', questionIndex: number) => void;
+  updateQuestionProgress: (section: 'income' | 'assets' | 'deductions' | 'contact', questionIndex: number) => void;
   loading: boolean;
   isDataLoading: boolean;
   isSwitchingTaxYear: boolean;

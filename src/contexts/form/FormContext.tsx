@@ -408,7 +408,7 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
     });
   }, []);
 
-  const updateQuestionProgress = useCallback(async (section: 'income' | 'assets' | 'deductions', questionIndex: number) => {
+  const updateQuestionProgress = useCallback(async (section: 'income' | 'assets' | 'deductions' | 'contact', questionIndex: number) => {
     // Update local state immediately
     setQuestionProgress(prev => ({
       ...prev,

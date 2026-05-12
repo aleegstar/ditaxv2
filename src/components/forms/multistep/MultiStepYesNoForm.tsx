@@ -117,7 +117,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
     }
   }, [section]);
 
-  const questionsConfig = getQuestionsForSection(section, t);
+  const questionsConfig = getQuestionsForSection(section as any, t);
   const questions = questionsConfig.questions;
 
   // Lazy initial state derivation — uses formProgress/formData synchronously
@@ -198,7 +198,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       return;
     }
     
-    updateQuestionProgress(section, formState.currentQuestionIndex);
+    updateQuestionProgress(section as any, formState.currentQuestionIndex);
   }, [formState.currentQuestionIndex, section, updateQuestionProgress, viewState.isEditing, viewState.showSummary, formProgress]);
 
 // Define function at module level to avoid TDZ issues
