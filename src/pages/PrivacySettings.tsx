@@ -295,7 +295,7 @@ const PrivacySettings = () => {
             <div className="pt-6">
               <button
                 onClick={savePreferences}
-                className="w-full inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45)] hover:brightness-110 active:scale-[0.97] transition-all"
+                className="w-full inline-flex items-center justify-center rounded-2xl px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-110 active:scale-[0.97] transition-all"
               >
                 {t.privacySettingsPage.saveSettings}
               </button>
@@ -321,7 +321,7 @@ const PrivacySettings = () => {
 
             <button
               onClick={downloadUserData}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-foreground bg-gradient-to-b from-card to-muted border border-border shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97] transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-foreground bg-muted/50 border border-border/60 hover:bg-muted active:scale-[0.97] transition-all"
             >
               <Download className="w-4 h-4" strokeWidth={1.75} />
               {t.privacySettingsPage.downloadMyData}
@@ -347,7 +347,7 @@ const PrivacySettings = () => {
 
             <button
               onClick={handleStartDeletion}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] shadow-[0_2px_8px_hsl(var(--destructive)/0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(var(--destructive)/0.45)] hover:brightness-110 active:scale-[0.97] transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] hover:brightness-110 active:scale-[0.97] transition-all"
             >
               <Trash2 className="w-4 h-4" strokeWidth={1.75} />
               {t.privacySettingsPage.deleteAccountButton}
@@ -397,10 +397,16 @@ const PrivacySettings = () => {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
+            <AlertDialogCancel
+              onClick={() => setShowFeedbackDialog(false)}
+              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
+            >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleFeedbackNext}>
+            <AlertDialogAction
+              onClick={handleFeedbackNext}
+              className="rounded-2xl shadow-none hover:shadow-none"
+            >
               {t.privacySettingsPage.next}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -441,11 +447,12 @@ const PrivacySettings = () => {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => {
                 setShowConfirmDialog(false);
                 setDeleteConfirm('');
               }}
+              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
             >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
@@ -453,6 +460,7 @@ const PrivacySettings = () => {
               onClick={deleteAllUserData}
               disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
               variant="destructive"
+              className="rounded-2xl shadow-none hover:shadow-none"
             >
               {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
