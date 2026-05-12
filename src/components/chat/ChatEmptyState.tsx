@@ -69,7 +69,7 @@ export const ChatEmptyState: React.FC<ChatEmptyStateProps> = ({ userId }) => {
           }}
         >
           <img
-            src="/bot-avatar.png"
+            src="/bot-avatar.webp"
             alt="AI Assistant"
             className="w-full h-full object-cover border-0 shadow-none"
           />
