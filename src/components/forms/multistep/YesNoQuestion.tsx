@@ -6,11 +6,13 @@ import { useI18n } from '@/contexts/I18nContext';
 import sectionIncomeImg from '@/assets/section-income.avif';
 import sectionDeductionsImg from '@/assets/section-deductions.avif';
 import sectionAssetsImg from '@/assets/section-assets.avif';
+import sectionContactImg from '@/assets/section-contact.webp';
 
 const sectionImages: Record<string, string> = {
   income: sectionIncomeImg,
   deductions: sectionDeductionsImg,
   assets: sectionAssetsImg,
+  contact: sectionContactImg,
 };
 
 interface YesNoQuestionProps {
@@ -18,7 +20,7 @@ interface YesNoQuestionProps {
   answer?: boolean;
   onAnswer: (answer: boolean) => void;
   className?: string;
-  section?: 'income' | 'deductions' | 'assets';
+  section?: 'income' | 'deductions' | 'assets' | 'contact';
 }
 
 const SWIPE_THRESHOLD = 60;
