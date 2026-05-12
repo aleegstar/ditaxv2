@@ -128,6 +128,9 @@ class TesseractWasmOcrService {
         }
       }
 
+      // Dynamically import tesseract-wasm so it isn't part of the main bundle
+      const { OCRClient } = await import('tesseract-wasm');
+
       // Create OCR client with worker URL
       this.client = new OCRClient({
         workerURL: '/ocr/tesseract-worker.js'
