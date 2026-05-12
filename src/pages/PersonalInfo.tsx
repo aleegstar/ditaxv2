@@ -111,12 +111,24 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         </div>
 
         {/* 2x2 grid — neutral white cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <motion.div
+          className="grid grid-cols-2 gap-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
+          }}
+        >
           {sections.map((section) => {
             const completed = isCompleted(section.id);
             return (
-              <button
+              <motion.button
                 key={section.id}
+                variants={{
+                  hidden: { opacity: 0, y: 10 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] } },
+                }}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
                   "relative text-left rounded-2xl bg-white border border-slate-200/80 p-4 pt-5",
@@ -145,10 +157,10 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                     {section.description}
                   </p>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
-        </div>
+        </motion.div>
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
