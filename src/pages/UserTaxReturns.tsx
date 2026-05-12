@@ -374,16 +374,17 @@ const UserTaxReturns = () => {
       </main>
 
       {/* Bottom Navbar */}
-      {!showTour && <HomeBottomNav
-        onChatClick={() => navigate('/chat')}
-        onDocumentsClick={() => navigate('/documents')}
-        onMenuClick={() => setMenuSheetOpen(true)}
+      <HomeBottomNav
+        onChatClick={() => showTour ? undefined : navigate('/chat')}
+        onDocumentsClick={() => showTour ? undefined : navigate('/documents')}
+        onMenuClick={() => showTour ? undefined : setMenuSheetOpen(true)}
         onActionClick={() => {
+          if (showTour) return;
           setDocumentsOverlayOpen(false);
           document.dispatchEvent(new CustomEvent('close-overlay-chat'));
         }}
         activeTab={documentsOverlayOpen ? 'documents' : chatOverlayOpen ? 'chat' : 'home'}
-      />}
+      />
 
       {/* Hidden chat overlay (controlled via event) */}
       {!showTour && userId && (
