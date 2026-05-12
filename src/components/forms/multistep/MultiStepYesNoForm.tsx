@@ -257,9 +257,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
       // Save the answer (async, non-blocking for UI)
       try {
-        const sectionData = { ...formData[section], [qid]: answer };
-        updateFormData(section, sectionData);
-        await saveSection(section, sectionData);
+        const sectionData = { ...formData[section as any], [qid]: answer };
+        updateFormData(section as any, sectionData);
+        await saveSection(section as any, sectionData);
       } catch (saveError) {
         console.error('Error saving answer:', saveError);
       }
@@ -363,9 +363,9 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         
         if (dataKey && repeaterData.length > 0) {
           try {
-            const sectionData = { ...formData[section], [dataKey]: repeaterData };
-            updateFormData(section, sectionData);
-            await saveSection(section, sectionData);
+            const sectionData = { ...formData[section as any], [dataKey]: repeaterData };
+            updateFormData(section as any, sectionData);
+            await saveSection(section as any, sectionData);
           } catch (saveError) {
             console.error('Error saving repeater data:', saveError);
           }
@@ -404,13 +404,13 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           });
 
           // Update local state first
-          updateFormData(section, sectionData);
+          updateFormData(section as any, sectionData);
           
           // Save to database
-          await saveSection(section, sectionData);
+          await saveSection(section as any, sectionData);
           
           // Mark section as complete in progress
-          updateFormProgress(section, true);
+          updateFormProgress(section as any, true);
 
           // Navigate back to personal info overview
           navigate(`/personal-info?year=${taxYear}`);
