@@ -143,26 +143,69 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
   return (
     <div className="flex flex-col items-center w-full">
       <div className="relative flex flex-col items-center pt-2 pb-4 w-full">
-        
-        {/* Scanner Icon */}
-        <div className="relative mb-8">
-          <div className="absolute -inset-4 bg-primary/10 rounded-full blur-xl animate-pulse" />
-          <img
-            src={documentCheckImg}
-            alt=""
-            className="relative w-28 h-28 object-contain z-10 select-none pointer-events-none"
-            draggable={false}
+
+        {/* Scanner Icon with orbital rings + scanning beam */}
+        <div className="relative mb-8 w-32 h-32 flex items-center justify-center">
+          {/* Pulsing aura */}
+          <div className="absolute inset-0 bg-primary/15 rounded-full blur-2xl animate-pulse" />
+          {/* Slow orbiting ring */}
+          <motion.div
+            className="absolute inset-0 rounded-full border border-primary/20"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
+            style={{
+              borderTopColor: 'hsl(var(--primary) / 0.6)',
+              borderRightColor: 'hsl(var(--primary) / 0.15)',
+            }}
           />
+          {/* Counter-rotating inner ring */}
+          <motion.div
+            className="absolute inset-2 rounded-full border border-primary/10"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 9, repeat: Infinity, ease: 'linear' }}
+            style={{
+              borderBottomColor: 'hsl(var(--primary) / 0.45)',
+            }}
+          />
+          {/* Image with scanning beam mask */}
+          <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center">
+            <img
+              src={documentCheckImg}
+              alt=""
+              className="relative w-24 h-24 object-contain z-10 select-none pointer-events-none drop-shadow-[0_4px_12px_hsl(var(--primary)/0.35)]"
+              draggable={false}
+            />
+            {/* Scanning beam */}
+            <motion.div
+              className="absolute left-0 right-0 h-[3px] z-20 pointer-events-none"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.85) 50%, transparent 100%)',
+                boxShadow: '0 0 12px hsl(var(--primary) / 0.7)',
+              }}
+              animate={{ top: ['0%', '100%', '0%'] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
         </div>
 
-        {/* Title + Subtitle */}
-        <div className="text-center space-y-2 mb-8">
-          <h2 className="text-xl font-medium tracking-tight text-foreground">
+        {/* Title with shimmer + animated status message */}
+        <div className="text-center space-y-2 mb-8 min-h-[68px]">
+          <h2 className="text-xl font-semibold tracking-tight shimmer-text">
             Ditax prüft {documentType}
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
-            {statusMessage}
-          </p>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={statusMessage}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.35 }}
+              className="text-base text-muted-foreground leading-relaxed max-w-[280px] mx-auto"
+            >
+              {statusMessage}
+            </motion.p>
+          </AnimatePresence>
         </div>
 
         {/* Validation Steps */}
@@ -175,24 +218,39 @@ const AIDocumentValidation: React.FC<AIDocumentValidationProps> = ({
               status = 'active';
             }
             return (
-              <StepRow 
-                key={step.id} 
-                step={step} 
-                status={status} 
-                percent={percent} 
+              <StepRow
+                key={step.id}
+                step={step}
+                status={status}
+                percent={percent}
               />
             );
           })}
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-muted h-1 mt-8 rounded-full overflow-hidden">
-          <motion.div 
-            className="bg-primary h-full rounded-full shadow-[0_0_10px_hsl(var(--primary)/0.4)]"
+        {/* Progress Bar with shimmer sheen */}
+        <div className="w-full bg-muted h-1.5 mt-8 rounded-full overflow-hidden relative">
+          <motion.div
+            className="h-full rounded-full relative overflow-hidden"
+            style={{
+              background:
+                'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%)',
+              boxShadow: '0 0 12px hsl(var(--primary) / 0.5)',
+            }}
             initial={{ width: '0%' }}
             animate={{ width: `${Math.min(percent, 100)}%` }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-          />
+          >
+            <motion.div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.55) 50%, transparent 100%)',
+              }}
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
+            />
+          </motion.div>
         </div>
       </div>
     </div>
