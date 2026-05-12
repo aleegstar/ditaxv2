@@ -308,6 +308,7 @@ const Admin: React.FC = () => {
                       email={user.email}
                       taxReturnsCount={user.taxReturns?.length || 0}
                       adressnummer={user.adressnummer}
+                      lastLoginAt={user.lastLoginAt}
                     />
                   ))}
                 </div>
