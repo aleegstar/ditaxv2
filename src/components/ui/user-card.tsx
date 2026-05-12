@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, FileText, User } from "lucide-react";
+import { ChevronRight, Clock, FileText, User } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface UserCardProps {
   id: string;
@@ -9,6 +11,7 @@ interface UserCardProps {
   email: string | null;
   taxReturnsCount: number;
   adressnummer?: string;
+  lastLoginAt?: string | null;
 }
 
 export function UserCard({
@@ -17,7 +20,8 @@ export function UserCard({
   lastName,
   email,
   taxReturnsCount,
-  adressnummer
+  adressnummer,
+  lastLoginAt,
 }: UserCardProps) {
   const navigate = useNavigate();
 
