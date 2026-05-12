@@ -1,14 +1,11 @@
 import React from 'react';
 import {
-  UnifiedAlertDialog,
-  UnifiedAlertDialogAction,
-  UnifiedAlertDialogContent,
-  UnifiedAlertDialogDescription,
-  UnifiedAlertDialogFooter,
-  UnifiedAlertDialogHeader,
-  UnifiedAlertDialogIcon,
-  UnifiedAlertDialogTitle,
-} from '@/components/ui/unified-alert-dialog';
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
 import { Clock } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -29,28 +26,33 @@ export function IdleWarningDialog({ isOpen, timeLeft, onExtendSession }: IdleWar
   };
 
   return (
-    <UnifiedAlertDialog open={isOpen}>
-      <UnifiedAlertDialogContent showCloseButton={false}>
-        <UnifiedAlertDialogHeader>
-          <UnifiedAlertDialogIcon variant="warning">
+    <Drawer open={isOpen} dismissible={false}>
+      <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
+        <div className="mb-6" />
+
+        <div className="text-center space-y-2 mb-6">
+          <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-2">
             <Clock className="w-8 h-8 text-orange-500" />
-          </UnifiedAlertDialogIcon>
-          <UnifiedAlertDialogTitle>
+          </div>
+          <DrawerTitle className="text-xl font-bold text-foreground">
             {t.idle.title}
-          </UnifiedAlertDialogTitle>
-          <UnifiedAlertDialogDescription>
-            {t.idle.message} <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span>.
-            <br />
-            <br />
-            {t.idle.extendSession}?
-          </UnifiedAlertDialogDescription>
-        </UnifiedAlertDialogHeader>
-        <UnifiedAlertDialogFooter>
-          <UnifiedAlertDialogAction onClick={onExtendSession}>
+          </DrawerTitle>
+          <DrawerDescription className="text-sm text-muted-foreground">
+            {t.idle.message}{' '}
+            <span className="font-semibold text-orange-500">{formatTime(timeLeft)}</span>.
+          </DrawerDescription>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Button
+            className="w-full"
+            onClick={onExtendSession}
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          >
             {t.idle.extendSession}
-          </UnifiedAlertDialogAction>
-        </UnifiedAlertDialogFooter>
-      </UnifiedAlertDialogContent>
-    </UnifiedAlertDialog>
+          </Button>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
