@@ -17,7 +17,7 @@
  * - Optimized for browser/WebView environments
  */
 
-import { OCRClient } from 'tesseract-wasm';
+import type { OCRClient } from 'tesseract-wasm';
 
 class TesseractWasmOcrService {
   private static instance: TesseractWasmOcrService;
@@ -127,6 +127,9 @@ class TesseractWasmOcrService {
           return false;
         }
       }
+
+      // Dynamically import tesseract-wasm so it isn't part of the main bundle
+      const { OCRClient } = await import('tesseract-wasm');
 
       // Create OCR client with worker URL
       this.client = new OCRClient({
