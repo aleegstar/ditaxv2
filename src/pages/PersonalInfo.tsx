@@ -8,10 +8,10 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/compone
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-import sectionContactImg from '@/assets/section-contact.avif';
-import sectionIncomeImg from '@/assets/section-income.avif';
-import sectionDeductionsImg from '@/assets/section-deductions.avif';
-import sectionAssetsImg from '@/assets/section-assets.avif';
+import sectionContactImg from '@/assets/section-contact.webp';
+import sectionIncomeImg from '@/assets/section-income.webp';
+import sectionDeductionsImg from '@/assets/section-deductions.webp';
+import sectionAssetsImg from '@/assets/section-assets.webp';
 import completeIllustration from '@/assets/documents-complete-illustration.webp';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
