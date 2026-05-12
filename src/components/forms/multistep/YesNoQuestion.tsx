@@ -168,8 +168,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
             </div>
           )}
         </div>
+        </div>
       </div>
     </motion.div>
+
   );
 });
 
