@@ -447,11 +447,12 @@ const PrivacySettings = () => {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => {
                 setShowConfirmDialog(false);
                 setDeleteConfirm('');
               }}
+              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
             >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
@@ -459,6 +460,7 @@ const PrivacySettings = () => {
               onClick={deleteAllUserData}
               disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
               variant="destructive"
+              className="rounded-2xl shadow-none hover:shadow-none"
             >
               {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
