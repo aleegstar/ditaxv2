@@ -77,21 +77,37 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   }, [allCompleted, isDataLoading, formDataLoaded]);
 
   const closeSheet = useCallback(() => setShowCompleteSheet(false), []);
-  const handleGoToDocuments = () => {
+  const handleGoToDocuments = useCallback(() => {
+    // Navigate first, then let Drawer unmount with the route change
+    navigate(`/form?section=unterlagen&year=${taxYear}`);
     setShowCompleteSheet(false);
-    // Wait for Drawer close animation to release body pointer-events
-    setTimeout(() => {
-      navigate(`/form?section=unterlagen&year=${taxYear}`);
-    }, 250);
-  };
-  const handleLater = () => {
+  }, [navigate, taxYear]);
+  const handleLater = useCallback(() => {
+    navigate(`/?year=${taxYear}`);
     setShowCompleteSheet(false);
-    setTimeout(() => {
-      navigate(`/?year=${taxYear}`);
-    }, 250);
-  };
+  }, [navigate, taxYear]);
 
-  if (isDataLoading || !formDataLoaded) return null;
+  // Show page skeleton during loading instead of blank screen
+  if (isDataLoading || !formDataLoaded) {
+    return (
+      <div className="min-h-screen text-foreground antialiased">
+        <SubpageHeader
+          title={t.formDashboard.personalInfo}
+          onBack={() => navigate('/')}
+        />
+        <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
+          <div className="mb-5 px-1">
+            <div className="h-1.5 w-full bg-white/70 rounded-full overflow-hidden border border-white/60" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[0,1,2,3].map(i => (
+              <div key={i} className="rounded-2xl bg-white/60 border border-slate-200/80 min-h-[170px] animate-pulse" />
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen text-foreground antialiased">
