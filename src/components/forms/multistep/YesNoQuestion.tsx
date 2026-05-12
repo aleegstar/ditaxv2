@@ -4,7 +4,7 @@ import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
 import sectionIncomeImg from '@/assets/section-income.webp';
-import sectionDeductionsImg from '@/assets/section-deductions.avif';
+import sectionDeductionsImg from '@/assets/section-deductions.webp';
 import sectionAssetsImg from '@/assets/section-assets.avif';
 import sectionContactImg from '@/assets/section-contact.webp';
 
