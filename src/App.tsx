@@ -364,6 +364,7 @@ const AuthenticatedApp = () => {
  */
 const AppRoutes = () => {
   const { isValid, isLoading: authLoading } = useAuth();
+  const location = useLocation();
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -478,7 +479,7 @@ const AppRoutes = () => {
       <SpaRedirector />
       <Suspense fallback={<LoadingSpinner fullScreen />}>
         <PageTransition>
-        <Routes>
+        <Routes location={location}>
           <Route path="/preisrechner" element={<PriceCalculator />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/google-auth" element={<GoogleAuth />} />
