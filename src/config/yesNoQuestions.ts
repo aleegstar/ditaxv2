@@ -173,8 +173,8 @@ export const getQuestionsForSection = (
       return getAssetsQuestions(t);
     case 'deductions':
       return getDeductionsQuestions(t);
-    case 'contact' as any:
-      return { section: 'contact', questions: [] };
+    case 'contact':
+      return { section: 'contact', questions: [] } as any;
     default:
       throw new Error(`Unknown section: ${section}`);
   }
