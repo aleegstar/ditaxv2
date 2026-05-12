@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, FileText, Clock } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
+import { Button } from '@/components/ui/button';
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
@@ -9,6 +11,7 @@ import sectionContactImg from '@/assets/section-contact.webp';
 import sectionIncomeImg from '@/assets/section-income.webp';
 import sectionDeductionsImg from '@/assets/section-deductions.webp';
 import sectionAssetsImg from '@/assets/section-assets.webp';
+import completeIllustration from '@/assets/documents-complete-illustration.webp';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
