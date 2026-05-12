@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SubpageHeader } from '@/components/ui/subpage-header';
-import { User, UserPlus, Pencil, Trash2, Crown, Loader2 } from 'lucide-react';
+import { User, UserPlus, Pencil, Trash2, Crown, Loader2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type RelationshipType = 'self' | 'child' | 'spouse' | 'parent' | 'other';
