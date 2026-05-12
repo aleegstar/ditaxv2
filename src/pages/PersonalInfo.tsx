@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Check, ChevronRight, FileText, Clock } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
