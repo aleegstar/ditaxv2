@@ -18,7 +18,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { ShieldCheck } from 'lucide-react';
 
 interface MultiStepYesNoFormProps {
-  section: 'income' | 'assets' | 'deductions';
+  section: 'income' | 'assets' | 'deductions' | 'contact';
   onComplete: () => void;
   onModeSwitch: () => void;
 }
@@ -487,6 +487,8 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         return 'Vermögen';
       case 'deductions':
         return 'Abzüge';
+      case 'contact':
+        return 'Kontakt';
       default:
         return section;
     }
