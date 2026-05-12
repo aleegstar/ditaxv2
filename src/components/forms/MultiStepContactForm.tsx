@@ -152,7 +152,7 @@ const MultiStepContactForm = ({
       case 1:
         return firstName.trim() !== '' && lastName.trim() !== '' && birthDate !== '';
       case 2:
-        return address.trim() !== '' && postalCode.trim() !== '' && city.trim() !== '';
+        return address.trim() !== '' && postalCode.trim() !== '' && city.trim() !== '' && kanton.trim() !== '';
       case 3:
         return true; // Additional fields are optional
       case 4:
@@ -170,7 +170,7 @@ const MultiStepContactForm = ({
       case 1:
         return firstName.trim() !== '' && lastName.trim() !== '' && birthDate !== '';
       case 2:
-        return address.trim() !== '' && postalCode.trim() !== '' && city.trim() !== '';
+        return address.trim() !== '' && postalCode.trim() !== '' && city.trim() !== '' && kanton.trim() !== '';
       case 3:
         // Step 3 is completed only if the user has interacted with it (visited the step)
         return step < currentStep;
