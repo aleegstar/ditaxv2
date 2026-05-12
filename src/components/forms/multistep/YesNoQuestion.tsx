@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import yesNoIllustration from '@/assets/yesno-illustration.webp';
+import yesNoBgVideo from '@/assets/yesno-bg.mp4';
 
 interface YesNoQuestionProps {
   question: YesNoQuestionType;
@@ -89,11 +89,25 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
       whileDrag={{ scale: 1.01 }}
       className="w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
     >
-      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-8 shadow-sm overflow-hidden">
+      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-8 shadow-sm overflow-hidden min-h-[340px]">
+        {/* Background Video */}
+        <video
+          src={yesNoBgVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          aria-hidden="true"
+        />
+        {/* Readability overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-card/40 via-card/10 to-card/80 pointer-events-none" />
+
         {/* Subtle Swipe Indicators */}
         <motion.div
           style={{ opacity: yesOpacity }}
-          className="absolute top-4 left-4 z-10 px-3 py-1 rounded-full border border-primary/30 bg-primary/5"
+          className="absolute top-4 left-4 z-10 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-sm"
         >
           <span className="text-primary font-semibold text-xs tracking-wide uppercase">
             {t.yesNoForm.yes}
@@ -101,26 +115,14 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
         </motion.div>
         <motion.div
           style={{ opacity: noOpacity }}
-          className="absolute top-4 right-4 z-10 px-3 py-1 rounded-full border border-border bg-muted/40"
+          className="absolute top-4 right-4 z-10 px-3 py-1 rounded-full border border-border bg-muted/40 backdrop-blur-sm"
         >
           <span className="text-foreground font-semibold text-xs tracking-wide uppercase">
             {t.yesNoForm.no}
           </span>
         </motion.div>
 
-        {/* Illustration */}
-        <div className="flex justify-center pointer-events-none">
-          <img
-            src={yesNoIllustration}
-            alt=""
-            width={768}
-            height={768}
-            loading="lazy"
-            decoding="async"
-            className="w-48 h-48 object-contain select-none"
-            draggable={false}
-          />
-        </div>
+        <div className="relative z-10">
 
         {/* Question Content */}
         <div className="text-center mt-2">
@@ -166,8 +168,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
             </div>
           )}
         </div>
+        </div>
       </div>
     </motion.div>
+
   );
 });
 
