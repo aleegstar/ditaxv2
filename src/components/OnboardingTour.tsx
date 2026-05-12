@@ -29,32 +29,32 @@ const getOnboardingSteps = (): OnboardingStep[] => [
     position: 'bottom'
   },
   {
-    id: 'add-year',
+    id: 'year-selector',
     titleKey: 'addYearTitle',
     descriptionKey: 'addYearDescription',
-    targetElement: '[data-tour="quick-add-year"]',
+    targetElement: '[data-tour="year-selector"]',
+    position: 'bottom'
+  },
+  {
+    id: 'continue-card',
+    titleKey: 'continueCardTitle',
+    descriptionKey: 'continueCardDescription',
+    targetElement: '[data-tour="form-step-1"]',
+    position: 'bottom'
+  },
+  {
+    id: 'documents',
+    titleKey: 'documentsTitle',
+    descriptionKey: 'documentsDescription',
+    targetElement: '[data-tour="bottom-nav-documents"], [data-tour="documents-nav"]',
     position: 'top'
   },
   {
     id: 'chat',
     titleKey: 'chatTitle',
     descriptionKey: 'chatDescription',
-    targetElement: '[data-tour="floating-chat-button"]',
+    targetElement: '[data-tour="bottom-nav-chat"]',
     position: 'top'
-  },
-  {
-    id: 'documents',
-    titleKey: 'documentsTitle',
-    descriptionKey: 'documentsDescription',
-    targetElement: '[data-tour="floating-document-button"]',
-    position: 'top'
-  },
-  {
-    id: 'continue-card',
-    titleKey: 'continueCardTitle',
-    descriptionKey: 'continueCardDescription',
-    targetElement: '[data-tour="tax-year-card"]',
-    position: 'bottom'
   }
 ];
 
