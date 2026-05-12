@@ -55,10 +55,12 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
         </div>
 
         {/* Validation Message */}
-        {!canContinue && data.length === 0 && <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+        {!canContinue && <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
             <AlertCircle className="w-5 h-5 text-red-400" />
             <p className="text-sm text-red-400">
-              Du musst mindestens einen Eintrag erfassen um fortzufahren.
+              {data.length === 0
+                ? 'Du musst mindestens einen Eintrag erfassen um fortzufahren.'
+                : 'Bitte fülle alle Pflichtfelder (*) aus, um fortzufahren.'}
             </p>
           </div>}
 
@@ -99,7 +101,7 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
       </div>
 
       {/* Validation Message */}
-      {!canContinue && data.length === 0 && <motion.div initial={{
+      {!canContinue && <motion.div initial={{
       opacity: 0,
       scale: 0.95
     }} animate={{
@@ -107,7 +109,9 @@ export const RepeaterStep: React.FC<RepeaterStepProps> = ({
       scale: 1
     }} className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
           <AlertCircle className="w-5 h-5 text-red-400" />
-          <p className="text-sm text-red-400">Du musst mindestens einen Eintrag erfassen, um fortzufahren.</p>
+          <p className="text-sm text-red-400">{data.length === 0
+            ? 'Du musst mindestens einen Eintrag erfassen, um fortzufahren.'
+            : 'Bitte fülle alle Pflichtfelder (*) aus, um fortzufahren.'}</p>
         </motion.div>}
 
       {/* Continue Button */}
