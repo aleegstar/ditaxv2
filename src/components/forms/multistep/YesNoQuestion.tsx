@@ -89,7 +89,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
       whileDrag={{ scale: 1.01 }}
       className="w-full cursor-grab active:cursor-grabbing select-none will-change-transform"
     >
-      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-8 shadow-sm overflow-hidden min-h-[340px]">
+      <div className="relative rounded-3xl border border-border/40 bg-card px-6 py-8 shadow-sm overflow-hidden min-h-[440px] flex flex-col">
         {/* Background Video */}
         <video
           src={yesNoBgVideo}
@@ -102,7 +102,7 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           aria-hidden="true"
         />
         {/* Readability overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-card/40 via-card/10 to-card/80 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/30 to-card/90 pointer-events-none" />
 
         {/* Subtle Swipe Indicators */}
         <motion.div
@@ -122,10 +122,10 @@ const SwipeCard = forwardRef<SwipeCardHandle, {
           </span>
         </motion.div>
 
-        <div className="relative z-10">
+        <div className="relative z-10 mt-auto">
 
         {/* Question Content */}
-        <div className="text-center mt-2">
+        <div className="text-center">
           <h2 className="text-2xl text-foreground tracking-tight font-bold leading-tight pointer-events-none">
             {question.text}
           </h2>
