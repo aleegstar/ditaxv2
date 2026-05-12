@@ -177,7 +177,6 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           </div>
           <div className="flex flex-col gap-3">
             <Button className="w-full" onClick={handleGoToDocuments} style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}>
-              <FileText className="w-5 h-5" />
               Ja, weiter zu Unterlagen
             </Button>
           </div>
