@@ -8,15 +8,12 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useNavigate } from 'react-router-dom';
 import { Json } from '@/integrations/supabase/types';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
@@ -356,25 +353,28 @@ const PrivacySettings = () => {
         </section>
       </main>
 
-      {/* Feedback Dialog - Step 1 */}
-      <AlertDialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+      {/* Feedback Bottom Sheet - Step 1 */}
+      <Drawer open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-2">
+              <AlertTriangle className="h-6 w-6" strokeWidth={1.75} />
+            </div>
+            <DrawerTitle className="text-xl font-bold text-foreground">
               {t.privacySettingsPage.whyLeaving}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
               {t.privacySettingsPage.feedbackHelps}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="py-4 space-y-4">
-            <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
+            </DrawerDescription>
+          </div>
+
+          <div className="space-y-5 mb-6">
+            <RadioGroup value={selectedReason} onValueChange={setSelectedReason} className="space-y-2">
               {DELETION_REASONS.map((reason) => (
                 <div key={reason.value} className="flex items-center space-x-3">
                   <RadioGroupItem value={reason.value} id={reason.value} />
-                  <Label htmlFor={reason.value} className="cursor-pointer text-slate-700">
+                  <Label htmlFor={reason.value} className="cursor-pointer text-foreground">
                     {reason.label}
                   </Label>
                 </div>
@@ -396,77 +396,82 @@ const PrivacySettings = () => {
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => setShowFeedbackDialog(false)}
-              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
-            >
-              {t.privacySettingsPage.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleFeedbackNext}
-              className="rounded-2xl shadow-none hover:shadow-none"
-            >
+          <div className="flex flex-col gap-3">
+            <Button className="w-full" onClick={handleFeedbackNext}>
               {t.privacySettingsPage.next}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+            <Button variant="secondary" className="w-full" onClick={() => setShowFeedbackDialog(false)}>
+              {t.privacySettingsPage.cancel}
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
-      {/* Confirmation Dialog - Step 2 */}
-      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-              <Trash2 className="h-5 w-5" />
+      {/* Confirmation Bottom Sheet - Step 2 */}
+      <Drawer
+        open={showConfirmDialog}
+        onOpenChange={(open) => {
+          setShowConfirmDialog(open);
+          if (!open) setDeleteConfirm('');
+        }}
+      >
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto mb-2">
+              <Trash2 className="h-6 w-6" strokeWidth={1.75} />
+            </div>
+            <DrawerTitle className="text-xl font-bold text-foreground">
               {t.privacySettingsPage.finalConfirmation}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              <span className="font-semibold text-red-600">{t.privacySettingsPage.warningLabel}</span> Diese Aktion löscht unwiderruflich:
-              <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground">
-                <li>{t.privacySettingsPage.deleteWarningList.profile}</li>
-                <li>{t.privacySettingsPage.deleteWarningList.taxReturns}</li>
-                <li>{t.privacySettingsPage.deleteWarningList.documents}</li>
-                <li>{t.privacySettingsPage.deleteWarningList.chatMessages}</li>
-              </ul>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="py-4 space-y-2">
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
+              <span className="font-semibold text-destructive">{t.privacySettingsPage.warningLabel}</span> Diese Aktion löscht unwiderruflich:
+            </DrawerDescription>
+          </div>
+
+          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground mb-6 px-2">
+            <li>{t.privacySettingsPage.deleteWarningList.profile}</li>
+            <li>{t.privacySettingsPage.deleteWarningList.taxReturns}</li>
+            <li>{t.privacySettingsPage.deleteWarningList.documents}</li>
+            <li>{t.privacySettingsPage.deleteWarningList.chatMessages}</li>
+          </ul>
+
+          <div className="space-y-2 mb-6">
             <Label htmlFor="confirm-delete" className="text-foreground">
-              {t.privacySettingsPage.typeToConfirm.replace('{word}', '')} <span className="font-bold text-red-600">{t.privacySettingsPage.deleteConfirmWord}</span>
+              {t.privacySettingsPage.typeToConfirm.replace('{word}', '')} <span className="font-bold text-destructive">{t.privacySettingsPage.deleteConfirmWord}</span>
             </Label>
-            <input 
+            <input
               id="confirm-delete"
-              type="text" 
+              type="text"
               placeholder={t.privacySettingsPage.deleteConfirmWord}
-              value={deleteConfirm} 
-              onChange={(e) => setDeleteConfirm(e.target.value)} 
-              className="w-full p-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              className="w-full p-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-destructive focus:border-transparent"
             />
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel
+          <div className="flex flex-col gap-3">
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={deleteAllUserData}
+              disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
+            >
+              {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
               onClick={() => {
                 setShowConfirmDialog(false);
                 setDeleteConfirm('');
               }}
-              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
             >
               {t.privacySettingsPage.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deleteAllUserData}
-              disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
-              variant="destructive"
-              className="rounded-2xl shadow-none hover:shadow-none"
-            >
-              {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
