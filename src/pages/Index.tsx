@@ -121,12 +121,10 @@ const IndexContent = () => {
   }, [section, taxYear, hasDataForPreviousYear, formDataLoaded, isDataLoading, activeTaxFilerId]);
 
   // Render different components based on section parameter
+  // Note: We never show a fullscreen spinner here while checking import — the form
+  // renders immediately and the ImportWizard appears later as a bottom sheet overlay.
+  // This prevents the "form → spinner → form" flicker on section navigation.
   const renderContent = () => {
-    // Show loading state while checking
-    if (checkingImport) {
-      return <LoadingSpinner fullScreen />;
-    }
-
     // Normal flow - always render the form content
     switch (section) {
       case 'kontakt':
