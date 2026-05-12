@@ -64,15 +64,17 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const allCompleted = completedCount === sections.length;
 
   const [showCompleteSheet, setShowCompleteSheet] = useState(false);
-  const prevCompletedRef = useRef<number | null>(null);
+  const hasShownRef = useRef(false);
   useEffect(() => {
     if (isDataLoading || !formDataLoaded) return;
-    const prev = prevCompletedRef.current;
-    if (prev !== null && prev < sections.length && completedCount === sections.length) {
+    if (allCompleted && !hasShownRef.current) {
+      hasShownRef.current = true;
       setShowCompleteSheet(true);
     }
-    prevCompletedRef.current = completedCount;
-  }, [completedCount, isDataLoading, formDataLoaded, sections.length]);
+    if (!allCompleted) {
+      hasShownRef.current = false;
+    }
+  }, [allCompleted, isDataLoading, formDataLoaded]);
 
   const closeSheet = useCallback(() => setShowCompleteSheet(false), []);
   const handleGoToDocuments = () => {
