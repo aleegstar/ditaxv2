@@ -52,6 +52,14 @@ export function UserCard({
           )}
         </div>
         <p className="text-[12px] text-muted-foreground truncate mt-0.5">{email}</p>
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground/80 mt-0.5">
+          <Clock className="h-3 w-3" />
+          <span className="truncate">
+            {lastLoginAt
+              ? `Zuletzt aktiv ${formatDistanceToNow(new Date(lastLoginAt), { addSuffix: true, locale: de })}`
+              : 'Noch nie angemeldet'}
+          </span>
+        </div>
       </div>
 
       {/* Meta */}
