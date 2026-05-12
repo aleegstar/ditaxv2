@@ -247,6 +247,7 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
               <button
                 key={tab.key}
                 onClick={tab.onClick}
+                data-tour={tab.tourId}
                 aria-label={tab.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
