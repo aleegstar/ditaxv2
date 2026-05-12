@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SubpageHeader } from '@/components/ui/subpage-header';
-import { User, UserPlus, Pencil, Trash2, Crown, Loader2 } from 'lucide-react';
+import { User, UserPlus, Pencil, Trash2, Crown, Loader2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type RelationshipType = 'self' | 'child' | 'spouse' | 'parent' | 'other';
@@ -119,110 +119,118 @@ const TaxFilers: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent pb-20">
+    <div className="min-h-screen bg-transparent text-foreground antialiased pb-24">
       <SubpageHeader 
         title={t.taxFilers?.pageTitle || 'Personen verwalten'} 
         onBack={() => navigate(-1)}
       />
 
-      <div className="px-4 sm:px-6 py-6 max-w-3xl mx-auto">
+      <main className="max-w-xl mx-auto px-4 sm:px-6 pt-2">
         {/* Description */}
-        <p className="text-muted-foreground mb-6">
+        <p className="text-[13px] text-muted-foreground mb-5 leading-relaxed">
           {t.taxFilers?.pageDescription || 
             'Verwalten Sie hier die Personen, für die Sie Steuererklärungen erstellen möchten. Zum Beispiel für Ihre Kinder oder Eltern.'}
         </p>
-
-        {/* Add Person Button */}
-        <Button
-          onClick={openAddDialog}
-          className="w-full mb-6"
-          disabled={isLoading}
-        >
-          <UserPlus className="h-5 w-5 mr-2" />
-          {t.taxFilers?.addPerson || 'Person hinzufügen'}
-        </Button>
 
         {/* Tax Filers List */}
         <div className="space-y-3">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : taxFilers.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="rounded-[1.5rem] bg-white border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.04)] py-10 text-center text-sm text-muted-foreground">
               {t.taxFilers?.noPersons || 'Keine Personen gefunden.'}
             </div>
           ) : (
             taxFilers.map((filer) => (
               <div
                 key={filer.id}
-                className={cn(
-                  'bg-card border border-border rounded-xl p-4',
-                  'flex items-center justify-between gap-4',
-                  filer.is_primary && 'border-primary/30 bg-primary/5'
-                )}
+                className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-200"
               >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="p-5 sm:p-6 flex items-center gap-3.5">
                   <div className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                    filer.is_primary ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                    'w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all',
+                    filer.is_primary ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                   )}>
-                    {filer.is_primary ? <Crown className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                    {filer.is_primary ? <Crown className="h-4 w-4" strokeWidth={2} /> : <User className="h-4 w-4" strokeWidth={2} />}
                   </div>
-                  <div className="min-w-0">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-foreground truncate">
+                      <h2 className="text-[14px] font-semibold text-foreground tracking-tight truncate">
                         {filer.first_name} {filer.last_name}
-                      </h3>
+                      </h2>
                       {filer.is_primary && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full flex-shrink-0">
                           {t.taxFilers?.primary || 'Primär'}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">
                       {getRelationshipLabel(filer.relationship)}
                       {filer.date_of_birth && ` • ${new Date(filer.date_of_birth).toLocaleDateString('de-CH')}`}
                     </p>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => openEditDialog(filer)}
-                    className="h-9 w-9"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  {!filer.is_primary && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setDeleteConfirmFiler(filer)}
-                      className="h-9 w-9 text-destructive hover:text-destructive"
+                      onClick={() => openEditDialog(filer)}
+                      className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" strokeWidth={1.75} />
                     </Button>
-                  )}
+                    {!filer.is_primary && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteConfirmFiler(filer)}
+                        className="h-9 w-9 rounded-full text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
           )}
+
+          {/* Add Person Card */}
+          <button
+            onClick={openAddDialog}
+            disabled={isLoading}
+            className="w-full group rounded-[1.5rem] bg-white border border-dashed border-slate-300 hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-200 disabled:opacity-50"
+          >
+            <div className="p-5 sm:p-6 flex items-center gap-3.5">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <UserPlus className="h-4 w-4" strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <h2 className="text-[14px] font-semibold text-foreground tracking-tight">
+                  {t.taxFilers?.addPerson || 'Person hinzufügen'}
+                </h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  {t.taxFilers?.addDescription || 'Neue Person für Steuererklärungen anlegen.'}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+            </div>
+          </button>
         </div>
 
-        {/* Info Box */}
-        <div className="mt-8 p-4 bg-muted/50 rounded-xl">
-          <h4 className="font-medium text-foreground mb-2">
+        {/* Info Card */}
+        <div className="mt-5 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3.5">
+          <h3 className="font-semibold text-foreground tracking-tight text-[13px]">
             {t.taxFilers?.infoTitle || 'Hinweis'}
-          </h4>
-          <p className="text-sm text-muted-foreground">
+          </h3>
+          <p className="text-muted-foreground mt-1 leading-snug text-[11px]">
             {t.taxFilers?.infoDescription || 
               'Jede Person hat separate Formulardaten und Dokumente. Die primäre Person (Sie selbst) kann nicht gelöscht werden.'}
           </p>
         </div>
-      </div>
+      </main>
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
