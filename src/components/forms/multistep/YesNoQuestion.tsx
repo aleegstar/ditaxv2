@@ -91,7 +91,7 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
         dragElastic={0.55}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.01 }}
-        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-6 py-8"
+        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-6 pt-[260px] pb-8"
       >
         <div className="mb-auto">
           <div className="text-center">
@@ -173,7 +173,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       {/* Card area — persistent video, only text content swaps */}
       <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
         <div className="relative w-full rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden min-h-[440px]">
-          {/* Background Video — persistent across questions */}
+          {/* Background Video — top portion only, persistent across questions */}
           <video
             src={yesNoBgVideo}
             autoPlay
@@ -181,11 +181,11 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+            className="absolute top-0 left-0 right-0 h-[240px] w-full object-cover pointer-events-none select-none"
             aria-hidden="true"
           />
-          {/* Readability overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-card/30 to-card/90 pointer-events-none" />
+          {/* Fade from video into card */}
+          <div className="absolute top-[200px] left-0 right-0 h-16 bg-gradient-to-b from-transparent to-card pointer-events-none" />
 
           {/* Subtle Swipe Indicators */}
           <div
