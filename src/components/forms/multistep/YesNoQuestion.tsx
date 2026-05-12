@@ -159,6 +159,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   answer,
   onAnswer,
   className,
+  section,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [exitDirection, setExitDirection] = useState(1);
@@ -177,23 +178,23 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   const yesIndicatorOpacity = Math.min(Math.max(dragX / 60, 0), 1);
   const noIndicatorOpacity = Math.min(Math.max(-dragX / 60, 0), 1);
 
+  const sectionImage = section ? sectionImages[section] : undefined;
+
   return (
     <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
-      {/* Card area — persistent video, only text content swaps */}
+      {/* Card area — persistent image, only text content swaps */}
       <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
         <div className="relative w-full rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden min-h-[440px]">
-          {/* Background Video — top portion only, persistent across questions */}
-          <video
-            src={yesNoBgVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute top-0 left-0 right-0 h-[240px] w-full object-cover pointer-events-none select-none"
-            aria-hidden="true"
-          />
-          {/* Fade from video into card */}
+          {/* Background Image — top portion only, persistent across questions */}
+          {sectionImage && (
+            <img
+              src={sectionImage}
+              alt=""
+              className="absolute top-0 left-0 right-0 h-[240px] w-full object-cover pointer-events-none select-none"
+              aria-hidden="true"
+            />
+          )}
+          {/* Fade from image into card */}
           <div className="absolute top-[200px] left-0 right-0 h-16 bg-gradient-to-b from-transparent to-card pointer-events-none" />
 
           {/* Subtle Swipe Indicators */}
