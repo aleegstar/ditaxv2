@@ -230,30 +230,24 @@ const TaxFilers: React.FC = () => {
         </div>
       </main>
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md p-0 gap-0 border-0 shadow-xl rounded-2xl overflow-hidden bg-transparent">
-          {/* Custom Close Button */}
-          <DialogClose className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10">
-            <X className="h-4 w-4 text-slate-500" />
-            <span className="sr-only">Schließen</span>
-          </DialogClose>
-          
-          {/* Header */}
-          <div className="p-6 pb-4 pr-16">
-            <DialogTitle className="text-xl font-semibold text-foreground">
+      {/* Add/Edit Bottom Sheet */}
+      <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DrawerContent variant="bottom-sheet" className="px-6 pb-8 pt-2 overflow-hidden">
+          <div className="mb-6" />
+          <div className="text-center space-y-2 mb-6">
+            <DrawerTitle className="text-xl font-bold text-foreground">
               {editingFiler 
                 ? (t.taxFilers?.editPerson || 'Person bearbeiten')
                 : (t.taxFilers?.addPerson || 'Person hinzufügen')}
-            </DialogTitle>
-            <DialogDescription className="text-primary mt-1">
+            </DrawerTitle>
+            <DrawerDescription className="text-sm text-muted-foreground">
               {editingFiler
                 ? (t.taxFilers?.editDescription || 'Ändere die Daten der Person.')
                 : (t.taxFilers?.addDescription || 'Füge eine neue Person hinzu, für die du Steuererklärungen erstellen möchtest.')}
-            </DialogDescription>
+            </DrawerDescription>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-sm text-muted-foreground">
@@ -319,30 +313,30 @@ const TaxFilers: React.FC = () => {
               </Select>
             </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col gap-3 pt-2">
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                className="flex-1 rounded-xl border-border text-foreground"
-              >
-                {t.common?.cancel || 'Abbrechen'}
-              </Button>
-              <Button 
-                type="submit" 
+                type="submit"
                 disabled={isSaving || !firstName.trim() || !lastName.trim()}
-                className="flex-1 rounded-xl bg-gradient-to-r from-primary to-blue-500 text-white"
+                className="w-full"
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {editingFiler 
                   ? (t.forms?.save || 'Speichern')
                   : (t.taxFilers?.addPerson || 'Person hinzufügen')}
               </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsDialogOpen(false)}
+                className="w-full text-muted-foreground"
+              >
+                {t.common?.cancel || 'Abbrechen'}
+              </Button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmFiler} onOpenChange={() => setDeleteConfirmFiler(null)}>
