@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Sphere } from '@/components/ui/sphere';
 import { Progress } from '@/components/ui/progress';
 import { useFormContext } from '@/contexts';
-import backgroundImage from '@/assets/multistep-background.png';
+import backgroundImage from '@/assets/multistep-background.webp';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 

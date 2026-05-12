@@ -41,7 +41,7 @@ export const Sphere: React.FC<SphereProps> = ({
       className
     )}>
       <img
-        src="/sphere-animation.gif"
+        src="/sphere-animation.webp"
         alt="AI Sphere"
         className="w-[140%] h-[140%] object-cover rounded-full"
       />

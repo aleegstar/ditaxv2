@@ -1,5 +1,5 @@
 import React from 'react';
-import childEmptyImg from '@/assets/child-empty.png';
+import childEmptyImg from '@/assets/child-empty.webp';
 import { Button } from '@/components/ui/button';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
 import { Label } from '@/components/ui/label';
