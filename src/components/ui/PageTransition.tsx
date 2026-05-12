@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -14,33 +14,28 @@ const pageVariants = {
   animate: {
     opacity: 1,
   },
-  exit: {
-    opacity: 0,
-  },
 };
 
 const pageTransition = {
-  duration: 0.22,
+  duration: 0.15,
   ease: [0.22, 0.61, 0.36, 1] as const, // easeOutCubic — quick + smooth
 };
 
 export const PageTransition = ({ children, className }: PageTransitionProps) => {
   const location = useLocation();
+  const transitionKey = `${location.pathname}${location.search}`;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className={className}
-        style={{ willChange: 'opacity' }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={transitionKey}
+      initial="initial"
+      animate="animate"
+      variants={pageVariants}
+      transition={pageTransition}
+      className={className}
+      style={{ willChange: 'opacity' }}
+    >
+      {children}
+    </motion.div>
   );
 };
