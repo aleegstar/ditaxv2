@@ -449,10 +449,10 @@ const PrivacySettings = () => {
             >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={deleteAllUserData}
               disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-50"
+              variant="destructive"
             >
               {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
