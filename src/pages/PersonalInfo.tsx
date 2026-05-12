@@ -62,15 +62,26 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const completedCount = sections.filter(s => isCompleted(s.id)).length;
   const allCompleted = completedCount === sections.length;
 
+  const [showCompleteSheet, setShowCompleteSheet] = useState(false);
   const prevCompletedRef = useRef<number | null>(null);
   useEffect(() => {
     if (isDataLoading || !formDataLoaded) return;
     const prev = prevCompletedRef.current;
     if (prev !== null && prev < sections.length && completedCount === sections.length) {
-      navigate(`/?year=${taxYear}`);
+      setShowCompleteSheet(true);
     }
     prevCompletedRef.current = completedCount;
-  }, [completedCount, isDataLoading, formDataLoaded, navigate, taxYear, sections.length]);
+  }, [completedCount, isDataLoading, formDataLoaded, sections.length]);
+
+  const closeSheet = useCallback(() => setShowCompleteSheet(false), []);
+  const handleGoToDocuments = () => {
+    setShowCompleteSheet(false);
+    navigate(`/form?section=unterlagen&year=${taxYear}`);
+  };
+  const handleLater = () => {
+    setShowCompleteSheet(false);
+    navigate(`/?year=${taxYear}`);
+  };
 
   if (isDataLoading || !formDataLoaded) return null;
 
