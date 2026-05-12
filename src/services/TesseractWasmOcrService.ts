@@ -17,7 +17,7 @@
  * - Optimized for browser/WebView environments
  */
 
-import { OCRClient } from 'tesseract-wasm';
+import type { OCRClient } from 'tesseract-wasm';
 
 class TesseractWasmOcrService {
   private static instance: TesseractWasmOcrService;

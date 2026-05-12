@@ -11,7 +11,7 @@
  * - Native OCR is not available
  */
 
-import { createWorker, Worker } from 'tesseract.js';
+import type { Worker } from 'tesseract.js';
 
 // OEM constants from tesseract.js - using direct values for compatibility
 const OEM_LSTM_ONLY = 1;
@@ -75,6 +75,9 @@ class TesseractOcrService {
       // Let Tesseract.js choose the correct WASM core file based on browser capabilities
       console.log('[TesseractOCR] Creating worker with OEM:', OEM_LSTM_ONLY);
       
+      // Dynamically import tesseract.js so it isn't part of the main bundle
+      const { createWorker } = await import('tesseract.js');
+
       this.worker = await createWorker('deu', OEM_LSTM_ONLY, {
         workerBlobURL: true, // Must be true - cross-origin workers are blocked by browsers
         // Let Tesseract.js use default CDN paths and auto-select the correct WASM file
