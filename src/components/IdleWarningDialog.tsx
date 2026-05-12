@@ -6,8 +6,8 @@ import {
   DrawerDescription,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Clock } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
+import idleShield from '@/assets/idle-shield.webp';
 
 interface IdleWarningDialogProps {
   isOpen: boolean;
@@ -31,8 +31,8 @@ export function IdleWarningDialog({ isOpen, timeLeft, onExtendSession }: IdleWar
         <div className="mb-6" />
 
         <div className="text-center space-y-2 mb-6">
-          <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-2">
-            <Clock className="w-8 h-8 text-orange-500" />
+          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-2">
+            <img src={idleShield} alt="" className="w-full h-full object-contain drop-shadow-lg" />
           </div>
           <DrawerTitle className="text-xl font-bold text-foreground">
             {t.idle.title}
