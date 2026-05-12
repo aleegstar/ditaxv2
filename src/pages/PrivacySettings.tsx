@@ -397,10 +397,16 @@ const PrivacySettings = () => {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
+            <AlertDialogCancel
+              onClick={() => setShowFeedbackDialog(false)}
+              className="rounded-2xl shadow-none bg-muted/50 from-transparent to-transparent border border-border/60"
+            >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleFeedbackNext}>
+            <AlertDialogAction
+              onClick={handleFeedbackNext}
+              className="rounded-2xl shadow-none hover:shadow-none"
+            >
               {t.privacySettingsPage.next}
             </AlertDialogAction>
           </AlertDialogFooter>
