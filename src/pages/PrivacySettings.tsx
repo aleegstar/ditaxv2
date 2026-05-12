@@ -295,7 +295,7 @@ const PrivacySettings = () => {
             <div className="pt-6">
               <button
                 onClick={savePreferences}
-                className="w-full inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45)] hover:brightness-110 active:scale-[0.97] transition-all"
+                className="w-full inline-flex items-center justify-center rounded-2xl px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] hover:brightness-110 active:scale-[0.97] transition-all"
               >
                 {t.privacySettingsPage.saveSettings}
               </button>
