@@ -400,10 +400,7 @@ const PrivacySettings = () => {
             <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleFeedbackNext}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium"
-            >
+            <AlertDialogAction onClick={handleFeedbackNext}>
               {t.privacySettingsPage.next}
             </AlertDialogAction>
           </AlertDialogFooter>
