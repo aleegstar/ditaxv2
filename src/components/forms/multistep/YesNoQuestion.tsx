@@ -19,20 +19,21 @@ export interface SwipeCardHandle {
 }
 
 const cardVariants = {
-  enter: { opacity: 0, scale: 0.97 },
+  enter: { opacity: 0, scale: 0.96, y: 14 },
   center: {
     opacity: 1,
     scale: 1,
     x: 0,
+    y: 0,
     rotate: 0,
-    transition: { duration: 0.25, ease: 'easeOut' as const },
+    transition: { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] as const },
   },
   exit: (direction: number) => ({
-    x: direction * 350,
+    x: direction * 360,
     opacity: 0,
     scale: 0.85,
-    rotate: direction * 18,
-    transition: { duration: 0.35, ease: [0.36, 0, 0.66, -0.56] as const },
+    rotate: direction * 16,
+    transition: { duration: 0.3, ease: [0.36, 0, 0.66, -0.56] as const },
   }),
 };
 
@@ -210,7 +211,12 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-center gap-3 mt-8 mb-4 shrink-0 w-full max-w-sm mx-auto px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1], delay: 0.08 }}
+        className="flex items-center justify-center gap-3 mt-8 mb-4 shrink-0 w-full max-w-sm mx-auto px-4"
+      >
         <button
           onClick={() => handleButtonAnswer(true)}
           className="flex-1 flex items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.97]"
@@ -224,7 +230,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
         >
           {t.yesNoForm.no}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 };
