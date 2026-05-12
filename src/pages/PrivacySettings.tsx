@@ -259,102 +259,97 @@ const PrivacySettings = () => {
       />
 
       {/* Main Content */}
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-8">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12 space-y-6">
         {/* Card 1: Privacy Preferences */}
-        <section className="bg-transparent rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
-          <div className="p-8 pb-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-blue-100/50 shadow-sm">
-                <Shield className="w-5 h-5" strokeWidth={1.5} />
+        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border/60 shadow-sm overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center gap-3.5 mb-6">
+              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-primary/10 text-primary">
+                <Shield className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <div>
-                <h2 className="text-xl tracking-tight text-foreground font-semibold">
-                  {t.privacySettingsPage.privacyPreferences}
-                </h2>
-              </div>
+              <h2 className="text-[17px] tracking-tight text-foreground font-semibold">
+                {t.privacySettingsPage.privacyPreferences}
+              </h2>
             </div>
 
-            <div className="flex items-start justify-between py-2">
-              <div className="pr-8">
-                <p className="text-base font-medium text-foreground">
+            <div className="flex items-start justify-between py-1">
+              <div className="pr-6">
+                <p className="text-[15px] font-medium text-foreground">
                   {t.privacySettingsPage.marketingEmails}
                 </p>
-                <p className="text-base text-muted-foreground mt-1">
+                <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">
                   {t.privacySettingsPage.marketingEmailsDescription}
                 </p>
               </div>
 
-              <Switch 
-                checked={preferences.marketing_emails} 
+              <Switch
+                checked={preferences.marketing_emails}
                 onCheckedChange={(checked) => setPreferences(prev => ({
                   ...prev,
                   marketing_emails: checked
-                }))} 
+                }))}
                 className="mt-1"
               />
             </div>
-          </div>
 
-          <div className="px-8 pb-8 pt-2">
-            <button 
-              onClick={savePreferences}
-              className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-primary/20 text-base font-semibold text-white bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 hover:-translate-y-0.5"
-            >
-              {t.privacySettingsPage.saveSettings}
-            </button>
+            <div className="pt-6">
+              <button
+                onClick={savePreferences}
+                className="w-full inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] shadow-[0_2px_8px_hsl(222,100%,56%,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(222,100%,56%,0.45)] hover:brightness-110 active:scale-[0.97] transition-all"
+              >
+                {t.privacySettingsPage.saveSettings}
+              </button>
+            </div>
           </div>
         </section>
 
         {/* Card 2: Data Portability */}
-        <section className="bg-transparent rounded-2xl border border-border shadow-xl shadow-muted/40 overflow-hidden">
-          <div className="p-8">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-violet-100/50 shadow-sm">
-                <Download className="w-5 h-5" strokeWidth={1.5} />
+        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-border/60 shadow-sm overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-primary/10 text-primary">
+                <Download className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h2 className="text-xl tracking-tight text-foreground font-semibold">
+              <h2 className="text-[17px] tracking-tight text-foreground font-semibold">
                 {t.privacySettingsPage.dataPortability}
               </h2>
             </div>
 
-            <p className="text-base text-muted-foreground mb-8 max-w-xl">
+            <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
               {t.privacySettingsPage.dataPortabilityDescription}
             </p>
 
-            <button 
+            <button
               onClick={downloadUserData}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-transparent border border-border rounded-xl shadow-sm text-base font-medium text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-muted transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-foreground bg-gradient-to-b from-card to-muted border border-border shadow-[0_2px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.5)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-[0.97] transition-all"
             >
-              <Download className="w-4 h-4" strokeWidth={1.5} />
+              <Download className="w-4 h-4" strokeWidth={1.75} />
               {t.privacySettingsPage.downloadMyData}
             </button>
           </div>
         </section>
 
         {/* Card 3: Delete Account (Danger Zone) */}
-        <section className="bg-transparent rounded-2xl border border-red-100 shadow-xl shadow-red-100/40 overflow-hidden relative">
-          {/* Subtle red accent background */}
-          <div className="absolute inset-0 bg-red-50/30 pointer-events-none" />
-
-          <div className="relative p-8">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 text-red-600 ring-1 ring-red-100/50 shadow-sm">
-                <Trash2 className="w-5 h-5" strokeWidth={1.5} />
+        <section className="rounded-3xl bg-card/60 backdrop-blur-xl border border-destructive/20 shadow-sm overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-destructive/10 text-destructive">
+                <Trash2 className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h2 className="text-xl tracking-tight text-red-700 font-semibold">
+              <h2 className="text-[17px] tracking-tight text-destructive font-semibold">
                 {t.privacySettingsPage.deleteAccount}
               </h2>
             </div>
 
-            <p className="text-base text-muted-foreground mb-8 max-w-xl">
+            <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
               {t.privacySettingsPage.deleteAccountDescription}
             </p>
 
-            <button 
+            <button
               onClick={handleStartDeletion}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-red-600/20 text-base font-semibold text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 hover:-translate-y-0.5"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] shadow-[0_2px_8px_hsl(var(--destructive)/0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_16px_hsl(var(--destructive)/0.45)] hover:brightness-110 active:scale-[0.97] transition-all"
             >
-              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+              <Trash2 className="w-4 h-4" strokeWidth={1.75} />
               {t.privacySettingsPage.deleteAccountButton}
             </button>
           </div>
@@ -405,10 +400,7 @@ const PrivacySettings = () => {
             <AlertDialogCancel onClick={() => setShowFeedbackDialog(false)}>
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleFeedbackNext}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium"
-            >
+            <AlertDialogAction onClick={handleFeedbackNext}>
               {t.privacySettingsPage.next}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -457,10 +449,10 @@ const PrivacySettings = () => {
             >
               {t.privacySettingsPage.cancel}
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={deleteAllUserData}
               disabled={deleteConfirm !== t.privacySettingsPage.deleteConfirmWord || isDeleting}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-50"
+              variant="destructive"
             >
               {isDeleting ? t.privacySettingsPage.deleting : t.privacySettingsPage.deleteAccountButton}
             </AlertDialogAction>
