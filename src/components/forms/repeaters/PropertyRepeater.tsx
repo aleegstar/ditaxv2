@@ -1,6 +1,6 @@
 
 import React from 'react';
-import propertyEmptyImg from '@/assets/property-empty.png';
+import propertyEmptyImg from '@/assets/property-empty.webp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -432,7 +432,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
               <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden" style={{
                 background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
               }}>
-                {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
+                {escalatedMode ? <User className="w-5 h-5 text-white" /> : <img src="/bot-avatar.webp" alt="AI Assistant" className="w-full h-full object-cover" />}
               </div>
               <div className="flex flex-col">
                 <h1 className="font-semibold text-base tracking-tight text-foreground leading-tight">
@@ -486,7 +486,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                   {(message.isBot || message.isAdmin) && <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden" style={{
               background: message.isAdmin ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
             }}>
-                      {message.isAdmin ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
+                      {message.isAdmin ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.webp" alt="AI Assistant" className="w-full h-full object-cover" />}
                     </div>}
 
                   <div className="flex flex-col gap-1">
@@ -529,7 +529,7 @@ export const ChatBotInterface: React.FC<ChatBotInterfaceProps> = ({
                   <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm mt-1 overflow-hidden" style={{
               background: escalatedMode ? 'linear-gradient(to bottom right, hsl(160 84% 39%), hsl(162 83% 34%))' : 'linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.6))'
             }}>
-                    {escalatedMode ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />}
+                    {escalatedMode ? <User className="w-4 h-4 text-white" /> : <img src="/bot-avatar.webp" alt="AI Assistant" className="w-full h-full object-cover" />}
                   </div>
                    <div className="px-4 py-3.5 rounded-[24px] bg-muted">
                     <div className="flex gap-1">

@@ -93,7 +93,7 @@ const Chat: React.FC = () => {
             {escalatedMode ? (
               <User className="w-5 h-5 text-white" />
             ) : (
-              <img src="/bot-avatar.png" alt="AI Assistant" className="w-full h-full object-cover" />
+              <img src="/bot-avatar.webp" alt="AI Assistant" className="w-full h-full object-cover" />
             )}
           </div>
           <div className="flex flex-col min-w-0">
@@ -208,7 +208,7 @@ const Chat: React.FC = () => {
                       {message.isAdmin ? (
                         <User className="w-3.5 h-3.5 text-white" />
                       ) : (
-                        <img src="/bot-avatar.png" alt="Ditax" className="w-full h-full object-cover" />
+                        <img src="/bot-avatar.webp" alt="Ditax" className="w-full h-full object-cover" />
                       )}
                     </div>
                   )}

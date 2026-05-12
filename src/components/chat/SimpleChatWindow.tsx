@@ -448,7 +448,7 @@ const SimpleChatWindow = ({
                       }}
                     >
                       {isBot ? (
-                        <img src="/bot-avatar.png" alt="Bot" className="w-full h-full object-cover" />
+                        <img src="/bot-avatar.webp" alt="Bot" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-4 h-4 text-primary-foreground" />
                       )}
