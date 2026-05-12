@@ -42,6 +42,7 @@ interface AdminUser {
   privacy_preferences: any;
   updated_at: string | null;
   adressnummer?: string;
+  lastLoginAt?: string | null;
   taxReturns?: Array<{
     user_id: string;
     tax_year: string;
