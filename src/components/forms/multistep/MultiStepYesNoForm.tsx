@@ -309,14 +309,38 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
       const qid = currentQuestion.id;
       const data = formState.repeaterData[qid] || [];
       const minEntries = currentQuestion.requiresRepeater.minimumEntries ?? 1;
-      
-      // Check if we have minimum entries and all entries have required fields
-      const result = data.length >= minEntries && data.every(entry => {
-        // Basic validation - ensure entry has some meaningful data
-        return Object.values(entry).some(value => 
-          value !== undefined && value !== null && value !== ''
-        );
-      });
+      const component = currentQuestion.requiresRepeater.component;
+
+      const isEntryValid = (entry: any): boolean => {
+        const str = (v: any) => typeof v === 'string' && v.trim() !== '';
+        const num = (v: any) => typeof v === 'number' && v > 0;
+        switch (component) {
+          case 'PropertyRepeater':
+            return (
+              str(entry.address) &&
+              str(entry.type) &&
+              str(entry.usage) &&
+              num(entry.taxValue) &&
+              ((entry.usage || 'self') === 'self'
+                ? num(entry.rentalValue)
+                : num(entry.rentalIncome))
+            );
+          case 'EmployerRepeater':
+            return str(entry.workLocation) && num(entry.workload) && num(entry.workDays) && str(entry.commute);
+          case 'VehicleRepeater':
+            return str(entry.name) && num(entry.purchasePrice) && num(entry.purchaseYear);
+          case 'DebtRepeater':
+            return str(entry.description) && num(entry.amount) && str(entry.type);
+          case 'RentalIncomeRepeater':
+            return str(entry.property) && num(entry.annualIncome);
+          default:
+            return Object.values(entry).some(value =>
+              value !== undefined && value !== null && value !== ''
+            );
+        }
+      };
+
+      const result = data.length >= minEntries && data.every(isEntryValid);
       
       if (Capacitor.isNativePlatform()) {
         androidDebug.log('canContinueFromRepeater result', { result, dataLength: data.length, minEntries });
