@@ -112,12 +112,13 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
 
         {/* 2x2 grid — neutral white cards */}
         <motion.div
+          key={`grid-${completedCount}`}
           className="grid grid-cols-2 gap-3"
           initial="hidden"
           animate="visible"
           variants={{
             hidden: {},
-            visible: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
+            visible: { transition: { staggerChildren: 0.09, delayChildren: 0.08 } },
           }}
         >
           {sections.map((section) => {
@@ -126,8 +127,8 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
               <motion.button
                 key={section.id}
                 variants={{
-                  hidden: { opacity: 0, y: 10 },
-                  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] } },
+                  hidden: { opacity: 0, y: 18, scale: 0.96 },
+                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: [0.22, 0.61, 0.36, 1] } },
                 }}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
@@ -143,16 +144,9 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 )}
                 <img src={section.image} alt="" width={320} height={320} loading="lazy" decoding="async" className="w-20 h-20 object-contain" />
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
-                      {section.title}
-                    </h3>
-                    {!completed && (
-                      <div className="w-5 h-5 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_2px_6px_-1px_rgba(22,86,255,0.45)]">
-                        <ChevronRight className="w-3 h-3 text-white" strokeWidth={2.5} />
-                      </div>
-                    )}
-                  </div>
+                  <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
+                    {section.title}
+                  </h3>
                   <p className="text-[11px] text-muted-foreground mt-1 leading-snug truncate">
                     {section.description}
                   </p>
