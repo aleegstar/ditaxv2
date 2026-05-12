@@ -1,6 +1,6 @@
 
 import React from 'react';
-import vehicleEmptyImg from '@/assets/vehicle-empty.webp';
+import vehicleEmptyImg from '@/assets/vehicle-empty-new.webp';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
