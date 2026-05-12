@@ -19,7 +19,7 @@ export const useFeedbackPrompt = (userId?: string) => {
     }
 
     try {
-      // Check if feedback prompt was already shown
+      // Check profile for prior dismissal + onboarding tour completion
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -32,8 +32,23 @@ export const useFeedbackPrompt = (userId?: string) => {
         return;
       }
 
-      // If already shown, don't show again (use any to bypass type check until types are regenerated)
+      // If already shown, don't show again
       if ((profile as any)?.feedback_prompt_shown_at) {
+        setState({ shouldShow: false, isLoading: false });
+        return;
+      }
+
+      // Gate behind ALL product tours being completed
+      const { data: { user } } = await supabase.auth.getUser();
+      const meta = (user?.user_metadata || {}) as Record<string, unknown>;
+
+      const onboardingCompleted =
+        (profile as any)?.onboarding_tour_completed === true ||
+        meta.onboarding_tour_completed === true;
+      const formCompleted = meta.form_tour_completed === true;
+      const documentsCompleted = meta.documents_tour_completed === true;
+
+      if (!onboardingCompleted || !formCompleted || !documentsCompleted) {
         setState({ shouldShow: false, isLoading: false });
         return;
       }
