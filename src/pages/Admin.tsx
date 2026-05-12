@@ -186,12 +186,30 @@ const Admin: React.FC = () => {
 
       console.log('📋 Admin: Adressnummer map built with', adressnummerMap.size, 'entries');
 
+      // Fetch last login per user from user_sessions
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('user_sessions')
+        .select('user_id, login_time')
+        .order('login_time', { ascending: false });
+
+      if (sessionError) {
+        console.error('⚠️ Admin: Error fetching user sessions (non-critical):', sessionError);
+      }
+
+      const lastLoginMap = new Map<string, string>();
+      sessionData?.forEach(s => {
+        if (s.user_id && !lastLoginMap.has(s.user_id)) {
+          lastLoginMap.set(s.user_id, s.login_time);
+        }
+      });
+
       // Combine data
       const usersWithTaxReturns = profiles?.map(user => {
         const userTaxReturns = taxReturnsData?.filter(tr => tr.user_id === user.id) || [];
         return {
           ...user,
           adressnummer: adressnummerMap.get(user.id),
+          lastLoginAt: lastLoginMap.get(user.id) || null,
           taxReturns: userTaxReturns
         };
       }) || [];
