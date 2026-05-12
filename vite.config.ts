@@ -55,9 +55,8 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-tabs',
             '@radix-ui/react-tooltip'
           ],
-          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
           'vendor-charts': ['recharts'],
-          'vendor-animation': ['framer-motion', 'motion'],
+          'vendor-animation': ['framer-motion'],
         }
       }
     },
