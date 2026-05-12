@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Check, Star, Bug, Lightbulb, Heart, Loader2 } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { Checkbox } from '@/components/ui/checkbox';
+import feedbackIllustration from '@/assets/feedback-illustration.webp';
 
 const categories = [
   { value: 'bug', icon: Bug },
@@ -125,6 +126,14 @@ const Feedback = () => {
       <SubpageHeader title={t.feedbackPage.title} onBack={() => navigate(-1)} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="space-y-8">
+          {/* Illustration */}
+          <div className="flex justify-center">
+            <img
+              src={feedbackIllustration}
+              alt=""
+              className="w-40 h-40 sm:w-48 sm:h-48 object-contain"
+            />
+          </div>
           {/* Star Rating */}
           <div className="space-y-3">
             <h2 className="text-lg font-medium text-foreground text-center">
