@@ -310,11 +310,52 @@ const DocumentUploadPageContent: React.FC = () => {
           </div>
         </div>
 
+        {isLohnausweis && (
+          <div className="w-full max-w-3xl mb-4">
+            <button
+              type="button"
+              onClick={() => setOcrOpen(true)}
+              className="w-full flex items-center justify-between gap-3 rounded-2xl border border-[#1D64FF]/30 bg-white px-4 py-3 text-left hover:bg-[#1D64FF]/5 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1D64FF]/10">
+                  {existingOcr ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <ScanLine className="w-4 h-4 text-[#1D64FF]" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    {existingOcr ? 'Lohnausweis-Daten erfasst' : 'Daten automatisch erfassen'}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {existingOcr
+                      ? 'Tippe um die erkannten Werte zu prüfen oder zu ändern.'
+                      : 'Wir lesen Ziff. 8, BVG, Quellensteuer sowie Felder F & G aus.'}
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-[#1D64FF]">
+                {existingOcr ? 'Ändern' : 'Scannen'}
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* Upload card */}
         <div className="w-full max-w-3xl rounded-[24px] overflow-hidden bg-transparent border-slate-200 p-0 border-0">
           <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>
+
+      {isLohnausweis && (
+        <LohnausweisOcrSheet
+          open={ocrOpen}
+          onOpenChange={setOcrOpen}
+          onConfirm={handleOcrConfirm}
+        />
+      )}
     </div>;
 };
 const DocumentUploadPage: React.FC = () => {
