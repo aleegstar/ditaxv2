@@ -227,6 +227,16 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
           Weiteren Arbeitgeber hinzufügen
         </Button>
       )}
+
+      <LohnausweisOcrSheet
+        open={ocrEmployerId !== null}
+        onOpenChange={(o) => { if (!o) setOcrEmployerId(null); }}
+        onConfirm={(fields) => {
+          if (!ocrEmployerId) return;
+          updateEmployer(ocrEmployerId, 'lohnausweis', fields);
+          setOcrEmployerId(null);
+        }}
+      />
     </div>
   );
 };
