@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, TrendingUp, Zap, UserPlus, Upload, MessageCircle, FileCheck, Info, ArrowRight, Check, Camera, File, Search, CreditCard, Smartphone, Clock, ChevronRight, Star, Lock, Bell, Mail, Key, Fingerprint, Users, Home, Briefcase, Heart, GraduationCap, Building, Car, Bitcoin, Landmark, PiggyBank, FileText, Eye, Trash2, AlertTriangle, CheckCircle2, CircleDot, HelpCircle, Folder, CloudUpload, User } from 'lucide-react';
 import { docsCategories } from './DocsContent';
-import docsFolderHero from '@/assets/docs-folder-hero.webp';
+import docsFolderHero from '@/assets/docs-folder-hero.svg';
 
 interface DocsArticleContentProps {
   articleId: string;
