@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AG eTax minimal reference schema (documentation only).
+  This XSD is NOT enforced at runtime. It documents the minimal element
+  shape produced by serializer.ts so reviewers can understand the contract.
+  Future phases will replace this with the official RIAG schema.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="TaxData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Metadata" type="MetadataType"/>
+        <xs:element name="Revision" type="RevisionType"/>
+        <xs:element name="Persons" type="PersonsType"/>
+        <xs:element name="Household" type="HouseholdType" minOccurs="0"/>
+        <xs:element name="Incomes" type="IncomesType"/>
+        <xs:element name="Assets" type="AssetsType"/>
+        <xs:element name="Deductions" type="DeductionsType"/>
+        <xs:element name="Attachments" type="AttachmentsType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="MetadataType">
+    <xs:sequence>
+      <xs:element name="Adapter" type="xs:string"/>
+      <xs:element name="SchemaVersion" type="xs:integer"/>
+      <xs:element name="Canton" type="xs:string"/>
+      <xs:element name="TaxYear" type="xs:string"/>
+      <xs:element name="DossierId" type="xs:string"/>
+      <xs:element name="GeneratedAt" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RevisionType">
+    <xs:sequence>
+      <xs:element name="Number" type="xs:integer"/>
+      <xs:element name="InputsHash" type="xs:string"/>
+      <xs:element name="PayloadHash" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonsType">
+    <xs:sequence>
+      <xs:element name="Person" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HouseholdType"/>
+  <xs:complexType name="IncomesType"/>
+  <xs:complexType name="AssetsType"/>
+  <xs:complexType name="DeductionsType"/>
+  <xs:complexType name="AttachmentsType"/>
+</xs:schema>
