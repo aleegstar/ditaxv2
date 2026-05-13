@@ -44,9 +44,10 @@ const LOHNAUSWEIS_TOOL = {
         meal_allowance: { type: "number", description: "Ziff. 13.1.1: Effektive Spesen" },
         flat_expenses: { type: "number", description: "Ziff. 13.2.1/2: Pauschalspesen" },
         further_education: { type: "number", description: "Ziff. 13.3: Weiterbildung" },
-        free_meals: { type: "boolean", description: "Ziff. 14.1: Verpflegung mit G/U-Kreuz" },
-        free_transport: { type: "boolean", description: "Ziff. 14.2: Unentgeltliche Beförderung" },
-        notes: { type: "string", description: "Ziff. 15: Bemerkungen" },
+        free_transport: { type: "boolean", description: "Feld F: Unentgeltliche Beförderung zwischen Wohn- und Arbeitsort (X = angekreuzt)" },
+        free_meals: { type: "boolean", description: "Feld G: Kantinenverpflegung / Lunch-Checks (X = angekreuzt)" },
+        shift_days: { type: "number", description: "Anzahl Schichttage (falls in Bemerkungen Ziff. 15 oder separat aufgeführt)" },
+        notes: { type: "string", description: "Ziff. 15: Bemerkungen (nur wenn relevant: Schichtarbeit, Aussendienst, etc.)" },
         currency: { type: "string", description: "Currency code (default CHF)" },
         confidence: {
           type: "number",
@@ -121,7 +122,7 @@ serve(async (req) => {
   }
 
   const systemPrompt =
-    "Du bist ein Experte für Schweizer Lohnausweise. Extrahiere ausschliesslich die im Dokument tatsächlich vorhandenen Felder gemäss offiziellem Lohnausweis (Ziff. 1-15). Gib KEINEN Rohtext zurück, sondern ausschliesslich strukturierte Felder via Funktion. Wenn ein Wert nicht eindeutig erkennbar ist, lasse das Feld weg. Beträge in CHF als Zahl, ohne Tausendertrennzeichen. Datumsangaben als ISO yyyy-mm-dd.";
+    "Du bist ein Experte für Schweizer Lohnausweise. Extrahiere ausschliesslich die im Dokument tatsächlich vorhandenen Felder. Achte besonders sorgfältig auf Feld F (Unentgeltliche Beförderung Wohn-/Arbeitsort) und Feld G (Kantinenverpflegung/Lunch-Checks) – ein 'X', Häkchen oder Kreuz im Kästchen bedeutet true, leeres Kästchen false. Suche in den Bemerkungen (Ziff. 15) nach Angaben zu Schichttagen / Schichtarbeit / Aussendienst und extrahiere die Anzahl Schichttage falls vorhanden. Gib KEINEN Rohtext zurück, sondern ausschliesslich strukturierte Felder via Funktion. Wenn ein Wert nicht eindeutig erkennbar ist, lasse das Feld weg. Beträge in CHF als Zahl, ohne Tausendertrennzeichen. Datumsangaben als ISO yyyy-mm-dd.";
 
   const isPdf = mt === "application/pdf";
   const userContent = isPdf
