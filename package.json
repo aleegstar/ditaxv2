@@ -42,6 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "decimal.js": "^10.6.0",
     "despia-native": "^1.0.15",
     "dompurify": "^3.3.0",
     "framer-motion": "^12.18.1",

@@ -196,6 +196,1020 @@ export type Database = {
           },
         ]
       }
+      canonical_assets: {
+        Row: {
+          bank_accounts: Json
+          cash: number | null
+          created_at: string
+          created_by: string | null
+          crypto_assets: Json
+          currency: string
+          dossier_id: string
+          foreign_assets: Json
+          id: string
+          schema_version: number
+          securities: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bank_accounts?: Json
+          cash?: number | null
+          created_at?: string
+          created_by?: string | null
+          crypto_assets?: Json
+          currency?: string
+          dossier_id: string
+          foreign_assets?: Json
+          id?: string
+          schema_version?: number
+          securities?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bank_accounts?: Json
+          cash?: number | null
+          created_at?: string
+          created_by?: string | null
+          crypto_assets?: Json
+          currency?: string
+          dossier_id?: string
+          foreign_assets?: Json
+          id?: string
+          schema_version?: number
+          securities?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_assets_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_attachments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          extracted_at: string | null
+          extracted_entities: Json
+          extraction_confidence: number | null
+          extraction_model: string | null
+          id: string
+          mime_type: string | null
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+          uploaded_document_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          extracted_at?: string | null
+          extracted_entities?: Json
+          extraction_confidence?: number | null
+          extraction_model?: string | null
+          id?: string
+          mime_type?: string | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_document_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          extracted_at?: string | null
+          extracted_entities?: Json
+          extraction_confidence?: number | null
+          extraction_model?: string | null
+          id?: string
+          mime_type?: string | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_document_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_attachments_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_calculations: {
+        Row: {
+          calculator: string
+          canton: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          id: string
+          inputs_hash: string
+          metadata: Json
+          outputs: Json
+          outputs_hash: string | null
+          revision: number
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          calculator: string
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          id?: string
+          inputs_hash: string
+          metadata?: Json
+          outputs?: Json
+          outputs_hash?: string | null
+          revision: number
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          calculator?: string
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          id?: string
+          inputs_hash?: string
+          metadata?: Json
+          outputs?: Json
+          outputs_hash?: string | null
+          revision?: number
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_calculations_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_debts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          dossier_id: string
+          id: string
+          interest_paid: number | null
+          loans: Json
+          mortgages: Json
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id: string
+          id?: string
+          interest_paid?: number | null
+          loans?: Json
+          mortgages?: Json
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id?: string
+          id?: string
+          interest_paid?: number | null
+          loans?: Json
+          mortgages?: Json
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_debts_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_deductions: {
+        Row: {
+          childcare: Json
+          commuting: Json
+          created_at: string
+          created_by: string | null
+          currency: string
+          donations: Json
+          dossier_id: string
+          education: Json
+          health_costs: Json
+          id: string
+          meals: Json
+          other: Json
+          pillar3a: number | null
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          childcare?: Json
+          commuting?: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          donations?: Json
+          dossier_id: string
+          education?: Json
+          health_costs?: Json
+          id?: string
+          meals?: Json
+          other?: Json
+          pillar3a?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          childcare?: Json
+          commuting?: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          donations?: Json
+          dossier_id?: string
+          education?: Json
+          health_costs?: Json
+          id?: string
+          meals?: Json
+          other?: Json
+          pillar3a?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_deductions_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_dossier_snapshots: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          id: string
+          reason: Database["public"]["Enums"]["canonical_snapshot_reason"]
+          revision: number
+          schema_version: number
+          snapshot: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          id?: string
+          reason?: Database["public"]["Enums"]["canonical_snapshot_reason"]
+          revision: number
+          schema_version: number
+          snapshot: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          id?: string
+          reason?: Database["public"]["Enums"]["canonical_snapshot_reason"]
+          revision?: number
+          schema_version?: number
+          snapshot?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_dossier_snapshots_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_dossiers: {
+        Row: {
+          canton: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          current_revision: number
+          id: string
+          schema_version: number
+          status: Database["public"]["Enums"]["canonical_dossier_status"]
+          tax_filer_id: string
+          tax_year: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          validation_status: Json
+        }
+        Insert: {
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          current_revision?: number
+          id?: string
+          schema_version?: number
+          status?: Database["public"]["Enums"]["canonical_dossier_status"]
+          tax_filer_id: string
+          tax_year: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          validation_status?: Json
+        }
+        Update: {
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          current_revision?: number
+          id?: string
+          schema_version?: number
+          status?: Database["public"]["Enums"]["canonical_dossier_status"]
+          tax_filer_id?: string
+          tax_year?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          validation_status?: Json
+        }
+        Relationships: []
+      }
+      canonical_employment_incomes: {
+        Row: {
+          ahv: number | null
+          bonus: number | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          dossier_id: string
+          employer: string | null
+          extra: Json
+          id: string
+          pension_contributions: number | null
+          person_id: string | null
+          salary: number | null
+          schema_version: number
+          source_document_id: string | null
+          updated_at: string
+          updated_by: string | null
+          withholding_tax: number | null
+        }
+        Insert: {
+          ahv?: number | null
+          bonus?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id: string
+          employer?: string | null
+          extra?: Json
+          id?: string
+          pension_contributions?: number | null
+          person_id?: string | null
+          salary?: number | null
+          schema_version?: number
+          source_document_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          withholding_tax?: number | null
+        }
+        Update: {
+          ahv?: number | null
+          bonus?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id?: string
+          employer?: string | null
+          extra?: Json
+          id?: string
+          pension_contributions?: number | null
+          person_id?: string | null
+          salary?: number | null
+          schema_version?: number
+          source_document_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          withholding_tax?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_employment_incomes_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_employment_incomes_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_employment_source_doc_fk"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_exports: {
+        Row: {
+          adapter_id: string
+          canton: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          dossier_revision: number
+          error_message: string | null
+          format: string
+          generated_at: string
+          id: string
+          inputs_hash: string
+          output_hash: string | null
+          output_path: string | null
+          rules_version: string | null
+          schema_version: number
+          snapshot_id: string | null
+          status: Database["public"]["Enums"]["canonical_export_status"]
+          updated_at: string
+          updated_by: string | null
+          validation_summary: Json
+        }
+        Insert: {
+          adapter_id: string
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          dossier_revision: number
+          error_message?: string | null
+          format: string
+          generated_at: string
+          id?: string
+          inputs_hash: string
+          output_hash?: string | null
+          output_path?: string | null
+          rules_version?: string | null
+          schema_version?: number
+          snapshot_id?: string | null
+          status?: Database["public"]["Enums"]["canonical_export_status"]
+          updated_at?: string
+          updated_by?: string | null
+          validation_summary?: Json
+        }
+        Update: {
+          adapter_id?: string
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          dossier_revision?: number
+          error_message?: string | null
+          format?: string
+          generated_at?: string
+          id?: string
+          inputs_hash?: string
+          output_hash?: string | null
+          output_path?: string | null
+          rules_version?: string | null
+          schema_version?: number
+          snapshot_id?: string | null
+          status?: Database["public"]["Enums"]["canonical_export_status"]
+          updated_at?: string
+          updated_by?: string | null
+          validation_summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_exports_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_exports_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossier_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_field_provenance: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          entity_id: string
+          entity_table: string
+          extracted_at: string | null
+          extraction_model: string | null
+          field_path: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          schema_version: number
+          source_document_id: string | null
+          source_type: Database["public"]["Enums"]["provenance_source_type"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          entity_id: string
+          entity_table: string
+          extracted_at?: string | null
+          extraction_model?: string | null
+          field_path: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          schema_version?: number
+          source_document_id?: string | null
+          source_type?: Database["public"]["Enums"]["provenance_source_type"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          entity_id?: string
+          entity_table?: string
+          extracted_at?: string | null
+          extraction_model?: string | null
+          field_path?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          schema_version?: number
+          source_document_id?: string | null
+          source_type?: Database["public"]["Enums"]["provenance_source_type"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_field_provenance_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_field_provenance_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_household: {
+        Row: {
+          children_count: number
+          created_at: string
+          created_by: string | null
+          dependents_count: number
+          dossier_id: string
+          extra: Json
+          id: string
+          marital_status_effective: string | null
+          notes: string | null
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          children_count?: number
+          created_at?: string
+          created_by?: string | null
+          dependents_count?: number
+          dossier_id: string
+          extra?: Json
+          id?: string
+          marital_status_effective?: string | null
+          notes?: string | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          children_count?: number
+          created_at?: string
+          created_by?: string | null
+          dependents_count?: number
+          dossier_id?: string
+          extra?: Json
+          id?: string
+          marital_status_effective?: string | null
+          notes?: string | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_household_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: true
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_pension_incomes: {
+        Row: {
+          ahv_income: number | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          dossier_id: string
+          extra: Json
+          id: string
+          pension_income: number | null
+          person_id: string | null
+          pillar3a: number | null
+          pillar3b: number | null
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ahv_income?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id: string
+          extra?: Json
+          id?: string
+          pension_income?: number | null
+          person_id?: string | null
+          pillar3a?: number | null
+          pillar3b?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ahv_income?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id?: string
+          extra?: Json
+          id?: string
+          pension_income?: number | null
+          person_id?: string | null
+          pillar3a?: number | null
+          pillar3b?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_pension_incomes_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_pension_incomes_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_persons: {
+        Row: {
+          address: string | null
+          ahv_number: string | null
+          birth_date: string | null
+          canton: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          extra: Json
+          first_name: string | null
+          id: string
+          last_name: string | null
+          marital_status: string | null
+          municipality: string | null
+          nationality: string | null
+          postal_code: string | null
+          religion: string | null
+          role: Database["public"]["Enums"]["canonical_person_role"]
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          ahv_number?: string | null
+          birth_date?: string | null
+          canton?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          extra?: Json
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          marital_status?: string | null
+          municipality?: string | null
+          nationality?: string | null
+          postal_code?: string | null
+          religion?: string | null
+          role: Database["public"]["Enums"]["canonical_person_role"]
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          ahv_number?: string | null
+          birth_date?: string | null
+          canton?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          extra?: Json
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          marital_status?: string | null
+          municipality?: string | null
+          nationality?: string | null
+          postal_code?: string | null
+          religion?: string | null
+          role?: Database["public"]["Enums"]["canonical_person_role"]
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_persons_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_real_estate: {
+        Row: {
+          address: string | null
+          canton: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          dossier_id: string
+          extra: Json
+          id: string
+          maintenance_costs: number | null
+          municipality: string | null
+          purchase_value: number | null
+          purchase_year: number | null
+          rental_income: number | null
+          schema_version: number
+          tax_value: number | null
+          updated_at: string
+          updated_by: string | null
+          usage: string | null
+        }
+        Insert: {
+          address?: string | null
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id: string
+          extra?: Json
+          id?: string
+          maintenance_costs?: number | null
+          municipality?: string | null
+          purchase_value?: number | null
+          purchase_year?: number | null
+          rental_income?: number | null
+          schema_version?: number
+          tax_value?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          usage?: string | null
+        }
+        Update: {
+          address?: string | null
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dossier_id?: string
+          extra?: Json
+          id?: string
+          maintenance_costs?: number | null
+          municipality?: string | null
+          purchase_value?: number | null
+          purchase_year?: number | null
+          rental_income?: number | null
+          schema_version?: number
+          tax_value?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          usage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_real_estate_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_self_employment_incomes: {
+        Row: {
+          business_name: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          details: Json
+          dossier_id: string
+          expenses: number | null
+          id: string
+          net_income: number | null
+          person_id: string | null
+          revenue: number | null
+          schema_version: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          details?: Json
+          dossier_id: string
+          expenses?: number | null
+          id?: string
+          net_income?: number | null
+          person_id?: string | null
+          revenue?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          details?: Json
+          dossier_id?: string
+          expenses?: number | null
+          id?: string
+          net_income?: number | null
+          person_id?: string | null
+          revenue?: number | null
+          schema_version?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_self_employment_incomes_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "canonical_self_employment_incomes_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      canonical_validations: {
+        Row: {
+          canton: string | null
+          created_at: string
+          created_by: string | null
+          dossier_id: string
+          findings: Json
+          id: string
+          revision: number
+          schema_version: number
+          status: Database["public"]["Enums"]["canonical_validation_status"]
+          updated_at: string
+          updated_by: string | null
+          validator: string
+        }
+        Insert: {
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id: string
+          findings?: Json
+          id?: string
+          revision: number
+          schema_version?: number
+          status: Database["public"]["Enums"]["canonical_validation_status"]
+          updated_at?: string
+          updated_by?: string | null
+          validator: string
+        }
+        Update: {
+          canton?: string | null
+          created_at?: string
+          created_by?: string | null
+          dossier_id?: string
+          findings?: Json
+          id?: string
+          revision?: number
+          schema_version?: number
+          status?: Database["public"]["Enums"]["canonical_validation_status"]
+          updated_at?: string
+          updated_by?: string | null
+          validator?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canonical_validations_dossier_id_fkey"
+            columns: ["dossier_id"]
+            isOneToOne: false
+            referencedRelation: "canonical_dossiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_attachments: {
         Row: {
           encrypted: boolean | null
@@ -2848,6 +3862,13 @@ export type Database = {
       }
       cleanup_old_data: { Args: never; Returns: Json }
       cleanup_security_logs: { Args: never; Returns: number }
+      create_dossier_snapshot: {
+        Args: {
+          p_dossier_id: string
+          p_reason?: Database["public"]["Enums"]["canonical_snapshot_reason"]
+        }
+        Returns: string
+      }
       delete_auth_user_admin: {
         Args: { target_user_id: string }
         Returns: Json
@@ -2983,6 +4004,10 @@ export type Database = {
       reset_onboarding_tour: { Args: { user_ids: string[] }; Returns: number }
       should_show_mfa_prompt: { Args: { p_user_id: string }; Returns: boolean }
       strengthen_user_session_security: { Args: never; Returns: undefined }
+      user_owns_canonical_dossier: {
+        Args: { _dossier_id: string }
+        Returns: boolean
+      }
       validate_admin_operation_secure: {
         Args: { p_operation_type: string; p_target_resource?: string }
         Returns: Json
@@ -3023,7 +4048,23 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      canonical_dossier_status:
+        | "draft"
+        | "in_review"
+        | "submitted"
+        | "exported"
+        | "archived"
+      canonical_export_status: "prepared" | "exported" | "failed"
+      canonical_person_role: "taxpayer" | "spouse" | "child" | "dependent"
+      canonical_snapshot_reason:
+        | "manual"
+        | "submission"
+        | "export"
+        | "migration"
+        | "checkpoint"
+      canonical_validation_status: "pass" | "warn" | "fail" | "error"
       key_source_type: "local" | "master"
+      provenance_source_type: "manual" | "ai" | "imported" | "migrated"
       ticket_priority: "low" | "medium" | "high" | "urgent"
       ticket_status: "open" | "in_progress" | "resolved" | "closed"
     }
@@ -3154,7 +4195,25 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      canonical_dossier_status: [
+        "draft",
+        "in_review",
+        "submitted",
+        "exported",
+        "archived",
+      ],
+      canonical_export_status: ["prepared", "exported", "failed"],
+      canonical_person_role: ["taxpayer", "spouse", "child", "dependent"],
+      canonical_snapshot_reason: [
+        "manual",
+        "submission",
+        "export",
+        "migration",
+        "checkpoint",
+      ],
+      canonical_validation_status: ["pass", "warn", "fail", "error"],
       key_source_type: ["local", "master"],
+      provenance_source_type: ["manual", "ai", "imported", "migrated"],
       ticket_priority: ["low", "medium", "high", "urgent"],
       ticket_status: ["open", "in_progress", "resolved", "closed"],
     },
