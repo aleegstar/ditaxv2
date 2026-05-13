@@ -46,22 +46,22 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
     <button
       onClick={onClick}
       className={cn(
-        'group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all text-left',
+        'group relative w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] transition-all duration-200 text-left',
         isActive
-          ? 'bg-primary/10 text-primary font-medium'
-          : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
+          ? 'bg-foreground/[0.05] text-foreground font-medium'
+          : 'text-muted-foreground/90 hover:bg-foreground/[0.035] hover:text-foreground'
       )}
     >
       <Icon
         className={cn(
-          'w-[18px] h-[18px] flex-shrink-0',
-          isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground/80'
+          'w-[17px] h-[17px] flex-shrink-0 transition-colors',
+          isActive ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground/80'
         )}
         strokeWidth={1.75}
       />
-      <span className="truncate">{item.label}</span>
+      <span className="truncate tracking-tight">{item.label}</span>
       {!!item.badge && item.badge > 0 && (
-        <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+        <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
           {item.badge > 9 ? '9+' : item.badge}
         </span>
       )}
@@ -70,7 +70,7 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
 };
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="px-3 pt-5 pb-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-muted-foreground/50">
+  <div className="px-3 pt-6 pb-2 text-[10px] font-medium tracking-[0.14em] uppercase text-muted-foreground/45">
     {children}
   </div>
 );
