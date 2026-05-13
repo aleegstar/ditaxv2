@@ -791,3 +791,8 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
     </>
   );
 }
+
+export default function TaxReturnActions() {
+  return <TaxReturnActionsContent />;
+}
+
