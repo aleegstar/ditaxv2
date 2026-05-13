@@ -134,18 +134,87 @@ function mapEmployment(formData: AnyObj): EmploymentIncome[] {
 
 function mapRealEstate(formData: AnyObj): RealEstate[] {
   const list = (formData.realEstate ?? formData.properties ?? []) as AnyObj[];
+  // form layer also stores properties under assets.properties
+  const assetsObj = (formData.assets ?? {}) as AnyObj;
+  const altList = Array.isArray(assetsObj.properties) ? (assetsObj.properties as AnyObj[]) : [];
+  const merged = Array.isArray(list) && list.length ? list : altList;
+  if (!Array.isArray(merged)) return [];
+  return merged.map((r) => {
+    const usage = (r.usage ?? r.use) as 'self' | 'rented' | undefined;
+    return {
+      address: s(r.address),
+      canton: tracked(r.canton as Canton | undefined),
+      municipality: s(r.municipality),
+      usage: tracked(usage),
+      purchase_value: m(r.purchaseValue),
+      purchase_year: tracked(num(r.purchaseYear)),
+      tax_value: m(r.taxValue),
+      rental_income: m(r.rentalIncome),
+      eigenmietwert: m(r.rentalValue ?? r.eigenmietwert),
+      maintenance_costs: m(r.maintenanceCosts),
+      maintenance_method: tracked(
+        (r.maintenanceMethod ?? r.maintenance_method) as 'pauschal' | 'effektiv' | undefined,
+      ),
+      maintenance_value_preserving: m(r.maintenanceValuePreserving ?? r.werterhaltend),
+      maintenance_value_increasing: m(r.maintenanceValueIncreasing ?? r.wertvermehrend),
+    };
+  });
+}
+
+function mapVehicles(assets: AnyObj): import('../types').VehicleAsset[] {
+  const list = (assets.vehicles ?? []) as AnyObj[];
   if (!Array.isArray(list)) return [];
-  return list.map((r) => ({
-    address: s(r.address),
-    canton: tracked(r.canton as Canton | undefined),
-    municipality: s(r.municipality),
-    usage: tracked((r.usage ?? r.use) as 'self' | 'rented' | undefined),
-    purchase_value: m(r.purchaseValue),
-    purchase_year: tracked(num(r.purchaseYear)),
-    tax_value: m(r.taxValue),
-    rental_income: m(r.rentalIncome),
-    maintenance_costs: m(r.maintenanceCosts),
-  }));
+  return list.map((v) => {
+    const value = num(v.value ?? v.purchasePrice);
+    return {
+      type: typeof v.type === 'string' ? v.type : undefined,
+      brand: typeof v.brand === 'string' ? v.brand : (typeof v.name === 'string' ? v.name : undefined),
+      model: typeof v.model === 'string' ? v.model : undefined,
+      year: num(v.year ?? v.purchaseYear),
+      value: value === undefined ? undefined : Money.of(value, 'CHF'),
+      plate: typeof v.plate === 'string' ? v.plate : undefined,
+    };
+  });
+}
+
+function mapMortgages(debts: AnyObj, assets: AnyObj): import('../types').MortgageItem[] {
+  // Prefer explicit debts.mortgages; otherwise pick mortgages out of assets.debts
+  const explicit = (debts.mortgages ?? []) as AnyObj[];
+  if (Array.isArray(explicit) && explicit.length) {
+    return explicit.map((mt) => ({
+      lender: typeof mt.lender === 'string' ? mt.lender : undefined,
+      property_id: typeof mt.property_id === 'string' ? mt.property_id : undefined,
+      balance: num(mt.balance) === undefined ? undefined : Money.of(num(mt.balance)!, 'CHF'),
+      interest: num(mt.interest) === undefined ? undefined : Money.of(num(mt.interest)!, 'CHF'),
+    }));
+  }
+  const assetDebts = Array.isArray(assets.debts) ? (assets.debts as AnyObj[]) : [];
+  return assetDebts
+    .filter((d) => d.type === 'mortgage')
+    .map((d) => ({
+      lender: typeof d.description === 'string' ? d.description : undefined,
+      balance: num(d.amount) === undefined ? undefined : Money.of(num(d.amount)!, 'CHF'),
+      interest: num(d.interest) === undefined ? undefined : Money.of(num(d.interest)!, 'CHF'),
+    }));
+}
+
+function mapLoans(debts: AnyObj, assets: AnyObj): import('../types').LoanItem[] {
+  const explicit = (debts.loans ?? []) as AnyObj[];
+  if (Array.isArray(explicit) && explicit.length) {
+    return explicit.map((l) => ({
+      lender: typeof l.lender === 'string' ? l.lender : undefined,
+      balance: num(l.balance) === undefined ? undefined : Money.of(num(l.balance)!, 'CHF'),
+      interest: num(l.interest) === undefined ? undefined : Money.of(num(l.interest)!, 'CHF'),
+    }));
+  }
+  const assetDebts = Array.isArray(assets.debts) ? (assets.debts as AnyObj[]) : [];
+  return assetDebts
+    .filter((d) => d.type !== 'mortgage')
+    .map((d) => ({
+      lender: typeof d.description === 'string' ? d.description : undefined,
+      balance: num(d.amount) === undefined ? undefined : Money.of(num(d.amount)!, 'CHF'),
+      interest: num(d.interest) === undefined ? undefined : Money.of(num(d.interest)!, 'CHF'),
+    }));
 }
 
 export function assembleDossier({ user_id, tax_filer_id, tax_year, canton, formData }: AssembleArgs): Dossier {
@@ -178,10 +247,11 @@ export function assembleDossier({ user_id, tax_filer_id, tax_year, canton, formD
       securities: Array.isArray(assets.securities) ? (assets.securities as never) : [],
       crypto_assets: Array.isArray(assets.cryptoAssets) ? (assets.cryptoAssets as never) : [],
       foreign_assets: Array.isArray(assets.foreignAssets) ? (assets.foreignAssets as never) : [],
+      vehicles: mapVehicles(assets),
     },
     debts: {
-      mortgages: Array.isArray(debts.mortgages) ? (debts.mortgages as never) : [],
-      loans: Array.isArray(debts.loans) ? (debts.loans as never) : [],
+      mortgages: mapMortgages(debts, assets),
+      loans: mapLoans(debts, assets),
       interest_paid: m(debts.interestPaid),
     },
     real_estate: mapRealEstate(f),
