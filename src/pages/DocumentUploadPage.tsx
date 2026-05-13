@@ -192,10 +192,40 @@ const DocumentUploadPageContent: React.FC = () => {
     checklistItems,
     formDataLoaded,
     isDataLoading,
-    taxYear
+    taxYear,
+    formData,
+    updateFormData,
   } = useFormContext();
   const [selectedItem, setSelectedItem] = useState<ChecklistItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [ocrOpen, setOcrOpen] = useState(false);
+  const isLohnausweis = itemId === 'employment-income';
+  const existingOcr: LohnausweisFields | undefined =
+    (formData?.income as any)?.employers?.find((e: any) => e?.lohnausweis)?.lohnausweis;
+
+  const handleOcrConfirm = (fields: LohnausweisFields) => {
+    const employers = Array.isArray((formData?.income as any)?.employers)
+      ? [...(formData.income as any).employers]
+      : [];
+    if (employers.length === 0) {
+      employers.push({
+        id: Math.random().toString(36).slice(2, 11),
+        workLocation: '',
+        workload: 100,
+        workDays: 5,
+        commute: 'public',
+        lohnausweis: fields,
+      });
+    } else {
+      employers[0] = { ...employers[0], lohnausweis: fields };
+    }
+    updateFormData('income', { ...(formData.income as any), employers });
+    toast({
+      title: 'Lohnausweis-Daten übernommen',
+      description: 'Die erkannten Werte wurden für deine Steuererklärung gespeichert.',
+    });
+    setOcrOpen(false);
+  };
   useEffect(() => {
     console.log('🔍 DocumentUploadPage effect:', {
       itemId,
