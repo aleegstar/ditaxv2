@@ -26,6 +26,7 @@ export interface LohnausweisFields {
   further_education?: number;
   free_meals?: boolean;
   free_transport?: boolean;
+  shift_days?: number;
   notes?: string;
   currency?: string;
   confidence?: number;
