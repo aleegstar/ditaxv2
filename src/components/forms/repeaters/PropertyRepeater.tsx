@@ -227,6 +227,69 @@ export const PropertyRepeater: React.FC<PropertyRepeaterProps> = ({ properties, 
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="md:col-span-2">
+                  <Label htmlFor={`maintenanceMethod-${property.id}`} className="text-black">
+                    Liegenschaftsunterhalt
+                  </Label>
+                  <Select
+                    value={property.maintenanceMethod ?? 'pauschal'}
+                    onValueChange={(value) => updateProperty(property.id, 'maintenanceMethod', value as 'pauschal' | 'effektiv')}
+                  >
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 z-50">
+                      <SelectItem value="pauschal">Pauschalabzug</SelectItem>
+                      <SelectItem value="effektiv">Effektive Kosten</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(property.maintenanceMethod ?? 'pauschal') === 'effektiv' ? (
+                  <>
+                    <div>
+                      <Label htmlFor={`werterhaltend-${property.id}`} className="text-black">
+                        Werterhaltend (CHF)
+                      </Label>
+                      <Input
+                        id={`werterhaltend-${property.id}`}
+                        type="number"
+                        value={property.werterhaltend ?? ''}
+                        onChange={(e) => updateProperty(property.id, 'werterhaltend', parseFloat(e.target.value) || 0)}
+                        className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                        placeholder="z.B. 4500"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`wertvermehrend-${property.id}`} className="text-black">
+                        Wertvermehrend (CHF)
+                      </Label>
+                      <Input
+                        id={`wertvermehrend-${property.id}`}
+                        type="number"
+                        value={property.wertvermehrend ?? ''}
+                        onChange={(e) => updateProperty(property.id, 'wertvermehrend', parseFloat(e.target.value) || 0)}
+                        className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                        placeholder="z.B. 12000"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="md:col-span-2">
+                    <Label htmlFor={`maintenanceCosts-${property.id}`} className="text-black">
+                      Pauschalabzug (CHF, optional)
+                    </Label>
+                    <Input
+                      id={`maintenanceCosts-${property.id}`}
+                      type="number"
+                      value={property.maintenanceCosts ?? ''}
+                      onChange={(e) => updateProperty(property.id, 'maintenanceCosts', parseFloat(e.target.value) || 0)}
+                      className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                      placeholder="Wird automatisch berechnet"
+                    />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

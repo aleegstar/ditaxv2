@@ -104,6 +104,20 @@ export const DebtRepeater: React.FC<DebtRepeaterProps> = ({ debts, onUpdate }) =
                   />
                 </div>
 
+                <div>
+                  <Label htmlFor={`interest-${debt.id}`} className="text-black">
+                    Schuldzinsen p.a. (CHF)
+                  </Label>
+                  <Input
+                    id={`interest-${debt.id}`}
+                    type="number"
+                    value={debt.interest ?? ''}
+                    onChange={(e) => updateDebt(debt.id, 'interest', parseFloat(e.target.value) || 0)}
+                    className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+                    placeholder="z.B. 1200"
+                  />
+                </div>
+
                 <div className="md:col-span-2">
                   <Label htmlFor={`description-${debt.id}`} className="text-black">
                     Beschreibung
