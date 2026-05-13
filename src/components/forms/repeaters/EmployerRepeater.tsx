@@ -27,6 +27,8 @@ interface EmployerRepeaterProps {
 }
 
 export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, onChange }) => {
+  const [ocrEmployerId, setOcrEmployerId] = React.useState<string | null>(null);
+
   const addEmployer = () => {
     const newEmployer: EmployerData = {
       id: Math.random().toString(36).substr(2, 9),
