@@ -44,7 +44,7 @@ interface AssembleArgs {
 
 function mapPersons(formData: AnyObj): Person[] {
   const persons: Person[] = [];
-  const personal = (formData.personal ?? formData.personalInfo ?? {}) as AnyObj;
+  const personal = (formData.personal ?? formData.personalInfo ?? formData.contactInfo ?? {}) as AnyObj;
   if (personal && Object.keys(personal).length) {
     persons.push({
       role: 'taxpayer',
@@ -58,12 +58,20 @@ function mapPersons(formData: AnyObj): Person[] {
       address: s(personal.address),
       postal_code: s(personal.postalCode ?? personal.zip),
       city: s(personal.city),
-      canton: tracked(personal.canton as Canton | undefined),
+      canton: tracked((personal.canton ?? personal.kanton) as Canton | undefined),
       municipality: s(personal.municipality),
+      profession: s(personal.profession ?? personal.beruf),
+      work_percentage: tracked(num(personal.workPercentage ?? personal.arbeitspensum)),
+      place_of_origin: s(personal.placeOfOrigin ?? personal.heimatort),
+      marriage_date: s(personal.marriageDate ?? personal.heiratsDatum),
+      separation_date: s(personal.separationDate ?? personal.trennungsDatum),
+      residence_change_date: s(personal.residenceChangeDate),
+      previous_address: s(personal.previousAddress ?? personal.endYearAddress),
     });
   }
 
   const spouse = (formData.spouse ?? {}) as AnyObj;
+  const hasSpouseInline = personal.spouseFirstName || personal.spouseLastName || personal.spouseBirthDate;
   if (spouse && Object.keys(spouse).length) {
     persons.push({
       role: 'spouse',
@@ -71,10 +79,20 @@ function mapPersons(formData: AnyObj): Person[] {
       last_name: s(spouse.lastName),
       birth_date: s(spouse.birthDate ?? spouse.dateOfBirth),
       ahv_number: s(spouse.ahvNumber),
+      profession: s(spouse.profession),
+      work_percentage: tracked(num(spouse.workPercentage)),
+    });
+  } else if (hasSpouseInline) {
+    persons.push({
+      role: 'spouse',
+      first_name: s(personal.spouseFirstName),
+      last_name: s(personal.spouseLastName),
+      birth_date: s(personal.spouseBirthDate),
+      religion: s(personal.spouseReligion),
     });
   }
 
-  const children = (formData.children ?? []) as AnyObj[];
+  const children = (formData.children ?? personal.children ?? []) as AnyObj[];
   if (Array.isArray(children)) {
     for (const c of children) {
       persons.push({
