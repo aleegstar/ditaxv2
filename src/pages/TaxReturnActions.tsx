@@ -21,8 +21,16 @@ interface UserProfile {
   date_of_birth?: string;
 }
 
-export default function TaxReturnActions() {
-  const { completedTaxReturnId } = useParams();
+interface TaxReturnActionsContentProps {
+  /** When provided, overrides the URL param. */
+  completedTaxReturnId?: string;
+  /** When true, hides SubpageHeader and outer min-h-screen wrapper. */
+  embedded?: boolean;
+}
+
+export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded = false }: TaxReturnActionsContentProps = {}) {
+  const params = useParams();
+  const completedTaxReturnId = propId ?? params.completedTaxReturnId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useI18n();
