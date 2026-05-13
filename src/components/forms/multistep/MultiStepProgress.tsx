@@ -18,23 +18,23 @@ export const MultiStepProgress: React.FC<MultiStepProgressProps> = ({
   const safeCurrent = Math.min(Math.max(0, currentStep), safeTotal - 1);
 
   return (
-    <div className={cn("mb-8 px-4", className)}>
+    <div className={cn("mb-10 px-4", className)}>
       {/* Segment bars */}
       <div className="flex items-center gap-1.5">
         {Array.from({ length: safeTotal }).map((_, index) => (
           <div
             key={index}
             className={cn(
-              "h-1 flex-1 rounded-full transition-all duration-500",
+              "h-[3px] flex-1 rounded-full transition-all duration-700 ease-out",
               index <= safeCurrent
                 ? "bg-primary"
-                : "bg-foreground/[0.08]"
+                : "bg-foreground/[0.06]"
             )}
           />
         ))}
       </div>
       {/* Counter text */}
-      <p className="text-[11px] text-muted-foreground mt-2 text-center font-medium tabular-nums">
+      <p className="text-[11px] text-muted-foreground/60 mt-3 text-center font-medium tabular-nums tracking-[0.04em]">
         Frage {safeCurrent + 1} von {safeTotal}
       </p>
     </div>
