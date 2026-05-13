@@ -6,6 +6,10 @@ import { Sphere } from "@/components/ui/sphere";
 import { Button } from "@/components/ui/button";
 import { SubpageHeader } from "@/components/ui/subpage-header";
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
+import { ScanLine, CheckCircle2 } from 'lucide-react';
+import { LohnausweisOcrSheet } from '@/components/forms/lohnausweis/LohnausweisOcrSheet';
+import type { LohnausweisFields } from '@/services/LohnausweisOcrService';
+import { toast } from '@/hooks/use-toast';
 // Standard document definitions for fallback
 const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'tax-cover-sheet': {
@@ -188,10 +192,40 @@ const DocumentUploadPageContent: React.FC = () => {
     checklistItems,
     formDataLoaded,
     isDataLoading,
-    taxYear
+    taxYear,
+    formData,
+    updateFormData,
   } = useFormContext();
   const [selectedItem, setSelectedItem] = useState<ChecklistItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [ocrOpen, setOcrOpen] = useState(false);
+  const isLohnausweis = itemId === 'employment-income';
+  const existingOcr: LohnausweisFields | undefined =
+    (formData?.income as any)?.employers?.find((e: any) => e?.lohnausweis)?.lohnausweis;
+
+  const handleOcrConfirm = (fields: LohnausweisFields) => {
+    const employers = Array.isArray((formData?.income as any)?.employers)
+      ? [...(formData.income as any).employers]
+      : [];
+    if (employers.length === 0) {
+      employers.push({
+        id: Math.random().toString(36).slice(2, 11),
+        workLocation: '',
+        workload: 100,
+        workDays: 5,
+        commute: 'public',
+        lohnausweis: fields,
+      });
+    } else {
+      employers[0] = { ...employers[0], lohnausweis: fields };
+    }
+    updateFormData('income', { ...(formData.income as any), employers });
+    toast({
+      title: 'Lohnausweis-Daten übernommen',
+      description: 'Die erkannten Werte wurden für deine Steuererklärung gespeichert.',
+    });
+    setOcrOpen(false);
+  };
   useEffect(() => {
     console.log('🔍 DocumentUploadPage effect:', {
       itemId,
@@ -276,11 +310,52 @@ const DocumentUploadPageContent: React.FC = () => {
           </div>
         </div>
 
+        {isLohnausweis && (
+          <div className="w-full max-w-3xl mb-4">
+            <button
+              type="button"
+              onClick={() => setOcrOpen(true)}
+              className="w-full flex items-center justify-between gap-3 rounded-2xl border border-[#1D64FF]/30 bg-white px-4 py-3 text-left hover:bg-[#1D64FF]/5 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1D64FF]/10">
+                  {existingOcr ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <ScanLine className="w-4 h-4 text-[#1D64FF]" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    {existingOcr ? 'Lohnausweis-Daten erfasst' : 'Daten automatisch erfassen'}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {existingOcr
+                      ? 'Tippe um die erkannten Werte zu prüfen oder zu ändern.'
+                      : 'Wir lesen Ziff. 8, BVG, Quellensteuer sowie Felder F & G aus.'}
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-[#1D64FF]">
+                {existingOcr ? 'Ändern' : 'Scannen'}
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* Upload card */}
         <div className="w-full max-w-3xl rounded-[24px] overflow-hidden bg-transparent border-slate-200 p-0 border-0">
           <EnhancedDocumentUploader checklistItem={selectedItem} onBack={handleBack} onDocumentSubmitted={handleDocumentSubmitted} hideBackButton={true} hideHeader={true} />
         </div>
       </div>
+
+      {isLohnausweis && (
+        <LohnausweisOcrSheet
+          open={ocrOpen}
+          onOpenChange={setOcrOpen}
+          onConfirm={handleOcrConfirm}
+        />
+      )}
     </div>;
 };
 const DocumentUploadPage: React.FC = () => {

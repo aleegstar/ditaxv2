@@ -6,9 +6,8 @@ import { Input } from '@/components/ui/input';
 import { SecureFormInput } from '@/components/ui/secure-form-input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, ScanLine, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { AnimatedFormField } from '@/components/ui/animated-form-field';
-import { LohnausweisOcrSheet } from '@/components/forms/lohnausweis/LohnausweisOcrSheet';
 import type { LohnausweisFields } from '@/services/LohnausweisOcrService';
 
 interface EmployerData {
@@ -27,8 +26,6 @@ interface EmployerRepeaterProps {
 }
 
 export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, onChange }) => {
-  const [ocrEmployerId, setOcrEmployerId] = React.useState<string | null>(null);
-
   const addEmployer = () => {
     const newEmployer: EmployerData = {
       id: Math.random().toString(36).substr(2, 9),
@@ -81,26 +78,7 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
               </Button>
             </div>
 
-            {/* Lohnausweis OCR */}
-            <div className="mb-4 -mt-1">
-              <button
-                type="button"
-                onClick={() => setOcrEmployerId(employer.id)}
-                className="inline-flex items-center gap-2 rounded-full border border-[#1D64FF]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
-              >
-                {employer.lohnausweis ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Lohnausweis erfasst – ändern
-                  </>
-                ) : (
-                  <>
-                    <ScanLine className="w-3.5 h-3.5" />
-                    Lohnausweis hochladen
-                  </>
-                )}
-              </button>
-            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -227,16 +205,6 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
           Weiteren Arbeitgeber hinzufügen
         </Button>
       )}
-
-      <LohnausweisOcrSheet
-        open={ocrEmployerId !== null}
-        onOpenChange={(o) => { if (!o) setOcrEmployerId(null); }}
-        onConfirm={(fields) => {
-          if (!ocrEmployerId) return;
-          updateEmployer(ocrEmployerId, 'lohnausweis', fields);
-          setOcrEmployerId(null);
-        }}
-      />
     </div>
   );
 };
