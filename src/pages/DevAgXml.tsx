@@ -115,7 +115,10 @@ export default function DevAgXml() {
     <div className="p-6 space-y-4 text-sm">
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">AG eTax XML / ZIP Inspector</h1>
-        <span className="text-xs text-muted-foreground">deterministic · dev-only</span>
+        <div className="flex items-center gap-3">
+          <a href="/dev/ag-import" className="text-xs underline">→ /dev/ag-import (compatibility)</a>
+          <span className="text-xs text-muted-foreground">deterministic · dev-only</span>
+        </div>
       </header>
 
       <section className="border rounded p-3 space-y-2">
