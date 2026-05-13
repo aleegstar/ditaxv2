@@ -9,6 +9,7 @@ import { documentService } from '../../services/DocumentService';
 import { androidDebug, safeClone } from '../../utils/androidDebug';
 import { useTaxFiler } from '../TaxFilerContext';
 import { useAuth } from '../AuthContext';
+import { syncDossierFromFormData } from '../../domain/canonical/dualWrite';
 
 // Production-safe logging - only log in development
 const isDev = process.env.NODE_ENV === 'development';
@@ -738,6 +739,16 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
       }
 
       console.log(`✅ [SAVE] Successfully saved ${section} data to database for year ${taxYear}, tax filer ${activeTaxFilerId}`);
+
+      // Dual-write into canonical model (best-effort, non-blocking, never throws).
+      const mergedFormData = { ...formData, [section]: { ...(formData as any)[section], ...data } };
+      void syncDossierFromFormData({
+        user_id: userId,
+        tax_filer_id: activeTaxFilerId,
+        tax_year: taxYear,
+        canton: ((mergedFormData as any)?.personal?.canton ?? (mergedFormData as any)?.contactInfo?.canton) as any,
+        formData: mergedFormData,
+      });
 
     } catch (error: any) {
       console.error('❌ [SAVE] Error saving form data:', error);
