@@ -13,10 +13,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import {
-  buildAGExportPackage, allFixtures, hashCanonicalDossier, hashExportPayload,
-  type PackageResult,
-} from '@/domain/canonical/export/ag';
+import { buildAGExportPackage, allFixtures, type PackageResult } from '@/domain/canonical/export/ag';
+import { hashCanonicalDossier, hashExportPayload } from '@/domain/canonical';
 import {
   parseXml, normalizeXml, diffXmlTrees, readZip, analyzeStructure,
   listImportTests, upsertImportTest, deleteImportTest,
