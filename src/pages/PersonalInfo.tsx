@@ -8,11 +8,13 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/compone
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
+import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import sectionContactImg from '@/assets/section-contact.svg';
 import sectionIncomeImg from '@/assets/section-income.svg';
 import sectionDeductionsImg from '@/assets/section-deductions.svg';
 import sectionAssetsImg from '@/assets/section-assets.svg';
 import completeIllustration from '@/assets/documents-complete-illustration.svg';
+import documentsMessageImg from '@/assets/documents-message.svg';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
@@ -116,24 +118,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         onBack={() => navigate('/')}
       />
       <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
-        {/* Progress summary — editorial, restrained */}
-        <div className="mb-8 px-1">
-          <div className="flex items-baseline justify-between mb-2.5">
-            <p className="text-[12px] font-medium tracking-[0.08em] uppercase text-muted-foreground/60">
-              Fortschritt
-            </p>
-            <p className="text-[13px] tabular-nums text-muted-foreground/70">
-              <span className="text-foreground font-medium">{completedCount}</span>
-              <span className="text-muted-foreground/50"> / {sections.length}</span>
-            </p>
-          </div>
-          <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
-              style={{ width: `${(completedCount / sections.length) * 100}%` }}
-            />
-          </div>
-        </div>
+        {/* Removed top progress; shown at bottom card */}
 
         {/* 2x2 grid — premium handcrafted cards */}
         <motion.div
