@@ -8,7 +8,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/compone
 import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
-import sectionContactImg from '@/assets/section-contact.webp';
+import sectionContactImg from '@/assets/section-contact.svg';
 import sectionIncomeImg from '@/assets/section-income.png';
 import sectionDeductionsImg from '@/assets/section-deductions.webp';
 import sectionAssetsImg from '@/assets/section-assets.webp';
