@@ -216,21 +216,53 @@ export default function DevAgXml() {
 
       <section className="border rounded p-3 space-y-2">
         <div className="flex flex-wrap gap-2 items-center">
-          <select className="border rounded px-2 py-1" value={source} onChange={(e) => setSource(e.target.value as 'dossier' | 'fixture')}>
+          <select className="border rounded px-2 py-1" value={source} onChange={(e) => setSource(e.target.value as 'customer' | 'dossier' | 'fixture')}>
+            <option value="customer">Kundendaten</option>
             <option value="fixture">Fixture</option>
             <option value="dossier">Dossier snapshot</option>
           </select>
-          {source === 'fixture' ? (
+          {source === 'fixture' && (
             <select className="border rounded px-2 py-1" value={fixtureName} onChange={(e) => setFixtureName(e.target.value)}>
               {allFixtures.map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
             </select>
-          ) : (
+          )}
+          {source === 'dossier' && (
             <select className="border rounded px-2 py-1 max-w-xs" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
               <option value="">— pick dossier —</option>
               {dossiers.map((d) => (
                 <option key={d.id} value={d.id}>{d.tax_year} · rev{d.current_revision} · {d.id.slice(0, 8)}</option>
               ))}
             </select>
+          )}
+          {source === 'customer' && (
+            <>
+              <input
+                className="border rounded px-2 py-1 w-48"
+                placeholder="Kunde suchen (Name/E-Mail)…"
+                value={userQuery}
+                onChange={(e) => setUserQuery(e.target.value)}
+              />
+              <select className="border rounded px-2 py-1 max-w-[18rem]" value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)}>
+                <option value="">— Kunde wählen —</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {[u.first_name, u.last_name].filter(Boolean).join(' ') || '(ohne Name)'} · {u.email ?? '—'}
+                  </option>
+                ))}
+              </select>
+              <select className="border rounded px-2 py-1" value={selectedFilerId} onChange={(e) => setSelectedFilerId(e.target.value)} disabled={!filers.length}>
+                <option value="">— Person —</option>
+                {filers.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {[f.first_name, f.last_name].filter(Boolean).join(' ') || '(ohne Name)'}{f.is_primary ? ' ★' : ''}
+                  </option>
+                ))}
+              </select>
+              <select className="border rounded px-2 py-1" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} disabled={!filerYears.length}>
+                <option value="">— Jahr —</option>
+                {filerYears.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </>
           )}
           <input className="border rounded px-2 py-1 w-32" value={rulesVersion} onChange={(e) => setRulesVersion(e.target.value)} />
           <input className="border rounded px-2 py-1 w-64" value={generatedAt} onChange={(e) => setGeneratedAt(e.target.value)} />
