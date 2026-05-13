@@ -78,26 +78,7 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
               </Button>
             </div>
 
-            {/* Lohnausweis OCR */}
-            <div className="mb-4 -mt-1">
-              <button
-                type="button"
-                onClick={() => setOcrEmployerId(employer.id)}
-                className="inline-flex items-center gap-2 rounded-full border border-[#1D64FF]/30 bg-white px-3 py-1.5 text-xs font-semibold text-[#1D64FF] hover:bg-[#1D64FF]/5 transition-all"
-              >
-                {employer.lohnausweis ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Lohnausweis erfasst – ändern
-                  </>
-                ) : (
-                  <>
-                    <ScanLine className="w-3.5 h-3.5" />
-                    Lohnausweis hochladen
-                  </>
-                )}
-              </button>
-            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
