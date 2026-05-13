@@ -7,24 +7,37 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold tracking-tight transition-all duration-200 outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-[15px] font-semibold tracking-tight transition-all duration-200 outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] text-white shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:scale-[1.02] hover:brightness-[1.04] active:scale-[0.97] active:brightness-95",
+        // PRIMARY — unified premium dark charcoal button (global standard)
+        default:
+          "text-white border border-white/[0.08] " +
+          "bg-[linear-gradient(180deg,#2B2B35_0%,#17171C_100%)] " +
+          "shadow-[0_8px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] " +
+          "hover:bg-[linear-gradient(180deg,#33333E_0%,#1C1C22_100%)] " +
+          "hover:shadow-[0_12px_28px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.14)] " +
+          "active:scale-[0.985] active:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.10)]",
         destructive:
-          "bg-gradient-to-b from-destructive to-[hsl(var(--destructive)/0.85)] text-white shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_2px_8px_-2px_hsl(var(--destructive)/0.25),inset_0_1px_0_0_rgba(255,255,255,0.16)] hover:shadow-[0_2px_6px_0_rgba(0,0,0,0.1),0_4px_12px_-2px_hsl(var(--destructive)/0.3),inset_0_1px_0_0_rgba(255,255,255,0.2)] hover:brightness-[1.04] active:scale-[0.97] active:brightness-95",
+          "text-white border border-white/[0.08] " +
+          "bg-[linear-gradient(180deg,hsl(var(--destructive))_0%,hsl(var(--destructive)/0.82)_100%)] " +
+          "shadow-[0_8px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.16)] " +
+          "hover:brightness-[1.05] active:scale-[0.985]",
         outline:
-          "bg-background border border-border text-foreground shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] hover:bg-muted/50 active:scale-[0.97]",
+          "bg-white text-foreground border border-[rgba(20,20,20,0.08)] " +
+          "shadow-[0_1px_2px_rgba(0,0,0,0.02)] " +
+          "hover:bg-foreground/[0.025] hover:border-[rgba(20,20,20,0.12)] active:scale-[0.985]",
         secondary:
-          "bg-muted/50 border border-border/60 text-foreground shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] hover:bg-muted active:scale-[0.97]",
-        ghost: "hover:bg-accent hover:text-accent-foreground active:scale-[0.97]",
+          "bg-foreground/[0.04] text-foreground border border-[rgba(20,20,20,0.06)] " +
+          "hover:bg-foreground/[0.06] active:scale-[0.985]",
+        ghost: "text-foreground hover:bg-foreground/[0.04] active:scale-[0.985]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "px-6 py-3",
-        sm: "h-9 px-4 text-sm",
-        lg: "h-13 px-7 py-3",
+        default: "h-12 px-5",
+        sm: "h-9 px-4 text-[13px] rounded-xl",
+        lg: "h-13 px-7 text-[15px]",
         icon: "h-10 w-10 min-w-[44px] min-h-[44px] rounded-full p-0",
       },
     },
