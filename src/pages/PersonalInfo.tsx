@@ -95,13 +95,13 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           title={t.formDashboard.personalInfo}
           onBack={() => navigate('/')}
         />
-        <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
-          <div className="mb-5 px-1">
-            <div className="h-1.5 w-full bg-white/70 rounded-full overflow-hidden border border-white/60" />
+        <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
+          <div className="mb-8 px-1">
+            <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full overflow-hidden" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {[0,1,2,3].map(i => (
-              <div key={i} className="rounded-2xl bg-white/60 border border-slate-200/80 min-h-[170px] animate-pulse" />
+              <div key={i} className="rounded-2xl bg-white border border-[rgba(20,20,20,0.06)] min-h-[190px] animate-pulse" />
             ))}
           </div>
         </main>
@@ -115,33 +115,35 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         title={t.formDashboard.personalInfo}
         onBack={() => navigate('/')}
       />
-      <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
-        {/* Progress summary */}
-        <div className="mb-5 px-1">
-          <div className="flex items-end justify-between mb-2">
-            <p className="text-sm text-muted-foreground">Fortschritt</p>
-            <p className="text-sm font-medium text-foreground">
-              <span className="text-[#1656FF]">{completedCount}</span>
-              <span className="text-muted-foreground"> / {sections.length}</span>
+      <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
+        {/* Progress summary — editorial, restrained */}
+        <div className="mb-8 px-1">
+          <div className="flex items-baseline justify-between mb-2.5">
+            <p className="text-[12px] font-medium tracking-[0.08em] uppercase text-muted-foreground/60">
+              Fortschritt
+            </p>
+            <p className="text-[13px] tabular-nums text-muted-foreground/70">
+              <span className="text-foreground font-medium">{completedCount}</span>
+              <span className="text-muted-foreground/50"> / {sections.length}</span>
             </p>
           </div>
-          <div className="h-1.5 w-full bg-white/70 rounded-full overflow-hidden border border-white/60">
+          <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#508BFF] to-[#1656FF] transition-all duration-500"
+              className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
               style={{ width: `${(completedCount / sections.length) * 100}%` }}
             />
           </div>
         </div>
 
-        {/* 2x2 grid — neutral white cards */}
+        {/* 2x2 grid — premium handcrafted cards */}
         <motion.div
           key={`grid-${completedCount}`}
-          className="grid grid-cols-2 gap-3"
+          className="grid grid-cols-2 gap-4"
           initial="hidden"
           animate="visible"
           variants={{
             hidden: {},
-            visible: { transition: { staggerChildren: 0.09, delayChildren: 0.08 } },
+            visible: { transition: { staggerChildren: 0.07, delayChildren: 0.06 } },
           }}
         >
           {sections.map((section) => {
@@ -150,27 +152,38 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
               <motion.button
                 key={section.id}
                 variants={{
-                  hidden: { opacity: 0, y: 18, scale: 0.96 },
-                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: [0.22, 0.61, 0.36, 1] } },
+                  hidden: { opacity: 0, y: 14 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 0.61, 0.36, 1] } },
                 }}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
-                  "relative text-left rounded-2xl bg-white border border-slate-200/80 p-4 pt-5",
-                  "shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  "active:scale-[0.98] transition-all duration-200 min-h-[170px] flex flex-col items-center justify-between"
+                  "group relative text-left rounded-2xl bg-white p-6 pt-7",
+                  "border border-[rgba(20,20,20,0.06)]",
+                  "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)]",
+                  "hover:border-[rgba(20,20,20,0.09)]",
+                  "hover:shadow-[0_2px_4px_rgba(0,0,0,0.03),0_12px_32px_rgba(0,0,0,0.05)]",
+                  "active:scale-[0.99] transition-all duration-300 min-h-[190px] flex flex-col items-center justify-between"
                 )}
               >
                 {completed && (
-                  <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-gradient-to-b from-[#508BFF] to-[#1656FF] flex items-center justify-center shadow-[0_4px_10px_-2px_rgba(22,86,255,0.5)]">
-                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                  <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.75} />
                   </div>
                 )}
-                <img src={section.image} alt="" width={320} height={320} loading="lazy" decoding="async" className="w-20 h-20 object-contain" />
-                <div className="text-center">
-                  <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-snug">
+                <img
+                  src={section.image}
+                  alt=""
+                  width={320}
+                  height={320}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-[72px] h-[72px] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+                <div className="text-center w-full">
+                  <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">
                     {section.title}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-1 leading-snug truncate">
+                  <p className="text-[12px] text-muted-foreground/70 mt-1.5 leading-relaxed truncate">
                     {section.description}
                   </p>
                 </div>
