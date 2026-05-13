@@ -658,13 +658,15 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
             {/* Editing Mode Indicator */}
             {viewState.isEditing && (
-              <div className="mb-4">
-                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <div className="text-sm text-slate-600">
-                      <span className="font-medium text-orange-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
-                    </div>
+              <div className="mb-5">
+                <div className="rounded-xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                    <p className="text-[12.5px] text-muted-foreground/85 leading-snug">
+                      <span className="font-medium text-foreground">Bearbeitungsmodus</span>
+                      <span className="text-muted-foreground/50"> · </span>
+                      Du bearbeitest diese Frage.
+                    </p>
                   </div>
                 </div>
               </div>
