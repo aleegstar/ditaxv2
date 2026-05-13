@@ -18,7 +18,7 @@ import type {
   AGAddress, AGAssets, AGAttachment, AGBankAccount, AGCryptoAsset, AGDebts,
   AGDeductionEntry, AGEmploymentIncome, AGExportPayload, AGForeignAsset,
   AGHousehold, AGIncome, AGLoan, AGMortgage, AGPensionIncome, AGPerson,
-  AGRealEstate, AGSecurityHolding, AGSelfEmploymentIncome, AGMoney,
+  AGRealEstate, AGSecurityHolding, AGSelfEmploymentIncome, AGMoney, AGVehicle,
 } from './types';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
