@@ -240,14 +240,14 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       >
         <button
           onClick={() => handleButtonAnswer(true)}
-          className="flex-1 flex items-center justify-center rounded-full bg-primary px-6 py-3.5 text-[14px] font-medium text-primary-foreground tracking-tight transition-all duration-200 hover:bg-primary/90 active:scale-[0.98] shadow-[0_1px_2px_rgba(22,86,255,0.12),0_8px_20px_rgba(22,86,255,0.18)]"
+          className="flex-1 h-12 inline-flex items-center justify-center rounded-2xl px-5 text-[15px] font-semibold text-white tracking-tight transition-all duration-200 border border-white/[0.08] bg-[linear-gradient(180deg,#2B2B35_0%,#17171C_100%)] shadow-[0_8px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] hover:bg-[linear-gradient(180deg,#33333E_0%,#1C1C22_100%)] active:scale-[0.985]"
         >
           {t.yesNoForm.yes}
         </button>
 
         <button
           onClick={() => handleButtonAnswer(false)}
-          className="flex-1 flex items-center justify-center rounded-full bg-white border border-[rgba(20,20,20,0.08)] px-6 py-3.5 text-[14px] font-medium text-foreground tracking-tight transition-all duration-200 hover:bg-foreground/[0.025] hover:border-[rgba(20,20,20,0.12)] active:scale-[0.98]"
+          className="flex-1 h-12 inline-flex items-center justify-center rounded-2xl bg-white border border-[rgba(20,20,20,0.08)] px-5 text-[15px] font-semibold text-foreground tracking-tight transition-all duration-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:bg-foreground/[0.025] hover:border-[rgba(20,20,20,0.12)] active:scale-[0.985]"
         >
           {t.yesNoForm.no}
         </button>
