@@ -115,12 +115,23 @@ export interface ForeignAsset {
   _provenance?: import('./provenance').Provenance;
 }
 
+export interface VehicleAsset {
+  type?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  value?: Money;
+  plate?: string;
+  _provenance?: import('./provenance').Provenance;
+}
+
 export interface Assets {
   bank_accounts: BankAccount[];
   cash?: Tracked<Money>;
   securities: SecurityHolding[];
   crypto_assets: CryptoAsset[];
   foreign_assets: ForeignAsset[];
+  vehicles: VehicleAsset[];
 }
 
 export interface MortgageItem {
