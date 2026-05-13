@@ -29,7 +29,7 @@ export default function DevAgXml() {
   const { userId } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [dossiers, setDossiers] = useState<DossierRow[]>([]);
-  const [source, setSource] = useState<'dossier' | 'fixture'>('fixture');
+  const [source, setSource] = useState<'customer' | 'dossier' | 'fixture'>('customer');
   const [selectedId, setSelectedId] = useState<string>('');
   const [fixtureName, setFixtureName] = useState(allFixtures[0]?.name ?? '');
   const [generatedAt, setGeneratedAt] = useState('2026-01-01T00:00:00.000Z');
@@ -39,6 +39,15 @@ export default function DevAgXml() {
   const [tab, setTab] = useState<'xml' | 'manifest' | 'zip' | 'hashes' | 'validation' | 'fixtures'>('xml');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // Customer mode
+  const [userQuery, setUserQuery] = useState('');
+  const [users, setUsers] = useState<Array<{ id: string; first_name: string | null; last_name: string | null; email: string | null }>>([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [filers, setFilers] = useState<Array<{ id: string; first_name: string | null; last_name: string | null; is_primary: boolean }>>([]);
+  const [selectedFilerId, setSelectedFilerId] = useState('');
+  const [filerYears, setFilerYears] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState('');
 
   useEffect(() => {
     (async () => {
