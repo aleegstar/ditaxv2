@@ -429,7 +429,6 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
   return (
     <>
-  const Inner = (
     <div className={cn(embedded ? '' : 'min-h-screen text-foreground antialiased')}>
       {!embedded && (
         <SubpageHeader
