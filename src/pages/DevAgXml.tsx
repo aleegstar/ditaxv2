@@ -8,7 +8,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { canonicalRepository, type Dossier } from '@/domain/canonical';
+import {
+  canonicalRepository, type Dossier,
+  hashCanonicalDossier, hashExportPayload,
+} from '@/domain/canonical';
+import { assembleDossier } from '@/domain/canonical/mappers/fromFormData';
 import {
   buildAGExportPackage, buildAGExportPayload, allFixtures, validateAGPayload,
   ExportValidationError, type PackageResult,
@@ -25,7 +29,7 @@ export default function DevAgXml() {
   const { userId } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [dossiers, setDossiers] = useState<DossierRow[]>([]);
-  const [source, setSource] = useState<'dossier' | 'fixture'>('fixture');
+  const [source, setSource] = useState<'customer' | 'dossier' | 'fixture'>('customer');
   const [selectedId, setSelectedId] = useState<string>('');
   const [fixtureName, setFixtureName] = useState(allFixtures[0]?.name ?? '');
   const [generatedAt, setGeneratedAt] = useState('2026-01-01T00:00:00.000Z');
@@ -35,6 +39,15 @@ export default function DevAgXml() {
   const [tab, setTab] = useState<'xml' | 'manifest' | 'zip' | 'hashes' | 'validation' | 'fixtures'>('xml');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // Customer mode
+  const [userQuery, setUserQuery] = useState('');
+  const [users, setUsers] = useState<Array<{ id: string; first_name: string | null; last_name: string | null; email: string | null }>>([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [filers, setFilers] = useState<Array<{ id: string; first_name: string | null; last_name: string | null; is_primary: boolean }>>([]);
+  const [selectedFilerId, setSelectedFilerId] = useState('');
+  const [filerYears, setFilerYears] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -49,12 +62,50 @@ export default function DevAgXml() {
     canonicalRepository.listDossiersForUser(userId).then(setDossiers);
   }, [isAdmin, userId]);
 
+  // Customer search (debounced via simple effect)
+  useEffect(() => {
+    if (!isAdmin) return;
+    const t = setTimeout(async () => {
+      let q = supabase.from('profiles').select('id, first_name, last_name, email').limit(25);
+      const term = userQuery.trim();
+      if (term) q = q.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,email.ilike.%${term}%`);
+      const { data } = await q;
+      setUsers((data ?? []) as typeof users);
+    }, 200);
+    return () => clearTimeout(t);
+  }, [userQuery, isAdmin]);
+
+  // Load tax filers when user changes
+  useEffect(() => {
+    if (!selectedUserId) { setFilers([]); setSelectedFilerId(''); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('tax_filers').select('id, first_name, last_name, is_primary')
+        .eq('user_id', selectedUserId).order('is_primary', { ascending: false });
+      const list = (data ?? []) as typeof filers;
+      setFilers(list);
+      setSelectedFilerId(list[0]?.id ?? '');
+    })();
+  }, [selectedUserId]);
+
+  // Load available tax years for selected filer
+  useEffect(() => {
+    if (!selectedFilerId) { setFilerYears([]); setSelectedYear(''); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('form_data').select('tax_year').eq('tax_filer_id', selectedFilerId);
+      const years = [...new Set(((data ?? []) as Array<{ tax_year: string }>).map((r) => r.tax_year))].sort().reverse();
+      setFilerYears(years);
+      setSelectedYear(years[0] ?? '');
+    })();
+  }, [selectedFilerId]);
+
   const buildFromFixture = async (): Promise<PackageResult> => {
     const f = allFixtures.find((x) => x.name === fixtureName);
     if (!f) throw new Error('Fixture not found');
     const payload = f.build();
-    const inputs_hash = await import('@/domain/canonical').then((m) => m.hashCanonicalDossier(f.dossier));
-    const payload_hash = await import('@/domain/canonical').then((m) => m.hashExportPayload(payload));
+    const inputs_hash = await hashCanonicalDossier(f.dossier);
+    const payload_hash = await hashExportPayload(payload);
     return buildAGExportPackage({ payload, inputs_hash, payload_hash });
   };
 
@@ -73,10 +124,52 @@ export default function DevAgXml() {
     return buildAGExportPackage(prepared);
   };
 
+  const buildFromCustomer = async (): Promise<PackageResult> => {
+    if (!selectedUserId) throw new Error('Kunde auswählen');
+    if (!selectedFilerId) throw new Error('Steuerpflichtige Person auswählen');
+    if (!selectedYear) throw new Error('Steuerjahr auswählen');
+
+    // Aggregate every form_data row for this filer/year into one merged object
+    const { data, error } = await supabase
+      .from('form_data')
+      .select('form_type, data')
+      .eq('tax_filer_id', selectedFilerId)
+      .eq('tax_year', selectedYear);
+    if (error) throw error;
+    const rows = (data ?? []) as Array<{ form_type: string; data: Record<string, unknown> | null }>;
+    if (!rows.length) throw new Error('Keine Formulardaten für diese Auswahl gefunden.');
+
+    const merged: Record<string, unknown> = {};
+    for (const r of rows) {
+      const d = r.data ?? {};
+      // Each form_type usually maps to a top-level section; merge by key.
+      Object.assign(merged, d);
+      if (r.form_type && !(r.form_type in merged)) merged[r.form_type] = d;
+    }
+
+    const dossier = assembleDossier({
+      user_id: selectedUserId,
+      tax_filer_id: selectedFilerId,
+      tax_year: selectedYear,
+      canton: 'AG',
+      formData: merged,
+    });
+    const prepared = await buildAGExportPayload({
+      dossier,
+      dossierRevision: 1,
+      rulesVersion,
+      generatedAt,
+    });
+    return buildAGExportPackage(prepared);
+  };
+
   const generate = async () => {
     setBusy(true); setErr(null);
     try {
-      const next = source === 'fixture' ? await buildFromFixture() : await buildFromDossier();
+      const next =
+        source === 'fixture' ? await buildFromFixture()
+        : source === 'dossier' ? await buildFromDossier()
+        : await buildFromCustomer();
       setPrevious(pkg);
       setPkg(next);
     } catch (e) {
@@ -123,21 +216,53 @@ export default function DevAgXml() {
 
       <section className="border rounded p-3 space-y-2">
         <div className="flex flex-wrap gap-2 items-center">
-          <select className="border rounded px-2 py-1" value={source} onChange={(e) => setSource(e.target.value as 'dossier' | 'fixture')}>
+          <select className="border rounded px-2 py-1" value={source} onChange={(e) => setSource(e.target.value as 'customer' | 'dossier' | 'fixture')}>
+            <option value="customer">Kundendaten</option>
             <option value="fixture">Fixture</option>
             <option value="dossier">Dossier snapshot</option>
           </select>
-          {source === 'fixture' ? (
+          {source === 'fixture' && (
             <select className="border rounded px-2 py-1" value={fixtureName} onChange={(e) => setFixtureName(e.target.value)}>
               {allFixtures.map((f) => <option key={f.name} value={f.name}>{f.name}</option>)}
             </select>
-          ) : (
+          )}
+          {source === 'dossier' && (
             <select className="border rounded px-2 py-1 max-w-xs" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
               <option value="">— pick dossier —</option>
               {dossiers.map((d) => (
                 <option key={d.id} value={d.id}>{d.tax_year} · rev{d.current_revision} · {d.id.slice(0, 8)}</option>
               ))}
             </select>
+          )}
+          {source === 'customer' && (
+            <>
+              <input
+                className="border rounded px-2 py-1 w-48"
+                placeholder="Kunde suchen (Name/E-Mail)…"
+                value={userQuery}
+                onChange={(e) => setUserQuery(e.target.value)}
+              />
+              <select className="border rounded px-2 py-1 max-w-[18rem]" value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)}>
+                <option value="">— Kunde wählen —</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {[u.first_name, u.last_name].filter(Boolean).join(' ') || '(ohne Name)'} · {u.email ?? '—'}
+                  </option>
+                ))}
+              </select>
+              <select className="border rounded px-2 py-1" value={selectedFilerId} onChange={(e) => setSelectedFilerId(e.target.value)} disabled={!filers.length}>
+                <option value="">— Person —</option>
+                {filers.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {[f.first_name, f.last_name].filter(Boolean).join(' ') || '(ohne Name)'}{f.is_primary ? ' ★' : ''}
+                  </option>
+                ))}
+              </select>
+              <select className="border rounded px-2 py-1" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} disabled={!filerYears.length}>
+                <option value="">— Jahr —</option>
+                {filerYears.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </>
           )}
           <input className="border rounded px-2 py-1 w-32" value={rulesVersion} onChange={(e) => setRulesVersion(e.target.value)} />
           <input className="border rounded px-2 py-1 w-64" value={generatedAt} onChange={(e) => setGeneratedAt(e.target.value)} />
