@@ -14,7 +14,7 @@ import {
 } from '@/domain/canonical';
 import { assembleDossier } from '@/domain/canonical/mappers/fromFormData';
 import {
-  buildAGExportPackage, buildAGExportPayload, allFixtures,
+  buildAGExportPackage, buildAGExportPayload, allFixtures, validateAGPayload,
   ExportValidationError, type PackageResult,
 } from '@/domain/canonical/export/ag';
 
