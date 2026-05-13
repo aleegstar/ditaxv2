@@ -102,23 +102,23 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
         dragElastic={0.55}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.01 }}
-        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-6 pt-[220px] pb-16"
+        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-8 pt-[240px] pb-16"
       >
         <div className="mb-auto">
           <div className="text-center">
-            <h2 className="text-2xl text-foreground tracking-tight font-bold leading-tight pointer-events-none">
+            <h2 className="text-[26px] sm:text-[28px] text-foreground tracking-[-0.02em] font-semibold leading-[1.2] pointer-events-none">
               {question.text}
             </h2>
 
             {question.explanation && (
-              <div className="mt-6 pointer-events-auto">
+              <div className="mt-7 pointer-events-auto">
                 <button
                   type="button"
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:brightness-110 transition"
+                  className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/80 transition-colors"
                 >
                   {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
@@ -132,13 +132,8 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
                       transition={{ duration: 0.25, ease: 'easeOut' }}
                       className="overflow-hidden"
                     >
-                      <div className="flex items-start gap-3 rounded-2xl bg-muted/40 border border-border/40 px-4 py-3 text-left mt-4">
-                        <svg className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="16" x2="12" y2="12" />
-                          <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                      <div className="rounded-2xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-5 py-4 text-left mt-5">
+                        <p className="text-[13px] text-muted-foreground/85 leading-relaxed">
                           {question.explanation}
                         </p>
                       </div>
