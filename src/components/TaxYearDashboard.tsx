@@ -140,17 +140,27 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   /* ── Step number badge ── */
   const StepBadge = ({ step, active, done }: { step: number; active: boolean; done: boolean }) => (
     <div className={cn(
-      "w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300",
-      done && "bg-primary/10 text-primary",
-      active && !done && "bg-primary text-white shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.4)]",
-      !active && !done && "bg-muted text-muted-foreground"
+      "w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[13px] font-medium transition-all duration-300",
+      done && "bg-primary/8 text-primary",
+      active && !done && "bg-primary text-primary-foreground",
+      !active && !done && "bg-foreground/[0.04] text-muted-foreground"
     )}>
-      {done ? <Check className="w-4 h-4" strokeWidth={2.5} /> : step}
+      {done ? <Check className="w-4 h-4" strokeWidth={2.25} /> : step}
     </div>
   );
 
+  // Shared premium card classes
+  const cardBase =
+    "group rounded-2xl bg-white overflow-hidden cursor-pointer transition-all duration-300 " +
+    "border border-[rgba(20,20,20,0.06)] " +
+    "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)] " +
+    "hover:border-[rgba(20,20,20,0.09)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.03),0_12px_32px_rgba(0,0,0,0.05)] " +
+    "active:scale-[0.997]";
+  const cardLockedBase =
+    "rounded-2xl border border-dashed border-[rgba(20,20,20,0.08)] bg-transparent";
+
   const stepsContent = (
-    <div className="space-y-3">
+    <div className="space-y-3.5">
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
       <div
@@ -159,19 +169,19 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           formTour?.skipTour();
           navigate(`/personal-info?year=${taxYear}`);
         }}
-        className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+        className={cardBase}
       >
-        <div className="p-5 sm:p-6 flex items-center gap-3.5">
+        <div className="p-6 sm:p-7 flex items-center gap-4">
           <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
           <div className="flex-1 min-w-0">
-            <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.personalInfo}</h2>
-            <p className="text-[12px] text-muted-foreground mt-0.5">
+            <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.personalInfo}</h2>
+            <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">
               {t.formDashboard.tasksCompleted
                 .replace('{completed}', String(angabenProgress.completed))
                 .replace('{total}', String(angabenProgress.total))}
             </p>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
         </div>
       </div>
 
@@ -180,28 +190,28 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <div
           data-tour="form-step-2"
           onClick={handleDocumentsClick}
-          className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+          className={cardBase}
         >
-          <div className="p-5 sm:p-6 flex items-center gap-3.5">
+          <div className="p-6 sm:p-7 flex items-center gap-4">
             <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
             <div className="flex-1 min-w-0">
-              <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.documentsTitle}</h2>
-              <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.uploadDocuments}</p>
+              <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.documentsTitle}</h2>
+              <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">{t.formDashboard.uploadDocuments}</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
           </div>
         </div>
       ) : (
         <div
           data-tour="form-step-2"
-          className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
+          className={cn(cardLockedBase, "p-6 sm:p-7 flex items-center gap-4")}
         >
           <StepBadge step={2} active={false} done={false} />
-          <div>
-            <h2 className="font-medium text-muted-foreground text-sm">{t.formDashboard.documentsTitle}</h2>
-            <p className="text-muted-foreground/60 mt-0.5 text-xs">{t.formDashboard.completeStep1First}</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[15px] font-medium text-muted-foreground/80 tracking-tight leading-tight">{t.formDashboard.documentsTitle}</h2>
+            <p className="text-[13px] text-muted-foreground/55 mt-1 leading-relaxed">{t.formDashboard.completeStep1First}</p>
           </div>
-          <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
+          <Lock className="w-3.5 h-3.5 text-muted-foreground/30" strokeWidth={1.75} />
         </div>
       )}
 
@@ -210,70 +220,61 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <div
           data-tour="form-step-3"
           onClick={handleSubmitClick}
-          className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden cursor-pointer hover:shadow-lg shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-200"
+          className={cardBase}
         >
-          <div className="p-5 sm:p-6 flex items-center gap-3.5">
+          <div className="p-6 sm:p-7 flex items-center gap-4">
             <StepBadge step={3} active done={false} />
             <div className="flex-1 min-w-0">
-              <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{t.formDashboard.reviewAndSubmit}</h2>
-              <p className="text-[12px] text-muted-foreground mt-0.5">{t.formDashboard.completeAndPay}</p>
+              <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
+              <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">{t.formDashboard.completeAndPay}</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
+            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
           </div>
         </div>
       ) : (
         <div
           data-tour="form-step-3"
-          className="rounded-[1.5rem] border border-white/40 border-dashed p-5 sm:p-6 flex items-center gap-3.5 opacity-50 shadow-none"
+          className={cn(cardLockedBase, "p-6 sm:p-7 flex items-center gap-4")}
         >
           <StepBadge step={3} active={false} done={false} />
-          <div>
-            <h2 className="font-medium text-muted-foreground text-sm">{t.formDashboard.reviewAndSubmit}</h2>
-            <p className="text-muted-foreground/60 mt-0.5 text-xs">{t.formDashboard.completeSteps12First}</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[15px] font-medium text-muted-foreground/80 tracking-tight leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
+            <p className="text-[13px] text-muted-foreground/55 mt-1 leading-relaxed">{t.formDashboard.completeSteps12First}</p>
           </div>
-          <Lock className="w-3.5 h-3.5 text-muted-foreground/30 ml-auto" strokeWidth={1.5} />
+          <Lock className="w-3.5 h-3.5 text-muted-foreground/30" strokeWidth={1.75} />
         </div>
       )}
 
       {/* ═══════════ Tipp Card mit Fortschritt ═══════════ */}
       {(!allAngabenComplete || !isDocumentsComplete) && (() => {
-        const totalTasks = 6; // 4 angaben + 1 docs + 1 submit
+        const totalTasks = 6;
         const completedTasks =
           angabenSections.filter(s => isCompleted(s.id)).length +
           (isDocumentsComplete ? 1 : 0) +
           (paymentStatus === 'paid' ? 1 : 0);
         const percent = Math.round((completedTasks / totalTasks) * 100);
         return (
-          <div className="mt-2 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3.5 flex items-center gap-3.5">
+          <div className="mt-5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-5 py-5 flex items-center gap-5">
             <div className="relative flex-shrink-0">
               <AnimatedCircularProgressBar
                 max={100}
                 min={0}
                 value={percent}
                 gaugePrimaryColor="hsl(var(--primary))"
-                gaugeSecondaryColor="hsl(var(--primary) / 0.12)"
+                gaugeSecondaryColor="hsl(var(--primary) / 0.10)"
                 className="size-14 text-[11px] font-semibold text-primary"
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[13px]">
+              <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[14px]">
                 {!allAngabenComplete ? 'Persönliche Angaben' : 'Belege & Unterlagen'}
               </h3>
-              <p className="text-muted-foreground mt-0.5 leading-snug text-[11px]">
+              <p className="text-muted-foreground/80 mt-1 leading-relaxed text-[12.5px]">
                 {!allAngabenComplete
                   ? 'Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.'
                   : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
               </p>
             </div>
-            <img
-              src={tipFolderImg}
-              alt="Info"
-              className="w-16 h-16 object-contain opacity-90 shrink-0"
-              loading="lazy"
-              decoding="async"
-              width={96}
-              height={96}
-            />
           </div>
         );
       })()}
@@ -290,8 +291,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         title={t.formDashboard.title.replace('{year}', taxYear)}
         onBack={() => navigate('/')}
       />
-      <TaxFilerSelector className="max-w-xl mx-auto px-4 sm:px-6 mb-6" />
-      <main className="max-w-xl mx-auto px-4 sm:px-6 pb-24">
+      <TaxFilerSelector className="max-w-xl mx-auto px-5 sm:px-8 mb-8" />
+      <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
         {stepsContent}
       </main>
     </div>
