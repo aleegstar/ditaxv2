@@ -36,6 +36,13 @@ export interface Person {
   city?: Tracked<string>;
   canton?: Tracked<Canton>;
   municipality?: Tracked<string>;
+  profession?: Tracked<string>;
+  work_percentage?: Tracked<number>;
+  place_of_origin?: Tracked<string>;
+  marriage_date?: Tracked<string>;
+  separation_date?: Tracked<string>;
+  residence_change_date?: Tracked<string>;
+  previous_address?: Tracked<string>;
   extra?: Record<string, unknown>;
 }
 
