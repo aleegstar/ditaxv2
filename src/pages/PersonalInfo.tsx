@@ -12,7 +12,7 @@ import sectionContactImg from '@/assets/section-contact.svg';
 import sectionIncomeImg from '@/assets/section-income.svg';
 import sectionDeductionsImg from '@/assets/section-deductions.svg';
 import sectionAssetsImg from '@/assets/section-assets.svg';
-import completeIllustration from '@/assets/documents-complete-illustration.webp';
+import completeIllustration from '@/assets/documents-complete-illustration.svg';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const { t } = useI18n();
