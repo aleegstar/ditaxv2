@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
+import documentsMessageImg from '@/assets/documents-message.svg';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -275,6 +276,12 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
                   : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
               </p>
             </div>
+            <img
+              src={documentsMessageImg}
+              alt=""
+              aria-hidden="true"
+              className="flex-shrink-0 w-20 h-20 object-contain select-none pointer-events-none"
+            />
           </div>
         );
       })()}
