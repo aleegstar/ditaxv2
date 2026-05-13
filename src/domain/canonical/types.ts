@@ -163,7 +163,11 @@ export interface RealEstate {
   purchase_year?: Tracked<number>;
   tax_value?: Tracked<Money>;
   rental_income?: Tracked<Money>;
+  eigenmietwert?: Tracked<Money>;
   maintenance_costs?: Tracked<Money>;
+  maintenance_method?: Tracked<'pauschal' | 'effektiv'>;
+  maintenance_value_preserving?: Tracked<Money>;
+  maintenance_value_increasing?: Tracked<Money>;
   extra?: Record<string, unknown>;
 }
 
