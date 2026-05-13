@@ -654,16 +654,13 @@ const Auth = () => {
                               />
                             </div>
 
-                            <motion.button
+                            <Button
                               type="submit"
                               disabled={isLoading}
-                              whileHover={{ y: -1 }}
-                              whileTap={{ scale: 0.98 }}
-                              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                              className="group w-full font-semibold text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none text-white bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] shadow-[0_4px_16px_-4px_hsl(222,100%,50%/0.4),inset_0_1px_0_hsl(0,0%,100%/0.2)] hover:shadow-[0_6px_24px_-4px_hsl(222,100%,50%/0.5)] hover:brightness-[1.04]"
+                              className="w-full h-14 text-[14.5px]"
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
-                            </motion.button>
+                            </Button>
 
                             <p className="text-center text-[11px] text-muted-foreground/50 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
