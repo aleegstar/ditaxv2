@@ -8,9 +8,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { canonicalRepository, type Dossier } from '@/domain/canonical';
 import {
-  buildAGExportPackage, buildAGExportPayload, allFixtures, validateAGPayload,
+  canonicalRepository, type Dossier,
+  hashCanonicalDossier, hashExportPayload,
+} from '@/domain/canonical';
+import { assembleDossier } from '@/domain/canonical/mappers/fromFormData';
+import {
+  buildAGExportPackage, buildAGExportPayload, allFixtures,
   ExportValidationError, type PackageResult,
 } from '@/domain/canonical/export/ag';
 
