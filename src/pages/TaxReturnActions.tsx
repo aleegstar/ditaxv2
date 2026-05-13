@@ -21,8 +21,16 @@ interface UserProfile {
   date_of_birth?: string;
 }
 
-export default function TaxReturnActions() {
-  const { completedTaxReturnId } = useParams();
+interface TaxReturnActionsContentProps {
+  /** When provided, overrides the URL param. */
+  completedTaxReturnId?: string;
+  /** When true, hides SubpageHeader and outer min-h-screen wrapper. */
+  embedded?: boolean;
+}
+
+export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded = false }: TaxReturnActionsContentProps = {}) {
+  const params = useParams();
+  const completedTaxReturnId = propId ?? params.completedTaxReturnId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -421,13 +429,15 @@ export default function TaxReturnActions() {
 
   return (
     <>
-      <div className="min-h-screen text-foreground antialiased">
-        <SubpageHeader 
-          title={`${t.taxReturnActions.title} ${taxYear}`} 
-          onBack={() => navigate('/')} 
+    <div className={cn(embedded ? '' : 'min-h-screen text-foreground antialiased')}>
+      {!embedded && (
+        <SubpageHeader
+          title={`${t.taxReturnActions.title} ${taxYear}`}
+          onBack={() => navigate('/')}
         />
+      )}
 
-        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <div className={cn('w-full space-y-8', embedded ? '' : 'max-w-3xl mx-auto px-4 sm:px-6 py-8')}>
 
           {/* Signature CTA (unsigned) */}
           {needsSignature && (
@@ -781,3 +791,8 @@ export default function TaxReturnActions() {
     </>
   );
 }
+
+export default function TaxReturnActions() {
+  return <TaxReturnActionsContent />;
+}
+

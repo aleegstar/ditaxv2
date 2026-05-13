@@ -29,6 +29,7 @@ import { YearPillSelector } from '@/components/dashboard/YearPillSelector';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
 import { ProcessingContent } from '@/components/dashboard/ProcessingContent';
 import { CompletedContent } from '@/components/dashboard/CompletedContent';
+import { TaxReturnActionsContent } from '@/pages/TaxReturnActions';
 import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import { FormProvider } from '@/contexts/form/FormContext';
 
@@ -364,10 +365,9 @@ const UserTaxReturns = () => {
           )}
 
           {selectedStatus === 'completed' && selectedYear && selectedCompleted && (
-            <CompletedContent
-              taxYear={selectedYear}
+            <TaxReturnActionsContent
               completedTaxReturnId={(selectedCompleted as any).id}
-              signatureStatus={(selectedCompleted as any).signature_status}
+              embedded
             />
           )}
         </motion.div>
