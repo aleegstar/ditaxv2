@@ -2,8 +2,10 @@ export * from './types';
 export * from './money';
 export * from './provenance';
 export { canonicalRepository } from './repository';
-export { syncDossierFromFormData } from './dualWrite';
+export { syncDossierFromFormData, type SyncStatus } from './dualWrite';
 export { assembleDossier } from './mappers/fromFormData';
+export { canonicalLogger } from './logger';
+export { buildSeedFormData, type SeedScenario } from './seeds';
 
 export * from './calculation/types';
 export { calculatorRegistry } from './calculation/registry';

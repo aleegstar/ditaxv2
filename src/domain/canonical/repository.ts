@@ -347,4 +347,83 @@ export const canonicalRepository = {
       .maybeSingle();
     return (data as { id: string } | null) ?? null;
   },
+
+  /** Full dossier read with all child entities + provenance. Read-only inspection. */
+  async getDossier(dossierId: string): Promise<Record<string, unknown> | null> {
+    const child = async (table: string) => {
+      const { data } = await supabase.from(table as never).select('*').eq('dossier_id', dossierId);
+      return (data as unknown[]) ?? [];
+    };
+    const childOne = async (table: string) => {
+      const { data } = await supabase.from(table as never).select('*').eq('dossier_id', dossierId).maybeSingle();
+      return data ?? null;
+    };
+    const { data: dossier, error } = await supabase
+      .from('canonical_dossiers' as never)
+      .select('*')
+      .eq('id', dossierId)
+      .maybeSingle();
+    if (error || !dossier) return null;
+    const [persons, employment_incomes, self_employment_incomes, pension_incomes, real_estate, attachments, provenance, household, assets, debts, deductions] = await Promise.all([
+      child('canonical_persons'),
+      child('canonical_employment_incomes'),
+      child('canonical_self_employment_incomes'),
+      child('canonical_pension_incomes'),
+      child('canonical_real_estate'),
+      child('canonical_attachments'),
+      child('canonical_field_provenance'),
+      childOne('canonical_household'),
+      childOne('canonical_assets'),
+      childOne('canonical_debts'),
+      childOne('canonical_deductions'),
+    ]);
+    return { dossier, persons, household, employment_incomes, self_employment_incomes, pension_incomes, assets, debts, real_estate, deductions, attachments, provenance };
+  },
+
+  async getDossierRevision(dossierId: string): Promise<number | null> {
+    const { data } = await supabase
+      .from('canonical_dossiers' as never)
+      .select('current_revision')
+      .eq('id', dossierId)
+      .maybeSingle();
+    return (data as { current_revision: number } | null)?.current_revision ?? null;
+  },
+
+  async listSnapshots(dossierId: string): Promise<Array<{ id: string; revision: number; reason: string; created_at: string }>> {
+    const { data } = await supabase
+      .from('canonical_dossier_snapshots' as never)
+      .select('id, revision, reason, created_at')
+      .eq('dossier_id', dossierId)
+      .order('revision', { ascending: false });
+    return (data as Array<{ id: string; revision: number; reason: string; created_at: string }>) ?? [];
+  },
+
+  async getLatestSnapshot(dossierId: string): Promise<Record<string, unknown> | null> {
+    const { data } = await supabase
+      .from('canonical_dossier_snapshots' as never)
+      .select('*')
+      .eq('dossier_id', dossierId)
+      .order('revision', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data as Record<string, unknown> | null) ?? null;
+  },
+
+  async getSnapshot(snapshotId: string): Promise<Record<string, unknown> | null> {
+    const { data } = await supabase
+      .from('canonical_dossier_snapshots' as never)
+      .select('*')
+      .eq('id', snapshotId)
+      .maybeSingle();
+    return (data as Record<string, unknown> | null) ?? null;
+  },
+
+  async listDossiersForUser(userId: string): Promise<Array<{ id: string; tax_filer_id: string; tax_year: string; current_revision: number; status: string; updated_at: string }>> {
+    const { data } = await supabase
+      .from('canonical_dossiers' as never)
+      .select('id, tax_filer_id, tax_year, current_revision, status, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    return (data as Array<{ id: string; tax_filer_id: string; tax_year: string; current_revision: number; status: string; updated_at: string }>) ?? [];
+  },
 };
