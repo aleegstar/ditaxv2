@@ -242,6 +242,7 @@ export interface Debt {
   amount: number;
   description: string;
   type: string;
+  interest?: number;
 }
 
 export interface Vehicle {
@@ -262,18 +263,19 @@ export interface Property {
   address: string;
   value: number; // Keep for compatibility
   type: string;
-  usage?: 'self' | 'rented'; // Selbstgenutzt oder Vermietet
-  
-  // Primary fields for new implementation
-  taxValue?: number; // Steuerwert (obligatorisch in UI)
-  rentalValue?: number; // Eigenmietwert (bei Selbstnutzung)
-  rentalIncome?: number; // Mieteinnahmen (bei Vermietung)
-  
-  // Legacy/compatibility fields for UserDetail view
+  usage?: 'self' | 'rented';
+  taxValue?: number;
+  rentalValue?: number;
+  rentalIncome?: number;
   location?: string;
   isOutsideCanton?: boolean;
   isOlderThanFiveYears?: boolean;
-  purchasedThisYear?: boolean; // New field for tracking if purchased in current tax year
+  purchasedThisYear?: boolean;
+  // P0: maintenance method + amounts
+  maintenanceMethod?: 'pauschal' | 'effektiv';
+  maintenanceCosts?: number; // pauschal total or sum
+  werterhaltend?: number;
+  wertvermehrend?: number;
 }
 
 export interface Employer {
