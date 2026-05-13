@@ -180,19 +180,20 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       {/* Card area — persistent image, only text content swaps */}
       <div className="relative w-full max-w-md mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
         <div
-          className="relative w-full rounded-3xl bg-card overflow-hidden min-h-[480px] border border-[rgba(20,20,20,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)]"
+          className="relative w-full rounded-3xl bg-card overflow-hidden border border-[rgba(20,20,20,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)] flex flex-col"
         >
-          {/* Background Image — top portion only, persistent across questions */}
+          {/* Image — top section, in normal flow so card grows below */}
           {sectionImage && (
-            <img
-              src={sectionImage}
-              alt=""
-              className="absolute top-0 left-0 right-0 h-[260px] w-full object-cover pointer-events-none select-none"
-              aria-hidden="true"
-            />
+            <div className="relative w-full h-[260px] shrink-0">
+              <img
+                src={sectionImage}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
+                aria-hidden="true"
+              />
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-card pointer-events-none" />
+            </div>
           )}
-          {/* Fade from image into card */}
-          <div className="absolute top-[210px] left-0 right-0 h-20 bg-gradient-to-b from-transparent to-card pointer-events-none" />
 
           {/* Subtle Swipe Indicators */}
           <div
@@ -212,7 +213,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             </span>
           </div>
 
-          {/* Animated Text Content */}
+          {/* Animated Text Content — below image, grows with explanation */}
           <AnimatePresence mode="popLayout" initial={false} custom={exitDirection}>
             <SwipeContent
               ref={cardRef}
