@@ -36,6 +36,13 @@ export interface Person {
   city?: Tracked<string>;
   canton?: Tracked<Canton>;
   municipality?: Tracked<string>;
+  profession?: Tracked<string>;
+  work_percentage?: Tracked<number>;
+  place_of_origin?: Tracked<string>;
+  marriage_date?: Tracked<string>;
+  separation_date?: Tracked<string>;
+  residence_change_date?: Tracked<string>;
+  previous_address?: Tracked<string>;
   extra?: Record<string, unknown>;
 }
 
@@ -84,8 +91,10 @@ export interface PensionIncome {
 export interface BankAccount {
   bank?: string;
   iban?: string;
+  account_type?: string;
   balance?: Money;
   interest?: Money;
+  withholding_tax?: Money;
   _provenance?: import('./provenance').Provenance;
 }
 export interface SecurityHolding {
@@ -94,6 +103,10 @@ export interface SecurityHolding {
   quantity?: string;
   market_value?: Money;
   dividend?: Money;
+  withholding_tax?: Money;
+  purchase_value?: Money;
+  purchase_date?: string;
+  request_withholding_refund?: boolean;
   _provenance?: import('./provenance').Provenance;
 }
 export interface CryptoAsset {
@@ -109,12 +122,23 @@ export interface ForeignAsset {
   _provenance?: import('./provenance').Provenance;
 }
 
+export interface VehicleAsset {
+  type?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  value?: Money;
+  plate?: string;
+  _provenance?: import('./provenance').Provenance;
+}
+
 export interface Assets {
   bank_accounts: BankAccount[];
   cash?: Tracked<Money>;
   securities: SecurityHolding[];
   crypto_assets: CryptoAsset[];
   foreign_assets: ForeignAsset[];
+  vehicles: VehicleAsset[];
 }
 
 export interface MortgageItem {
@@ -146,7 +170,11 @@ export interface RealEstate {
   purchase_year?: Tracked<number>;
   tax_value?: Tracked<Money>;
   rental_income?: Tracked<Money>;
+  eigenmietwert?: Tracked<Money>;
   maintenance_costs?: Tracked<Money>;
+  maintenance_method?: Tracked<'pauschal' | 'effektiv'>;
+  maintenance_value_preserving?: Tracked<Money>;
+  maintenance_value_increasing?: Tracked<Money>;
   extra?: Record<string, unknown>;
 }
 

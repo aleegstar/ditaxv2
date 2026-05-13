@@ -18,7 +18,7 @@ import type {
   AGAddress, AGAssets, AGAttachment, AGBankAccount, AGCryptoAsset, AGDebts,
   AGDeductionEntry, AGEmploymentIncome, AGExportPayload, AGForeignAsset,
   AGHousehold, AGIncome, AGLoan, AGMortgage, AGPensionIncome, AGPerson,
-  AGRealEstate, AGSecurityHolding, AGSelfEmploymentIncome, AGMoney,
+  AGRealEstate, AGSecurityHolding, AGSelfEmploymentIncome, AGMoney, AGVehicle,
 } from './types';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -68,6 +68,13 @@ function mapPerson(p: Person): AGPerson {
     marital_status: tval(p.marital_status),
     religion: tval(p.religion),
     address: mapAddress(p),
+    profession: tval(p.profession),
+    work_percentage: tval(p.work_percentage),
+    place_of_origin: tval(p.place_of_origin),
+    marriage_date: tval(p.marriage_date),
+    separation_date: tval(p.separation_date),
+    residence_change_date: tval(p.residence_change_date),
+    previous_address: tval(p.previous_address),
   }) as AGPerson;
 }
 
@@ -109,13 +116,19 @@ function mapSelfEmployment(s: SelfEmploymentIncome, index: number): AGSelfEmploy
 // ── Assets / Debts / RE ────────────────────────────────────────────────────
 
 function mapAssets(a: Assets | undefined): AGAssets {
-  if (!a) return { bank_accounts: [], securities: [], crypto_assets: [], foreign_assets: [] };
+  if (!a) return { bank_accounts: [], securities: [], crypto_assets: [], foreign_assets: [], vehicles: [] };
   const bank_accounts: AGBankAccount[] = (a.bank_accounts ?? []).map((b, i) => compact({
-    index: i, bank: b.bank, iban: b.iban, balance: money(b.balance), interest: money(b.interest),
+    index: i, bank: b.bank, iban: b.iban, account_type: b.account_type,
+    balance: money(b.balance), interest: money(b.interest),
+    withholding_tax: money(b.withholding_tax),
   }) as AGBankAccount);
   const securities: AGSecurityHolding[] = (a.securities ?? []).map((s, i) => compact({
     index: i, isin: s.isin, description: s.description, quantity: s.quantity,
     market_value: money(s.market_value), dividend: money(s.dividend),
+    withholding_tax: money(s.withholding_tax),
+    purchase_value: money(s.purchase_value),
+    purchase_date: s.purchase_date,
+    request_withholding_refund: s.request_withholding_refund,
   }) as AGSecurityHolding);
   const crypto_assets: AGCryptoAsset[] = (a.crypto_assets ?? []).map((c, i) => compact({
     index: i, asset: c.asset, quantity: c.quantity, fair_value: money(c.fair_value),
@@ -123,7 +136,11 @@ function mapAssets(a: Assets | undefined): AGAssets {
   const foreign_assets: AGForeignAsset[] = (a.foreign_assets ?? []).map((f, i) => compact({
     index: i, country: f.country, description: f.description, value: money(f.value),
   }) as AGForeignAsset);
-  return compact({ cash: money(tval(a.cash)), bank_accounts, securities, crypto_assets, foreign_assets }) as AGAssets;
+  const vehicles: AGVehicle[] = (a.vehicles ?? []).map((v, i) => compact({
+    index: i, type: v.type, brand: v.brand, model: v.model, year: v.year,
+    value: money(v.value), plate: v.plate,
+  }) as AGVehicle);
+  return compact({ cash: money(tval(a.cash)), bank_accounts, securities, crypto_assets, foreign_assets, vehicles }) as AGAssets;
 }
 
 function mapDebts(d: Debts | undefined): AGDebts {
@@ -146,7 +163,11 @@ function mapRealEstate(r: RealEstate, index: number): AGRealEstate {
     purchase_year: tval(r.purchase_year),
     tax_value: money(tval(r.tax_value)),
     rental_income: money(tval(r.rental_income)),
+    eigenmietwert: money(tval(r.eigenmietwert)),
     maintenance_costs: money(tval(r.maintenance_costs)),
+    maintenance_method: tval(r.maintenance_method),
+    maintenance_value_preserving: money(tval(r.maintenance_value_preserving)),
+    maintenance_value_increasing: money(tval(r.maintenance_value_increasing)),
   }) as AGRealEstate;
 }
 

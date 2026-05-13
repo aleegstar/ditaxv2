@@ -58,7 +58,7 @@ export const fixtureSingleEmployee: Dossier = baseDossier({
     salary: manual(Money.of(92000)), bonus: manual(Money.of(4000)),
     pension_contributions: manual(Money.of(5500)), ahv: manual(Money.of(4830)),
   }],
-  assets: { bank_accounts: [], cash: manual(Money.of(12000)), securities: [], crypto_assets: [], foreign_assets: [] },
+  assets: { bank_accounts: [], cash: manual(Money.of(12000)), securities: [], crypto_assets: [], foreign_assets: [], vehicles: [] },
   deductions: { pillar3a: manual(Money.of(7056)) },
 });
 
@@ -90,6 +90,7 @@ export const fixtureInvestor: Dossier = baseDossier({
     ],
     crypto_assets: [{ asset: 'BTC', quantity: '0.35', fair_value: Money.of(21000) }],
     foreign_assets: [],
+    vehicles: [],
   },
   deductions: { pillar3a: manual(Money.of(7056)), donations: { amount: 1200 } },
 });
