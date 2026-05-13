@@ -41,3 +41,7 @@ verify_jwt = false
 
 [functions.newsletter-track-click]
 verify_jwt = false
+
+[functions.extract-lohnausweis]
+verify_jwt = false
+

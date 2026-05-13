@@ -108,6 +108,32 @@ function mapPersons(formData: AnyObj): Person[] {
 
 function mapEmployment(formData: AnyObj): EmploymentIncome[] {
   const income = (formData.income ?? {}) as AnyObj;
+  // Primary source: per-employer entries from EmployerRepeater (income.employers)
+  const formEmployers = Array.isArray(income.employers) ? (income.employers as AnyObj[]) : [];
+  if (formEmployers.length > 0) {
+    return formEmployers.map((emp) => {
+      const lohn = (emp.lohnausweis ?? {}) as AnyObj;
+      const employerName = s(lohn.employer_name) ?? s(emp.workLocation);
+      // Salary preference: Bruttolohn total (Ziff. 8) > gross_salary (Ziff. 1)
+      const salary = m(lohn.gross_total ?? lohn.gross_salary);
+      const bonus = m(lohn.irregular_pay);
+      const ahv = m(lohn.ahv_iv_eo_alv_nbuv);
+      const pension = m(lohn.bvg_ordinary);
+      const withholding = m(lohn.withholding_tax);
+      const extra = Object.keys(lohn).length > 0 ? { lohnausweis: lohn } : undefined;
+      return {
+        employer: employerName,
+        salary,
+        bonus,
+        pension_contributions: pension,
+        ahv,
+        withholding_tax: withholding,
+        extra,
+      };
+    });
+  }
+
+  // Legacy path: aggregated income.employments / income.salary
   const employments = (income.employments ?? income.employmentList ?? []) as AnyObj[];
   if (!Array.isArray(employments) || !employments.length) {
     if (num(income.salary) !== undefined) {
