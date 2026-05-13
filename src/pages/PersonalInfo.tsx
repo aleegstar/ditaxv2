@@ -9,7 +9,7 @@ import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
 import sectionContactImg from '@/assets/section-contact.webp';
-import sectionIncomeImg from '@/assets/section-income.webp';
+import sectionIncomeImg from '@/assets/section-income.svg';
 import sectionDeductionsImg from '@/assets/section-deductions.webp';
 import sectionAssetsImg from '@/assets/section-assets.webp';
 import completeIllustration from '@/assets/documents-complete-illustration.webp';
