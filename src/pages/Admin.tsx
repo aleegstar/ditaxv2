@@ -28,6 +28,8 @@ import { OcrDocumentConfigManager } from '@/components/admin/OcrDocumentConfigMa
 import { OcrUnrecognizedUploads } from '@/components/admin/OcrUnrecognizedUploads';
 import Newsletter from './admin/Newsletter';
 import PromoCodes from './admin/PromoCodes';
+import DevAgXml from './DevAgXml';
+import DevAgImport from './DevAgImport';
 
 interface AdminUser {
   id: string;
@@ -344,6 +346,8 @@ const Admin: React.FC = () => {
           <Route path="ocr-unrecognized" element={<OcrUnrecognizedUploads />} />
           <Route path="newsletter" element={<Newsletter />} />
           <Route path="promo-codes" element={<PromoCodes />} />
+          <Route path="ag-xml" element={<DevAgXml />} />
+          <Route path="ag-import" element={<DevAgImport />} />
           </Routes>
           </div>
         </div>
