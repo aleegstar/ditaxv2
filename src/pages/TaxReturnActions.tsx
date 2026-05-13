@@ -429,13 +429,16 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
   return (
     <>
-      <div className="min-h-screen text-foreground antialiased">
-        <SubpageHeader 
-          title={`${t.taxReturnActions.title} ${taxYear}`} 
-          onBack={() => navigate('/')} 
+  const Inner = (
+    <div className={cn(embedded ? '' : 'min-h-screen text-foreground antialiased')}>
+      {!embedded && (
+        <SubpageHeader
+          title={`${t.taxReturnActions.title} ${taxYear}`}
+          onBack={() => navigate('/')}
         />
+      )}
 
-        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <div className={cn('w-full space-y-8', embedded ? '' : 'max-w-3xl mx-auto px-4 sm:px-6 py-8')}>
 
           {/* Signature CTA (unsigned) */}
           {needsSignature && (
