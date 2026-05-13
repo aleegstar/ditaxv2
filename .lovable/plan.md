@@ -1,136 +1,145 @@
-# Minimal AG eTax Serializer Pipeline
 
-Builds the first end-to-end path: Canonical Dossier → AG Payload → deterministic XML → `.etax.zip` → storable + downloadable in `/dev/ag-xml`.
+# Datenlücken schliessen für vollständigen AG eTax / eCH-0119 Export
 
-Reuses the existing AG payload layer (`src/domain/canonical/export/ag/`) and adds the XML/ZIP serialization layer underneath it.
+Ziel: Maximaler Datenumfang im Export ohne den User mit Fragen zu überfluten. Direkt-Eingabe nur wo nötig, sonst OCR.
 
-## Scope
+---
 
-In: taxpayer, optional spouse, household, employment income, basic assets (cash + bank accounts), basic deductions (pillar3a, commuting, health, donations, childcare).
+## P0 — Direkt ergänzen (ohne Punkt 6 = Bankverbindung)
 
-Out (stubbed/skipped): securities, crypto, DA-1, foreign WHT, complex real estate, self-employment, eCH-0119, submission, signing, AI/OCR.
+Diese Felder werden minimal-invasiv in bestehende Formulare integriert (kein neuer Wizard-Step, sondern Erweiterung bestehender Repeater/Sektionen).
 
-## New module layout
+### 1. Liegenschaft — Eigenmietwert + Unterhalt strukturiert
+**Datei:** `src/components/forms/RealEstateRepeater.tsx` (bestehender Repeater)
+- Neues Feld `eigenmietwert` (CHF) — separat von `rental_income`
+- Auswahl `maintenance_method`: `'pauschal' | 'effektiv'` (Radio)
+- Bei `effektiv`: Aufteilung `werterhaltend` / `wertvermehrend` (zwei Zahlfelder)
+- **Canonical:** `RealEstate` erweitern um `eigenmietwert`, `maintenance_method`, `maintenance_value_preserving`, `maintenance_value_increasing`
+- **Mapper:** `mapRealEstate` in `src/domain/canonical/export/ag/mapper.ts` ergänzen
 
-```text
-src/domain/canonical/export/ag/xml/
-  README.md
-  serializer.ts         # AG payload → XML string (deterministic)
-  xmlBuilder.ts         # Tiny dependency-free XML writer (stable attr/elem order, escaping, UTF-8)
-  zipBuilder.ts         # Deterministic ZIP (store-only, fixed mtime, sorted entries, CRC32)
-  packageBuilder.ts     # Orchestrator: payload → {xmlBytes, zipBytes, hashes}
-  validator.ts          # Pre-export blocking validation
-  riag/
-    structure.ts        # RIAG-compatible intermediate object model + grouping
-    references.ts       # Deterministic local id allocator (stable, content-derived)
-  schema/
-    ag-etax.minimal.xsd # Reference XSD subset (doc-only, not enforced at runtime)
-    elementOrder.ts     # Canonical element/attribute order tables
-  fixtures/
-    single-employee.ts
-    married-couple.ts
-    simple-deductions.ts
-    snapshots/          # golden XML + ZIP hash files
-```
+### 2. Hypotheken-Repeater (statt Yes/No)
+**Datei:** Neue Komponente `src/components/forms/MortgageRepeater.tsx`, eingebunden wenn `hasMortgage = true`
+- Felder pro Hypothek: `lender`, `property_id` (Verknüpfung zu RealEstate-Repeater), `balance`, `interest`
+- Mapping nach `Debts.mortgages[]` (existiert bereits im Canonical)
+- Im AG-Export bereits via `mapDebts` abgedeckt — nur Erfassung fehlt
 
-## Determinism contract
+### 3. Wertschriften — Verrechnungssteuer + Anschaffungswert
+**Datei:** `src/components/forms/SecuritiesRepeater.tsx`
+- Pro Position: `withholding_tax_amount` (35% VST-Antrag), `purchase_value`, `purchase_date` (optional)
+- Toggle `request_withholding_refund` (Default true)
+- **Canonical** `Security` erweitern; **Mapper** `mapAssets.securities` ergänzen
 
-- No `Date.now()`, no `Math.random()`, no `crypto.randomUUID()`.
-- Timestamps: `ExportContext.generated_at` only.
-- Local refs (`ref-001`, …) allocated by `references.ts` from stable sort order, not insertion order.
-- XML: explicit element order via `elementOrder.ts`; attributes emitted in alphabetical order; LF line endings; no insignificant whitespace beyond a single newline per element; `<?xml version="1.0" encoding="UTF-8"?>` prolog.
-- ZIP: store-only (no deflate non-determinism), entries sorted by name, fixed DOS mtime derived from `generated_at`, no extra fields, no Unicode path flag drift, CRC32 computed over canonical bytes.
-- Money: serialized via existing `AGMoney` decimal strings — no float reformat in serializer.
+### 4. Bank-Konten — Verrechnungssteuer auf Zinsen
+**Datei:** `src/components/forms/BankAccountRepeater.tsx`
+- Feld `withholding_tax` pro Konto
+- Canonical `BankAccount.withholding_tax`, Mapper-Ergänzung
 
-## Pipeline flow
+### 5. Vehicles ins Canonical Assets
+**Datei:** `src/domain/canonical/types.ts` + `mappers/fromFormData.ts`
+- `Assets.vehicles[]` neu: `{ type, brand, model, year, value, plate? }`
+- `VehicleRepeater`-Daten in `fromFormData` mappen
+- AG-Mapper: `mapAssets` um `vehicles` erweitern + AG-Type `AGVehicle`
 
-```text
-Dossier
-  │  buildAGExportPayload (existing)
-  ▼
-AGExportPayload ──► validator.validate() ──► (block on errors)
-  │
-  ▼
-RIAG intermediate (riag/structure.ts) ──► references.ts assigns stable IDs
-  │
-  ▼
-serializer.toXml() ──► xmlBuilder ──► xmlBytes (UTF-8)
-  │
-  ▼
-zipBuilder.build([{name, bytes, mtime}]) ──► zipBytes
-  │
-  ▼
-PackageResult { xmlBytes, zipBytes, xml_hash, zip_hash, payload_hash, inputs_hash }
-```
+> **Punkt 6 (Bankverbindung Rückerstattung) wird auf Wunsch ausgelassen.**
 
-## ZIP layout (mirrors discovered AG eTax exports)
+---
+
+## P1 — OCR-gestützter Lohnausweis-Flow
+
+Grundgedanke: User lädt Lohnausweis-PDF/Foto hoch → OCR extrahiert alle relevanten Felder → User sieht ein **Review-Sheet** mit vorbefüllten Feldern und bestätigt/korrigiert. Keine manuellen Einzelfragen.
+
+### Architektur
 
 ```text
-manifest.xml          # adapter id, schema version, generated_at, dossier ref, hashes
-taxdata.xml           # main RIAG payload
-attachments/.keep     # placeholder (no real attachments this phase)
+EmploymentIncomeForm
+  └─ "Lohnausweis hochladen" (primary CTA)
+       └─ Upload → encrypted storage
+            └─ Edge Function: extract-lohnausweis
+                 ├─ AI Gateway (Gemini Vision)
+                 ├─ Strukturierte JSON-Extraktion
+                 └─ Confidence-Score pro Feld
+       └─ Review-Sheet (AppBottomSheet)
+            ├─ Alle Felder vorbefüllt
+            ├─ Felder mit niedriger Confidence rot markiert
+            ├─ User bestätigt → speichern in employment_income.extra
+            └─ Fallback "Manuell eingeben" Link
 ```
 
-## RIAG intermediate model (`riag/structure.ts`)
+### Neue/erweiterte Bausteine
 
-- `RiagDocument { metadata, revision, taxpayer, spouse?, household, incomes[], assets, deductions[], references[] }`
-- `metadata`: adapter id, schema version, canton=AG, tax_year, generated_at, source dossier id+revision, snapshot id.
-- `revision`: revision number, inputs_hash, payload_hash.
-- Object grouping: persons, financials, deductions — each emitted in fixed order.
-- All cross-references use locally allocated `ref-NNN` IDs (no UUIDs).
+**Edge Function:** `supabase/functions/extract-lohnausweis/index.ts`
+- Auth-pflichtig (siehe `ocr-extract` Pattern)
+- Input: `{ documentId, taxFilerId }`
+- Lädt verschlüsseltes Dokument, entschlüsselt serverseitig (Master Key Pattern)
+- Sendet an Lovable AI Gateway (`google/gemini-2.5-flash` mit JSON-Schema)
+- Output: Strukturiertes Lohnausweis-Objekt nach Felder Ziff. 1–15 Lohnausweis CH
 
-## Validation (`validator.ts`)
+**Extrahierte Felder:**
+- Bruttolohn (Ziff. 1), Gratifikation/Bonus (Ziff. 2.1), Mitarbeiterbeteiligungen (Ziff. 5)
+- Verpflegungsentschädigung (Ziff. 2.2), Spesenpauschale (Ziff. 13.1.1), effektive Spesen (Ziff. 13.2)
+- Geschäftsfahrzeug (Ziff. 2.2 / F)
+- AHV/IV/EO (Ziff. 9), NBU (Ziff. 9), BVG-Beiträge (Ziff. 10.1), BVG-Einkauf (Ziff. 10.2)
+- Quellensteuer (Ziff. 12), Kapitalleistungen (Ziff. 5)
+- Beschäftigungsdauer (Ziff. 14 von/bis)
+- Arbeitgeber-Adresse, AHV-Nummer Arbeitnehmer
 
-Blocking errors:
-- missing taxpayer first/last name, birth date, AHV number
-- missing canton or canton ≠ AG
-- missing tax_year
-- spouse present but missing required identity fields
-- any money value not normalized to decimal string
-- revision/snapshot mismatch (dossier_revision absent)
+**Komponente:** `src/components/forms/LohnausweisOcrReview.tsx`
+- AppBottomSheet, full width
+- Pro Feld: Label, Wert (editierbar), Confidence-Badge, Original-Vorschau-Snippet
+- "Bestätigen" → Speichern in `employment_income.extra` + Verknüpfung `source_document_id`
 
-Warnings (non-blocking, logged in `validation_summary`): empty incomes, empty assets, missing address.
+**Speicherung:**
+- Felder landen in `EmploymentIncome.extra: Record<string, unknown>` (existiert bereits)
+- AG-Mapper: `mapEmployment` erweitern um `extra`-Pass-through bzw. dedizierte Felder
 
-## Persistence (`persistence.ts` extension)
+### Zusätzliche P1-Punkte (nur Eingabe wo OCR nicht greift)
 
-Extend existing `recordAGExport` (or add `recordAGExportPackage`) to also write:
-- `output_hash` = `zip_hash`
-- `xml_hash` (new field on `validation_summary` JSON, no schema change needed)
-- `status: 'exported'` when ZIP produced
-- `storage_path` left null this phase (no upload); can be filled when storage upload is added.
+- **Versicherungsprämien-Abzug:** kompakte Sektion unter "Abzüge" — KK/Unfall/Lebensvers./Sparzinsen (4 Zahlfelder, alle optional)
+- **Behindertenkosten:** eigenes Feld in `health_costs` (`disability_costs` separat, ohne Selbstbehalt)
+- **Berufsauslagen strukturiert:** km, ÖV-Abo, Verpflegungstage, Wochenaufenthalt — nur wenn `hasCommutingCosts = true`
+- **Unterstützungsabzug-Repeater:** Person, Verwandtschaft, AHV, Höhe — nur wenn `hasSupportedPersons = true`
+- **Kapitalleistung Vorsorge:** Sektion bei `hasPensionPayout = true` (Auszahler, Datum, Betrag, Art)
 
-No DB migration required — reuses existing `canonical_exports` columns; XML hash piggybacks in `validation_summary`.
+---
 
-## Dev tooling: `/dev/ag-xml` (`src/pages/DevAgXml.tsx`)
+## P2 — Kontaktangaben erweitern (Punkt 17)
 
-Admin-gated route (same guard as `/dev/ag-export`). Features:
-- Dossier selector (reuse existing list).
-- "Generate package" button → runs full pipeline.
-- Tabs: **Validation**, **Raw XML** (monospace, copy button), **ZIP entries** (name + size + per-file hash), **Hashes** (inputs/payload/xml/zip).
-- "Compare with previous export" → diff XML by line and show hash deltas.
-- "Download .etax.zip" → triggers blob download of the generated bytes.
+**Datei:** `src/pages/PersonalInfo.tsx` + ggf. `TaxFilers`
 
-Plain shadcn UI, no design polish.
+Neue/zusätzliche Felder in den Kontakt-Stammdaten pro Tax Filer:
+- **Beruf** (Freitext)
+- **Arbeitspensum** (%, 0–100)
+- **Heimatort** (Bürgerort CH oder Heimatstaat)
+- **Heiratsdatum** (bei `marital_status = married`)
+- **Trennungs-/Scheidungsdatum** (bei `divorced/separated`)
+- **Wohnsitzwechsel im Steuerjahr** (Datum + alte Adresse, optional)
+- **Spouse-Stammdaten** vollständig (falls noch nicht erfasst): Vorname, Nachname, AHV, Geburtsdatum, Beruf, Pensum
 
-## Fixtures + reproducibility tests
+**Canonical:** `Person` erweitern um `profession`, `work_percentage`, `place_of_origin`, `marriage_date`, `separation_date`, `residence_change_date`, `previous_address`.
 
-Each fixture in `fixtures/` exports `{ dossier, generatedAt, expectedXmlHash, expectedZipHash }`. A small dev-only check (callable from `/dev/ag-xml`) re-runs the pipeline for every fixture and asserts hashes match the snapshot file. No vitest wiring in this phase — just a button + result list.
+**Mapper:** `mapPerson` in AG-Mapper ergänzen.
 
-## Public API additions in `src/domain/canonical/export/ag/index.ts`
+> **P2 Restpunkte (DA-1, Auslandeinkommen, Self-Employment Bilanz, Parteispenden, Lebensversicherung Rückkaufswert) bleiben out-of-scope dieser Phase.**
 
-- `buildAGExportPackage(ctx) → PackageResult`
-- `serializeAGPayloadToXml(payload) → Uint8Array`
-- `buildEtaxZip(entries, generatedAt) → Uint8Array`
-- `validateAGPayload(payload) → ValidationResult`
+---
 
-## Out of scope (explicit)
+## Reihenfolge der Umsetzung
 
-Submission flows, browser automation, production ZIP signing, full eCH-0119, advanced calc, OCR/AI, storage upload, schema changes to `canonical_exports`.
+1. **P0 (1–5):** Canonical-Types + Mapper + UI-Erweiterungen der bestehenden Repeater
+2. **P1 OCR:** Edge Function `extract-lohnausweis` + Review-Sheet + Integration in `EmploymentIncomeForm`
+3. **P1 Direkteingabe-Reste:** Versicherungen, Behindertenkosten, Berufsauslagen, Unterstützung, Kapitalleistung
+4. **P2:** Stammdaten in `PersonalInfo` erweitern, Spouse-Felder
 
-## Success checks
+## Technische Hinweise
 
-1. Two consecutive `buildAGExportPackage` calls with the same dossier + `generated_at` produce byte-identical XML and ZIP (verified in `/dev/ag-xml`).
-2. All three fixtures produce stable hashes matching snapshot files.
-3. Validator blocks export when taxpayer AHV missing.
-4. Generated `.etax.zip` downloads and opens in a standard ZIP tool with `manifest.xml` + `taxdata.xml` present.
-5. At least one generated package imports into AG eTax (manual user verification step).
+- Alle UI: AppButton, AppBottomSheet (full width), SubpageHeader, semantic tokens — gemäss Memory.
+- Lohnausweis-PDFs sind sensitiv → **Mandatory E2E Encryption** (`EncryptedDocumentService`); OCR erfolgt serverseitig nach Entschlüsselung in der Edge Function (transient, kein Logging).
+- Pro Tax Filer isoliert (`tax_filer_id` Filter überall).
+- AG-Export `mapper.ts` deterministisch halten — neue Felder via `compact()` einbinden, `index`-Sortierung beibehalten.
+- Keine neuen Yes/No-Gates ohne folgendes Detail-Repeater (siehe Memory: `_completed: true` Flag bleibt verbindlich).
+
+## Out of Scope (bestätigt)
+
+- Bankverbindung Rückerstattung (P0 Punkt 6)
+- DA-1, Auslandeinkommen, Self-Employment Bilanz/ER, Parteispenden, Lebensvers. Rückkaufswert
+- Production-Submission-Flows / neue Canton-Adapter
