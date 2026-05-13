@@ -84,8 +84,10 @@ export interface PensionIncome {
 export interface BankAccount {
   bank?: string;
   iban?: string;
+  account_type?: string;
   balance?: Money;
   interest?: Money;
+  withholding_tax?: Money;
   _provenance?: import('./provenance').Provenance;
 }
 export interface SecurityHolding {
@@ -94,6 +96,10 @@ export interface SecurityHolding {
   quantity?: string;
   market_value?: Money;
   dividend?: Money;
+  withholding_tax?: Money;
+  purchase_value?: Money;
+  purchase_date?: string;
+  request_withholding_refund?: boolean;
   _provenance?: import('./provenance').Provenance;
 }
 export interface CryptoAsset {
