@@ -16,28 +16,22 @@ interface LohnausweisOcrSheetProps {
   onConfirm: (fields: LohnausweisFields) => void;
 }
 
+// Nur Felder, die wir tatsächlich für den AG eTax / eCH-0119 Export benötigen.
 const FIELD_LABELS: Array<{ key: keyof LohnausweisFields; label: string; type: 'number' | 'text' | 'date' | 'bool' }> = [
   { key: 'employer_name', label: 'Arbeitgeber', type: 'text' },
-  { key: 'employee_ahv', label: 'AHV-Nummer', type: 'text' },
   { key: 'period_from', label: 'Anstellung von', type: 'date' },
   { key: 'period_to', label: 'Anstellung bis', type: 'date' },
-  { key: 'gross_salary', label: 'Ziff. 1 Bruttolohn', type: 'number' },
-  { key: 'company_car', label: 'Ziff. 2.2 Privatanteil Geschäftswagen', type: 'number' },
-  { key: 'other_fringe_benefits', label: 'Ziff. 2.3 Andere Gehaltsnebenleistungen', type: 'number' },
-  { key: 'irregular_pay', label: 'Ziff. 3 Unregelmässige Leistungen', type: 'number' },
-  { key: 'capital_payments', label: 'Ziff. 4 Kapitalleistungen', type: 'number' },
-  { key: 'employee_participation', label: 'Ziff. 5 Mitarbeiterbeteiligungen', type: 'number' },
-  { key: 'board_compensation', label: 'Ziff. 6 VR-Entschädigung', type: 'number' },
-  { key: 'other_benefits', label: 'Ziff. 7 Andere Leistungen', type: 'number' },
   { key: 'gross_total', label: 'Ziff. 8 Bruttolohn total', type: 'number' },
-  { key: 'ahv_iv_eo_alv_nbuv', label: 'Ziff. 9 AHV/IV/EO/ALV/NBUV', type: 'number' },
   { key: 'bvg_ordinary', label: 'Ziff. 10.1 BVG ordentlich', type: 'number' },
   { key: 'bvg_purchase', label: 'Ziff. 10.2 BVG-Einkauf', type: 'number' },
-  { key: 'net_salary', label: 'Ziff. 11 Nettolohn', type: 'number' },
   { key: 'withholding_tax', label: 'Ziff. 12 Quellensteuer', type: 'number' },
-  { key: 'meal_allowance', label: 'Ziff. 13.1 Effektive Spesen', type: 'number' },
-  { key: 'flat_expenses', label: 'Ziff. 13.2 Pauschalspesen', type: 'number' },
-  { key: 'further_education', label: 'Ziff. 13.3 Weiterbildung', type: 'number' },
+  { key: 'capital_payments', label: 'Ziff. 4 Kapitalleistungen', type: 'number' },
+  { key: 'shift_days', label: 'Schichttage (falls vorhanden)', type: 'number' },
+];
+
+const CHECKBOX_FIELDS: Array<{ key: keyof LohnausweisFields; letter: string; label: string }> = [
+  { key: 'free_transport', letter: 'F', label: 'Unentgeltliche Beförderung Wohn-/Arbeitsort' },
+  { key: 'free_meals', letter: 'G', label: 'Kantinenverpflegung / Lunch-Checks' },
 ];
 
 export const LohnausweisOcrSheet: React.FC<LohnausweisOcrSheetProps> = ({
