@@ -37,12 +37,19 @@ export interface AGPerson {
   role: AGPersonRole;
   first_name?: string;
   last_name?: string;
-  birth_date?: string;        // ISO yyyy-mm-dd
+  birth_date?: string;
   ahv_number?: string;
   nationality?: string;
   marital_status?: string;
   religion?: string;
   address?: AGAddress;
+  profession?: string;
+  work_percentage?: number;
+  place_of_origin?: string;
+  marriage_date?: string;
+  separation_date?: string;
+  residence_change_date?: string;
+  previous_address?: string;
 }
 
 export interface AGHousehold {
@@ -87,8 +94,10 @@ export interface AGBankAccount {
   index: number;
   bank?: string;
   iban?: string;
+  account_type?: string;
   balance?: AGMoney;
   interest?: AGMoney;
+  withholding_tax?: AGMoney;
 }
 
 export interface AGSecurityHolding {
@@ -98,6 +107,10 @@ export interface AGSecurityHolding {
   quantity?: string;
   market_value?: AGMoney;
   dividend?: AGMoney;
+  withholding_tax?: AGMoney;
+  purchase_value?: AGMoney;
+  purchase_date?: string;
+  request_withholding_refund?: boolean;
 }
 
 export interface AGCryptoAsset {
@@ -114,12 +127,23 @@ export interface AGForeignAsset {
   value?: AGMoney;
 }
 
+export interface AGVehicle {
+  index: number;
+  type?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  value?: AGMoney;
+  plate?: string;
+}
+
 export interface AGAssets {
   cash?: AGMoney;
   bank_accounts: AGBankAccount[];
   securities: AGSecurityHolding[];
   crypto_assets: AGCryptoAsset[];
   foreign_assets: AGForeignAsset[];
+  vehicles: AGVehicle[];
 }
 
 export interface AGMortgage {
@@ -151,7 +175,11 @@ export interface AGRealEstate {
   purchase_year?: number;
   tax_value?: AGMoney;
   rental_income?: AGMoney;
+  eigenmietwert?: AGMoney;
   maintenance_costs?: AGMoney;
+  maintenance_method?: 'pauschal' | 'effektiv';
+  maintenance_value_preserving?: AGMoney;
+  maintenance_value_increasing?: AGMoney;
 }
 
 export interface AGDeductionEntry {
