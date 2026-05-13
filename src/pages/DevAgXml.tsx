@@ -62,12 +62,50 @@ export default function DevAgXml() {
     canonicalRepository.listDossiersForUser(userId).then(setDossiers);
   }, [isAdmin, userId]);
 
+  // Customer search (debounced via simple effect)
+  useEffect(() => {
+    if (!isAdmin) return;
+    const t = setTimeout(async () => {
+      let q = supabase.from('profiles').select('id, first_name, last_name, email').limit(25);
+      const term = userQuery.trim();
+      if (term) q = q.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,email.ilike.%${term}%`);
+      const { data } = await q;
+      setUsers((data ?? []) as typeof users);
+    }, 200);
+    return () => clearTimeout(t);
+  }, [userQuery, isAdmin]);
+
+  // Load tax filers when user changes
+  useEffect(() => {
+    if (!selectedUserId) { setFilers([]); setSelectedFilerId(''); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('tax_filers').select('id, first_name, last_name, is_primary')
+        .eq('user_id', selectedUserId).order('is_primary', { ascending: false });
+      const list = (data ?? []) as typeof filers;
+      setFilers(list);
+      setSelectedFilerId(list[0]?.id ?? '');
+    })();
+  }, [selectedUserId]);
+
+  // Load available tax years for selected filer
+  useEffect(() => {
+    if (!selectedFilerId) { setFilerYears([]); setSelectedYear(''); return; }
+    (async () => {
+      const { data } = await supabase
+        .from('form_data').select('tax_year').eq('tax_filer_id', selectedFilerId);
+      const years = [...new Set(((data ?? []) as Array<{ tax_year: string }>).map((r) => r.tax_year))].sort().reverse();
+      setFilerYears(years);
+      setSelectedYear(years[0] ?? '');
+    })();
+  }, [selectedFilerId]);
+
   const buildFromFixture = async (): Promise<PackageResult> => {
     const f = allFixtures.find((x) => x.name === fixtureName);
     if (!f) throw new Error('Fixture not found');
     const payload = f.build();
-    const inputs_hash = await import('@/domain/canonical').then((m) => m.hashCanonicalDossier(f.dossier));
-    const payload_hash = await import('@/domain/canonical').then((m) => m.hashExportPayload(payload));
+    const inputs_hash = await hashCanonicalDossier(f.dossier);
+    const payload_hash = await hashExportPayload(payload);
     return buildAGExportPackage({ payload, inputs_hash, payload_hash });
   };
 
@@ -86,10 +124,52 @@ export default function DevAgXml() {
     return buildAGExportPackage(prepared);
   };
 
+  const buildFromCustomer = async (): Promise<PackageResult> => {
+    if (!selectedUserId) throw new Error('Kunde auswählen');
+    if (!selectedFilerId) throw new Error('Steuerpflichtige Person auswählen');
+    if (!selectedYear) throw new Error('Steuerjahr auswählen');
+
+    // Aggregate every form_data row for this filer/year into one merged object
+    const { data, error } = await supabase
+      .from('form_data')
+      .select('form_type, data')
+      .eq('tax_filer_id', selectedFilerId)
+      .eq('tax_year', selectedYear);
+    if (error) throw error;
+    const rows = (data ?? []) as Array<{ form_type: string; data: Record<string, unknown> | null }>;
+    if (!rows.length) throw new Error('Keine Formulardaten für diese Auswahl gefunden.');
+
+    const merged: Record<string, unknown> = {};
+    for (const r of rows) {
+      const d = r.data ?? {};
+      // Each form_type usually maps to a top-level section; merge by key.
+      Object.assign(merged, d);
+      if (r.form_type && !(r.form_type in merged)) merged[r.form_type] = d;
+    }
+
+    const dossier = assembleDossier({
+      user_id: selectedUserId,
+      tax_filer_id: selectedFilerId,
+      tax_year: selectedYear,
+      canton: 'AG',
+      formData: merged,
+    });
+    const prepared = await buildAGExportPayload({
+      dossier,
+      dossierRevision: 1,
+      rulesVersion,
+      generatedAt,
+    });
+    return buildAGExportPackage(prepared);
+  };
+
   const generate = async () => {
     setBusy(true); setErr(null);
     try {
-      const next = source === 'fixture' ? await buildFromFixture() : await buildFromDossier();
+      const next =
+        source === 'fixture' ? await buildFromFixture()
+        : source === 'dossier' ? await buildFromDossier()
+        : await buildFromCustomer();
       setPrevious(pkg);
       setPkg(next);
     } catch (e) {
