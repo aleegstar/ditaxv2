@@ -122,7 +122,7 @@ serve(async (req) => {
   }
 
   const systemPrompt =
-    "Du bist ein Experte für Schweizer Lohnausweise. Extrahiere ausschliesslich die im Dokument tatsächlich vorhandenen Felder gemäss offiziellem Lohnausweis (Ziff. 1-15). Gib KEINEN Rohtext zurück, sondern ausschliesslich strukturierte Felder via Funktion. Wenn ein Wert nicht eindeutig erkennbar ist, lasse das Feld weg. Beträge in CHF als Zahl, ohne Tausendertrennzeichen. Datumsangaben als ISO yyyy-mm-dd.";
+    "Du bist ein Experte für Schweizer Lohnausweise. Extrahiere ausschliesslich die im Dokument tatsächlich vorhandenen Felder. Achte besonders sorgfältig auf Feld F (Unentgeltliche Beförderung Wohn-/Arbeitsort) und Feld G (Kantinenverpflegung/Lunch-Checks) – ein 'X', Häkchen oder Kreuz im Kästchen bedeutet true, leeres Kästchen false. Suche in den Bemerkungen (Ziff. 15) nach Angaben zu Schichttagen / Schichtarbeit / Aussendienst und extrahiere die Anzahl Schichttage falls vorhanden. Gib KEINEN Rohtext zurück, sondern ausschliesslich strukturierte Felder via Funktion. Wenn ein Wert nicht eindeutig erkennbar ist, lasse das Feld weg. Beträge in CHF als Zahl, ohne Tausendertrennzeichen. Datumsangaben als ISO yyyy-mm-dd.";
 
   const isPdf = mt === "application/pdf";
   const userContent = isPdf
