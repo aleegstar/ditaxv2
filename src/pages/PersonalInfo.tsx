@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import sectionContactImg from '@/assets/section-contact.svg';
 import sectionIncomeImg from '@/assets/section-income.png';
 import sectionDeductionsImg from '@/assets/section-deductions.svg';
-import sectionAssetsImg from '@/assets/section-assets.webp';
+import sectionAssetsImg from '@/assets/section-assets.svg';
 import completeIllustration from '@/assets/documents-complete-illustration.webp';
 
 const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
