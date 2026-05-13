@@ -17,6 +17,7 @@ import UserTabs from '@/components/user-detail/UserTabs';
 import FormDataPdfDownloader from '@/components/user-detail/FormDataPdfDownloader';
 import DocumentsPdfDownloader from '@/components/user-detail/DocumentsPdfDownloader';
 import { CoverLetterDownloader } from '@/components/user-detail/CoverLetterDownloader';
+import AgEtaxExportButton from '@/components/user-detail/AgEtaxExportButton';
 import { TaxReturnStatusChanger } from '@/components/user-detail/TaxReturnStatusChanger';
 import { defaultFormData } from '@/contexts/form/defaults';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
