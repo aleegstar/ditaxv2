@@ -102,47 +102,45 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
         dragElastic={0.55}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.01 }}
-        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-8 pt-[240px] pb-16"
+        className="relative z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-8 pt-6 pb-10"
       >
-        <div className="mb-auto">
-          <div className="text-center">
-            <h2 className="text-[26px] sm:text-[28px] text-foreground tracking-[-0.02em] font-semibold leading-[1.2] pointer-events-none">
-              {question.text}
-            </h2>
+        <div className="text-center">
+          <h2 className="text-[26px] sm:text-[28px] text-foreground tracking-[-0.02em] font-semibold leading-[1.2] pointer-events-none">
+            {question.text}
+          </h2>
 
-            {question.explanation && (
-              <div className="mt-7 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
+          {question.explanation && (
+            <div className="mt-7 pointer-events-auto">
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
 
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="rounded-2xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-5 py-4 text-left mt-5">
-                        <p className="text-[13px] text-muted-foreground/85 leading-relaxed">
-                          {question.explanation}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="rounded-2xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-5 py-4 text-left mt-5">
+                      <p className="text-[13px] text-muted-foreground/85 leading-relaxed">
+                        {question.explanation}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </motion.div>
     );
@@ -182,19 +180,20 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
       {/* Card area — persistent image, only text content swaps */}
       <div className="relative w-full max-w-md mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
         <div
-          className="relative w-full rounded-3xl bg-card overflow-hidden min-h-[480px] border border-[rgba(20,20,20,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)]"
+          className="relative w-full rounded-3xl bg-card overflow-hidden border border-[rgba(20,20,20,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)] flex flex-col"
         >
-          {/* Background Image — top portion only, persistent across questions */}
+          {/* Image — top section, in normal flow so card grows below */}
           {sectionImage && (
-            <img
-              src={sectionImage}
-              alt=""
-              className="absolute top-0 left-0 right-0 h-[260px] w-full object-cover pointer-events-none select-none"
-              aria-hidden="true"
-            />
+            <div className="relative w-full h-[260px] shrink-0">
+              <img
+                src={sectionImage}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
+                aria-hidden="true"
+              />
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-card pointer-events-none" />
+            </div>
           )}
-          {/* Fade from image into card */}
-          <div className="absolute top-[210px] left-0 right-0 h-20 bg-gradient-to-b from-transparent to-card pointer-events-none" />
 
           {/* Subtle Swipe Indicators */}
           <div
@@ -214,7 +213,7 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
             </span>
           </div>
 
-          {/* Animated Text Content */}
+          {/* Animated Text Content — below image, grows with explanation */}
           <AnimatePresence mode="popLayout" initial={false} custom={exitDirection}>
             <SwipeContent
               ref={cardRef}
