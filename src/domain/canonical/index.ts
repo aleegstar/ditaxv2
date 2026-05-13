@@ -15,4 +15,6 @@ export { validatorRegistry } from './validation/registry';
 
 export * from './export/types';
 export { createExportPipeline } from './export/pipeline';
-export { hashPayload, sha256Hex, stableStringify } from './export/hashing';
+export { hashPayload, sha256Hex, stableStringify, hashCanonicalDossier, hashExportPayload } from './export/hashing';
+
+export * as ag from './export/ag';
