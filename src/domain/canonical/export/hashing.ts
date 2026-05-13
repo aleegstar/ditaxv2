@@ -33,3 +33,31 @@ export async function sha256Hex(input: string | Uint8Array): Promise<string> {
 
 export const hashPayload = async (payload: unknown): Promise<string> =>
   sha256Hex(stableStringify(payload));
+
+/**
+ * Deterministic hash of a canonical dossier's logical content.
+ * Excludes id/revision/updated_at so identical content yields identical hash.
+ */
+export async function hashCanonicalDossier(d: import('../types').Dossier): Promise<string> {
+  const subset = {
+    user_id: d.user_id,
+    tax_filer_id: d.tax_filer_id,
+    tax_year: d.tax_year,
+    canton: d.canton,
+    schema_version: d.schema_version,
+    currency: d.currency,
+    persons: d.persons,
+    household: d.household,
+    employment_incomes: d.employment_incomes,
+    self_employment_incomes: d.self_employment_incomes,
+    pension_incomes: d.pension_incomes,
+    assets: d.assets,
+    debts: d.debts,
+    real_estate: d.real_estate,
+    deductions: d.deductions,
+    attachments: d.attachments,
+  };
+  return hashPayload(subset);
+}
+
+export const hashExportPayload = (payload: unknown): Promise<string> => hashPayload(payload);
