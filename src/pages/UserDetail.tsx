@@ -620,6 +620,12 @@ const UserDetail: React.FC = () => {
                     userId={user.id}
                     userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
                   />
+                  <AgEtaxExportButton
+                    userId={user.id}
+                    taxFilerId={selectedTaxFilerId}
+                    taxYear={selectedYear}
+                    userName={`${user.first_name || ''} ${user.last_name || ''}`.trim()}
+                  />
                 </div>
               </div>
             </div>
