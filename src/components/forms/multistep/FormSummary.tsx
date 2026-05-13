@@ -138,7 +138,7 @@ export const FormSummary: React.FC<FormSummaryProps> = ({
       <div className="pt-2 pb-4">
         <button
           onClick={onConfirm}
-          className="w-full flex items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.97]"
+          className="w-full h-12 inline-flex items-center justify-center rounded-2xl px-5 text-[15px] font-semibold text-white tracking-tight transition-all duration-200 border border-white/[0.08] bg-[linear-gradient(180deg,#2B2B35_0%,#17171C_100%)] shadow-[0_8px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] hover:bg-[linear-gradient(180deg,#33333E_0%,#1C1C22_100%)] active:scale-[0.985]"
           style={{ touchAction: 'manipulation' }}
         >
           <span>Speichern</span>
