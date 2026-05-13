@@ -51,6 +51,7 @@ const SelectPerson = lazy(() => import("./pages/SelectPerson"));
 const Invoices = lazy(() => import("./pages/Invoices"));
 const PersonalInfo = lazy(() => import("./pages/PersonalInfo"));
 const DevCanonical = lazy(() => import("./pages/DevCanonical"));
+const DevAgExport = lazy(() => import("./pages/DevAgExport"));
 
 // Non-lazy imports for essential app shell components
 import { SidebarProvider } from "@/contexts/SidebarContext";
@@ -294,6 +295,7 @@ const AuthenticatedApp = () => {
                 <Route path="/privacy-settings" element={<PrivacySettings />} />
                 <Route path="/debug" element={<AndroidDebug />} />
                 <Route path="/dev/canonical" element={<ProtectedRoute><DevCanonical /></ProtectedRoute>} />
+                <Route path="/dev/ag-export" element={<ProtectedRoute><DevAgExport /></ProtectedRoute>} />
                 <Route path="/tax-filers" element={
                   <ProtectedRoute>
                     <TaxFilers />
