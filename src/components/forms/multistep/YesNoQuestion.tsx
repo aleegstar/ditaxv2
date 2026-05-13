@@ -102,47 +102,45 @@ const SwipeContent = forwardRef<SwipeCardHandle, SwipeContentProps>(
         dragElastic={0.55}
         onDragEnd={handleDragEnd}
         whileDrag={{ scale: 1.01 }}
-        className="absolute inset-0 z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-8 pt-[240px] pb-16"
+        className="relative z-10 flex flex-col cursor-grab active:cursor-grabbing select-none will-change-transform px-8 pt-6 pb-10"
       >
-        <div className="mb-auto">
-          <div className="text-center">
-            <h2 className="text-[26px] sm:text-[28px] text-foreground tracking-[-0.02em] font-semibold leading-[1.2] pointer-events-none">
-              {question.text}
-            </h2>
+        <div className="text-center">
+          <h2 className="text-[26px] sm:text-[28px] text-foreground tracking-[-0.02em] font-semibold leading-[1.2] pointer-events-none">
+            {question.text}
+          </h2>
 
-            {question.explanation && (
-              <div className="mt-7 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/80 transition-colors"
-                >
-                  {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
+          {question.explanation && (
+            <div className="mt-7 pointer-events-auto">
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                {isExpanded ? 'Weniger anzeigen' : 'Mehr erfahren'}
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
 
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="rounded-2xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-5 py-4 text-left mt-5">
-                        <p className="text-[13px] text-muted-foreground/85 leading-relaxed">
-                          {question.explanation}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="rounded-2xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-5 py-4 text-left mt-5">
+                      <p className="text-[13px] text-muted-foreground/85 leading-relaxed">
+                        {question.explanation}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </motion.div>
     );
