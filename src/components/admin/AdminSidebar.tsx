@@ -17,6 +17,8 @@ import {
   MessageSquareDashed,
   Mail,
   Ticket,
+  FileCode,
+  PackageCheck,
   LogOut, 
   Settings, 
   User as UserIcon, 
@@ -192,7 +194,13 @@ export function AdminSidebar() {
     { title: "Aktionscodes", url: "/admin/promo-codes", icon: Ticket },
   ];
 
+  const exportNavItems = [
+    { title: "AG eTax XML", url: "/admin/ag-xml", icon: FileCode },
+    { title: "AG Import-Test", url: "/admin/ag-import", icon: PackageCheck },
+  ];
+
   const managementHasActive = managementNavItems.some(item => currentPath === item.url);
+  const exportHasActive = exportNavItems.some(item => currentPath === item.url);
 
   return (
     <aside
@@ -228,6 +236,12 @@ export function AdminSidebar() {
 
           <NavGroup title="Verwaltung" collapsible defaultOpen={false} hasActive={managementHasActive}>
             {managementNavItems.map((item) => (
+              <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
+            ))}
+          </NavGroup>
+
+          <NavGroup title="AG eTax Export" collapsible defaultOpen={exportHasActive} hasActive={exportHasActive}>
+            {exportNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
             ))}
           </NavGroup>
