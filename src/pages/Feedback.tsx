@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { Check, Star, Bug, Lightbulb, Heart, Loader2 } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { Checkbox } from '@/components/ui/checkbox';
-import feedbackIllustration from '@/assets/feedback-illustration.webp';
+import feedbackIllustration from '@/assets/feedback-illustration.svg';
 
 const categories = [
   { value: 'bug', icon: Bug },
