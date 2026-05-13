@@ -102,6 +102,7 @@ export const EmployerRepeater: React.FC<EmployerRepeaterProps> = ({ employers, o
               </button>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`workLocation-${employer.id}`} className="text-slate-700 text-sm font-medium">
                   Arbeitsort
