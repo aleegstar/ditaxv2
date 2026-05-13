@@ -6,6 +6,10 @@ import { Sphere } from "@/components/ui/sphere";
 import { Button } from "@/components/ui/button";
 import { SubpageHeader } from "@/components/ui/subpage-header";
 import EnhancedDocumentUploader from '@/components/EnhancedDocumentUploader';
+import { ScanLine, CheckCircle2 } from 'lucide-react';
+import { LohnausweisOcrSheet } from '@/components/forms/lohnausweis/LohnausweisOcrSheet';
+import type { LohnausweisFields } from '@/services/LohnausweisOcrService';
+import { toast } from '@/hooks/use-toast';
 // Standard document definitions for fallback
 const STANDARD_DOCUMENTS: Record<string, Omit<ChecklistItem, 'uploaded'>> = {
   'tax-cover-sheet': {
