@@ -157,29 +157,28 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
                 }}
                 onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
                 className={cn(
-                  "group relative text-left rounded-2xl bg-white p-6 pt-7",
+                  "group relative text-left rounded-2xl bg-white overflow-hidden",
                   "border border-[rgba(20,20,20,0.06)]",
                   "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)]",
                   "hover:border-[rgba(20,20,20,0.09)]",
                   "hover:shadow-[0_2px_4px_rgba(0,0,0,0.03),0_12px_32px_rgba(0,0,0,0.05)]",
-                  "active:scale-[0.99] transition-all duration-300 min-h-[190px] flex flex-col items-center justify-between"
+                  "active:scale-[0.99] transition-all duration-300 min-h-[190px] flex flex-col"
                 )}
               >
-                {completed && (
-                  <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.75} />
-                  </div>
-                )}
                 <img
                   src={section.image}
                   alt=""
-                  width={320}
-                  height={320}
                   loading="lazy"
                   decoding="async"
-                  className="w-[72px] h-[72px] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
-                <div className="text-center w-full">
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+                {completed && (
+                  <div className="absolute top-3.5 right-3.5 z-10 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.75} />
+                  </div>
+                )}
+                <div className="relative mt-auto p-5 text-center w-full">
                   <h3 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">
                     {section.title}
                   </h3>
