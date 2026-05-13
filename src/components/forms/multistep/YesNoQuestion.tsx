@@ -180,34 +180,36 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   return (
     <div className={cn('flex-1 flex flex-col items-center justify-center', className)}>
       {/* Card area — persistent image, only text content swaps */}
-      <div className="relative w-full max-w-sm mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
-        <div className="relative w-full rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden min-h-[440px]">
+      <div className="relative w-full max-w-md mx-auto flex-1 flex items-center justify-center overflow-visible px-2">
+        <div
+          className="relative w-full rounded-3xl bg-card overflow-hidden min-h-[480px] border border-[rgba(20,20,20,0.06)] shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)]"
+        >
           {/* Background Image — top portion only, persistent across questions */}
           {sectionImage && (
             <img
               src={sectionImage}
               alt=""
-              className="absolute top-0 left-0 right-0 h-[240px] w-full object-cover pointer-events-none select-none"
+              className="absolute top-0 left-0 right-0 h-[260px] w-full object-cover pointer-events-none select-none"
               aria-hidden="true"
             />
           )}
           {/* Fade from image into card */}
-          <div className="absolute top-[200px] left-0 right-0 h-16 bg-gradient-to-b from-transparent to-card pointer-events-none" />
+          <div className="absolute top-[210px] left-0 right-0 h-20 bg-gradient-to-b from-transparent to-card pointer-events-none" />
 
           {/* Subtle Swipe Indicators */}
           <div
             style={{ opacity: yesIndicatorOpacity }}
-            className="absolute top-4 left-4 z-20 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-sm transition-opacity"
+            className="absolute top-5 left-5 z-20 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm transition-opacity"
           >
-            <span className="text-primary font-semibold text-xs tracking-wide uppercase">
+            <span className="text-primary-foreground font-medium text-[10px] tracking-[0.1em] uppercase">
               {t.yesNoForm.yes}
             </span>
           </div>
           <div
             style={{ opacity: noIndicatorOpacity }}
-            className="absolute top-4 right-4 z-20 px-3 py-1 rounded-full border border-border bg-muted/40 backdrop-blur-sm transition-opacity"
+            className="absolute top-5 right-5 z-20 px-2.5 py-1 rounded-full bg-foreground/85 backdrop-blur-sm transition-opacity"
           >
-            <span className="text-foreground font-semibold text-xs tracking-wide uppercase">
+            <span className="text-background font-medium text-[10px] tracking-[0.1em] uppercase">
               {t.yesNoForm.no}
             </span>
           </div>
@@ -229,23 +231,23 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons — restrained palette, blue accent only */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1], delay: 0.08 }}
-        className="flex items-center justify-center gap-3 mt-8 mb-4 shrink-0 w-full max-w-sm mx-auto px-4"
+        className="flex items-center justify-center gap-3 mt-10 mb-4 shrink-0 w-full max-w-md mx-auto px-4"
       >
         <button
           onClick={() => handleButtonAnswer(true)}
-          className="flex-1 flex items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(222,100%,60%)] to-[hsl(222,100%,47%)] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center rounded-full bg-primary px-6 py-3.5 text-[14px] font-medium text-primary-foreground tracking-tight transition-all duration-200 hover:bg-primary/90 active:scale-[0.98] shadow-[0_1px_2px_rgba(22,86,255,0.12),0_8px_20px_rgba(22,86,255,0.18)]"
         >
           {t.yesNoForm.yes}
         </button>
 
         <button
           onClick={() => handleButtonAnswer(false)}
-          className="flex-1 flex items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(0,0%,18%)] to-[hsl(0,0%,8%)] px-6 py-3.5 text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-[0.97]"
+          className="flex-1 flex items-center justify-center rounded-full bg-white border border-[rgba(20,20,20,0.08)] px-6 py-3.5 text-[14px] font-medium text-foreground tracking-tight transition-all duration-200 hover:bg-foreground/[0.025] hover:border-[rgba(20,20,20,0.12)] active:scale-[0.98]"
         >
           {t.yesNoForm.no}
         </button>
