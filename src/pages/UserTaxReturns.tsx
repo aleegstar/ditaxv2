@@ -365,10 +365,9 @@ const UserTaxReturns = () => {
           )}
 
           {selectedStatus === 'completed' && selectedYear && selectedCompleted && (
-            <CompletedContent
-              taxYear={selectedYear}
+            <TaxReturnActionsContent
               completedTaxReturnId={(selectedCompleted as any).id}
-              signatureStatus={(selectedCompleted as any).signature_status}
+              embedded
             />
           )}
         </motion.div>
