@@ -97,7 +97,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
           title={t.formDashboard.personalInfo}
           onBack={() => navigate('/')}
         />
-        <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
+        <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-24">
           <div className="mb-8 px-1">
             <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full overflow-hidden" />
           </div>
@@ -117,7 +117,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
         title={t.formDashboard.personalInfo}
         onBack={() => navigate('/')}
       />
-      <main className="max-w-xl mx-auto px-5 sm:px-8 pb-24">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 pb-24">
         {/* Removed top progress; shown at bottom card */}
 
         {/* 2x2 grid — premium handcrafted cards */}
