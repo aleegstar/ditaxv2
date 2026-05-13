@@ -761,16 +761,19 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           {/* Editing Mode Indicator */}
           {viewState.isEditing && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4"
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="mb-5"
             >
-              <div className="bg-amber-50/60 border border-amber-200/40 rounded-2xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium text-amber-600">Bearbeitungsmodus:</span> Du bearbeitest diese Frage.
-                  </div>
+              <div className="rounded-xl bg-foreground/[0.025] border border-[rgba(20,20,20,0.06)] px-4 py-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full" />
+                  <p className="text-[12.5px] text-muted-foreground/85 leading-snug">
+                    <span className="font-medium text-foreground">Bearbeitungsmodus</span>
+                    <span className="text-muted-foreground/50"> · </span>
+                    Du bearbeitest diese Frage.
+                  </p>
                 </div>
               </div>
             </motion.div>
