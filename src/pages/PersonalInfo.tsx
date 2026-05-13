@@ -175,6 +175,36 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
             );
           })}
         </motion.div>
+
+        {/* Progress card at bottom — matches dashboard "Belege & Unterlagen" style */}
+        {!allCompleted && (
+          <div className="mt-5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-5 py-5 flex items-center gap-5">
+            <div className="relative flex-shrink-0">
+              <AnimatedCircularProgressBar
+                max={100}
+                min={0}
+                value={Math.round((completedCount / sections.length) * 100)}
+                gaugePrimaryColor="hsl(var(--primary))"
+                gaugeSecondaryColor="hsl(var(--primary) / 0.10)"
+                className="size-14 text-[11px] font-semibold text-primary"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[14px]">
+                Persönliche Angaben
+              </h3>
+              <p className="text-muted-foreground/80 mt-1 leading-relaxed text-[12.5px]">
+                Beantworte ein paar Fragen zu deiner Situation, damit wir deine Steuererklärung passgenau erstellen können.
+              </p>
+            </div>
+            <img
+              src={documentsMessageImg}
+              alt=""
+              aria-hidden="true"
+              className="flex-shrink-0 w-20 h-20 object-contain select-none pointer-events-none"
+            />
+          </div>
+        )}
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
