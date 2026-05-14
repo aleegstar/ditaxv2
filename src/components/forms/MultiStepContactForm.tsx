@@ -259,15 +259,24 @@ const MultiStepContactForm = ({
   };
 
 
-  // Liquid glass theme classes
-  const lightInputClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white border border-border text-foreground placeholder:text-muted-foreground/60 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all duration-300 shadow-sm";
-  const lightSelectTriggerClass = "min-h-[52px] px-5 py-3.5 text-[15px] rounded-2xl bg-white border border-border text-foreground shadow-sm transition-all duration-300 hover:border-primary/30";
-  const lightLabelClass = "block mb-2.5 text-muted-foreground text-sm font-medium tracking-wide";
+  // Refined Swiss fintech input styles — calmer, more spacious, ultra-soft depth
+  const lightInputClass =
+    "h-[54px] px-5 text-[15px] rounded-2xl bg-white text-foreground placeholder:text-muted-foreground/50 " +
+    "border border-[rgba(20,20,20,0.06)] " +
+    "shadow-[0_1px_2px_rgba(0,0,0,0.02)] " +
+    "focus:border-primary/40 focus:ring-2 focus:ring-primary/[0.08] focus:shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)] " +
+    "transition-all duration-200";
+  const lightSelectTriggerClass =
+    "h-[54px] px-5 text-[15px] rounded-2xl bg-white text-foreground " +
+    "border border-[rgba(20,20,20,0.06)] " +
+    "shadow-[0_1px_2px_rgba(0,0,0,0.02)] " +
+    "hover:border-[rgba(20,20,20,0.10)] transition-all duration-200";
+  const lightLabelClass = "block mb-2.5 text-muted-foreground/80 text-[13px] font-medium tracking-tight";
 
   return (
     <div className="min-h-screen relative overflow-hidden flex justify-center">
 
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-2xl">
         {/* Header with back arrow and centered title */}
         {!embedded && (
           <SubpageHeader
@@ -276,32 +285,42 @@ const MultiStepContactForm = ({
           />
         )}
 
-        <div className="px-6 pt-6">
+        <div className="px-6 sm:px-8 pt-8 sm:pt-10">
 
-        {/* 4-Segment Progress Bar — glass style */}
-        <div className="flex gap-2.5 mb-10">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={cn(
-                "h-1 flex-1 rounded-full transition-all duration-500",
-                index < currentStep 
-                  ? "bg-primary" 
-                  : "bg-foreground/[0.08]"
-              )}
-            />
-          ))}
+        {/* Refined progress — minimal segmented bar with quiet counter */}
+        <div className="mb-12">
+          <div className="flex items-center gap-1.5">
+            {steps.map((step, index) => (
+              <div
+                key={step.id}
+                className={cn(
+                  "h-[3px] flex-1 rounded-full transition-all duration-700 ease-out",
+                  index < currentStep
+                    ? "bg-primary"
+                    : "bg-foreground/[0.06]"
+                )}
+              />
+            ))}
+          </div>
+          <p className="mt-3.5 text-[11px] text-muted-foreground/60 font-medium tabular-nums tracking-[0.04em]">
+            Schritt {currentStep} von {steps.length}
+          </p>
         </div>
 
-        {/* Section Heading */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-foreground tracking-tight">
+        {/* Section Heading — larger, editorial */}
+        <div className="mb-10">
+          <h2 className="text-[28px] sm:text-[32px] font-semibold text-foreground tracking-[-0.02em] leading-[1.1]">
             {steps.find(step => step.id === currentStep)?.title || t.multiStepContactForm.title}
           </h2>
+          {steps.find(step => step.id === currentStep)?.description && (
+            <p className="mt-3 text-[15px] text-muted-foreground/70 leading-relaxed max-w-lg">
+              {steps.find(step => step.id === currentStep)?.description}
+            </p>
+          )}
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form onSubmit={handleSubmit} className="space-y-7" noValidate>
           <motion.div
             key={currentStep}
             initial={{ opacity: 0, x: 20 }}
