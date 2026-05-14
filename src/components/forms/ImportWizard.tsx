@@ -12,7 +12,7 @@ import { useFormContext } from '@/contexts';
 import { FormSectionKey } from '@/types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import importWizardIllustration from '@/assets/import-wizard-illustration.webp';
+import importWizardIllustration from '@/assets/import-wizard-illustration.svg';
 
 interface ImportWizardProps {
   section: FormSectionKey;
