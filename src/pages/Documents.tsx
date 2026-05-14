@@ -23,7 +23,7 @@ import { useProfile } from '@/hooks/useProfile';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
-import documentsEmptyImg from '@/assets/documents-empty.webp';
+import documentsEmptyImg from '@/assets/documents-empty.svg';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
