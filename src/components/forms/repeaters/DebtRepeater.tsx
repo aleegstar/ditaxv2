@@ -1,6 +1,6 @@
 
 import React from 'react';
-import debtEmptyImg from '@/assets/debt-empty.webp';
+import debtEmptyImg from '@/assets/debt-empty.svg';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
