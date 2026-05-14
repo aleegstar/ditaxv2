@@ -649,12 +649,12 @@ const MultiStepContactForm = ({
             )}
           </motion.div>
 
-          {/* Navigation Buttons */}
-          <div className="flex flex-col gap-3 pt-8 pb-4">
+          {/* Navigation Buttons — more generous spacing, refined hierarchy */}
+          <div className="flex flex-col gap-3 pt-12 pb-6">
             <Button
               type="button"
               onClick={handleNext}
-              className="w-full shadow-none hover:shadow-none"
+              className="w-full"
             >
               {currentStep === steps.length ? t.multiStepContactForm.finish : t.multiStepContactForm.continue}
             </Button>
@@ -663,7 +663,7 @@ const MultiStepContactForm = ({
               <button
                 type="button"
                 onClick={handleBack}
-                className="w-full flex items-center justify-center rounded-2xl bg-white border border-border px-6 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted active:scale-[0.97]"
+                className="w-full h-12 flex items-center justify-center rounded-2xl bg-transparent text-[14px] font-medium text-muted-foreground/80 transition-colors duration-200 hover:text-foreground"
               >
                 {t.multiStepContactForm.back}
               </button>
