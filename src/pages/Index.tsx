@@ -13,6 +13,10 @@ import AssetsForm from '@/components/forms/AssetsForm';
 import { SubmissionForm } from '@/components/forms/SubmissionForm';
 import { FormDataSummary } from '@/components/forms/FormDataSummary';
 import { ImportWizard } from '@/components/forms/ImportWizard';
+import {
+  PriorYearImportBanner,
+  isPriorYearImportDismissed,
+} from '@/components/forms/PriorYearImportBanner';
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedPageContainer } from '@/components/ui/animated-page-container';
 import { FormSectionKey } from '@/types';
