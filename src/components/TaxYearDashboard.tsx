@@ -12,6 +12,7 @@ import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
+import { DashboardPriorYearBanner } from '@/components/forms/DashboardPriorYearBanner';
 import { cn } from '@/lib/utils';
 
 interface DashboardSection {
@@ -162,6 +163,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const stepsContent = (
     <div className="space-y-3.5">
+      <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
       <div
