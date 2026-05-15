@@ -12,7 +12,6 @@ import DeductionsForm from '@/components/forms/DeductionsForm';
 import AssetsForm from '@/components/forms/AssetsForm';
 import { SubmissionForm } from '@/components/forms/SubmissionForm';
 import { FormDataSummary } from '@/components/forms/FormDataSummary';
-import { ImportWizard } from '@/components/forms/ImportWizard';
 import {
   PriorYearImportBanner,
   isPriorYearImportDismissed,
