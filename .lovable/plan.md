@@ -1,145 +1,95 @@
+# Plan: Vorjahres-Übernahme – Phase 1
 
-# Datenlücken schliessen für vollständigen AG eTax / eCH-0119 Export
+Ziel: Aus `Drawer/Modal-blockiert` einen ruhigen, zweistufigen Flow machen, der **nur Strukturen** übernimmt (keine CHF-Beträge), pro Sektion einmalig fragt und einen Dashboard-Einstieg bietet.
 
-Ziel: Maximaler Datenumfang im Export ohne den User mit Fragen zu überfluten. Direkt-Eingabe nur wo nötig, sonst OCR.
+## Scope
 
----
+1. **Strict structure-only import** in `importFromPreviousYear` (`FormContext.tsx`)
+2. **Non-blocking Banner** in jeder Sektion statt fullscreen Drawer (`ImportWizard.tsx` → `PriorYearImportBanner.tsx`)
+3. **Per-Section "dismissed" Flag** pro `tax_filer_id` + `tax_year` (localStorage, kein DB-Schema-Change in Phase 1)
+4. **Dashboard-Banner** als primärer Einstieg ("Mit Vorjahres-Daten starten") mit Bulk-Import aller 4 Sektionen
+5. **Visueller Marker** "Aus Vorjahr übernommen – bitte prüfen" pro Sektion in Expert-Summary
 
-## P0 — Direkt ergänzen (ohne Punkt 6 = Bankverbindung)
+## Was übernommen wird (strukturell)
 
-Diese Felder werden minimal-invasiv in bestehende Formulare integriert (kein neuer Wizard-Step, sondern Erweiterung bestehender Repeater/Sektionen).
+Boolean-Flags, Auswahlen, IDs, Strukturen ohne Beträge:
+- `income`: `hasSalary`, `hasRentalIncome`, `hasDividends`, `hasFreelanceIncome`, Anzahl `employers` (Name/Adresse/Pensum, **ohne** Bruttolohn/Quellensteuer), `rentalIncomes` (Adresse/Objekt, **ohne** Mietertrag)
+- `assets`: `hasVehicles`/`hasProperties`/`hasDepositAccount`/`hasDebts`, Vehicles (Marke/Modell/Plate/Erstzulassung, **ohne** `currentValue`), Properties (Adresse/Typ, **ohne** `marketValue`/`taxValue`/`mortgageBalance`), Debts (Gläubiger/Typ, **ohne** Restschuld/Zins)
+- `deductions`: alle `has*`-Flags, `supportedPersons` (Name/Beziehung, **ohne** Beträge), `maintenancePayments` (Empfänger, **ohne** Beträge); 3a/Säule-Status ja, Beiträge nein
+- `contactInfo`: alles (Adresse, Zivilstand, Konfession, Kinder mit Namen/Geburtsdatum) – hier sind alle Felder strukturell
 
-### 1. Liegenschaft — Eigenmietwert + Unterhalt strukturiert
-**Datei:** `src/components/forms/RealEstateRepeater.tsx` (bestehender Repeater)
-- Neues Feld `eigenmietwert` (CHF) — separat von `rental_income`
-- Auswahl `maintenance_method`: `'pauschal' | 'effektiv'` (Radio)
-- Bei `effektiv`: Aufteilung `werterhaltend` / `wertvermehrend` (zwei Zahlfelder)
-- **Canonical:** `RealEstate` erweitern um `eigenmietwert`, `maintenance_method`, `maintenance_value_preserving`, `maintenance_value_increasing`
-- **Mapper:** `mapRealEstate` in `src/domain/canonical/export/ag/mapper.ts` ergänzen
+## Felder-Blacklist (NICHT übernommen)
 
-### 2. Hypotheken-Repeater (statt Yes/No)
-**Datei:** Neue Komponente `src/components/forms/MortgageRepeater.tsx`, eingebunden wenn `hasMortgage = true`
-- Felder pro Hypothek: `lender`, `property_id` (Verknüpfung zu RealEstate-Repeater), `balance`, `interest`
-- Mapping nach `Debts.mortgages[]` (existiert bereits im Canonical)
-- Im AG-Export bereits via `mapDebts` abgedeckt — nur Erfassung fehlt
+Zentrale Konstante `IMPORT_AMOUNT_FIELDS` mit Whitelist je Sektion. Beim Merge: aus `importedData` werden alle Keys, die in der Blacklist stehen, auf Default zurückgesetzt. Auch in nested arrays (`employers[].grossSalary`, `properties[].marketValue` etc.).
 
-### 3. Wertschriften — Verrechnungssteuer + Anschaffungswert
-**Datei:** `src/components/forms/SecuritiesRepeater.tsx`
-- Pro Position: `withholding_tax_amount` (35% VST-Antrag), `purchase_value`, `purchase_date` (optional)
-- Toggle `request_withholding_refund` (Default true)
-- **Canonical** `Security` erweitern; **Mapper** `mapAssets.securities` ergänzen
+## Komponenten-Änderungen
 
-### 4. Bank-Konten — Verrechnungssteuer auf Zinsen
-**Datei:** `src/components/forms/BankAccountRepeater.tsx`
-- Feld `withholding_tax` pro Konto
-- Canonical `BankAccount.withholding_tax`, Mapper-Ergänzung
+### `src/contexts/form/sanitizeImport.ts` (neu)
+Pure function `sanitizeImportedData(section, data)` → returnt cleaned object. Definiert Field-Blacklists pro Sektion + nested-array sanitizer.
 
-### 5. Vehicles ins Canonical Assets
-**Datei:** `src/domain/canonical/types.ts` + `mappers/fromFormData.ts`
-- `Assets.vehicles[]` neu: `{ type, brand, model, year, value, plate? }`
-- `VehicleRepeater`-Daten in `fromFormData` mappen
-- AG-Mapper: `mapAssets` um `vehicles` erweitern + AG-Type `AGVehicle`
+### `src/contexts/form/FormContext.tsx`
+- `importFromPreviousYear`: vor Merge `sanitizeImportedData` anwenden
+- Setze Marker `_importedFromPreviousYear: true` und `_importedAt: ISO` im gespeicherten Datensatz (nutzt Expert-Summary zum Anzeigen)
 
-> **Punkt 6 (Bankverbindung Rückerstattung) wird auf Wunsch ausgelassen.**
+### `src/components/forms/PriorYearImportBanner.tsx` (neu)
+- Kompakte Card oben in Sektions-Form (statt Drawer)
+- Text: "Aus {previousYear} übernehmen? Beträge musst du selbst eintragen."
+- 2 Buttons: `[Übernehmen]` `[Schliessen]`
+- Bei Schliessen: setze `localStorage['ditax_pyimport_dismissed_{filerId}_{taxYear}_{section}'] = '1'`
+- Bei Übernehmen: ruft `importFromPreviousYear` + setzt dismissed-Flag + Toast "Strukturen übernommen, bitte Beträge prüfen"
 
----
+### `src/pages/Index.tsx`
+- Entferne `<ImportWizard>`-Drawer-Logik
+- Reiche stattdessen `showImportBanner` als Prop an die Form-Komponenten
+- Banner wird *innerhalb* der Form gerendert (oberhalb der ersten Frage)
 
-## P1 — OCR-gestützter Lohnausweis-Flow
+### `src/components/TaxYearDashboard.tsx`
+- Neuer Banner ganz oben (nur wenn: aktuelles Jahr leer + Vorjahr hat ≥1 Sektion mit Daten + Flag `dashboard_pyimport_dismissed_{filerId}_{taxYear}` nicht gesetzt)
+- 1 Tap "Vorjahres-Strukturen für alle Sektionen übernehmen" → Loop über 4 Sektionen → setzt alle dismissed-Flags
 
-Grundgedanke: User lädt Lohnausweis-PDF/Foto hoch → OCR extrahiert alle relevanten Felder → User sieht ein **Review-Sheet** mit vorbefüllten Feldern und bestätigt/korrigiert. Keine manuellen Einzelfragen.
+### `src/components/forms/FormDataSummary.tsx`
+- Pro Sektion: wenn `_importedFromPreviousYear === true` → kleines Badge "Aus Vorjahr – bitte prüfen"
 
-### Architektur
+### `src/components/forms/ImportWizard.tsx`
+- Wird **gelöscht** (durch Banner ersetzt)
+
+## Technische Details
 
 ```text
-EmploymentIncomeForm
-  └─ "Lohnausweis hochladen" (primary CTA)
-       └─ Upload → encrypted storage
-            └─ Edge Function: extract-lohnausweis
-                 ├─ AI Gateway (Gemini Vision)
-                 ├─ Strukturierte JSON-Extraktion
-                 └─ Confidence-Score pro Feld
-       └─ Review-Sheet (AppBottomSheet)
-            ├─ Alle Felder vorbefüllt
-            ├─ Felder mit niedriger Confidence rot markiert
-            ├─ User bestätigt → speichern in employment_income.extra
-            └─ Fallback "Manuell eingeben" Link
+Flow:
+Dashboard
+  └─ Banner "Mit Vorjahres-Daten starten" ──┐
+                                              ├─ Bulk-Import (4× sanitize+save)
+  └─ Sektion öffnen                           │
+       └─ Banner oben (falls nicht dismissed) ┘
+            └─ "Übernehmen" → sanitize → save → dismiss
+            └─ "Schliessen" → dismiss
+       └─ Form normal ausfüllen
+            └─ Beträge IMMER manuell
 ```
 
-### Neue/erweiterte Bausteine
+Dismissed-Key-Format: `ditax_pyimport_dismissed_{filerId}_{taxYear}_{section}`
+Dashboard-Key: `ditax_pyimport_dashboard_{filerId}_{taxYear}`
 
-**Edge Function:** `supabase/functions/extract-lohnausweis/index.ts`
-- Auth-pflichtig (siehe `ocr-extract` Pattern)
-- Input: `{ documentId, taxFilerId }`
-- Lädt verschlüsseltes Dokument, entschlüsselt serverseitig (Master Key Pattern)
-- Sendet an Lovable AI Gateway (`google/gemini-2.5-flash` mit JSON-Schema)
-- Output: Strukturiertes Lohnausweis-Objekt nach Felder Ziff. 1–15 Lohnausweis CH
+`hasDataForPreviousYear` bleibt unverändert. Banner-Sichtbarkeitslogik:
+```
+visible = hasPreviousYearData
+       && !currentYearHasData
+       && !localStorage.getItem(dismissedKey)
+```
 
-**Extrahierte Felder:**
-- Bruttolohn (Ziff. 1), Gratifikation/Bonus (Ziff. 2.1), Mitarbeiterbeteiligungen (Ziff. 5)
-- Verpflegungsentschädigung (Ziff. 2.2), Spesenpauschale (Ziff. 13.1.1), effektive Spesen (Ziff. 13.2)
-- Geschäftsfahrzeug (Ziff. 2.2 / F)
-- AHV/IV/EO (Ziff. 9), NBU (Ziff. 9), BVG-Beiträge (Ziff. 10.1), BVG-Einkauf (Ziff. 10.2)
-- Quellensteuer (Ziff. 12), Kapitalleistungen (Ziff. 5)
-- Beschäftigungsdauer (Ziff. 14 von/bis)
-- Arbeitgeber-Adresse, AHV-Nummer Arbeitnehmer
+## Out of Scope (spätere Phasen)
+- DB-persistierter dismissed-Flag (Phase 2, wenn Multi-Device wichtig wird)
+- Pre-Import-Diff / Field-by-field Preview
+- Document-first Flow
+- Smart-Skipping abhängiger Fragen
 
-**Komponente:** `src/components/forms/LohnausweisOcrReview.tsx`
-- AppBottomSheet, full width
-- Pro Feld: Label, Wert (editierbar), Confidence-Badge, Original-Vorschau-Snippet
-- "Bestätigen" → Speichern in `employment_income.extra` + Verknüpfung `source_document_id`
+## Verifikation
+- Banner erscheint in `/?section=einkommen` wenn Vorjahr Daten hat
+- Nach "Schliessen" verschwindet Banner und kommt nicht wieder (gleiche Session/Browser)
+- Nach "Übernehmen" sind `hasSalary` etc. übernommen, aber `employers[0].grossSalary` ist `0`/`""`
+- Dashboard-Banner triggert alle 4 Sektionen auf einmal
+- Expert-Summary zeigt "Aus Vorjahr"-Badge
 
-**Speicherung:**
-- Felder landen in `EmploymentIncome.extra: Record<string, unknown>` (existiert bereits)
-- AG-Mapper: `mapEmployment` erweitern um `extra`-Pass-through bzw. dedizierte Felder
-
-### Zusätzliche P1-Punkte (nur Eingabe wo OCR nicht greift)
-
-- **Versicherungsprämien-Abzug:** kompakte Sektion unter "Abzüge" — KK/Unfall/Lebensvers./Sparzinsen (4 Zahlfelder, alle optional)
-- **Behindertenkosten:** eigenes Feld in `health_costs` (`disability_costs` separat, ohne Selbstbehalt)
-- **Berufsauslagen strukturiert:** km, ÖV-Abo, Verpflegungstage, Wochenaufenthalt — nur wenn `hasCommutingCosts = true`
-- **Unterstützungsabzug-Repeater:** Person, Verwandtschaft, AHV, Höhe — nur wenn `hasSupportedPersons = true`
-- **Kapitalleistung Vorsorge:** Sektion bei `hasPensionPayout = true` (Auszahler, Datum, Betrag, Art)
-
----
-
-## P2 — Kontaktangaben erweitern (Punkt 17)
-
-**Datei:** `src/pages/PersonalInfo.tsx` + ggf. `TaxFilers`
-
-Neue/zusätzliche Felder in den Kontakt-Stammdaten pro Tax Filer:
-- **Beruf** (Freitext)
-- **Arbeitspensum** (%, 0–100)
-- **Heimatort** (Bürgerort CH oder Heimatstaat)
-- **Heiratsdatum** (bei `marital_status = married`)
-- **Trennungs-/Scheidungsdatum** (bei `divorced/separated`)
-- **Wohnsitzwechsel im Steuerjahr** (Datum + alte Adresse, optional)
-- **Spouse-Stammdaten** vollständig (falls noch nicht erfasst): Vorname, Nachname, AHV, Geburtsdatum, Beruf, Pensum
-
-**Canonical:** `Person` erweitern um `profession`, `work_percentage`, `place_of_origin`, `marriage_date`, `separation_date`, `residence_change_date`, `previous_address`.
-
-**Mapper:** `mapPerson` in AG-Mapper ergänzen.
-
-> **P2 Restpunkte (DA-1, Auslandeinkommen, Self-Employment Bilanz, Parteispenden, Lebensversicherung Rückkaufswert) bleiben out-of-scope dieser Phase.**
-
----
-
-## Reihenfolge der Umsetzung
-
-1. **P0 (1–5):** Canonical-Types + Mapper + UI-Erweiterungen der bestehenden Repeater
-2. **P1 OCR:** Edge Function `extract-lohnausweis` + Review-Sheet + Integration in `EmploymentIncomeForm`
-3. **P1 Direkteingabe-Reste:** Versicherungen, Behindertenkosten, Berufsauslagen, Unterstützung, Kapitalleistung
-4. **P2:** Stammdaten in `PersonalInfo` erweitern, Spouse-Felder
-
-## Technische Hinweise
-
-- Alle UI: AppButton, AppBottomSheet (full width), SubpageHeader, semantic tokens — gemäss Memory.
-- Lohnausweis-PDFs sind sensitiv → **Mandatory E2E Encryption** (`EncryptedDocumentService`); OCR erfolgt serverseitig nach Entschlüsselung in der Edge Function (transient, kein Logging).
-- Pro Tax Filer isoliert (`tax_filer_id` Filter überall).
-- AG-Export `mapper.ts` deterministisch halten — neue Felder via `compact()` einbinden, `index`-Sortierung beibehalten.
-- Keine neuen Yes/No-Gates ohne folgendes Detail-Repeater (siehe Memory: `_completed: true` Flag bleibt verbindlich).
-
-## Out of Scope (bestätigt)
-
-- Bankverbindung Rückerstattung (P0 Punkt 6)
-- DA-1, Auslandeinkommen, Self-Employment Bilanz/ER, Parteispenden, Lebensvers. Rückkaufswert
-- Production-Submission-Flows / neue Canton-Adapter
+## Aufwand
+~3–4 h Implementation + Test.
