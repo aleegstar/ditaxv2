@@ -159,19 +159,18 @@ const IndexContent = () => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15, ease: 'easeOut' }}
         >
+          {/* Non-blocking prior-year import banner above the form */}
+          {showImportWizard && section && sectionKeyMap[section] &&
+            !isPriorYearImportDismissed(activeTaxFilerId, taxYear, sectionKeyMap[section]) && (
+              <PriorYearImportBanner
+                section={sectionKeyMap[section]}
+                taxYear={taxYear}
+                onImported={() => setShowImportWizard(false)}
+              />
+          )}
           {renderContent()}
         </motion.div>
       </AnimatePresence>
-
-      {/* Import wizard overlay - renders as bottom sheet over the form */}
-      {showImportWizard && section && sectionKeyMap[section] && (
-        <ImportWizard 
-          section={sectionKeyMap[section]} 
-          sectionName={sectionNameMap[section]} 
-          taxYear={taxYear} 
-          onComplete={() => setShowImportWizard(false)} 
-        />
-      )}
 
       {/* Form Tour — only render when active, no lingering overlay */}
       {showTour && (
