@@ -721,20 +721,13 @@ const Auth = () => {
                       </InputOTP>
                     </div>
 
-                    <motion.button 
-                      onClick={handleWeiterClick} 
-                      disabled={isLoading || code.length !== 6} 
-                      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.07), 0 8px 28px rgba(0,0,0,0.06)' }}
-                      whileTap={{ scale: 0.97 }}
-                      className="group w-full text-foreground font-semibold text-[14px] tracking-tight h-[52px] px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border"
-                      style={{
-                        background: 'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(245,246,250,0.97) 100%)',
-                        borderColor: 'rgba(0,0,0,0.1)',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
-                      }}
+                    <Button
+                      onClick={handleWeiterClick}
+                      disabled={isLoading || code.length !== 6}
+                      className="w-full"
                     >
                       {isLoading ? t.authFlow.verifying : t.authFlow.verifyButton}
-                    </motion.button>
+                    </Button>
                   </div>
 
                   {/* Footer Actions */}
