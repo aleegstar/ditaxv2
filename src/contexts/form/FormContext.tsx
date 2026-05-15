@@ -828,11 +828,20 @@ export const FormProvider: React.FC<{ children: React.ReactNode; taxYear?: strin
 
       // Merge with default values to ensure all fields are present
       const defaultSectionData = defaultFormData[section];
-      const importedData = previousData.data as Record<string, any>;
-      
+      const rawImportedData = previousData.data as Record<string, any>;
+
+      // Strip CHF amounts: only structural data (flags, names, addresses) is
+      // carried over – the user must always re-enter year-specific amounts.
+      const { sanitizeImportedData } = await import('./sanitizeImport');
+      const importedData = sanitizeImportedData(section, rawImportedData);
+
       const mergedData = {
         ...defaultSectionData,           // All default fields
-        ...importedData,                  // Overwrite with previous year data
+        ...importedData,                  // Overwrite with previous year structure (no amounts)
+        _importedFromPreviousYear: true,
+        _importedAt: new Date().toISOString(),
+        // Section is NOT auto-completed: user must review and confirm
+        _completed: false,
         // Ensure arrays are never undefined
         ...(section === 'income' && {
           employers: importedData.employers || [],
