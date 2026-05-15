@@ -163,6 +163,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const stepsContent = (
     <div className="space-y-3.5">
+      <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
       <div
