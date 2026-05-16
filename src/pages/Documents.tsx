@@ -389,14 +389,53 @@ const DocumentsContent: React.FC<{
     return 'other';
   };
 
-  const grouped = useMemo(() => {
-    const map: Record<string, any[]> = { income: [], insurance: [], bank: [], property: [], tax: [], other: [] };
+  // Smart AI hint based on filename — gentle, optional
+  const detectHint = (name: string): string | null => {
+    const n = (name || '').toLowerCase();
+    if (/(lohnausweis|lohn|salary|gehalt|payslip)/.test(n)) return 'Vermutlich Lohnausweis';
+    if (/(krankenkasse|insurance|prämie|praemie)/.test(n)) return 'Vermutlich Krankenkasse';
+    if (/(säule|saule|3a|pension|bvg)/.test(n)) return 'Vermutlich Vorsorge';
+    if (/(kontoauszug|bank|depot|wertschrift)/.test(n)) return 'Vermutlich Bankauszug';
+    if (/(hypothek|mortgage|liegenschaft|eigenheim)/.test(n)) return 'Vermutlich Liegenschaft';
+    if (/(steuer|veranlagung|tax)/.test(n)) return 'Vermutlich Steuerunterlage';
+    if (/(quittung|rechnung|invoice|receipt)/.test(n)) return 'Vermutlich Beleg';
+    return null;
+  };
+
+  // Chronological grouping — Heute / Diese Woche / Monat YYYY
+  const chronoGroups = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfWeek = startOfToday - 6 * 24 * 60 * 60 * 1000; // last 7d window (excl today)
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    type Group = { key: string; label: string; items: any[] };
+    const buckets: Record<string, Group> = {};
+    const order: string[] = [];
+    const ensure = (key: string, label: string) => {
+      if (!buckets[key]) { buckets[key] = { key, label, items: [] }; order.push(key); }
+      return buckets[key];
+    };
+
+    const monthFmt = new Intl.DateTimeFormat(language === 'de' ? 'de-CH' : 'en-GB', { month: 'long', year: 'numeric' });
+
     filteredDocuments.forEach(doc => {
-      const cat = categorize(doc.file_name);
-      map[cat].push(doc);
+      const ts = new Date(doc.upload_date).getTime();
+      let g: Group;
+      if (ts >= startOfToday) g = ensure('today', language === 'de' ? 'Heute' : 'Today');
+      else if (ts >= startOfWeek) g = ensure('week', language === 'de' ? 'Diese Woche' : 'This week');
+      else if (ts >= startOfMonth) g = ensure('month', language === 'de' ? 'Diesen Monat' : 'This month');
+      else {
+        const d = new Date(doc.upload_date);
+        const key = `m-${d.getFullYear()}-${d.getMonth()}`;
+        const label = monthFmt.format(d).replace(/^\w/, c => c.toUpperCase());
+        g = ensure(key, label);
+      }
+      g.items.push(doc);
     });
-    return map;
-  }, [filteredDocuments]);
+
+    return order.map(k => buckets[k]);
+  }, [filteredDocuments, language]);
 
   const totalDocs = documents.length;
   const totalThisMonth = useMemo(() => {
