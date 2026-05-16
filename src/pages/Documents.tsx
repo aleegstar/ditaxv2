@@ -460,37 +460,37 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
 
       <div className="min-h-screen flex flex-col text-foreground antialiased bg-background">
-        {/* Calm Header */}
+        {/* Compact Header */}
         <div
-          className="px-5 md:px-10 pb-6"
-          style={{ paddingTop: 'calc(28px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
+          className="px-5 md:px-8"
+          style={{ paddingTop: 'calc(20px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
         >
-          <div className="max-w-5xl mx-auto w-full">
-            <div className="flex items-start justify-between gap-6 mb-5">
+          <div className="max-w-[960px] mx-auto w-full pb-4">
+            <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3 flex-wrap mb-2" data-tour="documents-year-selector">
-                  <h1 className="text-[30px] md:text-[34px] font-semibold text-foreground tracking-[-0.028em] leading-[1.05]">
+                <div className="flex items-center gap-2.5 flex-wrap mb-1.5" data-tour="documents-year-selector">
+                  <h1 className="text-[22px] md:text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-[1.1]">
                     Dokumente
                   </h1>
                   <div className="relative">
                     <button
                       onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
-                      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-muted/60 hover:bg-muted text-[12.5px] font-medium text-foreground/80 transition-colors tabular-nums"
+                      className="inline-flex items-center gap-1 h-6 px-2 rounded-md hover:bg-muted text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors tabular-nums"
                     >
                       {selectedYear}
-                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform text-muted-foreground", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
+                      <ChevronDown className={cn("h-3 w-3 transition-transform", isYearDropdownOpen && "rotate-180")} strokeWidth={2} />
                     </button>
                     {isYearDropdownOpen && (
                       <>
                         <div className="fixed inset-0 z-[199]" onClick={() => setIsYearDropdownOpen(false)} />
-                        <div className="absolute top-full left-0 mt-2 z-[200] bg-white rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden min-w-[160px]">
+                        <div className="absolute top-full left-0 mt-1.5 z-[200] bg-white rounded-xl shadow-xl ring-1 ring-black/5 overflow-hidden min-w-[160px]">
                           <div className="max-h-64 overflow-y-auto py-1">
                             {availableYears.map(year => (
                               <button
                                 key={year}
                                 onClick={() => handleYearSelect(year)}
                                 className={cn(
-                                  "w-full px-4 py-2.5 text-left text-[13px] transition-colors",
+                                  "w-full px-3.5 py-2 text-left text-[13px] transition-colors",
                                   year === selectedYear ? "text-primary font-medium bg-primary/10" : "text-foreground hover:bg-muted"
                                 )}
                               >
@@ -503,11 +503,11 @@ const DocumentsContent: React.FC<{
                     )}
                   </div>
                 </div>
-                <p className="text-[14px] md:text-[14.5px] text-muted-foreground leading-[1.55] max-w-[560px]">
-                  Lade deine Unterlagen einfach über das Jahr hinweg hoch. Ditax ordnet sie später automatisch während der Steuererklärung zu.
+                <p className="text-[13px] text-muted-foreground leading-[1.5] max-w-[520px]">
+                  Lade deine Unterlagen einfach übers Jahr hoch. Ditax ordnet sie später automatisch während der Steuererklärung zu.
                 </p>
-                <div className="mt-3 inline-flex items-center gap-1.5 text-[11.5px] text-muted-foreground/75">
-                  <Shield className="w-3 h-3" strokeWidth={2.25} />
+                <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground/70">
+                  <Shield className="w-2.5 h-2.5" strokeWidth={2.25} />
                   Ende-zu-Ende verschlüsselt
                 </div>
               </div>
@@ -516,71 +516,76 @@ const DocumentsContent: React.FC<{
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   data-tour="document-upload-card"
-                  className="hidden md:inline-flex items-center gap-2 h-11 px-5 rounded-2xl text-[13.5px] font-semibold text-white transition-all flex-shrink-0 hover:shadow-md active:scale-[0.98]"
+                  className="hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition-all flex-shrink-0 hover:shadow-md active:scale-[0.98] shadow-sm"
                   style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}
                 >
-                  <Upload className="w-4 h-4" strokeWidth={2} />
+                  <Upload className="w-3.5 h-3.5" strokeWidth={2.25} />
                   Hochladen
                 </button>
-              )}
-            </div>
-
-            {/* Search + sort row */}
-            <div className="flex items-center gap-2 relative">
-              <div className="relative flex-1 flex items-center rounded-2xl bg-muted/50 hover:bg-muted/70 focus-within:bg-white focus-within:ring-1 focus-within:ring-border focus-within:shadow-sm transition-all">
-                <Search className="absolute left-4 h-4 w-4 text-muted-foreground/70" strokeWidth={2} />
-                <input
-                  type="text"
-                  placeholder="Suchen…"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full h-11 pl-11 pr-10 bg-transparent text-[13.5px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="absolute right-3 p-1 rounded-md hover:bg-foreground/5 transition-colors">
-                    <X className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-                  </button>
-                )}
-              </div>
-              <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                aria-label="Sortieren"
-                className={cn(
-                  "inline-flex items-center justify-center h-11 w-11 rounded-2xl transition-colors",
-                  showSortDropdown ? "bg-foreground/[0.06] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                )}
-              >
-                <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
-              </button>
-              {showSortDropdown && (
-                <>
-                  <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-[60] bg-white rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden min-w-[220px]">
-                    <div className="py-1">
-                      {sortOptions.map(option => (
-                        <button
-                          key={option.value}
-                          onClick={() => { setSortBy(option.value); setShowSortDropdown(false); }}
-                          className={cn(
-                            "w-full px-4 py-2.5 text-left text-[13px] transition-colors",
-                            sortBy === option.value ? "text-primary font-medium bg-primary/10" : "text-foreground hover:bg-muted"
-                          )}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
               )}
             </div>
           </div>
         </div>
 
+        {/* Sticky search + sort */}
+        <div
+          className="sticky top-0 z-30 px-5 md:px-8 py-2.5 bg-background/85 backdrop-blur-md"
+          style={{ paddingTop: 'calc(10px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
+        >
+          <div className="max-w-[960px] mx-auto w-full flex items-center gap-2 relative">
+            <div className="relative flex-1 flex items-center rounded-xl bg-[#F7F7F5] hover:bg-[#F2F2EF] focus-within:bg-white focus-within:ring-1 focus-within:ring-border focus-within:shadow-sm transition-all">
+              <Search className="absolute left-3.5 h-3.5 w-3.5 text-muted-foreground/70" strokeWidth={2} />
+              <input
+                type="text"
+                placeholder="In Dokumenten suchen"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full h-9 pl-10 pr-9 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2 p-1 rounded-md hover:bg-foreground/5 transition-colors">
+                  <X className="h-3 w-3 text-muted-foreground" strokeWidth={2} />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              aria-label="Sortieren"
+              className={cn(
+                "inline-flex items-center justify-center h-9 w-9 rounded-xl transition-colors",
+                showSortDropdown ? "bg-foreground/[0.06] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-[#F2F2EF]"
+              )}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+            {showSortDropdown && (
+              <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setShowSortDropdown(false)} />
+                <div className="absolute right-0 top-full mt-2 z-[60] bg-white rounded-xl shadow-xl ring-1 ring-black/5 overflow-hidden min-w-[220px]">
+                  <div className="py-1">
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => { setSortBy(option.value); setShowSortDropdown(false); }}
+                        className={cn(
+                          "w-full px-3.5 py-2 text-left text-[13px] transition-colors",
+                          sortBy === option.value ? "text-primary font-medium bg-primary/10" : "text-foreground hover:bg-muted"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Locked Banner */}
         {isLocked && (
-          <div className="max-w-5xl w-full mx-auto px-5 md:px-10">
-            <div className="p-3.5 bg-amber-50 rounded-2xl flex items-center gap-3">
+          <div className="max-w-[960px] w-full mx-auto px-5 md:px-8 pt-2">
+            <div className="p-3 bg-amber-50 rounded-xl flex items-center gap-3">
               <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" strokeWidth={2} />
               <p className="text-[13px] text-amber-800">{t.documentsPage.lockedBanner}</p>
             </div>
@@ -589,33 +594,33 @@ const DocumentsContent: React.FC<{
 
         {/* Document workspace */}
         <div
-          className="flex-1 overflow-y-auto px-5 md:px-10 pb-32 pt-2"
+          className="flex-1 overflow-y-auto px-5 md:px-8 pb-32 md:pb-12 pt-3"
           style={{ WebkitOverflowScrolling: 'touch' }}
           onDragOver={(e) => { e.preventDefault(); if (!isLocked) setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
         >
-          <div className="max-w-5xl mx-auto w-full">
+          <div className="max-w-[960px] mx-auto w-full">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                <div className="w-7 h-7 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
               </div>
             ) : documents.length === 0 ? (
               !isLocked ? (
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    "w-full rounded-[24px] transition-all flex flex-col items-center justify-center py-24 px-6 text-center",
+                    "w-full rounded-2xl transition-all flex flex-col items-center justify-center py-16 px-6 text-center",
                     isDragging ? "bg-primary/[0.04] ring-2 ring-primary/30" : "bg-[#F7F7F5] hover:bg-[#F2F2EF]"
                   )}
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-5 shadow-[0_1px_2px_rgba(15,27,61,0.06),0_8px_24px_-12px_rgba(15,27,61,0.12)]">
-                    <Upload className="w-5 h-5 text-foreground/70" strokeWidth={1.75} />
+                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mb-4 shadow-[0_1px_2px_rgba(15,27,61,0.06),0_8px_24px_-12px_rgba(15,27,61,0.12)]">
+                    <Upload className="w-4.5 h-4.5 text-foreground/70" strokeWidth={1.75} />
                   </div>
-                  <h2 className="text-[17px] font-semibold text-foreground tracking-[-0.014em] mb-2">
+                  <h2 className="text-[16px] font-semibold text-foreground tracking-[-0.012em] mb-1.5">
                     Dein Tresor ist noch leer
                   </h2>
-                  <p className="text-[13.5px] text-muted-foreground max-w-[380px] leading-[1.55]">
+                  <p className="text-[13px] text-muted-foreground max-w-[360px] leading-[1.5]">
                     Lade einfach alles hoch, was du übers Jahr sammelst. Wir sortieren es später für dich.
                   </p>
                 </button>
@@ -627,20 +632,20 @@ const DocumentsContent: React.FC<{
                 </div>
               )
             ) : (
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {!isLocked && isDragging && (
-                  <div className="rounded-[24px] bg-primary/[0.05] ring-2 ring-primary/30 py-10 text-center text-[13.5px] font-medium text-primary">
+                  <div className="rounded-2xl bg-primary/[0.05] ring-2 ring-primary/30 py-8 text-center text-[13px] font-medium text-primary">
                     Hier loslassen, um hochzuladen
                   </div>
                 )}
 
                 {chronoGroups.map(group => (
                   <section key={group.key}>
-                    <div className="flex items-baseline gap-2.5 mb-3 px-1">
-                      <h2 className="text-[12px] font-semibold text-muted-foreground/75 tracking-[-0.005em]">{group.label}</h2>
-                      <span className="text-[11.5px] text-muted-foreground/55 tabular-nums">{group.items.length}</span>
+                    <div className="flex items-baseline gap-2 mb-1.5 px-2">
+                      <h2 className="text-[10.5px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">{group.label}</h2>
+                      <span className="text-[10.5px] text-muted-foreground/45 tabular-nums">{group.items.length}</span>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-px">
                       {group.items.map(doc => {
                         const isImage = doc.file_type?.startsWith('image/');
                         const fileExt = doc.file_name?.split('.').pop()?.toUpperCase().slice(0, 4) || 'FILE';
@@ -653,29 +658,30 @@ const DocumentsContent: React.FC<{
                           <button
                             key={doc.id}
                             onClick={() => { setSelectedDocument(doc); setShowActionSheet(true); }}
-                            className="group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-2xl text-left hover:bg-[#F7F7F5] transition-colors"
+                            className="group w-full flex items-center gap-3 px-2 py-1.5 rounded-lg text-left hover:bg-[#F7F7F5] transition-colors"
                           >
-                            <div className="w-11 h-11 rounded-xl bg-[#F7F7F5] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <div className="w-9 h-9 rounded-md bg-[#F7F7F5] flex items-center justify-center flex-shrink-0 overflow-hidden">
                               {isImage ? (
-                                <ImageIcon className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
+                                <DocumentThumbnail doc={doc} />
                               ) : (
-                                <span className="text-[9.5px] font-bold text-muted-foreground/80 tracking-tight">{fileExt}</span>
+                                <span className="text-[9px] font-bold text-muted-foreground/70 tracking-tight">{fileExt}</span>
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[14px] font-medium text-foreground tracking-[-0.008em] truncate">{doc.file_name}</p>
-                              <p className="text-[11.5px] text-muted-foreground/75 tabular-nums truncate mt-0.5">
-                                {uploadDate}
-                                {doc.file_size ? <> · {formatFileSize(doc.file_size)}</> : null}
-                                {hint && (
-                                  <>
-                                    <span className="mx-1.5 text-muted-foreground/40">·</span>
-                                    <span className="text-foreground/60">{hint}</span>
-                                  </>
-                                )}
-                              </p>
+                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                              <p className="text-[13.5px] font-medium text-foreground tracking-[-0.008em] truncate flex-shrink min-w-0">{doc.file_name}</p>
+                              {hint && (
+                                <span className="hidden sm:inline-flex items-center text-[10.5px] font-medium text-foreground/70 bg-foreground/[0.05] px-1.5 py-0.5 rounded-md flex-shrink-0">
+                                  {hint}
+                                </span>
+                              )}
                             </div>
-                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/30 group-hover:text-foreground/60 transition-colors flex-shrink-0" strokeWidth={2} />
+                            <p className="text-[11.5px] text-muted-foreground/70 tabular-nums flex-shrink-0 hidden sm:block">
+                              {uploadDate}
+                              {doc.file_size ? <span className="text-muted-foreground/40"> · {formatFileSize(doc.file_size)}</span> : null}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground/60 tabular-nums flex-shrink-0 sm:hidden">
+                              {uploadDate}
+                            </p>
                           </button>
                         );
                       })}
