@@ -202,7 +202,6 @@ export const UserSidebar: React.FC = () => {
       >
         <Gift className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.6} />
         <span className="tracking-[-0.005em]">{t.menu.inviteFriends}</span>
-        <span className="ml-auto text-[10px] font-medium text-primary/75 tabular-nums">−20</span>
       </button>
 
       {/* User profile */}
