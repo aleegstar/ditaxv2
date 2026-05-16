@@ -706,19 +706,23 @@ const DocumentsContent: React.FC<{
         <input ref={scanInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileInputChange} />
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
-        {/* Floating upload FAB - mobile only */}
+        {/* Sticky bottom upload bar — mobile only */}
         {!isLocked && createPortal(
-          <div className="fixed bottom-0 right-0 z-[90] pr-5 pb-[calc(20px+var(--safe-area-bottom,env(safe-area-inset-bottom,0px))+84px)] pointer-events-none md:hidden">
+          <div
+            className="fixed bottom-0 left-0 right-0 z-[90] px-4 md:hidden bg-gradient-to-t from-background via-background/95 to-transparent pt-3"
+            style={{ paddingBottom: 'calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 76px)' }}
+          >
             <button
               onClick={() => fileInputRef.current?.click()}
               aria-label={t.documentsPage.upload}
-              className="pointer-events-auto flex items-center justify-center w-14 h-14 rounded-full cursor-pointer transition-all duration-200 active:scale-[0.95] hover:scale-[1.03]"
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98] shadow-lg"
               style={{
-                background: 'linear-gradient(180deg, hsl(222,100%,60%) 0%, hsl(222,100%,47%) 100%)',
-                boxShadow: '0 8px 24px -4px rgba(0,67,224,0.45), 0 2px 8px rgba(0,0,0,0.12)',
+                background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',
+                boxShadow: '0 8px 24px -8px rgba(15,27,61,0.4), 0 2px 6px rgba(0,0,0,0.08)',
               }}
             >
-              <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
+              <Plus className="w-4 h-4" strokeWidth={2.5} />
+              Dokument hochladen
             </button>
           </div>,
           document.body
