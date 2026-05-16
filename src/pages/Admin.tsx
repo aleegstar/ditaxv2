@@ -251,11 +251,9 @@ const Admin: React.FC = () => {
   });
 
   return (
-    <div className="md:flex md:h-screen md:w-full md:bg-white md:overflow-hidden">
+    <div className="md:flex md:h-screen md:w-full md:bg-muted/30 md:overflow-hidden">
       <AdminSidebar />
-      <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
-        <div className="md:h-full md:rounded-3xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] md:border md:border-border/60">
-          <div className="p-4 lg:p-8">
+      <div className="md:flex-1 md:min-w-0 md:bg-background md:overflow-y-auto md:border-l md:border-border">
           <Routes>
           <Route path="/" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -268,20 +266,21 @@ const Admin: React.FC = () => {
             <EnhancedAdminChatOverview />
           } />
           <Route path="users" element={
-             <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+             <div className="max-w-6xl mx-auto px-8 py-10 space-y-6">
               {/* Header */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-end justify-between pb-5 border-b border-border">
                 <div>
-                  <h1 className="text-lg font-semibold text-foreground tracking-tight">Benutzer</h1>
-                  <p className="text-[13px] text-muted-foreground mt-0.5">
-                    {users.length} registrierte Benutzer
+                  <h1 className="text-[22px] font-semibold text-foreground tracking-[-0.02em] leading-tight">Benutzer</h1>
+                  <p className="text-[13px] text-muted-foreground mt-1">
+                    <span className="tabular-nums font-medium text-foreground/80">{users.length}</span> registrierte Benutzer
                   </p>
                 </div>
                 <button
                   onClick={fetchUsers}
-                  className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                  className="h-8 px-3 rounded-lg border border-border text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors inline-flex items-center gap-1.5"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
+                  Aktualisieren
                 </button>
               </div>
 
@@ -295,12 +294,12 @@ const Admin: React.FC = () => {
                   <p className="text-[13px] text-muted-foreground mb-4">
                     Falls keine Daten sichtbar sind, überprüfen Sie die Administratorberechtigung.
                   </p>
-                  <button onClick={fetchUsers} className="h-8 px-3 rounded-lg border border-border/60 text-[12px] font-medium text-foreground hover:bg-muted/50 transition-colors">
+                  <button onClick={fetchUsers} className="h-8 px-3 rounded-lg border border-border text-[12px] font-medium text-foreground hover:bg-muted/50 transition-colors">
                     Erneut versuchen
                   </button>
                 </div>
               ) : (
-                <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm divide-y divide-white/30">
+                <div className="bg-white border border-border rounded-xl shadow-[0_1px_2px_rgba(15,27,61,0.03)] divide-y divide-border overflow-hidden">
                   {users.map(user => (
                     <UserCard
                       key={user.id}
@@ -318,7 +317,7 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="onboarding" element={
-            <div className="container mx-auto px-4 py-8">
+            <div className="max-w-6xl mx-auto px-8 py-10">
               <AdminWelcomeHeader
                 title="Onboarding Tour Manager"
                 subtitle="Tour-Schritte verwalten und konfigurieren"
@@ -329,7 +328,7 @@ const Admin: React.FC = () => {
             </div>
           } />
           <Route path="payment-status" element={
-            <div className="container mx-auto px-4 py-8">
+            <div className="max-w-6xl mx-auto px-8 py-10">
               <AdminWelcomeHeader
                 title="Zahlungsstatus aktualisieren"
                 subtitle="Manuell den Zahlungsstatus für Benutzer setzen"
@@ -349,8 +348,6 @@ const Admin: React.FC = () => {
           <Route path="ag-xml" element={<DevAgXml />} />
           <Route path="ag-import" element={<DevAgImport />} />
           </Routes>
-          </div>
-        </div>
       </div>
     </div>
   );
