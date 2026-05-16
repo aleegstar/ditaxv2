@@ -115,7 +115,7 @@ export const UserSidebar: React.FC = () => {
   return (
     <aside
       data-sidebar
-      className="hidden md:flex flex-col w-[252px] flex-shrink-0 h-screen sticky top-0 bg-white px-3 py-5"
+      className="hidden md:flex flex-col w-[252px] flex-shrink-0 h-screen sticky top-0 bg-muted border-r border-border px-3 py-5"
     >
       {/* Logo */}
       <div className="px-3 pb-5">
