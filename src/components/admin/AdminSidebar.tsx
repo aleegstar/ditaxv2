@@ -202,17 +202,17 @@ export function AdminSidebar() {
   return (
     <aside
       data-sidebar
-      className="hidden md:flex flex-col w-[252px] flex-shrink-0 h-screen sticky top-0 bg-white px-3 py-5"
+      className="hidden md:flex flex-col w-[244px] flex-shrink-0 h-screen sticky top-0 bg-muted/40 px-2.5 py-4 border-r border-border"
     >
       <div className="flex flex-col h-full overflow-hidden">
-        {/* Logo */}
-        <div className="flex items-center mb-5 px-3">
-          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-5 w-auto opacity-80" />
+        {/* Logo + workspace label */}
+        <div className="flex items-center gap-2 mb-4 px-2.5 h-9">
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-[18px] w-auto opacity-85" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55 ml-1">Admin</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-          {/* Main */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-0.5">
           <div className="space-y-px">
             {mainNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
@@ -246,7 +246,7 @@ export function AdminSidebar() {
       </div>
 
       {/* User Profile */}
-      <div className="pt-3 border-t border-white/30">
+      <div className="pt-3 mt-2 border-t border-border">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-foreground/[0.04] transition-colors cursor-pointer">
