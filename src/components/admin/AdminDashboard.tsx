@@ -270,12 +270,12 @@ export const AdminDashboard: React.FC = () => {
 
   const statusTotal = stats.statusBreakdown.reduce((sum, s) => sum + s.value, 0);
 
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-700';
-      case 'processing': return 'bg-blue-100 text-blue-700';
-      case 'review': return 'bg-purple-100 text-purple-700';
-      default: return 'bg-muted text-muted-foreground';
+      case 'completed': return { dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50', ring: 'ring-emerald-600/10' };
+      case 'processing': return { dot: 'bg-blue-500', text: 'text-blue-700', bg: 'bg-blue-50', ring: 'ring-blue-600/10' };
+      case 'review': return { dot: 'bg-violet-500', text: 'text-violet-700', bg: 'bg-violet-50', ring: 'ring-violet-600/10' };
+      default: return { dot: 'bg-amber-500', text: 'text-amber-700', bg: 'bg-amber-50', ring: 'ring-amber-600/10' };
     }
   };
 
@@ -287,6 +287,13 @@ export const AdminDashboard: React.FC = () => {
       default: return 'Offen';
     }
   };
+
+  const operationalSummary = [
+    stats.pendingTaxReturns > 0 && `${stats.pendingTaxReturns} offene Steuererklärungen`,
+    stats.expressTaxReturns > 0 && `${stats.expressTaxReturns} Express`,
+    stats.openTickets > 0 && `${stats.openTickets} offene Tickets`,
+    stats.pendingDefinitiveTaxBills > 0 && `${stats.pendingDefinitiveTaxBills} Veranlagungen`,
+  ].filter(Boolean).join(' · ') || 'Alles erledigt';
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
