@@ -142,79 +142,133 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   /* ── Step number badge ── */
   const StepBadge = ({ step, active, done }: { step: number; active: boolean; done: boolean }) => (
     <div className={cn(
-      "w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[13px] font-medium transition-all duration-300",
-      done && "bg-primary/8 text-primary",
-      active && !done && "bg-primary text-primary-foreground",
-      !active && !done && "bg-foreground/[0.04] text-muted-foreground"
+      "shrink-0 rounded-full flex items-center justify-center font-semibold transition-all duration-300",
+      active && !done && "w-9 h-9 text-[13px] bg-foreground text-background",
+      done && "w-7 h-7 text-[11px] bg-emerald-500/12 text-emerald-700",
+      !active && !done && "w-7 h-7 text-[11px] bg-foreground/[0.05] text-muted-foreground/65"
     )}>
-      {done ? <Check className="w-4 h-4" strokeWidth={2.25} /> : step}
+      {done ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : step}
     </div>
   );
 
-  // Shared premium card classes
-  const cardBase =
-    "group rounded-2xl bg-white overflow-hidden cursor-pointer transition-all duration-300 " +
-    "border border-[rgba(20,20,20,0.06)] " +
-    "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_24px_rgba(0,0,0,0.03)] " +
-    "hover:border-[rgba(20,20,20,0.09)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.03),0_12px_32px_rgba(0,0,0,0.05)] " +
+  // Card variants by hierarchy state
+  const activeCard =
+    "group rounded-[22px] bg-white overflow-hidden cursor-pointer transition-all duration-300 " +
+    "ring-1 ring-black/[0.06] " +
+    "shadow-[0_1px_2px_rgba(15,27,61,0.04),0_12px_32px_-8px_rgba(15,27,61,0.08)] " +
+    "hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_16px_40px_-8px_rgba(15,27,61,0.1)] " +
     "active:scale-[0.997]";
-  const cardLockedBase =
-    "rounded-2xl border border-dashed border-[rgba(20,20,20,0.08)] bg-transparent";
+  const completedCard =
+    "group rounded-[18px] bg-foreground/[0.025] overflow-hidden cursor-pointer transition-colors duration-200 " +
+    "hover:bg-foreground/[0.04]";
+  const lockedCard =
+    "rounded-[18px] bg-transparent ring-1 ring-foreground/[0.05]";
+
+  // Determine which step is "next"
+  const nextStep: 1 | 2 | 3 = !allAngabenComplete ? 1 : !isDocumentsComplete ? 2 : 3;
+
+  // Compact inline progress summary
+  const totalTasks = 6;
+  const completedTasks =
+    angabenSections.filter(s => isCompleted(s.id)).length +
+    (isDocumentsComplete ? 1 : 0) +
+    (paymentStatus === 'paid' ? 1 : 0);
+  const percent = Math.round((completedTasks / totalTasks) * 100);
+  const remainingDocs = Math.max(0, 1 - (isDocumentsComplete ? 1 : 0));
 
   const stepsContent = (
-    <div className="space-y-3.5">
+    <div className="space-y-2.5">
       <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
-      <div
-        data-tour="form-step-1"
-        onClick={() => {
-          formTour?.skipTour();
-          navigate(`/personal-info?year=${taxYear}`);
-        }}
-        className={cardBase}
-      >
-        <div className="p-6 sm:p-7 flex items-center gap-4">
-          <StepBadge step={1} active={!allAngabenComplete} done={allAngabenComplete} />
-          <div className="flex-1 min-w-0">
-            <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.personalInfo}</h2>
-            <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">
-              {t.formDashboard.tasksCompleted
-                .replace('{completed}', String(angabenProgress.completed))
-                .replace('{total}', String(angabenProgress.total))}
-            </p>
+      {(() => {
+        const isActive = nextStep === 1;
+        const done = allAngabenComplete;
+        return (
+          <div
+            data-tour="form-step-1"
+            onClick={() => {
+              formTour?.skipTour();
+              navigate(`/personal-info?year=${taxYear}`);
+            }}
+            className={done ? completedCard : activeCard}
+          >
+            <div className={cn(
+              "flex items-center gap-3.5",
+              done ? "px-4 py-3" : "p-5 sm:p-6"
+            )}>
+              <StepBadge step={1} active={isActive} done={done} />
+              <div className="flex-1 min-w-0">
+                <h2 className={cn(
+                  "tracking-[-0.012em] leading-tight",
+                  done ? "text-[13.5px] font-medium text-foreground/85" : "text-[15.5px] font-semibold text-foreground"
+                )}>
+                  {t.formDashboard.personalInfo}
+                </h2>
+                {!done && (
+                  <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
+                    {t.formDashboard.tasksCompleted
+                      .replace('{completed}', String(angabenProgress.completed))
+                      .replace('{total}', String(angabenProgress.total))}
+                  </p>
+                )}
+              </div>
+              <ChevronRight className={cn(
+                "w-4 h-4 transition-all duration-300 group-hover:translate-x-0.5",
+                done ? "text-muted-foreground/30" : "text-muted-foreground/45 group-hover:text-foreground/70"
+              )} strokeWidth={1.75} />
+            </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
-        </div>
-      </div>
+        );
+      })()}
 
       {/* ═══════════ Step 2: Belege & Unterlagen ═══════════ */}
       {allAngabenComplete ? (
-        <div
-          data-tour="form-step-2"
-          onClick={handleDocumentsClick}
-          className={cardBase}
-        >
-          <div className="p-6 sm:p-7 flex items-center gap-4">
-            <StepBadge step={2} active={!isDocumentsComplete} done={isDocumentsComplete} />
-            <div className="flex-1 min-w-0">
-              <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.documentsTitle}</h2>
-              <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">{t.formDashboard.uploadDocuments}</p>
+        (() => {
+          const done = isDocumentsComplete;
+          const isActive = nextStep === 2;
+          return (
+            <div
+              data-tour="form-step-2"
+              onClick={handleDocumentsClick}
+              className={done ? completedCard : activeCard}
+            >
+              <div className={cn(
+                "flex items-center gap-3.5",
+                done ? "px-4 py-3" : "p-5 sm:p-6"
+              )}>
+                <StepBadge step={2} active={isActive} done={done} />
+                <div className="flex-1 min-w-0">
+                  <h2 className={cn(
+                    "tracking-[-0.012em] leading-tight",
+                    done ? "text-[13.5px] font-medium text-foreground/85" : "text-[15.5px] font-semibold text-foreground"
+                  )}>
+                    {t.formDashboard.documentsTitle}
+                  </h2>
+                  {!done && (
+                    <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
+                      {t.formDashboard.uploadDocuments}
+                    </p>
+                  )}
+                </div>
+                <ChevronRight className={cn(
+                  "w-4 h-4 transition-all duration-300 group-hover:translate-x-0.5",
+                  done ? "text-muted-foreground/30" : "text-muted-foreground/45 group-hover:text-foreground/70"
+                )} strokeWidth={1.75} />
+              </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
-          </div>
-        </div>
+          );
+        })()
       ) : (
         <div
           data-tour="form-step-2"
-          className={cn(cardLockedBase, "p-6 sm:p-7 flex items-center gap-4")}
+          className={cn(lockedCard, "px-4 py-3 flex items-center gap-3.5")}
         >
           <StepBadge step={2} active={false} done={false} />
           <div className="flex-1 min-w-0">
-            <h2 className="text-[15px] font-medium text-muted-foreground/80 tracking-tight leading-tight">{t.formDashboard.documentsTitle}</h2>
-            <p className="text-[13px] text-muted-foreground/55 mt-1 leading-relaxed">{t.formDashboard.completeStep1First}</p>
+            <h2 className="text-[13.5px] font-medium text-muted-foreground/70 tracking-[-0.008em] leading-tight">{t.formDashboard.documentsTitle}</h2>
           </div>
-          <Lock className="w-3.5 h-3.5 text-muted-foreground/30" strokeWidth={1.75} />
+          <Lock className="w-3 h-3 text-muted-foreground/30" strokeWidth={2} />
         </div>
       )}
 
@@ -223,70 +277,49 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <div
           data-tour="form-step-3"
           onClick={handleSubmitClick}
-          className={cardBase}
+          className={activeCard}
         >
-          <div className="p-6 sm:p-7 flex items-center gap-4">
+          <div className="p-5 sm:p-6 flex items-center gap-3.5">
             <StepBadge step={3} active done={false} />
             <div className="flex-1 min-w-0">
-              <h2 className="text-[15px] font-semibold text-foreground tracking-tight leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
-              <p className="text-[13px] text-muted-foreground/80 mt-1 leading-relaxed">{t.formDashboard.completeAndPay}</p>
+              <h2 className="text-[15.5px] font-semibold text-foreground tracking-[-0.012em] leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
+              <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">{t.formDashboard.completeAndPay}</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
+            <ChevronRight className="w-4 h-4 text-muted-foreground/45 group-hover:text-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
           </div>
         </div>
       ) : (
         <div
           data-tour="form-step-3"
-          className={cn(cardLockedBase, "p-6 sm:p-7 flex items-center gap-4")}
+          className={cn(lockedCard, "px-4 py-3 flex items-center gap-3.5")}
         >
           <StepBadge step={3} active={false} done={false} />
           <div className="flex-1 min-w-0">
-            <h2 className="text-[15px] font-medium text-muted-foreground/80 tracking-tight leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
-            <p className="text-[13px] text-muted-foreground/55 mt-1 leading-relaxed">{t.formDashboard.completeSteps12First}</p>
+            <h2 className="text-[13.5px] font-medium text-muted-foreground/70 tracking-[-0.008em] leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
           </div>
-          <Lock className="w-3.5 h-3.5 text-muted-foreground/30" strokeWidth={1.75} />
+          <Lock className="w-3 h-3 text-muted-foreground/30" strokeWidth={2} />
         </div>
       )}
 
-      {/* ═══════════ Tipp Card mit Fortschritt ═══════════ */}
-      {(!allAngabenComplete || !isDocumentsComplete) && (() => {
-        const totalTasks = 6;
-        const completedTasks =
-          angabenSections.filter(s => isCompleted(s.id)).length +
-          (isDocumentsComplete ? 1 : 0) +
-          (paymentStatus === 'paid' ? 1 : 0);
-        const percent = Math.round((completedTasks / totalTasks) * 100);
-        return (
-          <div className="mt-5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-5 py-5 flex items-center gap-5">
-            <div className="relative flex-shrink-0">
-              <AnimatedCircularProgressBar
-                max={100}
-                min={0}
-                value={percent}
-                gaugePrimaryColor="hsl(var(--primary))"
-                gaugeSecondaryColor="hsl(var(--primary) / 0.10)"
-                className="size-14 text-[11px] font-semibold text-primary"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground tracking-tight leading-snug text-[14px]">
-                {!allAngabenComplete ? 'Persönliche Angaben' : 'Belege & Unterlagen'}
-              </h3>
-              <p className="text-muted-foreground/80 mt-1 leading-relaxed text-[12.5px]">
-                {!allAngabenComplete
-                  ? 'Beginne mit deinen persönlichen Angaben. Wir führen dich Schritt für Schritt durch deine Steuererklärung.'
-                  : 'Lade jetzt deine Belege und Unterlagen hoch, damit wir deine Steuererklärung fertigstellen können.'}
-              </p>
-            </div>
-            <img
-              src={documentsMessageImg}
-              alt=""
-              aria-hidden="true"
-              className="flex-shrink-0 w-20 h-20 object-contain select-none pointer-events-none"
-            />
-          </div>
-        );
-      })()}
+      {/* ═══════════ Compact inline progress summary ═══════════ */}
+      {(!allAngabenComplete || !isDocumentsComplete) && (
+        <div className="mt-4 px-1 flex items-center gap-2 text-[12px] text-muted-foreground/85 tabular-nums">
+          <span className="font-semibold text-foreground/85">{percent}%</span>
+          <span>abgeschlossen</span>
+          {!isDocumentsComplete && allAngabenComplete && (
+            <>
+              <span className="text-muted-foreground/40">·</span>
+              <span>{remainingDocs} {remainingDocs === 1 ? 'Schritt' : 'Schritte'} offen</span>
+            </>
+          )}
+          {!allAngabenComplete && (
+            <>
+              <span className="text-muted-foreground/40">·</span>
+              <span>{angabenProgress.total - angabenProgress.completed} {angabenProgress.total - angabenProgress.completed === 1 ? 'Angabe' : 'Angaben'} fehlen</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 

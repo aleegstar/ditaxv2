@@ -293,27 +293,28 @@ const UserTaxReturns = () => {
 
       <main className="relative z-10 min-h-screen md:min-h-0 max-w-3xl lg:max-w-4xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-8 px-4 md:px-8">
         {/* Header (mobile only — desktop uses sidebar) */}
-        <header className="md:hidden flex pb-6 items-center justify-between">
+        <header className="md:hidden flex pb-5 items-center justify-between">
           <div className="flex items-center">
-            <img src={ditaxLogoMask} alt="ditax" className="h-8 w-[106px] object-contain" />
+            <img src={ditaxLogoMask} alt="ditax" className="h-[26px] w-auto object-contain" />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
             <button
               onClick={() => setMenuSheetOpen(true)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-foreground bg-white border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+              aria-label="Menü"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04] transition-colors"
             >
-              <Menu className="w-[18px] h-[18px]" strokeWidth={1.5} />
+              <Menu className="w-[17px] h-[17px]" strokeWidth={1.75} />
             </button>
           </div>
         </header>
 
         {/* Greeting */}
-        <section className="pb-5">
+        <section className="pb-4">
           <div className="flex items-end justify-between gap-4">
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <p className="text-base text-muted-foreground font-normal">{getGreeting()}</p>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight truncate">
+            <div className="flex flex-col min-w-0">
+              <p className="text-[13px] text-muted-foreground/75 font-medium tracking-[-0.005em]">{getGreeting()}</p>
+              <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.028em] text-foreground leading-[1.1] truncate mt-0.5">
                 {getUserDisplayName()}
               </h1>
             </div>
@@ -326,7 +327,7 @@ const UserTaxReturns = () => {
 
         {/* Year Pills */}
         {availableYears.length > 0 && (
-          <div className="mb-6" data-tour="year-selector">
+          <div className="mb-5" data-tour="year-selector">
             <YearPillSelector
               years={availableYears}
               selectedYear={selectedYear}

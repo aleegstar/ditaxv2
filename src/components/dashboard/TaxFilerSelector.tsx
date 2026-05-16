@@ -36,30 +36,26 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ className }) => {
     <button
       onClick={handleClick}
       className={cn(
-        'flex items-center gap-3 pl-4 pr-2 py-2 rounded-full',
-        'bg-white/80 backdrop-blur-sm',
-        'ring-1 ring-black/5 shadow-sm',
-        'hover:shadow-md hover:bg-white',
-        'transition-all duration-200 group',
+        'flex items-center gap-2 pl-2.5 pr-1 py-1 rounded-full',
+        'bg-foreground/[0.04] hover:bg-foreground/[0.07]',
+        'transition-colors duration-200 group',
         className
       )}
     >
-      {/* Name */}
-      <span className="text-sm font-medium text-foreground">
-        {activeTaxFiler.first_name} {activeTaxFiler.last_name}
+      <span className="text-[12px] font-medium text-foreground/85 tracking-[-0.005em]">
+        {activeTaxFiler.first_name}
       </span>
 
-      {/* Avatar */}
-      <Avatar className="w-8 h-8 ring-1 ring-primary/10">
-        <AvatarImage 
+      <Avatar className="w-6 h-6">
+        <AvatarImage
           src={getAvatarUrl()}
           alt={`${activeTaxFiler.first_name} ${activeTaxFiler.last_name}`}
           className="object-cover"
         />
-        <AvatarFallback 
-          className="text-sm font-medium"
-          style={{ 
-            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--primary) / 0.05) 100%)',
+        <AvatarFallback
+          className="text-[10px] font-semibold"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.08) 100%)',
             color: 'hsl(var(--primary))'
           }}
         >
