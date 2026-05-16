@@ -569,22 +569,14 @@ const Auth = () => {
 
                   {/* Email */}
                   <div className="w-full">
-                    <motion.button
+                    <button
                       type="button"
                       onClick={() => setShowEmailForm(prev => !prev)}
-                      whileHover={{ y: -1 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                      className="group w-full text-foreground font-medium text-[14.5px] tracking-tight h-[56px] px-7 rounded-2xl border border-black/10 flex items-center justify-center gap-3"
-                      style={{
-                        background: '#ffffff',
-                        boxShadow:
-                          '0 1px 2px rgba(0,0,0,0.04), 0 6px 18px rgba(0,0,0,0.05)',
-                      }}
+                      className="group w-full bg-white text-foreground font-medium text-[14px] tracking-tight h-12 px-5 rounded-xl border border-black/[0.09] flex items-center justify-center gap-2.5 transition-all hover:border-black/[0.16] hover:bg-foreground/[0.015] active:scale-[0.99]"
                     >
-                      <Mail className="w-[18px] h-[18px] shrink-0 text-foreground/80" strokeWidth={1.75} />
+                      <Mail className="w-[17px] h-[17px] shrink-0 text-foreground/75" strokeWidth={1.75} />
                       <span>{'Weiter mit E-Mail'}</span>
-                    </motion.button>
+                    </button>
 
                     <AnimatePresence>
                       {showEmailForm && (
