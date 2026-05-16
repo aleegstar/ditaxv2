@@ -21,42 +21,44 @@
 
 @layer base {
   :root {
-    --background: 45 40% 98%;
-    --foreground: 0 0% 5%;
+    /* Warm off-white (Stripe/Mercury-style) replacing rosé gradient */
+    --background: 30 25% 98%;
+    --foreground: 222 25% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    --card-foreground: 222 25% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover-foreground: 222 25% 11%;
 
-    --primary: 221 100% 56%;
+    /* Premium navy primary (#172649 ish) */
+    --primary: 220 55% 19%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 221 100% 56%;
+    --secondary: 220 55% 19%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 19% 47%;
+    --muted: 220 16% 96%;
+    --muted-foreground: 220 13% 38%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 16% 96%;
+    --accent-foreground: 222 25% 11%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --success: 152 60% 32%;
+    --success-foreground: 0 0% 100%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221 100% 56%;
+  --border: 220 14% 88%;
+  --input: 220 14% 88%;
+  --ring: 220 55% 35%;
 
-  --color-1: 221 80% 45%;
-  --color-2: 221 90% 55%;
-  --color-3: 215 85% 50%;
-  --color-4: 210 80% 60%;
-  --color-5: 225 75% 65%;
+  --color-1: 220 55% 19%;
+  --color-2: 217 50% 28%;
+  --color-3: 215 60% 38%;
+  --color-4: 213 70% 48%;
+  --color-5: 220 40% 25%;
 
     --radius: 0.75rem;
 
