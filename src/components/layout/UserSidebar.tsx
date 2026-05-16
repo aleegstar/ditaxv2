@@ -46,15 +46,12 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
     <button
       onClick={onClick}
       className={cn(
-        'group relative w-full flex items-center gap-2.5 pl-3 pr-2.5 h-[34px] rounded-[8px] text-[13px] transition-colors duration-150 text-left',
+        'group relative w-full flex items-center gap-2.5 pl-3 pr-2.5 h-[36px] rounded-[10px] text-[13px] transition-all duration-150 text-left',
         isActive
-          ? 'bg-primary/[0.06] text-primary font-semibold'
-          : 'text-muted-foreground/85 hover:bg-foreground/[0.035] hover:text-foreground'
+          ? 'bg-white text-foreground font-semibold shadow-[0_1px_2px_rgba(15,27,61,0.04),0_4px_12px_-4px_rgba(15,27,61,0.08)] ring-1 ring-black/[0.04]'
+          : 'text-muted-foreground/85 hover:bg-foreground/[0.04] hover:text-foreground'
       )}
     >
-      {isActive && (
-        <span className="absolute -left-3 top-1/2 -translate-y-1/2 h-[18px] w-[2.5px] rounded-r-full bg-primary" />
-      )}
       <Icon
         className={cn(
           'w-[16px] h-[16px] flex-shrink-0 transition-colors',
@@ -128,7 +125,7 @@ export const UserSidebar: React.FC = () => {
   return (
     <aside
       data-sidebar
-      className="hidden md:flex flex-col w-[232px] flex-shrink-0 h-screen sticky top-0 bg-muted/60 border-r border-border/70 px-3 pt-5 pb-4"
+      className="hidden md:flex flex-col w-[232px] flex-shrink-0 h-screen sticky top-0 bg-[#F6F4EF] border-r border-black/[0.05] px-3 pt-5 pb-4"
     >
       {/* Logo */}
       <div className="px-2 pb-4">

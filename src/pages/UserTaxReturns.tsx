@@ -291,13 +291,13 @@ const UserTaxReturns = () => {
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <main className="relative z-10 min-h-screen md:min-h-0 max-w-3xl lg:max-w-4xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-8 px-4 md:px-8">
+      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-2xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
         {/* Header (mobile only — desktop uses sidebar) */}
-        <header className="md:hidden flex pb-5 items-center justify-between">
+        <header className="md:hidden flex pb-7 items-center justify-between">
           <div className="flex items-center">
             <img src={ditaxLogoMask} alt="ditax" className="h-[26px] w-auto object-contain" />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 -mr-1">
             <ProfileWithNotifications avatarUrl={userProfile?.avatar_url} firstName={userProfile?.first_name} />
             <button
               onClick={() => setMenuSheetOpen(true)}
@@ -310,11 +310,11 @@ const UserTaxReturns = () => {
         </header>
 
         {/* Greeting */}
-        <section className="pb-4">
+        <section className="pb-7">
           <div className="flex items-end justify-between gap-4">
             <div className="flex flex-col min-w-0">
-              <p className="text-[13px] text-muted-foreground/75 font-medium tracking-[-0.005em]">{getGreeting()}</p>
-              <h1 className="text-[26px] md:text-[30px] font-semibold tracking-[-0.028em] text-foreground leading-[1.1] truncate mt-0.5">
+              <p className="text-[13px] text-muted-foreground/70 font-normal tracking-[-0.003em]">{getGreeting()}</p>
+              <h1 className="text-[23px] md:text-[26px] font-semibold tracking-[-0.026em] text-foreground leading-[1.1] truncate mt-1">
                 {getUserDisplayName()}
               </h1>
             </div>
@@ -327,7 +327,7 @@ const UserTaxReturns = () => {
 
         {/* Year Pills */}
         {availableYears.length > 0 && (
-          <div className="mb-5" data-tour="year-selector">
+          <div className="mb-7" data-tour="year-selector">
             <YearPillSelector
               years={availableYears}
               selectedYear={selectedYear}

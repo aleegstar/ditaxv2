@@ -154,9 +154,9 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   // Card variants by hierarchy state
   const activeCard =
     "group rounded-[22px] bg-white overflow-hidden cursor-pointer transition-all duration-300 " +
-    "ring-1 ring-black/[0.06] " +
-    "shadow-[0_1px_2px_rgba(15,27,61,0.04),0_12px_32px_-8px_rgba(15,27,61,0.08)] " +
-    "hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_16px_40px_-8px_rgba(15,27,61,0.1)] " +
+    "ring-1 ring-black/[0.07] " +
+    "shadow-[0_1px_2px_rgba(15,27,61,0.04),0_18px_44px_-12px_rgba(15,27,61,0.12)] " +
+    "hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_22px_50px_-12px_rgba(15,27,61,0.14)] " +
     "active:scale-[0.997]";
   const completedCard =
     "group rounded-[18px] bg-foreground/[0.025] overflow-hidden cursor-pointer transition-colors duration-200 " +
@@ -167,17 +167,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   // Determine which step is "next"
   const nextStep: 1 | 2 | 3 = !allAngabenComplete ? 1 : !isDocumentsComplete ? 2 : 3;
 
-  // Compact inline progress summary
-  const totalTasks = 6;
-  const completedTasks =
-    angabenSections.filter(s => isCompleted(s.id)).length +
-    (isDocumentsComplete ? 1 : 0) +
-    (paymentStatus === 'paid' ? 1 : 0);
-  const percent = Math.round((completedTasks / totalTasks) * 100);
-  const remainingDocs = Math.max(0, 1 - (isDocumentsComplete ? 1 : 0));
+  // Human-friendly progress summary (3 high-level steps)
+  const remainingSteps =
+    (allAngabenComplete ? 0 : 1) +
+    (isDocumentsComplete ? 0 : 1) +
+    (paymentStatus === 'paid' ? 0 : 1);
+  const totalSteps = 3;
+  const stepsDone = totalSteps - remainingSteps;
 
   const stepsContent = (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
@@ -301,23 +300,12 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         </div>
       )}
 
-      {/* ═══════════ Compact inline progress summary ═══════════ */}
-      {(!allAngabenComplete || !isDocumentsComplete) && (
-        <div className="mt-4 px-1 flex items-center gap-2 text-[12px] text-muted-foreground/85 tabular-nums">
-          <span className="font-semibold text-foreground/85">{percent}%</span>
-          <span>abgeschlossen</span>
-          {!isDocumentsComplete && allAngabenComplete && (
-            <>
-              <span className="text-muted-foreground/40">·</span>
-              <span>{remainingDocs} {remainingDocs === 1 ? 'Schritt' : 'Schritte'} offen</span>
-            </>
-          )}
-          {!allAngabenComplete && (
-            <>
-              <span className="text-muted-foreground/40">·</span>
-              <span>{angabenProgress.total - angabenProgress.completed} {angabenProgress.total - angabenProgress.completed === 1 ? 'Angabe' : 'Angaben'} fehlen</span>
-            </>
-          )}
+      {/* ═══════════ Human-friendly progress line ═══════════ */}
+      {remainingSteps > 0 && (
+        <div className="mt-5 px-1 text-[12.5px] text-muted-foreground/85 tracking-[-0.005em]">
+          {remainingSteps === 1
+            ? <>Noch <span className="font-semibold text-foreground/85">1 Schritt</span> bis zur Einreichung</>
+            : <><span className="font-semibold text-foreground/85">{stepsDone} von {totalSteps}</span> Schritten abgeschlossen</>}
         </div>
       )}
     </div>
