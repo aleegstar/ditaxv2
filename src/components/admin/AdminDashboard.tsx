@@ -38,51 +38,54 @@ function StatCard({ label, value, change, icon: Icon, to, changeLabel = 'vs. let
   to?: string;
   changeLabel?: string;
 }) {
+  const hasChange = change !== undefined;
   const isPositive = (change ?? 0) >= 0;
+  const Wrapper: any = to ? Link : 'div';
+  const wrapperProps = to ? { to } : {};
 
   return (
-    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5 flex flex-col justify-between h-full">
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-[13px] text-muted-foreground font-medium">{label}</p>
-        <div className="w-9 h-9 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
-          <Icon className="h-4 w-4" />
-        </div>
+    <Wrapper
+      {...wrapperProps}
+      className={`group block bg-white border border-border rounded-xl p-5 transition-colors ${to ? 'hover:border-foreground/15' : ''}`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11.5px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">{label}</p>
+        <Icon className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.75} />
       </div>
-      <div>
-        <p className="text-[28px] font-semibold text-foreground tracking-tight leading-none mb-1.5">{value}</p>
-        {change !== undefined && (
-          <div className="flex items-center gap-1.5">
-            <span className={`text-[12px] font-semibold flex items-center gap-0.5 ${isPositive ? 'text-green-600' : 'text-red-500'}`}>
-              {isPositive ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-              {isPositive ? '+' : ''}{change}%
-            </span>
-            <span className="text-[11px] text-muted-foreground/60">{changeLabel}</span>
-          </div>
+      <div className="flex items-baseline gap-2">
+        <p className="text-[26px] font-semibold text-foreground tracking-[-0.02em] leading-none tabular-nums">{value}</p>
+        {hasChange && (
+          <span className={`text-[11px] font-semibold tabular-nums inline-flex items-center gap-0.5 ${isPositive ? 'text-emerald-600' : 'text-red-500'}`}>
+            {isPositive ? <ArrowUp size={10} strokeWidth={2.5} /> : <ArrowDown size={10} strokeWidth={2.5} />}
+            {isPositive ? '+' : ''}{change}%
+          </span>
         )}
       </div>
-      {to && (
-        <Link to={to} className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground mt-4 pt-3 border-t border-border/40 transition-colors group">
-          Details anzeigen
-          <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      )}
-    </div>
+      <p className="text-[11px] text-muted-foreground/60 mt-1.5">{hasChange ? changeLabel : '\u00A0'}</p>
+    </Wrapper>
   );
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm px-3 py-2">
-      <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
+    <div className="bg-white border border-border rounded-lg shadow-md px-3 py-2">
+      <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground/70 font-medium mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
-        <p key={i} className="text-[12px] font-medium text-foreground">
-          {entry.name}: CHF {entry.value.toLocaleString()}
+        <p key={i} className="text-[12px] font-semibold text-foreground tabular-nums">
+          CHF {entry.value.toLocaleString('de-CH')}
         </p>
       ))}
     </div>
   );
 };
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 11) return 'Guten Morgen';
+  if (h < 18) return 'Guten Tag';
+  return 'Guten Abend';
+}
 
 export const AdminDashboard: React.FC = () => {
   const { userId, isValid } = useAuthValidation();
@@ -267,12 +270,12 @@ export const AdminDashboard: React.FC = () => {
 
   const statusTotal = stats.statusBreakdown.reduce((sum, s) => sum + s.value, 0);
 
-  const getStatusBadgeClass = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-700';
-      case 'processing': return 'bg-blue-100 text-blue-700';
-      case 'review': return 'bg-purple-100 text-purple-700';
-      default: return 'bg-muted text-muted-foreground';
+      case 'completed': return { dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50', ring: 'ring-emerald-600/10' };
+      case 'processing': return { dot: 'bg-blue-500', text: 'text-blue-700', bg: 'bg-blue-50', ring: 'ring-blue-600/10' };
+      case 'review': return { dot: 'bg-violet-500', text: 'text-violet-700', bg: 'bg-violet-50', ring: 'ring-violet-600/10' };
+      default: return { dot: 'bg-amber-500', text: 'text-amber-700', bg: 'bg-amber-50', ring: 'ring-amber-600/10' };
     }
   };
 
@@ -285,36 +288,52 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const operationalSummary = [
+    stats.pendingTaxReturns > 0 && `${stats.pendingTaxReturns} offene Steuererklärungen`,
+    stats.expressTaxReturns > 0 && `${stats.expressTaxReturns} Express`,
+    stats.openTickets > 0 && `${stats.openTickets} offene Tickets`,
+    stats.pendingDefinitiveTaxBills > 0 && `${stats.pendingDefinitiveTaxBills} Veranlagungen`,
+  ].filter(Boolean).join(' · ') || 'Alles erledigt';
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-[20px] font-semibold text-foreground tracking-tight">Dashboard</h1>
+    <div className="max-w-7xl mx-auto px-8 py-10 space-y-8">
+      {/* Executive Header */}
+      <div className="flex items-end justify-between gap-6 pb-6 border-b border-border">
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-muted-foreground/65 mb-1.5">
+            {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+          <h1 className="text-[26px] font-semibold text-foreground tracking-[-0.022em] leading-tight">
+            {getGreeting()}
+          </h1>
+          <p className="text-[13px] text-muted-foreground mt-1.5 truncate">
+            {operationalSummary}
+          </p>
+        </div>
         <button
           onClick={loadDashboardData}
           disabled={refreshing}
-          className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-xl border border-white/40 text-muted-foreground hover:text-foreground hover:bg-white/80 transition-colors disabled:opacity-50"
+          className="shrink-0 h-9 px-3.5 rounded-lg bg-white border border-border text-[12.5px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          Aktualisieren
         </button>
       </div>
 
-      {/* Top Stat Cards - 4 columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
-          label="Offene Steuererklärungen"
+          label="Offene Erklärungen"
           value={stats.pendingTaxReturns}
           change={calcChange(stats.pendingTaxReturns, stats.completedLastMonth)}
           icon={FileText}
           to="/admin/tax-processing"
-          changeLabel="vs. letzter Monat"
         />
         <StatCard
-          label="Umsatz"
-          value={`CHF ${stats.revenueThisMonth.toLocaleString()}`}
+          label="Umsatz (Monat)"
+          value={`CHF ${stats.revenueThisMonth.toLocaleString('de-CH')}`}
           change={calcChange(stats.revenueThisMonth, stats.revenueLastMonth)}
           icon={TrendingUp}
-          changeLabel="vs. letzter Monat"
         />
         <StatCard
           label="Offene Tickets"
@@ -323,56 +342,58 @@ export const AdminDashboard: React.FC = () => {
           to="/admin/tickets"
         />
         <StatCard
-          label="Neue User (30 Tage)"
+          label="Neue User (30T)"
           value={stats.newUsersLast30Days}
           icon={UserPlus}
           to="/admin/users"
-          changeLabel="vs. letzter Monat"
         />
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
         {/* Revenue Bar Chart */}
-        <div className="lg:col-span-3 bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[15px] font-semibold text-foreground">Umsatz</h2>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--primary))' }} />
-                <span className="text-[11px] text-muted-foreground">Umsatz</span>
-              </div>
+        <div className="lg:col-span-3 bg-white border border-border rounded-xl p-6">
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Umsatz</p>
+              <h2 className="text-[20px] font-semibold text-foreground tracking-[-0.018em] tabular-nums mt-1">
+                CHF {stats.revenueThisMonth.toLocaleString('de-CH')}
+              </h2>
             </div>
+            <span className="text-[11px] text-muted-foreground/60">Letzte 6 Monate</span>
           </div>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={stats.monthlyRevenue} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.4)" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="revenue" name="Umsatz" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={28} />
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={stats.monthlyRevenue} barGap={4} margin={{ top: 8, right: 0, bottom: 0, left: -10 }}>
+              <CartesianGrid strokeDasharray="0" vertical={false} stroke="hsl(var(--border) / 0.7)" />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: 'hsl(var(--muted-foreground))' }} dy={6} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted) / 0.5)' }} />
+              <Bar dataKey="revenue" name="Umsatz" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} barSize={22} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Status Donut Chart */}
-        <div className="lg:col-span-2 bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-6">
+        {/* Status Donut */}
+        <div className="lg:col-span-2 bg-white border border-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[15px] font-semibold text-foreground">Status Übersicht</h2>
-            <Link to="/admin/tax-processing" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-              Alle anzeigen
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Status</p>
+              <h2 className="text-[14px] font-semibold text-foreground tracking-[-0.01em] mt-1">Aktuelle Verteilung</h2>
+            </div>
+            <Link to="/admin/tax-processing" className="text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Alle →
             </Link>
           </div>
           <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={160}>
               <PieChart>
                 <Pie
                   data={stats.statusBreakdown}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={3}
+                  innerRadius={48}
+                  outerRadius={72}
+                  paddingAngle={2}
                   dataKey="value"
                   strokeWidth={0}
                 >
@@ -380,78 +401,89 @@ export const AdminDashboard: React.FC = () => {
                     <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
-                <text x="50%" y="46%" textAnchor="middle" className="fill-foreground text-[20px] font-semibold">
+                <text x="50%" y="46%" textAnchor="middle" className="fill-foreground text-[20px] font-semibold tabular-nums">
                   {statusTotal}
                 </text>
-                <text x="50%" y="58%" textAnchor="middle" className="fill-muted-foreground text-[10px]">
+                <text x="50%" y="60%" textAnchor="middle" className="fill-muted-foreground text-[9.5px] uppercase tracking-wider">
                   Gesamt
                 </text>
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
+          <div className="grid grid-cols-1 gap-y-1.5 mt-3 pt-3 border-t border-border">
             {stats.statusBreakdown.map((item) => (
               <div key={item.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-[11px] text-muted-foreground">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-[12px] text-muted-foreground">{item.name}</span>
                 </div>
-                <span className="text-[11px] font-medium text-foreground">{item.value}</span>
+                <span className="text-[12px] font-semibold text-foreground tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Recent Tax Returns Table */}
-      <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[15px] font-semibold text-foreground">Letzte Steuererklärungen</h2>
-          <Link to="/admin/tax-processing" className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-            Alle anzeigen
+      {/* Recent Tax Returns */}
+      <div className="bg-white border border-border rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Aktivität</p>
+            <h2 className="text-[14px] font-semibold text-foreground tracking-[-0.01em] mt-0.5">Letzte Steuererklärungen</h2>
+          </div>
+          <Link to="/admin/tax-processing" className="text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Alle anzeigen →
           </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border/40">
-                <th className="text-left text-[11px] font-medium text-muted-foreground pb-3 pr-4">Benutzer</th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground pb-3 pr-4">Steuerjahr</th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground pb-3 pr-4">Datum</th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground pb-3 pr-4">Status</th>
-                <th className="text-right text-[11px] font-medium text-muted-foreground pb-3">Typ</th>
+              <tr className="bg-muted/30 border-b border-border">
+                <th className="text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 px-6 py-2.5">Benutzer</th>
+                <th className="text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 px-3 py-2.5">Jahr</th>
+                <th className="text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 px-3 py-2.5">Datum</th>
+                <th className="text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 px-3 py-2.5">Status</th>
+                <th className="text-right text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 px-6 py-2.5">Typ</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {stats.recentTaxReturns.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-[12px] text-muted-foreground">Keine Steuererklärungen vorhanden</td>
+                  <td colSpan={5} className="text-center py-10 text-[13px] text-muted-foreground">Keine Steuererklärungen vorhanden</td>
                 </tr>
               ) : (
-                stats.recentTaxReturns.map((tr, i) => (
-                  <tr key={i} className="border-b border-border/20 last:border-0">
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center text-[10px] font-medium text-muted-foreground">
-                          {tr.userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                stats.recentTaxReturns.map((tr, i) => {
+                  const s = getStatusStyle(tr.status);
+                  return (
+                    <tr key={i} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground ring-1 ring-border">
+                            {tr.userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </div>
+                          <span className="text-[13px] font-medium text-foreground">{tr.userName}</span>
                         </div>
-                        <span className="text-[13px] font-medium text-foreground">{tr.userName}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 pr-4 text-[13px] text-muted-foreground">{tr.taxYear}</td>
-                    <td className="py-3 pr-4 text-[13px] text-muted-foreground">{tr.date}</td>
-                    <td className="py-3 pr-4">
-                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${getStatusBadgeClass(tr.status)}`}>
-                        {getStatusLabel(tr.status)}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      {tr.express && (
-                        <span className="text-[11px] font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Express</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-3 py-3 text-[13px] text-muted-foreground tabular-nums">{tr.taxYear}</td>
+                      <td className="px-3 py-3 text-[13px] text-muted-foreground tabular-nums">{tr.date}</td>
+                      <td className="px-3 py-3">
+                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-md ring-1 ${s.bg} ${s.text} ${s.ring}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                          {getStatusLabel(tr.status)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        {tr.express ? (
+                          <span className="inline-flex items-center text-[11px] font-semibold text-red-700 bg-red-50 ring-1 ring-red-600/10 px-2 py-0.5 rounded-md">
+                            Express
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground/50">Standard</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
