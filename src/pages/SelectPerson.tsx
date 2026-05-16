@@ -42,131 +42,89 @@ const SelectPerson: React.FC = () => {
     navigate('/tax-filers');
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
+  // No fullscreen spinner — avoids flash between PageTransition and content.
+  // Cards render once taxFilers is available; empty state during initial load.
   return (
-    <div className="min-h-screen antialiased relative overflow-hidden">
-
+    <div className="min-h-screen antialiased relative">
       <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
         {/* Logo */}
-        <motion.div
-          className="flex justify-center mb-14"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="flex justify-center mb-14">
           <img src={ditaxLogoFull} alt="ditax" className="h-9" />
-        </motion.div>
+        </div>
 
         {/* Header */}
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
+        <div className="text-center mb-10">
           <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-[-0.02em] mb-3">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
           <p className="leading-relaxed text-muted-foreground text-xs text-center">
             {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
           </p>
-        </motion.div>
+        </div>
 
         {/* Person Cards */}
-        <div className="space-y-3.5">
-          {taxFilers.map((filer, index) => (
-            <motion.button
-              key={filer.id}
-              onClick={() => handleSelectPerson(filer)}
-              className="w-full group relative overflow-hidden text-left transition-all duration-300 cursor-pointer active:scale-[0.98]"
-              style={{
-                background: 'rgba(255, 255, 255, 0.85)',
-                backdropFilter: 'blur(40px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
-                border: '1px solid rgba(0, 0, 0, 0.05)',
-                borderRadius: '2rem',
-                padding: '2rem 2.5rem',
-              }}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.15 + index * 0.08 }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
-                    <span className="text-xs font-medium text-primary">
-                      {getRelationshipLabel(filer.relationship, t)}
-                      {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
-                    </span>
-                  </div>
-                  <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
-                    {filer.first_name} {filer.last_name}
-                  </h3>
-                </div>
-
-                <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
-                  <AvatarImage
-                    src={getAvatarUrl(filer)}
-                    alt={`${filer.first_name} ${filer.last_name}`}
-                    className="object-cover"
-                  />
-                  <AvatarFallback
-                    className="text-lg font-semibold"
-                    style={{
-                      background: 'hsla(var(--primary) / 0.08)',
-                      color: 'hsl(var(--primary))',
-                    }}
-                  >
-                    {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            </motion.button>
-          ))}
-
-          {/* Add Person Button */}
-          <motion.button
-            onClick={handleAddPerson}
-            className="w-full overflow-hidden transition-all duration-300 active:scale-[0.98]"
-            style={{
-              background: 'rgba(255, 255, 255, 0.20)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-              border: '1px dashed rgba(255, 255, 255, 0.60)',
-              borderRadius: '2rem',
-              padding: '2rem 2.5rem',
-            }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.15 + taxFilers.length * 0.08 }}
-          >
-            <div className="flex items-center gap-5">
-              <div
-                className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(255, 255, 255, 0.30)' }}
+        {!isLoading && (
+          <div className="space-y-3">
+            {taxFilers.map((filer) => (
+              <button
+                key={filer.id}
+                onClick={() => handleSelectPerson(filer)}
+                className="w-full group relative text-left cursor-pointer bg-white border border-black/[0.06] rounded-2xl px-7 py-6 shadow-[0_1px_2px_rgba(15,27,61,0.04),0_4px_16px_-12px_rgba(15,27,61,0.08)] transition-all duration-200 hover:border-black/[0.12] hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_8px_24px_-12px_rgba(15,27,61,0.10)] active:scale-[0.99]"
               >
-                <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
+                      <span className="text-xs font-medium text-primary">
+                        {getRelationshipLabel(filer.relationship, t)}
+                        {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
+                      </span>
+                    </div>
+                    <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
+                      {filer.first_name} {filer.last_name}
+                    </h3>
+                  </div>
+
+                  <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
+                    <AvatarImage
+                      src={getAvatarUrl(filer)}
+                      alt={`${filer.first_name} ${filer.last_name}`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback
+                      className="text-lg font-semibold"
+                      style={{
+                        background: 'hsla(var(--primary) / 0.08)',
+                        color: 'hsl(var(--primary))',
+                      }}
+                    >
+                      {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </button>
+            ))}
+
+            {/* Add Person Button */}
+            <button
+              onClick={handleAddPerson}
+              className="w-full bg-white border border-dashed border-black/[0.14] rounded-2xl px-7 py-6 transition-all duration-200 hover:border-black/[0.22] hover:bg-foreground/[0.015] active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                  <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="text-[1.05rem] font-medium text-foreground tracking-[-0.01em] mb-0.5">
+                    {t.taxFilers?.addPerson || 'Person hinzufügen'}
+                  </h3>
+                  <p className="text-[0.85rem] text-muted-foreground/70">
+                    {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <h3 className="text-[1.05rem] font-medium text-muted-foreground tracking-[-0.01em] mb-0.5">
-                  {t.taxFilers?.addPerson || 'Person hinzufügen'}
-                </h3>
-                <p className="text-[0.85rem] text-muted-foreground/60">
-                  {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
-                </p>
-              </div>
-            </div>
-          </motion.button>
-        </div>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
