@@ -48,16 +48,19 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
       className={cn(
         'group relative w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] transition-all duration-200 text-left',
         isActive
-          ? 'bg-foreground/[0.05] text-foreground font-medium'
-          : 'text-muted-foreground/90 hover:bg-foreground/[0.035] hover:text-foreground'
+          ? 'bg-primary/[0.07] text-primary font-semibold shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.08)]'
+          : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
       )}
     >
+      {isActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
+      )}
       <Icon
         className={cn(
           'w-[17px] h-[17px] flex-shrink-0 transition-colors',
-          isActive ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground/80'
+          isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground/80'
         )}
-        strokeWidth={1.75}
+        strokeWidth={isActive ? 2 : 1.75}
       />
       <span className="truncate tracking-tight">{item.label}</span>
       {!!item.badge && item.badge > 0 && (
@@ -70,7 +73,7 @@ const NavRow: React.FC<{ item: NavItem; isActive: boolean; onClick: () => void }
 };
 
 const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="px-3 pt-6 pb-2 text-[10px] font-medium tracking-[0.14em] uppercase text-muted-foreground/45">
+  <div className="px-3 pt-7 pb-2 text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground/60">
     {children}
   </div>
 );

@@ -11,14 +11,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // PRIMARY — unified premium dark charcoal button (global standard)
+        // PRIMARY — premium navy gradient (Stripe/Mercury-style fintech)
         default:
           "text-white border border-white/[0.08] " +
-          "bg-[linear-gradient(180deg,#2B2B35_0%,#17171C_100%)] " +
-          "shadow-[0_8px_24px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] " +
-          "hover:bg-[linear-gradient(180deg,#33333E_0%,#1C1C22_100%)] " +
-          "hover:shadow-[0_12px_28px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.14)] " +
-          "active:scale-[0.985] active:shadow-[0_4px_14px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.10)]",
+          "bg-[linear-gradient(180deg,#1E3A5F_0%,#0F1B3D_100%)] " +
+          "shadow-[0_8px_24px_rgba(15,27,61,0.22),inset_0_1px_0_rgba(255,255,255,0.14)] " +
+          "hover:bg-[linear-gradient(180deg,#264a78_0%,#142348_100%)] " +
+          "hover:shadow-[0_12px_28px_rgba(15,27,61,0.28),inset_0_1px_0_rgba(255,255,255,0.16)] " +
+          "active:scale-[0.985] active:shadow-[0_4px_14px_rgba(15,27,61,0.22),inset_0_1px_0_rgba(255,255,255,0.10)]",
         destructive:
           "text-white border border-white/[0.08] " +
           "bg-[linear-gradient(180deg,hsl(var(--destructive))_0%,hsl(var(--destructive)/0.82)_100%)] " +
