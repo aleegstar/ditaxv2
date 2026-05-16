@@ -21,8 +21,8 @@
 
 @layer base {
   :root {
-    /* Bright Swiss-fintech neutral surface system */
-    --background: 60 14% 98%;         /* #FAFAF8 almost white, subtle warm */
+    /* Crisp Swiss-fintech surface system - minimal layering */
+    --background: 0 0% 100%;          /* pure white main content */
     --foreground: 220 39% 11%;        /* #111827 */
 
     --card: 0 0% 100%;                /* pure white cards */
@@ -38,10 +38,10 @@
     --secondary: 218 60% 20%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 60 11% 96%;              /* #F5F5F3 sidebar / soft surface */
+    --muted: 220 14% 96%;             /* #F3F4F6 subtle cool neutral sidebar */
     --muted-foreground: 220 9% 46%;   /* #6B7280 */
 
-    --accent: 60 11% 96%;
+    --accent: 220 14% 96%;
     --accent-foreground: 220 39% 11%;
 
     --destructive: 0 72% 48%;
@@ -50,8 +50,8 @@
     --success: 152 60% 32%;
     --success-foreground: 0 0% 100%;
 
-  --border: 60 4% 91%;                /* #E9E9E7 crisp soft border */
-  --input: 60 4% 91%;
+  --border: 220 13% 91%;              /* #E5E7EB crisp neutral border */
+  --input: 220 13% 91%;
   --ring: 218 60% 35%;
 
   --color-1: 218 60% 20%;
@@ -250,19 +250,7 @@
     }
   }
 
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.18;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.03 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  }
+  /* Noise overlay removed - was creating a milky multiply layer over the entire UI */
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;

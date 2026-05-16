@@ -15,12 +15,10 @@ interface AppShellProps {
  */
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   return (
-    <div className="md:flex md:h-screen md:w-full md:bg-muted md:overflow-hidden">
+    <div className="md:flex md:h-screen md:w-full md:bg-background md:overflow-hidden">
       <UserSidebar />
-      <div className="md:flex-1 md:min-w-0 md:p-3 md:pl-0">
-        <div className="md:h-full md:rounded-2xl md:bg-background md:overflow-y-auto md:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_4px_16px_-8px_rgba(15,27,61,0.06)] md:border md:border-border">
-          {children}
-        </div>
+      <div className="md:flex-1 md:min-w-0 md:overflow-y-auto md:border-l md:border-border">
+        {children}
       </div>
     </div>
   );
