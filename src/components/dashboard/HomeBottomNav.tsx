@@ -235,10 +235,10 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
 
   return (
     <nav
-      className="md:hidden fixed inset-x-0 bottom-0 z-[10010] bg-white border-t border-border/40"
+      className="md:hidden fixed inset-x-0 bottom-0 z-[10010] bg-white/95 backdrop-blur-xl border-t border-border/40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <div className="flex items-stretch justify-around px-2 pt-2 pb-2">
+      <div className="flex items-stretch justify-around px-2 pt-1 pb-1">
         <LayoutGroup id="bottom-nav">
           {tabs.map((tab) => {
             const isActive = active === tab.key;
@@ -251,20 +251,12 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 aria-label={tab.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'relative flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors focus:outline-none',
-                  isActive ? 'text-[#1656FF]' : 'text-[#7A8498]'
+                  'relative flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-colors focus:outline-none',
+                  isActive ? 'text-foreground' : 'text-muted-foreground/65'
                 )}
               >
-                <Icon className="w-6 h-6" />
-                <span className="text-xs font-medium leading-none">{tab.label}</span>
-                {isActive && (
-                  <motion.span
-                    layoutId="nav-active-indicator"
-                    transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                    className="absolute bottom-0 h-0.5 w-8 rounded-full"
-                    style={{ background: '#1656FF' }}
-                  />
-                )}
+                <Icon className="w-[22px] h-[22px]" />
+                <span className={cn('text-[10.5px] leading-none tracking-[-0.005em]', isActive ? 'font-semibold' : 'font-medium')}>{tab.label}</span>
               </button>
             );
           })}
