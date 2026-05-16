@@ -706,19 +706,19 @@ const DocumentsContent: React.FC<{
         <input ref={scanInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileInputChange} />
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
-        {/* Sticky bottom upload bar — mobile only */}
+        {/* Sticky bottom upload bar — mobile only, sits above bottom nav */}
         {!isLocked && createPortal(
           <div
-            className="fixed bottom-0 left-0 right-0 z-[90] px-4 md:hidden bg-gradient-to-t from-background via-background/95 to-transparent pt-3"
-            style={{ paddingBottom: 'calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 76px)' }}
+            className="fixed left-0 right-0 z-[10005] px-4 md:hidden pointer-events-none"
+            style={{ bottom: 'calc(72px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
               onClick={() => fileInputRef.current?.click()}
               aria-label={t.documentsPage.upload}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98] shadow-lg"
+              className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',
-                boxShadow: '0 8px 24px -8px rgba(15,27,61,0.4), 0 2px 6px rgba(0,0,0,0.08)',
+                boxShadow: '0 12px 28px -8px rgba(15,27,61,0.45), 0 2px 6px rgba(0,0,0,0.08)',
               }}
             >
               <Plus className="w-4 h-4" strokeWidth={2.5} />
