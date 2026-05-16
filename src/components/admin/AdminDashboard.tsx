@@ -38,51 +38,54 @@ function StatCard({ label, value, change, icon: Icon, to, changeLabel = 'vs. let
   to?: string;
   changeLabel?: string;
 }) {
+  const hasChange = change !== undefined;
   const isPositive = (change ?? 0) >= 0;
+  const Wrapper: any = to ? Link : 'div';
+  const wrapperProps = to ? { to } : {};
 
   return (
-    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm p-5 flex flex-col justify-between h-full">
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-[13px] text-muted-foreground font-medium">{label}</p>
-        <div className="w-9 h-9 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
-          <Icon className="h-4 w-4" />
-        </div>
+    <Wrapper
+      {...wrapperProps}
+      className={`group block bg-white border border-border rounded-xl p-5 transition-colors ${to ? 'hover:border-foreground/15' : ''}`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11.5px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">{label}</p>
+        <Icon className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.75} />
       </div>
-      <div>
-        <p className="text-[28px] font-semibold text-foreground tracking-tight leading-none mb-1.5">{value}</p>
-        {change !== undefined && (
-          <div className="flex items-center gap-1.5">
-            <span className={`text-[12px] font-semibold flex items-center gap-0.5 ${isPositive ? 'text-green-600' : 'text-red-500'}`}>
-              {isPositive ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-              {isPositive ? '+' : ''}{change}%
-            </span>
-            <span className="text-[11px] text-muted-foreground/60">{changeLabel}</span>
-          </div>
+      <div className="flex items-baseline gap-2">
+        <p className="text-[26px] font-semibold text-foreground tracking-[-0.02em] leading-none tabular-nums">{value}</p>
+        {hasChange && (
+          <span className={`text-[11px] font-semibold tabular-nums inline-flex items-center gap-0.5 ${isPositive ? 'text-emerald-600' : 'text-red-500'}`}>
+            {isPositive ? <ArrowUp size={10} strokeWidth={2.5} /> : <ArrowDown size={10} strokeWidth={2.5} />}
+            {isPositive ? '+' : ''}{change}%
+          </span>
         )}
       </div>
-      {to && (
-        <Link to={to} className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground mt-4 pt-3 border-t border-border/40 transition-colors group">
-          Details anzeigen
-          <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      )}
-    </div>
+      <p className="text-[11px] text-muted-foreground/60 mt-1.5">{hasChange ? changeLabel : '\u00A0'}</p>
+    </Wrapper>
   );
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white/60 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm px-3 py-2">
-      <p className="text-[11px] text-muted-foreground mb-1">{label}</p>
+    <div className="bg-white border border-border rounded-lg shadow-md px-3 py-2">
+      <p className="text-[10.5px] uppercase tracking-wider text-muted-foreground/70 font-medium mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
-        <p key={i} className="text-[12px] font-medium text-foreground">
-          {entry.name}: CHF {entry.value.toLocaleString()}
+        <p key={i} className="text-[12px] font-semibold text-foreground tabular-nums">
+          CHF {entry.value.toLocaleString('de-CH')}
         </p>
       ))}
     </div>
   );
 };
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 11) return 'Guten Morgen';
+  if (h < 18) return 'Guten Tag';
+  return 'Guten Abend';
+}
 
 export const AdminDashboard: React.FC = () => {
   const { userId, isValid } = useAuthValidation();
