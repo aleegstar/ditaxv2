@@ -706,11 +706,11 @@ const DocumentsContent: React.FC<{
         <input ref={scanInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileInputChange} />
         <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" multiple className="hidden" onChange={handleFileInputChange} />
 
-        {/* Sticky bottom upload bar — mobile only */}
+        {/* Sticky bottom upload bar — mobile only, sits above bottom nav */}
         {!isLocked && createPortal(
           <div
-            className="fixed bottom-0 left-0 right-0 z-[90] px-4 md:hidden bg-gradient-to-t from-background via-background/95 to-transparent pt-3"
-            style={{ paddingBottom: 'calc(12px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)) + 76px)' }}
+            className="fixed left-0 right-0 z-[10005] px-4 md:hidden pointer-events-none"
+            style={{ bottom: 'calc(72px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
               onClick={() => fileInputRef.current?.click()}
