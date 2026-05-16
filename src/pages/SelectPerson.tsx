@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronRight } from 'lucide-react';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -46,84 +46,110 @@ const SelectPerson: React.FC = () => {
   // Cards render once taxFilers is available; empty state during initial load.
   return (
     <div className="min-h-screen antialiased relative">
-      <div className="relative z-10 max-w-lg mx-auto px-5 pt-10 pb-12">
-        {/* Logo */}
-        <div className="flex justify-center mb-14">
-          <img src={ditaxLogoFull} alt="ditax" className="h-9" />
-        </div>
-
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-[1.85rem] leading-[1.15] font-medium text-foreground tracking-[-0.02em] mb-3">
+      <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-16 pb-16">
+        {/* Header — tight intentional rhythm */}
+        <div className="flex flex-col items-center text-center mb-10">
+          <img src={ditaxLogoFull} alt="Ditax" className="h-6 mb-8 opacity-90" />
+          <h1 className="text-[22px] leading-[1.2] font-semibold text-foreground tracking-[-0.022em] mb-1.5">
             {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
           </h1>
-          <p className="leading-relaxed text-muted-foreground text-xs text-center">
-            {t.taxFilers?.addPersonHint || 'Wähle eine Person aus, um fortzufahren'}
+          <p className="text-[13px] text-muted-foreground/70 font-normal">
+            {t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren'}
           </p>
         </div>
 
-        {/* Person Cards */}
+        {/* Section label */}
+        <div className="flex items-center justify-between px-1 mb-2.5">
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/55">
+            Profile
+          </span>
+          <span className="text-[10.5px] font-medium text-muted-foreground/45 tabular-nums">
+            {taxFilers.length}
+          </span>
+        </div>
+
+        {/* Profile list — grouped surface with hairline dividers */}
         {!isLoading && (
-          <div className="space-y-3">
-            {taxFilers.map((filer) => (
-              <button
-                key={filer.id}
-                onClick={() => handleSelectPerson(filer)}
-                className="w-full group relative text-left cursor-pointer bg-white border border-black/[0.06] rounded-2xl px-7 py-6 shadow-[0_1px_2px_rgba(15,27,61,0.04),0_4px_16px_-12px_rgba(15,27,61,0.08)] transition-all duration-200 hover:border-black/[0.12] hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_8px_24px_-12px_rgba(15,27,61,0.10)] active:scale-[0.99]"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-3">
-                      <span className="text-xs font-medium text-primary">
-                        {getRelationshipLabel(filer.relationship, t)}
-                        {filer.is_primary && ` · ${t.taxFilers?.primary || 'Primär'}`}
-                      </span>
+          <>
+            <div className="bg-white border border-black/[0.07] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(15,27,61,0.03),0_4px_16px_-12px_rgba(15,27,61,0.06)] divide-y divide-black/[0.05]">
+              {taxFilers.map((filer) => {
+                const initials = `${filer.first_name.charAt(0)}${filer.last_name.charAt(0)}`.toUpperCase();
+                const relationshipLabel = getRelationshipLabel(filer.relationship, t);
+                return (
+                  <button
+                    key={filer.id}
+                    onClick={() => handleSelectPerson(filer)}
+                    className="w-full group relative text-left cursor-pointer flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-foreground/[0.022] active:bg-foreground/[0.04] focus:outline-none focus-visible:bg-foreground/[0.03]"
+                  >
+                    <Avatar className="w-10 h-10 ring-1 ring-black/[0.06] flex-shrink-0">
+                      <AvatarImage
+                        src={getAvatarUrl(filer)}
+                        alt={`${filer.first_name} ${filer.last_name}`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback
+                        className="text-[13px] font-semibold tracking-tight"
+                        style={{
+                          background: 'hsla(var(--primary) / 0.07)',
+                          color: 'hsl(var(--primary))',
+                        }}
+                      >
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="truncate text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
+                          {filer.first_name} {filer.last_name}
+                        </h3>
+                        {filer.is_primary && (
+                          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary/80 bg-primary/[0.07] px-1.5 py-0.5 rounded-md">
+                            {t.taxFilers?.primary || 'Primär'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[12px] text-muted-foreground/65 truncate mt-0.5">
+                        {relationshipLabel}
+                      </p>
                     </div>
-                    <h3 className="tracking-tight text-foreground leading-tight text-lg font-medium">
-                      {filer.first_name} {filer.last_name}
-                    </h3>
-                  </div>
 
-                  <Avatar className="w-14 h-14 ring-1 ring-foreground/[0.06] flex-shrink-0">
-                    <AvatarImage
-                      src={getAvatarUrl(filer)}
-                      alt={`${filer.first_name} ${filer.last_name}`}
-                      className="object-cover"
+                    <ChevronRight
+                      className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                      strokeWidth={2}
                     />
-                    <AvatarFallback
-                      className="text-lg font-semibold"
-                      style={{
-                        background: 'hsla(var(--primary) / 0.08)',
-                        color: 'hsl(var(--primary))',
-                      }}
-                    >
-                      {filer.first_name.charAt(0)}{filer.last_name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              </button>
-            ))}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Add Person Button */}
+            {/* Add Person — secondary action card */}
             <button
               onClick={handleAddPerson}
-              className="w-full bg-white border border-dashed border-black/[0.14] rounded-2xl px-7 py-6 transition-all duration-200 hover:border-black/[0.22] hover:bg-foreground/[0.015] active:scale-[0.99]"
+              className="w-full mt-3 group flex items-center gap-4 px-5 py-4 bg-white border border-dashed border-black/[0.14] rounded-2xl transition-all duration-150 hover:border-foreground/30 hover:bg-foreground/[0.018] active:scale-[0.995] focus:outline-none focus-visible:border-foreground/30"
             >
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
-                  <Plus className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1 text-left">
-                  <h3 className="text-[1.05rem] font-medium text-foreground tracking-[-0.01em] mb-0.5">
-                    {t.taxFilers?.addPerson || 'Person hinzufügen'}
-                  </h3>
-                  <p className="text-[0.85rem] text-muted-foreground/70">
-                    {'Füge jemanden hinzu, für den du Steuern erledigen möchtest'}
-                  </p>
-                </div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/[0.04] border border-black/[0.05] group-hover:bg-foreground/[0.06] transition-colors">
+                <Plus className="w-4 h-4 text-foreground/70" strokeWidth={2} />
               </div>
+              <div className="flex-1 text-left min-w-0">
+                <h3 className="text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
+                  {t.taxFilers?.addPerson || 'Person hinzufügen'}
+                </h3>
+                <p className="text-[12px] text-muted-foreground/65 mt-0.5 truncate">
+                  Für Partner, Kinder oder Angehörige
+                </p>
+              </div>
+              <ChevronRight
+                className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                strokeWidth={2}
+              />
             </button>
-          </div>
+
+            {/* Trust footnote */}
+            <p className="text-center text-[11px] text-muted-foreground/45 mt-8 tracking-tight">
+              Alle Daten werden Ende-zu-Ende verschlüsselt gespeichert.
+            </p>
+          </>
         )}
       </div>
     </div>
