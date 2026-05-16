@@ -300,14 +300,67 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         </div>
       )}
 
-      {/* ═══════════ Human-friendly progress line ═══════════ */}
-      {remainingSteps > 0 && (
-        <div className="mt-5 px-1 text-[12.5px] text-muted-foreground/85 tracking-[-0.005em]">
-          {remainingSteps === 1
-            ? <>Noch <span className="font-semibold text-foreground/85">1 Schritt</span> bis zur Einreichung</>
-            : <><span className="font-semibold text-foreground/85">{stepsDone} von {totalSteps}</span> Schritten abgeschlossen</>}
-        </div>
-      )}
+      {/* ═══════════ Compact Assistant Card ═══════════ */}
+      {remainingSteps > 0 && (() => {
+        const pct = Math.round((stepsDone / totalSteps) * 100);
+        const nextLabel =
+          nextStep === 1
+            ? t.formDashboard.personalInfo
+            : nextStep === 2
+              ? t.formDashboard.documentsTitle
+              : t.formDashboard.reviewAndSubmit;
+        const subline =
+          remainingSteps === 1
+            ? 'Fast fertig — nur noch 1 Schritt'
+            : `${stepsDone} von ${totalSteps} Schritten erledigt`;
+        const handleClick = () => {
+          formTour?.skipTour();
+          if (nextStep === 1) navigate(`/personal-info?year=${taxYear}`);
+          else if (nextStep === 2) handleDocumentsClick();
+          else if (canSubmit) handleSubmitClick();
+        };
+        const R = 13;
+        const C = 2 * Math.PI * R;
+        const dash = (pct / 100) * C;
+        return (
+          <button
+            type="button"
+            onClick={handleClick}
+            className="group mt-6 w-full text-left rounded-[18px] bg-foreground/[0.022] hover:bg-foreground/[0.035] active:scale-[0.997] ring-1 ring-black/[0.045] px-4 py-3.5 flex items-center gap-3.5 transition-all duration-200"
+          >
+            {/* Tiny progress ring */}
+            <div className="relative w-9 h-9 flex-shrink-0">
+              <svg viewBox="0 0 32 32" className="w-9 h-9 -rotate-90">
+                <circle cx="16" cy="16" r={R} fill="none" stroke="currentColor" strokeWidth="2.25" className="text-foreground/10" />
+                <circle
+                  cx="16" cy="16" r={R} fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round"
+                  strokeDasharray={`${dash} ${C}`}
+                  className="text-foreground transition-[stroke-dasharray] duration-500 ease-out"
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[9.5px] font-semibold text-foreground/80 tracking-[-0.01em]">
+                {stepsDone}/{totalSteps}
+              </span>
+            </div>
+            {/* Guidance */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground/65 leading-none">
+                Nächster Schritt
+              </p>
+              <p className="text-[13.5px] font-semibold text-foreground tracking-[-0.012em] leading-tight mt-1 truncate">
+                {nextLabel}
+              </p>
+              <p className="text-[11.5px] text-muted-foreground/80 leading-tight mt-0.5 truncate">
+                {subline}
+              </p>
+            </div>
+            <ChevronRight
+              className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/70 group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0"
+              strokeWidth={1.75}
+            />
+          </button>
+        );
+      })()}
     </div>
   );
 
