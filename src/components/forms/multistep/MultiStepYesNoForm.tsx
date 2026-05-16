@@ -584,7 +584,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
           />
 
           {/* Summary Content */}
-          <div className="z-10 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-16 relative overflow-y-auto pt-4">
+          <div className="z-10 flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 sm:px-6 pb-10 relative overflow-y-auto pt-5">
             <FormSummary
               title={getSectionTitle()}
               summaryItems={summaryItems}
@@ -608,7 +608,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
 
           {/* Main Content */}
           <div 
-            className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-8 overflow-y-auto pt-4"
+            className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 sm:px-6 pb-8 overflow-y-auto pt-5"
             style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
           >
             <MultiStepProgress
@@ -700,7 +700,7 @@ export const MultiStepYesNoForm: React.FC<MultiStepYesNoFormProps> = ({
         <SubpageHeader title={getSectionTitle()} onBack={handleHeaderBack} />
 
         {/* Main Content */}
-        <div className="z-10 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 sm:px-6 pb-16 relative overflow-y-auto pt-4">
+        <div className="z-10 flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 sm:px-6 pb-10 relative overflow-y-auto pt-5">
           {/* Progress Bar */}
           <MultiStepProgress
             currentStep={formState.currentQuestionIndex}
