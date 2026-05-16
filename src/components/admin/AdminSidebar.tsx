@@ -43,16 +43,19 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        'group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all text-left',
+        'group relative w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] transition-colors text-left',
         isActive
-          ? 'bg-primary/10 text-primary font-medium'
-          : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground'
+          ? 'bg-foreground/[0.055] text-foreground font-medium'
+          : 'text-muted-foreground hover:bg-foreground/[0.035] hover:text-foreground'
       )}
     >
+      {isActive && (
+        <span className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-r-full bg-primary" />
+      )}
       <Icon
         className={cn(
-          'w-[18px] h-[18px] flex-shrink-0',
-          isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground/80'
+          'w-[15px] h-[15px] flex-shrink-0',
+          isActive ? 'text-foreground' : 'text-muted-foreground/65 group-hover:text-foreground/80'
         )}
         strokeWidth={1.75}
       />
@@ -76,17 +79,17 @@ function NavGroup({ title, children, collapsible = false, defaultOpen = true, ha
     if (hasActive) setOpen(true);
   }, [hasActive]);
 
+  const Label = (
+    <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.14em]">
+      {title}
+    </span>
+  );
+
   if (!collapsible) {
     return (
       <div className="space-y-0.5">
-        <div className="px-3 pt-6 pb-1">
-          <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em]">
-            {title}
-          </span>
-        </div>
-        <div className="space-y-px">
-          {children}
-        </div>
+        <div className="px-2.5 pt-5 pb-1.5">{Label}</div>
+        <div className="space-y-px">{children}</div>
       </div>
     );
   }
@@ -96,11 +99,9 @@ function NavGroup({ title, children, collapsible = false, defaultOpen = true, ha
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 pt-6 pb-1 group"
+        className="w-full flex items-center justify-between px-2.5 pt-5 pb-1.5 group"
       >
-        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-[0.12em] group-hover:text-muted-foreground/70 transition-colors">
-          {title}
-        </span>
+        {Label}
         <ChevronDown
           className={cn(
             'w-3 h-3 text-muted-foreground/40 transition-transform group-hover:text-muted-foreground/70',
@@ -109,11 +110,7 @@ function NavGroup({ title, children, collapsible = false, defaultOpen = true, ha
           strokeWidth={2}
         />
       </button>
-      {open && (
-        <div className="space-y-px">
-          {children}
-        </div>
-      )}
+      {open && <div className="space-y-px">{children}</div>}
     </div>
   );
 }
