@@ -587,7 +587,7 @@ const Auth = () => {
                           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                           className="overflow-hidden"
                         >
-                          <form onSubmit={handleEmailSubmit} className="space-y-3 pt-4">
+                          <form onSubmit={handleEmailSubmit} className="space-y-2.5 pt-3">
                             <div>
                               <label htmlFor="email" className="sr-only">{t.authFlow.emailPlaceholder}</label>
                               <input
@@ -595,12 +595,7 @@ const Auth = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 onFocus={() => setIsInputFocused(true)}
                                 onBlur={() => setTimeout(() => setIsInputFocused(false), 150)}
-                                className="block w-full rounded-2xl h-[56px] px-6 text-[14.5px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                                style={{
-                                  background: '#ffffff',
-                                  boxShadow:
-                                    '0 1px 2px rgba(0,0,0,0.04), 0 6px 18px rgba(0,0,0,0.05)',
-                                }}
+                                className="block w-full rounded-xl h-12 px-4 text-[14px] bg-white text-foreground placeholder:text-muted-foreground/45 border border-black/[0.09] focus:outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/[0.06] transition-all"
                                 placeholder={t.authFlow.emailPlaceholder}
                                 aria-label={t.authFlow.emailPlaceholder}
                                 required
@@ -611,12 +606,12 @@ const Auth = () => {
                             <Button
                               type="submit"
                               disabled={isLoading}
-                              className="w-full h-14 text-[14.5px]"
+                              className="w-full h-12 text-[14px]"
                             >
                               {isEmailLoading ? t.authFlow.sendingCode : t.authFlow.sendCode}
                             </Button>
 
-                            <p className="text-center text-[11px] text-muted-foreground/50 leading-relaxed px-4 pt-1">
+                            <p className="text-center text-[11px] text-muted-foreground/55 leading-relaxed px-4 pt-1">
                               {t.authFlow.microcopy}
                             </p>
                           </form>
@@ -626,10 +621,10 @@ const Auth = () => {
                   </div>
 
                   {/* Footer Links */}
-                  <div className="mt-10 flex flex-col items-center gap-6 w-full">
-                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground/45">
+                  <div className="mt-8 flex flex-col items-center gap-4 w-full">
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground/55">
                       <a href="/impressum" className="hover:text-foreground/70 transition-colors">Impressum</a>
-                      <span className="text-muted-foreground/20">·</span>
+                      <span className="text-muted-foreground/25">·</span>
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground/70 transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
