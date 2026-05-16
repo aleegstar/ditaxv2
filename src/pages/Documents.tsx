@@ -460,11 +460,9 @@ const DocumentsContent: React.FC<{
       {showTour && isReady && <DocumentsTour onComplete={completeTour} onSkip={skipTour} />}
 
       <div className="min-h-screen flex flex-col text-foreground antialiased bg-background">
+        <SubpageHeader onBack={() => navigate('/')} />
         {/* Compact Header */}
-        <div
-          className="px-5 md:px-8"
-          style={{ paddingTop: 'calc(20px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
-        >
+        <div className="px-5 md:px-8 pt-2">
           <div className="max-w-[960px] mx-auto w-full pb-4">
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0 flex-1">
