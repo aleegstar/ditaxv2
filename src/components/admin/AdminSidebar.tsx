@@ -43,23 +43,20 @@ function NavItem({ title, url, icon: Icon, isActive }: NavItemProps) {
     <NavLink
       to={url}
       className={cn(
-        'group relative w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] transition-colors text-left',
+        'group w-full flex items-center gap-3 px-3 h-9 rounded-lg text-[13.5px] transition-colors text-left',
         isActive
-          ? 'bg-foreground/[0.055] text-foreground font-medium'
-          : 'text-muted-foreground hover:bg-foreground/[0.035] hover:text-foreground'
+          ? 'bg-foreground/[0.05] text-foreground font-medium'
+          : 'text-muted-foreground/85 hover:bg-foreground/[0.03] hover:text-foreground'
       )}
     >
-      {isActive && (
-        <span className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-r-full bg-primary" />
-      )}
       <Icon
         className={cn(
-          'w-[15px] h-[15px] flex-shrink-0',
-          isActive ? 'text-foreground' : 'text-muted-foreground/65 group-hover:text-foreground/80'
+          'w-[16px] h-[16px] flex-shrink-0',
+          isActive ? 'text-foreground' : 'text-muted-foreground/55 group-hover:text-foreground/75'
         )}
         strokeWidth={1.75}
       />
-      <span className="truncate">{title}</span>
+      <span className="truncate tracking-[-0.005em]">{title}</span>
     </NavLink>
   );
 }
@@ -79,38 +76,33 @@ function NavGroup({ title, children, collapsible = false, defaultOpen = true, ha
     if (hasActive) setOpen(true);
   }, [hasActive]);
 
-  const Label = (
-    <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.14em]">
-      {title}
-    </span>
-  );
-
   if (!collapsible) {
     return (
-      <div className="space-y-0.5">
-        <div className="px-2.5 pt-5 pb-1.5">{Label}</div>
-        <div className="space-y-px">{children}</div>
+      <div className="pt-6">
+        <div className="space-y-0.5">{children}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-0.5">
+    <div className="pt-6">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-2.5 pt-5 pb-1.5 group"
+        className="w-full flex items-center justify-between px-3 pb-1.5 group"
       >
-        {Label}
+        <span className="text-[11px] font-medium text-muted-foreground/55 tracking-[-0.005em]">
+          {title}
+        </span>
         <ChevronDown
           className={cn(
-            'w-3 h-3 text-muted-foreground/40 transition-transform group-hover:text-muted-foreground/70',
+            'w-3 h-3 text-muted-foreground/35 transition-transform group-hover:text-muted-foreground/65',
             open ? 'rotate-0' : '-rotate-90'
           )}
           strokeWidth={2}
         />
       </button>
-      {open && <div className="space-y-px">{children}</div>}
+      {open && <div className="space-y-0.5 mt-0.5">{children}</div>}
     </div>
   );
 }
@@ -217,54 +209,18 @@ export function AdminSidebar() {
   return (
     <aside
       data-sidebar
-      className="hidden md:flex flex-col w-[244px] flex-shrink-0 h-screen sticky top-0 bg-muted/40 px-2.5 py-4 border-r border-border"
+      className="hidden md:flex flex-col w-[232px] flex-shrink-0 h-screen sticky top-0 bg-muted/30 px-3 py-5 border-r border-border/70"
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Logo + workspace label */}
-        <div className="flex items-center gap-2 mb-3 px-2.5 h-9">
-          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-[18px] w-auto opacity-85" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55 ml-1">Admin</span>
+        <div className="flex items-center gap-2 mb-2 px-3 h-9">
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-[18px] w-auto opacity-90" />
+          <span className="text-[11px] font-medium text-muted-foreground/60 tracking-[-0.005em]">Admin</span>
         </div>
 
-        {/* Live workload module */}
-        {workload && (
-          <button
-            onClick={() => navigate('/admin/tax-processing')}
-            className="mx-1 mb-3 px-3 py-2.5 rounded-[10px] bg-background border border-border hover:border-foreground/15 transition-colors text-left group"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/65 inline-flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live Workload
-              </span>
-              <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-foreground/70 transition-colors" />
-            </div>
-            <div className="flex items-baseline gap-3">
-              <div>
-                <p className="text-[18px] font-semibold text-foreground tabular-nums tracking-[-0.02em] leading-none">
-                  {workload.pending + workload.express}
-                </p>
-                <p className="text-[9.5px] uppercase tracking-[0.1em] text-muted-foreground/60 font-semibold mt-1">Offen</p>
-              </div>
-              {workload.express > 0 && (
-                <div className="ml-auto">
-                  <p className="text-[13px] font-semibold text-red-600 tabular-nums leading-none">{workload.express}</p>
-                  <p className="text-[9.5px] uppercase tracking-[0.1em] text-red-600/70 font-semibold mt-1">Express</p>
-                </div>
-              )}
-              {workload.tickets > 0 && (
-                <div>
-                  <p className="text-[13px] font-semibold text-amber-600 tabular-nums leading-none">{workload.tickets}</p>
-                  <p className="text-[9.5px] uppercase tracking-[0.1em] text-amber-600/70 font-semibold mt-1">Tickets</p>
-                </div>
-              )}
-            </div>
-          </button>
-        )}
-
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-0.5">
-          <div className="space-y-px">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-0.5 mt-2">
+          <div className="space-y-0.5">
             {mainNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
             ))}
@@ -288,7 +244,7 @@ export function AdminSidebar() {
             ))}
           </NavGroup>
 
-          <NavGroup title="AG eTax Export" collapsible defaultOpen={exportHasActive} hasActive={exportHasActive}>
+          <NavGroup title="Export" collapsible defaultOpen={exportHasActive} hasActive={exportHasActive}>
             {exportNavItems.map((item) => (
               <NavItem key={item.url} {...item} isActive={currentPath === item.url} />
             ))}
@@ -297,7 +253,7 @@ export function AdminSidebar() {
       </div>
 
       {/* User Profile */}
-      <div className="pt-3 mt-2 border-t border-border">
+      <div className="pt-3 mt-2 border-t border-border/70">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-foreground/[0.04] transition-colors cursor-pointer">
