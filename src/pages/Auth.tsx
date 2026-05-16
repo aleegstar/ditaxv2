@@ -18,37 +18,22 @@ import despia from 'despia-native';
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
   return (
-    <div
-      className="relative inline-flex items-center gap-1 rounded-full p-1 pl-3"
-      style={{
-        background: 'rgba(255,255,255,0.7)',
-        backdropFilter: 'blur(14px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(14px) saturate(180%)',
-        border: '1px solid rgba(0,0,0,0.04)',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)',
-      }}
-    >
-      <Globe className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.75} />
-      {(['de', 'en'] as const).map((lng) => {
+    <div className="inline-flex items-center gap-3 text-[12px] font-medium text-muted-foreground/60">
+      {(['de', 'en'] as const).map((lng, idx) => {
         const active = language === lng;
         return (
-          <button
-            key={lng}
-            onClick={() => switchLanguage(lng)}
-            className="relative px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full transition-colors"
-          >
-            {active && (
-              <motion.span
-                layoutId="lang-pill"
-                transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                className="absolute inset-0 rounded-full bg-white"
-                style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)' }}
-              />
-            )}
-            <span className={active ? 'relative text-foreground' : 'relative text-muted-foreground/60'}>
+          <span key={lng} className="flex items-center gap-3">
+            <button
+              onClick={() => switchLanguage(lng)}
+              className={
+                'tracking-wide transition-colors ' +
+                (active ? 'text-foreground' : 'hover:text-foreground/70')
+              }
+            >
               {lng.toUpperCase()}
-            </span>
-          </button>
+            </button>
+            {idx === 0 && <span className="text-muted-foreground/25">·</span>}
+          </span>
         );
       })}
     </div>
