@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Clock, MessageCircle, TrendingUp, RefreshCw, UserPlus, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, MessageCircle, TrendingUp, RefreshCw, UserPlus, ArrowUp, ArrowDown, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, Activity } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
