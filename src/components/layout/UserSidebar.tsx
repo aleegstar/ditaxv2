@@ -195,13 +195,22 @@ export const UserSidebar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Secondary action — referral */}
+      {/* Secondary action — referral card */}
       <button
         onClick={() => navigate('/invite-friends')}
-        className="mt-3 mx-1 flex items-center gap-2 px-2.5 py-1.5 rounded-[8px] text-[11.5px] text-muted-foreground/75 hover:text-foreground hover:bg-foreground/[0.035] transition-colors"
+        className="mt-4 mx-0.5 group flex items-center gap-2.5 px-2.5 py-2 rounded-[12px] bg-foreground/[0.025] hover:bg-foreground/[0.045] transition-colors text-left"
       >
-        <Gift className="w-3.5 h-3.5 text-muted-foreground/60" strokeWidth={1.6} />
-        <span className="tracking-[-0.005em]">{t.menu.inviteFriends}</span>
+        <div className="w-7 h-7 rounded-[9px] bg-white flex items-center justify-center ring-1 ring-black/[0.05] flex-shrink-0">
+          <Gift className="w-3.5 h-3.5 text-foreground/75" strokeWidth={1.75} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[12px] font-semibold text-foreground tracking-[-0.008em] leading-tight">
+            Freunde einladen
+          </div>
+          <div className="text-[10.5px] text-muted-foreground/80 mt-0.5 tabular-nums">
+            20 CHF Guthaben erhalten
+          </div>
+        </div>
       </button>
 
       {/* User profile */}
