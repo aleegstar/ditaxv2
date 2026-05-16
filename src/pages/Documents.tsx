@@ -715,10 +715,10 @@ const DocumentsContent: React.FC<{
             <button
               onClick={() => fileInputRef.current?.click()}
               aria-label={t.documentsPage.upload}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98] shadow-lg"
+              className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
               style={{
                 background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)',
-                boxShadow: '0 8px 24px -8px rgba(15,27,61,0.4), 0 2px 6px rgba(0,0,0,0.08)',
+                boxShadow: '0 12px 28px -8px rgba(15,27,61,0.45), 0 2px 6px rgba(0,0,0,0.08)',
               }}
             >
               <Plus className="w-4 h-4" strokeWidth={2.5} />
