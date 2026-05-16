@@ -36,24 +36,24 @@ const TaxFilerSelector: React.FC<TaxFilerSelectorProps> = ({ className }) => {
     <button
       onClick={handleClick}
       className={cn(
-        'flex items-center gap-2 pl-2.5 pr-1 py-1 rounded-full',
+        'flex items-center gap-1.5 pl-2 pr-[3px] py-[3px] rounded-full',
         'bg-foreground/[0.04] hover:bg-foreground/[0.07]',
         'transition-colors duration-200 group',
         className
       )}
     >
-      <span className="text-[12px] font-medium text-foreground/85 tracking-[-0.005em]">
+      <span className="text-[11.5px] font-medium text-foreground/85 tracking-[-0.005em] max-w-[80px] truncate">
         {activeTaxFiler.first_name}
       </span>
 
-      <Avatar className="w-6 h-6">
+      <Avatar className="w-[22px] h-[22px]">
         <AvatarImage
           src={getAvatarUrl()}
           alt={`${activeTaxFiler.first_name} ${activeTaxFiler.last_name}`}
           className="object-cover"
         />
         <AvatarFallback
-          className="text-[10px] font-semibold"
+          className="text-[9.5px] font-semibold"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.18) 0%, hsl(var(--primary) / 0.08) 100%)',
             color: 'hsl(var(--primary))'

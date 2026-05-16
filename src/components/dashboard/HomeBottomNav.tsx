@@ -236,9 +236,9 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
   return (
     <nav
       className="md:hidden fixed inset-x-0 bottom-0 z-[10010] bg-white/95 backdrop-blur-xl border-t border-border/40"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 4px)' }}
     >
-      <div className="flex items-stretch justify-around px-2 pt-1 pb-1">
+      <div className="flex items-stretch justify-around px-2 pt-1.5 pb-1">
         <LayoutGroup id="bottom-nav">
           {tabs.map((tab) => {
             const isActive = active === tab.key;
@@ -251,11 +251,17 @@ export const HomeBottomNav: React.FC<HomeBottomNavProps> = ({
                 aria-label={tab.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'relative flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-colors focus:outline-none',
-                  isActive ? 'text-foreground' : 'text-muted-foreground/65'
+                  'relative flex-1 flex flex-col items-center justify-center gap-1 py-2 min-h-[52px] transition-colors focus:outline-none',
+                  isActive ? 'text-foreground' : 'text-muted-foreground/60'
                 )}
               >
-                <Icon className="w-[22px] h-[22px]" />
+                <motion.div
+                  animate={{ scale: isActive ? 1.06 : 1, y: isActive ? -1 : 0 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                  className="flex items-center justify-center"
+                >
+                  <Icon className="w-[23px] h-[23px]" />
+                </motion.div>
                 <span className={cn('text-[10.5px] leading-none tracking-[-0.005em]', isActive ? 'font-semibold' : 'font-medium')}>{tab.label}</span>
               </button>
             );
