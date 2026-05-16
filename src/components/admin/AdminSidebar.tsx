@@ -119,6 +119,7 @@ export function AdminSidebar() {
   const [adminEmail, setAdminEmail] = useState<string>('');
   const [adminName, setAdminName] = useState<string>('Ditax Admin');
   const [adminAvatarUrl, setAdminAvatarUrl] = useState<string>('');
+  const [workload, setWorkload] = useState<{ pending: number; express: number; tickets: number } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -143,8 +144,22 @@ export function AdminSidebar() {
       }
       if (profile?.avatar_url) setAdminAvatarUrl(profile.avatar_url);
     };
-    
+
+    const loadWorkload = async () => {
+      const [pending, express, tickets] = await Promise.all([
+        supabase.from('tax_returns').select('*', { count: 'exact', head: true }).in('workflow_step', ['review', 'processing']).neq('status', 'completed'),
+        supabase.from('tax_returns').select('*', { count: 'exact', head: true }).eq('express_service', true).neq('status', 'completed'),
+        supabase.from('support_tickets').select('*', { count: 'exact', head: true }).in('status', ['open', 'in_progress']),
+      ]);
+      setWorkload({
+        pending: pending.count || 0,
+        express: express.count || 0,
+        tickets: tickets.count || 0,
+      });
+    };
+
     loadAdminInfo();
+    loadWorkload();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => loadAdminInfo());
     return () => subscription.unsubscribe();
   }, []);
