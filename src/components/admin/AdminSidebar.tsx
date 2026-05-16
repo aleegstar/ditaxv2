@@ -221,10 +221,46 @@ export function AdminSidebar() {
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Logo + workspace label */}
-        <div className="flex items-center gap-2 mb-4 px-2.5 h-9">
+        <div className="flex items-center gap-2 mb-3 px-2.5 h-9">
           <img src="/ditax-logo-new.svg" alt="Ditax" className="h-[18px] w-auto opacity-85" />
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/55 ml-1">Admin</span>
         </div>
+
+        {/* Live workload module */}
+        {workload && (
+          <button
+            onClick={() => navigate('/admin/tax-processing')}
+            className="mx-1 mb-3 px-3 py-2.5 rounded-[10px] bg-background border border-border hover:border-foreground/15 transition-colors text-left group"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/65 inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Workload
+              </span>
+              <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-foreground/70 transition-colors" />
+            </div>
+            <div className="flex items-baseline gap-3">
+              <div>
+                <p className="text-[18px] font-semibold text-foreground tabular-nums tracking-[-0.02em] leading-none">
+                  {workload.pending + workload.express}
+                </p>
+                <p className="text-[9.5px] uppercase tracking-[0.1em] text-muted-foreground/60 font-semibold mt-1">Offen</p>
+              </div>
+              {workload.express > 0 && (
+                <div className="ml-auto">
+                  <p className="text-[13px] font-semibold text-red-600 tabular-nums leading-none">{workload.express}</p>
+                  <p className="text-[9.5px] uppercase tracking-[0.1em] text-red-600/70 font-semibold mt-1">Express</p>
+                </div>
+              )}
+              {workload.tickets > 0 && (
+                <div>
+                  <p className="text-[13px] font-semibold text-amber-600 tabular-nums leading-none">{workload.tickets}</p>
+                  <p className="text-[9.5px] uppercase tracking-[0.1em] text-amber-600/70 font-semibold mt-1">Tickets</p>
+                </div>
+              )}
+            </div>
+          </button>
+        )}
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pr-0.5">
