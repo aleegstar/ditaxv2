@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Clock, MessageCircle, TrendingUp, RefreshCw, UserPlus, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, MessageCircle, TrendingUp, RefreshCw, UserPlus, ArrowUp, ArrowDown, Zap, AlertTriangle, ClipboardCheck, LifeBuoy, ChevronRight, Activity } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -295,108 +295,268 @@ export const AdminDashboard: React.FC = () => {
     stats.pendingDefinitiveTaxBills > 0 && `${stats.pendingDefinitiveTaxBills} Veranlagungen`,
   ].filter(Boolean).join(' · ') || 'Alles erledigt';
 
+  const totalWorkload =
+    stats.pendingTaxReturns + stats.expressTaxReturns + stats.openTickets + stats.pendingDefinitiveTaxBills;
+
+  const queueItems = [
+    {
+      label: 'Express',
+      sublabel: 'Bevorzugte Bearbeitung · 48h SLA',
+      value: stats.expressTaxReturns,
+      icon: Zap,
+      tone: 'critical' as const,
+      to: '/admin/tax-processing?filter=express',
+    },
+    {
+      label: 'Fehlende Unterlagen',
+      sublabel: 'User-Aktion ausstehend',
+      value: stats.pendingTaxReturns,
+      icon: AlertTriangle,
+      tone: 'warn' as const,
+      to: '/admin/missing-documents',
+    },
+    {
+      label: 'Veranlagungen',
+      sublabel: 'Definitive Steuerrechnungen prüfen',
+      value: stats.pendingDefinitiveTaxBills,
+      icon: ClipboardCheck,
+      tone: 'info' as const,
+      to: '/admin/definitive-tax-bills',
+    },
+    {
+      label: 'Support Tickets',
+      sublabel: 'Offen oder in Bearbeitung',
+      value: stats.openTickets,
+      icon: LifeBuoy,
+      tone: 'neutral' as const,
+      to: '/admin/tickets',
+    },
+  ];
+
+  const toneStyles: Record<string, { dot: string; iconBg: string; iconText: string; ring: string }> = {
+    critical: { dot: 'bg-red-500', iconBg: 'bg-red-50', iconText: 'text-red-600', ring: 'ring-red-600/15' },
+    warn: { dot: 'bg-amber-500', iconBg: 'bg-amber-50', iconText: 'text-amber-600', ring: 'ring-amber-600/15' },
+    info: { dot: 'bg-violet-500', iconBg: 'bg-violet-50', iconText: 'text-violet-600', ring: 'ring-violet-600/15' },
+    neutral: { dot: 'bg-slate-500', iconBg: 'bg-slate-50', iconText: 'text-slate-600', ring: 'ring-slate-600/15' },
+  };
+
+  const revenueChange = calcChange(stats.revenueThisMonth, stats.revenueLastMonth);
+  const revenuePositive = revenueChange >= 0;
+
   return (
-    <div className="max-w-7xl mx-auto px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-8 py-8 space-y-6">
       {/* Executive Header */}
-      <div className="flex items-end justify-between gap-6 pb-6 border-b border-border">
+      <div className="flex items-end justify-between gap-6 pb-5 border-b border-border">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-muted-foreground/65 mb-1.5">
-            {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          <p className="text-[10.5px] uppercase tracking-[0.14em] font-semibold text-muted-foreground/65 mb-1.5 inline-flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Live · {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
-          <h1 className="text-[26px] font-semibold text-foreground tracking-[-0.022em] leading-tight">
+          <h1 className="text-[24px] font-semibold text-foreground tracking-[-0.022em] leading-tight">
             {getGreeting()}
           </h1>
-          <p className="text-[13px] text-muted-foreground mt-1.5 truncate">
+          <p className="text-[12.5px] text-muted-foreground mt-1.5 truncate">
             {operationalSummary}
           </p>
         </div>
-        <button
-          onClick={loadDashboardData}
-          disabled={refreshing}
-          className="shrink-0 h-9 px-3.5 rounded-lg bg-white border border-border text-[12.5px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-          Aktualisieren
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={loadDashboardData}
+            disabled={refreshing}
+            className="h-9 w-9 rounded-lg bg-white border border-border text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-50 inline-flex items-center justify-center"
+            aria-label="Aktualisieren"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} strokeWidth={2} />
+          </button>
+          <Link
+            to="/admin/tax-processing"
+            className="h-9 px-3.5 rounded-lg bg-foreground text-background text-[12.5px] font-semibold hover:bg-foreground/90 transition-colors inline-flex items-center gap-1.5"
+          >
+            Steuerverarbeitung
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+          </Link>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard
-          label="Offene Erklärungen"
-          value={stats.pendingTaxReturns}
-          change={calcChange(stats.pendingTaxReturns, stats.completedLastMonth)}
-          icon={FileText}
-          to="/admin/tax-processing"
-        />
-        <StatCard
-          label="Umsatz (Monat)"
-          value={`CHF ${stats.revenueThisMonth.toLocaleString('de-CH')}`}
-          change={calcChange(stats.revenueThisMonth, stats.revenueLastMonth)}
-          icon={TrendingUp}
-        />
-        <StatCard
-          label="Offene Tickets"
-          value={stats.openTickets}
-          icon={MessageCircle}
-          to="/admin/tickets"
-        />
-        <StatCard
-          label="Neue User (30T)"
-          value={stats.newUsersLast30Days}
-          icon={UserPlus}
-          to="/admin/users"
-        />
+      {/* Operational hero — dominant focal area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6 relative overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <p className="text-[10.5px] uppercase tracking-[0.14em] font-semibold text-muted-foreground/70 inline-flex items-center gap-1.5">
+                <Activity className="w-3 h-3" strokeWidth={2.25} />
+                Operativer Workload
+              </p>
+              <div className="flex items-baseline gap-2.5 mt-2">
+                <span className="text-[40px] font-semibold text-foreground tracking-[-0.028em] leading-none tabular-nums">
+                  {totalWorkload}
+                </span>
+                <span className="text-[12.5px] text-muted-foreground">aktive Vorgänge</span>
+              </div>
+            </div>
+            <Link
+              to="/admin/tax-processing"
+              className="text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+            >
+              Warteschlange <ChevronRight className="w-3 h-3" strokeWidth={2} />
+            </Link>
+          </div>
+
+          {/* Segmented workload bar */}
+          {totalWorkload > 0 && (
+            <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-muted mb-4">
+              <div className="bg-red-500" style={{ width: `${(stats.expressTaxReturns / totalWorkload) * 100}%` }} />
+              <div className="bg-amber-500" style={{ width: `${(stats.pendingTaxReturns / totalWorkload) * 100}%` }} />
+              <div className="bg-violet-500" style={{ width: `${(stats.pendingDefinitiveTaxBills / totalWorkload) * 100}%` }} />
+              <div className="bg-slate-500" style={{ width: `${(stats.openTickets / totalWorkload) * 100}%` }} />
+            </div>
+          )}
+
+          <div className="grid grid-cols-4 gap-4 pt-1">
+            {queueItems.map((q) => {
+              const t = toneStyles[q.tone];
+              return (
+                <div key={q.label} className="min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${t.dot}`} />
+                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/70 truncate">
+                      {q.label}
+                    </span>
+                  </div>
+                  <p className="text-[22px] font-semibold text-foreground tracking-[-0.02em] tabular-nums leading-none">
+                    {q.value}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Revenue secondary KPI */}
+        <div className="bg-foreground text-background rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <p className="text-[10.5px] uppercase tracking-[0.14em] font-semibold text-background/55">
+              Umsatz · {new Date().toLocaleDateString('de-CH', { month: 'long' })}
+            </p>
+            <p className="text-[32px] font-semibold tracking-[-0.025em] leading-none tabular-nums mt-2">
+              CHF {stats.revenueThisMonth.toLocaleString('de-CH')}
+            </p>
+            <div className="flex items-center gap-2 mt-2.5">
+              <span className={`inline-flex items-center gap-0.5 text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-md ${revenuePositive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}`}>
+                {revenuePositive ? <ArrowUp size={10} strokeWidth={2.5} /> : <ArrowDown size={10} strokeWidth={2.5} />}
+                {revenuePositive ? '+' : ''}{revenueChange}%
+              </span>
+              <span className="text-[11px] text-background/55">vs. Vormonat</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-5 mt-5 border-t border-background/10">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-background/45 font-semibold">Vormonat</p>
+              <p className="text-[13.5px] font-semibold tabular-nums mt-0.5">CHF {stats.revenueLastMonth.toLocaleString('de-CH')}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-background/45 font-semibold">Abschlüsse</p>
+              <p className="text-[13.5px] font-semibold tabular-nums mt-0.5">{stats.completedThisMonth}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Charts Row */}
+      {/* Action queue + supporting metrics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div className="lg:col-span-2 bg-white border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
+            <div>
+              <p className="text-[10.5px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/70">Aktionswarteschlange</p>
+              <h2 className="text-[13.5px] font-semibold text-foreground tracking-[-0.01em] mt-0.5">Was jetzt Aufmerksamkeit braucht</h2>
+            </div>
+            <span className="text-[11px] text-muted-foreground/60 tabular-nums">{totalWorkload} offen</span>
+          </div>
+          <div className="divide-y divide-border">
+            {queueItems.map((q) => {
+              const t = toneStyles[q.tone];
+              const Icon = q.icon;
+              return (
+                <Link
+                  key={q.label}
+                  to={q.to}
+                  className="group flex items-center gap-3.5 px-5 py-3.5 hover:bg-muted/30 transition-colors"
+                >
+                  <div className={`w-9 h-9 rounded-lg ${t.iconBg} ring-1 ${t.ring} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-4 h-4 ${t.iconText}`} strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-foreground tracking-[-0.005em]">{q.label}</p>
+                    <p className="text-[11.5px] text-muted-foreground/75 truncate">{q.sublabel}</p>
+                  </div>
+                  <span className="text-[18px] font-semibold text-foreground tabular-nums tracking-[-0.015em]">{q.value}</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/70 transition-colors flex-shrink-0" strokeWidth={2} />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Supporting metric tiles */}
+        <div className="grid grid-cols-1 gap-3">
+          <StatCard
+            label="Neue User (30T)"
+            value={stats.newUsersLast30Days}
+            icon={UserPlus}
+            to="/admin/users"
+          />
+          <StatCard
+            label="Abschlüsse Monat"
+            value={stats.completedThisMonth}
+            change={calcChange(stats.completedThisMonth, stats.completedLastMonth)}
+            icon={FileText}
+          />
+          <StatCard
+            label="Gesamt User"
+            value={stats.totalUsers}
+            icon={UserPlus}
+          />
+        </div>
+      </div>
+
+      {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
-        {/* Revenue Bar Chart */}
-        <div className="lg:col-span-3 bg-white border border-border rounded-xl p-6">
+        <div className="lg:col-span-3 bg-white border border-border rounded-2xl p-6">
           <div className="flex items-end justify-between mb-5">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Umsatz</p>
-              <h2 className="text-[20px] font-semibold text-foreground tracking-[-0.018em] tabular-nums mt-1">
+              <p className="text-[10.5px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/70">Umsatzentwicklung</p>
+              <h2 className="text-[18px] font-semibold text-foreground tracking-[-0.018em] tabular-nums mt-1">
                 CHF {stats.revenueThisMonth.toLocaleString('de-CH')}
               </h2>
             </div>
-            <span className="text-[11px] text-muted-foreground/60">Letzte 6 Monate</span>
+            <span className="text-[10.5px] text-muted-foreground/60 uppercase tracking-[0.1em] font-semibold">6 Monate</span>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={stats.monthlyRevenue} barGap={4} margin={{ top: 8, right: 0, bottom: 0, left: -10 }}>
-              <CartesianGrid strokeDasharray="0" vertical={false} stroke="hsl(var(--border) / 0.7)" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: 'hsl(var(--muted-foreground))' }} dy={6} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+              <CartesianGrid strokeDasharray="0" vertical={false} stroke="hsl(var(--border) / 0.6)" />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', fontWeight: 500 }} dy={6} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} width={36} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted) / 0.5)' }} />
-              <Bar dataKey="revenue" name="Umsatz" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} barSize={22} />
+              <Bar dataKey="revenue" name="Umsatz" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Status Donut */}
-        <div className="lg:col-span-2 bg-white border border-border rounded-xl p-6">
+        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Status</p>
-              <h2 className="text-[14px] font-semibold text-foreground tracking-[-0.01em] mt-1">Aktuelle Verteilung</h2>
+              <p className="text-[10.5px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/70">Status-Verteilung</p>
+              <h2 className="text-[13.5px] font-semibold text-foreground tracking-[-0.01em] mt-0.5">Aktuelle Pipeline</h2>
             </div>
             <Link to="/admin/tax-processing" className="text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors">
               Alle →
             </Link>
           </div>
           <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={150}>
               <PieChart>
-                <Pie
-                  data={stats.statusBreakdown}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={48}
-                  outerRadius={72}
-                  paddingAngle={2}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
+                <Pie data={stats.statusBreakdown} cx="50%" cy="50%" innerRadius={46} outerRadius={68} paddingAngle={2} dataKey="value" strokeWidth={0}>
                   {stats.statusBreakdown.map((entry, index) => (
                     <Cell key={index} fill={entry.color} />
                   ))}
@@ -424,12 +584,12 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Recent Tax Returns */}
-      <div className="bg-white border border-border rounded-xl overflow-hidden">
+      {/* Recent activity */}
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/70">Aktivität</p>
-            <h2 className="text-[14px] font-semibold text-foreground tracking-[-0.01em] mt-0.5">Letzte Steuererklärungen</h2>
+            <p className="text-[10.5px] uppercase tracking-[0.12em] font-semibold text-muted-foreground/70">Live-Aktivität</p>
+            <h2 className="text-[13.5px] font-semibold text-foreground tracking-[-0.01em] mt-0.5">Letzte Steuererklärungen</h2>
           </div>
           <Link to="/admin/tax-processing" className="text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors">
             Alle anzeigen →
