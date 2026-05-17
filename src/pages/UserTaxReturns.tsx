@@ -32,6 +32,8 @@ import { CompletedContent } from '@/components/dashboard/CompletedContent';
 import { TaxReturnActionsContent } from '@/pages/TaxReturnActions';
 import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import { FormProvider } from '@/contexts/form/FormContext';
+import { DesktopHero } from '@/components/dashboard/DesktopHero';
+import { DesktopUtilityPanel } from '@/components/dashboard/DesktopUtilityPanel';
 
 interface TaxReturn {
   id: string;
@@ -282,6 +284,16 @@ const UserTaxReturns = () => {
     return 'empty';
   })();
 
+  // Rough headline progress for desktop hero
+  const heroPercent =
+    selectedStatus === 'completed' ? 100 :
+    selectedStatus === 'processing' ? 67 :
+    selectedStatus === 'draft' ? 33 : 0;
+  const heroStepsDone =
+    selectedStatus === 'completed' ? 3 :
+    selectedStatus === 'processing' ? 2 :
+    selectedStatus === 'draft' ? 1 : 0;
+
   return (
     <div
       className="antialiased min-h-screen bg-background md:min-h-0 selection:bg-primary/10 selection:text-foreground pb-[calc(5rem+var(--safe-area-bottom,env(safe-area-inset-bottom,0px)))] md:pb-8 text-foreground relative overflow-hidden"
@@ -291,7 +303,8 @@ const UserTaxReturns = () => {
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-2xl mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
+      <div className="lg:flex lg:items-start lg:gap-8 lg:max-w-[1180px] lg:mx-auto">
+      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-2xl lg:flex-1 lg:mx-0 mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
         {/* Header (mobile only — desktop uses sidebar) */}
         <header className="md:hidden flex pb-7 items-center justify-between">
           <div className="flex items-center">
@@ -309,18 +322,28 @@ const UserTaxReturns = () => {
           </div>
         </header>
 
-        {/* Greeting */}
-        <section className="pb-7">
+        {/* Mobile greeting */}
+        <section className="md:hidden pb-7">
           <div className="flex items-end justify-between gap-4">
             <div className="flex flex-col min-w-0">
               <p className="text-[13px] text-muted-foreground/70 font-normal tracking-[-0.003em]">{getGreeting()}</p>
-              <h1 className="text-[23px] md:text-[26px] font-semibold tracking-[-0.026em] text-foreground leading-[1.1] truncate mt-1">
+              <h1 className="text-[23px] font-semibold tracking-[-0.026em] text-foreground leading-[1.1] truncate mt-1">
                 {getUserDisplayName()}
               </h1>
             </div>
             <TaxFilerSelector className="flex-shrink-0" />
           </div>
         </section>
+
+        {/* Desktop hero */}
+        <DesktopHero
+          firstName={getUserDisplayName()}
+          taxYear={selectedYear}
+          percent={heroPercent}
+          stepsDone={heroStepsDone}
+          totalSteps={3}
+          avatarUrl={userProfile?.avatar_url}
+        />
 
         {/* Missing Items */}
         <MissingItemsAlert pendingDocuments={pendingDocuments} pendingInformation={pendingInformation} />
