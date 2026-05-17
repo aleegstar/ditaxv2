@@ -514,7 +514,7 @@ const DocumentsContent: React.FC<{
 
               {!isLocked && (
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
                   data-tour="document-upload-card"
                   className="hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-xl text-[13px] font-semibold text-white transition-all flex-shrink-0 hover:shadow-md active:scale-[0.98] shadow-sm"
                   style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}
@@ -713,7 +713,7 @@ const DocumentsContent: React.FC<{
             style={{ bottom: 'calc(72px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)))' }}
           >
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => navigate(`/documents/bulk?year=${selectedYear}`)}
               aria-label={t.documentsPage.upload}
               className="pointer-events-auto w-full flex items-center justify-center gap-2 h-12 rounded-2xl text-[14px] font-semibold text-white transition-all active:scale-[0.98]"
               style={{
