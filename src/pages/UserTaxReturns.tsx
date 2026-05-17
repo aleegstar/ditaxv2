@@ -396,6 +396,9 @@ const UserTaxReturns = () => {
             />
           )}
         </motion.div>
+
+        {/* Desktop quick actions */}
+        <DesktopQuickActions />
       </main>
 
       {/* Desktop right utility panel */}
