@@ -139,229 +139,208 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const isDocumentsComplete = isCompleted('documents');
   const canSubmit = allAngabenComplete && isDocumentsComplete;
 
-  /* ── Step number badge ── */
-  const StepBadge = ({ step, active, done }: { step: number; active: boolean; done: boolean }) => (
-    <div className={cn(
-      "shrink-0 rounded-full flex items-center justify-center font-semibold transition-all duration-300",
-      active && !done && "w-9 h-9 text-[13px] bg-foreground text-background",
-      done && "w-7 h-7 text-[11px] bg-emerald-500/12 text-emerald-700",
-      !active && !done && "w-7 h-7 text-[11px] bg-foreground/[0.05] text-muted-foreground/65"
-    )}>
-      {done ? <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> : step}
-    </div>
-  );
-
-  // Card variants by hierarchy state
-  const activeCard =
-    "group rounded-[22px] bg-white overflow-hidden cursor-pointer transition-all duration-300 " +
-    "ring-1 ring-black/[0.07] " +
-    "shadow-[0_1px_2px_rgba(15,27,61,0.04),0_18px_44px_-12px_rgba(15,27,61,0.12)] " +
-    "hover:shadow-[0_2px_4px_rgba(15,27,61,0.05),0_22px_50px_-12px_rgba(15,27,61,0.14)] " +
-    "active:scale-[0.997]";
-  const completedCard =
-    "group rounded-[18px] bg-foreground/[0.025] overflow-hidden cursor-pointer transition-colors duration-200 " +
-    "hover:bg-foreground/[0.04]";
-  const lockedCard =
-    "rounded-[18px] bg-transparent ring-1 ring-foreground/[0.05]";
-
   // Determine which step is "next"
   const nextStep: 1 | 2 | 3 = !allAngabenComplete ? 1 : !isDocumentsComplete ? 2 : 3;
-
-  // Human-friendly progress summary (3 high-level steps)
   const remainingSteps =
     (allAngabenComplete ? 0 : 1) +
     (isDocumentsComplete ? 0 : 1) +
     (paymentStatus === 'paid' ? 0 : 1);
   const totalSteps = 3;
   const stepsDone = totalSteps - remainingSteps;
+  const pct = Math.round((stepsDone / totalSteps) * 100);
+
+  type StepState = 'done' | 'active' | 'locked';
+
+  const StepRow: React.FC<{
+    n: number;
+    state: StepState;
+    title: string;
+    desc: string;
+    statusLabel: string;
+    statusTone: 'green' | 'orange' | 'slate';
+    actionLabel?: string;
+    onAction?: () => void;
+  }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction }) => {
+    const dotCls =
+      statusTone === 'green'  ? 'bg-green-500'
+      : statusTone === 'orange' ? 'bg-orange-400'
+      : 'bg-slate-300';
+    const textTone = statusTone === 'slate' ? 'text-slate-500' : 'text-slate-600';
+
+    const containerBase = 'relative overflow-hidden p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-6 transition-shadow';
+    const containerCls =
+      state === 'active'
+        ? `${containerBase} border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5`
+        : state === 'done'
+          ? `${containerBase} border-slate-200 bg-white hover:shadow-sm`
+          : `${containerBase} border-slate-200 bg-slate-50/60`;
+
+    const circleCls =
+      state === 'done'   ? 'w-14 h-14 rounded-full bg-green-50 border border-green-100 text-green-600 flex items-center justify-center shrink-0'
+      : state === 'active' ? 'w-14 h-14 rounded-full bg-slate-900 text-white text-[18px] font-medium flex items-center justify-center shrink-0'
+      : 'w-14 h-14 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-[18px] font-medium flex items-center justify-center shrink-0';
+
+    return (
+      <div
+        onClick={state !== 'locked' ? onAction : undefined}
+        className={cn(containerCls, state !== 'locked' && 'cursor-pointer')}
+      >
+        {state === 'active' && (
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-900 rounded-l-2xl" />
+        )}
+        <div className={circleCls}>
+          {state === 'done' ? <Check className="w-6 h-6" strokeWidth={2} /> : n}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[17px] font-medium text-slate-900 tracking-[-0.005em]">{title}</h3>
+          <p className="text-[14px] text-slate-500 mt-1 leading-relaxed">{desc}</p>
+          <div className={cn('flex items-center gap-2 mt-3 text-[13px]', textTone)}>
+            <span className={cn('w-2 h-2 rounded-full', dotCls)} />
+            {statusLabel}
+          </div>
+        </div>
+        <div className="shrink-0 pt-2 sm:pt-0">
+          {state === 'locked' ? (
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Lock className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
+            </div>
+          ) : state === 'active' ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[13px] font-medium hover:bg-slate-800 transition-colors shadow-sm"
+            >
+              {actionLabel}
+              <ChevronRight className="w-4 h-4" strokeWidth={2} />
+            </button>
+          ) : (
+            <button
+              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 hover:bg-slate-50 transition-colors"
+            >
+              {actionLabel || 'Bearbeiten'}
+              <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // CTA banner content
+  const nextLabel =
+    nextStep === 1 ? t.formDashboard.personalInfo
+    : nextStep === 2 ? t.formDashboard.documentsTitle
+    : t.formDashboard.reviewAndSubmit;
+  const ctaSubline =
+    pct >= 67 ? 'Du bist fast fertig! Lade jetzt deine Belege hoch, damit wir deine Steuererklärung fertigstellen können.'
+    : pct >= 33 ? 'Weiter geht\'s — ergänze deine restlichen Angaben.'
+    : 'Lass uns starten — erfasse zuerst deine persönlichen Angaben.';
+  const ctaHeadline =
+    pct >= 67 ? 'Du bist fast fertig!'
+    : pct >= 33 ? 'Bleib dran'
+    : 'Gleich loslegen';
+  const handleCtaClick = () => {
+    formTour?.skipTour();
+    if (nextStep === 1) navigate(`/personal-info?year=${taxYear}`);
+    else if (nextStep === 2) handleDocumentsClick();
+    else if (canSubmit) handleSubmitClick();
+  };
+
+  // Circular progress geometry
+  const Rc = 15.9155;
+  const dashLen = pct;
 
   const stepsContent = (
-    <div className="space-y-3">
+    <>
       <DashboardPriorYearBanner taxYear={taxYear} />
 
-      {/* ═══════════ Step 1: Persönliche Angaben ═══════════ */}
-      {(() => {
-        const isActive = nextStep === 1;
-        const done = allAngabenComplete;
-        return (
-          <div
-            data-tour="form-step-1"
-            onClick={() => {
-              formTour?.skipTour();
-              navigate(`/personal-info?year=${taxYear}`);
-            }}
-            className={done ? completedCard : activeCard}
-          >
-            <div className={cn(
-              "flex items-center gap-3.5",
-              done ? "px-4 py-3" : "p-5 sm:p-6"
-            )}>
-              <StepBadge step={1} active={isActive} done={done} />
-              <div className="flex-1 min-w-0">
-                <h2 className={cn(
-                  "tracking-[-0.012em] leading-tight",
-                  done ? "text-[13.5px] font-medium text-foreground/85" : "text-[15.5px] font-semibold text-foreground"
-                )}>
-                  {t.formDashboard.personalInfo}
-                </h2>
-                {!done && (
-                  <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
-                    {t.formDashboard.tasksCompleted
-                      .replace('{completed}', String(angabenProgress.completed))
-                      .replace('{total}', String(angabenProgress.total))}
-                  </p>
-                )}
-              </div>
-              <ChevronRight className={cn(
-                "w-4 h-4 transition-all duration-300 group-hover:translate-x-0.5",
-                done ? "text-muted-foreground/30" : "text-muted-foreground/45 group-hover:text-foreground/70"
-              )} strokeWidth={1.75} />
+      {/* ═══════════ Step list ═══════════ */}
+      <div className="space-y-4">
+        <StepRow
+          n={1}
+          state={allAngabenComplete ? 'done' : 'active'}
+          title={t.formDashboard.personalInfo}
+          desc="Adresse, Familie, Zivilstand und weitere Angaben."
+          statusLabel={allAngabenComplete ? 'Abgeschlossen' : `${angabenProgress.completed} von ${angabenProgress.total} Bereichen erfasst`}
+          statusTone={allAngabenComplete ? 'green' : 'orange'}
+          actionLabel={allAngabenComplete ? 'Bearbeiten' : 'Fortfahren'}
+          onAction={() => { formTour?.skipTour(); navigate(`/personal-info?year=${taxYear}`); }}
+        />
+
+        <StepRow
+          n={2}
+          state={!allAngabenComplete ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
+          title={t.formDashboard.documentsTitle}
+          desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
+          statusLabel={
+            !allAngabenComplete ? 'Noch nicht gestartet'
+            : isDocumentsComplete ? 'Abgeschlossen'
+            : 'Dokumente ausstehend'
+          }
+          statusTone={!allAngabenComplete ? 'slate' : isDocumentsComplete ? 'green' : 'orange'}
+          actionLabel={isDocumentsComplete ? 'Ansehen' : 'Jetzt hochladen'}
+          onAction={handleDocumentsClick}
+        />
+
+        <StepRow
+          n={3}
+          state={!canSubmit ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
+          title={t.formDashboard.reviewAndSubmit}
+          desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
+          statusLabel={
+            !canSubmit ? 'Noch nicht gestartet'
+            : paymentStatus === 'paid' ? 'Abgeschlossen'
+            : 'Bereit zur Einreichung'
+          }
+          statusTone={!canSubmit ? 'slate' : paymentStatus === 'paid' ? 'green' : 'orange'}
+          actionLabel={paymentStatus === 'paid' ? 'Ansehen' : 'Einreichen'}
+          onAction={handleSubmitClick}
+        />
+      </div>
+
+      {/* ═══════════ CTA banner ═══════════ */}
+      {remainingSteps > 0 && (
+        <div className="mt-6 p-6 border border-slate-200 rounded-2xl bg-[#F9FAFB] flex flex-col sm:flex-row sm:items-center gap-6">
+          <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path
+                className="text-slate-200"
+                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
+                fill="none" stroke="currentColor" strokeWidth="3"
+              />
+              <path
+                className="text-slate-900"
+                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
+                fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={`${dashLen}, 100`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center text-[16px] font-medium text-slate-900 tabular-nums">
+              {pct}%
             </div>
           </div>
-        );
-      })()}
 
-      {/* ═══════════ Step 2: Belege & Unterlagen ═══════════ */}
-      {allAngabenComplete ? (
-        (() => {
-          const done = isDocumentsComplete;
-          const isActive = nextStep === 2;
-          return (
-            <div
-              data-tour="form-step-2"
-              onClick={handleDocumentsClick}
-              className={done ? completedCard : activeCard}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[17px] font-medium text-slate-900 tracking-[-0.005em]">
+              {ctaHeadline}
+            </h3>
+            <p className="text-[14px] text-slate-500 mt-1 leading-relaxed">
+              {ctaSubline}
+            </p>
+          </div>
+
+          <div className="shrink-0 w-full sm:w-auto">
+            <button
+              onClick={handleCtaClick}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 hover:bg-slate-50 transition-colors shadow-sm"
             >
-              <div className={cn(
-                "flex items-center gap-3.5",
-                done ? "px-4 py-3" : "p-5 sm:p-6"
-              )}>
-                <StepBadge step={2} active={isActive} done={done} />
-                <div className="flex-1 min-w-0">
-                  <h2 className={cn(
-                    "tracking-[-0.012em] leading-tight",
-                    done ? "text-[13.5px] font-medium text-foreground/85" : "text-[15.5px] font-semibold text-foreground"
-                  )}>
-                    {t.formDashboard.documentsTitle}
-                  </h2>
-                  {!done && (
-                    <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">
-                      {t.formDashboard.uploadDocuments}
-                    </p>
-                  )}
-                </div>
-                <ChevronRight className={cn(
-                  "w-4 h-4 transition-all duration-300 group-hover:translate-x-0.5",
-                  done ? "text-muted-foreground/30" : "text-muted-foreground/45 group-hover:text-foreground/70"
-                )} strokeWidth={1.75} />
-              </div>
-            </div>
-          );
-        })()
-      ) : (
-        <div
-          data-tour="form-step-2"
-          className={cn(lockedCard, "px-4 py-3 flex items-center gap-3.5")}
-        >
-          <StepBadge step={2} active={false} done={false} />
-          <div className="flex-1 min-w-0">
-            <h2 className="text-[13.5px] font-medium text-muted-foreground/70 tracking-[-0.008em] leading-tight">{t.formDashboard.documentsTitle}</h2>
+              Fortsetzen
+              <ChevronRight className="w-4 h-4" strokeWidth={2} />
+            </button>
           </div>
-          <Lock className="w-3 h-3 text-muted-foreground/30" strokeWidth={2} />
         </div>
       )}
-
-      {/* ═══════════ Step 3: Prüfung & Versand ═══════════ */}
-      {canSubmit ? (
-        <div
-          data-tour="form-step-3"
-          onClick={handleSubmitClick}
-          className={activeCard}
-        >
-          <div className="p-5 sm:p-6 flex items-center gap-3.5">
-            <StepBadge step={3} active done={false} />
-            <div className="flex-1 min-w-0">
-              <h2 className="text-[15.5px] font-semibold text-foreground tracking-[-0.012em] leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
-              <p className="text-[12.5px] text-muted-foreground/85 mt-1 leading-relaxed">{t.formDashboard.completeAndPay}</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/45 group-hover:text-foreground/70 group-hover:translate-x-0.5 transition-all duration-300" strokeWidth={1.75} />
-          </div>
-        </div>
-      ) : (
-        <div
-          data-tour="form-step-3"
-          className={cn(lockedCard, "px-4 py-3 flex items-center gap-3.5")}
-        >
-          <StepBadge step={3} active={false} done={false} />
-          <div className="flex-1 min-w-0">
-            <h2 className="text-[13.5px] font-medium text-muted-foreground/70 tracking-[-0.008em] leading-tight">{t.formDashboard.reviewAndSubmit}</h2>
-          </div>
-          <Lock className="w-3 h-3 text-muted-foreground/30" strokeWidth={2} />
-        </div>
-      )}
-
-      {/* ═══════════ Compact Assistant Card ═══════════ */}
-      {remainingSteps > 0 && (() => {
-        const pct = Math.round((stepsDone / totalSteps) * 100);
-        const nextLabel =
-          nextStep === 1
-            ? t.formDashboard.personalInfo
-            : nextStep === 2
-              ? t.formDashboard.documentsTitle
-              : t.formDashboard.reviewAndSubmit;
-        const subline =
-          remainingSteps === 1
-            ? 'Fast fertig — nur noch 1 Schritt'
-            : `${stepsDone} von ${totalSteps} Schritten erledigt`;
-        const handleClick = () => {
-          formTour?.skipTour();
-          if (nextStep === 1) navigate(`/personal-info?year=${taxYear}`);
-          else if (nextStep === 2) handleDocumentsClick();
-          else if (canSubmit) handleSubmitClick();
-        };
-        const R = 13;
-        const C = 2 * Math.PI * R;
-        const dash = (pct / 100) * C;
-        return (
-          <button
-            type="button"
-            onClick={handleClick}
-            className="group mt-6 w-full text-left rounded-[18px] bg-foreground/[0.022] hover:bg-foreground/[0.035] active:scale-[0.997] ring-1 ring-black/[0.045] px-4 py-3.5 flex items-center gap-3.5 transition-all duration-200"
-          >
-            {/* Tiny progress ring */}
-            <div className="relative w-9 h-9 flex-shrink-0">
-              <svg viewBox="0 0 32 32" className="w-9 h-9 -rotate-90">
-                <circle cx="16" cy="16" r={R} fill="none" stroke="currentColor" strokeWidth="2.25" className="text-foreground/10" />
-                <circle
-                  cx="16" cy="16" r={R} fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round"
-                  strokeDasharray={`${dash} ${C}`}
-                  className="text-foreground transition-[stroke-dasharray] duration-500 ease-out"
-                />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[9.5px] font-semibold text-foreground/80 tracking-[-0.01em]">
-                {stepsDone}/{totalSteps}
-              </span>
-            </div>
-            {/* Guidance */}
-            <div className="flex-1 min-w-0">
-              <p className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground/65 leading-none">
-                Nächster Schritt
-              </p>
-              <p className="text-[13.5px] font-semibold text-foreground tracking-[-0.012em] leading-tight mt-1 truncate">
-                {nextLabel}
-              </p>
-              <p className="text-[11.5px] text-muted-foreground/80 leading-tight mt-0.5 truncate">
-                {subline}
-              </p>
-            </div>
-            <ChevronRight
-              className="w-4 h-4 text-muted-foreground/40 group-hover:text-foreground/70 group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0"
-              strokeWidth={1.75}
-            />
-          </button>
-        );
-      })()}
-    </div>
+    </>
   );
 
   if (embedded) {
