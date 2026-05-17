@@ -304,8 +304,9 @@ const UserTaxReturns = () => {
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <div className="lg:flex lg:items-start lg:gap-6 lg:max-w-[1360px] lg:mx-auto">
-      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-none lg:flex-1 lg:mx-0 mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
+      <div className="lg:flex lg:items-start lg:min-h-screen md:bg-white">
+      <main className="relative z-10 min-h-screen md:min-h-0 lg:flex-1 lg:min-w-0 max-w-xl lg:max-w-none mx-auto lg:mx-0 pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-6 px-5 md:px-10 xl:px-12">
+        <div className="lg:max-w-3xl lg:mx-auto w-full">
         {/* Header (mobile only — desktop uses sidebar) */}
         <header className="md:hidden flex pb-7 items-center justify-between">
           <div className="flex items-center">
@@ -369,7 +370,7 @@ const UserTaxReturns = () => {
           className="mb-8"
         >
           {selectedStatus === 'empty' && (
-            <div className="w-full rounded-[1.5rem] bg-white border border-slate-200/80 p-8 flex flex-col items-center gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] text-center">
+            <div className="w-full rounded-2xl bg-white border border-slate-200 p-8 flex flex-col items-center gap-3 text-center">
               <h3 className="text-base font-semibold text-foreground">Steuerjahr wird vorbereitet</h3>
               <p className="text-sm text-muted-foreground">Einen Moment bitte – dein Steuerjahr wird angelegt.</p>
             </div>
@@ -399,6 +400,7 @@ const UserTaxReturns = () => {
 
         {/* Desktop quick actions */}
         <DesktopQuickActions />
+        </div>
       </main>
 
       {/* Desktop right utility panel */}
