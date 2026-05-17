@@ -1,62 +1,42 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, MessageSquarePlus, Download, FileSearch } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Upload, MessageSquare, Download, FileText, LucideIcon } from 'lucide-react';
 
-const ACTIONS = [
-  {
-    Icon: Upload,
-    label: 'Dokument hochladen',
-    sub: 'Belege & Unterlagen',
-    to: '/documents',
-  },
-  {
-    Icon: MessageSquarePlus,
-    label: 'Nachricht schreiben',
-    sub: 'Support kontaktieren',
-    to: '/chat',
-  },
-  {
-    Icon: Download,
-    label: 'Bescheinigung laden',
-    sub: 'Steuerbescheinigung',
-    to: '/documents',
-  },
-  {
-    Icon: FileSearch,
-    label: 'Letzte Erklärung',
-    sub: 'Vorjahre ansehen',
-    to: '/?section=zusammenfassung',
-  },
+interface Action {
+  Icon: LucideIcon;
+  label: string;
+  sub: string;
+  to: string;
+}
+
+const ACTIONS: Action[] = [
+  { Icon: Upload,        label: 'Dokument hochladen',     sub: 'Belege & Unterlagen',    to: '/documents' },
+  { Icon: MessageSquare, label: 'Nachricht schreiben',    sub: 'An Steuerberater',       to: '/chat' },
+  { Icon: Download,      label: 'Steuerbescheinigung',    sub: 'Herunterladen',          to: '/documents' },
+  { Icon: FileText,      label: 'Letzte Erklärung',       sub: 'Vorjahre ansehen',       to: '/?section=zusammenfassung' },
 ];
 
 export const DesktopQuickActions: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <section className="hidden md:block mb-8">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
-          Schnellaktionen
-        </h2>
-      </div>
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5">
+    <section className="hidden md:block mt-12 mb-8">
+      <h2 className="text-[19px] font-medium tracking-[-0.012em] text-slate-900 mb-5">
+        Schnellzugriff
+      </h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {ACTIONS.map(({ Icon, label, sub, to }) => (
           <button
             key={label}
             onClick={() => navigate(to)}
-            className={cn(
-              'group flex items-center gap-3 px-3.5 py-3 rounded-[14px]',
-              'bg-white ring-1 ring-black/[0.05] hover:ring-black/[0.09]',
-              'transition-all text-left'
-            )}
+            className="group p-6 border border-slate-200 rounded-2xl bg-white flex flex-col items-center text-center hover:border-slate-300 hover:shadow-sm transition-all"
           >
-            <div className="w-9 h-9 rounded-[10px] bg-foreground/[0.04] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground group-hover:text-background transition-colors">
-              <Icon className="w-[15px] h-[15px]" strokeWidth={1.75} />
+            <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-slate-100 transition-colors">
+              <Icon className="w-[22px] h-[22px] text-slate-700" strokeWidth={1.5} />
             </div>
-            <div className="min-w-0">
-              <p className="text-[12.5px] font-semibold text-foreground tracking-[-0.005em] truncate">{label}</p>
-              <p className="text-[11px] text-muted-foreground/75 mt-0.5 truncate">{sub}</p>
+            <div className="text-[14px] font-medium text-slate-900 tracking-[-0.005em]">
+              {label}
             </div>
+            <div className="text-[13px] text-slate-500 mt-1">{sub}</div>
           </button>
         ))}
       </div>
