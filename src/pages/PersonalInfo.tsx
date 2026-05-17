@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Check, ChevronRight, User, Wallet, Receipt, Landmark, ArrowRight } from 'lucide-react';
+import { Check, CheckCircle2, ChevronRight, User, Wallet, Receipt, Landmark, ArrowRight, Info } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
@@ -25,7 +25,7 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
   const sections: SectionDef[] = [
     { id: 'contact',    title: t.formDashboard.contactInfo, description: 'Adresse, Familie & Zivilstand',         Icon: User,     param: 'kontakt' },
     { id: 'income',     title: t.formDashboard.income,      description: 'Lohn, Rente & Nebeneinkünfte',          Icon: Wallet,   param: 'einkommen' },
-    { id: 'deductions', title: t.formDashboard.deductions,  description: 'Versicherungen, 3a & Berufskosten',     Icon: Receipt,  param: 'abzuege' },
+    { id: 'deductions', title: t.formDashboard.deductions,  description: 'Versicherungen, Säule 3a & Berufskosten', Icon: Receipt,  param: 'abzuege' },
     { id: 'assets',     title: t.formDashboard.assets,      description: 'Konten, Wertschriften & Immobilien',    Icon: Landmark, param: 'vermoegen' },
   ];
 
@@ -63,150 +63,190 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
 
   if (isDataLoading || !formDataLoaded) {
     return (
-      <div className="min-h-screen text-foreground antialiased">
+      <div className="min-h-screen text-slate-900 antialiased bg-white">
         <SubpageHeader title={t.formDashboard.personalInfo} onBack={() => navigate('/')} />
-        <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-24">
-          <div className="h-5 w-48 bg-foreground/[0.06] rounded animate-pulse mb-3" />
-          <div className="h-4 w-80 max-w-full bg-foreground/[0.04] rounded animate-pulse mb-8" />
-          <div className="h-[3px] w-full bg-foreground/[0.06] rounded-full animate-pulse mb-10" />
-          <div className="divide-y divide-black/[0.06] border-y border-black/[0.06]">
-            {[0,1,2,3].map(i => (
-              <div key={i} className="h-[72px] animate-pulse" />
-            ))}
-          </div>
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 pb-24">
+          <div className="h-40 w-full bg-slate-100 rounded-2xl animate-pulse mb-8" />
+          <div className="h-72 w-full bg-slate-100 rounded-2xl animate-pulse" />
         </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen text-foreground antialiased">
+    <div className="min-h-screen text-slate-900 antialiased bg-white">
       <SubpageHeader title={t.formDashboard.personalInfo} onBack={() => navigate('/')} />
 
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-32">
-        {/* ── Header: title + explanation ─────────────────────────────── */}
-        <header className="mb-7">
-          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70 mb-2">
-            Steuerjahr {taxYear}
-          </p>
-          <h1 className="text-[22px] sm:text-[24px] font-semibold tracking-[-0.02em] text-foreground leading-tight">
-            Persönliche Angaben
-          </h1>
-          <p className="text-[13.5px] text-muted-foreground mt-1.5 leading-relaxed max-w-lg">
-            Ergänze deine persönlichen Informationen. Diese Angaben bilden die
-            Grundlage für deine Steuererklärung.
-          </p>
-
-          {/* Compact progress */}
-          <div className="mt-6 flex items-center gap-3">
-            <div className="flex-1 h-[3px] rounded-full bg-foreground/[0.07] overflow-hidden">
-              <div
-                className="h-full rounded-full bg-foreground transition-[width] duration-700 ease-out"
-                style={{ width: `${percent}%` }}
-              />
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 pb-32">
+        {/* ── Hero Card ─────────────────────────────────────────────── */}
+        <div className="border border-slate-200 rounded-2xl p-6 sm:p-8 bg-white flex flex-col md:flex-row gap-8 mb-10 shadow-sm">
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold text-slate-400 tracking-[0.1em] uppercase mb-3">
+              Steuerjahr {taxYear}
             </div>
-            <div className="text-[12px] tabular-nums text-muted-foreground shrink-0">
-              <span className="font-semibold text-foreground">{completedCount}</span>
-              <span className="text-muted-foreground/60"> / {sections.length} abgeschlossen</span>
-            </div>
-          </div>
-        </header>
-
-        {/* ── Workflow list ───────────────────────────────────────────── */}
-        <section>
-          <div className="flex items-center justify-between mb-3 px-0.5">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">
-              Bereiche
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 mb-3">
+              Persönliche Angaben
             </h2>
-            {nextSection && (
-              <span className="text-[11px] text-muted-foreground/70">
-                Als Nächstes: <span className="text-foreground/85 font-medium">{nextSection.title}</span>
-              </span>
-            )}
+            <p className="text-slate-500 mb-7 max-w-xl text-[15px] leading-relaxed">
+              Ergänze deine persönlichen Informationen. Diese Angaben bilden die
+              Grundlage für deine Steuererklärung.
+            </p>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="w-full sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
+                <div
+                  className="h-full bg-slate-900 rounded-full transition-[width] duration-700 ease-out"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+              <div className="text-sm font-medium text-slate-700 shrink-0 tabular-nums">
+                {completedCount} von {sections.length} abgeschlossen
+              </div>
+              {allCompleted && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-md border border-emerald-100 sm:ml-2 w-max">
+                  <Check className="w-4 h-4" strokeWidth={2.5} />
+                  Abgeschlossen
+                </div>
+              )}
+            </div>
           </div>
 
-          <ul className="border-y border-black/[0.07] divide-y divide-black/[0.06]">
-            {sections.map((section) => {
-              const completed = isCompleted(section.id);
-              const Icon = section.Icon;
-              return (
-                <li key={section.id}>
-                  <button
-                    onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
-                    className={cn(
-                      "group w-full flex items-center gap-4 py-4 px-1 text-left",
-                      "transition-colors hover:bg-foreground/[0.015]"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors",
-                        completed
-                          ? "bg-emerald-500/12 text-emerald-600"
-                          : "bg-foreground/[0.05] text-foreground/70"
-                      )}
-                    >
-                      {completed
-                        ? <Check className="w-[14px] h-[14px]" strokeWidth={2.5} />
-                        : <Icon className="w-[14px] h-[14px]" strokeWidth={1.75} />}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[14.5px] font-medium text-foreground tracking-[-0.005em] leading-tight">
-                        {section.title}
-                      </div>
-                      <div className="text-[12.5px] text-muted-foreground/85 mt-0.5 leading-snug truncate">
-                        {section.description}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span
+          {/* Decorative card preview */}
+          <div className="hidden md:flex w-56 shrink-0 items-center justify-center relative pl-4">
+            <div className="w-full aspect-[4/3] bg-slate-50/80 rounded-2xl border border-slate-100 p-5 flex flex-col justify-end relative">
+              <div className="absolute -top-4 left-0 w-16 h-20 bg-white border border-slate-100 rounded-xl flex items-center justify-center shadow-sm">
+                <User className="w-8 h-8 text-slate-300" strokeWidth={1.5} />
+              </div>
+              <div className="space-y-3">
+                {sections.slice(0, 3).map((s, i) => {
+                  const completed = isCompleted(s.id);
+                  return (
+                    <div key={s.id} className="flex items-center gap-3">
+                      <div
                         className={cn(
-                          "text-[12px] tabular-nums",
-                          completed ? "text-emerald-700/85" : "text-muted-foreground"
+                          "h-2 bg-slate-200 rounded-full",
+                          i === 0 ? "flex-1" : i === 1 ? "w-4/5" : "w-full"
                         )}
-                      >
-                        {completed ? 'Abgeschlossen' : 'Unvollständig'}
-                      </span>
-                      <ChevronRight
-                        className="w-[15px] h-[15px] text-muted-foreground/40 group-hover:text-foreground/70 group-hover:translate-x-0.5 transition-all"
-                        strokeWidth={1.75}
+                      />
+                      <Check
+                        className={cn(
+                          "w-4 h-4 shrink-0",
+                          completed ? "text-emerald-500" : "text-slate-300"
+                        )}
+                        strokeWidth={2.5}
                       />
                     </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Helper line below list */}
-          <p className="text-[11.5px] text-muted-foreground/65 mt-3 px-0.5 leading-relaxed">
-            Du kannst Bereiche jederzeit unterbrechen und später fortsetzen — dein
-            Fortschritt wird automatisch gespeichert.
-          </p>
-        </section>
-
-        {/* ── Next step — quiet inline action, not a card ─────────────── */}
-        {!allCompleted && nextSection && (
-          <div className="mt-10 pt-6 border-t border-black/[0.07] flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground/70">
-                Nächster Schritt
-              </p>
-              <p className="text-[14px] font-medium text-foreground mt-1 truncate">
-                {nextSection.title} ergänzen
-              </p>
+                  );
+                })}
+              </div>
             </div>
-            <Button
-              onClick={() => navigate(`/form?section=${nextSection.param}&year=${taxYear}`)}
-              className="shrink-0"
-            >
-              Fortfahren
-              <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
-            </Button>
           </div>
-        )}
+        </div>
+
+        {/* ── Bereiche Header ──────────────────────────────────────── */}
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h3 className="text-[11px] font-semibold text-slate-400 tracking-[0.1em] uppercase">
+            Bereiche
+          </h3>
+          {allCompleted ? (
+            <span className="text-sm font-medium text-emerald-600">
+              Alle Bereiche abgeschlossen
+            </span>
+          ) : (
+            nextSection && (
+              <span className="text-sm text-slate-500">
+                Als Nächstes: <span className="text-slate-900 font-medium">{nextSection.title}</span>
+              </span>
+            )
+          )}
+        </div>
+
+        {/* ── List of Bereiche ─────────────────────────────────────── */}
+        <div className="border border-slate-200 rounded-2xl bg-white divide-y divide-slate-100 mb-6 overflow-hidden">
+          {sections.map((section) => {
+            const completed = isCompleted(section.id);
+            const Icon = section.Icon;
+            return (
+              <button
+                key={section.id}
+                onClick={() => navigate(`/form?section=${section.param}&year=${taxYear}`)}
+                className="w-full flex items-center p-5 hover:bg-slate-50 transition-colors group text-left"
+              >
+                <div
+                  className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center shrink-0 mr-4",
+                    completed ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-500"
+                  )}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={1.75} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-[15px] font-medium text-slate-900">
+                    {section.title}
+                  </h4>
+                  <p className="text-sm text-slate-500 mt-0.5 truncate">
+                    {section.description}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mr-4">
+                  {completed ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={2} />
+                      <span className="text-sm font-medium text-emerald-600 hidden sm:inline">
+                        Abgeschlossen
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-slate-500 hidden sm:inline">
+                      Unvollständig
+                    </span>
+                  )}
+                </div>
+                <ChevronRight
+                  className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"
+                  strokeWidth={1.75}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Info Alert ───────────────────────────────────────────── */}
+        <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-10 text-slate-500 text-sm">
+          <Info className="w-5 h-5 shrink-0 mt-0.5 text-slate-400" strokeWidth={1.75} />
+          <p className="leading-relaxed">
+            Du kannst Bereiche jederzeit unterbrechen und später fortsetzen –
+            dein Fortschritt wird automatisch gespeichert.
+          </p>
+        </div>
+
+        {/* ── Next Step Card ───────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white border border-slate-200 rounded-2xl shadow-sm gap-6">
+          <div className="min-w-0">
+            <h3 className="text-[11px] font-semibold text-slate-400 tracking-[0.1em] uppercase mb-2">
+              Nächster Schritt
+            </h3>
+            <h4 className="text-lg font-medium text-slate-900">
+              {allCompleted ? 'Alle Angaben sind vollständig' : `${nextSection?.title} ergänzen`}
+            </h4>
+            <p className="text-sm text-slate-500 mt-1">
+              {allCompleted
+                ? 'Überprüfe und fahre mit den Unterlagen fort.'
+                : 'Setze deine Steuererklärung Schritt für Schritt fort.'}
+            </p>
+          </div>
+          <Button
+            onClick={() =>
+              allCompleted
+                ? handleGoToDocuments()
+                : nextSection && navigate(`/form?section=${nextSection.param}&year=${taxYear}`)
+            }
+            className="shrink-0"
+          >
+            Fortfahren
+            <ArrowRight className="w-4 h-4 ml-1.5" strokeWidth={2} />
+          </Button>
+        </div>
       </main>
 
       <Drawer open={showCompleteSheet} onOpenChange={(open) => { if (!open) closeSheet(); }}>
