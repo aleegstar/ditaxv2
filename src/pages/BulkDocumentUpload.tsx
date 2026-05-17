@@ -70,7 +70,7 @@ const BulkUploadContent: React.FC = () => {
       const arr = Array.from(incoming);
       const accepted: ClassifiedFile[] = [];
       for (const f of arr) {
-        const v = validateFile(f);
+        const v = await validateFile(f);
         if (!v.isValid) {
           toast({ title: 'Datei abgelehnt', description: `${f.name}: ${v.error}`, variant: 'destructive' });
           continue;
@@ -450,8 +450,7 @@ const BulkUploadContent: React.FC = () => {
     <AnimatedPageContainer>
       <div className="min-h-screen bg-background pb-24">
         <SubpageHeader
-          title="Unterlagen hochladen"
-          subtitle={`Steuerjahr ${year}`}
+          title={`Unterlagen hochladen · ${year}`}
           onBack={() => navigate(`/documents?year=${year}`)}
         />
         <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
