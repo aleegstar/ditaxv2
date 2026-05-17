@@ -34,12 +34,6 @@ export const DesktopHero: React.FC<DesktopHeroProps> = ({
             style={{ width: `${percent}%` }}
           />
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-[15px] font-medium text-slate-900 tabular-nums leading-tight">
-            {stepsDone} von {totalSteps} Schritten
-          </div>
-          <div className="text-[13px] text-slate-500 mt-0.5">abgeschlossen</div>
-        </div>
       </div>
     </section>
   );
