@@ -26,15 +26,6 @@ export const DesktopHero: React.FC<DesktopHeroProps> = ({
         <span className="mx-1.5 text-slate-300">•</span>
         <span className="tabular-nums">{percent}% abgeschlossen</span>
       </p>
-
-      <div className="mt-8 flex items-center gap-6">
-        <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-slate-900 rounded-full transition-[width] duration-700 ease-out"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
     </section>
   );
 };
