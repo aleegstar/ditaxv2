@@ -1,95 +1,88 @@
-# Plan: Vorjahres-Übernahme – Phase 1
+# Bulk-Upload mit OCR-Auto-Zuordnung
 
-Ziel: Aus `Drawer/Modal-blockiert` einen ruhigen, zweistufigen Flow machen, der **nur Strukturen** übernimmt (keine CHF-Beträge), pro Sektion einmalig fragt und einen Dashboard-Einstieg bietet.
+Aktuell läuft der Upload pro Checklisten-Eintrag: Nutzer wählt erst die Kategorie, lädt dann hoch, der `DocumentValidator` prüft das Ergebnis. Inspiriert von iqtax.ch soll der Flow umgedreht werden: alles in einen Topf werfen, Ditax versucht selbst zuzuordnen, Nutzer bestätigt, Rest wird als „fehlend" angezeigt.
 
-## Scope
+Die nötige Infrastruktur ist bereits vorhanden:
+- `DocumentValidator.validate()` liefert Kandidaten + Confidence
+- `DOCUMENT_PROFILES` decken die typischen Dokumenttypen ab
+- `EncryptedDocumentService` für Upload
+- `useMissingItemRequests` / Missing-Items-Tabelle für Nachfragen
 
-1. **Strict structure-only import** in `importFromPreviousYear` (`FormContext.tsx`)
-2. **Non-blocking Banner** in jeder Sektion statt fullscreen Drawer (`ImportWizard.tsx` → `PriorYearImportBanner.tsx`)
-3. **Per-Section "dismissed" Flag** pro `tax_filer_id` + `tax_year` (localStorage, kein DB-Schema-Change in Phase 1)
-4. **Dashboard-Banner** als primärer Einstieg ("Mit Vorjahres-Daten starten") mit Bulk-Import aller 4 Sektionen
-5. **Visueller Marker** "Aus Vorjahr übernommen – bitte prüfen" pro Sektion in Expert-Summary
-
-## Was übernommen wird (strukturell)
-
-Boolean-Flags, Auswahlen, IDs, Strukturen ohne Beträge:
-- `income`: `hasSalary`, `hasRentalIncome`, `hasDividends`, `hasFreelanceIncome`, Anzahl `employers` (Name/Adresse/Pensum, **ohne** Bruttolohn/Quellensteuer), `rentalIncomes` (Adresse/Objekt, **ohne** Mietertrag)
-- `assets`: `hasVehicles`/`hasProperties`/`hasDepositAccount`/`hasDebts`, Vehicles (Marke/Modell/Plate/Erstzulassung, **ohne** `currentValue`), Properties (Adresse/Typ, **ohne** `marketValue`/`taxValue`/`mortgageBalance`), Debts (Gläubiger/Typ, **ohne** Restschuld/Zins)
-- `deductions`: alle `has*`-Flags, `supportedPersons` (Name/Beziehung, **ohne** Beträge), `maintenancePayments` (Empfänger, **ohne** Beträge); 3a/Säule-Status ja, Beiträge nein
-- `contactInfo`: alles (Adresse, Zivilstand, Konfession, Kinder mit Namen/Geburtsdatum) – hier sind alle Felder strukturell
-
-## Felder-Blacklist (NICHT übernommen)
-
-Zentrale Konstante `IMPORT_AMOUNT_FIELDS` mit Whitelist je Sektion. Beim Merge: aus `importedData` werden alle Keys, die in der Blacklist stehen, auf Default zurückgesetzt. Auch in nested arrays (`employers[].grossSalary`, `properties[].marketValue` etc.).
-
-## Komponenten-Änderungen
-
-### `src/contexts/form/sanitizeImport.ts` (neu)
-Pure function `sanitizeImportedData(section, data)` → returnt cleaned object. Definiert Field-Blacklists pro Sektion + nested-array sanitizer.
-
-### `src/contexts/form/FormContext.tsx`
-- `importFromPreviousYear`: vor Merge `sanitizeImportedData` anwenden
-- Setze Marker `_importedFromPreviousYear: true` und `_importedAt: ISO` im gespeicherten Datensatz (nutzt Expert-Summary zum Anzeigen)
-
-### `src/components/forms/PriorYearImportBanner.tsx` (neu)
-- Kompakte Card oben in Sektions-Form (statt Drawer)
-- Text: "Aus {previousYear} übernehmen? Beträge musst du selbst eintragen."
-- 2 Buttons: `[Übernehmen]` `[Schliessen]`
-- Bei Schliessen: setze `localStorage['ditax_pyimport_dismissed_{filerId}_{taxYear}_{section}'] = '1'`
-- Bei Übernehmen: ruft `importFromPreviousYear` + setzt dismissed-Flag + Toast "Strukturen übernommen, bitte Beträge prüfen"
-
-### `src/pages/Index.tsx`
-- Entferne `<ImportWizard>`-Drawer-Logik
-- Reiche stattdessen `showImportBanner` als Prop an die Form-Komponenten
-- Banner wird *innerhalb* der Form gerendert (oberhalb der ersten Frage)
-
-### `src/components/TaxYearDashboard.tsx`
-- Neuer Banner ganz oben (nur wenn: aktuelles Jahr leer + Vorjahr hat ≥1 Sektion mit Daten + Flag `dashboard_pyimport_dismissed_{filerId}_{taxYear}` nicht gesetzt)
-- 1 Tap "Vorjahres-Strukturen für alle Sektionen übernehmen" → Loop über 4 Sektionen → setzt alle dismissed-Flags
-
-### `src/components/forms/FormDataSummary.tsx`
-- Pro Sektion: wenn `_importedFromPreviousYear === true` → kleines Badge "Aus Vorjahr – bitte prüfen"
-
-### `src/components/forms/ImportWizard.tsx`
-- Wird **gelöscht** (durch Banner ersetzt)
-
-## Technische Details
+## Neuer Flow auf `/documents`
 
 ```text
-Flow:
-Dashboard
-  └─ Banner "Mit Vorjahres-Daten starten" ──┐
-                                              ├─ Bulk-Import (4× sanitize+save)
-  └─ Sektion öffnen                           │
-       └─ Banner oben (falls nicht dismissed) ┘
-            └─ "Übernehmen" → sanitize → save → dismiss
-            └─ "Schliessen" → dismiss
-       └─ Form normal ausfüllen
-            └─ Beträge IMMER manuell
+┌──────────────────────────────────────────────────┐
+│  Unterlagen hochladen                            │
+│  Zieh alle Dokumente hierher – wir ordnen zu.   │
+│                                                  │
+│   ┌────────────────────────────────────────┐    │
+│   │   ⬆  Dateien hierher ziehen            │    │
+│   │   PDF · JPG · PNG · HEIC               │    │
+│   └────────────────────────────────────────┘    │
+│                                                  │
+│   ⏳ 7 Dateien werden analysiert (4/7)          │
+└──────────────────────────────────────────────────┘
 ```
 
-Dismissed-Key-Format: `ditax_pyimport_dismissed_{filerId}_{taxYear}_{section}`
-Dashboard-Key: `ditax_pyimport_dashboard_{filerId}_{taxYear}`
+Nach OCR-Analyse → Review-Screen:
 
-`hasDataForPreviousYear` bleibt unverändert. Banner-Sichtbarkeitslogik:
+```text
+Vorgeschlagene Zuordnung                Bestätigen alle ✓
+
+📄 lohnausweis_2024.pdf       Lohnausweis 2024    96 %  ✏︎
+📄 ubs_konto_dez.pdf          Bankauszug UBS      88 %  ✏︎
+📄 krankenkasse.pdf           Krankenkasse        91 %  ✏︎
+📄 IMG_2031.jpg               ❓ unklar           34 %  ✏︎  ← Dropdown manuell
+📄 saeule_3a.pdf              Säule 3a            82 %  ✏︎
+
+[ Zuordnung bestätigen & hochladen ]
 ```
-visible = hasPreviousYearData
-       && !currentYearHasData
-       && !localStorage.getItem(dismissedKey)
+
+Nach Bestätigung → Übersicht „Fehlende Unterlagen":
+
+```text
+Noch fehlend (3)
+• Wertschriftenverzeichnis      [ Hochladen ]  [ Beim Steuerteam anfragen ]
+• Mietvertrag                   [ Hochladen ]  [ Anfragen ]
+• Versicherungsausweis BVG      [ Hochladen ]  [ Anfragen ]
 ```
 
-## Out of Scope (spätere Phasen)
-- DB-persistierter dismissed-Flag (Phase 2, wenn Multi-Device wichtig wird)
-- Pre-Import-Diff / Field-by-field Preview
-- Document-first Flow
-- Smart-Skipping abhängiger Fragen
+## Umsetzung
 
-## Verifikation
-- Banner erscheint in `/?section=einkommen` wenn Vorjahr Daten hat
-- Nach "Schliessen" verschwindet Banner und kommt nicht wieder (gleiche Session/Browser)
-- Nach "Übernehmen" sind `hasSalary` etc. übernommen, aber `employers[0].grossSalary` ist `0`/`""`
-- Dashboard-Banner triggert alle 4 Sektionen auf einmal
-- Expert-Summary zeigt "Aus Vorjahr"-Badge
+### 1. Neue Seite `src/pages/BulkDocumentUpload.tsx`
+- Route z. B. `/documents/bulk?year=YYYY`
+- 3 Stages: `drop` → `analyzing` → `review` → `done`
+- Großer Dropzone-Bereich (react-dnd nicht nötig, native `onDrop`)
+- Mehrfach-Auswahl via `<input multiple>`
 
-## Aufwand
-~3–4 h Implementation + Test.
+### 2. Neuer Service `src/services/BulkClassificationService.ts`
+- Iteriert über Files, ruft pro File `DocumentValidator.validate()` mit allen aktiven Profilen
+- Liefert `{ file, suggestedProfileId, confidence, alternatives[] }`
+- Parallelisiert mit Concurrency-Limit (z. B. 2 gleichzeitig wegen Tesseract)
+- Mapping Profil → ChecklistItemId via vorhandener Logik im Checklist-Generator
+
+### 3. Review-Komponente `src/components/documents/BulkAssignmentReview.tsx`
+- Liste aller Files mit Vorschlag, Confidence-Badge (grün ≥ 80, gelb 50–79, rot < 50)
+- Inline-Dropdown („Andere Kategorie wählen") mit allen Checklist-Items des Jahres
+- Option „Dokument verwerfen"
+- Sticky Footer: Anzahl bestätigt + Primärbutton
+
+### 4. Bulk-Upload + Assignment
+- Nach Bestätigung pro File: `EncryptedDocumentService.uploadDocument()` mit zugeordneter `checklistItemId` + `tax_filer_id`
+- Fortschrittsbalken pro Datei
+- Bei Fehler: Eintrag bleibt in Review-Liste mit Retry
+
+### 5. „Fehlend"-Block nach Upload
+- Nutzt vorhandene Checklist + Upload-Status
+- Pro fehlendem Item zwei Aktionen:
+  - „Hochladen" → vorhandener Einzel-Uploader (`EnhancedDocumentUploader`)
+  - „Anfragen" → nutzt vorhandenes `useMissingItemRequests` um Eintrag für das Steuerteam zu erzeugen (gleicher Mechanismus wie der bestehende Missing-Items-Flow)
+
+### 6. Einstieg
+- `/documents` Hauptbutton „Unterlagen hochladen" führt neu auf den Bulk-Flow
+- Bestehender Einzel-Upload bleibt erhalten (über Checklisten-Eintrag), wird aber sekundär
+
+## Nicht im Scope
+- Keine Änderung an OCR-Engines, Profilen, Verschlüsselung, RLS
+- Kein Backend-Schema-Change (Missing-Items existieren bereits)
+- Branding/Design bleibt im bestehenden Ditax-Stil (warm off-white, Navy-Gradient-Buttons, rounded-2xl)
