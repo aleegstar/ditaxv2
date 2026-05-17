@@ -35,7 +35,7 @@ export const DesktopQuickActions: React.FC = () => {
   return (
     <section className="hidden md:block mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[12.5px] font-semibold text-foreground/85 tracking-[-0.005em] uppercase tracking-[0.06em]">
+        <h2 className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-[0.08em]">
           Schnellaktionen
         </h2>
       </div>
