@@ -38,6 +38,7 @@ const PaymentPage = lazy(() => import("./pages/Payment"));
 const DocumentUploadPage = lazy(() => import("./pages/DocumentUploadPage"));
 const Documents = lazy(() => import("./pages/Documents"));
 const DocumentsUpload = lazy(() => import("./pages/DocumentsUpload"));
+const BulkDocumentUpload = lazy(() => import("./pages/BulkDocumentUpload"));
 const Tickets = lazy(() => import("./pages/Tickets"));
 const MissingItems = lazy(() => import("./pages/MissingItems"));
 const Welcome = lazy(() => import("./pages/Welcome"));
@@ -251,6 +252,11 @@ const AuthenticatedApp = () => {
                 <Route path="/documents/upload" element={
                   <ProtectedRoute>
                     <DocumentsUpload />
+                  </ProtectedRoute>
+                } />
+                <Route path="/documents/bulk" element={
+                  <ProtectedRoute>
+                    <BulkDocumentUpload />
                   </ProtectedRoute>
                 } />
                 <Route path="/tickets" element={
