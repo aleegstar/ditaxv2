@@ -34,6 +34,7 @@ import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import { FormProvider } from '@/contexts/form/FormContext';
 import { DesktopHero } from '@/components/dashboard/DesktopHero';
 import { DesktopUtilityPanel } from '@/components/dashboard/DesktopUtilityPanel';
+import { DesktopQuickActions } from '@/components/dashboard/DesktopQuickActions';
 
 interface TaxReturn {
   id: string;
@@ -303,8 +304,8 @@ const UserTaxReturns = () => {
     >
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
 
-      <div className="lg:flex lg:items-start lg:gap-8 lg:max-w-[1180px] lg:mx-auto">
-      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-2xl lg:flex-1 lg:mx-0 mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
+      <div className="lg:flex lg:items-start lg:gap-6 lg:max-w-[1360px] lg:mx-auto">
+      <main className="relative z-10 min-h-screen md:min-h-0 max-w-xl lg:max-w-none lg:flex-1 lg:mx-0 mx-auto pt-[calc(1.5rem+var(--safe-area-top,env(safe-area-inset-top,0px)))] md:pt-10 px-5 md:px-8">
         {/* Header (mobile only — desktop uses sidebar) */}
         <header className="md:hidden flex pb-7 items-center justify-between">
           <div className="flex items-center">
@@ -395,6 +396,9 @@ const UserTaxReturns = () => {
             />
           )}
         </motion.div>
+
+        {/* Desktop quick actions */}
+        <DesktopQuickActions />
       </main>
 
       {/* Desktop right utility panel */}
