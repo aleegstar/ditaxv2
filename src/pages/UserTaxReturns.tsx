@@ -34,7 +34,7 @@ import { TaxYearDashboard } from '@/components/TaxYearDashboard';
 import { FormProvider } from '@/contexts/form/FormContext';
 import { DesktopHero } from '@/components/dashboard/DesktopHero';
 import { DesktopUtilityPanel } from '@/components/dashboard/DesktopUtilityPanel';
-import { DesktopQuickActions } from '@/components/dashboard/DesktopQuickActions';
+import { DesktopBlogCards } from '@/components/dashboard/DesktopBlogCards';
 
 interface TaxReturn {
   id: string;
@@ -398,8 +398,8 @@ const UserTaxReturns = () => {
           )}
         </motion.div>
 
-        {/* Desktop quick actions */}
-        <DesktopQuickActions />
+        {/* Desktop blog posts */}
+        <DesktopBlogCards />
         </div>
       </main>
 
