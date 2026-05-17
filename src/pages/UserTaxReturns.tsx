@@ -397,6 +397,11 @@ const UserTaxReturns = () => {
         </motion.div>
       </main>
 
+      {/* Desktop right utility panel */}
+      <DesktopUtilityPanel />
+      </div>
+
+
       {/* Bottom Navbar */}
       <HomeBottomNav
         onChatClick={() => showTour ? undefined : navigate('/chat')}
