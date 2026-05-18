@@ -133,9 +133,16 @@ class DocumentValidator {
     let keywordSignals = await this.detectKeywords(file);
 
     // Scanned-PDF fallback: rasterize pages and OCR them when the PDF
-    // has no usable text layer (typical for scanner output like "SKM…").
+    // has no usable text layer (typical for scanner output like "SKM…"),
+    // OR when the embedded text layer produced zero keyword matches across
+    // all profiles (often a sign that the text layer is junk / fonts).
+    const pdfTextHadNoMatches =
+      file.type === 'application/pdf' &&
+      keywordSignals?.available === true &&
+      Object.values(keywordSignals.matchCountsByDocType || {}).every((n) => !n);
+
     if (
-      !keywordSignals?.available &&
+      (!keywordSignals?.available || pdfTextHadNoMatches) &&
       file.type === 'application/pdf' &&
       window.pdfjsLib
     ) {
