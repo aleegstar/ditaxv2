@@ -277,20 +277,18 @@ const Chat: React.FC = () => {
                     {isAssistant && (
                       <div className="w-7 flex-shrink-0 pt-0.5">
                         {!message.isGrouped && (
-                          <div
-                            className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden ring-1 ring-black/[0.06]"
-                            style={{
-                              background: message.isAdmin
-                                ? 'linear-gradient(135deg, hsl(160 84% 39%), hsl(162 83% 30%))'
-                                : 'linear-gradient(135deg, #1E3A5F 0%, #0F1B3D 100%)',
-                            }}
-                          >
-                            {message.isAdmin ? (
+                          message.isAdmin ? (
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center ring-1 ring-border"
+                              style={{ background: 'linear-gradient(135deg, hsl(160 84% 39%), hsl(162 83% 30%))' }}
+                            >
                               <User className="w-3.5 h-3.5 text-white" strokeWidth={2} />
-                            ) : (
-                              <Sparkles className="w-3 h-3 text-white" strokeWidth={2} />
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <div className="w-7 h-7 rounded-full overflow-hidden ring-1 ring-border bg-muted">
+                              <img src={assistantAvatar} alt="" className="w-full h-full object-cover" />
+                            </div>
+                          )
                         )}
                       </div>
                     )}
