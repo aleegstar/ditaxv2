@@ -47,9 +47,14 @@ interface Props {
   taxFilerId: string;
   taxYear: string;
   onScanStarted?: () => void;
+  /** Compact mode used inside the "Ersetzen"-Dialog */
+  compact?: boolean;
 }
 
-export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanStarted }) => {
+const buildStoragePath = (userId: string, taxFilerId: string, taxYear: string) =>
+  `${userId}/${taxFilerId}/${taxYear}.pdf`;
+
+export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanStarted, compact }) => {
   const { userId } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [working, setWorking] = useState(false);
