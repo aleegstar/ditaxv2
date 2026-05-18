@@ -88,47 +88,42 @@ export async function ocrPdfLocally(
 
 type Rule = { label: string; patterns: RegExp[] };
 
+// Labels = das *Dokument*, das der User dieses Jahr bereithalten muss.
+// Patterns sind bewusst konservativ (Wortgrenzen), um OCR-Rauschen zu vermeiden.
 const INCOME_RULES: Rule[] = [
-  { label: "Lohn / Lohnausweis", patterns: [/lohnausweis/i, /unselbst[aä]ndige(r)? erwerb/i, /haupterwerb/i] },
-  { label: "Nebenerwerb", patterns: [/nebenerwerb/i] },
-  { label: "Selbständigerwerb", patterns: [/selbst[aä]ndige(r)? erwerb/i, /einzelfirma/i, /personengesellschaft/i] },
-  { label: "Renten (AHV/IV)", patterns: [/\bAHV\b.*rente/i, /\bIV\b.*rente/i, /altersrente/i, /hinterlassenenrente/i] },
-  { label: "Pensionskasse / 2. Säule", patterns: [/pensionskasse/i, /2\.\s*s[aä]ule/i, /\bBVG\b/i] },
-  { label: "Säule 3a Bezug", patterns: [/s[aä]ule\s*3a.*bezug/i, /kapitalleistung.*3a/i] },
-  { label: "Wertschriftenertrag", patterns: [/wertschriftenertrag/i, /dividenden/i, /zinsertr[aä]ge/i, /\bDA-?1\b/i] },
-  { label: "Liegenschaftsertrag", patterns: [/eigenmietwert/i, /mietertrag/i, /liegenschaftsertrag/i] },
-  { label: "Unterhaltsbeiträge / Alimente", patterns: [/unterhaltsbeitr[aä]ge/i, /alimente/i] },
-  { label: "Arbeitslosengeld", patterns: [/arbeitslosen/i, /\bALV\b/i, /taggelder/i] },
+  { label: "Lohnausweis", patterns: [/\blohnausweis\b/i, /\bunselbst[aä]ndige?r?\s+erwerb\b/i, /\bhaupterwerb\b/i, /\bnebenerwerb\b/i] },
+  { label: "Nachweis Selbständigerwerb", patterns: [/\bselbst[aä]ndige?r?\s+erwerb\b/i, /\beinzelfirma\b/i, /\bpersonengesellschaft\b/i] },
+  { label: "Rentenbescheinigung (AHV/IV)", patterns: [/\bAHV[- ]?rente\b/i, /\bIV[- ]?rente\b/i, /\baltersrente\b/i, /\bhinterlassenenrente\b/i] },
+  { label: "Pensionskassenausweis", patterns: [/\bpensionskasse\b/i, /\b2\.\s*s[aä]ule\b/i, /\bBVG\b/i] },
+  { label: "Bescheinigung Säule 3a-Bezug", patterns: [/\bs[aä]ule\s*3a\b[^\n]{0,40}\bbezug\b/i, /\bkapitalleistung\b[^\n]{0,40}\b3a\b/i] },
+  { label: "Wertschriften-/Depotverzeichnis", patterns: [/\bwertschriftenertrag\b/i, /\bdividenden\b/i, /\bzinsertr[aä]ge\b/i, /\bDA-?1\b/i] },
+  { label: "Liegenschaftsertrag-Abrechnung", patterns: [/\beigenmietwert\b/i, /\bmietertrag\b/i, /\bliegenschaftsertrag\b/i] },
+  { label: "Bestätigung Alimente/Unterhalt", patterns: [/\bunterhaltsbeitr[aä]ge\b/i, /\balimente\b/i] },
+  { label: "Arbeitslosentaggeld-Abrechnung", patterns: [/\barbeitslosen\w*\b/i, /\bALV\b/i] },
 ];
 
 const ASSETS_RULES: Rule[] = [
-  { label: "Bankkonten", patterns: [/bankkonto/i, /sparkonto/i, /privatkonto/i, /kontokorrent/i, /postfinance/i, /\bUBS\b/i, /\bZKB\b/i, /raiffeisen/i, /kantonalbank/i] },
-  { label: "Wertschriften / Depot", patterns: [/wertschriften/i, /depot/i, /aktien/i, /fonds/i, /obligationen/i] },
-  { label: "Säule 3a Guthaben", patterns: [/s[aä]ule\s*3a/i, /gebundene vorsorge/i] },
-  { label: "Lebensversicherung", patterns: [/lebensversicherung/i, /r[uü]ckkaufswert/i] },
-  { label: "Liegenschaft", patterns: [/liegenschaft/i, /eigentumswohnung/i, /einfamilienhaus/i, /grundst[uü]ck/i] },
-  { label: "Fahrzeug", patterns: [/motorfahrzeug/i, /personenwagen/i, /\bPW\b/i] },
-  { label: "Kryptowährungen", patterns: [/krypto/i, /bitcoin/i, /ethereum/i] },
+  { label: "Bankkontoauszug per 31.12.", patterns: [/\bbankkonto\b/i, /\bsparkonto\b/i, /\bprivatkonto\b/i, /\bkontokorrent\b/i, /\bpostfinance\b/i, /\braiffeisen\b/i, /\bkantonalbank\b/i] },
+  { label: "Depotauszug per 31.12.", patterns: [/\bwertschriften\b/i, /\bdepot\b/i, /\baktien\b/i, /\bfonds\b/i, /\bobligationen\b/i] },
+  { label: "Säule 3a-Saldobestätigung", patterns: [/\bs[aä]ule\s*3a\b/i, /\bgebundene\s+vorsorge\b/i] },
+  { label: "Rückkaufswert Lebensversicherung", patterns: [/\blebensversicherung\b/i, /\br[uü]ckkaufswert\b/i] },
+  { label: "Liegenschaftsbeleg", patterns: [/\bliegenschaft\b/i, /\beigentumswohnung\b/i, /\beinfamilienhaus\b/i, /\bgrundst[uü]ck\b/i] },
+  { label: "Fahrzeugausweis / Eurotax", patterns: [/\bmotorfahrzeug\b/i, /\bpersonenwagen\b/i] },
+  { label: "Krypto-Saldonachweis", patterns: [/\bkryptow[aä]hrung\w*\b/i, /\bbitcoin\b/i, /\bethereum\b/i] },
 ];
 
 const DEDUCTIONS_RULES: Rule[] = [
-  { label: "Berufsauslagen", patterns: [/berufsauslagen/i, /fahrkosten/i, /\b[oö]V\b.*abo/i, /verpflegung/i, /weiterbildung/i] },
-  { label: "Säule 3a Einzahlung", patterns: [/einzahlung.*3a/i, /beitrag.*3a/i] },
-  { label: "Pensionskasseneinkauf", patterns: [/einkauf.*pensionskasse/i, /\bPK[- ]?einkauf/i] },
-  { label: "Krankheits- und Unfallkosten", patterns: [/krankheitskosten/i, /unfallkosten/i, /selbstbehalt/i] },
-  { label: "Krankenkassenprämien", patterns: [/krankenkassenpr[aä]mien/i, /grundversicherung/i, /\bKVG\b/i] },
-  { label: "Spenden", patterns: [/spenden/i, /zuwendungen/i, /gemeinn[uü]tzig/i] },
-  { label: "Schuldzinsen", patterns: [/schuldzinsen/i, /hypothekarzins/i] },
-  { label: "Kinderbetreuung", patterns: [/kinderbetreuung/i, /kita/i, /tagesst[aä]tte/i] },
-  { label: "Unterhaltsbeiträge bezahlt", patterns: [/unterhaltsbeitr[aä]ge.*bezahlt/i, /alimente.*bezahlt/i] },
-  { label: "Liegenschaftsunterhalt", patterns: [/liegenschaftsunterhalt/i, /unterhaltskosten/i] },
-  { label: "Parteibeiträge", patterns: [/parteibeitr[aä]ge/i] },
-];
-
-const CONTACT_RULES: Rule[] = [
-  { label: "Konfession", patterns: [/konfession/i, /r[oö]misch.?katholisch/i, /reformiert/i, /evangelisch/i] },
-  { label: "Zivilstand", patterns: [/zivilstand/i, /verheiratet/i, /ledig/i, /geschieden/i, /verwitwet/i] },
-  { label: "Kinder im Haushalt", patterns: [/kinder im haushalt/i, /minderj[aä]hrige/i, /kinderabzug/i] },
+  { label: "Berufsauslagen-Belege", patterns: [/\bberufsauslagen\b/i, /\bfahrkosten\b/i, /\bverpflegung\b/i, /\bweiterbildung\b/i] },
+  { label: "Säule 3a-Einzahlungsbestätigung", patterns: [/\beinzahlung\b[^\n]{0,30}\b3a\b/i, /\bbeitrag\b[^\n]{0,30}\b3a\b/i] },
+  { label: "PK-Einkauf-Beleg", patterns: [/\beinkauf\b[^\n]{0,30}\bpensionskasse\b/i, /\bPK[- ]?einkauf\b/i] },
+  { label: "Belege Krankheits-/Unfallkosten", patterns: [/\bkrankheitskosten\b/i, /\bunfallkosten\b/i, /\bselbstbehalt\b/i] },
+  { label: "Krankenkassen-Prämienrechnung", patterns: [/\bkrankenkassenpr[aä]mien\b/i, /\bgrundversicherung\b/i, /\bKVG\b/i] },
+  { label: "Spendenbescheinigung", patterns: [/\bspenden\b/i, /\bzuwendungen\b/i, /\bgemeinn[uü]tzig\w*\b/i] },
+  { label: "Schuldzinsen-Bescheinigung", patterns: [/\bschuldzinsen\b/i, /\bhypothekarzins\w*\b/i] },
+  { label: "Kinderbetreuungs-Beleg", patterns: [/\bkinderbetreuung\b/i, /\bkita\b/i, /\btagesst[aä]tte\b/i] },
+  { label: "Beleg Unterhaltszahlung", patterns: [/\bunterhaltsbeitr[aä]ge\b[^\n]{0,20}\bbezahlt\b/i, /\balimente\b[^\n]{0,20}\bbezahlt\b/i] },
+  { label: "Beleg Liegenschaftsunterhalt", patterns: [/\bliegenschaftsunterhalt\b/i, /\bunterhaltskosten\b/i] },
+  { label: "Parteibeitrags-Beleg", patterns: [/\bparteibeitr[aä]ge\b/i] },
 ];
 
 function applyRules(text: string, rules: Rule[]): ExtractedItem[] {
@@ -136,17 +131,10 @@ function applyRules(text: string, rules: Rule[]): ExtractedItem[] {
   const seen = new Set<string>();
   for (const rule of rules) {
     for (const p of rule.patterns) {
-      const m = text.match(p);
-      if (!m) continue;
+      if (!p.test(text)) continue;
       if (seen.has(rule.label)) break;
       seen.add(rule.label);
-      // try to grab nearby CHF amount
-      const slice = text.slice(Math.max(0, (m.index ?? 0) - 5), (m.index ?? 0) + 200);
-      const amountMatch = slice.match(CHF);
-      out.push({
-        label: rule.label,
-        value: amountMatch ? amountMatch[0].trim() : undefined,
-      });
+      out.push({ label: rule.label });
       break;
     }
   }
@@ -155,7 +143,7 @@ function applyRules(text: string, rules: Rule[]): ExtractedItem[] {
 
 export function extractItemsFromText(text: string): ExtractedScan {
   return {
-    contact: applyRules(text, CONTACT_RULES),
+    contact: [], // Persönliche Daten werden bewusst nicht mehr aus dem PDF gelesen
     income: applyRules(text, INCOME_RULES),
     assets: applyRules(text, ASSETS_RULES),
     deductions: applyRules(text, DEDUCTIONS_RULES),
