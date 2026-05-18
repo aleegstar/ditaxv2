@@ -150,8 +150,8 @@ const Feedback = () => {
           </div>
         </div>
 
-        {/* Star rating — visual centerpiece */}
-        <div className="flex flex-col items-center mb-12">
+        {/* Star rating card */}
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] flex flex-col items-center mb-6">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-5">
             {[1, 2, 3, 4, 5].map((star) => {
               const filled = activeStar >= star;
