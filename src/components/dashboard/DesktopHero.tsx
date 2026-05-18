@@ -21,11 +21,6 @@ export const DesktopHero: React.FC<DesktopHeroProps> = ({
       <h1 className="text-[28px] xl:text-[30px] font-semibold tracking-[-0.022em] text-slate-900 leading-[1.15]">
         Grüezi{firstName ? `, ${firstName}` : ''}
       </h1>
-      <p className="text-[15px] text-slate-500 mt-2">
-        {taxYear ? `Steuerjahr ${taxYear} ` : ''}
-        <span className="mx-1.5 text-slate-300">•</span>
-        <span className="tabular-nums">{percent}% abgeschlossen</span>
-      </p>
     </section>
   );
 };
