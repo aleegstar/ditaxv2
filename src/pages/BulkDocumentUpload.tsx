@@ -9,9 +9,11 @@ import {
   X,
   ChevronDown,
   Sparkles,
-  GripVertical,
-  Inbox,
+  ChevronLeft,
+  ChevronRight,
+  SkipForward,
 } from 'lucide-react';
+import { BulkPreviewCard } from '@/components/documents/BulkPreviewCard';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
 import { FormProvider, useFormContext } from '@/contexts/form';
@@ -52,8 +54,10 @@ const BulkUploadContent: React.FC = () => {
   const [dragOver, setDragOver] = useState(false);
   const [files, setFiles] = useState<ClassifiedFile[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
-  const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
   const [pdfReady, setPdfReady] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showSummary, setShowSummary] = useState(false);
+  const autoAdvanceTimer = useRef<number | null>(null);
 
   // Load PDF.js once on mount so PDF text + OCR fallback actually work here.
   useEffect(() => {
@@ -120,6 +124,8 @@ const BulkUploadContent: React.FC = () => {
       setStage('analyzing');
       const result = await classifyFiles(accepted, checklistItems, (next) => setFiles(next));
       setFiles(result);
+      setCurrentIndex(0);
+      setShowSummary(false);
       setStage('review');
     },
     [checklistItems, toast],
@@ -158,29 +164,32 @@ const BulkUploadContent: React.FC = () => {
   const unassignedCount = unassignedFiles.length;
   const canUpload = assignedCount > 0;
 
-  const filesForItem = (itemId: string) =>
-    files.filter((f) => f.suggestedChecklistItemId === itemId);
+  const goNext = useCallback(() => {
+    setCurrentIndex((idx) => {
+      if (idx + 1 >= files.length) {
+        setShowSummary(true);
+        return idx;
+      }
+      return idx + 1;
+    });
+  }, [files.length]);
 
-  // ─────────────────────────────── HTML5 DnD ───────────────────────────
-  const onDragStartFile = (e: React.DragEvent, fileId: string) => {
-    e.dataTransfer.setData('text/plain', fileId);
-    e.dataTransfer.effectAllowed = 'move';
+  const goPrev = useCallback(() => {
+    setShowSummary(false);
+    setCurrentIndex((idx) => Math.max(0, idx - 1));
+  }, []);
+
+  const handleAssign = (id: string, checklistItemId: string | null) => {
+    updateAssignment(id, checklistItemId);
+    if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+    if (checklistItemId) {
+      autoAdvanceTimer.current = window.setTimeout(() => goNext(), 250);
+    }
   };
 
-  const onDragOverTarget = (e: React.DragEvent, itemId: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (activeDropTarget !== itemId) setActiveDropTarget(itemId);
-  };
-
-  const onDragLeaveTarget = () => setActiveDropTarget(null);
-
-  const onDropOnItem = (e: React.DragEvent, itemId: string | null) => {
-    e.preventDefault();
-    setActiveDropTarget(null);
-    const fileId = e.dataTransfer.getData('text/plain');
-    if (fileId) updateAssignment(fileId, itemId);
-  };
+  useEffect(() => () => {
+    if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+  }, []);
 
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {
@@ -317,190 +326,190 @@ const BulkUploadContent: React.FC = () => {
     );
   };
 
-  const renderFileChip = (f: ClassifiedFile, draggable = true) => {
+  const renderReview = () => {
+    if (files.length === 0) return null;
+
+    // Summary view after last file
+    if (showSummary) {
+      return (
+        <>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <Sparkles className="w-3.5 h-3.5" />
+            Überprüfe Deine Zuordnungen und lade hoch.
+          </div>
+          <div className="rounded-3xl border border-border bg-card divide-y divide-border overflow-hidden">
+            {files.map((f, idx) => {
+              const tone = confidenceTone(f.confidence);
+              return (
+                <div key={f.id} className="p-4 flex items-center gap-3">
+                  <FileText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.75} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm text-foreground truncate">{f.file.name}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {f.suggestedChecklistItemId
+                        ? f.suggestedLabel
+                        : <span className="text-amber-700">Nicht zugeordnet</span>}
+                    </div>
+                  </div>
+                  {f.suggestedChecklistItemId && f.confidence > 0 && (
+                    <span className={cn('shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap', tone.cls)}>
+                      {Math.round(f.confidence)}%
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setShowSummary(false); setCurrentIndex(idx); }}
+                    className="text-xs text-[#1E3A5F] hover:underline shrink-0"
+                  >
+                    Ändern
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(f.id)}
+                    className="shrink-0 w-7 h-7 rounded-lg text-muted-foreground hover:bg-muted flex items-center justify-center"
+                    aria-label="Entfernen"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="sticky bottom-4 mt-6 z-10">
+            <div className="rounded-2xl border border-border bg-card/95 backdrop-blur p-4 flex items-center justify-between gap-4 shadow-sm">
+              <div className="text-sm">
+                <span className="font-semibold text-foreground">{assignedCount}</span>
+                <span className="text-muted-foreground"> von {files.length} bereit</span>
+                {unassignedCount > 0 && (
+                  <span className="ml-2 text-amber-700 text-xs">· {unassignedCount} ohne Zuordnung</span>
+                )}
+              </div>
+              <Button onClick={handleConfirmUpload} disabled={!canUpload}>
+                {unassignedCount > 0 ? `${assignedCount} hochladen` : 'Hochladen'}
+              </Button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    const safeIndex = Math.min(currentIndex, files.length - 1);
+    const f = files[safeIndex];
     const tone = confidenceTone(f.confidence);
+    const isLast = safeIndex === files.length - 1;
+
     return (
-      <div
-        key={f.id}
-        draggable={draggable}
-        onDragStart={(e) => onDragStartFile(e, f.id)}
-        className={cn(
-          'group flex items-center gap-2 px-3 py-2 rounded-xl border bg-background',
-          'cursor-grab active:cursor-grabbing hover:border-foreground/30 transition-colors',
-        )}
-      >
-        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
-        <FileText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.75} />
-        <div className="min-w-0 flex-1">
-          <div className="text-sm text-foreground truncate">{f.file.name}</div>
-          <div className="text-[11px] text-muted-foreground">
-            {(f.file.size / 1024).toFixed(0)} KB
-            {f.suggestedLabel && !f.suggestedChecklistItemId && (
-              <span className="ml-2">· evtl. {f.suggestedLabel}</span>
-            )}
+      <>
+        {/* Step header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-xs text-muted-foreground">
+            Dokument <span className="font-semibold text-foreground">{safeIndex + 1}</span> von {files.length}
+          </div>
+          <button
+            type="button"
+            onClick={() => { handleAssign(f.id, null); goNext(); }}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+          >
+            <SkipForward className="w-3.5 h-3.5" /> Überspringen
+          </button>
+        </div>
+
+        {/* Card */}
+        <div className="rounded-3xl border border-border bg-card overflow-hidden">
+          {/* Large preview */}
+          <div className="bg-muted/40 flex items-center justify-center" style={{ minHeight: 360 }}>
+            <BulkPreviewCard
+              fileId={f.id}
+              file={f.file}
+              className="w-full h-[360px] md:h-[460px] flex items-center justify-center"
+            />
+          </div>
+
+          {/* Meta + dropdown */}
+          <div className="p-4 md:p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <FileText className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" strokeWidth={1.75} />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-foreground truncate">{f.file.name}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  {(f.file.size / 1024).toFixed(0)} KB
+                  {f.suggestedLabel && (
+                    <> · Vorschlag: <span className="text-foreground/80">{f.suggestedLabel}</span></>
+                  )}
+                </div>
+              </div>
+              {f.confidence > 0 && (
+                <span className={cn('shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap', tone.cls)}>
+                  {Math.round(f.confidence)}%
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1.5 block">
+                Zuordnen zu
+              </label>
+              <div className="relative">
+                <select
+                  value={f.suggestedChecklistItemId ?? ''}
+                  onChange={(e) => handleAssign(f.id, e.target.value || null)}
+                  className="w-full appearance-none rounded-xl border border-border bg-background pr-9 pl-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+                >
+                  <option value="">Kategorie wählen…</option>
+                  {openItems.length > 0 && (
+                    <optgroup label="Offene Unterlagen">
+                      {openItems.map((o) => (
+                        <option key={o.id} value={o.id}>{o.title}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  <optgroup label="Alle Kategorien">
+                    {checklistOptions
+                      .filter((o) => !openItems.some((oi) => oi.id === o.id))
+                      .map((o) => (
+                        <option key={o.id} value={o.id}>{o.title}</option>
+                      ))}
+                  </optgroup>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={goPrev}
+                disabled={safeIndex === 0}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
+              </Button>
+              <Button onClick={() => (isLast ? setShowSummary(true) : goNext())}>
+                {isLast ? 'Zur Übersicht' : 'Weiter'}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
           </div>
         </div>
-        {f.confidence > 0 && (
-          <span
-            className={cn(
-              'shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap',
-              tone.cls,
-            )}
-          >
-            {Math.round(f.confidence)}%
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={() => removeFile(f.id)}
-          className="shrink-0 w-7 h-7 rounded-lg text-muted-foreground hover:bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100"
-          aria-label="Entfernen"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
+
+        {/* Progress dots */}
+        <div className="flex items-center justify-center gap-1.5 mt-4">
+          {files.map((ff, i) => (
+            <button
+              key={ff.id}
+              type="button"
+              onClick={() => { setShowSummary(false); setCurrentIndex(i); }}
+              className={cn(
+                'h-1.5 rounded-full transition-all',
+                i === safeIndex ? 'w-6 bg-[#1E3A5F]' : ff.suggestedChecklistItemId ? 'w-1.5 bg-emerald-500' : 'w-1.5 bg-muted-foreground/30',
+              )}
+              aria-label={`Zu Dokument ${i + 1}`}
+            />
+          ))}
+        </div>
+      </>
     );
   };
-
-  const renderReview = () => (
-    <>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        <Sparkles className="w-3.5 h-3.5" />
-        Ditax hat versucht, alle Dokumente automatisch zuzuordnen. Ziehe nicht
-        zugeordnete Dateien einfach auf den passenden Posten.
-      </div>
-
-      <div className="grid md:grid-cols-[1fr_320px] gap-4">
-        {/* Open checklist items as drop targets */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-1">
-            Offene Unterlagen
-          </h3>
-          {openItems.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground text-center">
-              Keine offenen Posten – alle Pflichtdokumente sind bereits vorhanden.
-            </div>
-          )}
-          {openItems.map((item) => {
-            const assigned = filesForItem(item.id);
-            const active = activeDropTarget === item.id;
-            return (
-              <div
-                key={item.id}
-                onDragOver={(e) => onDragOverTarget(e, item.id)}
-                onDragLeave={onDragLeaveTarget}
-                onDrop={(e) => onDropOnItem(e, item.id)}
-                className={cn(
-                  'rounded-2xl border bg-card p-4 transition-all',
-                  active
-                    ? 'border-[#1E3A5F] bg-[#1E3A5F]/[0.04] ring-2 ring-[#1E3A5F]/15'
-                    : assigned.length > 0
-                      ? 'border-emerald-300'
-                      : 'border-dashed border-border',
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium text-foreground flex items-center gap-2">
-                      {assigned.length > 0 && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      )}
-                      <span className="truncate">{item.title}</span>
-                    </div>
-                    {item.description && (
-                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                        {item.description}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-[11px] text-muted-foreground shrink-0">
-                    {assigned.length > 0
-                      ? `${assigned.length} zugeordnet`
-                      : 'Datei hierher ziehen'}
-                  </span>
-                </div>
-
-                {assigned.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {assigned.map((f) => renderFileChip(f))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Unassigned files panel */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-1 flex items-center gap-2">
-            <Inbox className="w-3.5 h-3.5" />
-            Nicht zugeordnet
-            {unassignedCount > 0 && (
-              <span className="ml-auto text-amber-700 font-medium normal-case">
-                {unassignedCount}
-              </span>
-            )}
-          </h3>
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-            }}
-            onDrop={(e) => onDropOnItem(e, null)}
-            className={cn(
-              'rounded-2xl border border-dashed bg-card p-3 min-h-[120px] space-y-2',
-              unassignedCount > 0 ? 'border-amber-300 bg-amber-50/30' : 'border-border',
-            )}
-          >
-            {unassignedFiles.length === 0 ? (
-              <div className="text-xs text-muted-foreground text-center py-6">
-                Alles zugeordnet 🎉
-              </div>
-            ) : (
-              unassignedFiles.map((f) => (
-                <div key={f.id} className="space-y-2">
-                  {renderFileChip(f)}
-                  {/* Manual dropdown fallback */}
-                  <div className="relative pl-2">
-                    <select
-                      value=""
-                      onChange={(e) => e.target.value && updateAssignment(f.id, e.target.value)}
-                      className="w-full appearance-none rounded-lg border border-border bg-background pr-8 pl-2.5 py-1.5 text-xs text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
-                    >
-                      <option value="">Oder Kategorie wählen…</option>
-                      {checklistOptions.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.title}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="sticky bottom-4 mt-6 z-10">
-        <div className="rounded-2xl border border-border bg-card/95 backdrop-blur p-4 flex items-center justify-between gap-4 shadow-sm">
-          <div className="text-sm">
-            <span className="font-semibold text-foreground">{assignedCount}</span>
-            <span className="text-muted-foreground"> von {files.length} bereit zum Hochladen</span>
-            {unassignedCount > 0 && (
-              <span className="ml-2 text-amber-700 text-xs">
-                · {unassignedCount} ohne Zuordnung
-              </span>
-            )}
-          </div>
-          <Button onClick={handleConfirmUpload} disabled={!canUpload}>
-            {unassignedCount > 0 ? `${assignedCount} hochladen` : 'Bestätigen & hochladen'}
-          </Button>
-        </div>
-      </div>
-    </>
-  );
 
   const renderUploading = () => (
     <div className="rounded-3xl border border-border bg-card p-8 text-center">
