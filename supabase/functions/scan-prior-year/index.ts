@@ -136,7 +136,7 @@ Keine Werte, keine Erklärungen, keine persönlichen Daten, nur JSON.`;
 
     const rows: any[] = [];
     let order = 0;
-    const cats: (keyof Scan)[] = ["contact", "income", "assets", "deductions"];
+    const cats: (keyof Scan)[] = ["income", "assets", "deductions"];
     for (const cat of cats) {
       for (const item of scan[cat] ?? []) {
         if (!item?.label) continue;
@@ -144,7 +144,7 @@ Keine Werte, keine Erklärungen, keine persönlichen Daten, nur JSON.`;
           checklist_id: checklist.id,
           category: cat,
           label: String(item.label).slice(0, 300),
-          source_value: item.value ? String(item.value).slice(0, 300) : null,
+          source_value: null,
           sort_order: order++,
         });
       }
