@@ -45,7 +45,7 @@ const SelectPerson: React.FC = () => {
   // No fullscreen spinner — avoids flash between PageTransition and content.
   // Cards render once taxFilers is available; empty state during initial load.
   return (
-    <div className="min-h-screen antialiased relative">
+    <div className="min-h-screen antialiased relative bg-white">
       <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-16 pb-16">
         {/* Header — tight intentional rhythm */}
         <div className="flex flex-col items-center text-center mb-10">
