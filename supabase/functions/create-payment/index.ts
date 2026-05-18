@@ -36,10 +36,17 @@ serve(async (req) => {
   const requestId = crypto.randomUUID().substring(0, 8);
   const url = new URL(req.url);
   
+  const safeHeaders = Object.fromEntries(
+    [...req.headers.entries()].map(([k, v]) =>
+      ['authorization', 'cookie', 'apikey'].includes(k.toLowerCase())
+        ? [k, '[REDACTED]']
+        : [k, v]
+    )
+  );
   logStep("=== PAYMENT FUNCTION START ===", { 
     method: req.method,
     url: url.pathname,
-    headers: Object.fromEntries(req.headers.entries()),
+    headers: safeHeaders,
     requestId,
     timestamp: new Date().toISOString()
   });
