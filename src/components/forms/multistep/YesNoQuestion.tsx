@@ -6,12 +6,8 @@ import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
 import yesNoHero from '@/assets/yesno-hero.webp';
 
-const sectionImages: Record<string, string> = {
-  income: sectionIncomeImg,
-  deductions: sectionDeductionsImg,
-  assets: sectionAssetsImg,
-  contact: sectionContactImg,
-};
+
+
 
 const sectionLabels: Record<string, string> = {
   income: 'Einkommen',
