@@ -18,9 +18,21 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // SECURITY: Require authenticated user; restrict to their own email to prevent
+  // spam / unauthorized mailing list subscriptions.
+  const auth = await requireAuth(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const { email, action, source }: MarketingRequest = await req.json();
-    
+
+    if (!email || typeof email !== "string" || email.toLowerCase() !== (auth.email ?? "").toLowerCase()) {
+      return new Response(
+        JSON.stringify({ error: "Email must match the authenticated user" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log(`Marketing automation triggered: ${action} for ${email} from ${source}`);
 
     // SendFox integration for "Ditax Registrierte Benutzer"
