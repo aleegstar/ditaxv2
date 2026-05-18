@@ -66,6 +66,20 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
+    // Verify the taxFilerId belongs to the authenticated user
+    const { data: filerRow, error: filerErr } = await admin
+      .from("tax_filers")
+      .select("id")
+      .eq("id", taxFilerId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (filerErr || !filerRow) {
+      return new Response(JSON.stringify({ error: "forbidden tax_filer" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: checklist, error: cErr } = await admin
       .from("prior_year_checklists")
       .upsert(

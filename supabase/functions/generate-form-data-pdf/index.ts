@@ -172,13 +172,38 @@ serve(async (req) => {
     
     const { userId, taxYear, userName } = validatedData;
     const effectiveUserName = userName?.trim() || 'Unbekannter Benutzer';
-    
-    console.log(`🎯 Generating form data PDF for user ${userId}, year ${taxYear}`)
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Authenticate caller and authorize against requested userId
+    const authHeader = req.headers.get('Authorization') ?? '';
+    if (!authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(authHeader.replace('Bearer ', ''));
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const callerId = claimsData.claims.sub as string;
+    const supabaseClient = createClient(SUPABASE_URL, SERVICE_KEY);
+    if (callerId !== userId) {
+      const { data: isAdmin } = await supabaseClient.rpc('has_role', { _user_id: callerId, _role: 'admin' });
+      if (isAdmin !== true) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    console.log(`🎯 Generating form data PDF for user ${userId}, year ${taxYear}`)
 
     const { data: formDataRecords, error: formError } = await supabaseClient
       .from('form_data')
