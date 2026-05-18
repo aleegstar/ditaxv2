@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, FileText, CheckCircle, Send, ExternalLink, Check, X, AlertTriangle } from 'lucide-react';
+import { Loader2, FileText, CheckCircle, ExternalLink, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react';
+import signatureHero from '@/assets/signature-hero.webp';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { validateStoragePath } from '@/utils/fileValidation';
@@ -126,7 +127,7 @@ E-Mail: ${userProfile.email}`;
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           hideCloseButton
-          className="w-[92vw] max-w-[420px] rounded-[20px] border-0 p-0 shadow-[0_8px_40px_rgba(0,0,0,0.12)] gap-0 overflow-hidden"
+          className="w-[92vw] max-w-[440px] rounded-2xl border border-border p-0 shadow-[0_8px_40px_rgba(15,27,61,0.12)] gap-0 overflow-hidden bg-card"
         >
           {step === 'complete' ? (
             <div className="flex flex-col items-center justify-center p-8">
@@ -137,76 +138,89 @@ E-Mail: ${userProfile.email}`;
               <p className="text-sm text-muted-foreground">Deine Steuererklärung wird übermittelt.</p>
             </div>
           ) : (
-            <div className="p-5 sm:p-6">
-              {/* Close */}
-              <button
-                onClick={() => onOpenChange(false)}
-                className="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shadow-sm hover:bg-slate-200 transition-colors"
-              >
-                <X className="h-4 w-4 text-slate-500" />
-              </button>
-
-              {/* Header */}
-              <DialogTitle className="text-base font-semibold text-foreground pr-8 mb-5">
-                Steuererklärung einreichen
-              </DialogTitle>
-
-              {/* PDF */}
-              <button onClick={handleViewPdf} className="w-full flex items-center gap-2.5 p-2.5 bg-card border border-border/50 rounded-xl hover:border-primary/30 transition-all group mb-3">
-                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:bg-primary/5 transition-colors shrink-0">
-                  <FileText className="w-4.5 h-4.5" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-[13px] font-medium text-foreground truncate group-hover:text-primary transition-colors">{completedTaxReturn.file_name}</p>
-                  <p className="text-[11px] text-muted-foreground">PDF Dokument</p>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0" strokeWidth={1.5} />
-              </button>
-
-              {/* Checkbox */}
-              <label className="flex items-start gap-2.5 p-3 bg-muted/30 border border-border/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors group mb-3">
-                <input type="checkbox" checked={authorizationAccepted} onChange={e => setAuthorizationAccepted(e.target.checked)} className="peer sr-only" />
-                <div className="mt-px shrink-0 w-[18px] h-[18px] border-[1.5px] border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center bg-card transition-all">
-                  <Check className={`w-3 h-3 text-primary-foreground transition-all ${authorizationAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} strokeWidth={3} />
-                </div>
-                <span className="text-[13px] text-muted-foreground leading-snug select-none">
-                  Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
-                </span>
-              </label>
-
-              {/* Name */}
-              <div className="mb-4">
-                <label htmlFor="sig-name" className="block text-[13px] font-medium text-foreground mb-1 ml-0.5">Name zur Bestätigung</label>
-                <Input
-                  id="sig-name"
-                  value={signatureName}
-                  onChange={e => setSignatureName(e.target.value)}
-                  placeholder={fullName}
-                  className="h-10 px-3 bg-card border-border/50 rounded-lg text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all"
+            <>
+              {/* Hero image — matches main design pattern */}
+              <div className="relative h-32 w-full overflow-hidden bg-muted">
+                <img
+                  src={signatureHero}
+                  alt="Zufriedene Personen nach Steuereinreichung"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
                 />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)]">
-                  Abbrechen
-                </Button>
-                <Button onClick={handleSign} disabled={!canSubmit} className="flex-1 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einreichen'}
-                </Button>
-              </div>
-
-              <p className="text-[11px] text-muted-foreground text-center mt-3">
-                Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht
-              </p>
-
-              <div className="border-t border-border/30 mt-3 pt-2.5">
-                <button onClick={handleOpenTicket} className="w-full flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-                  <AlertTriangle className="w-3 h-3" strokeWidth={1.5} />
-                  Nicht einverstanden? Problem melden
+                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+                  <ShieldCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                  <span className="text-[11px] font-medium text-foreground">Letzter Schritt</span>
+                </div>
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="absolute right-3 top-3 w-8 h-8 rounded-full bg-card/90 backdrop-blur-sm border border-border/60 flex items-center justify-center hover:bg-card transition-colors"
+                  aria-label="Schließen"
+                >
+                  <X className="h-4 w-4 text-foreground" strokeWidth={1.75} />
                 </button>
               </div>
-            </div>
+
+              <div className="p-5">
+                <DialogTitle className="text-[15px] font-semibold text-foreground tracking-tight mb-1">
+                  Steuererklärung einreichen
+                </DialogTitle>
+                <p className="text-[12.5px] text-muted-foreground mb-4 leading-relaxed">
+                  Prüfe dein Dokument und bestätige die Übermittlung an das Steueramt.
+                </p>
+
+                <button onClick={handleViewPdf} className="w-full flex items-center gap-2.5 p-3 bg-card border border-border rounded-xl hover:border-primary/30 transition-all group mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary/[0.07] flex items-center justify-center text-primary shrink-0">
+                    <FileText className="w-4 h-4" strokeWidth={1.75} />
+                  </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <p className="text-[13px] font-medium text-foreground truncate group-hover:text-primary transition-colors">{completedTaxReturn.file_name}</p>
+                    <p className="text-[11px] text-muted-foreground">PDF Dokument</p>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0" strokeWidth={1.75} />
+                </button>
+
+                <label className="flex items-start gap-2.5 p-3 bg-background border border-border rounded-xl cursor-pointer hover:bg-muted/40 transition-colors group mb-3">
+                  <input type="checkbox" checked={authorizationAccepted} onChange={e => setAuthorizationAccepted(e.target.checked)} className="peer sr-only" />
+                  <div className="mt-px shrink-0 w-[18px] h-[18px] border-[1.5px] border-border rounded peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center bg-card transition-all">
+                    <Check className={`w-3 h-3 text-primary-foreground transition-all ${authorizationAccepted ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} strokeWidth={3} />
+                  </div>
+                  <span className="text-[13px] text-foreground/80 leading-snug select-none">
+                    Ich habe meine Steuererklärung geprüft und bin einverstanden, dass diese über Ditax eingereicht wird.
+                  </span>
+                </label>
+
+                <div className="mb-5">
+                  <label htmlFor="sig-name" className="block text-[12px] font-medium text-foreground mb-1.5 ml-0.5">Name zur Bestätigung</label>
+                  <Input
+                    id="sig-name"
+                    value={signatureName}
+                    onChange={e => setSignatureName(e.target.value)}
+                    placeholder={fullName}
+                    className="h-11 px-3 bg-background border-border rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1 h-12 rounded-2xl border-border bg-card hover:bg-muted text-foreground font-medium">
+                    Abbrechen
+                  </Button>
+                  <Button type="button" onClick={handleSign} disabled={!canSubmit} className="flex-1 h-12">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Einreichen'}
+                  </Button>
+                </div>
+
+                <p className="text-[11px] text-muted-foreground text-center mt-3">
+                  Mit deiner Bestätigung wird die Steuererklärung über Ditax eingereicht.
+                </p>
+
+                <div className="border-t border-border mt-3 pt-2.5">
+                  <button type="button" onClick={handleOpenTicket} className="w-full flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+                    <AlertTriangle className="w-3 h-3" strokeWidth={1.75} />
+                    Nicht einverstanden? Problem melden
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
