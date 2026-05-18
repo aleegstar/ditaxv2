@@ -276,12 +276,74 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         {working ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {buttonLabel()}
+            Analyse läuft …
           </>
         ) : (
           "PDF auswählen"
         )}
       </Button>
+
+      {/* Live-Progress mit Icons + Shimmer (ChatGPT-Style) */}
+      {working && (
+        <div className="rounded-xl border border-border bg-background/60 p-4 space-y-2.5 animate-fade-in">
+          {(() => {
+            const aiFlow = aiEnabled;
+            const stages = aiFlow
+              ? [
+                  { key: "ai", icon: Sparkles, label: "Google Gemini analysiert dein PDF", done: "PDF analysiert" },
+                  { key: "structuring", icon: Brain, label: "Erstelle Dokumenten-Checkliste", done: "Checkliste erstellt" },
+                ]
+              : [
+                  { key: "parsing", icon: FileSearch, label: "Lese PDF lokal aus", done: "PDF gelesen" },
+                  { key: "ocr", icon: ScanLine, label: ocrProgress
+                      ? `Texterkennung (OCR) · Seite ${ocrProgress.page}/${ocrProgress.total}`
+                      : "Texterkennung (OCR) läuft", done: "Text erkannt" },
+                  { key: "structuring", icon: Brain, label: "Strukturiere Belege & Kategorien", done: "Checkliste erstellt" },
+                ];
+            const order = aiFlow ? ["ai", "structuring"] : ["parsing", "ocr", "structuring"];
+            const currentIdx = order.indexOf(phase);
+            return stages.map((s, i) => {
+              const Icon = s.icon;
+              const isActive = currentIdx === i;
+              const isDone = currentIdx > i;
+              const isPending = currentIdx < i;
+              return (
+                <div
+                  key={s.key}
+                  className={`flex items-center gap-3 text-[13px] transition-opacity ${
+                    isPending ? "opacity-40" : "opacity-100"
+                  }`}
+                >
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                      isDone
+                        ? "bg-primary/10 text-primary"
+                        : isActive
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {isDone ? (
+                      <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+                    ) : isActive ? (
+                      <Icon className="w-4 h-4 animate-pulse" strokeWidth={1.75} />
+                    ) : (
+                      <Icon className="w-4 h-4" strokeWidth={1.75} />
+                    )}
+                  </div>
+                  {isActive ? (
+                    <span className="shimmer-text font-medium">{s.label}…</span>
+                  ) : (
+                    <span className={isDone ? "text-foreground" : "text-muted-foreground"}>
+                      {isDone ? s.done : s.label}
+                    </span>
+                  )}
+                </div>
+              );
+            });
+          })()}
+        </div>
+      )}
 
       {/* AI-Toggle */}
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 p-3">
