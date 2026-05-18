@@ -10,6 +10,7 @@ import {
   pseudonymize,
   isLocalResultSufficient,
   hasUsableTextLayer,
+  ocrPdfLocally,
   type ExtractedScan,
 } from "@/services/PriorYearLocalExtractor";
 
@@ -23,6 +24,8 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const { userId } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [working, setWorking] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring">("idle");
+  const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
 
   const persistChecklist = async (scan: ExtractedScan, source: "local" | "ai") => {
     const { data: checklist, error: cErr } = await supabase
@@ -78,41 +81,73 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     }
 
     setWorking(true);
+    setPhase("parsing");
+    setOcrProgress(null);
     try {
       // 1) Lokale Text-Extraktion (PDF verlässt das Gerät nicht)
-      const text = await extractTextFromPdf(file);
+      let text = await extractTextFromPdf(file);
+      let usedOcr = false;
 
-      if (hasUsableTextLayer(text)) {
-        const localScan = extractItemsFromText(text);
-
-        if (isLocalResultSufficient(localScan)) {
-          await persistChecklist(localScan, "local");
-          toast.success("Checkliste erstellt – ganz ohne Upload deiner Datei.");
-          onScanStarted?.();
-          return;
+      // 2) Wenn kein Text-Layer vorhanden: lokales OCR (immer noch auf dem Gerät)
+      if (!hasUsableTextLayer(text)) {
+        setPhase("ocr");
+        try {
+          text = await ocrPdfLocally(file, {
+            maxPages: 6,
+            onProgress: (p) => setOcrProgress(p),
+          });
+          usedOcr = true;
+        } catch (ocrErr: any) {
+          console.error("[PriorYearUpload] OCR failed", ocrErr);
         }
+      }
 
-        // 2) Fallback: nur anonymisierter Text an Edge Function (kein PDF, keine PII)
-        const safeText = pseudonymize(text);
-        const { data, error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
-          body: { taxFilerId, taxYear, text: safeText },
-        });
-        if (fnErr) throw fnErr;
-        toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      if (!hasUsableTextLayer(text)) {
+        toast.error(
+          "Wir konnten aus diesem PDF keinen lesbaren Text gewinnen. Bitte fülle die Angaben manuell aus.",
+        );
+        return;
+      }
+
+      const localScan = extractItemsFromText(text);
+      if (isLocalResultSufficient(localScan)) {
+        await persistChecklist(localScan, "local");
+        toast.success(
+          usedOcr
+            ? "Checkliste per lokalem OCR erstellt – ohne Upload deiner Datei."
+            : "Checkliste erstellt – ganz ohne Upload deiner Datei.",
+        );
         onScanStarted?.();
         return;
       }
 
-      // 3) Kein Text-Layer (gescanntes PDF) – wir können hier nicht ohne Upload weiter.
-      toast.error(
-        "Dieses PDF enthält keinen lesbaren Text (vermutlich ein Scan). Bitte gib die Positionen manuell ein.",
-      );
+      // 3) Fallback: nur anonymisierter Text an Edge Function (kein PDF, keine PII)
+      setPhase("structuring");
+      const safeText = pseudonymize(text);
+      const { error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
+        body: { taxFilerId, taxYear, text: safeText },
+      });
+      if (fnErr) throw fnErr;
+      toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      onScanStarted?.();
     } catch (e: any) {
       console.error(e);
       toast.error(`Analyse fehlgeschlagen: ${e?.message ?? "unbekannt"}`);
     } finally {
       setWorking(false);
+      setPhase("idle");
+      setOcrProgress(null);
     }
+  };
+
+  const buttonLabel = () => {
+    if (phase === "parsing") return "Analysiere lokal …";
+    if (phase === "ocr")
+      return ocrProgress
+        ? `Erkenne Text (OCR) … Seite ${ocrProgress.page}/${ocrProgress.total}`
+        : "Erkenne Text (OCR) …";
+    if (phase === "structuring") return "Strukturiere …";
+    return "PDF auswählen";
   };
 
   return (
@@ -151,7 +186,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         {working ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Analysiere lokal …
+            {buttonLabel()}
           </>
         ) : (
           "PDF auswählen"
@@ -161,9 +196,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       <div className="flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 p-3">
         <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" strokeWidth={1.75} />
         <p className="text-[12px] text-muted-foreground leading-relaxed">
-          Dein PDF wird direkt auf deinem Gerät analysiert. Es verlässt deinen Browser nicht.
-          Nur in seltenen Ausnahmen wird ein anonymisierter Text-Auszug (ohne Namen, AHV, IBAN
-          oder Adresse) zur Strukturierung verarbeitet.
+          Dein PDF wird direkt auf deinem Gerät analysiert. Auch die Texterkennung (OCR) für
+          gescannte PDFs läuft komplett in deinem Browser. Nur in seltenen Ausnahmen wird ein
+          anonymisierter Text-Auszug (ohne Namen, AHV, IBAN oder Adresse) zur Strukturierung
+          verarbeitet.
         </p>
       </div>
     </div>
