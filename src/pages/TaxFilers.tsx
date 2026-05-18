@@ -29,8 +29,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SubpageHeader } from '@/components/ui/subpage-header';
-import { User, UserPlus, Pencil, Trash2, Crown, Loader2, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useProfile } from '@/hooks/useProfile';
 
 type RelationshipType = 'self' | 'child' | 'spouse' | 'parent' | 'other';
 
