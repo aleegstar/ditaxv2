@@ -2484,6 +2484,116 @@ export type Database = {
           },
         ]
       }
+      prior_year_checklist_items: {
+        Row: {
+          category: string
+          change_note: string | null
+          change_status: string
+          checklist_id: string
+          completed: boolean
+          created_at: string
+          document_id: string | null
+          id: string
+          label: string
+          sort_order: number
+          source_value: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          change_note?: string | null
+          change_status?: string
+          checklist_id: string
+          completed?: boolean
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          label: string
+          sort_order?: number
+          source_value?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          change_note?: string | null
+          change_status?: string
+          checklist_id?: string
+          completed?: boolean
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          label?: string
+          sort_order?: number
+          source_value?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prior_year_checklist_items_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "prior_year_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prior_year_checklists: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          generated_at: string | null
+          id: string
+          raw_scan: Json | null
+          source_storage_path: string | null
+          status: string
+          tax_filer_id: string
+          tax_year: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          generated_at?: string | null
+          id?: string
+          raw_scan?: Json | null
+          source_storage_path?: string | null
+          status?: string
+          tax_filer_id: string
+          tax_year: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          generated_at?: string | null
+          id?: string
+          raw_scan?: Json | null
+          source_storage_path?: string | null
+          status?: string
+          tax_filer_id?: string
+          tax_year?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prior_year_checklists_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prior_year_checklists_tax_filer_id_fkey"
+            columns: ["tax_filer_id"]
+            isOneToOne: false
+            referencedRelation: "tax_filers_user_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profile_access_logs: {
         Row: {
           access_type: string
@@ -2986,6 +3096,7 @@ export type Database = {
           created_at: string
           express_service: boolean
           id: string
+          intake_mode: string
           last_payment_event_at: string | null
           payment_date: string | null
           payment_failure_code: string | null
@@ -3004,6 +3115,7 @@ export type Database = {
           created_at?: string
           express_service?: boolean
           id?: string
+          intake_mode?: string
           last_payment_event_at?: string | null
           payment_date?: string | null
           payment_failure_code?: string | null
@@ -3022,6 +3134,7 @@ export type Database = {
           created_at?: string
           express_service?: boolean
           id?: string
+          intake_mode?: string
           last_payment_event_at?: string | null
           payment_date?: string | null
           payment_failure_code?: string | null
