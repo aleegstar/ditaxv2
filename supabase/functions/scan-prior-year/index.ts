@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json().catch(() => ({}));
-    const { taxFilerId, taxYear, text } = body ?? {};
+    const { taxFilerId, taxYear, text, storagePath } = body ?? {};
     if (!taxFilerId || !taxYear || !text || typeof text !== "string") {
       return new Response(JSON.stringify({ error: "invalid input" }), {
         status: 400,
@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
           tax_filer_id: taxFilerId,
           tax_year: String(taxYear),
           status: "scanning",
-          source_storage_path: null,
+          source_storage_path: typeof storagePath === "string" ? storagePath : null,
           error_message: null,
         },
         { onConflict: "tax_filer_id,tax_year" },

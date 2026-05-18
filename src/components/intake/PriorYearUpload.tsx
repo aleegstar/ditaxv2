@@ -47,9 +47,14 @@ interface Props {
   taxFilerId: string;
   taxYear: string;
   onScanStarted?: () => void;
+  /** Compact mode used inside the "Ersetzen"-Dialog */
+  compact?: boolean;
 }
 
-export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanStarted }) => {
+const buildStoragePath = (userId: string, taxFilerId: string, taxYear: string) =>
+  `${userId}/${taxFilerId}/${taxYear}.pdf`;
+
+export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanStarted, compact }) => {
   const { userId } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [working, setWorking] = useState(false);
@@ -84,7 +89,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     setConsentDialogOpen(false);
   };
 
-  const persistChecklist = async (scan: ExtractedScan, source: "local" | "ai") => {
+  const persistChecklist = async (
+    scan: ExtractedScan,
+    source: "local" | "ai",
+    storagePath: string | null,
+  ) => {
     const { data: checklist, error: cErr } = await supabase
       .from("prior_year_checklists")
       .upsert(
@@ -93,7 +102,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           tax_filer_id: taxFilerId,
           tax_year: String(taxYear),
           status: "ready",
-          source_storage_path: null,
+          source_storage_path: storagePath,
           error_message: null,
           raw_scan: { ...scan, _source: source } as any,
           generated_at: new Date().toISOString(),
@@ -123,6 +132,27 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     if (rows.length > 0) {
       const { error: insErr } = await supabase.from("prior_year_checklist_items").insert(rows);
       if (insErr) throw new Error(insErr.message);
+    }
+  };
+
+  const uploadPdfToStorage = async (file: File): Promise<string | null> => {
+    if (!userId) return null;
+    try {
+      const path = buildStoragePath(userId, taxFilerId, String(taxYear));
+      const { error } = await supabase.storage
+        .from("prior-year-returns")
+        .upload(path, file, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+      if (error) {
+        console.warn("[PriorYearUpload] storage upload failed", error);
+        return null;
+      }
+      return path;
+    } catch (e) {
+      console.warn("[PriorYearUpload] storage upload exception", e);
+      return null;
     }
   };
 
@@ -168,6 +198,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     setWorking(true);
     setOcrProgress(null);
     try {
+      // Upload PDF to private storage first (verschlüsselt im Supabase-Storage),
+      // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
+      const storagePath = await uploadPdfToStorage(file);
+
       // Opt-in: AI-Analyse direkt über Edge Function (PDF wird übermittelt)
       if (aiEnabled) {
         await runAiScan(file);
@@ -201,11 +235,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
 
       const localScan = extractItemsFromText(text);
       if (isLocalResultSufficient(localScan)) {
-        await persistChecklist(localScan, "local");
+        await persistChecklist(localScan, "local", storagePath);
         toast.success(
           usedOcr
-            ? "Checkliste per lokalem OCR erstellt – ohne Upload deiner Datei."
-            : "Checkliste erstellt – ganz ohne Upload deiner Datei.",
+            ? "Checkliste per lokalem OCR erstellt."
+            : "Checkliste erstellt.",
         );
         onScanStarted?.();
         return;
@@ -214,10 +248,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       setPhase("structuring");
       const safeText = pseudonymize(text);
       const { error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
-        body: { taxFilerId, taxYear, text: safeText },
+        body: { taxFilerId, taxYear, text: safeText, storagePath },
       });
       if (fnErr) throw fnErr;
-      toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      toast.success("Checkliste erstellt.");
       onScanStarted?.();
     } catch (e: any) {
       console.error(e);
@@ -230,21 +264,23 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-          <FileUp className="w-5 h-5 text-primary" strokeWidth={1.75} />
+    <div className={compact ? "space-y-4" : "rounded-2xl border border-border bg-card p-6 space-y-4"}>
+      {!compact && (
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <FileUp className="w-5 h-5 text-primary" strokeWidth={1.75} />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base font-semibold text-foreground tracking-tight">
+              Vorjahres-Steuererklärung hochladen
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              Lade die definitive Steuererklärung {Number(taxYear) - 1} als PDF hoch.
+              Wir erstellen daraus deine persönliche Checkliste für {taxYear}.
+            </p>
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-base font-semibold text-foreground tracking-tight">
-            Vorjahres-Steuererklärung hochladen
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-            Lade die definitive Steuererklärung {Number(taxYear) - 1} als PDF hoch.
-            Wir erstellen daraus deine persönliche Checkliste für {taxYear}.
-          </p>
-        </div>
-      </div>
+      )}
 
       <input
         ref={inputRef}
@@ -359,21 +395,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       <div className="flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 p-3">
         <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" strokeWidth={1.75} />
         <p className="text-[12px] text-muted-foreground leading-relaxed">
-          {aiEnabled ? (
-            <>
-              <strong className="text-foreground">KI-Analyse aktiv:</strong> Dein PDF wird
-              verschlüsselt an Google Gemini übermittelt, einmalig ausgewertet und sofort
-              verworfen – weder wir noch Google speichern es. Es werden nur die benötigten
-              Dokumenten-Kategorien zurückgegeben (keine Beträge, Namen oder Adressen).
-            </>
-          ) : (
-            <>
-              <strong className="text-foreground">Lokale Verarbeitung:</strong> Dein PDF wird
-              direkt auf deinem Gerät analysiert. Auch die Texterkennung (OCR) läuft komplett
-              in deinem Browser. Nur in seltenen Ausnahmen wird ein anonymisierter Text-Auszug
-              (ohne Namen, AHV, IBAN oder Adresse) verarbeitet.
-            </>
-          )}
+          <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
+          nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
+          {aiEnabled
+            ? " Für die Analyse wird es einmalig an Google Gemini übermittelt; Google speichert es nicht."
+            : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
 
@@ -394,7 +420,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
 
           <ul className="text-[13px] text-foreground/90 space-y-2 list-disc pl-5">
             <li>Es werden <strong>nur</strong> die benötigten Dokumenten-Kategorien zurückgegeben – keine Beträge, Namen, AHV oder Adressen.</li>
-            <li>Dein PDF wird <strong>nicht gespeichert</strong>, weder bei uns noch bei Google.</li>
+            <li>Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert (nur Du und unser Steuer-Team sehen es); Google speichert es nicht.</li>
             <li>Die Verarbeitung erfolgt ausschliesslich zur Erstellung Deiner Checkliste.</li>
             <li>Du kannst die KI-Analyse jederzeit wieder deaktivieren.</li>
           </ul>

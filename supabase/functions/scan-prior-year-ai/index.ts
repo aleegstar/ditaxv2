@@ -95,6 +95,22 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
+    // Upload PDF to private storage (verschlüsselt via Supabase Storage),
+    // damit Nutzer es ersetzen und unser Team es einsehen kann.
+    const storagePath = `${userId}/${taxFilerId}/${taxYear}.pdf`;
+    try {
+      const buf2 = new Uint8Array(await file.slice(0).arrayBuffer());
+      const { error: upErr } = await admin.storage
+        .from("prior-year-returns")
+        .upload(storagePath, buf2, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+      if (upErr) console.warn("scan-prior-year-ai storage upload failed:", upErr.message);
+    } catch (e) {
+      console.warn("scan-prior-year-ai storage upload exception:", (e as any)?.message);
+    }
+
     // Audit consent + create/upsert checklist row.
     const { data: checklist, error: cErr } = await admin
       .from("prior_year_checklists")
@@ -104,7 +120,7 @@ Deno.serve(async (req) => {
           tax_filer_id: taxFilerId,
           tax_year: taxYear,
           status: "scanning",
-          source_storage_path: null,
+          source_storage_path: storagePath,
           error_message: null,
           ai_consent_at: new Date().toISOString(),
         },

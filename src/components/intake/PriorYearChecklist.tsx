@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight, Replace } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  AppDialog,
+  AppDialogContent,
+  AppDialogHeader,
+  AppDialogTitle,
+  AppDialogDescription,
+} from "@/components/ui/app-dialog";
 import { PriorYearUpload } from "./PriorYearUpload";
 import {
   usePriorYearChecklist, type ChangeStatus, type ItemCategory, type ChecklistItem,
@@ -33,6 +40,7 @@ interface Props {
 export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => {
   const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
     usePriorYearChecklist(taxFilerId, taxYear);
+  const [replaceOpen, setReplaceOpen] = useState(false);
 
   if (loading && !checklist) {
     return (
@@ -97,9 +105,19 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
               {doneCats} von {totalCats} Bereichen bestätigt
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={reload}>
-            <RefreshCw className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplaceOpen(true)}
+              title="Vorjahres-PDF ersetzen"
+            >
+              <Replace className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
@@ -127,6 +145,27 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
           taxYear={taxYear}
         />
       )}
+
+      <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
+        <AppDialogContent size="default">
+          <AppDialogHeader>
+            <AppDialogTitle>Vorjahres-PDF ersetzen</AppDialogTitle>
+            <AppDialogDescription>
+              Lade ein neues PDF hoch. Deine bisherige Checkliste wird durch die
+              Analyse der neuen Datei ersetzt.
+            </AppDialogDescription>
+          </AppDialogHeader>
+          <PriorYearUpload
+            taxFilerId={taxFilerId}
+            taxYear={taxYear}
+            compact
+            onScanStarted={() => {
+              setReplaceOpen(false);
+              reload();
+            }}
+          />
+        </AppDialogContent>
+      </AppDialog>
     </div>
   );
 };
