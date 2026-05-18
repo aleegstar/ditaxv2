@@ -297,13 +297,23 @@ const BulkUploadContent: React.FC = () => {
 
   const renderAnalyzing = () => {
     const done = files.filter((f) => f.status === 'done' || f.status === 'error').length;
+    const currentAnalyzing = files.find((f) => f.status === 'analyzing');
     return (
       <div className="rounded-3xl border border-border bg-card p-6 md:p-10">
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin text-[#1E3A5F]" />
-          <div className="text-sm font-medium text-foreground">
-            {done} / {files.length} analysiert
+          <Sparkles className="w-5 h-5 text-[#1E3A5F] animate-pulse" />
+          <div className="text-sm font-medium">
+            <span className="shimmer-text">KI prüft Deine Unterlagen…</span>
           </div>
+        </div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {done} / {files.length} analysiert
+          {currentAnalyzing && (
+            <>
+              <span className="mx-1.5">·</span>
+              <span className="shimmer-text font-medium">{currentAnalyzing.file.name}</span>
+            </>
+          )}
         </div>
         <div className="mt-4 h-1.5 rounded-full bg-muted overflow-hidden">
           <div
@@ -314,11 +324,22 @@ const BulkUploadContent: React.FC = () => {
         <ul className="mt-6 space-y-2">
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-3 text-sm">
-              {f.status === 'analyzing' && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+              {f.status === 'analyzing' && <Loader2 className="w-4 h-4 animate-spin text-[#1E3A5F]" />}
               {f.status === 'pending' && <div className="w-4 h-4 rounded-full border border-border" />}
               {f.status === 'done' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
               {f.status === 'error' && <AlertCircle className="w-4 h-4 text-rose-600" />}
-              <span className="truncate text-foreground/80">{f.file.name}</span>
+              <span
+                className={cn(
+                  'truncate',
+                  f.status === 'analyzing'
+                    ? 'shimmer-text font-medium'
+                    : f.status === 'pending'
+                      ? 'text-muted-foreground/70'
+                      : 'text-foreground/80',
+                )}
+              >
+                {f.file.name}
+              </span>
             </li>
           ))}
         </ul>
