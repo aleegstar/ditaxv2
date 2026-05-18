@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2 } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
+import intakeUploadImg from '@/assets/intake-upload.webp';
+import intakeManualImg from '@/assets/intake-manual.webp';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -319,23 +321,57 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const Rc = 15.9155;
   const dashLen = pct;
 
+  const modeMeta = intakeMode === 'prior_year_upload'
+    ? {
+        image: intakeUploadImg,
+        imageAlt: 'Zwei Personen am Laptop bei der Steuererklärung',
+        icon: <FileUp className="w-4 h-4 text-primary" strokeWidth={1.75} />,
+        badge: 'In Minuten',
+        title: `Steuererklärung ${Number(taxYear) - 1} hochladen`,
+        desc: 'Wir erstellen aus deiner Vorjahres-Erklärung eine persönliche Checkliste.',
+      }
+    : {
+        image: intakeManualImg,
+        imageAlt: 'Person denkt über die Steuererklärung nach',
+        icon: <Pencil className="w-4 h-4 text-primary" strokeWidth={1.75} />,
+        badge: 'Schritt für Schritt',
+        title: 'Daten manuell erfassen',
+        desc: 'Wir führen dich begleitet durch alle Bereiche.',
+      };
+
   const modeSwitcher = (
-    <div className="flex items-center justify-between gap-3 mb-4 px-1">
-      <div className="text-[12px] text-muted-foreground">
-        Modus: <span className="font-medium text-foreground">
-          {intakeMode === 'prior_year_upload' ? 'Vorjahres-Upload' : 'Begleitet'}
-        </span>
+    <div className="mb-5">
+      <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+        <div className="relative h-28 w-full overflow-hidden bg-muted">
+          <img
+            src={modeMeta.image}
+            alt={modeMeta.imageAlt}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+            {modeMeta.icon}
+            <span className="text-[11px] font-medium text-foreground">{modeMeta.badge}</span>
+          </div>
+        </div>
+        <div className="p-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-[14.5px] font-semibold text-foreground tracking-tight truncate">{modeMeta.title}</h3>
+            <p className="text-[12px] text-muted-foreground mt-0.5 line-clamp-1">{modeMeta.desc}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setModeSheetOpen(true)}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-white hover:bg-slate-50 text-[12px] font-medium text-foreground transition-colors"
+          >
+            <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+            Wechseln
+          </button>
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={() => setModeSheetOpen(true)}
-        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-primary hover:underline"
-      >
-        <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-        Modus wechseln
-      </button>
     </div>
   );
+
 
   const priorYearContent = activeTaxFilerId ? (
     <PriorYearChecklist taxFilerId={activeTaxFilerId} taxYear={taxYear} />
