@@ -653,6 +653,84 @@ class DocumentValidator {
   }
 
   /**
+   * OCR fallback for scanned PDFs: render the first pages to canvas,
+   * convert each page to a JPEG file, and run them through Tesseract.
+   * PRIVACY: 100% local – images never leave the device.
+   */
+  private async detectKeywordsFromPdfImages(
+    file: File,
+    onProgress?: (percent: number) => void,
+  ): Promise<KeywordSignals | undefined> {
+    if (!window.pdfjsLib || !this.tesseractOcr.isAvailable()) {
+      return { available: false, matchCountsByDocType: {}, source: 'none' };
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const maxPages = Math.min(pdf.numPages, 2);
+
+      const allLines: string[] = [];
+      for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2 }); // ~144 DPI – OCR-tauglich
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const blob: Blob | null = await new Promise((resolve) =>
+          canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85),
+        );
+        if (!blob) continue;
+
+        const pageFile = new File([blob], `${file.name}.page${pageNum}.jpg`, {
+          type: 'image/jpeg',
+        });
+
+        const lines = await this.tesseractOcr.detectTextFromFile(pageFile, (p) => {
+          const base = ((pageNum - 1) / maxPages) * 100;
+          const slice = (p / maxPages);
+          onProgress?.(Math.round(base + slice));
+        });
+        allLines.push(...lines);
+      }
+
+      if (!allLines.length) {
+        return { available: false, matchCountsByDocType: {}, source: 'tesseract-ocr' };
+      }
+
+      // Match against all profiles using the same matcher as image OCR
+      const matchCountsByDocType: Record<string, number> = {};
+      const allMatchedLabels: string[] = [];
+      for (const profile of getAllProfiles()) {
+        if (profile.keywordHints && profile.keywordHints.length > 0) {
+          const result = this.tesseractOcr.matchKeywords(allLines, profile.keywordHints);
+          matchCountsByDocType[profile.id] = result.matchCount;
+          if (result.matchedLabels.length > 0) {
+            allMatchedLabels.push(...result.matchedLabels.slice(0, 3));
+          }
+        }
+      }
+
+      console.log('[DocumentValidator] PDF-OCR keywords matched', matchCountsByDocType);
+
+      return {
+        available: true,
+        matchCountsByDocType,
+        matchedLabels: [...new Set(allMatchedLabels)].slice(0, 10),
+        source: 'tesseract-ocr',
+      };
+    } catch (e) {
+      console.error('[DocumentValidator] PDF-OCR fallback failed', e);
+      return { available: false, matchCountsByDocType: {}, source: 'tesseract-ocr' };
+    }
+  }
+
+  /**
    * Calculate confidence score for a profile based on signals
    * 
    * NEW SCORING LOGIC (2025-01):
