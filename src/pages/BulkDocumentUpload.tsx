@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Upload,
@@ -9,6 +9,8 @@ import {
   X,
   ChevronDown,
   Sparkles,
+  GripVertical,
+  Inbox,
 } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
@@ -19,11 +21,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { validateFile } from '@/utils/fileValidation';
-import { getDocumentProfile } from '@/config/documentProfiles';
 import {
   classifyFiles,
   type ClassifiedFile,
 } from '@/services/BulkClassificationService';
+import { ensurePdfJsLoaded } from '@/utils/loadPdfJs';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,18 +52,38 @@ const BulkUploadContent: React.FC = () => {
   const [dragOver, setDragOver] = useState(false);
   const [files, setFiles] = useState<ClassifiedFile[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
+  const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
+  const [pdfReady, setPdfReady] = useState(false);
 
-  React.useEffect(() => {
+  // Load PDF.js once on mount so PDF text + OCR fallback actually work here.
+  useEffect(() => {
+    let mounted = true;
+    ensurePdfJsLoaded().then((ok) => {
+      if (mounted) setPdfReady(ok);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (formDataLoaded) generateChecklist();
   }, [formDataLoaded, generateChecklist]);
 
   const checklistOptions = useMemo(() => {
-    // de-duplicate by id
     const map = new Map<string, { id: string; title: string }>();
     for (const c of checklistItems) {
       if (!map.has(c.id)) map.set(c.id, { id: c.id, title: c.title });
     }
     return Array.from(map.values());
+  }, [checklistItems]);
+
+  // Items still missing (not yet uploaded). These are the drop targets.
+  const openItems = useMemo(() => {
+    const seen = new Set<string>();
+    return checklistItems
+      .filter((c) => c.required && !c.uploaded)
+      .filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
   }, [checklistItems]);
 
   // ─────────────────────────────── intake ──────────────────────────────
@@ -86,6 +108,14 @@ const BulkUploadContent: React.FC = () => {
         });
       }
       if (accepted.length === 0) return;
+
+      // Make sure PDF.js is loaded before we try to read PDFs.
+      const ok = await ensurePdfJsLoaded();
+      setPdfReady(ok);
+      if (!ok) {
+        console.warn('[BulkUpload] PDF.js failed to load – PDFs will not be OCR-classified');
+      }
+
       setFiles(accepted);
       setStage('analyzing');
       const result = await classifyFiles(accepted, checklistItems, (next) => setFiles(next));
@@ -113,7 +143,7 @@ const BulkUploadContent: React.FC = () => {
         return {
           ...f,
           suggestedChecklistItemId: checklistItemId,
-          suggestedLabel: opt?.title ?? f.suggestedLabel,
+          suggestedLabel: opt?.title ?? null,
         };
       }),
     );
@@ -124,8 +154,33 @@ const BulkUploadContent: React.FC = () => {
   };
 
   const assignedCount = files.filter((f) => !!f.suggestedChecklistItemId).length;
-  const unassignedCount = files.length - assignedCount;
+  const unassignedFiles = files.filter((f) => !f.suggestedChecklistItemId);
+  const unassignedCount = unassignedFiles.length;
   const canUpload = assignedCount > 0;
+
+  const filesForItem = (itemId: string) =>
+    files.filter((f) => f.suggestedChecklistItemId === itemId);
+
+  // ─────────────────────────────── HTML5 DnD ───────────────────────────
+  const onDragStartFile = (e: React.DragEvent, fileId: string) => {
+    e.dataTransfer.setData('text/plain', fileId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const onDragOverTarget = (e: React.DragEvent, itemId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (activeDropTarget !== itemId) setActiveDropTarget(itemId);
+  };
+
+  const onDragLeaveTarget = () => setActiveDropTarget(null);
+
+  const onDropOnItem = (e: React.DragEvent, itemId: string | null) => {
+    e.preventDefault();
+    setActiveDropTarget(null);
+    const fileId = e.dataTransfer.getData('text/plain');
+    if (fileId) updateAssignment(fileId, itemId);
+  };
 
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {
@@ -165,12 +220,11 @@ const BulkUploadContent: React.FC = () => {
       }
     }
 
-    // Refresh checklist (uploaded flags depend on documents table)
     await generateChecklist();
     setStage('missing');
   };
 
-  // ─────────────────────────────── missing items ───────────────────────
+  // ─────────────────────────────── missing items after upload ──────────
   const uploadedIds = useMemo(() => {
     return new Set(
       files
@@ -211,12 +265,16 @@ const BulkUploadContent: React.FC = () => {
       </h2>
       <p className="mt-2 text-sm text-muted-foreground max-w-md">
         Wir analysieren jedes Dokument und schlagen die passende Kategorie vor.
-        Du musst nur noch bestätigen.
+        Nicht erkannte Dateien kannst Du im nächsten Schritt einfach per Drag &amp; Drop
+        zuordnen.
       </p>
       <Button className="mt-6" onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
         Dateien auswählen
       </Button>
       <p className="mt-4 text-xs text-muted-foreground">PDF · JPG · PNG · HEIC – bis 25 MB pro Datei</p>
+      {!pdfReady && (
+        <p className="mt-2 text-[11px] text-muted-foreground/80">PDF-Erkennung wird vorbereitet…</p>
+      )}
       <input
         ref={fileInputRef}
         type="file"
@@ -259,95 +317,170 @@ const BulkUploadContent: React.FC = () => {
     );
   };
 
+  const renderFileChip = (f: ClassifiedFile, draggable = true) => {
+    const tone = confidenceTone(f.confidence);
+    return (
+      <div
+        key={f.id}
+        draggable={draggable}
+        onDragStart={(e) => onDragStartFile(e, f.id)}
+        className={cn(
+          'group flex items-center gap-2 px-3 py-2 rounded-xl border bg-background',
+          'cursor-grab active:cursor-grabbing hover:border-foreground/30 transition-colors',
+        )}
+      >
+        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0" />
+        <FileText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.75} />
+        <div className="min-w-0 flex-1">
+          <div className="text-sm text-foreground truncate">{f.file.name}</div>
+          <div className="text-[11px] text-muted-foreground">
+            {(f.file.size / 1024).toFixed(0)} KB
+            {f.suggestedLabel && !f.suggestedChecklistItemId && (
+              <span className="ml-2">· evtl. {f.suggestedLabel}</span>
+            )}
+          </div>
+        </div>
+        {f.confidence > 0 && (
+          <span
+            className={cn(
+              'shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full border whitespace-nowrap',
+              tone.cls,
+            )}
+          >
+            {Math.round(f.confidence)}%
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={() => removeFile(f.id)}
+          className="shrink-0 w-7 h-7 rounded-lg text-muted-foreground hover:bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100"
+          aria-label="Entfernen"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  };
+
   const renderReview = () => (
     <>
       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
         <Sparkles className="w-3.5 h-3.5" />
-        Ditax hat alle Dokumente analysiert – bitte Zuordnung bestätigen.
-        {unassignedCount > 0 && (
-          <span className="text-amber-700">
-            · {unassignedCount} {unassignedCount === 1 ? 'Dokument' : 'Dokumente'} noch ohne Kategorie
-          </span>
-        )}
+        Ditax hat versucht, alle Dokumente automatisch zuzuordnen. Ziehe nicht
+        zugeordnete Dateien einfach auf den passenden Posten.
       </div>
 
-      <div className="rounded-3xl border border-border bg-card divide-y divide-border overflow-hidden">
-        {files.map((f) => {
-          const tone = confidenceTone(f.confidence);
-          const unassigned = !f.suggestedChecklistItemId;
-          return (
-            <div
-              key={f.id}
-              className={cn(
-                'p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-3 md:gap-4',
-                unassigned && 'bg-amber-50/40',
-              )}
-            >
-              <div className={cn(
-                'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
-                unassigned ? 'bg-amber-100' : 'bg-muted',
-              )}>
-                {unassigned ? (
-                  <AlertCircle className="w-5 h-5 text-amber-600" strokeWidth={1.75} />
-                ) : (
-                  <FileText className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground truncate">{f.file.name}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  {(f.file.size / 1024).toFixed(0)} KB
-                  {unassigned && (
-                    <span className="ml-2 text-amber-700">· Bitte Kategorie auswählen</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="relative flex-1 min-w-0">
-                  <select
-                    value={f.suggestedChecklistItemId ?? ''}
-                    onChange={(e) => updateAssignment(f.id, e.target.value || null)}
-                    className={cn(
-                      'w-full appearance-none rounded-xl border bg-background pr-9 pl-3 py-2.5 text-sm',
-                      'focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20',
-                      unassigned
-                        ? 'border-amber-300 text-amber-700'
-                        : 'border-border',
-                    )}
-                  >
-                    <option value="">Kategorie wählen…</option>
-                    {checklistOptions.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.title}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                </div>
-                {f.confidence > 0 && (
-                  <span
-                    className={cn(
-                      'shrink-0 text-[11px] font-medium px-2 py-1 rounded-full border whitespace-nowrap',
-                      tone.cls,
-                    )}
-                  >
-                    {Math.round(f.confidence)}%
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeFile(f.id)}
-                  className="shrink-0 w-9 h-9 rounded-xl text-muted-foreground hover:bg-muted flex items-center justify-center"
-                  aria-label="Entfernen"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+      <div className="grid md:grid-cols-[1fr_320px] gap-4">
+        {/* Open checklist items as drop targets */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-1">
+            Offene Unterlagen
+          </h3>
+          {openItems.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground text-center">
+              Keine offenen Posten – alle Pflichtdokumente sind bereits vorhanden.
             </div>
-          );
-        })}
+          )}
+          {openItems.map((item) => {
+            const assigned = filesForItem(item.id);
+            const active = activeDropTarget === item.id;
+            return (
+              <div
+                key={item.id}
+                onDragOver={(e) => onDragOverTarget(e, item.id)}
+                onDragLeave={onDragLeaveTarget}
+                onDrop={(e) => onDropOnItem(e, item.id)}
+                className={cn(
+                  'rounded-2xl border bg-card p-4 transition-all',
+                  active
+                    ? 'border-[#1E3A5F] bg-[#1E3A5F]/[0.04] ring-2 ring-[#1E3A5F]/15'
+                    : assigned.length > 0
+                      ? 'border-emerald-300'
+                      : 'border-dashed border-border',
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-foreground flex items-center gap-2">
+                      {assigned.length > 0 && (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      )}
+                      <span className="truncate">{item.title}</span>
+                    </div>
+                    {item.description && (
+                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground shrink-0">
+                    {assigned.length > 0
+                      ? `${assigned.length} zugeordnet`
+                      : 'Datei hierher ziehen'}
+                  </span>
+                </div>
+
+                {assigned.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {assigned.map((f) => renderFileChip(f))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Unassigned files panel */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-1 flex items-center gap-2">
+            <Inbox className="w-3.5 h-3.5" />
+            Nicht zugeordnet
+            {unassignedCount > 0 && (
+              <span className="ml-auto text-amber-700 font-medium normal-case">
+                {unassignedCount}
+              </span>
+            )}
+          </h3>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            }}
+            onDrop={(e) => onDropOnItem(e, null)}
+            className={cn(
+              'rounded-2xl border border-dashed bg-card p-3 min-h-[120px] space-y-2',
+              unassignedCount > 0 ? 'border-amber-300 bg-amber-50/30' : 'border-border',
+            )}
+          >
+            {unassignedFiles.length === 0 ? (
+              <div className="text-xs text-muted-foreground text-center py-6">
+                Alles zugeordnet 🎉
+              </div>
+            ) : (
+              unassignedFiles.map((f) => (
+                <div key={f.id} className="space-y-2">
+                  {renderFileChip(f)}
+                  {/* Manual dropdown fallback */}
+                  <div className="relative pl-2">
+                    <select
+                      value=""
+                      onChange={(e) => e.target.value && updateAssignment(f.id, e.target.value)}
+                      className="w-full appearance-none rounded-lg border border-border bg-background pr-8 pl-2.5 py-1.5 text-xs text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20"
+                    >
+                      <option value="">Oder Kategorie wählen…</option>
+                      {checklistOptions.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.title}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="sticky bottom-4 mt-6 z-10">
@@ -355,6 +488,11 @@ const BulkUploadContent: React.FC = () => {
           <div className="text-sm">
             <span className="font-semibold text-foreground">{assignedCount}</span>
             <span className="text-muted-foreground"> von {files.length} bereit zum Hochladen</span>
+            {unassignedCount > 0 && (
+              <span className="ml-2 text-amber-700 text-xs">
+                · {unassignedCount} ohne Zuordnung
+              </span>
+            )}
           </div>
           <Button onClick={handleConfirmUpload} disabled={!canUpload}>
             {unassignedCount > 0 ? `${assignedCount} hochladen` : 'Bestätigen & hochladen'}
@@ -433,7 +571,6 @@ const BulkUploadContent: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    // Reset to drop stage so user can add more
                     setFiles([]);
                     setStage('drop');
                   }}
@@ -480,7 +617,7 @@ const BulkUploadContent: React.FC = () => {
           title={`Unterlagen hochladen · ${year}`}
           onBack={() => navigate(`/documents?year=${year}`)}
         />
-        <div className="max-w-3xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
           {stage === 'drop' && renderDrop()}
           {stage === 'analyzing' && renderAnalyzing()}
           {stage === 'review' && renderReview()}
