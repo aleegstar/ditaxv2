@@ -3,10 +3,13 @@ import type { ChecklistItem, ItemCategory } from "@/hooks/usePriorYearChecklist"
 type Flag = string;
 
 const INCOME_RULES: Array<{ kw: RegExp; flag: Flag }> = [
-  { kw: /arbeitgeb|lohn|gehalt|sal[äa]r|anstellung/i, flag: "hasSalary" },
+  // Employment income (incl. Nebenerwerb / unselbständig) → Lohnausweis
+  { kw: /unselbst[äa]nd|arbeitgeb|lohn|gehalt|sal[äa]r|anstellung|nebenerwerb/i, flag: "hasSalary" },
   { kw: /miet|verm[iy]et|rental/i, flag: "hasRental" },
-  { kw: /wertschrift|dividend|zins|kapitalertrag|depot/i, flag: "hasDividends" },
-  { kw: /selbst|freelance|nebenerwerb|honorar/i, flag: "hasFreelance" },
+  // Wertschriftenertrag is covered by the Wertschriften-/Depot-Verzeichnis (assets) — no separate doc.
+  { kw: /\bdividend/i, flag: "hasDividends" },
+  // Only true self-employment, not the substring "selbst" in "unselbständig"
+  { kw: /selbst[äa]ndig(?!keit\s+der|er\s+neben)|freelance|honorar/i, flag: "hasFreelance" },
   { kw: /\brente\b|ahv|iv\b|pension/i, flag: "hasPension" },
   { kw: /schenkung|erbschaft|erbe\b/i, flag: "hasGiftInheritance" },
   { kw: /kapitalauszahl|s[äa]ule\s*3|pillar\s*3|austritt.*pensionskasse/i, flag: "hasPensionPayout" },
