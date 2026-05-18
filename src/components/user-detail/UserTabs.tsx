@@ -332,6 +332,7 @@ const UserTabs: React.FC<UserTabsProps> = ({
               </TabsContent>
 
               <TabsContent value="documents" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+            <PriorYearReturnCard taxFilerId={selectedTaxFilerId} taxYear={selectedYear} />
             <Card className="border-white/40 shadow-none bg-transparent">
               <CardHeader className="pb-3 px-0 pt-0">
                 <CardTitle className="text-sm font-semibold text-foreground">Hochgeladene Dokumente</CardTitle>
