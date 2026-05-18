@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Sparkles, Menu, X, ChevronRight, ChevronLeft, Copy, ChevronDown, AlignLeft } from 'lucide-react';
+import { Search, Sparkles, Menu, X, ChevronRight, ChevronLeft, Copy, ChevronDown, AlignLeft, BookOpen } from 'lucide-react';
 import ditaxLogo from '@/assets/ditax-logo-full.png';
+import helpHero from '@/assets/help-hero.webp';
 import { DocsSidebar } from '@/components/docs/DocsSidebar';
 import { DocsArticleContent } from '@/components/docs/DocsArticleContent';
 import { DocsChatBot } from '@/components/docs/DocsChatBot';
