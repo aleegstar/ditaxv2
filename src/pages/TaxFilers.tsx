@@ -40,7 +40,14 @@ const RELATIONSHIPS: RelationshipType[] = ['self', 'child', 'spouse', 'parent', 
 const TaxFilers: React.FC = () => {
   const { taxFilers, createTaxFiler, updateTaxFiler, deleteTaxFiler, isLoading } = useTaxFiler();
   const { t } = useI18n();
+  const { profile } = useProfile();
   const navigate = useNavigate();
+
+  const getAvatarUrl = (filer: TaxFiler): string | undefined => {
+    if (filer.avatar_url) return filer.avatar_url;
+    if (filer.is_primary && profile?.avatar_url) return profile.avatar_url;
+    return undefined;
+  };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingFiler, setEditingFiler] = useState<TaxFiler | null>(null);
