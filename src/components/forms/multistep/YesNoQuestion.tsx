@@ -4,17 +4,10 @@ import { ShieldCheck, Clock, FileText } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import sectionIncomeImg from '@/assets/section-income.svg';
-import sectionDeductionsImg from '@/assets/section-deductions.svg';
-import sectionAssetsImg from '@/assets/section-assets.svg';
-import sectionContactImg from '@/assets/section-contact.svg';
+import yesNoHero from '@/assets/yesno-hero.webp';
 
-const sectionImages: Record<string, string> = {
-  income: sectionIncomeImg,
-  deductions: sectionDeductionsImg,
-  assets: sectionAssetsImg,
-  contact: sectionContactImg,
-};
+
+
 
 const sectionLabels: Record<string, string> = {
   income: 'Einkommen',
@@ -187,54 +180,50 @@ export const YesNoQuestion: React.FC<YesNoQuestionProps> = ({
   const yesIndicatorOpacity = Math.min(Math.max(dragX / 60, 0), 1);
   const noIndicatorOpacity = Math.min(Math.max(-dragX / 60, 0), 1);
 
-  const sectionImage = section ? sectionImages[section] : undefined;
   const sectionLabel = section ? sectionLabels[section] : undefined;
 
   return (
     <div className={cn('flex-1 flex flex-col items-center', className)}>
-      {/* Unified card: illustration → question → explanation → CTA buttons */}
+      {/* Unified card: hero photo → question → explanation → CTA buttons */}
       <div className="relative w-full max-w-xl mx-auto">
         <div className="relative w-full rounded-2xl bg-card overflow-hidden border border-border shadow-[0_1px_2px_rgba(15,27,61,0.04),0_4px_12px_rgba(15,27,61,0.04)] flex flex-col">
-          {/* Section label strip */}
-          {sectionLabel && (
-            <div className="flex items-center justify-between px-6 sm:px-8 pt-5 pb-3 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                <span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-primary">
+          {/* Hero photo with section label badge */}
+          <div className="relative w-full h-[150px] sm:h-[180px] shrink-0 overflow-hidden">
+            <img
+              src={yesNoHero}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
+              aria-hidden="true"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/10 to-transparent pointer-events-none" />
+            {sectionLabel && (
+              <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-white/95 backdrop-blur-sm shadow-sm">
+                <FileText className="w-3 h-3 text-primary" strokeWidth={2.25} />
+                <span className="text-[10.5px] font-semibold tracking-[0.12em] uppercase text-foreground">
                   {sectionLabel}
                 </span>
               </div>
+            )}
+            {/* Swipe indicators */}
+            <div
+              style={{ opacity: yesIndicatorOpacity }}
+              className="absolute bottom-3 left-3 z-20 px-2 py-0.5 rounded-md bg-primary transition-opacity"
+            >
+              <span className="text-primary-foreground font-semibold text-[10px] tracking-[0.1em] uppercase">
+                {t.yesNoForm.yes}
+              </span>
             </div>
-          )}
+            <div
+              style={{ opacity: noIndicatorOpacity }}
+              className="absolute bottom-3 right-3 z-20 px-2 py-0.5 rounded-md bg-foreground transition-opacity"
+            >
+              <span className="text-background font-semibold text-[10px] tracking-[0.1em] uppercase">
+                {t.yesNoForm.no}
+              </span>
+            </div>
+          </div>
 
-          {/* Illustration — compact, document-oriented framing */}
-          {sectionImage && (
-            <div className="relative w-full h-[140px] sm:h-[160px] shrink-0 bg-muted/40">
-              <img
-                src={sectionImage}
-                alt=""
-                className="absolute inset-0 h-full w-full object-contain p-4 pointer-events-none select-none"
-                aria-hidden="true"
-              />
-              {/* Subtle swipe indicators */}
-              <div
-                style={{ opacity: yesIndicatorOpacity }}
-                className="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-md bg-primary transition-opacity"
-              >
-                <span className="text-primary-foreground font-semibold text-[10px] tracking-[0.1em] uppercase">
-                  {t.yesNoForm.yes}
-                </span>
-              </div>
-              <div
-                style={{ opacity: noIndicatorOpacity }}
-                className="absolute top-3 right-3 z-20 px-2 py-0.5 rounded-md bg-foreground transition-opacity"
-              >
-                <span className="text-background font-semibold text-[10px] tracking-[0.1em] uppercase">
-                  {t.yesNoForm.no}
-                </span>
-              </div>
-            </div>
-          )}
 
           {/* Animated text content */}
           <AnimatePresence mode="popLayout" initial={false} custom={exitDirection}>
