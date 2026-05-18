@@ -390,32 +390,56 @@ return <div className="min-h-screen">
     return null;
   }
 
-  return <div className="min-h-screen flex flex-col items-center bg-white">
+  return <div className="min-h-screen flex flex-col items-center bg-background">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" />
 
-      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24 bg-white">
+      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24">
+
+        {/* Hero card */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+          <div className="relative h-40 sm:h-48 w-full overflow-hidden">
+            <img
+              src={checklistHero}
+              alt="Unterlagen gemeinsam zusammenstellen"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-white/95 backdrop-blur-sm text-[11px] font-medium text-foreground shadow-sm">
+              <FileCheck className="w-3 h-3" strokeWidth={2.25} />
+              Deine Checkliste
+            </div>
+          </div>
+          <div className="p-4 sm:p-5">
+            <h2 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em] mb-1">
+              Unterlagen Schritt für Schritt
+            </h2>
+            <p className="text-[13px] text-muted-foreground leading-[1.5]">
+              Lade jedes Dokument hoch oder zieh alle Dateien auf einmal rein — wir erkennen die Kategorie automatisch und ordnen sie deiner Steuererklärung zu.
+            </p>
+          </div>
+        </div>
 
         {/* Bulk uploader entry */}
         <button
           type="button"
           onClick={() => navigate(`/documents/bulk?year=${taxYear}`)}
-          className="group w-full text-left rounded-3xl border border-slate-200 bg-white/80 hover:bg-white hover:border-[#1E3A5F]/30 hover:shadow-[0_8px_24px_rgba(15,27,61,0.06)] transition-all p-4 sm:p-5 flex items-center gap-4"
+          className="group w-full text-left rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(15,27,61,0.06)] transition-all p-4 sm:p-5 flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1E3A5F] to-[#0F1B3D] flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #0F1B3D 100%)' }}>
             <Upload className="w-5 h-5 text-white" strokeWidth={1.75} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-[15px] font-semibold text-slate-900">Alle Unterlagen auf einmal hochladen</h3>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#1E3A5F]/5 text-[#1E3A5F] border border-[#1E3A5F]/10">
+              <h3 className="text-[15px] font-semibold text-foreground">Alle Unterlagen auf einmal hochladen</h3>
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/5 text-primary border border-primary/10">
                 <Sparkles className="w-2.5 h-2.5" /> Auto
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
               Zieh alle Dateien rein – wir erkennen die Kategorie automatisch.
             </p>
           </div>
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#1E3A5F] transition-colors shrink-0" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
         </button>
 
         {/* Compact Progress */}
