@@ -124,6 +124,8 @@ const BulkUploadContent: React.FC = () => {
       setStage('analyzing');
       const result = await classifyFiles(accepted, checklistItems, (next) => setFiles(next));
       setFiles(result);
+      setCurrentIndex(0);
+      setShowSummary(false);
       setStage('review');
     },
     [checklistItems, toast],
