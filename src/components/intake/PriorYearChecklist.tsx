@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PriorYearUpload } from "./PriorYearUpload";
 import {
