@@ -174,7 +174,6 @@ export function pseudonymize(text: string): string {
 
 /** True if the extractor found enough positions to skip AI fallback. */
 export function isLocalResultSufficient(scan: ExtractedScan): boolean {
-  const total =
-    scan.contact.length + scan.income.length + scan.assets.length + scan.deductions.length;
-  return total >= 4 && scan.income.length + scan.assets.length >= 2;
+  const total = scan.income.length + scan.assets.length + scan.deductions.length;
+  return total >= 3 && scan.income.length >= 1;
 }
