@@ -642,9 +642,10 @@ const Auth = () => {
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground/70 transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
+                   </div>
                   </div>
 
-                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
+                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }} className="px-7 py-12 sm:px-9 sm:py-11">
 
                   {/* Logo */}
                   <div className="flex items-center justify-center gap-3 mb-10">
