@@ -2539,6 +2539,7 @@ export type Database = {
       }
       prior_year_checklists: {
         Row: {
+          ai_consent_at: string | null
           created_at: string
           error_message: string | null
           generated_at: string | null
@@ -2552,6 +2553,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_consent_at?: string | null
           created_at?: string
           error_message?: string | null
           generated_at?: string | null
@@ -2565,6 +2567,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_consent_at?: string | null
           created_at?: string
           error_message?: string | null
           generated_at?: string | null
