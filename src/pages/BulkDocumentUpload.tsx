@@ -123,7 +123,9 @@ const BulkUploadContent: React.FC = () => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const allAssigned = files.length > 0 && files.every((f) => !!f.suggestedChecklistItemId);
+  const assignedCount = files.filter((f) => !!f.suggestedChecklistItemId).length;
+  const unassignedCount = files.length - assignedCount;
+  const canUpload = assignedCount > 0;
 
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {
