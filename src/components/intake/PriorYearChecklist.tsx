@@ -40,6 +40,7 @@ interface Props {
 export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => {
   const { checklist, items, loading, reload, updateItem, bulkUpdateCategory } =
     usePriorYearChecklist(taxFilerId, taxYear);
+  const [replaceOpen, setReplaceOpen] = useState(false);
 
   if (loading && !checklist) {
     return (
