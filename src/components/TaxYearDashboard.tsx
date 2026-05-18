@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2 } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
@@ -13,7 +13,10 @@ import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { DashboardPriorYearBanner } from '@/components/forms/DashboardPriorYearBanner';
+import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeModeSheet';
+import { PriorYearChecklist } from '@/components/intake/PriorYearChecklist';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DashboardSection {
   id: string;
