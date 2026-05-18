@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2 } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2, FileUp, Pencil } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
+import intakeUploadImg from '@/assets/intake-upload.webp';
+import intakeManualImg from '@/assets/intake-manual.webp';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
 import { useFormContext } from '@/contexts';
 import { useSearchParams, useNavigate } from 'react-router-dom';
