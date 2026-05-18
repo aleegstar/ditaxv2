@@ -117,13 +117,8 @@ export const UserSidebar: React.FC = () => {
     >
       <div className="space-y-8">
         {/* Logo */}
-        <button onClick={() => navigate('/')} className="flex items-center gap-2.5 px-2">
-          <div className="w-7 h-7 bg-blue-600 rounded-[10px] rounded-bl-sm flex items-center justify-center">
-            <div className="w-2.5 h-2.5 bg-white rounded-full" />
-          </div>
-          <span className="text-2xl tracking-tight text-slate-900 font-medium">
-            Ditax
-          </span>
+        <button onClick={() => navigate('/')} className="flex items-center px-2">
+          <img src="/ditax-logo-new.svg" alt="Ditax" className="h-6 w-auto" />
         </button>
 
         {/* Context Selector */}
