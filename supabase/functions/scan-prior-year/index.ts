@@ -84,18 +84,22 @@ Deno.serve(async (req) => {
     if (cErr || !checklist) throw new Error(cErr?.message ?? "checklist upsert failed");
 
     const systemPrompt = `Du bist ein Schweizer Steuerexperte. Du erhältst einen
-ANONYMISIERTEN Text-Auszug einer Vorjahres-Steuererklärung (Namen, AHV, IBAN,
-Adressen und Daten wurden bereits durch Platzhalter wie [AHV], [IBAN], [DATUM]
-ersetzt). Extrahiere die wichtigsten Positionen und antworte AUSSCHLIESSLICH
-mit JSON nach diesem Schema:
+ANONYMISIERTEN Text-Auszug einer Vorjahres-Steuererklärung. Deine Aufgabe ist
+es NICHT, Beträge oder persönliche Daten zu extrahieren. Bestimme NUR, welche
+Belege/Dokumente der Steuerpflichtige dieses Jahr wieder bereithalten muss,
+basierend darauf welche Einkommens-, Vermögens- und Abzugskategorien im Vorjahr
+vorkamen. Antworte AUSSCHLIESSLICH mit JSON nach folgendem Schema:
 {
-  "contact":    [{"label": string, "value": string}],
-  "income":     [{"label": string, "value": string}],
-  "assets":     [{"label": string, "value": string}],
-  "deductions": [{"label": string, "value": string}]
+  "income":     [{"label": string}],
+  "assets":     [{"label": string}],
+  "deductions": [{"label": string}]
 }
-Verwende kurze, sprechende Labels (z.B. "Lohnausweis", "Säule 3a Guthaben",
-"Wertschriftendepot", "Krankheitskosten"). Keine Erklärungen, nur JSON.`;
+Verwende als Label IMMER den Namen des benötigten Dokuments
+(z.B. "Lohnausweis", "Rentenbescheinigung (AHV/IV)", "Pensionskassenausweis",
+"Wertschriften-/Depotverzeichnis", "Säule 3a-Saldobestätigung",
+"Bankkontoauszug per 31.12.", "Krankenkassen-Prämienrechnung",
+"Spendenbescheinigung", "Kinderbetreuungs-Beleg").
+Keine Werte, keine Erklärungen, keine persönlichen Daten, nur JSON.`;
 
     const aiResp = await fetch(LOVABLE_AI_URL, {
       method: "POST",
