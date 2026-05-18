@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTaxFiler, TaxFiler } from '@/contexts/TaxFilerContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Plus, ChevronRight } from 'lucide-react';
+import { Plus, ChevronRight, Users } from 'lucide-react';
 import ditaxLogoFull from '@/assets/ditax-logo.svg';
+import selectPersonHero from '@/assets/select-person-hero.webp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
