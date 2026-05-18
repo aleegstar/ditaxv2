@@ -365,10 +365,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
           {/* Aktionswoche Banner */}
           {isPromoWeekActive() && (
-            <div className="rounded-2xl p-4 bg-gradient-to-r from-[#2563FF]/10 to-[#7C3AED]/10 border border-[#2563FF]/20 backdrop-blur-xl">
+            <div className="rounded-2xl p-4 bg-gradient-to-r from-[#2563FF]/10 to-[#7C3AED]/10 border border-primary/20 backdrop-blur-xl">
               <div className="flex items-start gap-3">
-                <div className="p-1.5 rounded-full bg-[#2563FF]/15 shrink-0">
-                  <Sparkles className="w-4 h-4 text-[#2563FF]" />
+                <div className="p-1.5 rounded-full bg-primary/15 shrink-0">
+                  <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px] font-semibold text-slate-900">Aktionswoche bis 17.05.2026</p>
@@ -447,8 +447,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 return (
                   <div key={idx} className="flex items-center justify-between py-2.5 gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-[#2563FF]/8 flex items-center justify-center shrink-0">
-                        <Icon className="w-4 h-4 text-[#2563FF]" strokeWidth={2} />
+                      <div className="w-8 h-8 rounded-xl bg-primary/[0.08] flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4 text-primary" strokeWidth={2} />
                       </div>
                       <span className="text-slate-900 font-medium text-[13px] truncate">
                         {item.label}
@@ -510,7 +510,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   >
                     <div className="scale-[0.85]">{m.render}</div>
                     {active && (
-                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#2563FF] flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,255,0.5)] ring-2 ring-white">
                         <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                       </span>
                     )}
