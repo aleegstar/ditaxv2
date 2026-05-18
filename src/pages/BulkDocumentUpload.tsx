@@ -162,29 +162,32 @@ const BulkUploadContent: React.FC = () => {
   const unassignedCount = unassignedFiles.length;
   const canUpload = assignedCount > 0;
 
-  const filesForItem = (itemId: string) =>
-    files.filter((f) => f.suggestedChecklistItemId === itemId);
+  const goNext = useCallback(() => {
+    setCurrentIndex((idx) => {
+      if (idx + 1 >= files.length) {
+        setShowSummary(true);
+        return idx;
+      }
+      return idx + 1;
+    });
+  }, [files.length]);
 
-  // ─────────────────────────────── HTML5 DnD ───────────────────────────
-  const onDragStartFile = (e: React.DragEvent, fileId: string) => {
-    e.dataTransfer.setData('text/plain', fileId);
-    e.dataTransfer.effectAllowed = 'move';
+  const goPrev = useCallback(() => {
+    setShowSummary(false);
+    setCurrentIndex((idx) => Math.max(0, idx - 1));
+  }, []);
+
+  const handleAssign = (id: string, checklistItemId: string | null) => {
+    updateAssignment(id, checklistItemId);
+    if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+    if (checklistItemId) {
+      autoAdvanceTimer.current = window.setTimeout(() => goNext(), 250);
+    }
   };
 
-  const onDragOverTarget = (e: React.DragEvent, itemId: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (activeDropTarget !== itemId) setActiveDropTarget(itemId);
-  };
-
-  const onDragLeaveTarget = () => setActiveDropTarget(null);
-
-  const onDropOnItem = (e: React.DragEvent, itemId: string | null) => {
-    e.preventDefault();
-    setActiveDropTarget(null);
-    const fileId = e.dataTransfer.getData('text/plain');
-    if (fileId) updateAssignment(fileId, itemId);
-  };
+  useEffect(() => () => {
+    if (autoAdvanceTimer.current) window.clearTimeout(autoAdvanceTimer.current);
+  }, []);
 
   // ─────────────────────────────── upload ──────────────────────────────
   const handleConfirmUpload = async () => {
