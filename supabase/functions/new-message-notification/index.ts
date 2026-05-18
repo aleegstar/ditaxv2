@@ -21,6 +21,17 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // SECURITY: This endpoint is invoked only by the DB trigger using the service
+  // role key. Reject any caller that does not present that exact bearer token to
+  // prevent attackers from injecting arbitrary phishing previews.
+  const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+  if (!supabaseServiceKey || !authHeader || authHeader !== `Bearer ${supabaseServiceKey}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {

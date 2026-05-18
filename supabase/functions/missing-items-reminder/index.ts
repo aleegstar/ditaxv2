@@ -32,6 +32,16 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // SECURITY: Require shared CRON secret. Triggers bulk reminder emails to users.
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
+  if (!cronSecret || !authHeader || authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     console.log("Starting missing items reminder check...");
 
