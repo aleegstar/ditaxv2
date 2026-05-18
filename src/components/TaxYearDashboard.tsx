@@ -422,6 +422,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           </button>
         </div>
       )}
+        </>
+      )}
+      <IntakeModeSheet
+        open={modeSheetOpen}
+        onOpenChange={setModeSheetOpen}
+        currentMode={intakeMode}
+        onSelect={handleSelectMode}
+        taxYear={taxYear}
+      />
     </>
   );
 
