@@ -51,14 +51,14 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
 
     const rows: any[] = [];
     let order = 0;
-    (["contact", "income", "assets", "deductions"] as const).forEach((cat) => {
+    (["income", "assets", "deductions"] as const).forEach((cat) => {
       for (const item of scan[cat] ?? []) {
         if (!item?.label) continue;
         rows.push({
           checklist_id: checklist.id,
           category: cat,
           label: String(item.label).slice(0, 300),
-          source_value: item.value ? String(item.value).slice(0, 300) : null,
+          source_value: null,
           sort_order: order++,
         });
       }
