@@ -278,19 +278,18 @@ const MiniChip: React.FC<{ active: boolean; label: string; onClick: () => void }
 
 const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> = ({ items, taxYear }) => {
   const navigate = useNavigate();
-  const { updateFormData, updateFormProgress, formData } = useFormContext();
+  const { saveSection, formData } = useFormContext();
   const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
     (acc[it.category] ||= []).push(it); return acc;
   }, { contact: [], income: [], assets: [], deductions: [], other: [] });
   const cats = (Object.keys(grouped) as ItemCategory[]).filter(c => grouped[c].length > 0);
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     const flags = mapPriorYearToFormFlags(items);
-    (['income', 'assets', 'deductions'] as const).forEach(section => {
-      const merged = { ...(formData?.[section] ?? {}), ...flags[section] };
-      updateFormData(section as any, merged);
-      updateFormProgress(section as any, true);
-    });
+    for (const section of ['income', 'assets', 'deductions'] as const) {
+      const merged = { ...(formData?.[section] ?? {}), ...flags[section], _completed: true };
+      await saveSection(section as any, merged, true);
+    }
     navigate(`/form?section=unterlagen&year=${taxYear}`);
   };
 
