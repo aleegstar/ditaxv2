@@ -470,27 +470,21 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
 
           {/* Signed Status Banner */}
           {isSigned && (
-            <div className="liquid-card rounded-[2rem] p-6 relative overflow-hidden group"
-              style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(0, 0, 0, 0.04)',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              {/* Subtle green glow */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-5 relative z-10">
-                <div className="flex-shrink-0">
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-4 ring-emerald-50">
-                    <Check className="w-7 h-7" />
-                  </div>
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+              <div className="relative h-32 sm:h-36 bg-muted overflow-hidden">
+                <img src={completedHero} alt="" className="w-full h-full object-cover" />
+                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm border border-border">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" strokeWidth={2.2} />
+                  Abgeschlossen
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-lg font-semibold text-slate-900 tracking-tight">{t.taxReturnActions.electronicallySigned}</h2>
-                  <p className="mt-0.5 text-sm text-slate-500 font-medium tracking-tight">
+              </div>
+              <div className="px-5 py-4 flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                  <Check className="w-5 h-5 text-emerald-600" strokeWidth={2.2} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.taxReturnActions.electronicallySigned}</h2>
+                  <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     {signatureData?.signed_at
                       ? t.taxReturnActions.signedAt.replace('{date}', new Date(signatureData.signed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }))
                       : t.taxReturnActions.signedDescription
@@ -501,132 +495,78 @@ export function TaxReturnActionsContent({ completedTaxReturnId: propId, embedded
             </div>
           )}
 
-          {/* Main Tax Year Card with Pill Buttons */}
+          {/* Main Tax Year Card */}
           {isSigned && (
-            <div className="rounded-[2rem] p-8 space-y-8"
-              style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(0, 0, 0, 0.04)',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <div className="flex justify-between items-start">
-                <div className="space-y-3">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100/80 text-slate-600 text-[11px] font-semibold tracking-wide uppercase border border-slate-200/50">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    Abgeschlossen
-                  </div>
-                  <h2 className="text-3xl font-semibold text-slate-900 tracking-tighter">{t.taxReturnActions.taxYear} {taxYear}</h2>
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] space-y-5">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-foreground text-[11px] font-semibold tracking-wide uppercase border border-border">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Abgeschlossen
                 </div>
+                <h2 className="text-2xl font-semibold text-foreground tracking-tight">
+                  {t.taxReturnActions.taxYear} {taxYear}
+                </h2>
+                <p className="text-[12.5px] text-muted-foreground">
+                  Deine fertige Steuererklärung steht jederzeit zum Ansehen und Herunterladen bereit.
+                </p>
               </div>
 
-              {/* Pill Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Blue "View" Button */}
-                <button
-                  onClick={handleView}
-                  className="group relative h-[4.25rem] w-full rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-between pl-6 pr-2 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.01] transition-all duration-300"
-                >
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-5 h-5" />
-                    <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.view}</span>
-                  </div>
-                  <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/25 transition-colors backdrop-blur-sm">
-                    <ExternalLink className="w-5 h-5 text-white" />
-                  </div>
-                </button>
-
-                {/* White "Download" Button */}
-                <button
-                  onClick={handleDownload}
-                  className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
-                >
-                  <div className="flex items-center gap-3">
-                    <Download className="w-5 h-5 text-blue-500" />
-                    <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.download}</span>
-                  </div>
-                  <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-                    <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-600 transition-colors" />
-                  </div>
-                </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <Button onClick={handleView} className="w-full">
+                  <Eye className="w-4 h-4" />
+                  {t.taxReturnActions.view}
+                </Button>
+                <Button onClick={handleDownload} variant="outline" className="w-full">
+                  <Download className="w-4 h-4" />
+                  {t.taxReturnActions.download}
+                </Button>
               </div>
             </div>
           )}
 
           {/* Definitive Tax Bill Card */}
           {isSigned && (
-            <div className="rounded-[2rem] p-8 space-y-6"
-              style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(0, 0, 0, 0.04)',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 12px 32px -4px rgba(0, 0, 0, 0.04)',
-              }}
-            >
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase border"
-                  style={{
-                    background: definitiveTaxBill ? 'rgba(236, 253, 245, 0.8)' : 'rgba(255, 251, 235, 0.8)',
-                    color: definitiveTaxBill ? '#047857' : '#b45309',
-                    borderColor: definitiveTaxBill ? 'rgba(167, 243, 208, 1)' : 'rgba(253, 230, 138, 1)',
-                  }}
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] space-y-5">
+              <div className="space-y-2">
+                <div
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase border",
+                    definitiveTaxBill
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-amber-50 text-amber-700 border-amber-200"
+                  )}
                 >
-                  <span className={cn(
-                    "w-1.5 h-1.5 rounded-full",
-                    definitiveTaxBill ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
-                  )} />
+                  <span className={cn("w-1.5 h-1.5 rounded-full", definitiveTaxBill ? "bg-emerald-500" : "bg-amber-500 animate-pulse")} />
                   {definitiveTaxBill ? t.taxReturnActions.available : t.taxReturnActions.pending}
                 </div>
-
-                <div className="space-y-1.5">
-                  <h2 className="text-xl font-semibold text-slate-900 tracking-tight">{t.taxReturnActions.definitiveTaxBill}</h2>
-                  {!definitiveTaxBill && (
-                    <p className="text-base text-slate-500 font-normal leading-relaxed">
-                      {t.taxReturnActions.noBillYet}
-                    </p>
-                  )}
-                </div>
+                <h2 className="text-[15px] font-semibold text-foreground tracking-tight">{t.taxReturnActions.definitiveTaxBill}</h2>
+                {!definitiveTaxBill && (
+                  <p className="text-[12.5px] text-muted-foreground leading-relaxed">
+                    {t.taxReturnActions.noBillYet}
+                  </p>
+                )}
               </div>
 
               {definitiveTaxBill ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button
-                    onClick={handleTaxBillView}
-                    className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Eye className="w-5 h-5 text-blue-500" />
-                      <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.viewBill}</span>
-                    </div>
-                    <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-                      <ExternalLink className="w-5 h-5 text-slate-400" />
-                    </div>
-                  </button>
-                  <button
-                    onClick={handleTaxBillDownload}
-                    className="group relative h-[4.25rem] w-full rounded-full bg-white text-slate-900 flex items-center justify-between pl-6 pr-2 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:scale-[1.01] transition-all duration-300 border border-slate-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Download className="w-5 h-5 text-blue-500" />
-                      <span className="text-[15px] font-semibold tracking-tight">{t.taxReturnActions.downloadBill}</span>
-                    </div>
-                    <div className="h-[3.25rem] w-[3.25rem] rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-                      <ExternalLink className="w-5 h-5 text-slate-400" />
-                    </div>
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <Button onClick={handleTaxBillView} variant="outline" className="w-full">
+                    <Eye className="w-4 h-4" />
+                    {t.taxReturnActions.viewBill}
+                  </Button>
+                  <Button onClick={handleTaxBillDownload} variant="outline" className="w-full">
+                    <Download className="w-4 h-4" />
+                    {t.taxReturnActions.downloadBill}
+                  </Button>
                 </div>
               ) : (
                 <button
                   onClick={() => setUploadDialogOpen(true)}
-                  className="group relative w-full h-16 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 flex items-center justify-center gap-3"
+                  className="group w-full h-14 rounded-xl border border-dashed border-border bg-primary/[0.03] hover:bg-primary/[0.06] transition-colors flex items-center justify-center gap-2.5"
                 >
-                  <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Upload className="w-4 h-4 text-slate-600" />
+                  <div className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center">
+                    <Upload className="w-4 h-4 text-primary" strokeWidth={1.8} />
                   </div>
-                  <span className="text-[15px] font-medium text-slate-700">{t.taxReturnActions.uploadBill}</span>
+                  <span className="text-[13px] font-medium text-foreground">{t.taxReturnActions.uploadBill}</span>
                 </button>
               )}
             </div>
