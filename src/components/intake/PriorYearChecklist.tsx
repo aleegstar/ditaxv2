@@ -105,9 +105,19 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
               {doneCats} von {totalCats} Bereichen bestätigt
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={reload}>
-            <RefreshCw className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setReplaceOpen(true)}
+              title="Vorjahres-PDF ersetzen"
+            >
+              <Replace className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={reload} title="Neu generieren">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
