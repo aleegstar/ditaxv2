@@ -24,6 +24,8 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
   const { userId } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [working, setWorking] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "parsing" | "ocr" | "structuring">("idle");
+  const [ocrProgress, setOcrProgress] = useState<{ page: number; total: number } | null>(null);
 
   const persistChecklist = async (scan: ExtractedScan, source: "local" | "ai") => {
     const { data: checklist, error: cErr } = await supabase
