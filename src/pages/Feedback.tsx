@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Check, Star, Bug, Lightbulb, Heart, Loader2, Sparkles } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { Checkbox } from '@/components/ui/checkbox';
+import feedbackHero from '@/assets/feedback-hero.webp';
 
 const categories = [
   { value: 'praise',  label: 'Der Ablauf gefällt mir', icon: Heart },
