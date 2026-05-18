@@ -54,7 +54,14 @@ export interface PriorYearMappingResult {
  * Items with change_status === 'removed' are excluded.
  */
 export function mapPriorYearToFormFlags(items: ChecklistItem[]): PriorYearMappingResult {
-  const result: PriorYearMappingResult = { income: {}, assets: {}, deductions: {} };
+  // Start with every known flag explicitly `false` so re-runs clear old values.
+  const seed = (rules: typeof INCOME_RULES) =>
+    Object.fromEntries(rules.map(r => [r.flag, false]));
+  const result: PriorYearMappingResult = {
+    income: seed(INCOME_RULES),
+    assets: seed(ASSETS_RULES),
+    deductions: seed(DEDUCTIONS_RULES),
+  };
 
   for (const it of items) {
     if (it.change_status === "removed") continue;
