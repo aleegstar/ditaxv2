@@ -8,6 +8,7 @@ import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
 import completeIllustration from '@/assets/documents-complete-illustration.svg';
+import personalInfoHero from '@/assets/personal-info-hero.webp';
 
 type SectionDef = {
   id: 'contact' | 'income' | 'deductions' | 'assets';
@@ -79,65 +80,44 @@ const PersonalInfoContent: React.FC<{ taxYear: string }> = ({ taxYear }) => {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 pt-6 pb-32">
         {/* ── Hero Card ─────────────────────────────────────────────── */}
-        <div className="border border-slate-200 rounded-2xl p-6 sm:p-8 bg-white flex flex-col md:flex-row gap-8 mb-10 shadow-sm">
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold text-slate-400 tracking-[0.1em] uppercase mb-3">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] mb-10">
+          <div className="relative h-40 sm:h-52 w-full overflow-hidden">
+            <img
+              src={personalInfoHero}
+              alt="Persönliche Angaben gemeinsam ergänzen"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-white/95 backdrop-blur-sm text-[11px] font-medium text-foreground shadow-sm">
+              <User className="w-3 h-3" strokeWidth={2.25} />
               Steuerjahr {taxYear}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 mb-3">
+            {allCompleted && (
+              <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-emerald-500/95 backdrop-blur-sm text-[11px] font-medium text-white shadow-sm">
+                <Check className="w-3 h-3" strokeWidth={2.5} />
+                Abgeschlossen
+              </div>
+            )}
+          </div>
+          <div className="p-5 sm:p-6">
+            <h2 className="text-[18px] sm:text-[20px] font-semibold text-foreground tracking-[-0.018em] mb-1.5">
               Persönliche Angaben
             </h2>
-            <p className="text-slate-500 mb-7 max-w-xl text-[15px] leading-relaxed">
-              Ergänze deine persönlichen Informationen. Diese Angaben bilden die
-              Grundlage für deine Steuererklärung.
+            <p className="text-[13px] sm:text-[14px] text-muted-foreground leading-[1.55] max-w-xl mb-5">
+              Ergänze deine persönlichen Informationen. Diese Angaben bilden die Grundlage für deine Steuererklärung.
             </p>
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="w-full sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div className="w-full sm:w-56 h-1.5 bg-muted rounded-full overflow-hidden shrink-0">
                 <div
-                  className="h-full bg-slate-900 rounded-full transition-[width] duration-700 ease-out"
-                  style={{ width: `${percent}%` }}
+                  className="h-full rounded-full transition-[width] duration-700 ease-out"
+                  style={{
+                    width: `${percent}%`,
+                    background: 'linear-gradient(90deg, #1E3A5F 0%, #0F1B3D 100%)',
+                  }}
                 />
               </div>
-              <div className="text-sm font-medium text-slate-700 shrink-0 tabular-nums">
+              <div className="text-[13px] font-medium text-foreground shrink-0 tabular-nums">
                 {completedCount} von {sections.length} abgeschlossen
-              </div>
-              {allCompleted && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-md border border-emerald-100 sm:ml-2 w-max">
-                  <Check className="w-4 h-4" strokeWidth={2.5} />
-                  Abgeschlossen
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Decorative card preview */}
-          <div className="hidden md:flex w-56 shrink-0 items-center justify-center relative pl-4">
-            <div className="w-full aspect-[4/3] bg-slate-50/80 rounded-2xl border border-slate-100 p-5 flex flex-col justify-end relative">
-              <div className="absolute -top-4 left-0 w-16 h-20 bg-white border border-slate-100 rounded-xl flex items-center justify-center shadow-sm">
-                <User className="w-8 h-8 text-slate-300" strokeWidth={1.5} />
-              </div>
-              <div className="space-y-3">
-                {sections.slice(0, 3).map((s, i) => {
-                  const completed = isCompleted(s.id);
-                  return (
-                    <div key={s.id} className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          "h-2 bg-slate-200 rounded-full",
-                          i === 0 ? "flex-1" : i === 1 ? "w-4/5" : "w-full"
-                        )}
-                      />
-                      <Check
-                        className={cn(
-                          "w-4 h-4 shrink-0",
-                          completed ? "text-emerald-500" : "text-slate-300"
-                        )}
-                        strokeWidth={2.5}
-                      />
-                    </div>
-                  );
-                })}
               </div>
             </div>
           </div>
