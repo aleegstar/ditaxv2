@@ -14,6 +14,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { DashboardPriorYearBanner } from '@/components/forms/DashboardPriorYearBanner';
 import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeModeSheet';
+import { IntakeModePicker } from '@/components/intake/IntakeModePicker';
 import { PriorYearChecklist } from '@/components/intake/PriorYearChecklist';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -59,11 +60,12 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !taxYear || !activeTaxFilerId) return;
       const { data } = await supabase.from('tax_returns')
-        .select('payment_status, intake_mode')
+        .select('payment_status, intake_mode, intake_mode_chosen_at')
         .eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId)
         .maybeSingle();
       if (data?.payment_status) setPaymentStatus(data.payment_status);
-      setIntakeMode(((data as any)?.intake_mode as IntakeMode) ?? 'guided');
+      const chosenAt = (data as any)?.intake_mode_chosen_at;
+      setIntakeMode(chosenAt ? (((data as any)?.intake_mode as IntakeMode) ?? 'guided') : null);
     };
     loadTaxReturn();
   }, [taxYear, activeTaxFilerId]);
@@ -75,13 +77,16 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     const { data: existing } = await supabase.from('tax_returns')
       .select('id').eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId)
       .maybeSingle();
+    const nowIso = new Date().toISOString();
     if (!existing) {
       await supabase.from('tax_returns').insert({
         user_id: user.id, tax_year: taxYear, tax_filer_id: activeTaxFilerId,
-        intake_mode: mode, status: 'in_progress',
+        intake_mode: mode, intake_mode_chosen_at: nowIso, status: 'in_progress',
       } as any);
     } else {
-      await supabase.from('tax_returns').update({ intake_mode: mode } as any).eq('id', existing.id);
+      await supabase.from('tax_returns').update({
+        intake_mode: mode, intake_mode_chosen_at: nowIso,
+      } as any).eq('id', existing.id);
     }
     setIntakeMode(mode);
     setModeSheetOpen(false);
@@ -338,6 +343,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const stepsContent = (
     <>
+      {intakeMode === null ? (
+        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} />
+      ) : (
+        <>
       {modeSwitcher}
       {intakeMode === 'prior_year_upload' ? priorYearContent : (
         <>
@@ -421,6 +430,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
             <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
           </button>
         </div>
+      )}
+        </>
       )}
         </>
       )}

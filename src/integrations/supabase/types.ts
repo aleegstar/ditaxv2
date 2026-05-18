@@ -3097,6 +3097,7 @@ export type Database = {
           express_service: boolean
           id: string
           intake_mode: string
+          intake_mode_chosen_at: string | null
           last_payment_event_at: string | null
           payment_date: string | null
           payment_failure_code: string | null
@@ -3116,6 +3117,7 @@ export type Database = {
           express_service?: boolean
           id?: string
           intake_mode?: string
+          intake_mode_chosen_at?: string | null
           last_payment_event_at?: string | null
           payment_date?: string | null
           payment_failure_code?: string | null
@@ -3135,6 +3137,7 @@ export type Database = {
           express_service?: boolean
           id?: string
           intake_mode?: string
+          intake_mode_chosen_at?: string | null
           last_payment_event_at?: string | null
           payment_date?: string | null
           payment_failure_code?: string | null
