@@ -14,9 +14,8 @@ const corsHeaders = {
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-type Item = { label: string; value?: string };
+type Item = { label: string };
 type Scan = {
-  contact?: Item[];
   income?: Item[];
   assets?: Item[];
   deductions?: Item[];
