@@ -68,18 +68,8 @@ export const generateChecklistItems = (
       console.log('✅ Added rental income document');
     }
     
-    // Check for dividends
-    if (formData.income?.hasDividends || formData.income?.capitalIncome > 0) {
-      checklistItems.push({
-        id: "dividend-statement",
-        title: "Dividenden-Bescheinigung",
-        description: "Bescheinigungen über erhaltene Dividenden und Kapitalerträge",
-        category: "income",
-        uploaded: false,
-        required: true
-      });
-      console.log('✅ Added dividend document');
-    }
+    // Dividenden-Bescheinigung gibt es in der Schweiz nicht als separates Dokument –
+    // Wertschriftenerträge sind im Depot-/Wertschriftenverzeichnis (Vermögen) enthalten.
     
     // Check for freelance income
     if (formData.income?.hasFreelance || formData.income?.selfEmploymentIncome > 0) {
