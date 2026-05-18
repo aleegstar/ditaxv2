@@ -19,7 +19,7 @@ export const DesktopHero: React.FC<DesktopHeroProps> = ({
   return (
     <section className="hidden md:block mb-10 mt-4">
       <h1 className="text-[28px] xl:text-[30px] font-semibold tracking-[-0.022em] text-slate-900 leading-[1.15]">
-        Willkommen zurück{firstName ? `, ${firstName}` : ''}
+        Grüezi{firstName ? `, ${firstName}` : ''}
       </h1>
       <p className="text-[15px] text-slate-500 mt-2">
         {taxYear ? `Steuerjahr ${taxYear} ` : ''}
