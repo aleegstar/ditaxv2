@@ -433,6 +433,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       )}
         </>
       )}
+        </>
+      )}
       <IntakeModeSheet
         open={modeSheetOpen}
         onOpenChange={setModeSheetOpen}
