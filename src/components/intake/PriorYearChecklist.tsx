@@ -118,6 +118,12 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
           />
         ))}
       </div>
+
+      {doneCats === totalCats && totalCats > 0 && (
+        <DocumentsNextStep
+          items={items.filter(i => i.change_status === "unchanged" || i.change_status === "changed")}
+        />
+      )}
     </div>
   );
 };
