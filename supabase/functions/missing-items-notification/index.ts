@@ -27,6 +27,11 @@ serve(async (req: Request) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // SECURITY: Only admins create missing-item requests, so this endpoint must
+  // require admin authentication to prevent unauthenticated email spam.
+  const auth = await requireAdmin(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const { userId, items, taxYear }: MissingItemNotificationRequest = await req.json();
 
