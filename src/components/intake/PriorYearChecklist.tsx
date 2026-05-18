@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown } from "lucide-react";
+import { Loader2, Check, AlertCircle, RefreshCw, ChevronDown, FileText, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PriorYearUpload } from "./PriorYearUpload";
 import {
@@ -117,6 +118,12 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
           />
         ))}
       </div>
+
+      {doneCats === totalCats && totalCats > 0 && (
+        <DocumentsNextStep
+          items={items.filter(i => i.change_status === "unchanged" || i.change_status === "changed")}
+        />
+      )}
     </div>
   );
 };
@@ -265,3 +272,45 @@ const MiniChip: React.FC<{ active: boolean; label: string; onClick: () => void }
     {label}
   </button>
 );
+
+const DocumentsNextStep: React.FC<{ items: ChecklistItem[] }> = ({ items }) => {
+  const navigate = useNavigate();
+  const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
+    (acc[it.category] ||= []).push(it); return acc;
+  }, { contact: [], income: [], assets: [], deductions: [], other: [] });
+  const cats = (Object.keys(grouped) as ItemCategory[]).filter(c => grouped[c].length > 0);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <FileText className="w-5 h-5 text-primary" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold text-foreground tracking-tight">
+            Nächster Schritt: Dokumente hochladen
+          </h3>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Lade die aktuellen Unterlagen für die bestätigten Positionen hoch. Wir kümmern uns um den Rest.
+          </p>
+        </div>
+      </div>
+
+      {cats.length > 0 && (
+        <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
+          {cats.map(c => (
+            <div key={c} className="flex items-baseline justify-between gap-3 text-[13px]">
+              <span className="text-muted-foreground">{CATEGORY_LABEL[c]}</span>
+              <span className="font-medium text-foreground">{grouped[c].length} Belege</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button onClick={() => navigate("/documents")} className="w-full sm:w-auto">
+        Dokumente hochladen
+        <ArrowRight className="w-4 h-4 ml-1" />
+      </Button>
+    </div>
+  );
+};
