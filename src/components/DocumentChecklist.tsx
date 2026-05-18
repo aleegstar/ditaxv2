@@ -389,10 +389,10 @@ return <div className="min-h-screen">
     return null;
   }
 
-  return <div className="min-h-screen flex flex-col items-center">
+  return <div className="min-h-screen flex flex-col items-center bg-white">
       <SubpageHeader title={t.documentChecklist.title} onBack={handleBack} className="w-full" />
 
-      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24">
+      <main className="w-full max-w-[880px] space-y-5 sm:py-8 sm:px-6 pt-4 px-4 pb-24 bg-white">
 
         {/* Bulk uploader entry */}
         <button
