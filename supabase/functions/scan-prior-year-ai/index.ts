@@ -1,0 +1,238 @@
+// Edge function: scan-prior-year-ai
+// Opt-in path: user has explicitly consented to send the PDF to Google Gemini
+// (via Lovable AI Gateway). We never persist the PDF, and only extract
+// document categories (no values, no PII).
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODEL = "google/gemini-2.5-flash";
+
+type Item = { label: string };
+type Scan = { income?: Item[]; assets?: Item[]; deductions?: Item[] };
+
+// Whitelist of labels we accept back from the model. Anything else is dropped.
+const ALLOWED_LABELS = new Set<string>([
+  // income
+  "Lohnausweis",
+  "Nachweis Selbständigerwerb",
+  "Rentenbescheinigung (AHV/IV)",
+  "Pensionskassenausweis",
+  "Bescheinigung Säule 3a-Bezug",
+  "Wertschriften-/Depotverzeichnis",
+  "Liegenschaftsertrag-Abrechnung",
+  "Bestätigung Alimente/Unterhalt",
+  "Arbeitslosentaggeld-Abrechnung",
+  // assets
+  "Bankkontoauszug per 31.12.",
+  "Depotauszug per 31.12.",
+  "Säule 3a-Saldobestätigung",
+  "Rückkaufswert Lebensversicherung",
+  "Liegenschaftsbeleg",
+  "Fahrzeugausweis / Eurotax",
+  "Krypto-Saldonachweis",
+  // deductions
+  "Berufsauslagen-Belege",
+  "Säule 3a-Einzahlungsbestätigung",
+  "PK-Einkauf-Beleg",
+  "Belege Krankheits-/Unfallkosten",
+  "Krankenkassen-Prämienrechnung",
+  "Spendenbescheinigung",
+  "Schuldzinsen-Bescheinigung",
+  "Kinderbetreuungs-Beleg",
+  "Beleg Unterhaltszahlung",
+  "Beleg Liegenschaftsunterhalt",
+  "Parteibeitrags-Beleg",
+]);
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const userClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData.user) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = userData.user.id;
+
+    // Expect multipart/form-data with file + taxFilerId + taxYear + consent
+    const form = await req.formData();
+    const file = form.get("file") as File | null;
+    const taxFilerId = String(form.get("taxFilerId") ?? "");
+    const taxYear = String(form.get("taxYear") ?? "");
+    const consent = String(form.get("consent") ?? "") === "true";
+
+    if (!file || !taxFilerId || !taxYear || !consent) {
+      return new Response(JSON.stringify({ error: "invalid input or missing consent" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      return new Response(JSON.stringify({ error: "file too large (max 20 MB)" }), {
+        status: 413,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    // Audit consent + create/upsert checklist row.
+    const { data: checklist, error: cErr } = await admin
+      .from("prior_year_checklists")
+      .upsert(
+        {
+          user_id: userId,
+          tax_filer_id: taxFilerId,
+          tax_year: taxYear,
+          status: "scanning",
+          source_storage_path: null,
+          error_message: null,
+          ai_consent_at: new Date().toISOString(),
+        },
+        { onConflict: "tax_filer_id,tax_year" },
+      )
+      .select()
+      .single();
+    if (cErr || !checklist) throw new Error(cErr?.message ?? "checklist upsert failed");
+
+    // base64 encode PDF for Vision model
+    const buf = new Uint8Array(await file.arrayBuffer());
+    let bin = "";
+    for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+    const b64 = btoa(bin);
+    const dataUrl = `data:application/pdf;base64,${b64}`;
+
+    const systemPrompt = `Du bist ein Schweizer Steuerexperte. Du erhältst eine
+Vorjahres-Steuererklärung als PDF. Deine Aufgabe ist NICHT, Beträge oder
+persönliche Daten zu extrahieren. Bestimme NUR, welche Belege/Dokumente der
+Steuerpflichtige dieses Jahr wieder bereithalten muss, basierend darauf welche
+Einkommens-, Vermögens- und Abzugskategorien im Vorjahr vorkamen.
+
+Antworte AUSSCHLIESSLICH mit reinem JSON nach folgendem Schema:
+{
+  "income":     [{"label": string}],
+  "assets":     [{"label": string}],
+  "deductions": [{"label": string}]
+}
+
+Erlaubte Labels (verwende EXAKT diese Schreibweise, keine eigenen Varianten):
+Einkommen: "Lohnausweis", "Nachweis Selbständigerwerb",
+"Rentenbescheinigung (AHV/IV)", "Pensionskassenausweis",
+"Bescheinigung Säule 3a-Bezug", "Wertschriften-/Depotverzeichnis",
+"Liegenschaftsertrag-Abrechnung", "Bestätigung Alimente/Unterhalt",
+"Arbeitslosentaggeld-Abrechnung".
+Vermögen: "Bankkontoauszug per 31.12.", "Depotauszug per 31.12.",
+"Säule 3a-Saldobestätigung", "Rückkaufswert Lebensversicherung",
+"Liegenschaftsbeleg", "Fahrzeugausweis / Eurotax", "Krypto-Saldonachweis".
+Abzüge: "Berufsauslagen-Belege", "Säule 3a-Einzahlungsbestätigung",
+"PK-Einkauf-Beleg", "Belege Krankheits-/Unfallkosten",
+"Krankenkassen-Prämienrechnung", "Spendenbescheinigung",
+"Schuldzinsen-Bescheinigung", "Kinderbetreuungs-Beleg",
+"Beleg Unterhaltszahlung", "Beleg Liegenschaftsunterhalt", "Parteibeitrags-Beleg".
+
+Gib nur Labels zurück, deren Kategorie tatsächlich im PDF vorkommt. Keine
+Werte, keine Beträge, keine Namen, keine Adressen, keine Erklärungen.`;
+
+    const aiResp = await fetch(LOVABLE_AI_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: "Analysiere das angehängte PDF." },
+              { type: "image_url", image_url: { url: dataUrl } },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!aiResp.ok) {
+      const txt = await aiResp.text();
+      throw new Error(`AI gateway ${aiResp.status}: ${txt.slice(0, 500)}`);
+    }
+    const aiJson = await aiResp.json();
+    const content: string = aiJson?.choices?.[0]?.message?.content ?? "";
+    const cleaned = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+    let scan: Scan = {};
+    try {
+      scan = JSON.parse(cleaned);
+    } catch (_e) {
+      const m = cleaned.match(/\{[\s\S]*\}/);
+      if (m) scan = JSON.parse(m[0]);
+      else throw new Error("AI response not JSON");
+    }
+
+    await admin.from("prior_year_checklist_items").delete().eq("checklist_id", checklist.id);
+
+    const rows: any[] = [];
+    let order = 0;
+    const cats: (keyof Scan)[] = ["income", "assets", "deductions"];
+    for (const cat of cats) {
+      const seen = new Set<string>();
+      for (const item of scan[cat] ?? []) {
+        const label = String(item?.label ?? "").trim();
+        if (!label || !ALLOWED_LABELS.has(label) || seen.has(label)) continue;
+        seen.add(label);
+        rows.push({
+          checklist_id: checklist.id,
+          category: cat,
+          label,
+          source_value: null,
+          sort_order: order++,
+        });
+      }
+    }
+    if (rows.length > 0) {
+      const { error: insErr } = await admin.from("prior_year_checklist_items").insert(rows);
+      if (insErr) throw new Error(insErr.message);
+    }
+
+    await admin
+      .from("prior_year_checklists")
+      .update({
+        status: "ready",
+        raw_scan: { _source: "ai_pdf" } as any,
+        generated_at: new Date().toISOString(),
+      })
+      .eq("id", checklist.id);
+
+    return new Response(
+      JSON.stringify({ ok: true, checklistId: checklist.id, itemCount: rows.length }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (e: any) {
+    console.error("scan-prior-year-ai error:", e?.message ?? e);
+    return new Response(JSON.stringify({ error: e?.message ?? "unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
