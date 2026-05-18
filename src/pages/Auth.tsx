@@ -507,7 +507,7 @@ const Auth = () => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-center sm:block sm:max-w-[420px] relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)] sm:overflow-hidden"
+          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-start sm:justify-center sm:block sm:max-w-[420px] relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)] sm:overflow-hidden"
         >
 
           <div className="relative z-10">
@@ -515,7 +515,7 @@ const Auth = () => {
               {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}>
 
                   {/* Hero image */}
-                  <div className="relative w-full h-40 sm:h-44 overflow-hidden">
+                  <div className="relative w-full h-64 sm:h-44 overflow-hidden">
                     <img
                       src={authHero}
                       alt=""
@@ -523,10 +523,10 @@ const Auth = () => {
                       className="w-full h-full object-cover"
                       loading="eager"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white" />
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white" />
                   </div>
 
-                  <div className="px-7 pt-2 pb-12 sm:px-9 sm:pt-2 sm:pb-11">
+                  <div className="px-7 pt-6 pb-12 sm:px-9 sm:pt-2 sm:pb-11">
                   {/* Logo & Title */}
                   <div className="flex flex-col items-center text-center mb-8">
                     <motion.img
