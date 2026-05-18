@@ -347,7 +347,7 @@ const DocumentsContent: React.FC<{
 
   // Show uploader view (light theme)
   if (showUploader || hasFilesInUploader) {
-    return <div className="min-h-screen bg-transparent text-slate-800 antialiased overflow-x-hidden">
+    return <div className="min-h-screen bg-white text-slate-800 antialiased overflow-x-hidden">
         <div className="min-h-screen flex flex-col w-full relative">
           
           {/* Header */}
