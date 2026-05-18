@@ -1,41 +1,68 @@
-# OCR vereinfachen: nur Kategorien → Dokumenten-Checkliste
+# Opt-in: KI-gestützter Scan (Google Gemini) – DSGVO-konform
 
-## Problem
-Der aktuelle Extractor versucht **Werte** (CHF-Beträge) zu erkennen und füllt eine "Persönliche Daten"-Sektion mit Items wie *Kinder im Haushalt → Vorjahr: 18.04.201*. Das ist ein Falschtreffer (eine Datumszahl wird als Wert interpretiert) und für den Zweck gar nicht nötig: Wir wollen aus dem Vorjahr **nur ableiten, welche Dokumente der User dieses Jahr bringen muss**.
+## Idee
+Zusätzlich zum bisherigen rein lokalen Pfad (PDF.js + Tesseract on-device) bekommt der User unter dem "PDF auswählen"-Button einen **Toggle**:
 
-## Ziel
-Ein Vorjahr-Eintrag wie "Lohn / Lohnausweis" soll im neuen Jahr genau **eine** Dokumenten-Anforderung erzeugen: *"Lohnausweis bereithalten"*. Keine Beträge, keine persönlichen Daten, keine Adressen.
+> ⦿ Google Gemini · KI-gestützte Analyse (genauer, schneller)
+> _Dein PDF wird verschlüsselt an Google Gemini (EU) übermittelt und nach Verarbeitung sofort gelöscht._
 
-## Änderungen
+Standard: **aus**. Erst wenn der User ihn aktiv einschaltet (und damit ausdrücklich einwilligt), läuft die Analyse über die Edge Function mit Vollbild-Vision-Modell – sonst bleibt alles wie bisher (lokal).
 
-### 1. `src/services/PriorYearLocalExtractor.ts`
-- **Entfernen**: `CHF`-Regex, `value`-Feld, `CONTACT_RULES`, gesamte Kontakt-Auswertung.
-- **Vereinfachen**: `ExtractedScan` enthält nur noch `income | assets | deductions` mit Items vom Typ `{ label: string }` (ohne `value`).
-- **Regeln umbenennen** auf das *Dokument*, das gebraucht wird – das ist das, was der User sehen wird:
-  - Einkommen: `Lohnausweis`, `Rentenbescheinigung (AHV/IV)`, `Pensionskassen­ausweis`, `Bescheinigung Säule 3a-Bezug`, `Wertschriften-/Depotverzeichnis`, `Liegenschafts­ertrag-Abrechnung`, `Bestätigung Alimente/Unterhalt`, `Arbeitslosen­taggeld-Abrechnung`, `Nachweis Selbständigerwerb`.
-  - Vermögen: `Bankkontoauszug per 31.12.`, `Depotauszug per 31.12.`, `Säule 3a-Saldobestätigung`, `Rückkaufswert Lebensversicherung`, `Liegenschaftsbeleg`, `Fahrzeugausweis / Eurotax`, `Krypto-Saldonachweis`.
-  - Abzüge: `Berufsauslagen-Belege`, `Säule 3a-Einzahlungs­bestätigung`, `PK-Einkauf-Beleg`, `Belege Krankheits-/Unfallkosten`, `Krankenkassen-Prämienrechnung`, `Spendenbescheinigung`, `Schuldzinsen-Bescheinigung`, `Kinderbetreuungs-Beleg`, `Beleg Unterhaltszahlung`, `Beleg Liegenschaftsunterhalt`, `Parteibeitrags-Beleg`.
-- **Robusterer Match**: Pattern dürfen erst feuern, wenn das Keyword als **eigenständiges Wort** vorkommt (Wortgrenzen / Mindestkontext), damit OCR-Rauschen wie "18.04.201" nicht zu Kinder-Items wird.
-- `isLocalResultSufficient` bleibt, prüft aber nur noch `income.length + assets.length + deductions.length >= 3` (statt der bisherigen 4 inkl. contact).
-- `pseudonymize` bleibt unverändert (Edge-Function-Fallback).
+## UX-Änderungen in `src/components/intake/PriorYearUpload.tsx`
 
-### 2. `src/components/intake/PriorYearUpload.tsx`
-- Beim Speichern: nur noch `income / assets / deductions` schreiben, **kein** `contact` mehr.
-- `source_value` immer `null` setzen (Spalte bleibt im Schema, wird aber leer).
+- Unter dem Button neue Zeile mit:
+  - kleinem Google-G-Icon (Inline-SVG, nicht das Lucide-`Bot`)
+  - Label "KI-gestützte Analyse (Google Gemini)"
+  - Sub-Label "Genauer für gescannte PDFs · DSGVO-konform"
+  - `Switch` (shadcn) rechts
+- Klick auf den Switch öffnet beim ersten Aktivieren einen `AppDialog` mit der Einwilligung:
+  - Was übermittelt wird (das PDF, **nicht** Account-Daten)
+  - Wer es verarbeitet (Google Gemini, EU-Region via Lovable AI Gateway)
+  - Zweckbindung (nur Erstellung der Checkliste)
+  - Speicherung (kein Persistieren der PDF auf unseren Servern; Gemini-Retention = 0)
+  - Buttons: "Zustimmen & aktivieren" / "Abbrechen"
+- Bestätigung wird mit Timestamp in `localStorage` (`ditax.aiScanConsent.v1`) und in `prior_year_checklists.ai_consent_at` (siehe Migration) gespeichert. Beim nächsten Mal nicht mehr nachfragen, Switch kann ohne Dialog umgeschaltet werden.
+- Privacy-Hinweis-Card unten passt sich dem Modus dynamisch an ("Lokale Verarbeitung" vs. "KI-Verarbeitung mit Google Gemini").
 
-### 3. `supabase/functions/scan-prior-year/index.ts`
-- Gemini-Prompt anpassen: liefere nur Kategorie + benötigtes Dokument (Label), keine Werte/Beträge, keine Kontaktdaten. Wenn die Function aktuell `contact` schreibt → entfernen.
+## Verarbeitungs-Flow
 
-### 4. `src/components/intake/PriorYearChecklist.tsx`
-- `CATEGORY_LABEL`/`CATEGORY_QUESTION`-Einträge für `contact` bleiben für Altdaten erhalten, neue Scans liefern aber keine mehr.
-- `ItemRow`: "Vorjahr: …" nur noch anzeigen, wenn `source_value` wirklich gesetzt ist (bleibt also nur bei alten Datensätzen).
-- Optional (kleines Polish): Frage je Kategorie umformulieren auf Dokumenten-Fokus, z. B. *"Welche Belege brauchst du für deine Einkünfte?"*. **Nur** wenn Du das willst – sage Bescheid, sonst lasse ich die bisherigen Fragen.
+```
+Switch AUS (Default)                    Switch AN
+─────────────────────                   ─────────
+1. pdfjs Text-Layer                     1. Upload PDF (verschlüsselt) an
+2. Tesseract OCR (lokal)                   neue Edge Function `scan-prior-year-ai`
+3. Regex-Mapping                        2. Gemini 2.5 Flash (Vision) extrahiert
+4. Optional: pseudonym. Text               benötigte Dokumentenliste
+   an Gemini (Fallback)                 3. Function schreibt Items
+                                        4. PDF wird sofort verworfen
+                                           (nichts in Storage)
+```
 
-### 5. `priorYearMapping.ts`
-- Unverändert. Mapping arbeitet bereits auf `label` und ist tolerant genug für die neuen, dokumentenzentrierten Labels (z. B. matcht *"Lohnausweis"* weiterhin `hasSalary`).
+## Backend
 
-## Resultat
-- Keine "Persönliche Daten"-Karte mehr.
-- Keine wackeligen CHF-Werte im UI.
-- Jeder Treffer = ein klar benanntes Dokument, das der User dieses Jahr hochladen muss → direkter Übergang zur Dokumenten-Checkliste.
-- OCR-Fehler erzeugen viel seltener Geister-Items, weil wir Wortgrenzen erzwingen und Werte ignorieren.
+### Neue Edge Function `scan-prior-year-ai`
+- Accepts `multipart/form-data` mit `file`, `taxFilerId`, `taxYear`.
+- Prüft JWT, prüft `ai_consent_at` für diesen User+Filer in DB (Server-Side-Guard – Client-Toggle alleine reicht nicht).
+- Sendet PDF base64 an Lovable AI Gateway (`google/gemini-2.5-flash`, vision messages).
+- Gleicher System-Prompt wie heute: **nur** Dokumenten-Labels pro Kategorie, keine Werte/PII.
+- Schreibt Items in `prior_year_checklist_items` (gleiche Tabelle, gleiche Struktur).
+- PDF nie speichern, nie loggen.
+
+### DB-Migration
+- `ALTER TABLE prior_year_checklists ADD COLUMN ai_consent_at timestamptz;`
+- Wird beim ersten Aktivieren des Switches per RPC/Update gesetzt (RLS: nur eigener Filer).
+- Verwendet als Audit-Trail (wer hat wann zugestimmt) – wichtig für DSGVO Art. 7 Abs. 1.
+
+## Rechtliches / Wording (kurz, Du-Form)
+> "Wenn Du die KI-gestützte Analyse aktivierst, übermitteln wir Dein hochgeladenes PDF an Google Gemini (Region EU) zur einmaligen Auswertung. Es werden **nur** die benötigten Dokumenten-Kategorien zurückgegeben – keine Beträge, Namen oder Adressen. Dein PDF wird nach der Verarbeitung sofort verworfen und nicht von uns oder Google gespeichert. Du kannst diese Funktion jederzeit wieder deaktivieren."
+
+(Ergänzung in `Privacy.tsx` als zusätzlicher Absatz – als kleiner Folge-Patch, gleicher Loop.)
+
+## Was bleibt unverändert
+- Bestehender Lokal-Pfad, OCR-Fallback, Regex-Mapping (`PriorYearLocalExtractor`).
+- Vorhandene `scan-prior-year` Edge Function (anonymisierter Text-Fallback) – wird weiter für Stufe 3 im lokalen Pfad benutzt.
+- Datenbank-Struktur der Checklisten/Items.
+
+## Risiken
+- Wenn Gemini doch mal Beträge zurückspielt: harter Server-Filter, der `value`-Felder ignoriert und Labels gegen Whitelist matcht (gleiche Liste wie im Lokal-Extractor).
+- Falls Lovable-AI-Gateway das Modell wechselt: Model-String zentral in der Function konstantieren.
