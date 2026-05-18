@@ -6,6 +6,8 @@ import { PriorYearUpload } from "./PriorYearUpload";
 import {
   usePriorYearChecklist, type ChangeStatus, type ItemCategory, type ChecklistItem,
 } from "@/hooks/usePriorYearChecklist";
+import { useFormContext } from "@/contexts";
+import { mapPriorYearToFormFlags } from "./priorYearMapping";
 
 const CATEGORY_LABEL: Record<ItemCategory, string> = {
   contact: "Persönliche Daten",
