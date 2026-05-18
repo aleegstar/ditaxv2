@@ -2,6 +2,7 @@ import React from 'react';
 import { BookOpen } from 'lucide-react';
 import blogRechtsformen from '@/assets/blog-rechtsformen-new.webp';
 import blogSaeule3a from '@/assets/blog-saeule-3a.webp';
+import blogWeiterbildung from '@/assets/blog-weiterbildung.webp';
 
 interface BlogPost {
   image: string;
@@ -24,7 +25,7 @@ const POSTS: BlogPost[] = [
     href: '#',
   },
   {
-    image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=900&q=80',
+    image: blogWeiterbildung,
     title: 'Weiterbildungskosten absetzen: So sparst du Steuern',
     tags: [{ label: 'Steuern sparen' }, { label: 'Studierende' }],
     href: '#',
