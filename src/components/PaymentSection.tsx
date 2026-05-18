@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import paymentVisa from '@/assets/payment-visa.png';
 import paymentMastercard from '@/assets/payment-mastercard.png';
 import paymentTwint from '@/assets/payment-twint.png';
-import expressIllustration from '@/assets/express-service-illustration.webp';
+import paymentHero from '@/assets/payment-hero.webp';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -330,14 +330,38 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   ];
 
   const cardClass =
-    "rounded-[28px] bg-white/[0.88] backdrop-blur-xl border border-white/70 shadow-[0_8px_30px_rgba(15,23,42,0.06)]";
+    "rounded-2xl bg-card border border-border shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]";
 
   return (
     <div className="min-h-screen flex flex-col text-foreground">
       <SubpageHeader title="Zahlung" onBack={() => navigate(-1)} />
 
-      <main className="flex-grow pt-2 sm:pt-6 pb-20 px-4 sm:px-6">
-        <div className="max-w-[640px] mx-auto space-y-4">
+      <main className="flex-grow pt-2 sm:pt-6 pb-20 px-5 sm:px-8">
+        <div className="max-w-xl mx-auto space-y-5">
+
+          {/* Hero card — matches main design (dashboard mode switcher) */}
+          <div className={`relative overflow-hidden ${cardClass}`}>
+            <div className="relative h-32 w-full overflow-hidden bg-muted">
+              <img
+                src={paymentHero}
+                alt="Lächelnde Person mit Tablet"
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                <span className="text-[11px] font-medium text-foreground">Sichere Zahlung</span>
+              </div>
+            </div>
+            <div className="p-4">
+              <h2 className="text-[15px] font-semibold text-foreground tracking-tight">
+                {isUpgrade ? 'Express-Service freischalten' : `Steuererklärung ${year} abschließen`}
+              </h2>
+              <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+                Wähle deine Zahlungsmethode – verschlüsselt und sicher über Stripe.
+              </p>
+            </div>
+          </div>
 
           {/* Aktionswoche Banner */}
           {isPromoWeekActive() && (
