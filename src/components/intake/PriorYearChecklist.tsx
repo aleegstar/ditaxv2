@@ -6,6 +6,8 @@ import { PriorYearUpload } from "./PriorYearUpload";
 import {
   usePriorYearChecklist, type ChangeStatus, type ItemCategory, type ChecklistItem,
 } from "@/hooks/usePriorYearChecklist";
+import { useFormContext } from "@/contexts";
+import { mapPriorYearToFormFlags } from "./priorYearMapping";
 
 const CATEGORY_LABEL: Record<ItemCategory, string> = {
   contact: "Persönliche Daten",
@@ -122,6 +124,7 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
       {doneCats === totalCats && totalCats > 0 && (
         <DocumentsNextStep
           items={items.filter(i => i.change_status === "unchanged" || i.change_status === "changed")}
+          taxYear={taxYear}
         />
       )}
     </div>
@@ -273,12 +276,23 @@ const MiniChip: React.FC<{ active: boolean; label: string; onClick: () => void }
   </button>
 );
 
-const DocumentsNextStep: React.FC<{ items: ChecklistItem[] }> = ({ items }) => {
+const DocumentsNextStep: React.FC<{ items: ChecklistItem[]; taxYear: string }> = ({ items, taxYear }) => {
   const navigate = useNavigate();
+  const { updateFormData, updateFormProgress, formData } = useFormContext();
   const grouped = items.reduce<Record<ItemCategory, ChecklistItem[]>>((acc, it) => {
     (acc[it.category] ||= []).push(it); return acc;
   }, { contact: [], income: [], assets: [], deductions: [], other: [] });
   const cats = (Object.keys(grouped) as ItemCategory[]).filter(c => grouped[c].length > 0);
+
+  const handleProceed = () => {
+    const flags = mapPriorYearToFormFlags(items);
+    (['income', 'assets', 'deductions'] as const).forEach(section => {
+      const merged = { ...(formData?.[section] ?? {}), ...flags[section] };
+      updateFormData(section as any, merged);
+      updateFormProgress(section as any, true);
+    });
+    navigate(`/form?section=unterlagen&year=${taxYear}`);
+  };
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
@@ -291,7 +305,7 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[] }> = ({ items }) => {
             Nächster Schritt: Dokumente hochladen
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Lade die aktuellen Unterlagen für die bestätigten Positionen hoch. Wir kümmern uns um den Rest.
+            Auf Basis deiner Vorjahres-Steuererklärung haben wir die passende Dokumenten-Checkliste vorbereitet.
           </p>
         </div>
       </div>
@@ -301,14 +315,14 @@ const DocumentsNextStep: React.FC<{ items: ChecklistItem[] }> = ({ items }) => {
           {cats.map(c => (
             <div key={c} className="flex items-baseline justify-between gap-3 text-[13px]">
               <span className="text-muted-foreground">{CATEGORY_LABEL[c]}</span>
-              <span className="font-medium text-foreground">{grouped[c].length} Belege</span>
+              <span className="font-medium text-foreground">{grouped[c].length} Positionen</span>
             </div>
           ))}
         </div>
       )}
 
-      <Button onClick={() => navigate("/documents")} className="w-full sm:w-auto">
-        Dokumente hochladen
+      <Button onClick={handleProceed} className="w-full sm:w-auto">
+        Zur Dokumenten-Checkliste
         <ArrowRight className="w-4 h-4 ml-1" />
       </Button>
     </div>
