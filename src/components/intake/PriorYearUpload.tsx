@@ -135,7 +135,19 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       toast.error(`Analyse fehlgeschlagen: ${e?.message ?? "unbekannt"}`);
     } finally {
       setWorking(false);
+      setPhase("idle");
+      setOcrProgress(null);
     }
+  };
+
+  const buttonLabel = () => {
+    if (phase === "parsing") return "Analysiere lokal …";
+    if (phase === "ocr")
+      return ocrProgress
+        ? `Erkenne Text (OCR) … Seite ${ocrProgress.page}/${ocrProgress.total}`
+        : "Erkenne Text (OCR) …";
+    if (phase === "structuring") return "Strukturiere …";
+    return "PDF auswählen";
   };
 
   return (
