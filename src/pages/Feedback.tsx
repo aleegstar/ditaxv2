@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Check, Star, Bug, Lightbulb, Heart, Loader2, Sparkles } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { Checkbox } from '@/components/ui/checkbox';
+import feedbackHero from '@/assets/feedback-hero.webp';
 
 const categories = [
   { value: 'praise',  label: 'Der Ablauf gefällt mir', icon: Heart },
@@ -129,23 +130,28 @@ const Feedback = () => {
     <div className="min-h-screen">
       <SubpageHeader title={t.feedbackPage.title} onBack={() => navigate(-1)} />
 
-      <div className="max-w-xl mx-auto px-6 pt-10 pb-16 sm:pt-14">
-        {/* Hero */}
-        <div className="text-center mb-10 sm:mb-14">
-          <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-muted-foreground/60 inline-flex items-center gap-1.5 mb-3">
-            <Sparkles className="w-3 h-3" strokeWidth={2.25} />
-            Dein Feedback
-          </p>
-          <h1 className="text-[28px] sm:text-[32px] font-semibold text-foreground tracking-[-0.026em] leading-[1.1] max-w-md mx-auto">
-            Wie war deine Erfahrung mit Ditax?
-          </h1>
-          <p className="text-[14.5px] text-muted-foreground mt-3 max-w-sm mx-auto leading-relaxed">
-            Jede Stimme hilft uns, die Schweizer Steuererklärung ein Stück einfacher zu machen.
-          </p>
+      <div className="max-w-xl mx-auto px-5 sm:px-8 pt-10 pb-16">
+        {/* Hero Card */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] mb-8">
+          <div className="relative h-36 sm:h-40 bg-muted overflow-hidden">
+            <img src={feedbackHero} alt="" className="w-full h-full object-cover" />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm border border-border">
+              <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
+              Dein Feedback
+            </div>
+          </div>
+          <div className="px-5 py-4">
+            <h1 className="text-[15px] font-semibold text-foreground tracking-tight">
+              Wie war deine Erfahrung mit Ditax?
+            </h1>
+            <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+              Jede Stimme hilft uns, die Schweizer Steuererklärung ein Stück einfacher zu machen.
+            </p>
+          </div>
         </div>
 
-        {/* Star rating — visual centerpiece */}
-        <div className="flex flex-col items-center mb-12">
+        {/* Star rating card */}
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] flex flex-col items-center mb-6">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-5">
             {[1, 2, 3, 4, 5].map((star) => {
               const filled = activeStar >= star;
