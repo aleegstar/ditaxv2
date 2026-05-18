@@ -19,9 +19,9 @@ const CATEGORY_LABEL: Record<ItemCategory, string> = {
 
 const CATEGORY_QUESTION: Record<ItemCategory, string> = {
   contact: "Sind deine persönlichen Daten unverändert?",
-  income: "Sind deine Einkommensquellen unverändert?",
-  assets: "Ist dein Vermögen unverändert?",
-  deductions: "Sind deine Abzüge unverändert?",
+  income: "Brauchst du diese Einkommens-Belege wieder?",
+  assets: "Brauchst du diese Vermögens-Nachweise wieder?",
+  deductions: "Brauchst du diese Abzugs-Belege wieder?",
   other: "Sind die übrigen Angaben unverändert?",
 };
 
