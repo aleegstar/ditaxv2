@@ -48,15 +48,33 @@ const SelectPerson: React.FC = () => {
   return (
     <div className="min-h-screen antialiased relative bg-white">
       <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-16 pb-16">
-        {/* Header — tight intentional rhythm */}
-        <div className="flex flex-col items-center text-center mb-10">
-          <img src={ditaxLogoFull} alt="Ditax" className="h-6 mb-8 opacity-90" />
-          <h1 className="text-[22px] leading-[1.2] font-semibold text-foreground tracking-[-0.022em] mb-1.5">
-            {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
-          </h1>
-          <p className="text-[13px] text-muted-foreground/70 font-normal">
-            {t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren'}
-          </p>
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img src={ditaxLogoFull} alt="Ditax" className="h-6 opacity-90" />
+        </div>
+
+        {/* Hero card — same pattern as dashboard mode switcher */}
+        <div className="mb-6 relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+          <div className="relative h-32 w-full overflow-hidden bg-muted">
+            <img
+              src={selectPersonHero}
+              alt="Personen arbeiten gemeinsam an der Steuererklärung"
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+              <Users className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+              <span className="text-[11px] font-medium text-foreground">Profil wählen</span>
+            </div>
+          </div>
+          <div className="p-4">
+            <h1 className="text-[15px] font-semibold text-foreground tracking-tight">
+              {t.taxFilers?.selectPerson || 'Für wen möchtest du arbeiten?'}
+            </h1>
+            <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+              {t.taxFilers?.addPersonHint || 'Wähle ein Profil aus, um fortzufahren.'}
+            </p>
+          </div>
         </div>
 
         {/* Section label */}
