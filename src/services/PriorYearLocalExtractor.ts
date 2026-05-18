@@ -10,15 +10,13 @@ import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 
 (pdfjsLib as any).GlobalWorkerOptions.workerPort = new PdfWorker();
 
-export type ExtractedItem = { label: string; value?: string };
+export type ExtractedItem = { label: string };
 export type ExtractedScan = {
-  contact: ExtractedItem[];
+  contact: ExtractedItem[]; // always empty – kept for back-compat
   income: ExtractedItem[];
   assets: ExtractedItem[];
   deductions: ExtractedItem[];
 };
-
-const CHF = /(?:CHF\s*)?[\d'’´]{1,3}(?:[.,'’´]\d{2,3})*(?:[.,]\d{2})?/;
 
 /** Read all text from a PDF file using its embedded text layer. */
 export async function extractTextFromPdf(file: File): Promise<string> {
