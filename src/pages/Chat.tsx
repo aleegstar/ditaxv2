@@ -132,17 +132,20 @@ const Chat: React.FC = () => {
         <div className="max-w-[720px] mx-auto px-5 pb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0 ring-1 ring-black/[0.06]"
-              style={{
-                background: escalatedMode
-                  ? 'linear-gradient(135deg, hsl(160 84% 39%), hsl(162 83% 30%))'
-                  : 'linear-gradient(135deg, #1E3A5F 0%, #0F1B3D 100%)',
-              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden flex-shrink-0 ring-1 ring-border bg-muted"
             >
               {escalatedMode ? (
-                <User className="w-4 h-4 text-white" strokeWidth={2} />
+                <div
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, hsl(160 84% 39%), hsl(162 83% 30%))' }}
+                >
+                  <User className="w-4 h-4 text-white" strokeWidth={2} />
+                </div>
               ) : (
-                <Sparkles className="w-4 h-4 text-white" strokeWidth={2} />
+                <img src={assistantAvatar} alt="Steuer-Assistent" className="w-full h-full object-cover" />
+              )}
+              {!escalatedMode && (
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
               )}
             </div>
             <div className="flex flex-col min-w-0">
