@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock } from 'lucide-react';
+import { User, Wallet, Shield, Landmark, ChevronRight, ChevronDown, Check, FileText, Send, LucideIcon, Lock, Settings2 } from 'lucide-react';
 import tipFolderImg from '@/assets/tip-info.webp';
 import documentsMessageImg from '@/assets/documents-message.svg';
 import { AnimatedCircularProgressBar } from '@/components/ui/animated-circular-progress-bar';
@@ -13,7 +13,10 @@ import TaxFilerSelector from '@/components/dashboard/TaxFilerSelector';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { useFormTourSafe } from '@/contexts/FormTourContext';
 import { DashboardPriorYearBanner } from '@/components/forms/DashboardPriorYearBanner';
+import { IntakeModeSheet, type IntakeMode } from '@/components/intake/IntakeModeSheet';
+import { PriorYearChecklist } from '@/components/intake/PriorYearChecklist';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DashboardSection {
   id: string;
@@ -40,6 +43,8 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isReady, setIsReady] = useState(false);
   const [isAngabenExpanded, setIsAngabenExpanded] = useState(true);
+  const [intakeMode, setIntakeMode] = useState<IntakeMode | null>(null);
+  const [modeSheetOpen, setModeSheetOpen] = useState(false);
   const [tipDismissed, setTipDismissed] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('dashboard-tip-dismissed') === 'true';
@@ -48,18 +53,40 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const { activeTaxFilerId } = useTaxFiler();
   const formTour = useFormTourSafe();
 
-  // Load payment status
+  // Load payment status + intake mode
   useEffect(() => {
-    const loadPaymentStatus = async () => {
+    const loadTaxReturn = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !taxYear || !activeTaxFilerId) return;
-      const { data } = await supabase.from('tax_returns').select('payment_status').eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId).maybeSingle();
-      if (data?.payment_status) {
-        setPaymentStatus(data.payment_status);
-      }
+      const { data } = await supabase.from('tax_returns')
+        .select('payment_status, intake_mode')
+        .eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId)
+        .maybeSingle();
+      if (data?.payment_status) setPaymentStatus(data.payment_status);
+      setIntakeMode(((data as any)?.intake_mode as IntakeMode) ?? 'guided');
     };
-    loadPaymentStatus();
+    loadTaxReturn();
   }, [taxYear, activeTaxFilerId]);
+
+  const handleSelectMode = async (mode: IntakeMode) => {
+    if (!activeTaxFilerId || !taxYear) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: existing } = await supabase.from('tax_returns')
+      .select('id').eq('user_id', user.id).eq('tax_year', taxYear).eq('tax_filer_id', activeTaxFilerId)
+      .maybeSingle();
+    if (!existing) {
+      await supabase.from('tax_returns').insert({
+        user_id: user.id, tax_year: taxYear, tax_filer_id: activeTaxFilerId,
+        intake_mode: mode, status: 'in_progress',
+      } as any);
+    } else {
+      await supabase.from('tax_returns').update({ intake_mode: mode } as any).eq('id', existing.id);
+    }
+    setIntakeMode(mode);
+    setModeSheetOpen(false);
+    toast.success('Modus aktualisiert – deine Daten bleiben erhalten.');
+  };
 
   // Mark component as ready after initial data load
   useEffect(() => {
@@ -287,8 +314,33 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
   const Rc = 15.9155;
   const dashLen = pct;
 
+  const modeSwitcher = (
+    <div className="flex items-center justify-between gap-3 mb-4 px-1">
+      <div className="text-[12px] text-muted-foreground">
+        Modus: <span className="font-medium text-foreground">
+          {intakeMode === 'prior_year_upload' ? 'Vorjahres-Upload' : 'Begleitet'}
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={() => setModeSheetOpen(true)}
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-primary hover:underline"
+      >
+        <Settings2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+        Modus wechseln
+      </button>
+    </div>
+  );
+
+  const priorYearContent = activeTaxFilerId ? (
+    <PriorYearChecklist taxFilerId={activeTaxFilerId} taxYear={taxYear} />
+  ) : null;
+
   const stepsContent = (
     <>
+      {modeSwitcher}
+      {intakeMode === 'prior_year_upload' ? priorYearContent : (
+        <>
       <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step list ═══════════ */}
@@ -370,6 +422,15 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
           </button>
         </div>
       )}
+        </>
+      )}
+      <IntakeModeSheet
+        open={modeSheetOpen}
+        onOpenChange={setModeSheetOpen}
+        currentMode={intakeMode}
+        onSelect={handleSelectMode}
+        taxYear={taxYear}
+      />
     </>
   );
 
