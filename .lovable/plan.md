@@ -1,7 +1,14 @@
-## Änderung
+## Änderungen auf der Unterlagen-Seite
 
-In `src/components/intake/PriorYearUpload.tsx` (Zeile ~344) das kleine `<Sparkles />`-Icon rechts neben dem Titel „KI-Analyse mit Google Gemini" entfernen. Der `flex items-center gap-1.5`-Wrapper bleibt unverändert (Layout stabil), nur das Icon wird gelöscht.
+**1. Globe-Bild auf jeder offenen Dokumenten-Karte entfernen**
+- Datei: `src/components/DocumentChecklist.tsx`, Zeile 499
+- Das `<img src={uploadEmptyImg} … />` (die kleine Erdkugel-Illustration) wird gelöscht. Karte rückt enger zusammen, Titel + Status-Badge stehen oben.
+- Der Import `uploadEmptyImg` wird ebenfalls entfernt, da nicht mehr verwendet.
 
-Der `Sparkles`-Import in Zeile 7 bleibt bestehen, da das Icon weiterhin in der Live-Progress-Stages-Liste (AI-Flow) verwendet wird.
+**2. Hintergrund der Unterlagen-Seite auf reines Weiss**
+- Datei: `src/pages/Documents.tsx`, Zeile 350
+- Aktuell: `bg-transparent` (zeigt den globalen warm-off-white Fintech-Hintergrund durch).
+- Neu: `bg-white`, damit die Seite einen sauberen weissen Untergrund hat (wie im Screenshot gewünscht).
+- Header bleibt unverändert (bereits `bg-white/90`).
 
-Sonst keine weiteren Änderungen.
+Keine weiteren Änderungen an Karten-Padding, Buttons oder dem oberen „Alle Unterlagen auf einmal hochladen"-Block.

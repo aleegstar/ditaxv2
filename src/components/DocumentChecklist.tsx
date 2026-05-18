@@ -496,7 +496,7 @@ return <div className="min-h-screen">
                       key={item.id}
                       className="rounded-3xl bg-white/60 border border-slate-200 p-5 flex flex-col items-center text-center"
                     >
-                      <img src={uploadEmptyImg} alt="" width={448} height={448} loading="lazy" decoding="async" className="w-28 h-28 object-contain mb-3" />
+                      
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-[15px] font-semibold text-slate-900 leading-snug">
                           {item.title}
