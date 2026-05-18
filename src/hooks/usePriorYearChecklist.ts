@@ -69,5 +69,20 @@ export function usePriorYearChecklist(taxFilerId: string | null | undefined, tax
     await supabase.from("prior_year_checklist_items").update(patch as any).eq("id", id);
   }, []);
 
-  return { checklist, items, loading, reload: load, updateItem };
+  const bulkUpdateCategory = useCallback(async (
+    category: ItemCategory,
+    patch: Partial<ChecklistItem>,
+    checklistId?: string,
+  ) => {
+    setItems(prev => prev.map(it => (it.category === category ? { ...it, ...patch } : it)));
+    const clId = checklistId ?? checklist?.id;
+    if (!clId) return;
+    await supabase
+      .from("prior_year_checklist_items")
+      .update(patch as any)
+      .eq("checklist_id", clId)
+      .eq("category", category);
+  }, [checklist?.id]);
+
+  return { checklist, items, loading, reload: load, updateItem, bulkUpdateCategory };
 }
