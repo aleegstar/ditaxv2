@@ -191,6 +191,25 @@ const Help = () => {
             </div>
           ) : (
             <>
+              {/* Hero card */}
+              <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)] mb-8">
+                <div className="relative h-32 sm:h-40 bg-muted overflow-hidden">
+                  <img src={helpHero} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm border border-border">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" strokeWidth={1.8} />
+                    Wissensdatenbank
+                  </div>
+                </div>
+                <div className="px-5 py-4">
+                  <h1 className="text-[15px] font-semibold text-foreground tracking-tight">
+                    Hilfe & Dokumentation
+                  </h1>
+                  <p className="text-[12.5px] text-muted-foreground mt-1 leading-relaxed">
+                    Antworten, Anleitungen und Tipps rund um deine Schweizer Steuererklärung.
+                  </p>
+                </div>
+              </div>
+
               <DocsArticleContent
                 articleId={selectedArticle.articleId}
                 categoryId={selectedArticle.categoryId}
