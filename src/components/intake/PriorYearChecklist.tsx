@@ -136,9 +136,10 @@ const ChangeChip: React.FC<{
   </button>
 );
 
+type ChecklistItemType = ReturnType<typeof usePriorYearChecklist>["items"][number];
 const ChecklistRow: React.FC<{
-  item: ReturnType<typeof usePriorYearChecklist>["items"][number];
-  onChange: (patch: Partial<typeof item>) => void;
+  item: ChecklistItemType;
+  onChange: (patch: Partial<ChecklistItemType>) => void;
 }> = ({ item, onChange }) => {
   const setStatus = (status: ChangeStatus) =>
     onChange({ change_status: status, completed: status !== "pending" });
