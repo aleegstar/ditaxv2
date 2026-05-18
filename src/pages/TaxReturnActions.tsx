@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { ModernUploadDialog, ModernUploadDialogContent, ModernUploadDialogHeader, ModernUploadDialogTitle } from "@/components/ui/modern-upload-dialog";
 import { SignatureDialog } from "@/components/signature/SignatureDialog";
 import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
+import completedHero from "@/assets/completed-hero.webp";
 
 interface UserProfile {
   first_name: string;
