@@ -388,22 +388,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
               className={`relative w-full overflow-hidden p-4 text-left transition-all active:scale-[0.995] ${cardClass}`}
             >
               <div className="relative flex items-center gap-4">
-                <img
-                  src={expressIllustration}
-                  alt=""
-                  className="w-16 h-16 object-contain shrink-0"
-                />
+                <div className="w-11 h-11 rounded-xl bg-primary/[0.07] border border-primary/15 flex items-center justify-center shrink-0">
+                  <Zap className="w-5 h-5 text-primary" strokeWidth={1.75} />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-[15px] leading-tight font-semibold text-slate-900 tracking-tight">
+                  <h3 className="text-[14.5px] leading-tight font-semibold text-foreground tracking-tight">
                     Express-Service
                   </h3>
-                  <p className="text-[12px] text-slate-500 mt-0.5 leading-snug">
+                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
                     Innert 10 Tagen · +CHF {isPromoWeekActive() ? '29.00' : '100.00'}
                   </p>
                 </div>
                 <div
                   className={`w-11 h-[26px] rounded-full transition-colors relative shadow-inner shrink-0 ${
-                    expressService ? 'bg-[#2563FF]' : 'bg-slate-200/80'
+                    expressService ? 'bg-primary' : 'bg-muted'
                   }`}
                 >
                   <div
