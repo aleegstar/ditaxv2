@@ -418,7 +418,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
 
           <ul className="text-[13px] text-foreground/90 space-y-2 list-disc pl-5">
             <li>Es werden <strong>nur</strong> die benötigten Dokumenten-Kategorien zurückgegeben – keine Beträge, Namen, AHV oder Adressen.</li>
-            <li>Dein PDF wird <strong>nicht gespeichert</strong>, weder bei uns noch bei Google.</li>
+            <li>Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert (nur Du und unser Steuer-Team sehen es); Google speichert es nicht.</li>
             <li>Die Verarbeitung erfolgt ausschliesslich zur Erstellung Deiner Checkliste.</li>
             <li>Du kannst die KI-Analyse jederzeit wieder deaktivieren.</li>
           </ul>
