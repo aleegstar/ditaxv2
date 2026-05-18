@@ -270,11 +270,6 @@ const IntroductionArticle: ArticleComponent = ({ categoryTitle }) => (
           Deine Steuererklärung – einfach, sicher und von Experten erstellt. Lade deine Dokumente hoch und lehn dich zurück.
         </p>
       </div>
-      <img
-        src={docsFolderHero}
-        alt="Ditax Dokumente"
-        className="w-full max-w-[300px] md:max-w-[280px] mx-auto md:mx-0"
-      />
     </div>
 
     <TipBox variant="info">
