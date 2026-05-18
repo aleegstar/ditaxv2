@@ -393,21 +393,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       <div className="flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 p-3">
         <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" strokeWidth={1.75} />
         <p className="text-[12px] text-muted-foreground leading-relaxed">
-          {aiEnabled ? (
-            <>
-              <strong className="text-foreground">KI-Analyse aktiv:</strong> Dein PDF wird
-              verschlüsselt an Google Gemini übermittelt, einmalig ausgewertet und sofort
-              verworfen – weder wir noch Google speichern es. Es werden nur die benötigten
-              Dokumenten-Kategorien zurückgegeben (keine Beträge, Namen oder Adressen).
-            </>
-          ) : (
-            <>
-              <strong className="text-foreground">Lokale Verarbeitung:</strong> Dein PDF wird
-              direkt auf deinem Gerät analysiert. Auch die Texterkennung (OCR) läuft komplett
-              in deinem Browser. Nur in seltenen Ausnahmen wird ein anonymisierter Text-Auszug
-              (ohne Namen, AHV, IBAN oder Adresse) verarbeitet.
-            </>
-          )}
+          <strong className="text-foreground">Dein PDF wird verschlüsselt in deinem privaten Bereich gespeichert</strong> –
+          nur Du und unser Steuer-Team haben Zugriff. So kannst Du es jederzeit ersetzen.
+          {aiEnabled
+            ? " Für die Analyse wird es einmalig an Google Gemini übermittelt; Google speichert es nicht."
+            : " Die Analyse erfolgt lokal auf deinem Gerät."}
         </p>
       </div>
 
