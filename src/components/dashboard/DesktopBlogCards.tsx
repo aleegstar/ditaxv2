@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen } from 'lucide-react';
 import blogRechtsformen from '@/assets/blog-rechtsformen.png';
+import blogSaeule3a from '@/assets/blog-saeule-3a.webp';
 
 interface BlogPost {
   image: string;
@@ -17,7 +18,7 @@ const POSTS: BlogPost[] = [
     href: '#',
   },
   {
-    image: 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=900&q=80',
+    image: blogSaeule3a,
     title: 'Steuern sparen mit der Säule 3a: So profitierst du doppelt',
     tags: [{ label: 'Vorsorge' }],
     href: '#',
