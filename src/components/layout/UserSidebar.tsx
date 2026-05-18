@@ -21,6 +21,8 @@ import { useI18n } from '@/contexts/I18nContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { cn } from '@/lib/utils';
+import inviteFriendsImage from '@/assets/invite-friends-couple.jpg';
+
 
 interface NavItem {
   label: string;
@@ -184,14 +186,23 @@ export const UserSidebar: React.FC = () => {
         {/* Invite Card */}
         <button
           onClick={() => navigate('/invite-friends')}
-          className="w-full bg-white border border-slate-200/60 rounded-2xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] flex items-center gap-4 cursor-pointer hover:shadow-md hover:border-slate-200 transition-all text-left"
+          className="group relative w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/70 transition-all text-left"
         >
-          <div className="w-10 h-10 rounded-full bg-blue-50/50 border border-blue-100/50 flex items-center justify-center text-blue-600 flex-shrink-0">
-            <Gift className="w-5 h-5" strokeWidth={1.75} />
+          <div className="relative h-20 overflow-hidden">
+            <img
+              src={inviteFriendsImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#0F1B3D]/85 via-[#1E3A5F]/55 to-transparent" />
+            <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#0F1B3D] shadow-sm">
+              <Gift className="w-3 h-3" strokeWidth={2} />
+              20 CHF
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-slate-900">Freunde einladen</div>
-            <div className="text-xs text-slate-500 mt-0.5">20 CHF Guthaben erhalten</div>
+          <div className="px-4 py-3">
+            <div className="text-sm font-semibold text-slate-900 leading-tight">Freunde einladen</div>
+            <div className="text-xs text-slate-500 mt-0.5">Guthaben für euch beide</div>
           </div>
         </button>
 
