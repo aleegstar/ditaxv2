@@ -292,7 +292,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step list ═══════════ */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         <StepRow
           n={1}
           state={allAngabenComplete ? 'done' : 'active'}
@@ -307,7 +307,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <StepRow
           n={2}
           state={!allAngabenComplete ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
-          title={t.formDashboard.documentsTitle}
+          title="Belege & Unterlagen"
           desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
           statusLabel={
             !allAngabenComplete ? 'Noch nicht gestartet'
@@ -322,7 +322,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <StepRow
           n={3}
           state={!canSubmit ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
-          title={t.formDashboard.reviewAndSubmit}
+          title="Prüfung & Versand"
           desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
           statusLabel={
             !canSubmit ? 'Noch nicht gestartet'
@@ -335,46 +335,39 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         />
       </div>
 
-      {/* ═══════════ CTA banner ═══════════ */}
+      {/* ═══════════ Resume / Progress card ═══════════ */}
       {remainingSteps > 0 && (
-        <div className="mt-6 p-6 border border-slate-200 rounded-2xl bg-[#F9FAFB] flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-slate-200"
-                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
-                fill="none" stroke="currentColor" strokeWidth="3"
-              />
-              <path
-                className="text-slate-900"
-                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
-                fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-                strokeDasharray={`${dashLen}, 100`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-[16px] font-medium text-slate-900 tabular-nums">
-              {pct}%
+        <div
+          onClick={handleCtaClick}
+          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] rounded-[1.25rem] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 mt-5 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] transition-all"
+        >
+          <div className="flex items-center gap-5">
+            <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-slate-100" />
+                <circle
+                  cx="32" cy="32" r="28"
+                  stroke="currentColor" strokeWidth="5" fill="transparent"
+                  strokeDasharray={2 * Math.PI * 28}
+                  strokeDashoffset={2 * Math.PI * 28 * (1 - pct / 100)}
+                  className="text-[#1E3A5F] transition-all duration-1000 ease-in-out"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="absolute text-sm font-semibold text-slate-900 tabular-nums">{pct}%</span>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{ctaHeadline}</h3>
+              <p className="text-base text-slate-500">{ctaSubline}</p>
             </div>
           </div>
-
-          <div className="flex-1 min-w-0">
-            <h3 className="text-[17px] font-medium text-slate-900 tracking-[-0.005em]">
-              {ctaHeadline}
-            </h3>
-            <p className="text-[14px] text-slate-500 mt-1 leading-relaxed">
-              {ctaSubline}
-            </p>
-          </div>
-
-          <div className="shrink-0 w-full sm:w-auto">
-            <button
-              onClick={handleCtaClick}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 hover:bg-slate-50 transition-colors shadow-sm"
-            >
-              Fortsetzen
-              <ChevronRight className="w-4 h-4" strokeWidth={2} />
-            </button>
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleCtaClick(); }}
+            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+          >
+            Fortsetzen
+            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+          </button>
         </div>
       )}
     </>
