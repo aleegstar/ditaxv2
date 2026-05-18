@@ -14,6 +14,7 @@ import { isAndroidEnvironment } from "@/utils/platform";
 import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';
+import authHero from "@/assets/auth-hero.webp";
 
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
