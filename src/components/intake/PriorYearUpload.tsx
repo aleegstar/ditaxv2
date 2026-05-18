@@ -229,17 +229,6 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     }
   };
 
-  const buttonLabel = () => {
-    if (phase === "parsing") return "Analysiere lokal …";
-    if (phase === "ocr")
-      return ocrProgress
-        ? `Erkenne Text (OCR) … Seite ${ocrProgress.page}/${ocrProgress.total}`
-        : "Erkenne Text (OCR) …";
-    if (phase === "structuring") return "Strukturiere …";
-    if (phase === "ai") return "Google Gemini analysiert …";
-    return "PDF auswählen";
-  };
-
   return (
     <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
       <div className="flex items-start gap-3">
