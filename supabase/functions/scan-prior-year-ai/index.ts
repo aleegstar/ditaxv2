@@ -95,6 +95,20 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
+    // Verify the taxFilerId belongs to the authenticated user
+    const { data: filerRow, error: filerErr } = await admin
+      .from("tax_filers")
+      .select("id")
+      .eq("id", taxFilerId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (filerErr || !filerRow) {
+      return new Response(JSON.stringify({ error: "forbidden tax_filer" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Upload PDF to private storage (verschlüsselt via Supabase Storage),
     // damit Nutzer es ersetzen und unser Team es einsehen kann.
     const storagePath = `${userId}/${taxFilerId}/${taxYear}.pdf`;
