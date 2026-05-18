@@ -21,6 +21,8 @@ import { useI18n } from '@/contexts/I18nContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useTaxFiler } from '@/contexts/TaxFilerContext';
 import { cn } from '@/lib/utils';
+import inviteFriendsImage from '@/assets/invite-friends-couple.jpg';
+
 
 interface NavItem {
   label: string;
