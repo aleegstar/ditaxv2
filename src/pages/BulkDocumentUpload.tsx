@@ -9,9 +9,11 @@ import {
   X,
   ChevronDown,
   Sparkles,
-  GripVertical,
-  Inbox,
+  ChevronLeft,
+  ChevronRight,
+  SkipForward,
 } from 'lucide-react';
+import { BulkPreviewCard } from '@/components/documents/BulkPreviewCard';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
 import { FormProvider, useFormContext } from '@/contexts/form';
