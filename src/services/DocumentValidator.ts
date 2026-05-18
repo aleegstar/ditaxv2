@@ -132,6 +132,25 @@ class DocumentValidator {
     // Step 4: Keyword detection
     let keywordSignals = await this.detectKeywords(file);
 
+    // Scanned-PDF fallback: rasterize pages and OCR them when the PDF
+    // has no usable text layer (typical for scanner output like "SKM…").
+    if (
+      !keywordSignals?.available &&
+      file.type === 'application/pdf' &&
+      window.pdfjsLib
+    ) {
+      try {
+        console.log('[DocumentValidator] PDF has no text layer – rasterizing for OCR');
+        onProgress?.({ step: 'ocr', percent: 35, message: 'Gescanntes PDF wird lokal erkannt...' });
+        keywordSignals = await this.detectKeywordsFromPdfImages(file, (percent) => {
+          const mappedPercent = 35 + Math.round(percent * 0.45);
+          onProgress?.({ step: 'ocr', percent: mappedPercent, message: 'Gescanntes PDF wird lokal erkannt...' });
+        });
+      } catch (e) {
+        console.warn('[DocumentValidator] PDF OCR fallback failed', e);
+      }
+    }
+
     // For images: Use LOCAL OCR (Native on mobile, Tesseract.js in browser)
     // FALLBACK: Cloud OCR on mobile with explicit user consent
     // PRIVACY: Local processing preferred, cloud only with opt-in
