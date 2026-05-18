@@ -4,10 +4,7 @@ import { ShieldCheck, Clock, FileText } from 'lucide-react';
 import { YesNoQuestion as YesNoQuestionType } from '@/types/multiStepYesNo';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/contexts/I18nContext';
-import sectionIncomeImg from '@/assets/section-income.svg';
-import sectionDeductionsImg from '@/assets/section-deductions.svg';
-import sectionAssetsImg from '@/assets/section-assets.svg';
-import sectionContactImg from '@/assets/section-contact.svg';
+import yesNoHero from '@/assets/yesno-hero.webp';
 
 const sectionImages: Record<string, string> = {
   income: sectionIncomeImg,
