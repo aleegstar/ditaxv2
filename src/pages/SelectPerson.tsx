@@ -47,7 +47,7 @@ const SelectPerson: React.FC = () => {
   // Cards render once taxFilers is available; empty state during initial load.
   return (
     <div className="min-h-screen antialiased relative bg-white">
-      <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-16 pb-16">
+      <div className="relative z-10 max-w-[440px] mx-auto px-6 pt-10 pb-16">
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src={ditaxLogoFull} alt="Ditax" className="h-6 opacity-90" />
