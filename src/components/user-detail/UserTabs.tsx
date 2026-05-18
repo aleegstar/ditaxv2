@@ -16,6 +16,7 @@ import FormDataPdfDownloader from './FormDataPdfDownloader';
 import DocumentPreview from './DocumentPreview';
 import CompletedTaxReturnManager from './CompletedTaxReturnManager';
 import { UserDefinitiveTaxBill } from './UserDefinitiveTaxBill';
+import { PriorYearReturnCard } from './PriorYearReturnCard';
 
 // Category mapping for checklist items
 const CHECKLIST_CATEGORY_MAP: Record<string, 'income' | 'assets' | 'deductions' | 'general'> = {
