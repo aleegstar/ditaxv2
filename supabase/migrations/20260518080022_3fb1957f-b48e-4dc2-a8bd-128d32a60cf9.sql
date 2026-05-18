@@ -1,0 +1,1 @@
+ALTER TABLE public.tax_returns ADD COLUMN IF NOT EXISTS intake_mode_chosen_at timestamptz;
