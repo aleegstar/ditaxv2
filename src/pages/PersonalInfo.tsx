@@ -8,6 +8,7 @@ import { FormProvider, useFormContext } from '@/contexts/form/FormContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
 import completeIllustration from '@/assets/documents-complete-illustration.svg';
+import personalInfoHero from '@/assets/personal-info-hero.webp';
 
 type SectionDef = {
   id: 'contact' | 'income' | 'deductions' | 'assets';
