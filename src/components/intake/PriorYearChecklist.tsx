@@ -145,6 +145,27 @@ export const PriorYearChecklist: React.FC<Props> = ({ taxFilerId, taxYear }) => 
           taxYear={taxYear}
         />
       )}
+
+      <AppDialog open={replaceOpen} onOpenChange={setReplaceOpen}>
+        <AppDialogContent size="default">
+          <AppDialogHeader>
+            <AppDialogTitle>Vorjahres-PDF ersetzen</AppDialogTitle>
+            <AppDialogDescription>
+              Lade ein neues PDF hoch. Deine bisherige Checkliste wird durch die
+              Analyse der neuen Datei ersetzt.
+            </AppDialogDescription>
+          </AppDialogHeader>
+          <PriorYearUpload
+            taxFilerId={taxFilerId}
+            taxYear={taxYear}
+            compact
+            onScanStarted={() => {
+              setReplaceOpen(false);
+              reload();
+            }}
+          />
+        </AppDialogContent>
+      </AppDialog>
     </div>
   );
 };
