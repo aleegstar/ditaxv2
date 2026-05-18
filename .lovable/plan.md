@@ -1,48 +1,41 @@
-# Scan-Fallback für Vorjahres-PDFs ohne Text-Layer
+# OCR vereinfachen: nur Kategorien → Dokumenten-Checkliste
 
 ## Problem
-Das hochgeladene `Steuererklärung_2014_ID_4963.pdf` ist ein reiner Bild-Scan (kein Text-Layer, `pdftotext` liefert 0 Zeichen). Aktuell stoppt `PriorYearUpload.tsx` mit der Meldung "Bitte gib die Positionen manuell ein". Das passiert in der Praxis bei vielen älteren Steuererklärungen (eingescannte Papierversionen, Foto-PDFs aus Despia).
+Der aktuelle Extractor versucht **Werte** (CHF-Beträge) zu erkennen und füllt eine "Persönliche Daten"-Sektion mit Items wie *Kinder im Haushalt → Vorjahr: 18.04.201*. Das ist ein Falschtreffer (eine Datumszahl wird als Wert interpretiert) und für den Zweck gar nicht nötig: Wir wollen aus dem Vorjahr **nur ableiten, welche Dokumente der User dieses Jahr bringen muss**.
 
-Wir wollen den Datenschutz-Vorteil ("PDF verlässt das Gerät nicht") behalten, dem User aber trotzdem eine automatische Checkliste anbieten.
-
-## Lösung (Stufenmodell, alles client-seitig)
-
-```
-PDF
- ├─ Stufe 1: pdfjs Text-Layer  ── reicht? ─► Checkliste (lokal)
- │                              └─ nein
- ├─ Stufe 2: pdfjs render → Tesseract.js OCR im Browser
- │            (deu+fra+ita, max. 6 Seiten, ~10–30 s)
- │            ── Text reicht? ─► Checkliste (lokal-OCR)
- │            └─ nein
- ├─ Stufe 3: pseudonymisierter Text an Edge Function (Gemini-Struktur)
- │            (nur wenn Stufe 1 oder 2 Text geliefert hat)
- └─ Stufe 4: echter Scan komplett unleserlich
-              → freundlicher Hinweis + Button "Manuell ausfüllen"
-```
-
-Tesseract läuft im Web-Worker. Wir nutzen die bereits im Projekt vorhandenen Bausteine (`TesseractWasmOcrService`, `public/ocr/tesseract-worker.js`) und reduzieren die Seitenzahl (typische CH-Steuererklärung: Deckblatt + 4–6 Formularseiten reichen).
+## Ziel
+Ein Vorjahr-Eintrag wie "Lohn / Lohnausweis" soll im neuen Jahr genau **eine** Dokumenten-Anforderung erzeugen: *"Lohnausweis bereithalten"*. Keine Beträge, keine persönlichen Daten, keine Adressen.
 
 ## Änderungen
 
-1. **`src/services/PriorYearLocalExtractor.ts`**
-   - Neue Funktion `ocrPdfLocally(file, { maxPages = 6, languages = "deu+fra+ita", onProgress })` 
-     - rendert jede Seite via `pdfjs` auf ein `OffscreenCanvas` (Faktor 2 für Lesbarkeit)
-     - lässt Tesseract.js (CDN, gleiche Quelle wie `LohnausweisOcrService`) den Text extrahieren
-     - gibt kombinierten Text zurück
-   - `hasUsableTextLayer` bleibt unverändert.
+### 1. `src/services/PriorYearLocalExtractor.ts`
+- **Entfernen**: `CHF`-Regex, `value`-Feld, `CONTACT_RULES`, gesamte Kontakt-Auswertung.
+- **Vereinfachen**: `ExtractedScan` enthält nur noch `income | assets | deductions` mit Items vom Typ `{ label: string }` (ohne `value`).
+- **Regeln umbenennen** auf das *Dokument*, das gebraucht wird – das ist das, was der User sehen wird:
+  - Einkommen: `Lohnausweis`, `Rentenbescheinigung (AHV/IV)`, `Pensionskassen­ausweis`, `Bescheinigung Säule 3a-Bezug`, `Wertschriften-/Depotverzeichnis`, `Liegenschafts­ertrag-Abrechnung`, `Bestätigung Alimente/Unterhalt`, `Arbeitslosen­taggeld-Abrechnung`, `Nachweis Selbständigerwerb`.
+  - Vermögen: `Bankkontoauszug per 31.12.`, `Depotauszug per 31.12.`, `Säule 3a-Saldobestätigung`, `Rückkaufswert Lebensversicherung`, `Liegenschaftsbeleg`, `Fahrzeugausweis / Eurotax`, `Krypto-Saldonachweis`.
+  - Abzüge: `Berufsauslagen-Belege`, `Säule 3a-Einzahlungs­bestätigung`, `PK-Einkauf-Beleg`, `Belege Krankheits-/Unfallkosten`, `Krankenkassen-Prämienrechnung`, `Spendenbescheinigung`, `Schuldzinsen-Bescheinigung`, `Kinderbetreuungs-Beleg`, `Beleg Unterhaltszahlung`, `Beleg Liegenschaftsunterhalt`, `Parteibeitrags-Beleg`.
+- **Robusterer Match**: Pattern dürfen erst feuern, wenn das Keyword als **eigenständiges Wort** vorkommt (Wortgrenzen / Mindestkontext), damit OCR-Rauschen wie "18.04.201" nicht zu Kinder-Items wird.
+- `isLocalResultSufficient` bleibt, prüft aber nur noch `income.length + assets.length + deductions.length >= 3` (statt der bisherigen 4 inkl. contact).
+- `pseudonymize` bleibt unverändert (Edge-Function-Fallback).
 
-2. **`src/components/intake/PriorYearUpload.tsx`**
-   - Statt sofort `toast.error` zu zeigen, wenn kein Text-Layer da ist:
-     - State `phase: "idle" | "parsing" | "ocr" | "structuring"` mit Progress-Anzeige.
-     - Button-Label: "Analysiere lokal …", "Erkenne Text (OCR) …", "Strukturiere …".
-   - Wenn OCR-Text wieder zu dünn ist (< 400 Zeichen brauchbar): Hinweis-Card mit Button "Trotzdem manuell ausfüllen", der den `guided`-Modus öffnet.
-   - Privacy-Hinweis erweitern: "Auch die Texterkennung (OCR) läuft komplett auf deinem Gerät."
+### 2. `src/components/intake/PriorYearUpload.tsx`
+- Beim Speichern: nur noch `income / assets / deductions` schreiben, **kein** `contact` mehr.
+- `source_value` immer `null` setzen (Spalte bleibt im Schema, wird aber leer).
 
-3. **Keine Änderung** an `supabase/functions/scan-prior-year` nötig – die Function erwartet weiterhin nur pseudonymisierten Text.
+### 3. `supabase/functions/scan-prior-year/index.ts`
+- Gemini-Prompt anpassen: liefere nur Kategorie + benötigtes Dokument (Label), keine Werte/Beträge, keine Kontaktdaten. Wenn die Function aktuell `contact` schreibt → entfernen.
 
-## Technische Notes
-- Tesseract-Worker-Bundle ist ~12 MB (einmalig gecacht). Wir laden es lazy erst wenn Stufe 2 nötig ist.
-- Mobile Performance: max. 6 Seiten × ~3–5 s = vertretbar, mit klarem Progress-UI.
-- Speichersicher: `canvas.toDataURL` ersetzen durch `canvas.transferToImageBitmap`/Blob, Bitmap nach Verarbeitung freigeben.
-- Fehlertoleranz: Wenn Tesseract crasht (RAM auf Low-End-Geräten), sauber zu "manuell ausfüllen" zurückfallen, kein Upload.
+### 4. `src/components/intake/PriorYearChecklist.tsx`
+- `CATEGORY_LABEL`/`CATEGORY_QUESTION`-Einträge für `contact` bleiben für Altdaten erhalten, neue Scans liefern aber keine mehr.
+- `ItemRow`: "Vorjahr: …" nur noch anzeigen, wenn `source_value` wirklich gesetzt ist (bleibt also nur bei alten Datensätzen).
+- Optional (kleines Polish): Frage je Kategorie umformulieren auf Dokumenten-Fokus, z. B. *"Welche Belege brauchst du für deine Einkünfte?"*. **Nur** wenn Du das willst – sage Bescheid, sonst lasse ich die bisherigen Fragen.
+
+### 5. `priorYearMapping.ts`
+- Unverändert. Mapping arbeitet bereits auf `label` und ist tolerant genug für die neuen, dokumentenzentrierten Labels (z. B. matcht *"Lohnausweis"* weiterhin `hasSalary`).
+
+## Resultat
+- Keine "Persönliche Daten"-Karte mehr.
+- Keine wackeligen CHF-Werte im UI.
+- Jeder Treffer = ein klar benanntes Dokument, das der User dieses Jahr hochladen muss → direkter Übergang zur Dokumenten-Checkliste.
+- OCR-Fehler erzeugen viel seltener Geister-Items, weil wir Wortgrenzen erzwingen und Werte ignorieren.
