@@ -486,7 +486,7 @@ const Auth = () => {
       handleCodeVerification(code);
     }
   };
-  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-[#FAFAF8]">
+  return <div className="min-h-screen text-foreground antialiased overflow-hidden relative bg-white sm:bg-[#FAFAF8]">
 
       {/* Minimal neutral background with extremely subtle grain */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
