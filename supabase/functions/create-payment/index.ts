@@ -123,11 +123,11 @@ serve(async (req) => {
         
         logStep("Missing environment variables", { missing, requestId });
         return new Response(JSON.stringify({ 
-          error: `Missing environment variables: ${missing.join(', ')}`,
+          error: 'Service temporarily unavailable',
           requestId 
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 500,
+          status: 503,
         });
       }
 
