@@ -162,66 +162,103 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
     onAction?: () => void;
   }> = ({ n, state, title, desc, statusLabel, statusTone, actionLabel, onAction }) => {
     const dotCls =
-      statusTone === 'green'  ? 'bg-green-500'
-      : statusTone === 'orange' ? 'bg-orange-400'
+      statusTone === 'green'  ? 'bg-emerald-500'
+      : statusTone === 'orange' ? 'bg-amber-400'
       : 'bg-slate-300';
-    const textTone = statusTone === 'slate' ? 'text-slate-500' : 'text-slate-600';
 
-    const containerBase = 'relative overflow-hidden p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-6 transition-shadow';
-    const containerCls =
-      state === 'active'
-        ? `${containerBase} border-slate-200 bg-white shadow-sm ring-1 ring-slate-900/5`
-        : state === 'done'
-          ? `${containerBase} border-slate-200 bg-white hover:shadow-sm`
-          : `${containerBase} border-slate-200 bg-slate-50/60`;
+    // ───── Active step: prominent hero-style card ─────
+    if (state === 'active') {
+      return (
+        <div
+          onClick={onAction}
+          className="group cursor-pointer relative bg-gradient-to-b from-[#F8FAFF] to-white border border-blue-100/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.04)] rounded-[2rem] p-8 md:p-10 flex flex-col transition-all duration-500 hover:shadow-[0_12px_50px_-12px_rgba(37,99,235,0.08)]"
+        >
+          <div className="flex items-center gap-2 mb-6">
+            <div className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500" />
+            </div>
+            <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-widest">
+              Schritt {n}
+            </span>
+          </div>
 
-    const circleCls =
-      state === 'done'   ? 'w-14 h-14 rounded-full bg-green-50 border border-green-100 text-green-600 flex items-center justify-center shrink-0'
-      : state === 'active' ? 'w-14 h-14 rounded-full bg-slate-900 text-white text-[18px] font-medium flex items-center justify-center shrink-0'
-      : 'w-14 h-14 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-[18px] font-medium flex items-center justify-center shrink-0';
+          <div className="space-y-3 max-w-xl mb-4">
+            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
+              {title}
+            </h3>
+            <p className="text-base text-slate-500 leading-relaxed">
+              {desc}
+            </p>
+          </div>
+
+          <div className="mt-8 pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-100/60 via-slate-100 to-transparent" />
+            <div className="flex items-center gap-3">
+              <span className={cn('w-2 h-2 rounded-full', dotCls)} />
+              <span className="text-[15px] text-slate-600 font-medium">{statusLabel}</span>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[15px] font-medium flex items-center justify-center gap-2.5 shadow-[0_4px_16px_-4px_rgba(15,27,61,0.3)] hover:shadow-[0_8px_24px_-4px_rgba(15,27,61,0.4)] transition-all duration-300 transform group-hover:-translate-y-0.5"
+            >
+              {actionLabel}
+              <ChevronRight className="w-4 h-4 text-white/90" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // ───── Done / Locked: compact row ─────
+    const isDone = state === 'done';
+    const containerCls = isDone
+      ? 'bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)]'
+      : 'bg-slate-50/40 border border-slate-200/50';
 
     return (
       <div
         onClick={state !== 'locked' ? onAction : undefined}
-        className={cn(containerCls, state !== 'locked' && 'cursor-pointer')}
-      >
-        {state === 'active' && (
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-900 rounded-l-2xl" />
+        className={cn(
+          'rounded-[1.25rem] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all',
+          containerCls,
+          state !== 'locked' && 'cursor-pointer'
         )}
-        <div className={circleCls}>
-          {state === 'done' ? <Check className="w-6 h-6" strokeWidth={2} /> : n}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-[17px] font-medium text-slate-900 tracking-[-0.005em]">{title}</h3>
-          <p className="text-[14px] text-slate-500 mt-1 leading-relaxed">{desc}</p>
-          <div className={cn('flex items-center gap-2 mt-3 text-[13px]', textTone)}>
-            <span className={cn('w-2 h-2 rounded-full', dotCls)} />
-            {statusLabel}
+      >
+        <div className={cn('flex items-start gap-6', !isDone && 'opacity-70')}>
+          <div className={cn(
+            'w-12 h-12 rounded-full flex items-center justify-center shrink-0',
+            isDone
+              ? 'bg-emerald-50/50 border border-emerald-100/50 text-emerald-600'
+              : 'bg-slate-100/80 border border-slate-200/60 text-slate-400'
+          )}>
+            {isDone ? <Check className="w-6 h-6" strokeWidth={2} /> : <span className="text-xl font-medium">{n}</span>}
+          </div>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{n}</span>
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{title}</h3>
+            </div>
+            <p className="text-base text-slate-500">{desc}</p>
+            <div className="flex items-center gap-2 pt-1">
+              <span className={cn('w-2 h-2 rounded-full', dotCls)} />
+              <span className="text-sm text-slate-600 font-medium">{statusLabel}</span>
+            </div>
           </div>
         </div>
-        <div className="shrink-0 pt-2 sm:pt-0">
-          {state === 'locked' ? (
-            <div className="w-10 h-10 flex items-center justify-center">
-              <Lock className="w-[18px] h-[18px] text-slate-400" strokeWidth={1.75} />
-            </div>
-          ) : state === 'active' ? (
-            <button
-              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[13px] font-medium hover:bg-slate-800 transition-colors shadow-sm"
-            >
-              {actionLabel}
-              <ChevronRight className="w-4 h-4" strokeWidth={2} />
-            </button>
-          ) : (
-            <button
-              onClick={(e) => { e.stopPropagation(); onAction?.(); }}
-              className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 hover:bg-slate-50 transition-colors"
-            >
-              {actionLabel || 'Bearbeiten'}
-              <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
-            </button>
-          )}
-        </div>
+        {state === 'locked' ? (
+          <div className="w-10 h-10 rounded-full border border-slate-200/60 flex items-center justify-center text-slate-400 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] shrink-0">
+            <Lock className="w-5 h-5" strokeWidth={1.75} />
+          </div>
+        ) : (
+          <button
+            onClick={(e) => { e.stopPropagation(); onAction?.(); }}
+            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+          >
+            {actionLabel || 'Bearbeiten'}
+            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+          </button>
+        )}
       </div>
     );
   };
@@ -255,7 +292,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
       <DashboardPriorYearBanner taxYear={taxYear} />
 
       {/* ═══════════ Step list ═══════════ */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         <StepRow
           n={1}
           state={allAngabenComplete ? 'done' : 'active'}
@@ -270,7 +307,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <StepRow
           n={2}
           state={!allAngabenComplete ? 'locked' : isDocumentsComplete ? 'done' : 'active'}
-          title={t.formDashboard.documentsTitle}
+          title="Belege & Unterlagen"
           desc="Lade deine Dokumente hoch und ergänze fehlende Angaben."
           statusLabel={
             !allAngabenComplete ? 'Noch nicht gestartet'
@@ -285,7 +322,7 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         <StepRow
           n={3}
           state={!canSubmit ? 'locked' : paymentStatus === 'paid' ? 'done' : 'active'}
-          title={t.formDashboard.reviewAndSubmit}
+          title="Prüfung & Versand"
           desc="Wir prüfen deine Angaben und reichen deine Steuererklärung ein."
           statusLabel={
             !canSubmit ? 'Noch nicht gestartet'
@@ -298,46 +335,39 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
         />
       </div>
 
-      {/* ═══════════ CTA banner ═══════════ */}
+      {/* ═══════════ Resume / Progress card ═══════════ */}
       {remainingSteps > 0 && (
-        <div className="mt-6 p-6 border border-slate-200 rounded-2xl bg-[#F9FAFB] flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-slate-200"
-                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
-                fill="none" stroke="currentColor" strokeWidth="3"
-              />
-              <path
-                className="text-slate-900"
-                d={`M18 ${18 - Rc} a ${Rc} ${Rc} 0 0 1 0 ${Rc * 2} a ${Rc} ${Rc} 0 0 1 0 -${Rc * 2}`}
-                fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-                strokeDasharray={`${dashLen}, 100`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-[16px] font-medium text-slate-900 tabular-nums">
-              {pct}%
+        <div
+          onClick={handleCtaClick}
+          className="cursor-pointer bg-white border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] rounded-[1.25rem] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 mt-5 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] transition-all"
+        >
+          <div className="flex items-center gap-5">
+            <div className="relative w-16 h-16 flex items-center justify-center shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="5" fill="transparent" className="text-slate-100" />
+                <circle
+                  cx="32" cy="32" r="28"
+                  stroke="currentColor" strokeWidth="5" fill="transparent"
+                  strokeDasharray={2 * Math.PI * 28}
+                  strokeDashoffset={2 * Math.PI * 28 * (1 - pct / 100)}
+                  className="text-[#1E3A5F] transition-all duration-1000 ease-in-out"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="absolute text-sm font-semibold text-slate-900 tabular-nums">{pct}%</span>
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">{ctaHeadline}</h3>
+              <p className="text-base text-slate-500">{ctaSubline}</p>
             </div>
           </div>
-
-          <div className="flex-1 min-w-0">
-            <h3 className="text-[17px] font-medium text-slate-900 tracking-[-0.005em]">
-              {ctaHeadline}
-            </h3>
-            <p className="text-[14px] text-slate-500 mt-1 leading-relaxed">
-              {ctaSubline}
-            </p>
-          </div>
-
-          <div className="shrink-0 w-full sm:w-auto">
-            <button
-              onClick={handleCtaClick}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 hover:bg-slate-50 transition-colors shadow-sm"
-            >
-              Fortsetzen
-              <ChevronRight className="w-4 h-4" strokeWidth={2} />
-            </button>
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleCtaClick(); }}
+            className="w-full md:w-auto px-5 py-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300 text-sm font-medium text-slate-700 flex items-center justify-center md:justify-start gap-2 shadow-sm transition-all shrink-0"
+          >
+            Fortsetzen
+            <ChevronRight className="w-4 h-4 text-slate-400" strokeWidth={2} />
+          </button>
         </div>
       )}
     </>
