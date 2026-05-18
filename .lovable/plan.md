@@ -1,108 +1,94 @@
-## Ziel
 
-Pro Steuerjahr kann der User zwischen zwei Modi wählen:
+# Datenschutz beim Vorjahres-Import
 
-1. **Begleitet** – der aktuelle Schritt-für-Schritt-Flow (unverändert).
-2. **Vorjahres-Upload** – User lädt aktuelle Belege + Kopie der letzten Steuererklärung hoch. Ditax scannt die Vorjahres-Erklärung mit Lovable AI (Gemini Vision), erzeugt eine **personalisierte Checkliste** (Arbeitgeber X, Liegenschaft Y, Säule 3a …) und fragt pro Position einzeln, ob es Änderungen gab; pro Position kann der passende Beleg hochgeladen werden.
+## Heutiger Stand
 
-Modus ist jederzeit wechselbar; eingegebene Daten bleiben erhalten.
+Die Edge Function `scan-prior-year` lädt das PDF als Base64 zur **Lovable AI Gateway** und ruft `google/gemini-2.5-flash` (Vision) auf. Das heisst:
 
-## User-Flow
+- Die komplette Steuererklärung (mit Namen, AHV, Adresse, Beträgen) verlässt unsere Infrastruktur.
+- Sie geht an Google (US-Anbieter, EU-/CH-Datentransfer).
+- Wir haben mit Google keinen direkten DPA – nur über Lovable.
 
-```text
-Tax-Year Dashboard (neuer Jahres-Eintrag)
-        │
-        ▼
-┌──────────────────────────────────────┐
-│   Modus wählen (Bottom-Sheet)        │
-│   ─ Begleitet  ─ Vorjahres-Upload    │
-└──────────────────────────────────────┘
-        │                       │
-        ▼                       ▼
-  bestehender Flow      Upload Vorjahres-PDF
-                              │
-                              ▼
-                   Edge Function: scan-prior-year
-                   (Gemini Vision → JSON-Checkliste)
-                              │
-                              ▼
-                 Checklisten-Ansicht je Position:
-                   • Beleg hochladen
-                   • "Gab es Änderungen?" Ja/Nein/Freitext
-                   • Position erledigt ✓
-                              │
-                              ▼
-              Übersicht → Einreichen (selber wie heute)
+Für Schweizer Steuerdaten (besonders schützenswert nach revDSG) ist das tatsächlich grenzwertig.
 
-  Modus-Switch jederzeit oben rechts ("Modus wechseln")
+## Optionen im Vergleich
+
+### A) Client-seitige Extraktion (PDF.js + Heuristik) — empfohlen als Basis
+
+**Wie:** Das PDF wird im Browser mit `pdfjs-dist` in Text umgewandelt. Da kantonale Steuererklärungen (eTax-Ausdrucke) i.d.R. einen Text-Layer enthalten, klappt das ohne OCR. Anschliessend extrahieren wir mit Regex/Keywords (z.B. „Wertschriftenertrag", „Säule 3a", „Lohnausweis", „Liegenschaft") die Positionen.
+
+- ✅ PDF **verlässt das Gerät nie**. DSG-Problem gelöst.
+- ✅ Keine API-Kosten.
+- ✅ Wir haben das Pattern schon (siehe `TesseractWasmOcrService` für Lohnausweis).
+- ⚠️ Funktioniert nur sauber bei eTax-PDFs mit Text-Layer (≈ 90% der Fälle in CH).
+- ⚠️ Gescannte/abfotografierte Steuererklärungen → kein Text → Fallback nötig.
+- ⚠️ Etwas geringere Trefferquote bei ungewöhnlichen Formularvarianten (kantonsspezifisch).
+
+### B) Client-seitiges OCR (Tesseract.js WASM) als Fallback
+
+**Wie:** Wenn das PDF keinen Text-Layer hat, rendern wir die Seiten zu Bildern und lassen Tesseract.js (WASM, läuft im Browser) den Text extrahieren. Dann gleiche Regex-Pipeline wie A).
+
+- ✅ Auch hier: **kein Upload zu Dritten**.
+- ⚠️ Langsamer (5–15s pro Seite auf Mobile).
+- ⚠️ Tesseract-Genauigkeit bei Steuerformularen mittel – Zahlen-Spalten teils unsauber.
+
+### C) Pseudonymisierung vor AI-Aufruf
+
+**Wie:** Wir extrahieren clientseitig den Text (A oder B), entfernen **Name, AHV, Adresse, Geburtsdatum, Konto-IBANs** mit Regex, und senden **nur den anonymisierten Text** an Gemini zur Strukturierung. Server bekommt also nie Identifikatoren.
+
+- ✅ Beste KI-Qualität bei Strukturierung.
+- ✅ Personendaten verlassen das Gerät nicht.
+- ⚠️ Pseudonymisierungs-Regex muss gepflegt werden (False Negatives sind möglich).
+- ⚠️ Inhaltliche Beträge gehen trotzdem an Google – datenschutzrechtlich aber unkritischer.
+
+### D) Wechsel auf EU/CH-Anbieter
+
+**Wie:** Statt Google Gemini Mistral (EU-resident, GDPR/DSG-konform mit DPA) oder Azure OpenAI in der Region **Switzerland North**. Beide bieten echte Datenresidenz in der EU/CH.
+
+- ✅ Vertragliche und geografische Garantie.
+- ⚠️ Erfordert eigenen API-Key & Vertrag (nicht über Lovable AI Gateway abrufbar).
+- ⚠️ Kosten und Integration neu aufzubauen.
+- ⚠️ Daten verlassen trotzdem unsere Infra, nur eben nicht das Land.
+
+### E) Status quo + DPA-Härtung
+
+**Wie:** Bei Google bleiben, aber mit Lovable klären, ob „Zero Data Retention" / „no training" garantiert ist, und das in der Datenschutzerklärung transparent machen.
+
+- ✅ Kein Code-Aufwand.
+- ⚠️ Reicht für besonders schützenswerte Daten in der CH realistisch **nicht** als alleinige Massnahme.
+
+## Empfehlung
+
+**Kombination A + B + C** in dieser Reihenfolge:
+
+```
+PDF hochladen
+   │
+   ▼
+PDF.js Text-Layer  ──ja──▶ Regex/Heuristik (lokal)  ──reicht──▶ Fertig
+   │ nein                       │ unklar
+   ▼                            ▼
+Tesseract.js OCR (lokal) ──▶ pseudonymisieren ──▶ Gemini (nur Text, ohne PII)
 ```
 
-## Umfang der Änderungen
+Das ist die einzige Variante, die **gleichzeitig** hohe Trefferquote, akzeptable Geschwindigkeit und echte Datensparsamkeit bietet. Bei den meisten Nutzern reicht Schritt 1 (rein lokal, 0 ms Netzwerk).
 
-### 1. Datenbank (Migration)
+## Implementierungsschritte (wenn freigegeben)
 
-- Neue Spalte `tax_returns.intake_mode` (`text`, default `'guided'`, check in `'guided','prior_year_upload'`).
-- Neue Tabelle `prior_year_checklists` (id, tax_filer_id, tax_year, status, raw_scan jsonb, generated_at, updated_at) — RLS pro user_id/tax_filer_id.
-- Neue Tabelle `prior_year_checklist_items` (id, checklist_id, category enum `income|assets|deductions|contact`, label, source_value text, change_status enum `unchanged|changed|new|removed|pending`, change_note text, document_id uuid nullable → `documents.id`, completed bool). RLS via parent checklist.
-- Storage: neuer Pfad `prior-year-returns/{user_id}/{filer_id}/{tax_year}.pdf` (private Bucket, RLS path-based).
+1. Neuer Service `src/services/PriorYearLocalExtractor.ts`
+   - `extractTextFromPdf(file)` mit `pdfjs-dist`
+   - `extractItemsFromText(text)` mit kuratierten Regex-Mustern pro Kategorie (income/assets/deductions/contact)
+2. `PriorYearUpload.tsx` ruft erst den lokalen Extractor, schreibt das Ergebnis direkt in `prior_year_checklist_items` (über RPC/insert mit RLS), Status sofort `ready`.
+3. Edge Function `scan-prior-year` umbauen:
+   - Akzeptiert **nur Text** + `taxFilerId`/`taxYear` (nicht mehr die PDF).
+   - Wird nur noch aufgerufen, wenn lokale Extraktion < N Positionen liefert.
+   - Pseudonymisierung serverseitig zur Sicherheit erneut prüfen.
+4. PDF aus Storage löschen, sobald die Checkliste fertig ist (heute bleibt sie liegen).
+5. Datenschutz-Hinweis im Upload-Sheet: „Dein PDF wird auf deinem Gerät analysiert."
 
-### 2. Edge Function `scan-prior-year`
+## Technische Notizen
 
-- Input: `{ taxFilerId, taxYear, storagePath }`.
-- Lädt PDF aus Storage (entschlüsselt falls nötig – siehe `EncryptedDocumentService`).
-- Ruft Lovable AI Gateway (`google/gemini-3-flash-preview`, AI SDK `generateText` mit `Output.object`) mit Schema:
-  ```
-  {
-    contact:    [{ label, value }],
-    income:     [{ label, value, employer? }],
-    assets:     [{ label, value, type? }],
-    deductions: [{ label, value }]
-  }
-  ```
-- Speichert `raw_scan` und expandiert es zu `prior_year_checklist_items` (eine Zeile pro Position).
-- CORS, JWT-Validierung, Zod-Input-Validierung.
-
-### 3. Frontend
-
-**Neue Komponenten** (`src/components/intake/`):
-- `IntakeModeSheet.tsx` – `AppBottomSheet`, zwei Karten (Begleitet / Vorjahres-Upload).
-- `PriorYearUpload.tsx` – Drag&Drop-Upload für Vorjahres-PDF + Status (Scanning…).
-- `PriorYearChecklist.tsx` – Liste der generierten Positionen, je Position:
-  - Label + Vorjahreswert (read-only Pill)
-  - Toggle "Unverändert / Geändert / Entfällt"
-  - Optionales Freitextfeld bei "Geändert"
-  - Inline Document-Upload (verwendet bestehenden `EncryptedDocumentService`)
-- `ChecklistProgress.tsx` – Fortschrittsanzeige analog 6-Step-Bar.
-
-**Anpassungen**:
-- `TaxYearDashboard.tsx`: rendert je nach `intake_mode` entweder den bestehenden Sections-Block (guided) oder `PriorYearChecklist`. Header bekommt „Modus wechseln"-Button (öffnet `IntakeModeSheet`).
-- `pages/Index.tsx`: liest `intake_mode` aus tax_returns, leitet bei `prior_year_upload` ohne Scan auf `PriorYearUpload`, bei vorhandenem Scan auf `PriorYearChecklist`.
-- `FormContext` bekommt neue Helper: `intakeMode`, `setIntakeMode(mode)`, `priorYearChecklist`-State + Reload.
-- Beim ersten Aufruf eines neuen Tax-Years (kein `intake_mode` gesetzt) öffnet sich automatisch `IntakeModeSheet`.
-
-### 4. Mapping Checkliste → Tax-Return
-
-Beim Einreichen werden Checklisten-Items in das bestehende Canonical-Modell gemappt (analog `importFromPreviousYear`, aber pro Item mit `change_status` als Hinweis für das Backoffice). „Unverändert"-Items übernehmen Vorjahreswerte 1:1. Geänderte Items werden als „needs review" markiert.
-
-### 5. Wechsel zwischen Modi
-
-- Bei Modus-Wechsel bleiben Daten in `form_data` und `prior_year_checklist_items` parallel bestehen. Es wird nur `tax_returns.intake_mode` geändert. Toast: „Modus gewechselt, deine Daten bleiben erhalten."
-
-## Technische Details
-
-- Lovable AI Gateway via Edge Function (`LOVABLE_API_KEY` server-seitig). Modell `google/gemini-3-flash-preview`. Vision-Eingabe via `messages: [{ role:'user', content:[{type:'file', data:base64, mimeType:'application/pdf'}, …] }]` oder als seitenweise gerenderte Bilder, falls PDF-Direkteingabe nicht klappt.
-- Strukturiertes Output mit `Output.object` + Zod-Schema.
-- Vorjahres-PDF wird wie alle Tax-Docs **mandatorisch E2E-verschlüsselt** (`EncryptedDocumentService`). Edge Function erhält Entschlüsselungs-Key über bestehende Pipeline.
-- RLS auf neuen Tabellen via `has_role`/`tax_filer_id`-Match, identisch zum bestehenden Muster.
-- Keine neuen Secrets nötig (`LOVABLE_API_KEY` vorhanden).
-
-## Out-of-Scope (für diesen Plan)
-
-- Mehrjahresvergleiche / Trendanalysen.
-- Auto-Detection des Vorjahres-Kantons (vorerst Aargau-Layout, andere Kantone best-effort).
-- Admin-Backoffice-UI für die neuen Felder (kommt in Folge-Iteration; Daten sind aber persistiert).
-
-## Offene Punkte
-
-- Begriff im UI: „Begleitet" vs. „Express-Modus" vs. „Schritt-für-Schritt"? Aktuell verwende ich **„Begleitet"** und **„Vorjahres-Upload"**.
-- Soll bei Vorjahres-Upload zusätzlich die Pflicht bestehen, das aktuelle Lohnausweis-PDF separat hochzuladen, oder reicht die Checklisten-getriebene Upload-Logik?
+- `pdfjs-dist` ist bereits ein verbreiteter, kleiner Browser-Worker (≈ 400 kB gz).
+- Tesseract.js lädt das Sprachmodell `deu+fra+ita` einmalig (≈ 12 MB), Caching via Service Worker.
+- Pseudonymisierungs-Regex: AHV (`756\.\d{4}\.\d{4}\.\d{2}`), IBAN (`CH\d{2} ?\d{4}...`), PLZ+Ort, häufige Schweizer Vornamen+Nachnamen über Wortlisten.
+- Storage-Bucket `prior-year-returns` kann optional ganz entfernt werden, wenn wir das PDF gar nicht mehr serverseitig brauchen.
