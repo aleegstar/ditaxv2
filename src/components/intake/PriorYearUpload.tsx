@@ -339,9 +339,8 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         <div className="flex items-start gap-3 min-w-0">
           <GoogleG className="w-5 h-5 shrink-0 mt-0.5" />
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold text-foreground flex items-center gap-1.5">
+            <div className="text-[13px] font-semibold text-foreground">
               KI-Analyse mit Google Gemini
-              <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
             </div>
             <div className="text-[12px] text-muted-foreground leading-snug">
               Genauer für gescannte PDFs · DSGVO-konform
