@@ -125,117 +125,130 @@ const TaxFilers: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-foreground antialiased pb-24">
-      <SubpageHeader 
-        title={t.taxFilers?.pageTitle || 'Personen verwalten'} 
+    <div className="min-h-screen bg-white text-foreground antialiased pb-24">
+      <SubpageHeader
+        title={t.taxFilers?.pageTitle || 'Personen verwalten'}
         onBack={() => navigate(-1)}
       />
 
-      <main className="max-w-xl mx-auto px-4 sm:px-6 pt-2">
-        {/* Description */}
-        <p className="text-[13px] text-muted-foreground mb-5 leading-relaxed">
-          {t.taxFilers?.pageDescription || 
+      <main className="max-w-[440px] mx-auto px-6 pt-4">
+        <p className="text-[13px] text-muted-foreground/70 mb-6 leading-relaxed">
+          {t.taxFilers?.pageDescription ||
             'Verwalten Sie hier die Personen, für die Sie Steuererklärungen erstellen möchten. Zum Beispiel für Ihre Kinder oder Eltern.'}
         </p>
 
-        {/* Tax Filers List */}
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : taxFilers.length === 0 ? (
-            <div className="rounded-[1.5rem] bg-white border border-slate-200/80 shadow-[0_8px_32px_rgba(0,0,0,0.04)] py-10 text-center text-sm text-muted-foreground">
-              {t.taxFilers?.noPersons || 'Keine Personen gefunden.'}
-            </div>
-          ) : (
-            taxFilers.map((filer) => (
-              <div
-                key={filer.id}
-                className="group rounded-[1.5rem] bg-white border border-slate-200/80 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-200"
-              >
-                <div className="p-5 sm:p-6 flex items-center gap-3.5">
-                  <div className={cn(
-                    'w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all',
-                    filer.is_primary ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-                  )}>
-                    {filer.is_primary ? <Crown className="h-4 w-4" strokeWidth={2} /> : <User className="h-4 w-4" strokeWidth={2} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-[14px] font-semibold text-foreground tracking-tight truncate">
-                        {filer.first_name} {filer.last_name}
-                      </h2>
-                      {filer.is_primary && (
-                        <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full flex-shrink-0">
-                          {t.taxFilers?.primary || 'Primär'}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">
-                      {getRelationshipLabel(filer.relationship)}
-                      {filer.date_of_birth && ` • ${new Date(filer.date_of_birth).toLocaleDateString('de-CH')}`}
-                    </p>
-                  </div>
+        <div className="flex items-center justify-between px-1 mb-2.5">
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/55">
+            Profile
+          </span>
+          <span className="text-[10.5px] font-medium text-muted-foreground/45 tabular-nums">
+            {taxFilers.length}
+          </span>
+        </div>
 
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => openEditDialog(filer)}
-                      className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            {taxFilers.length === 0 ? (
+              <div className="bg-white border border-black/[0.07] rounded-2xl py-10 text-center text-sm text-muted-foreground shadow-[0_1px_2px_rgba(15,27,61,0.03),0_4px_16px_-12px_rgba(15,27,61,0.06)]">
+                {t.taxFilers?.noPersons || 'Keine Personen gefunden.'}
+              </div>
+            ) : (
+              <div className="bg-white border border-black/[0.07] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(15,27,61,0.03),0_4px_16px_-12px_rgba(15,27,61,0.06)] divide-y divide-black/[0.05]">
+                {taxFilers.map((filer) => {
+                  const initials = `${filer.first_name.charAt(0)}${filer.last_name.charAt(0)}`.toUpperCase();
+                  return (
+                    <div
+                      key={filer.id}
+                      className="group relative flex items-center gap-4 px-5 py-4 transition-colors duration-150 hover:bg-foreground/[0.022]"
                     >
-                      <Pencil className="h-4 w-4" strokeWidth={1.75} />
-                    </Button>
-                    {!filer.is_primary && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteConfirmFiler(filer)}
-                        className="h-9 w-9 rounded-full text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+                      <Avatar className="w-10 h-10 ring-1 ring-black/[0.06] flex-shrink-0">
+                        <AvatarImage
+                          src={getAvatarUrl(filer)}
+                          alt={`${filer.first_name} ${filer.last_name}`}
+                          className="object-cover"
+                        />
+                        <AvatarFallback
+                          className="text-[13px] font-semibold tracking-tight"
+                          style={{
+                            background: 'hsla(var(--primary) / 0.07)',
+                            color: 'hsl(var(--primary))',
+                          }}
+                        >
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
 
-          {/* Add Person Card */}
-          <button
-            onClick={openAddDialog}
-            disabled={isLoading}
-            className="w-full group rounded-[1.5rem] bg-white border border-dashed border-slate-300 hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-200 disabled:opacity-50"
-          >
-            <div className="p-5 sm:p-6 flex items-center gap-3.5">
-              <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <UserPlus className="h-4 w-4" strokeWidth={2} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="truncate text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
+                            {filer.first_name} {filer.last_name}
+                          </h3>
+                          {filer.is_primary && (
+                            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary/80 bg-primary/[0.07] px-1.5 py-0.5 rounded-md">
+                              {t.taxFilers?.primary || 'Primär'}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[12px] text-muted-foreground/65 truncate mt-0.5">
+                          {getRelationshipLabel(filer.relationship)}
+                          {filer.date_of_birth && ` • ${new Date(filer.date_of_birth).toLocaleDateString('de-CH')}`}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(filer)}
+                          className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-foreground hover:bg-foreground/[0.05]"
+                        >
+                          <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+                        </Button>
+                        {!filer.is_primary && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteConfirmFiler(filer)}
+                            className="h-8 w-8 rounded-full text-muted-foreground/60 hover:text-destructive hover:bg-destructive/[0.06]"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex-1 min-w-0 text-left">
-                <h2 className="text-[14px] font-semibold text-foreground tracking-tight">
+            )}
+
+            <button
+              onClick={openAddDialog}
+              disabled={isLoading}
+              className="w-full mt-3 group flex items-center gap-4 px-5 py-4 bg-white border border-dashed border-black/[0.14] rounded-2xl transition-all duration-150 hover:border-foreground/30 hover:bg-foreground/[0.018] active:scale-[0.995] focus:outline-none focus-visible:border-foreground/30 disabled:opacity-50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-foreground/[0.04] border border-black/[0.05] group-hover:bg-foreground/[0.06] transition-colors">
+                <Plus className="w-4 h-4 text-foreground/70" strokeWidth={2} />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <h3 className="text-[14.5px] font-medium text-foreground tracking-[-0.005em]">
                   {t.taxFilers?.addPerson || 'Person hinzufügen'}
-                </h2>
-                <p className="text-[12px] text-muted-foreground mt-0.5">
+                </h3>
+                <p className="text-[12px] text-muted-foreground/65 mt-0.5 truncate">
                   {t.taxFilers?.addDescription || 'Neue Person für Steuererklärungen anlegen.'}
                 </p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" strokeWidth={1.5} />
-            </div>
-          </button>
-        </div>
+            </button>
 
-        {/* Info Card */}
-        <div className="mt-5 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3.5">
-          <h3 className="font-semibold text-foreground tracking-tight text-[13px]">
-            {t.taxFilers?.infoTitle || 'Hinweis'}
-          </h3>
-          <p className="text-muted-foreground mt-1 leading-snug text-[11px]">
-            {t.taxFilers?.infoDescription || 
-              'Jede Person hat separate Formulardaten und Dokumente. Die primäre Person (Sie selbst) kann nicht gelöscht werden.'}
-          </p>
-        </div>
+            <p className="text-center text-[11px] text-muted-foreground/45 mt-8 tracking-tight">
+              {t.taxFilers?.infoDescription ||
+                'Jede Person hat separate Formulardaten und Dokumente. Die primäre Person kann nicht gelöscht werden.'}
+            </p>
+          </>
+        )}
       </main>
 
       {/* Add/Edit Bottom Sheet */}
