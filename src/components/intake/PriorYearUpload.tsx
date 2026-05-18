@@ -89,7 +89,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     setConsentDialogOpen(false);
   };
 
-  const persistChecklist = async (scan: ExtractedScan, source: "local" | "ai") => {
+  const persistChecklist = async (
+    scan: ExtractedScan,
+    source: "local" | "ai",
+    storagePath: string | null,
+  ) => {
     const { data: checklist, error: cErr } = await supabase
       .from("prior_year_checklists")
       .upsert(
@@ -98,7 +102,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
           tax_filer_id: taxFilerId,
           tax_year: String(taxYear),
           status: "ready",
-          source_storage_path: null,
+          source_storage_path: storagePath,
           error_message: null,
           raw_scan: { ...scan, _source: source } as any,
           generated_at: new Date().toISOString(),
@@ -128,6 +132,27 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     if (rows.length > 0) {
       const { error: insErr } = await supabase.from("prior_year_checklist_items").insert(rows);
       if (insErr) throw new Error(insErr.message);
+    }
+  };
+
+  const uploadPdfToStorage = async (file: File): Promise<string | null> => {
+    if (!userId) return null;
+    try {
+      const path = buildStoragePath(userId, taxFilerId, String(taxYear));
+      const { error } = await supabase.storage
+        .from("prior-year-returns")
+        .upload(path, file, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+      if (error) {
+        console.warn("[PriorYearUpload] storage upload failed", error);
+        return null;
+      }
+      return path;
+    } catch (e) {
+      console.warn("[PriorYearUpload] storage upload exception", e);
+      return null;
     }
   };
 
