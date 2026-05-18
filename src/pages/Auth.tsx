@@ -14,6 +14,7 @@ import { isAndroidEnvironment } from "@/utils/platform";
 import { isDespiaNative, isDespiaIOS, triggerDespiaPasskeyAuth, DEEPLINK_SCHEME } from "@/lib/despia";
 import { getAppleOAuthUrl } from "@/lib/apple-auth";
 import despia from 'despia-native';
+import authHero from "@/assets/auth-hero.webp";
 
 const AuthLanguageToggle = () => {
   const { language, switchLanguage } = useI18n();
@@ -506,13 +507,26 @@ const Auth = () => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-center sm:block sm:max-w-[400px] px-7 py-12 sm:px-9 sm:py-11 relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)]"
+          className="w-full min-h-screen sm:min-h-0 flex flex-col justify-center sm:block sm:max-w-[420px] relative sm:rounded-2xl sm:bg-white sm:border sm:border-black/[0.06] sm:shadow-[0_1px_2px_rgba(15,27,61,0.04),0_8px_24px_-12px_rgba(15,27,61,0.08)] sm:overflow-hidden"
         >
 
           <div className="relative z-10">
             <AnimatePresence mode="wait">
               {step === "main" ? <motion.div key="main-step" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}>
 
+                  {/* Hero image */}
+                  <div className="relative w-full h-40 sm:h-44 overflow-hidden">
+                    <img
+                      src={authHero}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white" />
+                  </div>
+
+                  <div className="px-7 pt-2 pb-12 sm:px-9 sm:pt-2 sm:pb-11">
                   {/* Logo & Title */}
                   <div className="flex flex-col items-center text-center mb-8">
                     <motion.img
@@ -628,9 +642,10 @@ const Auth = () => {
                       <a href="/datenschutzrichtlinie" className="hover:text-foreground/70 transition-colors">Datenschutz</a>
                     </div>
                     <AuthLanguageToggle />
+                   </div>
                   </div>
 
-                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}>
+                </motion.div> : <motion.div key="code-step" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }} className="px-7 py-12 sm:px-9 sm:py-11">
 
                   {/* Logo */}
                   <div className="flex items-center justify-center gap-3 mb-10">
