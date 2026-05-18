@@ -186,7 +186,7 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
         {working ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Analysiere lokal …
+            {buttonLabel()}
           </>
         ) : (
           "PDF auswählen"
@@ -196,9 +196,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       <div className="flex items-start gap-2 rounded-xl bg-muted/40 border border-border/60 p-3">
         <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" strokeWidth={1.75} />
         <p className="text-[12px] text-muted-foreground leading-relaxed">
-          Dein PDF wird direkt auf deinem Gerät analysiert. Es verlässt deinen Browser nicht.
-          Nur in seltenen Ausnahmen wird ein anonymisierter Text-Auszug (ohne Namen, AHV, IBAN
-          oder Adresse) zur Strukturierung verarbeitet.
+          Dein PDF wird direkt auf deinem Gerät analysiert. Auch die Texterkennung (OCR) für
+          gescannte PDFs läuft komplett in deinem Browser. Nur in seltenen Ausnahmen wird ein
+          anonymisierter Text-Auszug (ohne Namen, AHV, IBAN oder Adresse) zur Strukturierung
+          verarbeitet.
         </p>
       </div>
     </div>
