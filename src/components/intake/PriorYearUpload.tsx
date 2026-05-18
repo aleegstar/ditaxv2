@@ -10,6 +10,7 @@ import {
   pseudonymize,
   isLocalResultSufficient,
   hasUsableTextLayer,
+  ocrPdfLocally,
   type ExtractedScan,
 } from "@/services/PriorYearLocalExtractor";
 
