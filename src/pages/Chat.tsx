@@ -225,11 +225,8 @@ const Chat: React.FC = () => {
           ) : lastMessages.length === 0 ? (
             <motion.div variants={bubbleVariants} className="py-6">
               <div className="flex items-center gap-3 mb-5">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center ring-1 ring-black/[0.06]"
-                  style={{ background: 'linear-gradient(135deg, #1E3A5F 0%, #0F1B3D 100%)' }}
-                >
-                  <Sparkles className="w-4 h-4 text-white" strokeWidth={2} />
+                <div className="w-11 h-11 rounded-full overflow-hidden ring-1 ring-border bg-muted flex-shrink-0">
+                  <img src={assistantAvatar} alt="Steuer-Assistent" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <p className="text-[16px] font-semibold text-foreground tracking-[-0.012em]">
