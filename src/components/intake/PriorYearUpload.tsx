@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FileUp, Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  FileUp,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  FileSearch,
+  ScanLine,
+  Brain,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
