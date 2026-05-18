@@ -142,10 +142,7 @@ const Chat: React.FC = () => {
                   <User className="w-4 h-4 text-white" strokeWidth={2} />
                 </div>
               ) : (
-                <img src={assistantAvatar} alt="Steuer-Assistent" className="w-full h-full object-cover" />
-              )}
-              {!escalatedMode && (
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-background" />
+                <img src={assistantAvatar} alt="Steuer-Assistent" className="w-7 h-7 object-contain" />
               )}
             </div>
             <div className="flex flex-col min-w-0">
