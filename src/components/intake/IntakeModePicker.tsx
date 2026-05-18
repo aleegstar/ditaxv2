@@ -27,7 +27,7 @@ export const IntakeModePicker: React.FC<Props> = ({ taxYear, onSelect }) => {
         <div className="relative group/rainbow">
           <div
             aria-hidden
-            className="absolute -inset-[2px] rounded-[18px] rainbow-gradient animate-rainbow opacity-80 blur-[6px] group-hover/rainbow:opacity-100 group-hover/rainbow:blur-[10px] transition-all pointer-events-none"
+            className="absolute -inset-[1px] rounded-[18px] rainbow-gradient animate-rainbow opacity-30 blur-[10px] group-hover/rainbow:opacity-50 transition-opacity pointer-events-none"
           />
           <div className="relative">
             <ModeCard
