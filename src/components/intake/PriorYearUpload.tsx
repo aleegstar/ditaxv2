@@ -198,6 +198,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
     setWorking(true);
     setOcrProgress(null);
     try {
+      // Upload PDF to private storage first (verschlüsselt im Supabase-Storage),
+      // damit Du es später ersetzen kannst und unser Team es bei Bedarf einsehen kann.
+      const storagePath = await uploadPdfToStorage(file);
+
       // Opt-in: AI-Analyse direkt über Edge Function (PDF wird übermittelt)
       if (aiEnabled) {
         await runAiScan(file);
@@ -231,11 +235,11 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
 
       const localScan = extractItemsFromText(text);
       if (isLocalResultSufficient(localScan)) {
-        await persistChecklist(localScan, "local");
+        await persistChecklist(localScan, "local", storagePath);
         toast.success(
           usedOcr
-            ? "Checkliste per lokalem OCR erstellt – ohne Upload deiner Datei."
-            : "Checkliste erstellt – ganz ohne Upload deiner Datei.",
+            ? "Checkliste per lokalem OCR erstellt."
+            : "Checkliste erstellt.",
         );
         onScanStarted?.();
         return;
@@ -244,10 +248,10 @@ export const PriorYearUpload: React.FC<Props> = ({ taxFilerId, taxYear, onScanSt
       setPhase("structuring");
       const safeText = pseudonymize(text);
       const { error: fnErr } = await supabase.functions.invoke("scan-prior-year", {
-        body: { taxFilerId, taxYear, text: safeText },
+        body: { taxFilerId, taxYear, text: safeText, storagePath },
       });
       if (fnErr) throw fnErr;
-      toast.success("Checkliste erstellt – nur anonymisierter Text wurde verarbeitet.");
+      toast.success("Checkliste erstellt.");
       onScanStarted?.();
     } catch (e: any) {
       console.error(e);
