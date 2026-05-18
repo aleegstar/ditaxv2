@@ -120,17 +120,11 @@ export default function TaxReturnTracking() {
         onBack={() => navigate('/')} 
       />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-
-        {/* Express Upgrade */}
-        <div className="mb-16">
-          <ExpressUpgradeCard
-            taxReturnId={taxReturn.id}
-            currentExpressService={taxReturn.express_service}
-          />
-        </div>
-
-        {/* Timeline */}
+      <div className="max-w-xl mx-auto px-5 sm:px-8 py-6 space-y-8">
+        <ExpressUpgradeCard
+          taxReturnId={taxReturn.id}
+          currentExpressService={taxReturn.express_service}
+        />
         <TrackingProgressSteps workflowStep={taxReturn.workflow_step} />
       </div>
     </div>

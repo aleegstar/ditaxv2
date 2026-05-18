@@ -1,8 +1,7 @@
 import React from 'react';
-
-import expressIllustration from '@/assets/express-upgrade-illustration.webp';
+import { Zap, ChevronRight } from 'lucide-react';
+import expressHero from '@/assets/tracking-hero.webp';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 
 interface ExpressUpgradeCardProps {
   taxReturnId: string;
@@ -13,62 +12,80 @@ interface ExpressUpgradeCardProps {
 export const ExpressUpgradeCard: React.FC<ExpressUpgradeCardProps> = ({
   taxReturnId,
   currentExpressService,
-  className
 }) => {
   const navigate = useNavigate();
 
-  if (currentExpressService) {
-    return null;
-  }
+  if (currentExpressService) return null;
 
   const handleUpgrade = () => {
     navigate(`/payment?upgrade=true&returnId=${taxReturnId}`);
   };
 
   return (
-    <div className="px-6 mt-8">
-      <div className="rounded-2xl p-5 relative overflow-hidden bg-white border border-slate-200">
-        <div className="relative z-10">
-          <img
-            src={expressIllustration}
-            alt="Express-Service"
-            className="w-full h-32 object-contain mb-4"
-          />
-          {/* Header */}
-          <div className="mb-3">
-            <h3 className="text-sm font-semibold text-slate-800">Express-Service</h3>
-          </div>
-          
-          <p className="text-xs text-slate-500 leading-relaxed mb-6">
-            Möchtest du deine Steuererklärung schneller erhalten? Mit unserem Express-Service wird deine Steuererklärung bevorzugt bearbeitet.
+    <div className="relative rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+      {/* Hero image */}
+      <div className="relative h-40 w-full overflow-hidden bg-muted">
+        <img
+          src={expressHero}
+          alt="Lachendes Paar – Express-Service"
+          loading="lazy"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-card/90 backdrop-blur-sm border border-border/60">
+          <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+          <span className="text-[11px] font-medium text-foreground">Innert 10 Tagen</span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 space-y-5">
+        <div>
+          <h3 className="text-[16px] font-semibold text-foreground tracking-tight">
+            Express-Service
+          </h3>
+          <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">
+            Deine Steuererklärung bevorzugt bearbeiten – fertig innert 10 Tagen.
           </p>
+        </div>
 
-          {/* Comparison Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Standardlieferung</div>
-              <div className="text-xs font-medium text-slate-600">Variierende Bearbeitungszeit</div>
+        {/* Comparison */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border bg-background/50 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">
+              Standard
             </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Express-Lieferung</div>
-              <div className="text-xs font-semibold text-[#1D64FF]">Innert 10 Tagen</div>
+            <div className="text-[12.5px] font-medium text-foreground/80">
+              Variierende Dauer
             </div>
           </div>
-
-          {/* Action Box */}
-          <div className="bg-white rounded-xl p-4 border border-slate-200">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-medium text-slate-400">Upgrade-Preis</span>
-              <span className="text-sm font-bold text-slate-800">CHF 100.00</span>
+          <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-3">
+            <div className="text-[10px] uppercase tracking-wider text-primary font-semibold mb-1">
+              Express
             </div>
-            
-            <Button
-              onClick={handleUpgrade}
-              className="w-full h-11 rounded-xl bg-[#1D64FF] hover:bg-[#1D64FF]/90 text-white font-semibold text-sm flex items-center justify-center gap-2 border-0 shadow-none"
-            >
-              Jetzt auf Express upgraden
-            </Button>
+            <div className="text-[12.5px] font-semibold text-primary">
+              Innert 10 Tagen
+            </div>
           </div>
+        </div>
+
+        {/* Price + CTA */}
+        <div className="flex items-center justify-between pt-1">
+          <div>
+            <div className="text-[10.5px] uppercase tracking-wider text-muted-foreground font-medium">
+              Upgrade
+            </div>
+            <div className="text-[18px] font-semibold text-foreground tabular-nums">
+              CHF 100<span className="text-muted-foreground font-normal">.00</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleUpgrade}
+            className="inline-flex items-center justify-center gap-2 h-12 px-5 rounded-2xl bg-gradient-to-b from-[#1E3A5F] to-[#0F1B3D] text-white text-[14px] font-medium shadow-[0_4px_16px_-4px_rgba(15,27,61,0.3)] hover:shadow-[0_8px_24px_-4px_rgba(15,27,61,0.4)] transition-all"
+          >
+            Jetzt upgraden
+            <ChevronRight className="w-4 h-4 text-white/90" strokeWidth={2} />
+          </button>
         </div>
       </div>
     </div>
