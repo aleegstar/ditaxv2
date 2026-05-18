@@ -24,6 +24,7 @@ import EncryptedDocumentService from '@/services/EncryptedDocumentService';
 import { sanitizeFileName } from '@/utils/fileValidation';
 import uploadIcon from '@/assets/upload-icon.svg';
 import documentsEmptyImg from '@/assets/documents-empty.svg';
+import documentsHero from '@/assets/documents-hero.webp';
 import { useTaxReturnStatus } from '@/hooks/useTaxReturnStatus';
 import { DocumentThumbnail } from '@/components/documents/DocumentThumbnail';
 import { HomeBottomNav } from '@/components/dashboard/HomeBottomNav';
@@ -527,7 +528,36 @@ const DocumentsContent: React.FC<{
           </div>
         </div>
 
+        {/* Hero card */}
+        <div className="px-5 md:px-8 pb-3">
+          <div className="max-w-[960px] mx-auto w-full">
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-[0_2px_12px_-4px_rgba(15,27,61,0.06)]">
+              <div className="relative h-40 sm:h-48 w-full overflow-hidden">
+                <img
+                  src={documentsHero}
+                  alt="Dokumente sicher sammeln"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-white/95 backdrop-blur-sm text-[11px] font-medium text-foreground shadow-sm">
+                  <Shield className="w-3 h-3" strokeWidth={2.25} />
+                  Sicher verschlüsselt
+                </div>
+              </div>
+              <div className="p-4 sm:p-5">
+                <h2 className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.012em] mb-1">
+                  Sammle alles an einem Ort
+                </h2>
+                <p className="text-[13px] text-muted-foreground leading-[1.5]">
+                  Lohnausweis, Belege, Bankauszüge — lade sie übers Jahr hoch. Ditax ordnet sie später automatisch deiner Steuererklärung zu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Sticky search + sort */}
+
         <div
           className="sticky top-0 z-30 px-5 md:px-8 py-2.5 bg-background/85 backdrop-blur-md"
           style={{ paddingTop: 'calc(10px + var(--safe-area-top, env(safe-area-inset-top, 0px)))' }}
