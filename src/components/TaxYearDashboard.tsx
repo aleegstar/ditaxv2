@@ -343,6 +343,10 @@ export const TaxYearDashboard: React.FC<TaxYearDashboardProps> = ({ embedded = f
 
   const stepsContent = (
     <>
+      {intakeMode === null ? (
+        <IntakeModePicker taxYear={taxYear} onSelect={handleSelectMode} />
+      ) : (
+        <>
       {modeSwitcher}
       {intakeMode === 'prior_year_upload' ? priorYearContent : (
         <>
