@@ -39,6 +39,55 @@ export function hasUsableTextLayer(text: string): boolean {
   return text.replace(/\s+/g, "").length > 400;
 }
 
+/**
+ * Run OCR locally on a scanned PDF (no upload).
+ * Uses tesseract-wasm with the German model already bundled in /public/ocr.
+ */
+export async function ocrPdfLocally(
+  file: File,
+  opts: { maxPages?: number; onProgress?: (info: { page: number; total: number }) => void } = {},
+): Promise<string> {
+  const { maxPages = 6, onProgress } = opts;
+  const buf = await file.arrayBuffer();
+  const doc = await (pdfjsLib as any).getDocument({ data: buf }).promise;
+  const total = Math.min(doc.numPages, maxPages);
+
+  const { default: TesseractWasmOcrService } = await import("./TesseractWasmOcrService");
+  const service = TesseractWasmOcrService.getInstance();
+  const ready = await service.initialize();
+  if (!ready) throw new Error("OCR konnte nicht initialisiert werden.");
+  // @ts-ignore – access internal client for direct image loading
+  const client = (service as any).client;
+  if (!client) throw new Error("OCR-Client nicht verfügbar.");
+
+  const parts: string[] = [];
+  for (let i = 1; i <= total; i++) {
+    onProgress?.({ page: i, total });
+    const page = await doc.getPage(i);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) continue;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const blob: Blob = await new Promise((res, rej) =>
+      canvas.toBlob((b) => (b ? res(b) : rej(new Error("toBlob failed"))), "image/jpeg", 0.9),
+    );
+    const bitmap = await createImageBitmap(blob);
+    try {
+      await client.loadImage(bitmap);
+      const text: string = await client.getText();
+      if (text) parts.push(text);
+    } finally {
+      bitmap.close?.();
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+  return parts.join("\n");
+}
+
 type Rule = { label: string; patterns: RegExp[] };
 
 const INCOME_RULES: Rule[] = [
