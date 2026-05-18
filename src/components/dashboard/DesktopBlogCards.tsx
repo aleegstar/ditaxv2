@@ -1,6 +1,6 @@
 import React from 'react';
 import { BookOpen } from 'lucide-react';
-import blogRechtsformen from '@/assets/blog-rechtsformen.png';
+import blogRechtsformen from '@/assets/blog-rechtsformen-new.webp';
 import blogSaeule3a from '@/assets/blog-saeule-3a.webp';
 
 interface BlogPost {
